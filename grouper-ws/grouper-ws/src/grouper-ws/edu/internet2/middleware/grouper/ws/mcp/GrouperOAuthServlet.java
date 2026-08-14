@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -136,9 +137,10 @@ public class GrouperOAuthServlet extends HttpServlet {
     String clientId = request.getParameter("client_id");
     String codeVerifier = request.getParameter("code_verifier");
     String redirectUri = request.getParameter("redirect_uri");
+    String clientSecret = request.getParameter("client_secret");
 
     // if parameters are not in form-encoded, try JSON body
-    if (StringUtils.isBlank(grantType) && "application/json".equals(request.getContentType())) {
+    if (StringUtils.isBlank(grantType) && isJsonContentType(request)) {
       try {
         JsonNode body = objectMapper.readTree(request.getInputStream());
         grantType = body.has("grant_type") ? body.get("grant_type").asText() : null;
@@ -146,11 +148,66 @@ public class GrouperOAuthServlet extends HttpServlet {
         clientId = body.has("client_id") ? body.get("client_id").asText() : null;
         codeVerifier = body.has("code_verifier") ? body.get("code_verifier").asText() : null;
         redirectUri = body.has("redirect_uri") ? body.get("redirect_uri").asText() : null;
+        clientSecret = body.has("client_secret") ? body.get("client_secret").asText() : null;
       } catch (Exception e) {
         sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
             "invalid_request", "Failed to parse request body");
         return;
       }
+    }
+
+    // RFC 6749 section 2.3.1 lets a client send its credentials either in an HTTP Basic
+    // Authorization header or as request parameters, and requires the authorization server to
+    // support the header form.  Whether the header was used decides whether the failure response
+    // below carries a WWW-Authenticate challenge, per RFC 6749 section 5.2.
+    boolean attemptedBasic = attemptedBasicAuthorization(request);
+
+    if (attemptedBasic) {
+
+      String[] basicCredentials = parseBasicAuthorization(request);
+
+      if (basicCredentials == null) {
+        LOG.warn("MCP OAuth token request has an unparseable Basic Authorization header");
+        sendInvalidClient(response, true);
+        return;
+      }
+
+      // "The client MUST NOT use more than one authentication method in each request", RFC 6749
+      // section 2.3.  Two sets of credentials leave it ambiguous which one is being asserted.
+      if (StringUtils.isNotBlank(clientSecret)) {
+        LOG.warn("MCP OAuth token request sent a client_secret parameter and a Basic "
+            + "Authorization header, which RFC 6749 section 2.3 does not allow");
+        sendInvalidClient(response, true);
+        return;
+      }
+
+      // when client_id is sent both ways it has to agree, otherwise which client is being
+      // authenticated depends on which one the server happens to read
+      if (StringUtils.isNotBlank(clientId) && !clientId.equals(basicCredentials[0])) {
+        LOG.warn("MCP OAuth token request has a client_id parameter which does not match the "
+            + "client_id in its Basic Authorization header");
+        sendInvalidClient(response, true);
+        return;
+      }
+
+      clientId = basicCredentials[0];
+      clientSecret = basicCredentials[1];
+    }
+
+    if (StringUtils.isBlank(clientId)) {
+      sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
+          "invalid_request", "client_id is required");
+      return;
+    }
+
+    // Authenticate the client before the authorization code is looked up, per RFC 6749 section
+    // 4.1.3.  Doing it afterwards would leave the check unreachable for a request carrying a bad
+    // code, and would let an unauthenticated caller learn whether a given code exists from which
+    // of the two errors came back.
+    GrouperOAuthClient tokenClient = GrouperOAuthStore.retrieveClient(clientId);
+
+    if (!authenticateClient(response, tokenClient, clientId, clientSecret, attemptedBasic)) {
+      return;
     }
 
     if (!"authorization_code".equals(grantType)) {
@@ -162,12 +219,6 @@ public class GrouperOAuthServlet extends HttpServlet {
     if (StringUtils.isBlank(code)) {
       sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
           "invalid_request", "code is required");
-      return;
-    }
-
-    if (StringUtils.isBlank(clientId)) {
-      sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
-          "invalid_request", "client_id is required");
       return;
     }
 
@@ -194,9 +245,8 @@ public class GrouperOAuthServlet extends HttpServlet {
       return;
     }
 
-    // validate client_id matches by looking up the client and comparing internal_id
-    GrouperOAuthClient tokenClient = GrouperOAuthStore.retrieveClient(clientId);
-    if (tokenClient == null || tokenClient.getInternalId() != authCode.getOauthClientInternalId()) {
+    // the code has to have been issued to the client which just authenticated
+    if (tokenClient.getInternalId() != authCode.getOauthClientInternalId()) {
       sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
           "invalid_grant", "client_id does not match");
       return;
@@ -361,11 +411,20 @@ public class GrouperOAuthServlet extends HttpServlet {
 
     String clientName = body.has("client_name") ? body.get("client_name").asText() : null;
 
-    // check if client_secret is requested
+    // check if client_secret is requested.  a method this server does not implement is refused
+    // rather than quietly treated as "none", since a client which asked to authenticate and was
+    // registered as public would have no way of noticing
     String tokenEndpointAuthMethod = body.has("token_endpoint_auth_method")
         ? body.get("token_endpoint_auth_method").asText() : "none";
     boolean needsSecret = "client_secret_post".equals(tokenEndpointAuthMethod)
         || "client_secret_basic".equals(tokenEndpointAuthMethod);
+
+    if (!needsSecret && !"none".equals(tokenEndpointAuthMethod)) {
+      sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "invalid_client_metadata",
+          "token_endpoint_auth_method must be one of none, client_secret_post, "
+              + "client_secret_basic");
+      return;
+    }
 
     // create and register client
     GrouperOAuthClient client = new GrouperOAuthClient();
@@ -406,6 +465,11 @@ public class GrouperOAuthServlet extends HttpServlet {
     if (StringUtils.isNotBlank(plainTextSecret)) {
       registrationResponse.put("client_secret", plainTextSecret);
     }
+    // RFC 7591 section 3.2.1 returns the registered metadata, and this field in particular says
+    // how the client is expected to authenticate at the token endpoint.  Without it a client has
+    // to infer that from whether a secret came back, and a client which infers wrongly is now
+    // refused rather than silently let through
+    registrationResponse.put("token_endpoint_auth_method", tokenEndpointAuthMethod);
     if (StringUtils.isNotBlank(clientName)) {
       registrationResponse.put("client_name", clientName);
     }
@@ -420,6 +484,195 @@ public class GrouperOAuthServlet extends HttpServlet {
     response.setStatus(HttpServletResponse.SC_CREATED);
     response.getWriter().write(objectMapper.writeValueAsString(registrationResponse));
     response.getWriter().flush();
+  }
+
+  /**
+   * Authenticate the client making a token request, sending the failure response itself when it
+   * does not authenticate.
+   *
+   * <p>A client registered with a secret is a confidential client and has to present that secret.
+   * A client registered without one is a public client, is bound to its authorization request by
+   * PKCE alone, and must not present a secret: OAuth 2.1 says an authorization server must not
+   * accept credentials for a client it never issued any to, and accepting them would mean a
+   * caller could claim to be authenticated as a client which cannot authenticate.</p>
+   *
+   * <p>An unknown client and a wrong secret get the same status, the same error code and the same
+   * description, so that the response says nothing about whether a client_id a caller guessed is
+   * registered.  Which of the two it was is written to the log, where only an administrator sees
+   * it.  Note the two are not indistinguishable in every respect: an unknown client returns
+   * before anything is decrypted, so how long the request took still separates them.  Closing
+   * that would mean decrypting something for a client which does not exist, and it buys little
+   * here, since client_ids are UUIDs and are not worth guessing at.</p>
+   *
+   * @param response the response, written to only when authentication fails
+   * @param client the registered client, null when the client_id is not registered
+   * @param clientId the client_id from the request, used for logging
+   * @param presentedSecret the secret the client presented, may be null
+   * @param attemptedBasic whether the client used an HTTP Basic Authorization header
+   * @return true if the client authenticated and the request should carry on
+   */
+  private boolean authenticateClient(HttpServletResponse response, GrouperOAuthClient client,
+      String clientId, String presentedSecret, boolean attemptedBasic) throws IOException {
+
+    if (client == null) {
+      LOG.warn("MCP OAuth token request for a client_id which is not registered: " + clientId);
+      sendInvalidClient(response, attemptedBasic);
+      return false;
+    }
+
+    if (GrouperOAuthStore.clientHasSecret(client)) {
+
+      if (StringUtils.isBlank(presentedSecret)) {
+        LOG.warn("MCP OAuth token request did not present a client_secret for clientId: "
+            + clientId + ", which is registered as a confidential client.  Send the secret as a "
+            + "client_secret parameter or as the password of an HTTP Basic Authorization header.");
+        sendInvalidClient(response, attemptedBasic);
+        return false;
+      }
+
+      if (!GrouperOAuthStore.clientSecretMatches(client, presentedSecret)) {
+        LOG.warn("MCP OAuth token request presented the wrong client_secret for clientId: "
+            + clientId);
+        sendInvalidClient(response, attemptedBasic);
+        return false;
+      }
+
+      return true;
+    }
+
+    if (StringUtils.isNotBlank(presentedSecret)) {
+      LOG.warn("MCP OAuth token request presented a client_secret for clientId: " + clientId
+          + ", which is registered as a public client and was never issued one.  Either remove "
+          + "the secret from the client configuration, or re-register it as a confidential "
+          + "client with token_endpoint_auth_method of client_secret_post or client_secret_basic.");
+      sendInvalidClient(response, attemptedBasic);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * whether the request body is JSON.
+   *
+   * <p>Only the media type is compared. A Content-Type may carry parameters after a semicolon,
+   * and {@code application/json; charset=utf-8} is as much JSON as {@code application/json} is,
+   * so comparing the header as a whole used to leave such a request with nothing parsed at all:
+   * a servlet container turns only a form encoded body into request parameters, so every value
+   * came back null and the request was refused over whichever field happened to be checked
+   * first, naming a field the client had in fact sent. The comparison ignores case because
+   * <a href="https://www.rfc-editor.org/rfc/rfc9110#section-8.3">RFC 9110 section 8.3</a> says a
+   * media type is case insensitive.</p>
+   *
+   * @param request the token request
+   * @return true if the body is JSON
+   */
+  private boolean isJsonContentType(HttpServletRequest request) {
+
+    String contentType = request.getContentType();
+
+    if (contentType == null) {
+      return false;
+    }
+
+    int semicolonIndex = contentType.indexOf(';');
+    String mediaType = semicolonIndex < 0 ? contentType : contentType.substring(0, semicolonIndex);
+
+    return "application/json".equalsIgnoreCase(mediaType.trim());
+  }
+
+  /**
+   * whether the request carries an HTTP Basic Authorization header, whether or not it can be
+   * parsed.
+   *
+   * <p>This decides whether a failure response carries a WWW-Authenticate challenge, which RFC
+   * 6749 section 5.2 says to include only when the client attempted to authenticate that way.
+   * Sending one to a client which never used the header invites it to retry with credentials it
+   * does not have.</p>
+   *
+   * @param request the token request
+   * @return true if there is a Basic Authorization header
+   */
+  private boolean attemptedBasicAuthorization(HttpServletRequest request) {
+
+    String authorization = request.getHeader("Authorization");
+
+    return authorization != null && authorization.regionMatches(true, 0, "Basic ", 0, 6);
+  }
+
+  /**
+   * Parse the client_id and client secret out of an HTTP Basic Authorization header.
+   *
+   * <p>Both halves are form-urlencoded before being base64 encoded, per RFC 6749 section 2.3.1,
+   * so both are decoded on the way back out.</p>
+   *
+   * @param request the token request, which has a Basic Authorization header
+   * @return an array of client_id and secret, or null if the header cannot be parsed
+   */
+  private String[] parseBasicAuthorization(HttpServletRequest request) {
+
+    String encoded = StringUtils.trimToNull(request.getHeader("Authorization").substring(6));
+
+    if (encoded == null) {
+      return null;
+    }
+
+    String decoded = null;
+
+    try {
+      decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException iae) {
+      return null;
+    }
+
+    // the client_id cannot itself contain a colon, since it is form-urlencoded, so the first one
+    // separates the two halves and any later one belongs to the secret
+    int colonIndex = decoded.indexOf(':');
+
+    if (colonIndex < 0) {
+      return null;
+    }
+
+    String basicClientId = null;
+    String basicClientSecret = null;
+
+    try {
+      basicClientId = URLDecoder.decode(decoded.substring(0, colonIndex), StandardCharsets.UTF_8);
+      basicClientSecret = URLDecoder.decode(decoded.substring(colonIndex + 1),
+          StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException iae) {
+      return null;
+    }
+
+    if (StringUtils.isBlank(basicClientId)) {
+      return null;
+    }
+
+    return new String[] { basicClientId, basicClientSecret };
+  }
+
+  /**
+   * Send the response for a client which did not authenticate.
+   *
+   * <p>RFC 6749 section 5.2 gives this error the 401 status, and says to include a
+   * WWW-Authenticate header matching the scheme the client used, which means sending one only
+   * when the client actually tried HTTP Basic.</p>
+   *
+   * @param response the response
+   * @param attemptedBasic whether the client used an HTTP Basic Authorization header
+   */
+  private void sendInvalidClient(HttpServletResponse response, boolean attemptedBasic)
+      throws IOException {
+
+    if (attemptedBasic) {
+      response.setHeader("WWW-Authenticate", "Basic realm=\"Grouper MCP token endpoint\", "
+          + "charset=\"UTF-8\"");
+    }
+
+    // deliberately says nothing about which client_id was sent, whether it is registered, or
+    // whether a secret was expected
+    sendJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+        "invalid_client", "Client authentication failed");
   }
 
   /**

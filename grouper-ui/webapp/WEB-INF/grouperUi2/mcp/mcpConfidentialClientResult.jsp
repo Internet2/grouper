@@ -39,5 +39,13 @@
                         <button type="button" class="grouper-copy-btn" onclick="grouperCopyToClipboard('confScope');" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left: 6px;"><i class="fa fa-clone" aria-hidden="true"></i></button>
                       </td>
                     </tr>
+                    <tr>
+                      <td style="white-space: nowrap; font-weight: bold; width: 200px;">${textContainer.text['mcpInfoConfidentialAuthMethodLabel']}</td>
+                      <td>
+                        <code id="confAuthMethod">client_secret_post</code>
+                        <button type="button" class="grouper-copy-btn" onclick="grouperCopyToClipboard('confAuthMethod');" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left: 6px;"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                        <div class="description">${textContainer.text['mcpInfoConfidentialAuthMethodNote']}</div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>

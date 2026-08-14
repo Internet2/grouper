@@ -492,6 +492,9 @@ public class UiV2OAuth extends UiServiceLogicBase {
         if (oauthClient.getMemberInternalId() == null) {
           oauthClient.setMemberInternalId(member.getInternalId());
         }
+        // the retrieve above no longer decrypts the client secret onto this object, so this
+        // write leaves the stored secret exactly as it was.  it used to decrypt it, and this
+        // write then put the secret back in the clear, the first time a client was ever used
         new edu.internet2.middleware.grouperClient.jdbc.GcDbAccess().storeToDatabase(oauthClient);
       }
 

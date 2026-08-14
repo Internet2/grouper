@@ -93,8 +93,16 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
       grantTypes.add("authorization_code");
       metadata.set("grant_types_supported", grantTypes);
 
+      // "none" is what an MCP client registers as: it runs on an end user's machine, cannot keep
+      // a secret, and is bound to its authorization request by PKCE instead.  The other two are
+      // for server side integrations registered as confidential clients, which are issued a
+      // secret and have to present it at the token endpoint.  This used to advertise only
+      // "none", while the token endpoint accepted every client without checking any secret at
+      // all, so a confidential client was authenticated exactly as a public one.
       ArrayNode tokenEndpointAuthMethods = objectMapper.createArrayNode();
       tokenEndpointAuthMethods.add("none");
+      tokenEndpointAuthMethods.add("client_secret_basic");
+      tokenEndpointAuthMethods.add("client_secret_post");
       metadata.set("token_endpoint_auth_methods_supported", tokenEndpointAuthMethods);
 
       ArrayNode codeChallengeMethodsSupported = objectMapper.createArrayNode();

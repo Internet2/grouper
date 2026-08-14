@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.authentication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -162,72 +164,139 @@ public class GrouperOAuthStore {
   // ==================== Registered Clients ====================
 
   /**
-   * register a client in the database.
-   * The client secret will be encrypted via Morph.encrypt() before storing.
-   * @param client
+   * register a newly created client in the database, encrypting its secret.
+   *
+   * <p>This is the one place a secret is encrypted, because it is the one place a secret arrives
+   * as plaintext: the caller has just generated it and is about to show it to whoever registered
+   * the client, and will never see it in the clear again. Nothing else writes an encrypted
+   * value, because nothing else holds a decrypted one.</p>
+   *
+   * @param client the newly created client, whose secret is plaintext or absent
    */
   public static void registerClient(GrouperOAuthClient client) {
-    // encrypt the client secret before storing
-    if (client.getClientSecret() != null) {
+
+    if (StringUtils.isNotBlank(client.getClientSecret())) {
       client.setClientSecret(Morph.encrypt(client.getClientSecret()));
     }
+
     new GcDbAccess().storeToDatabase(client);
   }
 
   /**
    * retrieve a registered client from the database.
-   * The client secret will be decrypted via Morph.decrypt() after loading.
+   *
+   * <p>The client secret is handed back exactly as the column holds it, and is deliberately not
+   * decrypted onto the returned object. A caller which writes the client back therefore puts the
+   * same bytes back, whatever they are, and a value this code could not make sense of, such as
+   * ciphertext written under a key which has since been rotated away, survives that write
+   * untouched.</p>
+   *
+   * <p>This used to decrypt the secret onto the object, and {@code UiV2OAuth} then persisted that
+   * object when it issued an authorization code, writing the decrypted secret straight back over
+   * the encrypted one. A confidential client's secret was therefore encrypted at rest only until
+   * the first time the client was used. Keeping the plaintext off the object is what fixes that,
+   * and it holds for every caller rather than only the one which was noticed. Nothing outside
+   * this class needs the secret in the clear;
+   * {@link #clientSecretMatches(GrouperOAuthClient, String)} checks it without ever putting it
+   * back on the object.</p>
+   *
    * @param clientId
    * @return the client or null if not found
    */
   public static GrouperOAuthClient retrieveClient(String clientId) {
-    GrouperOAuthClient client = new GcDbAccess()
+    return new GcDbAccess()
         .sql("select * from grouper_oauth_client where client_id = ?")
         .addBindVar(clientId)
         .select(GrouperOAuthClient.class);
-
-    if (client == null) {
-      return null;
-    }
-
-    // decrypt client secret
-    if (client.getClientSecret() != null) {
-      try {
-        client.setClientSecret(Morph.decrypt(client.getClientSecret()));
-      } catch (Exception e) {
-        LOG.warn("Could not decrypt client secret for clientId: " + clientId);
-      }
-    }
-
-    return client;
   }
 
   /**
    * retrieve a registered client from the database by internal id.
-   * The client secret will be decrypted via Morph.decrypt() after loading.
+   *
+   * <p>The client secret is left exactly as it is stored, and is not decrypted onto the returned
+   * object. See {@link #retrieveClient(String)} for why.</p>
+   *
    * @param internalId
    * @return the client or null if not found
    */
   public static GrouperOAuthClient retrieveClientByInternalId(long internalId) {
-    GrouperOAuthClient client = new GcDbAccess()
+    return new GcDbAccess()
         .sql("select * from grouper_oauth_client where internal_id = ?")
         .addBindVar(internalId)
         .select(GrouperOAuthClient.class);
+  }
 
-    if (client == null) {
-      return null;
+  /**
+   * whether a client authenticates itself at the token endpoint with a client secret.
+   *
+   * <p>A client which was issued a secret is a confidential client and has to present it. A
+   * client which was not is a public client, and is bound to its authorization request by PKCE
+   * alone.</p>
+   *
+   * @param client the client, may be null
+   * @return true if the client was registered with a secret
+   */
+  public static boolean clientHasSecret(GrouperOAuthClient client) {
+    return client != null && StringUtils.isNotBlank(client.getClientSecret());
+  }
+
+  /**
+   * whether the secret a client presented at the token endpoint is the one it was registered with.
+   *
+   * <p>The decrypted secret exists only as a local inside this method and is never set back onto
+   * the client object, so that nothing downstream can persist it. See
+   * {@link #retrieveClient(String)}.</p>
+   *
+   * <p>A stored secret is decrypted only when it looks like something {@link Morph#encrypt(String)}
+   * produced, so that a row holding a plaintext secret still authenticates. Such rows were
+   * written by the version of Grouper described in {@link #retrieveClient(String)} and are left
+   * as they are, since nothing on this path writes to the database. They can be found
+   * with {@code select client_id, client_name from grouper_oauth_client where client_secret like
+   * '%-%'}: a secret is a UUID and a UUID has hyphens, while ciphertext is Base64 and cannot.
+   * The remedy is to re-register the client, since a secret which has been readable in the
+   * database is worth replacing rather than merely encrypting.</p>
+   *
+   * <p>The comparison is {@link MessageDigest#isEqual(byte[], byte[])} rather than
+   * {@link String#equals(Object)}, so that how far along the two agree cannot be recovered from
+   * how long the comparison took.</p>
+   *
+   * @param client the client, may be null
+   * @param presentedSecret the secret from the token request, may be null
+   * @return true if the presented secret matches
+   */
+  public static boolean clientSecretMatches(GrouperOAuthClient client, String presentedSecret) {
+
+    if (client == null || presentedSecret == null) {
+      return false;
     }
 
-    // decrypt client secret
-    if (client.getClientSecret() != null) {
+    String storedSecret = StringUtils.trimToNull(client.getClientSecret());
+
+    if (storedSecret == null) {
+      return false;
+    }
+
+    String expectedSecret = null;
+
+    if (Morph.isEncrypted(storedSecret)) {
       try {
-        client.setClientSecret(Morph.decrypt(client.getClientSecret()));
+        expectedSecret = Morph.decrypt(storedSecret);
       } catch (Exception e) {
-        LOG.warn("Could not decrypt client secret for internalId: " + internalId);
+        LOG.error("Could not decrypt client secret for clientId: " + client.getClientId()
+            + ", so this client cannot authenticate.  Re-register it to issue a new secret.", e);
+        return false;
       }
+    } else {
+      // stored as plaintext, so it is compared as it stands
+      expectedSecret = storedSecret;
     }
 
-    return client;
+    if (StringUtils.isBlank(expectedSecret)) {
+      return false;
+    }
+
+    return MessageDigest.isEqual(expectedSecret.getBytes(StandardCharsets.UTF_8),
+        presentedSecret.getBytes(StandardCharsets.UTF_8));
   }
 
   // ==================== Redirect URI validation ====================
