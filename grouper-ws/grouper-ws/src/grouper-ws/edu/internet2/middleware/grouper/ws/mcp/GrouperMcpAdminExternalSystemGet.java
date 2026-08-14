@@ -205,7 +205,7 @@ public class GrouperMcpAdminExternalSystemGet {
     } catch (Exception e) {
       LOG.error("Error in admin_external_system_get", e);
       return buildErrorResult("Error in admin_external_system_get: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

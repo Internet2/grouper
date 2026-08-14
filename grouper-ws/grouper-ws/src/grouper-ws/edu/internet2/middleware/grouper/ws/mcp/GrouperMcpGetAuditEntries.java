@@ -348,7 +348,7 @@ public class GrouperMcpGetAuditEntries {
     } catch (Exception e) {
       LOG.error("Error getting audit entries", e);
       return buildErrorResult("Error getting audit entries: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

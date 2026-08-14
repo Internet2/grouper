@@ -218,7 +218,7 @@ public class GrouperMcpFindAttributeDefNames {
     } catch (Exception e) {
       LOG.error("Error finding attribute def names", e);
       return buildErrorResult("Error finding attribute def names: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

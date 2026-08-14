@@ -489,7 +489,7 @@ public class GrouperMcpGetMemberships {
     } catch (Exception e) {
       LOG.error("Error getting memberships", e);
       return buildErrorResult("Error getting memberships: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

@@ -39,13 +39,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -87,14 +94,107 @@ import edu.internet2.middleware.subject.Subject;
  */
 public final class GrouperServiceUtils {
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperServiceUtils.class);
+
   /**
-   * 
+   * cache for mcpCanSeeStackTraces results.
+   * key is MultiKey(subjectId, subjectSourceId), value is Boolean.
+   * caches for 60 seconds so that group membership changes take effect quickly
+   * but we avoid hitting the database on every MCP error.
+   */
+  private static GrouperCache<MultiKey, Boolean> mcpCanSeeStackTracesCache =
+      new GrouperCache<MultiKey, Boolean>(
+          GrouperServiceUtils.class.getName() + ".mcpCanSeeStackTracesCache",
+          2000, false, 60, 60, false);
+
+  /**
+   * Whether a full stack trace may be sent to the client on the current request.
+   * <p>Outside of MCP this is always true and the WS layer keeps its existing behavior,
+   * which is driven by ws.throwExceptionsToClient.  Under MCP the stack trace is
+   * additionally restricted to members of the group configured in
+   * grouper.mcp.users.canSeeStackTraces, since the MCP specification says servers should
+   * sanitize tool outputs and the output goes to an AI client.  The exception is still
+   * logged on the server either way.</p>
+   * @return true if a stack trace may go to the client
+   */
+  public static boolean allowsStackTraceToClient() {
+
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+    if (grouperContext == null
+        || grouperContext.getGrouperEngine() != GrouperEngineBuiltin.MCP) {
+      return true;
+    }
+
+    // under MCP the session was established by the MCP servlet as the authenticated user
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null) {
+      return false;
+    }
+
+    return mcpCanSeeStackTraces(grouperSession.getSubject());
+  }
+
+  /**
+   * Check if a subject is a member of the group configured in
+   * grouper.mcp.users.canSeeStackTraces.  If that config is blank then nobody sees
+   * stack traces through MCP.  Results are cached for 60 seconds.
+   * @param subject the subject, can be null
+   * @return true if the subject may see full stack traces through MCP
+   */
+  public static boolean mcpCanSeeStackTraces(final Subject subject) {
+
+    if (subject == null) {
+      return false;
+    }
+
+    final String groupName = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.users.canSeeStackTraces");
+    if (StringUtils.isBlank(groupName)) {
+      return false;
+    }
+
+    MultiKey cacheKey = new MultiKey(subject.getId(),
+        StringUtils.defaultString(subject.getSourceId()));
+    Boolean cachedResult = mcpCanSeeStackTracesCache.get(cacheKey);
+    if (cachedResult != null) {
+      return cachedResult;
+    }
+
+    // cache miss - check group membership
+    try {
+
+      Boolean isMember = (Boolean)GrouperSession.internal_callbackRootGrouperSession(
+          new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          Group group = GroupFinder.findByName(grouperSession, groupName, false);
+          if (group == null) {
+            return Boolean.FALSE;
+          }
+          return group.hasMember(subject) ? Boolean.TRUE : Boolean.FALSE;
+        }
+      });
+
+      mcpCanSeeStackTracesCache.put(cacheKey, isMember);
+      return isMember;
+
+    } catch (Exception e) {
+      // if we cannot tell, do not disclose the stack trace
+      LOG.error("Error checking group membership for MCP stack trace access: " + groupName, e);
+      return false;
+    }
+  }
+
+  /**
+   *
    * @return the class
    */
   public static Class<?> currentServiceClass() {
     return GrouperService.class;
   }
-  
+
 
   /**
    * compute a url of a resource.

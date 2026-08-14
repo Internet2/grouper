@@ -94,6 +94,7 @@ public class GrouperMcpProtectedResources {
       addConfigGroupIfPresent(names, "grouper.mcp.users.canRunSqlReadonly");
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadonly");
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadWrite");
+      addConfigGroupIfPresent(names, "grouper.mcp.users.canSeeStackTraces");
 
       // other security groups
       addConfigGroupIfPresent(names, "security.show.all.folders.if.in.group");

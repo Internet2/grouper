@@ -215,7 +215,7 @@ public class GrouperMcpLdapSearch {
     } catch (Exception e) {
       LOG.error("Error executing LDAP tool", e);
       return buildErrorResult("Error executing LDAP tool: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

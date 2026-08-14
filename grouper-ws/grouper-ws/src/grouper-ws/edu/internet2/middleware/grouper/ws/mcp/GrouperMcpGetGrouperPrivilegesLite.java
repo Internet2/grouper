@@ -202,7 +202,7 @@ public class GrouperMcpGetGrouperPrivilegesLite {
     } catch (Exception e) {
       LOG.error("Error getting privileges", e);
       return buildErrorResult("Error getting privileges: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

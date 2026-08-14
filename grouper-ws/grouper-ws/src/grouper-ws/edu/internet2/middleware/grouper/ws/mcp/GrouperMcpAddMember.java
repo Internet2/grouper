@@ -280,7 +280,7 @@ public class GrouperMcpAddMember {
     } catch (Exception e) {
       LOG.error("Error adding members to group: " + groupName, e);
       return buildErrorResult("Error adding members to group: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

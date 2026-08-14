@@ -239,7 +239,7 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
     } catch (Exception e) {
       LOG.error("Error assigning privilege", e);
       return buildErrorResult("Error assigning privilege: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

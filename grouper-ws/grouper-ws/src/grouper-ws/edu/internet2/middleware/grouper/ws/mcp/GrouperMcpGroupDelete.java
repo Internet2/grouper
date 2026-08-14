@@ -148,7 +148,7 @@ public class GrouperMcpGroupDelete {
     } catch (Exception e) {
       LOG.error("Error in group_delete for group: " + groupName, e);
       return buildErrorResult("Error in group_delete: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

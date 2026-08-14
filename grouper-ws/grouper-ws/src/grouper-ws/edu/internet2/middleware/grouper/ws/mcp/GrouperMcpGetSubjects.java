@@ -304,7 +304,7 @@ public class GrouperMcpGetSubjects {
           ? subjectIdOrIdentifier : searchString;
       LOG.error("Error looking up subject: " + lookupDescription, e);
       return buildErrorResult("Error looking up subject: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

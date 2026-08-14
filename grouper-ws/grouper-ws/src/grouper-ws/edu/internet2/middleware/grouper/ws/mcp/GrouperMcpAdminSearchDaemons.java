@@ -169,7 +169,7 @@ public class GrouperMcpAdminSearchDaemons {
     } catch (Exception e) {
       LOG.error("Error searching daemon job names via MCP", e);
       return buildErrorResult("Error searching daemon job names: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

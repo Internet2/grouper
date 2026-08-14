@@ -146,20 +146,22 @@ public class GrouperMcpAdminSearchConfigs {
     }
 
     if ("regex".equals(searchType)) {
-      return executeRegex(searchRegex, configFile);
+      return executeRegex(searchRegex, configFile, authUser);
     }
 
     // default: lucene search
-    return executeLucene(searchRegex, configFile);
+    return executeLucene(searchRegex, configFile, authUser);
   }
 
   /**
    * execute lucene-based config search
    * @param queryString the Lucene query
    * @param configFile optional config file filter
+   * @param authUser the authenticated user, to decide if errors include a stack trace
    * @return the MCP tool result
    */
-  private static ObjectNode executeLucene(String queryString, String configFile) {
+  private static ObjectNode executeLucene(String queryString, String configFile,
+      GrouperMcpAuthUser authUser) {
 
     // validate configFile if provided
     if (StringUtils.isNotBlank(configFile)) {
@@ -224,7 +226,7 @@ public class GrouperMcpAdminSearchConfigs {
     } catch (Exception e) {
       LOG.error("Error searching configs via Lucene", e);
       return buildErrorResult("Error searching configs: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 
@@ -232,9 +234,11 @@ public class GrouperMcpAdminSearchConfigs {
    * execute regex-based config search (original behavior)
    * @param searchRegex the regex pattern
    * @param configFile optional config file filter
+   * @param authUser the authenticated user, to decide if errors include a stack trace
    * @return the MCP tool result
    */
-  private static ObjectNode executeRegex(String searchRegex, String configFile) {
+  private static ObjectNode executeRegex(String searchRegex, String configFile,
+      GrouperMcpAuthUser authUser) {
 
     // compile the regex pattern (case-insensitive)
     Pattern pattern;
@@ -242,7 +246,7 @@ public class GrouperMcpAdminSearchConfigs {
       pattern = Pattern.compile(searchRegex, Pattern.CASE_INSENSITIVE);
     } catch (PatternSyntaxException e) {
       return buildErrorResult("Invalid regex pattern: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
 
     // determine which config files to search
@@ -336,7 +340,7 @@ public class GrouperMcpAdminSearchConfigs {
     } catch (Exception e) {
       LOG.error("Error searching configs via MCP", e);
       return buildErrorResult("Error searching configs: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

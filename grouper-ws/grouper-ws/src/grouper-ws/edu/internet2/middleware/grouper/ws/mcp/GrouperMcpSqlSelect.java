@@ -178,19 +178,21 @@ public class GrouperMcpSqlSelect {
     String connectionName = resolveConnectionName(externalSystemId);
 
     if (countOnly) {
-      return executeCount(sql, connectionName);
+      return executeCount(sql, connectionName, authUser);
     }
 
-    return executeSelect(sql, pageSize, pageNumber, connectionName);
+    return executeSelect(sql, pageSize, pageNumber, connectionName, authUser);
   }
 
   /**
    * execute a count-only query by wrapping the SQL in SELECT COUNT(*)
    * @param sql the original SELECT query
    * @param externalSystem the connection name
+   * @param authUser the authenticated user, to decide if errors include a stack trace
    * @return the MCP tool result with the count
    */
-  private static ObjectNode executeCount(String sql, String externalSystem) {
+  private static ObjectNode executeCount(String sql, String externalSystem,
+      GrouperMcpAuthUser authUser) {
     String countSql = "SELECT COUNT(*) AS cnt FROM (" + sql + ") countQuery";
 
     try {
@@ -210,7 +212,7 @@ public class GrouperMcpSqlSelect {
     } catch (Exception e) {
       LOG.error("Error executing SQL count query via MCP", e);
       return buildErrorResult("Error executing SQL count query: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 
@@ -220,10 +222,11 @@ public class GrouperMcpSqlSelect {
    * @param pageSize the page size
    * @param pageNumber the 1-based page number
    * @param externalSystem the connection name
+   * @param authUser the authenticated user, to decide if errors include a stack trace
    * @return the MCP tool result with rows
    */
   private static ObjectNode executeSelect(String sql, int pageSize, int pageNumber,
-      String externalSystem) {
+      String externalSystem, GrouperMcpAuthUser authUser) {
 
     // enforce page size limits
     if (pageSize < 1 || pageSize > MAX_ROWS) {
@@ -292,7 +295,7 @@ public class GrouperMcpSqlSelect {
     } catch (Exception e) {
       LOG.error("Error executing SQL query via MCP", e);
       return buildErrorResult("Error executing SQL query: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

@@ -149,7 +149,7 @@ public class GrouperMcpFolderDelete {
     } catch (Exception e) {
       LOG.error("Error in folder_delete for stem: " + stemName, e);
       return buildErrorResult("Error in folder_delete: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

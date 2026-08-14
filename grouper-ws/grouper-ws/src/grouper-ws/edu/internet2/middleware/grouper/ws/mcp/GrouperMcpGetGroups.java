@@ -269,7 +269,7 @@ public class GrouperMcpGetGroups {
       String lookupDescription = subjectIdOrIdentifier;
       LOG.error("Error getting groups for subject: " + lookupDescription, e);
       return buildErrorResult("Error getting groups for subject: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

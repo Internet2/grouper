@@ -350,7 +350,7 @@ public class GrouperMcpInstitutionalTools {
     } catch (Exception e) {
       LOG.error("Error in institutional_tools", e);
       return buildErrorResult("Error in institutional_tools: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

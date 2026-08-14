@@ -158,7 +158,7 @@ public class GrouperMcpAdminGetDaemonJobMessage {
     } catch (Exception e) {
       LOG.error("Error getting daemon job message via MCP", e);
       return buildErrorResult("Error getting daemon job message: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

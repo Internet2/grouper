@@ -224,7 +224,7 @@ public class GrouperMcpGetMembersLite {
     } catch (Exception e) {
       LOG.error("Error getting members of group: " + groupName, e);
       return buildErrorResult("Error getting members of group: " + e.getMessage()
-          + "\n\n" + GrouperUtil.getFullStackTrace(e));
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
   }
 

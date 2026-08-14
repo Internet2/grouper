@@ -99,7 +99,11 @@ public class WsResultMeta {
    * @param error
    */
   public void appendResultMessageError(Throwable t) {
-    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)) {
+    // under MCP the stack trace is further restricted to a configured group, see
+    // GrouperServiceUtils.allowsStackTraceToClient().  outside MCP this is always true
+    // and ws.throwExceptionsToClient is the only thing that matters
+    if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.throwExceptionsToClient", true)
+        && GrouperServiceUtils.allowsStackTraceToClient()) {
       if (this.resultMessage != null && this.resultMessage.length() > 0) {
         this.appendResultMessage(", ");
       }
