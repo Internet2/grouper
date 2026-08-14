@@ -228,6 +228,17 @@ public class GrouperOAuthServlet extends HttpServlet {
       return;
     }
 
+    // RFC 6749 section 4.1.3 requires redirect_uri here whenever the authorization request
+    // carried one, and the authorization endpoint refuses a request without one, so every code
+    // which can be presented here was issued with a redirect_uri to compare against.  Treating
+    // the parameter as optional meant a client could skip the comparison below simply by leaving
+    // it out, which is the one case where the comparison would have mattered.
+    if (StringUtils.isBlank(redirectUri)) {
+      sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
+          "invalid_request", "redirect_uri is required");
+      return;
+    }
+
     // look up the authorization code
     GrouperOAuthCode authCode = GrouperOAuthStore.retrieveAuthorizationCode(code);
 
@@ -252,9 +263,10 @@ public class GrouperOAuthServlet extends HttpServlet {
       return;
     }
 
-    // validate redirect_uri matches if provided
-    if (StringUtils.isNotBlank(redirectUri)
-        && !redirectUri.equals(authCode.getRedirectUri())) {
+    // the redirect_uri has to be the one the code was issued to, compared as strings per RFC 6749
+    // section 4.1.3.  A mismatch is invalid_grant since the parameter is present and it is the
+    // code which cannot be granted against it, where a missing parameter above is invalid_request.
+    if (!redirectUri.equals(authCode.getRedirectUri())) {
       sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
           "invalid_grant", "redirect_uri does not match");
       return;
