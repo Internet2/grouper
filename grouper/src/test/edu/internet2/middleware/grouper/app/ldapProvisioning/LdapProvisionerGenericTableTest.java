@@ -43,7 +43,7 @@ import junit.textui.TestRunner;
 public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerGenericTableTest("testFullProvisionPopulatesGenericTablesGroupSide"));
+    TestRunner.run(new LdapProvisionerGenericTableTest("testNativeAttributesGroupsCsvForm"));
   }
 
   public LdapProvisionerGenericTableTest() {
@@ -380,12 +380,15 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
             .addBindVar(syncInternalId).select(int.class));
 
     // each of the three requested native attributes should show up in the catalog
+    String nativeCaptureDump = dumpNativeGroupCapture();
+
     for (String attributeName : new String[] {"objectClass", "description", "cn"}) {
       int catalogRowCount = new GcDbAccess().connectionName("grouper")
           .sql("select count(*) from grouper_prov_group_attr "
               + "where grouper_sync_internal_id = ? and attribute_name = ?")
           .addBindVar(syncInternalId).addBindVar(attributeName).select(int.class);
-      assertEquals("expected exactly 1 catalog row for attribute '" + attributeName + "'",
+      assertEquals("expected exactly 1 catalog row for attribute '" + attributeName + "'"
+          + nativeCaptureDump,
           1, catalogRowCount);
     }
 
@@ -737,6 +740,61 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
             + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'cn'")
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("expected 1 value row for single-valued cn after incremental", 1, cnValueCount);
+  }
+
+  /**
+   * Diagnostic: dump the in-memory native-group capture from the last provisioner run.  The DB
+   * rows only show the end state, which cannot distinguish "capture never ran" from "capture ran
+   * but the LdapEntry carried no attributes" - both land as a grouper_prov_group row with an
+   * empty catalog.  This reads the capture map itself so the failure message says which it was.
+   * Appended to the catalog assertion messages; safe to leave in place.
+   */
+  private String dumpNativeGroupCapture() {
+    StringBuilder result = new StringBuilder("\n----- native group capture (last provisioner) -----");
+    try {
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      if (grouperProvisioner == null) {
+        return result.append("\n  <no last provisioner>").toString();
+      }
+
+      result.append("\n  isLoadGroupsToGenericGrouperTable: ")
+          .append(grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable());
+      result.append("\n  nativeAttributeConfigsGroups: ");
+      for (edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig nativeAttributeConfig
+          : edu.internet2.middleware.grouper.util.GrouperUtil.nonNull(
+              grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsGroups())) {
+        result.append("[name=").append(nativeAttributeConfig.getName())
+            .append(", path=").append(nativeAttributeConfig.getPath()).append("]");
+      }
+      result.append("\n  groupSelectAttributes: ")
+          .append(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupSelectAttributes());
+
+      java.util.List<edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup> nativeGroups =
+          edu.internet2.middleware.grouper.util.GrouperUtil.nonNull(
+              grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeGroups());
+      result.append("\n  captured native groups: ").append(nativeGroups.size());
+      for (edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup nativeGroup : nativeGroups) {
+        if (nativeGroup == null) {
+          result.append("\n    <null>");
+          continue;
+        }
+        result.append("\n    targetId=").append(nativeGroup.getTargetId())
+            .append(" attributes=").append(nativeGroup.getAttributes());
+      }
+
+      // GcTableSync counters per generic table: separates "nothing was built" (Inserts 0) from
+      // "inserted then deleted again" (Inserts n followed by Deletes n on the same table).
+      result.append("\n  generic-table sync counters:");
+      Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+      for (String key : edu.internet2.middleware.grouper.util.GrouperUtil.nonNull(debugMap).keySet()) {
+        if (key != null && key.startsWith("loadGeneric")) {
+          result.append("\n    ").append(key).append("=").append(debugMap.get(key));
+        }
+      }
+    } catch (Exception e) {
+      result.append("\n  <dump failed: ").append(e).append(">");
+    }
+    return result.append("\n---------------------------------------------------\n").toString();
   }
 
   /** read (attribute_name -> internal_id) for the group attr catalog of a single sync */

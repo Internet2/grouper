@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemConnectionRefresher;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
@@ -384,11 +383,7 @@ public class GrouperStartup {
             GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 
             printConfigFollowupOnce();
-            
-            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldaptiveEncodeControlChars", false)) {
-              System.setProperty("org.ldaptive.response.ENCODE_CNTRL_CHARS", "true");
-            }
-            
+
             GrouperCacheDatabase.startThreadIfNotStarted();
             GrouperExternalSystemConnectionRefresher.startThreadIfNotStarted();
             GrouperCacheUtils.clearAllCaches();

@@ -29,12 +29,29 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new LdapToSqlSyncDaemonTest("testExecuteJobExecutionContextMultivalued"));
-//    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
-//    LdapProvisionerTestUtils.startLdapContainer();
   }
 
   public LdapToSqlSyncDaemonTest(String name) {
     super(name);
+  }
+
+  /**
+   * Stand up the dinkel openldap container this test reads from.  startLdapContainer() also
+   * calls setupLdapExternalSystem(), which writes the ldap.personLdap.* config (url, user,
+   * pass) into the database.  Without it those properties are unset -- they are commented out
+   * in grouper-loader.properties and only live in the penn.dev ldapDinkel variant -- and the
+   * job fails at connection-pool creation with "Urls cannot be null or empty", because
+   * LdaptiveConfiguration.createPooledConnectionFactory tolerates a blank org.ldaptive.ldapUrl
+   * and ldaptive 2.5 asserts on it at pool init.  Matches the convention in
+   * LdapProvisionerGenericTableTest: remove and recreate the container per run, and leave it
+   * running at teardown so the next test's startup ldap check does not crash.
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+
+    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+    LdapProvisionerTestUtils.startLdapContainer();
   }
 
   public void testExecuteJobExecutionContextMultivalued() {
