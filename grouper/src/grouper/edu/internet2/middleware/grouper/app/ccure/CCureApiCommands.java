@@ -571,7 +571,10 @@ public class CCureApiCommands {
 
 
     public static Exception insertMembershipsForUser(CCureExternalSystem externalSystem, Map<String, Object> debugMap, String personnelId, List<String> clearanceIds) {
-        if (GrouperUtil.isBlank(clearanceIds)) {
+        // length(), not isBlank(): GrouperUtil.isBlank(Object) is true only for null or a blank
+        // String, so an EMPTY list is not blank and would fall through to a call with no children,
+        // which CCure rejects with 400 "Missing 'Children' field"
+        if (GrouperUtil.length(clearanceIds) == 0) {
             return null;
         }
 
@@ -637,7 +640,8 @@ public class CCureApiCommands {
     }
 
     public static Exception deleteMembershipsForUser(CCureExternalSystem externalSystem, Map<String, Object> debugMap, String personnelId, List<String> objectIds) {
-        if (GrouperUtil.isBlank(objectIds)) {
+        // see insertMembershipsForUser: an empty list is not "blank", so guard on length
+        if (GrouperUtil.length(objectIds) == 0) {
             return null;
         }
 
