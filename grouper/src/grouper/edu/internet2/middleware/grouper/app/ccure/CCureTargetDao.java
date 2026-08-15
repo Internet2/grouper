@@ -643,15 +643,21 @@ public CCureExternalSystem retrieveCcureExternalSystem() {
     for (ProvisioningMembership targetMembership : targetMemberships) {
       try {
         String personnelId = targetMembership.retrieveAttributeValueString("PersonnelID");
+        String clearanceId = targetMembership.retrieveAttributeValueString("ClearanceID");
 
         // ObjectID is needed, but is missing for incrementals. We need to look it up in that case
         String objectId = targetMembership.retrieveAttributeValueString("ObjectID");
         if (GrouperUtil.isBlank(objectId)) {
           CCureMembership cCureMembership = CCureApiCommands.retrieveMembershipByGroupAndUser(externalSystem,
-                  targetMembership.retrieveAttributeValueString("ClearanceID"),
+                  clearanceId,
                   personnelId
           );
           objectId = String.valueOf(cCureMembership.objectId);
+          // full sync supplies ClearanceID on the membership; an incremental may not, in which case
+          // the pair we just looked up is the authority for the sync-back mirror key below
+          if (GrouperUtil.isBlank(clearanceId)) {
+            clearanceId = String.valueOf(cCureMembership.clearanceId);
+          }
         }
 
         Exception exception = CCureApiCommands.deleteMembershipsForUser(
@@ -662,6 +668,11 @@ public CCureExternalSystem retrieveCcureExternalSystem() {
 
         targetMembership.setException(exception);
         targetMembership.setProvisioned(exception == null);
+
+        // sync back: drop the edge from the mirror on our own successful delete (see insertMemberships)
+        if (exception == null) {
+          CCureProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(clearanceId, personnelId);
+        }
       } catch (Exception e) {
         targetMembership.setException(e);
         targetMembership.setProvisioned(false);
@@ -698,6 +709,12 @@ public CCureExternalSystem retrieveCcureExternalSystem() {
 
         targetMembership.setException(exception);
         targetMembership.setProvisioned(exception == null);
+
+        // sync back: track the edge from our own successful write so the mirror converges on this
+        // pass rather than waiting for the next full sync. Clearance pairs are never re-read.
+        if (exception == null) {
+          CCureProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(clearanceId, personnelId);
+        }
       } catch (Exception e) {
         targetMembership.setException(e);
         targetMembership.setProvisioned(false);

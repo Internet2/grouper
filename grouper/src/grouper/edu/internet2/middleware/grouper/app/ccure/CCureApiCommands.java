@@ -80,6 +80,9 @@ public class CCureApiCommands {
                 for (JsonNode groupNode : jsonNode) {
                     CCureGroup group = CCureGroup.fromJson(groupNode);
                     result.add(group);
+                    // sync back: capture the raw node so fields the CCureGroup record does not model
+                    // are still available. GetAll returns whole objects, so no widening is needed here.
+                    CCureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
                 }
             } else {
                 throw new RuntimeException("Did not receive success for result field instead received: " + jsonNode);
@@ -118,6 +121,9 @@ public class CCureApiCommands {
             displayFields.add("GUID");
             displayFields.add("Name");
             displayFields.add("PartitionID");
+            // sync back: GetAllWithCriteria only returns the projected fields, so any operator
+            // configured native attribute has to be asked for here or it comes back missing
+            CCureProvisioningTargetNativeSync.widenDisplayPropertiesForGroupsFromCurrentProvisioner(displayFields);
             bodyNode.putIfAbsent("DisplayProperties", displayFields);
 
             JsonNode jsonNode = executeMethod(debugMap, "POST", externalSystem, urlSuffix,
@@ -125,6 +131,7 @@ public class CCureApiCommands {
 
             if (jsonNode != null && jsonNode.isArray()) {
               // Retrieve the first user object from the array
+              CCureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode.get(0));
               return CCureGroup.fromJson(jsonNode.get(0));
             } else {
               throw new RuntimeException("Could not retrieve CCureGroup from returned json");
@@ -157,9 +164,11 @@ public class CCureApiCommands {
                 return null;
             }
             if (!jsonNode.isArray()) {
+                CCureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
                 return CCureGroup.fromJson(jsonNode);
             }
             if (jsonNode.size() == 1) {
+                CCureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode.get(0));
                 return CCureGroup.fromJson(jsonNode.get(0));
             }
             LOG.error("retrieveGroupByObjectId: expected 1 result for objectId=" + objectId + " but got " + jsonNode.size());
@@ -211,6 +220,8 @@ public class CCureApiCommands {
             displayFields.add("GUID");
             displayFields.add("Name");
             displayFields.add("Int1");
+            // sync back: GetAllWithCriteria only returns the projected fields (see retrieveGroupByName)
+            CCureProvisioningTargetNativeSync.widenDisplayPropertiesForEntitiesFromCurrentProvisioner(displayFields);
             bodyNode.putIfAbsent("DisplayProperties", displayFields);
 
             ++nextPageNumber;
@@ -227,6 +238,8 @@ public class CCureApiCommands {
                 CCureUser user = CCureUser.fromJson(userNode);
                 result.add(user);
                 hasData = true;
+                // sync back: capture the raw node, which may carry more than the CCureUser record models
+                CCureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
               }
               if (!hasData) {
                 nextPageNumber = -1;
@@ -265,9 +278,11 @@ public class CCureApiCommands {
                 return null;
             }
             if (!jsonNode.isArray()) {
+                CCureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
                 return CCureUser.fromJson(jsonNode);
             }
             if (jsonNode.size() == 1) {
+                CCureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode.get(0));
                 return CCureUser.fromJson(jsonNode.get(0));
             }
             LOG.error("retrieveEntityByObjectId: expected 1 result for objectId=" + objectId + " but got " + jsonNode.size());
@@ -303,6 +318,8 @@ public class CCureApiCommands {
             displayFields.add("GUID");
             displayFields.add("Name");
             displayFields.add("Int1");
+            // sync back: GetAllWithCriteria only returns the projected fields (see retrieveGroupByName)
+            CCureProvisioningTargetNativeSync.widenDisplayPropertiesForEntitiesFromCurrentProvisioner(displayFields);
             bodyNode.putIfAbsent("DisplayProperties", displayFields);
 
             JsonNode jsonNode = executeMethod(debugMap, "POST", externalSystem, urlSuffix,
@@ -310,6 +327,7 @@ public class CCureApiCommands {
 
             if (jsonNode != null && jsonNode.isArray()) {
                 // Retrieve the first user object from the array
+              CCureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode.get(0));
               return CCureUser.fromJson(jsonNode.get(0));
             } else {
                 throw new RuntimeException("Could not retrieve CCUser from returned json");
@@ -375,6 +393,8 @@ public class CCureApiCommands {
                 CCureMembership mship = CCureMembership.fromJson(mshipNode);
                 result.add(mship);
                 hasData = true;
+                // sync back: the pair's ClearanceID/PersonnelID are already the native group/user ids
+                CCureProvisioningTargetNativeSync.captureMembershipFromCurrentProvisioner(mship);
               }
               if (!hasData) {
                 nextPageNumber = -1;
@@ -447,6 +467,8 @@ public class CCureApiCommands {
                 CCureMembership mship = CCureMembership.fromJson(mshipNode);
                 result.add(mship);
                 hasData = true;
+                // sync back: the pair's ClearanceID/PersonnelID are already the native group/user ids
+                CCureProvisioningTargetNativeSync.captureMembershipFromCurrentProvisioner(mship);
               }
               if (!hasData) {
                 nextPageNumber = -1;
@@ -518,6 +540,8 @@ public class CCureApiCommands {
                 CCureMembership mship = CCureMembership.fromJson(mshipNode);
                 result.add(mship);
                 hasData = true;
+                // sync back: the pair's ClearanceID/PersonnelID are already the native group/user ids
+                CCureProvisioningTargetNativeSync.captureMembershipFromCurrentProvisioner(mship);
               }
               if (!hasData) {
                 nextPageNumber = -1;
