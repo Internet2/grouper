@@ -537,71 +537,7 @@ public class CCureApiCommands {
     }
 
 
-    @Deprecated
-    private static Exception insertOrDeleteMembershipsForUser(CCureExternalSystem externalSystem, Map<String, Object> debugMap,
-                                                              String urlSuffix, Set<Integer> allowedReturnCodes, String personnelId, List<String> clearanceIds) {
-        if (GrouperUtil.isBlank(clearanceIds)) {
-            return null;
-        }
-
-        try {
-
-            int[] returnCode = new int[]{-1};
-
-            //Content-Type: application/x-www-form-urlencoded
-            List<Map.Entry<String, String>> formFields = new ArrayList<>();
-            formFields.add(new MapEntry("Type", "SoftwareHouse.NextGen.Common.SecurityObjects.Personnel"));
-            formFields.add(new MapEntry("ID", personnelId));
-
-            int idx = 0;
-            for (String clearandId: clearanceIds) {
-                formFields.add(new MapEntry("Children[" + idx + "][Type]", "SoftwareHouse.NextGen.Common.SecurityObjects.PersonnelClearancePair"));
-
-                formFields.add(new MapEntry("Children[" + idx + "][PropertyNames][0]", "PersonnelID"));
-                formFields.add(new MapEntry("Children[" + idx + "][PropertyNames][1]", "ClearanceID"));
-
-                formFields.add(new MapEntry("Children[" + idx + "][PropertyValues][0]", personnelId));
-                formFields.add(new MapEntry("Children[" + idx + "][PropertyValues][1]", clearandId));
-            }
-
-            String form = formFields.stream()
-                    .map(entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8) + "=" +
-                            URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-                    .collect(Collectors.joining("&"));
-
-            // json - not used
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            ObjectNode bodyNode = objectMapper.createObjectNode();
-//            bodyNode.put("Type", "SoftwareHouse.NextGen.Common.SecurityObjects.Personnel");
-//            bodyNode.put("ID", personnelId);
-//            ArrayNode childrenNode = objectMapper.createArrayNode();
-//            bodyNode.putIfAbsent("Children", childrenNode);
-//
-//            for (String clearanceId : clearanceIds) {
-//                ObjectNode childNode = objectMapper.createObjectNode();
-//                childNode.put("Type", "SoftwareHouse.NextGen.Common.SecurityObjects.Credential.PersonnelClearancePair");
-//                ArrayNode propertyNames = objectMapper.createArrayNode();
-//                ArrayNode propertyValues = objectMapper.createArrayNode();
-//                propertyNames.add("ClearanceID");
-//                propertyValues.add(clearanceId);
-//                childNode.putIfAbsent("PropertyNames", propertyNames);
-//                childNode.putIfAbsent("Propertyvalues", propertyValues);
-//
-//                childrenNode.add(childNode);
-//            }
-
-
-            JsonNode jsonNode = executeMethod(debugMap, "POST", externalSystem, urlSuffix,
-                    allowedReturnCodes, returnCode, form, null, "application/x-www-form-urlencoded");
-
-            return null;
-        } catch (RuntimeException e) {
-            return e;
-        }
-    }
-
     public static Exception insertMembershipsForUser(CCureExternalSystem externalSystem, Map<String, Object> debugMap, String personnelId, List<String> clearanceIds) {
-        //return insertOrDeleteMembershipsForUser(externalSystem, debugMap, "/api/Objects/PersistToContainer", GrouperUtil.toSet(200, 201), personnelId, clearanceIds);
         if (GrouperUtil.isBlank(clearanceIds)) {
             return null;
         }
@@ -668,7 +604,6 @@ public class CCureApiCommands {
     }
 
     public static Exception deleteMembershipsForUser(CCureExternalSystem externalSystem, Map<String, Object> debugMap, String personnelId, List<String> objectIds) {
-        //return insertOrDeleteMembershipsForUser(externalSystem, debugMap, "/api/Objects/RemoveFromContainer", GrouperUtil.toSet(200), personnelId, clearanceIds);
         if (GrouperUtil.isBlank(objectIds)) {
             return null;
         }
