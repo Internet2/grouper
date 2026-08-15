@@ -145,7 +145,7 @@
         <groovyall.version>2.5.23</groovyall.version><!-- newer major version available -->
         <jline.version>2.14.6</jline.version>
         <p6spy.version>3.9.1</p6spy.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <mysql.connector.java.version>9.5.0</mysql.connector.java.version>
         <ldaptive.version>2.5.1</ldaptive.version>
         <unboundid.version>6.0.11</unboundid.version><!-- major upgrade available -->
@@ -719,6 +719,17 @@
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <!-- waffle-jna is new in pgjdbc 42.7.13 and only supports Windows SSPI auth, which
+                         grouper does not use.  it also drags in jcl-over-slf4j, which would put a second
+                         org.apache.commons.logging.LogFactory on the classpath next to the real
+                         commons-logging we already ship, plus jna/jna-platform/caffeine.  excluding it
+                         keeps the classpath identical to what 42.7.11 gave us. -->
+                    <exclusion>
+                        <groupId>com.github.waffle</groupId>
+                        <artifactId>waffle-jna</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.mysql</groupId>
