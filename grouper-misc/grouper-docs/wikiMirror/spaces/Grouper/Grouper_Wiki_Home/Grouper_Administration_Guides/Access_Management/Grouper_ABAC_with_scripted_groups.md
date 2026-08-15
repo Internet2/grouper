@@ -2,14 +2,14 @@
 title: "Grouper ABAC with scripted groups"
 space: Grouper
 pageId: 28544896
-version: 105
-lastUpdated: 2026-07-17T15:31:20.048Z
+version: 106
+lastUpdated: 2026-07-24T12:21:10.760Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups
 ---
 
 ## Grouper ABAC
 
-Grouper does a great job with group relationships and group math. [Basis groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543159/Folder+and+Group+Design) can be loaded into Grouper but that is a single relationship from a user to an attribute (group). For instance:
+Grouper does a great job with group relationships and group math. [Basis groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543159) can be loaded into Grouper but that is a single relationship from a user to an attribute (group). For instance:
 
 - You can load groups that represent every affiliation with the users who have that affiliation (e.g. faculty, staff, contractors)
 - You can load groups that represent organizations with the users who are in those organizations (e.g. business school, engineering school)
@@ -36,7 +36,7 @@ The ability to **manage groups by rows of data** has been requested for years an
 
 ## Attribute based access control (ABAC) overview
 
-To implement access policies, it has often been necessary to set up intermediate groups, include/exclude, requirement groups, and [allow/deny manual groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547660/Grouper+permissions+allow+and+disallow). Grouper has features to help in this area including: [rules](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545173/Grouper+rules), [hooks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545347/Grouper+Hooks), templates, move/copy, import/export, and GSH scripts.   
+To implement access policies, it has often been necessary to set up intermediate groups, include/exclude, requirement groups, and [allow/deny manual groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547660). Grouper has features to help in this area including: [rules](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545173), [hooks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545347), templates, move/copy, import/export, and GSH scripts.   
   
 The ABAC with scripted groups feature is designed to offer increased efficiency in implementing access policies. It's important for the common groups and policy language to be well documented and people to be properly trained.
 
@@ -105,6 +105,13 @@ entity.hasAttribute('dataField', globalAttributeValue('globalDataField')) || ent
 entity.hasRow('dataRow', "dataField < globalAttributeValue('globalDataField')")
 ```
 
+Multi-valued global variables are also supported.
+
+```
+entity.hasAttributeAny('dataField', globalAttributeValues('globalDataField'))
+entity.hasRow('dataRow', "dataField =~ globalAttributeValues('globalDataField')")
+```
+
 Global attribute values are cached for 2 minutes by default, you can configure it in grouper.properties:
 
 ```
@@ -118,7 +125,7 @@ grouper.abac.globalAttributeValuesCacheMinutes =
 
 ## JEXL loaded groups
 
-In Grouper v2.6.6+ there is a first pass at JEXL loaded groups using memberships of groups only. In v5+ scripted groups can also be based on [entity data fields](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545275/Grouper+entity+data+fields+for+ABAC). It is basic and can be built on. Note: this is subject to change as we see a working solution and discuss the optimal path forward.
+In Grouper v2.6.6+ there is a first pass at JEXL loaded groups using memberships of groups only. In v5+ scripted groups can also be based on [entity data fields](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545275). It is basic and can be built on. Note: this is subject to change as we see a working solution and discuss the optimal path forward.
 
 > **See the blog!**
 > 
@@ -393,4 +400,4 @@ grouper.abac.defaultMaxMembershipSizeLimit =
 
 ## See also
 
-[Access Management Features Overview](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544689/Access+Management+Features+Overview)
+[Access Management Features Overview](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544689)

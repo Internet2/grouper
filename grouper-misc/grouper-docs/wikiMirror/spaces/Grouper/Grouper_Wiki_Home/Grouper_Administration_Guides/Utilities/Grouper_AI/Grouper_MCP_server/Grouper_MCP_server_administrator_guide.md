@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 16
-lastUpdated: 2026-07-12T15:27:08.103Z
+version: 19
+lastUpdated: 2026-07-24T16:53:01.139Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -119,6 +119,42 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 **Scope enforcement for assignment-on-assignment.** When a read-write tool call uses an `_asgn` attribute assign type (e.g. `group_asgn`, `stem_asgn`), the MCP server resolves the owner attribute assignment to determine the underlying group, stem, or subject. Scope restrictions are then checked against that underlying owner, not just the assignment ID. This ensures that, for example, an OAuth client scoped to folder `school:departments` cannot assign metadata on a marker attribute that belongs to a group in `school:clubs`.
 
 **Trailing colon tolerance.** Folder scope values entered with a trailing colon (e.g. `school:departments:`) are handled correctly — the trailing colon is stripped before matching. This prevents user confusion when entering folder paths.
+
+### Summary of tool access for authorization groups
+
+| Tool name | mcpUsersAdminReadWrite | mcpUsersAdminReadonly | mcpUsersCanRunSqlReadonly | mcpUsersReadonly | mcpUsersReadwrite |
+| --- | --- | --- | --- | --- | --- |
+| admin_config_search |  |  |  |  |  |
+| admin_daemon_job_message |  |  |  |  |  |
+| admin_daemon_job_run |  |  |  |  |  |
+| admin_daemon_logs |  |  |  |  |  |
+| admin_daemon_names |  |  |  |  |  |
+| admin_external_system_get |  |  |  |  |  |
+| ldap |  |  |  |  |  |
+| sql_get_schema |  |  |  |  |  |
+| sql_select |  |  |  |  |  |
+| attribute_assignment_get |  |  |  |  |  |
+| attribute_assignment_save |  |  |  |  |  |
+| attribute_def_name_find |  |  |  |  |  |
+| audit_get |  |  |  |  |  |
+| doc_search |  |  |  |  |  |
+| entity_get |  |  |  |  |  |
+| entity_get_groups |  |  |  |  |  |
+| folder_delete |  |  |  |  |  |
+| folder_find |  |  |  |  |  |
+| group_add_member |  |  |  |  |  |
+| group_delete |  |  |  |  |  |
+| group_find |  |  |  |  |  |
+| group_get_members |  |  |  |  |  |
+| group_has_member |  |  |  |  |  |
+| group_remove_member |  |  |  |  |  |
+| group_save |  |  |  |  |  |
+| institutional_tools |  |  |  |  |  |
+| memberships_get |  |  |  |  |  |
+| privilege_assign |  |  |  |  |  |
+| privilege_get |  |  |  |  |  |
+
+An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
 
 ## SQL readonly tools
 

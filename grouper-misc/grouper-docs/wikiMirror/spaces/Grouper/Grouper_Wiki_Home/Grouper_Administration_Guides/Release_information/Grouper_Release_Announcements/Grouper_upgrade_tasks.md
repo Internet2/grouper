@@ -2,8 +2,8 @@
 title: "Grouper upgrade tasks"
 space: Grouper
 pageId: 28549372
-version: 39
-lastUpdated: 2026-07-19T00:32:40.015Z
+version: 41
+lastUpdated: 2026-08-14T17:27:15.518Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks
 ---
 
@@ -11,7 +11,7 @@ View upgrade tasks in v7.3.0+ in the UI: Miscellaneous → Configure → Upgrade
 
 ## Upgrade tasks
 
-| Task # | Notes | DDL? | Run on new install? | Released in version | Applicable version | Substantial change? |
+| **Task #** | **Notes** | **DDL?** | **Run on new install?** | **Released in version** | **Applicable version** | **Substantial change?** |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Add missing self group sets For groups | N | N | 2.5.1 | v4+ | Yes |
 | 2 | Move subject resolution status attributes to member table ([GRP-2841](https://grouper.atlassian.net/browse/GRP-2841)) | N | N | 2.5.30 | v4+ | No |
@@ -56,6 +56,7 @@ View upgrade tasks in v7.3.0+ in the UI: Miscellaneous → Configure → Upgrade
 | 41 | Add generic grouper prov tables to store target data | Y | N | 7.2.0 | v7+ | Yes |
 | 42 | Drop unnecessary indexes on grouper_change_log_entry_temp | Y | N | 7.2.0 | v7+ | No |
 | 43 | Widen grouper_members.subject_identifier0  Add primary key grouper_stem_view_privilege.grouper_stem_v_priv_pk | Y | N | 7.3.0 | v7+ | No |
+| 44 | Encrypt the OAuth JWT signing private key at rest in database config | N | N | 7.4.0 | v7+ | No |
 
 ## Skip an upgrade task
 

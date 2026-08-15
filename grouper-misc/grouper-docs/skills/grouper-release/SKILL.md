@@ -128,7 +128,28 @@ starve. Full-width + colgroup is what makes the Cloud table read like the old
 on-prem one; without column widths Cloud squeezes every column and wraps tags
 mid-token.
 
-## 6. Verify
+## 6. Refresh the grouper-docs mirrors
+
+Both mirrors under `grouper-misc/grouper-docs/` are incremental, so this is
+cheap. Run them after the release-notes edit so the new row is captured.
+
+```
+set -a && . ~/.secrets/grouper_confluence.env && set +a
+cd grouper-misc/grouper-docs/wikiMirror  && python3 wikiToMarkdown.py
+cd ../issueMirror                        && python3 jiraToMarkdown.py
+```
+
+- The wiki run also regenerates `wikiMirror/sitemap.xml`; copy it to
+  `i2midev6:/var/www/html/sitemap.xml` (see the sitemap section of
+  `wikiMirror/convertToMarkdownAiInstructions.md`).
+- `jiraToMarkdown.py` deliberately skips `GRP-1 .. GRP-7143` -- the cloud
+  metadata for many of those is misaligned by the CSV import, so the existing
+  files are the accurate record. See
+  `issueMirror/convertJiraToMarkdownAiInstructions.md`.
+- Review both diffs and commit separately (`wiki: sync`, `issues: sync`);
+  a human pushes.
+
+## 7. Verify
 
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
 the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and

@@ -1,15 +1,17 @@
 ---
-title: "v6 Upgrade Instructions from v4"
+title: "v6 Upgrade Instructions from v4 / v5"
 space: Grouper
 pageId: 28547828
-version: 39
-lastUpdated: 2026-07-12T06:32:54.069Z
-url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4
+version: 40
+lastUpdated: 2026-07-21T20:41:46.856Z
+url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4+v5
 ---
 
 ## Summary
 
 Many things have changed in v6. You should prepare v4 and make changes in v4 before going to v6. You do not need to upgrade to v5 while going from v4 to v6. Configure Grouper in v4 to be able to be upgrade with no major configuration or functionality changes when you switch to v6. v4 can run with only tomcat (no apache or shib sp), all the v6 provisioners, no soap. In v4, to have container logs work, you need to run supervisor and the log pipes. In v6, supervisor and logpipes go away.
+
+**Upgrading from v5:** Since most of the major changes in v6 are already incorporated into v5, there are only a few areas of concern. When upgrading from v5 to v6, you can skip the v4-specific preparation above (membership cache, single-process container, and UI authentication) and focus on the items that also apply from v5: the removed unsupported legacy features, the removed installer jar, the Java library changes, and the removed Lite UI.
 
 1. You must upgrade to v6 from v4. The membership cache must have an initial run (does not need to be exact, can run before the upgrade e.g. a week before).
   
@@ -200,15 +202,15 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
   6. grouper-duo
   7. grouperKimConnector
   8. grouper-shib (use SQL or LDAP)
-4. Migrate from unsupported legacy features, unlikely in use.
+4. Migrate from unsupported legacy features, unlikely in use. The other legacy provisioners were already gone from v5, but these are additionally removed in v6.
   
   1. grouperScim (legacy unsupported version of SCIM, not the supported one)
   2. grouperActivemq (legacy unsupported version of activeMq for a specific use case)
   3. grouper-aws-changelog (legacy unsupported version of AWS for a specific use case)
   4. grouper-tierApiAuthz-connector, tierInstrumentationCollector (unused legacy function)
-  5. grouper-messaging-activemq
-  6. grouper-messaging-aws
-  7. grouper-messaging-rabbitmq
+  5. grouper-messaging-activemq (removed since v5.1.0)
+  6. grouper-messaging-aws (removed since v5.1.0)
+  7. grouper-messaging-rabbitmq (removed since v5.1.0)
 5. If someone is using SOAP (there are logs to alert you if so), migrate to REST
 6. The installer jar (grouper-installer-a.b.c.jar) has been removed. If you have a workflow task that was using it, migrate off of it
 7. Some Java libraries have significant upgrades or have been removed. Check your gsh scripts (templates, daemon jobs, batch scripts) and custom Java code for usage of:

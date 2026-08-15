@@ -2,14 +2,14 @@
 title: "v7 Upgrade instructions from v7"
 space: Grouper
 pageId: 28549096
-version: 23
-lastUpdated: 2026-07-19T00:32:37.286Z
+version: 24
+lastUpdated: 2026-08-14T01:02:00.405Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7
 ---
 
 When upgrading from Grouper v7 to another v7 image, this wiki will consolidate all the steps needed to perform that upgrade.
 
-When upgrading from Grouper v4 to v6, also see [v6 Upgrade Instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4) for additional instructions which must be applied first. Also see the [v5 to v5 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5) and [v6 to v6 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549643/v6+Upgrade+instructions+from+v6).
+When upgrading from Grouper v4 to v6, also see [v6 Upgrade Instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4+v5) for additional instructions which must be applied first. Also see the [v5 to v5 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5) and [v6 to v6 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549643/v6+Upgrade+instructions+from+v6).
 
 > See information on [Grouper Versioning here](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544481/Versioning+Support+Policy)
 
@@ -18,12 +18,12 @@ Note, these are in reverse order, so go from bottom to top
 | Date | Upgrading from version | Upgrading to Version | Note for version | Importance | Jira | Step needed if... | Description |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026/07/05 | ALL | ALL | 7.3.0 | Medium important | [GRP-7076](https://grouper.atlassian.net/browse/GRP-7076) | If you use Postgres | Follow the steps in the Jira to widen    grouper_members.subject_identifierX |
-| 2026/07/05 | ALL | ALL | 7.3.0 | Not important | [GRP-7076](https://grouper.atlassian.net/browse/GRP-7076) | You use Grouper | DDL upgrade tasks ([43](https://grouper.atlassian.net/wiki/pages/createpage.action?spaceKey=GrIntDev&title=Upgrade%20Tasks)) |
+| 2026/07/05 | ALL | ALL | 7.3.0 | Not important | [GRP-7076](https://grouper.atlassian.net/browse/GRP-7076) | You use Grouper | DDL upgrade tasks ([43](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)) |
 | 2026/07/05 | ALL | ALL | 7.3.0 | Important | [GRP-7012](https://grouper.atlassian.net/browse/GRP-7012) | You have provisioning failsafes configured | Follow the steps in the Jira to review your configs |
 | 2026/05/24 | ALL | ALL | 7.2.0 | Medium important | [GRP-6902](https://grouper.atlassian.net/browse/GRP-6902) | If you have encrypted configs which shouldn't be labeled as such | Follow the steps in the Jira to review your configs |
-| 2026/05/18 | ALL | ALL | 7.2.0 | Not important | [GRP-6817](https://grouper.atlassian.net/browse/GRP-6817),    [GRP-6654](https://grouper.atlassian.net/browse/GRP-6654),   [GRP-6876](https://grouper.atlassian.net/browse/GRP-6876),   [GRP-6655](https://grouper.atlassian.net/browse/GRP-6655),   [GRP-6968](https://grouper.atlassian.net/browse/GRP-6968) | You use Grouper | DDL upgrade tasks ([41, 42](https://grouper.atlassian.net/wiki/pages/createpage.action?spaceKey=GrIntDev&title=Upgrade%20Tasks)) |
+| 2026/05/18 | ALL | ALL | 7.2.0 | Not important | [GRP-6817](https://grouper.atlassian.net/browse/GRP-6817),    [GRP-6654](https://grouper.atlassian.net/browse/GRP-6654),   [GRP-6876](https://grouper.atlassian.net/browse/GRP-6876),   [GRP-6655](https://grouper.atlassian.net/browse/GRP-6655),   [GRP-6968](https://grouper.atlassian.net/browse/GRP-6968) | You use Grouper | DDL upgrade tasks ([41, 42](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)) |
 | 2026/05/18 | ALL | ALL | 7.2.0 | Important | [GRP-6964](https://grouper.atlassian.net/browse/GRP-6964) | If you have ".serviceUrl" in grouper-loader.properties | This config was renamed since it was causing issues.   You must refactor your configs. See the Jira. |
-| 2026/04/05 | ALL | ALL | 7.1.0 | Not important | [GRP-6876](https://grouper.atlassian.net/browse/GRP-6876)   [GRP-6817](https://grouper.atlassian.net/browse/GRP-6817)   [GRP-6654](https://grouper.atlassian.net/browse/GRP-6654) | You use Grouper | Two minor DDL upgrade tasks ([39, 40](https://grouper.atlassian.net/wiki/pages/createpage.action?spaceKey=GrIntDev&title=Upgrade%20Tasks)) |
+| 2026/04/05 | ALL | ALL | 7.1.0 | Not important | [GRP-6876](https://grouper.atlassian.net/browse/GRP-6876)   [GRP-6817](https://grouper.atlassian.net/browse/GRP-6817)   [GRP-6654](https://grouper.atlassian.net/browse/GRP-6654) | You use Grouper | Two minor DDL upgrade tasks ([39, 40](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)) |
 | 2026/04/05 | ALL | ALL | 7.1.0 | Not important | [GRP-6838](https://grouper.atlassian.net/browse/GRP-6838) | You use history in ABAC | If you are accumulating history, it might not be working correctly.    Get number of rows in grouper_data_row_assign_hst, grouper_data_row_field_asn_hst   If it is abnormally large (e.g. you had composite keys on data rows which were not strings)   You should truncate those tables and start history collection again.    Before v7.1.0/v6.2.0 the data was not used anyways.   ``` TRUNCATE TABLE grouper_data_row_field_asn_hst; TRUNCATE TABLE grouper_data_row_assign_hst; ```  Note, if that doesnt work, you can delete from or commit or work with it until they are both empty. in postgres   you can trunctate both in one line: TRUNCATE TABLE grouper_data_row_field_asn_hst, grouper_data_row_assign_hst; |
 | 2026/04/05 | ALL | ALL | 7.1.0 | Not important | [GRP-6872](https://grouper.atlassian.net/browse/GRP-6872) | You use ABAC | Set your abac default and available subject sources: [GRP-6872](https://grouper.atlassian.net/browse/GRP-6872) |
 | 2026/03/21 | ALL | ALL | 7.0.3 | Not important | [GRP-6805](https://grouper.atlassian.net/browse/GRP-6805) | You use TeamDynamix provisioning | Run your team dynamix provisioner and adjust the batch sizes in the provisioner config as needed |

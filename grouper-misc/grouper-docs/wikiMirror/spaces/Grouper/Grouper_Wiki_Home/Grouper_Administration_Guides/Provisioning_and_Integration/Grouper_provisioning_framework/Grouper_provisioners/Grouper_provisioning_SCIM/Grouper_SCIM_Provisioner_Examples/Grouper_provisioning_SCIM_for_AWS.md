@@ -2,8 +2,8 @@
 title: "Grouper provisioning SCIM for AWS"
 space: Grouper
 pageId: 28564269
-version: 21
-lastUpdated: 2026-07-01T05:35:24.481Z
+version: 23
+lastUpdated: 2026-07-24T16:44:16.006Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564269/Grouper+provisioning+SCIM+for+AWS
 ---
 
@@ -11,7 +11,12 @@ This is for v4+
 
 [https://www.rfc-editor.org/rfc/rfc7643.html#section-4.1](https://www.rfc-editor.org/rfc/rfc7643.html#section-4.1)
 
-AWS cannot retrieve groups or a user or users for a group, so you cannot select memberships from AWS. You must set "replace memberships" to true or just do normal patches.
+AWS cannot retrieve a group's members, nor the groups a user belongs to, so Grouper cannot read membership state back from AWS (i.e. you cannot select memberships from AWS). Because Grouper cannot diff against the target, you choose how it drives memberships. Either strategy below works with AWS; pick based on the tradeoff.
+
+- **Incremental patches (insert/delete)** - leave `replaceMemberships` unset and drive memberships with `insertMemberships` / `deleteMemberships`. Grouper computes add/remove deltas from its own sync tables and sends only the changes. Lighter weight and scales well for large groups, since it never re-sends a full member list. Tradeoff: it trusts Grouper's sync state, so if AWS drifts from that state (for example someone edits a membership directly in AWS) it will not self-correct until a full sync re-establishes the sync state.
+- **Replace memberships** - set `replaceMemberships = true` along with `customizeMembershipCrud = true` and `recalculateAllOperations = true`. Grouper sends the entire desired member list for each group on every sync. Self-correcting, since it re-asserts the full membership even if state has drifted, but heavier, since it pushes every member of every group on each run. Note `recalculateAllOperations = true` is required here, otherwise Grouper computes only the delta against its sync table and the replace payload is incomplete.
+
+Grouper is normally the system of record and memberships are not edited on the AWS side, so incremental patches are usually the better default; the Penn production AWS provisioners run this way. Use replace when you want each sync to re-assert the full membership regardless of drift.
 
 ## External System
 
@@ -160,6 +165,7 @@ provisioner.awsIdentityCenterIscProd.entityAttributeValueCacheHas = true
 provisioner.awsIdentityCenterIscProd.entityMatchingAttribute0name = userName
 provisioner.awsIdentityCenterIscProd.entityMatchingAttribute1name = id
 provisioner.awsIdentityCenterIscProd.entityMatchingAttributeCount = 2
+provisioner.awsIdentityCenterIscProd.groupAllowedToAssign = penn:isc:nandt:services:aws:etc:awsIdentityCenterIscProdProvisioningAdmins
 provisioner.awsIdentityCenterIscProd.groupAttributeValueCache0groupAttribute = id
 provisioner.awsIdentityCenterIscProd.groupAttributeValueCache0has = true
 provisioner.awsIdentityCenterIscProd.groupAttributeValueCache0source = target
@@ -177,7 +183,6 @@ provisioner.awsIdentityCenterIscProd.hasTargetGroupLink = true
 provisioner.awsIdentityCenterIscProd.insertMemberships = true
 provisioner.awsIdentityCenterIscProd.logAllObjectsVerbose = true
 provisioner.awsIdentityCenterIscProd.logAllObjectsVerboseToLogFile = false
-provisioner.awsIdentityCenterIscProd.logCommandsOnError = true
 provisioner.awsIdentityCenterIscProd.makeChangesToEntities = true
 provisioner.awsIdentityCenterIscProd.numberOfEntityAttributes = 6
 provisioner.awsIdentityCenterIscProd.numberOfGroupAttributes = 2
@@ -186,13 +191,11 @@ provisioner.awsIdentityCenterIscProd.operateOnGrouperGroups = true
 provisioner.awsIdentityCenterIscProd.operateOnGrouperMemberships = true
 provisioner.awsIdentityCenterIscProd.provisioningType = membershipObjects
 provisioner.awsIdentityCenterIscProd.removeAccentedChars = true
-provisioner.awsIdentityCenterIscProd.replaceMemberships = true
 provisioner.awsIdentityCenterIscProd.scimNamePatchStrategy = qualified
-provisioner.awsIdentityCenterIscProd.scimRetrieveMembershipsByGroup = false
-provisioner.awsIdentityCenterIscProd.scimRetrieveMembershipsByUser = false
 provisioner.awsIdentityCenterIscProd.scimType = AWS
 provisioner.awsIdentityCenterIscProd.selectAllEntities = true
 provisioner.awsIdentityCenterIscProd.selectAllGroups = true
+provisioner.awsIdentityCenterIscProd.selectMemberships = false
 provisioner.awsIdentityCenterIscProd.showAdvanced = true
 provisioner.awsIdentityCenterIscProd.showAssigningProvisioning = true
 provisioner.awsIdentityCenterIscProd.startWith = this is start with read only
@@ -224,7 +227,8 @@ provisioner.awsIdentityCenterIscProd.targetGroupAttribute.0.showAttributeCrud = 
 provisioner.awsIdentityCenterIscProd.targetGroupAttribute.0.update = false
 provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.name = displayName
 provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.nullChecksInScript = true
-provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.translateExpressionType = grouperProvisioningGroupField
-provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField = name
+provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.translateExpressionType = translationScript
+provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.translateExpression = \u0024{var extensions = grouperProvisioningGroup.name.split(":"); extensions.get(size(extensions)-2) + '_' + extensions.get(size(extensions)-1);}
+provisioner.awsIdentityCenterIscProd.targetGroupAttribute.1.translationContinueCondition = \u0024{grouperProvisioningGroup.name != null}
 
 ```
