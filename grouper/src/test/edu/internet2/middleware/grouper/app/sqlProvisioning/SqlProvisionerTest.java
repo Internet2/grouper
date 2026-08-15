@@ -3724,7 +3724,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningMemberships()));
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
+    // 0, not 2.  entity_uuid is assigned by the target, so configureLdapPaTestCase blanks its
+    // translation - Grouper no longer computes a value for it, so there is nothing to change.
+    // (It used to translate from the Grouper entity id, which differed from the random uuid the
+    // test seeds, producing one update per provisioned entity - hence the old expectation of 2.)
+    // The other two entity attributes cannot produce an update either: dn is only read, into the
+    // entity attribute value cache, and employeeId already equals the subjectId Grouper would write.
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningMemberships()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningGroups()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities()));
