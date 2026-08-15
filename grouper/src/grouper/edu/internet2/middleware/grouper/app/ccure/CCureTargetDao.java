@@ -704,7 +704,7 @@ public CCureExternalSystem retrieveCcureExternalSystem() {
       }
     }
 
-    this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMemberships", startNanos));
+    this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMemberships", startNanos));
 
     return new TargetDaoInsertMembershipsResponse();
   }
