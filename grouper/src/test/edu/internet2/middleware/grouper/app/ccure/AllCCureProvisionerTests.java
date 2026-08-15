@@ -12,6 +12,7 @@ public class AllCCureProvisionerTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllCCureProvisionerTests.class.getName());
     //$JUnit-BEGIN$
+    suite.addTestSuite(CCureProvisionerTest.class);
     suite.addTestSuite(CCureProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
