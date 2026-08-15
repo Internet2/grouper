@@ -117,11 +117,30 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
         List<InterfolioUser> users = GrouperInterfolioApiCommands.searchUsers(configId, searchValue, 25, 1);
 
         if (StringUtils.equals("institution_user_id", searchAttribute)) {
-          // matching on the UID: byc search does not return institution_user_id, but we searched BY
-          // it, so a single hit is the user - stamp the UID we searched on so the entity matches.
+          // Matching on the UID: byc users/search does not return institution_user_id, so we cannot
+          // compare it directly - we can only infer it from the fact that we searched by it.
           if (GrouperUtil.length(users) == 1) {
+            // one hit is unambiguous - stamp the UID we searched on so the entity matches
             match = users.get(0);
             match.setInstitutionUserId(searchValue);
+          } else if (GrouperUtil.length(users) > 1) {
+            // byc search is a free-text search over name and email, so a short UID happily matches
+            // other people (searching "avik" also returns Ravikanth Maddipati, Avik Chakravarty,
+            // daviking, ...).  Treating that as "not found" made select-after-insert fail for 47 of
+            // 244 users the provisioner had just successfully created, which threw out of
+            // createMissingEntitiesFull and discarded the whole run's sync state.
+            // Disambiguate on email, the same way resolvePid() already does for the update path.
+            String expectedEmail = targetDaoRetrieveEntityRequest.getTargetEntity() == null ? null
+                : targetDaoRetrieveEntityRequest.getTargetEntity().retrieveAttributeValueString("email");
+            if (StringUtils.isNotBlank(expectedEmail)) {
+              for (InterfolioUser user : GrouperUtil.nonNull(users)) {
+                if (StringUtils.equalsIgnoreCase(expectedEmail, user.getEmail())) {
+                  match = user;
+                  match.setInstitutionUserId(searchValue);
+                  break;
+                }
+              }
+            }
           }
         } else {
           for (InterfolioUser user : GrouperUtil.nonNull(users)) {
