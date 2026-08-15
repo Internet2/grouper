@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -103,7 +104,6 @@ public class GrouperObjectFinderTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.folders.are.viewable.by.all");
   }
 
-  // this test does not pass.  
   public void testFindFoldersAllowed() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -149,6 +149,11 @@ public class GrouperObjectFinderTest extends GrouperTest {
     AttributeDef attributeDef9sub = new AttributeDefSave(grouperSession).assignName("test:stem9:stem9sub:attributeDef9")
         .assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
     attributeDef9sub.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    // prime the stem view privilege cache the same way a running system does (full sync daemon),
+    // which recomputes folder visibility for the GrouperAll member so folders made viewable by
+    // privileges granted to GrouperAll (e.g. stem2 via group2 OPTIN) are represented
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_stemViewPrivilegesFull");
 
     GrouperSession.stopQuietly(grouperSession);
 
