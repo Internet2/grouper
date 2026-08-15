@@ -187,7 +187,7 @@
         
         <!-- note, jackson version is also in grouper ws pom and should be adjusted accordingly -->
         <jackson.databind>2.22.1</jackson.databind>        
-        <jsoup.version>1.15.3</jsoup.version>        
+        <jsoup.version>1.23.1</jsoup.version>        
         <java-ipv6.version>0.17</java-ipv6.version>
         
         <!-- grouper-ui -->
