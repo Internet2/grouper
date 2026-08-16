@@ -184,3 +184,45 @@ cd ../issueMirror                        && python3 jiraToMarkdown.py
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
 the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and
 every row still has 5 cells. Give the user the page URL.
+
+## 8. Slack announcement
+
+Two things close out a release: the demo server is upgraded to the new container
+tag, and the release is announced on Slack.
+
+The release is not finished until the user has something to paste into Slack.
+Once the demo server is up, ALWAYS produce the announcement without being asked --
+it is the last deliverable of every release.
+
+**Output it as RENDERED markdown, never inside a code fence.** The whole point is
+that the links survive the copy/paste into Slack. A fenced block pastes as literal
+markdown source and every link is lost, which means redoing it by hand.
+
+Everything in it comes from the release-notes row you just wrote -- do not
+re-derive it, or the wiki and the announcement will disagree:
+
+- Version from the row.
+- The upgrade-instructions sentence from the `Upgrade instructions` cell: `None`
+  becomes "There are no upgrade instructions from v<previous>." When the cell has
+  a count, say so instead and link the upgrade-instructions page.
+- The `<N> Jiras` link, verbatim from cell 5 (same JQL URL).
+- The highlight lines, verbatim from cell 5 -- same text, same order (security
+  first), same links, one per line.
+
+Template:
+
+> @channel
+>
+> We are proud to announce the release of **Grouper v7.4.0**.  There are no
+> upgrade instructions from v7.3.2.
+>
+> See the [v7 release notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes)
+>
+> [73 Jiras](<fixVersion JQL url>)
+> OAuth security fixes: [open redirect on authorize](...), [client secret verification](...), [signing key encrypted at rest](...)
+> Security improvements: upgrade [PostgreSQL JDBC](...), [jsoup](...), [c3p0](...), [ldaptive](...)
+> [New Jamf Pro provisioner](...)
+> ... one highlight per line, in cell-5 order ...
+
+Note the highlights are a flat list of lines, not a bulleted list -- Slack renders
+the plain lines the way the release-notes cell reads.
