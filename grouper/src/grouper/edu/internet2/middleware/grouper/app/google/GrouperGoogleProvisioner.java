@@ -32,7 +32,7 @@ public class GrouperGoogleProvisioner extends GrouperProvisioner {
 
   @Override
   protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
-    return GrouperProvisioningConfigurationValidation.class;
+    return GoogleProvisioningConfigurationValidation.class;
   }
 
   
