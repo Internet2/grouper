@@ -65,7 +65,14 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
   (`git log <TAG>..HEAD`).
 - Any that are still Open / To Do but committed should be resolved (via
   grouper-jira). Container-only issues (e.g. a Tomcat bump with no code commit)
-  count too if they ship in this image.
+  count too if they ship in this image. Ask before transitioning -- an issue may
+  be deliberately open because follow-on work is planned, even though code for it
+  is committed.
+- Transition with the bare `Resolved` transition and do NOT set a `resolution`
+  value. The project convention is Resolved with an empty resolution; setting
+  `Fixed` makes the issue an outlier.
+- An unresolved issue can still carry the fixVersion -- it just will not appear in
+  the release-notes count, which filters on status. Subtract it from the count.
 
 ## 4. Create the version and tag fixVersion
 
@@ -79,7 +86,10 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
   otherwise.
 - Verify the count the release-notes link uses:
   `project = GRP AND status in (Resolved, Closed, "Ready for Release") AND
-  fixVersion = <version>`.
+  fixVersion = <version>`. `GET /rest/api/3/search/jql` no longer returns a
+  `total`; use `POST /rest/api/3/search/approximate-count` with `{"jql": "..."}`.
+  Sanity-check the endpoint by running the same JQL for the PREVIOUS version and
+  confirming it matches the number already on that release-notes row.
 
 ## 5. Add the row to the release-notes wiki page
 
@@ -99,16 +109,36 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
    a continuous run wraps to the column; hardcoded breaks double-wrap and look bad.
 3. **Upgrade instructions / Upgrade tasks** -- one cell, bold labels:
    `<p><strong>Upgrade instructions:</strong></p>` + value, then
-   `<p><strong>Upgrade tasks:</strong></p>` + value. Value is `None`, or a wiki
-   link like `3 from 7.2.1` / `43 (DDL)`.
+   `<p><strong>Upgrade tasks:</strong></p>` + value. The two lines mean different
+   things -- do not use the same wording for both:
+   - **Upgrade instructions** is `None` unless one of the shipped Jiras needs
+     operators to be aware of or do something. When there is something, it is a
+     COUNT of instructions linking the upgrade-instructions page, e.g.
+     `3 from 7.2.1`, `1 from v7.0.2`. Most releases are `None`.
+   - **Upgrade tasks** is the upgrade task NUMBER(s), not a count, linking the
+     "Grouper upgrade tasks" page (pageId `28549372`). One task is just `44`; two
+     are `41, 42`. Append ` (DDL)` only when the task carries a schema change --
+     compare `GrouperDdl.java` between the tag and HEAD to decide. `None` when no
+     task was added.
 4. **Versions** -- `OS: <os>` / `Tomcat: <t>` / `Java Corretto: <j>` /
    `Grouper API: <version>` (one per line via `<br>`).
 5. **Enhancements and bugs fixed / known issues** -- first `<p>` is the
    `<N> Jiras` link (the fixVersion JQL from step 4). Second `<p>` is the
    highlight list: **sentence case**, each linked to its GRP issue (or a wiki page
    when one exists), separated by `<br>`. Keep it curated -- not every issue.
+   **Security items go FIRST** -- vulnerability fixes, then third-party jar
+   upgrades -- so a site deciding whether to upgrade sees them without reading the
+   whole cell. New features and bug fixes follow. Related items can share one line
+   (`Security improvements: upgrade <a>jsoup</a>, <a>c3p0</a>`).
 
 ### Status values and cell colour
+
+A new release is **never** stable on release day. It goes out as `RELEASED`, and
+is promoted only after it has been out about **a week** with no issues reported --
+a judgment call by the Grouper team, not an automatic date. Until then the
+PREVIOUS release keeps `LATEST STABLE`. Promoting is a separate, later edit to the
+same page: set the new row to `LATEST STABLE` with the yellow fill, and demote the
+old one to `STABLE` by removing its `data-highlight-colour` attributes.
 
 Status text and the cell `data-highlight-colour` attribute (applied to every cell
 in the row):
