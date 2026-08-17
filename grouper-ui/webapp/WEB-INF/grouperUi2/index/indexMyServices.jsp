@@ -12,7 +12,7 @@
                         </ul>
                       </c:when>
                       <c:otherwise>
-                        <a href="#" onclick="ajax('UiV2Main.indexColMyServices?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyServicesSectionTitleLoad'] }</a>
+                        <button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="ajax('UiV2Main.indexColMyServices?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyServicesSectionTitleLoad'] }</button>
                         <br /><br /><br /><br/>
                       </c:otherwise>
                     </c:choose>

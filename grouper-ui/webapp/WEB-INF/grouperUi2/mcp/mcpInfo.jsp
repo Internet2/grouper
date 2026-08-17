@@ -30,7 +30,7 @@
                         <td style="white-space: nowrap; font-weight: bold; width: 200px;">${textContainer.text['mcpInfoServerUrlLabel']}</td>
                         <td>
                           <code id="mcpServerUrl" style="color: #8b0000;">${grouper:escapeHtml(grouperRequestContainer.mcpContainer.mcpServerUrl)}/mcp</code>
-                          <a href="#" onclick="grouperCopyToClipboard('mcpServerUrl'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left: 6px;"><i class="fa fa-clone" aria-hidden="true"></i></a>
+                          <button type="button" onclick="grouperCopyToClipboard('mcpServerUrl'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left: 6px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button>
                         </td>
                       </tr>
                     </c:if>

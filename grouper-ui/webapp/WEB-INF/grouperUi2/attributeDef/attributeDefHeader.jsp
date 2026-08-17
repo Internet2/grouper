@@ -179,7 +179,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelIdPath']}</strong></td>
-                            <td><span id="attributeDefIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
+                            <td><span id="attributeDefIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}</span> <button type="button" onclick="grouperCopyToClipboard('attributeDefIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left:4px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button></td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelId']}</strong></td>
@@ -218,8 +218,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="attributeDefDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefDetails']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
-                    <p id="attributeDefDetailsLessId" style="display: none"><a href="#" onclick="$('#attributeDefDetailsId').hide('slow'); $('#attributeDefDetailsLessId').hide(); $('#attributeDefDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="attributeDefDetailsMoreId"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefDetails']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></button></p>
+                    <p id="attributeDefDetailsLessId" style="display: none"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('#attributeDefDetailsId').hide('slow'); $('#attributeDefDetailsLessId').hide(); $('#attributeDefDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
                   </div>
                   <div class="span2" id="attributeDefMoreActionsButtonContentsDivId">
                     <%@ include file="attributeDefMoreActionsButtonContents.jsp"%>

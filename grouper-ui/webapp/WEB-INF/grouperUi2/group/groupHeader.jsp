@@ -208,7 +208,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelIdPath']}</strong></td>
-                            <td><span id="groupIdPath">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</span> <a href="#" onclick="grouperCopyToClipboard('groupIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
+                            <td><span id="groupIdPath">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</span> <button type="button" onclick="grouperCopyToClipboard('groupIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left:4px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button></td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelAlternateIdPath']}</strong></td>
@@ -286,7 +286,7 @@
                       </table>
                     </div>
                     <%-- <p id="groupDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p> --%>
-                    <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="groupDetailsLessId" style="display: none"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
                   </div>
                 </div>
               </div>

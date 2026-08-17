@@ -7,6 +7,6 @@
                   <br />
 
                   <input type="hidden" name="extraGroupId_${status.count-1}" value="${grouper:escapeHtml(guiGroup.group.id)}" />            
-                  ${guiGroup.linkWithIcon} <a href="#" onclick="ajax('../app/UiV2ExternalEntities.inviteRemoveGroup?removeGroupId=${grouper:escapeUrl(guiGroup.group.id)}', {formIds: 'inviteFormId'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                  ${guiGroup.linkWithIcon} <button type="button" class="btn-link" style="padding:0;border:0;background:none;vertical-align:baseline;" onclick="ajax('../app/UiV2ExternalEntities.inviteRemoveGroup?removeGroupId=${grouper:escapeUrl(guiGroup.group.id)}', {formIds: 'inviteFormId'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></button>
                 
                 </c:forEach>

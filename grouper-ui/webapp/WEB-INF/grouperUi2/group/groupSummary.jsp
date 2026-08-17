@@ -222,7 +222,7 @@
         </tr>
         <tr>
           <td style="vertical-align: top;"><strong><grouper:message key="groupLabelIdPath" /></strong></td>
-          <td style="padding-left: 0px;"><span id="groupSummaryIdPath">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</span> <a href="#" onclick="grouperCopyToClipboard('groupSummaryIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
+          <td style="padding-left: 0px;"><span id="groupSummaryIdPath">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</span> <button type="button" onclick="grouperCopyToClipboard('groupSummaryIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left:4px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button></td>
         </tr>
         <tr>
           <td style="vertical-align: top;"><strong><grouper:message key="groupLabelAlternateIdPath" /></strong></td>

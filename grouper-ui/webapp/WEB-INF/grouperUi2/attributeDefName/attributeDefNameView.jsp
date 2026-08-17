@@ -79,7 +79,7 @@ ${grouper:titleFromKeyAndText('viewAttributeDefNamePageTitle', grouperRequestCon
                           <tr class="attributeDefNameDetailsName" style="display: none;">
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attributeDefNameIdPathLabel']}</strong></td>
                             <td>
-                              <span id="attributeDefNameIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefNameIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a>
+                              <span id="attributeDefNameIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.name)}</span> <button type="button" onclick="grouperCopyToClipboard('attributeDefNameIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left:4px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button>
                               <br /><span class="help-block description">${textContainer.text['attributeDefNameIdPathDescription'] }</span>
                             </td>
                           </tr>
@@ -122,8 +122,8 @@ ${grouper:titleFromKeyAndText('viewAttributeDefNamePageTitle', grouperRequestCon
                         </tbody>
                       </table>
                     </div>
-                    <p id="attributeDefNameDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefNameDetails']}" id="moreButtonId" onclick="$('.attributeDefNameDetailsName').show('slow'); $('#attributeDefNameDetailsMoreId').hide(); $('#attributeDefNameDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
-                    <p id="attributeDefNameDetailsLessId" style="display: none"><a href="#" onclick="$('.attributeDefNameDetailsName').hide('slow'); $('#attributeDefNameDetailsLessId').hide(); $('#attributeDefNameDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="attributeDefNameDetailsMoreId"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefNameDetails']}" id="moreButtonId" onclick="$('.attributeDefNameDetailsName').show('slow'); $('#attributeDefNameDetailsMoreId').hide(); $('#attributeDefNameDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></button></p>
+                    <p id="attributeDefNameDetailsLessId" style="display: none"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('.attributeDefNameDetailsName').hide('slow'); $('#attributeDefNameDetailsLessId').hide(); $('#attributeDefNameDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
                                       
                   </div>
                 </div> <%-- row fluid --%>

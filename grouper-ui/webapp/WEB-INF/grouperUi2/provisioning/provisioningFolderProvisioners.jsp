@@ -25,9 +25,9 @@ ${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContain
     
     <div class="row-fluid">
       <div class="span12"> 
-       <a href="#" onclick="$('#provisioningFolderDocumentation').toggle('slow'); return false;">
+       <button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('#provisioningFolderDocumentation').toggle('slow'); return false;">
         ${textContainer.text['provisioning.documentationLink'] }
-       </a>
+       </button>
       </div>
     </div>
     

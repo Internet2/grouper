@@ -212,7 +212,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelIdPath'] }</strong></td>
-                            <td><span id="stemIdPath">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.name)}</span> <a href="#" onclick="grouperCopyToClipboard('stemIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
+                            <td><span id="stemIdPath">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.name)}</span> <button type="button" onclick="grouperCopyToClipboard('stemIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" class="btn-link" style="margin-left:4px;padding:0;border:0;background:none;vertical-align:baseline;"><i class="fa fa-clone" aria-hidden="true"></i></button></td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelAlternateIdPath'] }</strong></td>
@@ -251,8 +251,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="stemDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreStemDetails']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
-                    <p id="stemDetailsLessId" style="display: none"><a href="#" onclick="$('#stemDetailsId').hide('slow'); $('#stemDetailsLessId').hide(); $('#stemDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="stemDetailsMoreId"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" aria-label="${textContainer.text['ariaLabelGuiMoreStemDetails']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></button></p>
+                    <p id="stemDetailsLessId" style="display: none"><button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('#stemDetailsId').hide('slow'); $('#stemDetailsLessId').hide(); $('#stemDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
                      
                   </div>
                   <div class="span2" id="stemMoreActionsButtonContentsDivId">

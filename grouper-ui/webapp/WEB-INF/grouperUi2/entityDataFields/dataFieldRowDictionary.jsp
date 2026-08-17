@@ -155,7 +155,7 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
             
             <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.documentation)}">
               <div class="control-group">
-                <a href="#" onclick="$('#documentation-${j}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+                <button type="button" class="btn-link" style="padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;" onclick="$('#documentation-${j}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</button>
                 <span id="documentation-${j}" style="display: none;">${guiDataFieldRowDictionaryTable.documentation}</span>
               </div>
             </c:if>
@@ -195,10 +195,10 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
                     <i class="fa fa-pencil"></i>
                   </a>
                 </c:if>
-                <a href="#" onclick="dictionaryCopyPermalink('${grouper:escapeJavascript(guiDataFieldRowDictionary.dataFieldConfigId)}', '${grouper:escapeJavascript(guiDataFieldRowDictionary.dataRowConfigId)}'); return false;"
-                   title="${textContainer.text['dataFieldDictionaryPermalinkTitle']}" style="margin-left: 3px;">
+                <button type="button" class="btn-link" onclick="dictionaryCopyPermalink('${grouper:escapeJavascript(guiDataFieldRowDictionary.dataFieldConfigId)}', '${grouper:escapeJavascript(guiDataFieldRowDictionary.dataRowConfigId)}'); return false;"
+                   title="${textContainer.text['dataFieldDictionaryPermalinkTitle']}" style="margin-left: 3px;padding:0;border:0;background:none;vertical-align:baseline;">
                   <i class="fa fa-link"></i>
-                </a>
+                </button>
               </td>
               
               <%-- Column 2: Description (truncated unless auto-expand) --%>
@@ -211,7 +211,7 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
                     <div class="dict-desc-truncated" id="desc-${j}-${i}" style="max-height: 7.5em; overflow: hidden; position: relative;">
                       ${guiDataFieldRowDictionary.description}
                     </div>
-                    <a href="#" class="dict-desc-toggle" data-target="desc-${j}-${i}" onclick="dictionaryToggleDesc(this); return false;" style="display:none;">${textContainer.text['dataFieldDictionaryMoreLink']}</a>
+                    <button type="button" class="dict-desc-toggle btn-link" data-target="desc-${j}-${i}" onclick="dictionaryToggleDesc(this); return false;" style="display:none;padding:0;border:0;background:none;font-family:inherit;font-size:inherit;line-height:inherit;vertical-align:baseline;">${textContainer.text['dataFieldDictionaryMoreLink']}</button>
                   </c:otherwise>
                 </c:choose>
               </td>
