@@ -785,7 +785,46 @@ public class GrouperProvisioningService {
       }
     }
     
-    return isEditable && isTargetEditableBySubject(target, subject);
+    if (!isEditable) {
+      return false;
+    }
+    
+    if (!isTargetEditableBySubject(target, subject)) {
+      return false;
+    }
+    
+    // in addition to being allowed to assign the target, the subject must be an admin of the
+    // group or folder they are editing/configuring provisioning on (wheel/root already bypass above)
+    if (grouperObject != null && !PrivilegeHelper.isWheelOrRoot(subject)) {
+      return isSubjectAdminOfObject(subject, grouperObject);
+    }
+    
+    return true;
+  }
+  
+  /**
+   * whether the subject is an admin of the given grouper object (ADMIN on a group, STEM_ADMIN on a folder)
+   * @param subject
+   * @param grouperObject
+   * @return true if the subject is an admin of the object
+   */
+  private static boolean isSubjectAdminOfObject(final Subject subject, final GrouperObject grouperObject) {
+    
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        if (grouperObject instanceof Group) {
+          return ((Group)grouperObject).hasAdmin(subject);
+        } else if (grouperObject instanceof Stem) {
+          return ((Stem)grouperObject).hasStemAdmin(subject);
+        }
+        
+        return true;
+      }
+      
+    });
   }
   
   /**
@@ -2175,7 +2214,7 @@ public class GrouperProvisioningService {
     
     MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getId());
     
-    Boolean isEditable = viewableGroupToSubject.get(multiKey);
+    Boolean isEditable = editableGroupToSubject.get(multiKey);
     if (isEditable != null) {
       return isEditable;
     }
