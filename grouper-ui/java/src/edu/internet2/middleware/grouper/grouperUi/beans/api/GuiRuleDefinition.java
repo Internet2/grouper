@@ -341,6 +341,20 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     if (compare != 0) {
       return compare;
     }
+    compare = StringUtils.defaultString(this.ruleDefinition.getCheck().getCheckOwnerName()).compareTo(
+        StringUtils.defaultString(other.getRuleDefinition().getCheck().getCheckOwnerName()));
+    if (compare != 0) {
+      return compare;
+    }
+    //final tiebreaker on the unique attribute assign (rule marker) id so that two distinct rules
+    //that happen to share the same then/check attributes are never treated as equal and collapsed
+    //when placed in a TreeSet for display
+    String thisAttributeAssignId = this.ruleDefinition.getAttributeAssignType() == null ? null : this.ruleDefinition.getAttributeAssignType().getId();
+    String otherAttributeAssignId = other.getRuleDefinition().getAttributeAssignType() == null ? null : other.getRuleDefinition().getAttributeAssignType().getId();
+    compare = StringUtils.defaultString(thisAttributeAssignId).compareTo(StringUtils.defaultString(otherAttributeAssignId));
+    if (compare != 0) {
+      return compare;
+    }
     //equal?  :)
     return 0;
   }
