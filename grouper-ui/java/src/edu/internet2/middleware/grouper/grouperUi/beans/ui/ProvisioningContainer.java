@@ -111,6 +111,25 @@ public class ProvisioningContainer {
   
   private GuiGrouperProvisioningAttributeValue currentGuiGrouperProvisioningAttributeValue = null;
   
+  /**
+   * when set, only the detail section for this target should be shown (table still shows all targets)
+   */
+  private String selectedProvisioningTargetName = null;
+  
+  /**
+   * @return when set, only the detail section for this target should be shown
+   */
+  public String getSelectedProvisioningTargetName() {
+    return selectedProvisioningTargetName;
+  }
+
+  /**
+   * @param selectedProvisioningTargetName when set, only the detail section for this target should be shown
+   */
+  public void setSelectedProvisioningTargetName(String selectedProvisioningTargetName) {
+    this.selectedProvisioningTargetName = selectedProvisioningTargetName;
+  }
+  
   
   public GuiGrouperProvisioningAttributeValue getCurrentGuiGrouperProvisioningAttributeValue() {
     return currentGuiGrouperProvisioningAttributeValue;

@@ -3,6 +3,9 @@
                   <c:when test="${grouperRequestContainer.provisioningContainer.hasProvisioningOnThisObjectOrParent}">
                     <c:forEach items="${grouperRequestContainer.provisioningContainer.guiGrouperProvisioningAttributeValues}" var="guiGrouperProvisioningAttributeValue" >
 
+                      <%-- when a specific target is selected, only open the detail section for that one; the table above still lists all targets --%>
+                      <c:if test="${empty grouperRequestContainer.provisioningContainer.selectedProvisioningTargetName || grouperRequestContainer.provisioningContainer.selectedProvisioningTargetName == guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}">
+
                       ${grouperRequestContainer.provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue)} 
                     
 	                    <c:set var="grouperProvisioningAttributeValue" 
@@ -124,6 +127,7 @@
                         </tbody>
                       </table>
                     
+                      </c:if>
                     </c:forEach>
                   </c:when>
                   <c:otherwise>
