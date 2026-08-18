@@ -271,6 +271,9 @@ public class UiV2Provisioning {
             
           setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
+          //show all targets in the table but only open the detail section for the selected one
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer().setSelectedProvisioningTargetName(targetName);
+          
           GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
           addProvisioningBreadcrumbs(guiGroup, targetName, "viewProvisioningOnGroup", "groupId", GROUP.getId());
           
