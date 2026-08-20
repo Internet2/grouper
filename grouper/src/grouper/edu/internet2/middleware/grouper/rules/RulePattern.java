@@ -119,7 +119,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoInFolderIfNotEligibleDueToGroup.groupName");
         attribute.setLabel(GrouperTextContainer.textOrNull("VetoInFolderIfNotEligibleDueToGroup.groupName.label"));
@@ -1188,7 +1188,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddDisabledDateOnInvalidMembership.groupName");
         attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.groupName.label"));
@@ -1576,7 +1576,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddMemberToGroupIfAddedToAnotherGroup.groupName");
         attribute.setLabel(GrouperTextContainer.textOrNull("AddMemberToGroupIfAddedToAnotherGroup.groupName.label"));
@@ -1694,7 +1694,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddMemberToGroupIfRemovedFromAnotherGroup.groupName");
         attribute.setLabel(GrouperTextContainer.textOrNull("AddMemberToGroupIfRemovedFromAnotherGroup.groupName.label"));
@@ -1839,7 +1839,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.STEMCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddCreatedGroupsToAnotherGroup.folder");
         attribute.setLabel(GrouperTextContainer.textOrNull("AddCreatedGroupsToAnotherGroup.folder.label"));
@@ -2051,7 +2051,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("RemoveInvalidMembershipDueToGroup.group");
         attribute.setLabel(GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroup.group.label"));
@@ -2249,7 +2249,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.STEMCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.folder");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.folder.label"));
@@ -3000,7 +3000,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.STEMCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfNotEligibleDueToFolder.folder");
         attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToFolder.folder.label"));
@@ -3190,7 +3190,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.GROUPCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfNotEligibleDueToGroup.group");
         attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.group.label"));
@@ -3433,7 +3433,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.STEMCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("RemoveInvalidMembershipDueToFolder.folder");
         attribute.setLabel(GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToFolder.folder.label"));
@@ -3995,7 +3995,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.STEMCOMBOBOX);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.folder");
         attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.folder.label"));

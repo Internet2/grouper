@@ -117,10 +117,12 @@
                         <%-- <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'group' and grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherGroup'}"> --%>
                           
                            <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameComboId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName)}"
-                                  name="grouperRuleCheckOwnerUuidOrName" id="grouperRuleCheckOwnerAnotherUuidOrNameId" />
+                              <grouper:combobox2 idBase="grouperRuleCheckOwnerUuidOrNameCombo" style="width: 30em" useTable="false"
+                                  value="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName}"
+                                  valueLabel="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName}"
+                                  filterOperation="../app/UiV2Group.groupUpdateFilter" />
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                               <br />
@@ -151,10 +153,12 @@
                         <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'FOLDER' and grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherStem'}">
                           
                            <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameComboId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName)}"
-                                  name="grouperRuleCheckOwnerUuidOrName" id="grouperRuleCheckOwnerAnotherUuidOrNameId" />
+                              <grouper:combobox2 idBase="grouperRuleCheckOwnerUuidOrNameCombo" style="width: 30em" useTable="false"
+                                  value="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName}"
+                                  valueLabel="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerUuidOrName}"
+                                  filterOperation="../app/UiV2Stem.createStemParentFolderFilter" />
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                               <br />
@@ -268,10 +272,12 @@
                        <%--  <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'group' and grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherGroup'}"> --%>
                           
                            <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerUuidOrNameId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerUuidOrNameComboId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName)}"
-                                  name="grouperRuleIfConditionOwnerUuidOrName" id="grouperRuleIfConditionOwnerUuidOrNameId" />
+                              <grouper:combobox2 idBase="grouperRuleIfConditionOwnerUuidOrNameCombo" style="width: 30em" useTable="false"
+                                  value="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName}"
+                                  valueLabel="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName}"
+                                  filterOperation="../app/UiV2Group.groupUpdateFilter" />
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                               <br />
@@ -304,10 +310,12 @@
                         <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'FOLDER' and grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherStem'}">
                           
                            <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerUuidOrNameComboId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
-                              <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName)}"
-                                  name="grouperRuleIfConditionOwnerUuidOrName" id="ifConditionOwnerUuidOrNameId" />
+                              <grouper:combobox2 idBase="grouperRuleIfConditionOwnerUuidOrNameCombo" style="width: 30em" useTable="false"
+                                  value="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName}"
+                                  valueLabel="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerUuidOrName}"
+                                  filterOperation="../app/UiV2Stem.createStemParentFolderFilter" />
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                               <br />

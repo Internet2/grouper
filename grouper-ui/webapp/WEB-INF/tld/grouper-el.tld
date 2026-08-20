@@ -124,6 +124,15 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>
+        optional display label for the initial value so it renders without an ajax lookup.
+        defaults to the raw value when omitted and a value is present.
+        </description>
+      <name>valueLabel</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
 
   </tag>
 

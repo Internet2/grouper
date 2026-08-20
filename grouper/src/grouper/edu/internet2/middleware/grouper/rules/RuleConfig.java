@@ -219,6 +219,13 @@ public class RuleConfig {
        
        List<GrouperConfigurationModuleAttribute> elementsToShow = RulePattern.valueOf(this.pattern).getElementsToShow(this.grouperObject, this.ruleDefinition);
        
+       // overlay values submitted from the screen so selections (e.g. group combobox) persist across ajax refreshes
+       for (GrouperConfigurationModuleAttribute attribute : elementsToShow) {
+         if (this.patternPropertiesValues.containsKey(attribute.getConfigSuffix())) {
+           attribute.setValue(this.patternPropertiesValues.get(attribute.getConfigSuffix()));
+         }
+       }
+       
        return elementsToShow;
     }
     return new ArrayList<>();

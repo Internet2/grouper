@@ -6335,6 +6335,13 @@ public class UiV2Group {
             String join = GrouperUtil.join(parameterValues, ",");
             ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), join);
           }
+        } else if (attribute.getFormElement() == ConfigItemFormElement.GROUPCOMBOBOX
+            || attribute.getFormElement() == ConfigItemFormElement.STEMCOMBOBOX) {
+          String value = request.getParameter(htmlElementName+"Name");
+          if (StringUtils.isBlank(value)) {
+            value = request.getParameter(htmlElementName+"NameDisplay");
+          }
+          ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
         } else {
           String value = request.getParameter(htmlElementName);
           ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
@@ -6347,7 +6354,13 @@ public class UiV2Group {
     String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
     ruleConfig.setCheckOwner(grouperRuleCheckOwner);
     
-    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboName");
+    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboNameDisplay");
+    }
+    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+    }
     ruleConfig.setCheckOwnerUuidOrName(grouperRuleCheckOwnerUuidOrName);
     
     String grouperRuleCheckOwnerStemScope = request.getParameter("grouperRuleCheckOwnerStemScope");
@@ -6362,7 +6375,13 @@ public class UiV2Group {
     String grouperRuleIfConditionEL = request.getParameter("grouperRuleIfConditionEL");
     ruleConfig.setIfConditionEl(grouperRuleIfConditionEL);
     
-    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboName");
+    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboNameDisplay");
+    }
+    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+    }
     ruleConfig.setIfConditionOwnerUuidOrName(grouperRuleIfConditionOwnerUuidOrName);
 
     String grouperRuleIfConditionOwnerStemScope = request.getParameter("grouperRuleIfConditionOwnerStemScope");

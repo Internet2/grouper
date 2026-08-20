@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -4564,7 +4565,16 @@ public class UiV2Stem {
       
       for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
         String htmlElementName = "config_"+attribute.getConfigSuffix();
-        String value = request.getParameter(htmlElementName);
+        String value;
+        if (attribute.getFormElement() == ConfigItemFormElement.GROUPCOMBOBOX
+            || attribute.getFormElement() == ConfigItemFormElement.STEMCOMBOBOX) {
+          value = request.getParameter(htmlElementName+"Name");
+          if (StringUtils.isBlank(value)) {
+            value = request.getParameter(htmlElementName+"NameDisplay");
+          }
+        } else {
+          value = request.getParameter(htmlElementName);
+        }
         ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
       }
       
@@ -4573,7 +4583,13 @@ public class UiV2Stem {
     String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
     ruleConfig.setCheckOwner(grouperRuleCheckOwner);
     
-    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboName");
+    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboNameDisplay");
+    }
+    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+    }
     ruleConfig.setCheckOwnerUuidOrName(grouperRuleCheckOwnerUuidOrName);
     
     String grouperRuleCheckOwnerStemScope = request.getParameter("grouperRuleCheckOwnerStemScope");
@@ -4588,7 +4604,13 @@ public class UiV2Stem {
     String grouperRuleIfConditionEL = request.getParameter("grouperRuleIfConditionEL");
     ruleConfig.setIfConditionEl(grouperRuleIfConditionEL);
     
-    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboName");
+    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboNameDisplay");
+    }
+    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+    }
     ruleConfig.setIfConditionOwnerUuidOrName(grouperRuleIfConditionOwnerUuidOrName);
 
     String grouperRuleIfConditionOwnerStemScope = request.getParameter("grouperRuleIfConditionOwnerStemScope");
