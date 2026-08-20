@@ -9,8 +9,14 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -417,6 +423,112 @@ public class ConfigFormElement extends SimpleTagSupport {
       
     }
     
+    if (configItemFormElement == ConfigItemFormElement.GROUPCOMBOBOX) {
+
+      if (!readOnly) {
+        // config suffixes contain dots; the submitted name must keep them (server reads config_<suffix>Name),
+        // but the DOM id must be dot-free so jQuery/querySelector (used by TomSelect) work
+        String submitBase = "config_" + configId;
+        String domIdBase = submitBase.replaceAll("[^A-Za-z0-9_]", "_");
+        String filterOperation = "../app/UiV2Group.groupUpdateFilter";
+        String valueEscaped = value == null ? "" : StringUtils.replace(value, "'", "\\'");
+        String ariaLabel = StringUtils.isNotBlank(label) ? " aria-label='" + GrouperUtil.xmlEscape(label) + "' " : "";
+
+        // Resolve a friendly display label for the stored value so it renders even when the
+        // async combobox lookup returns nothing (e.g. an existing rule that stored a group name).
+        // Fall back to the raw value, which is exactly what the old text field showed.
+        String valueLabel = value;
+        if (StringUtils.isNotBlank(value)) {
+          try {
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+            Group theGroup = GroupFinder.findByName(grouperSession, value, false);
+            if (theGroup == null) {
+              theGroup = GroupFinder.findByUuid(grouperSession, value, false);
+            }
+            if (theGroup != null) {
+              valueLabel = theGroup.getDisplayName();
+            }
+          } catch (Exception e) {
+            // leave valueLabel as the raw value
+          }
+        }
+        String valueLabelEscaped = StringUtils.replace(StringUtils.defaultString(valueLabel), "'", "\\'");
+
+        boolean disableEnter = GrouperUiConfig.retrieveConfig()
+            .propertyValueBoolean("grouperUi.disableEnterKeyOnCombobox", false);
+        boolean useEnterForLookup = !disableEnter;
+
+        field.append("<input type='text' id='" + domIdBase + "Id' name='" + submitBase + "Name' autocomplete='off' style='width:30em;'");
+        field.append(ariaLabel);
+        field.append(" />");
+        field.append("<input id='" + domIdBase + "IdDisplay' name='" + submitBase + "NameDisplay' type='hidden' value='' />");
+        field.append("<span id='" + domIdBase + "ErrorId'></span>");
+        field.append("<script>");
+        field.append("$(document).ready(function(){");
+        field.append("grouperRegisterCombobox('#" + domIdBase + "Id', '" + filterOperation + "', null, "
+            + (StringUtils.isBlank(value) ? "null" : "'" + valueEscaped + "'")
+            + ", {searchDelay: null, useEnterForLookup: " + (useEnterForLookup ? "true" : "false")
+            + (StringUtils.isBlank(value) ? "" : ", valueLabel: '" + valueLabelEscaped + "'")
+            + "});");
+        field.append("});");
+        field.append("</script>");
+      }
+
+    }
+
+    if (configItemFormElement == ConfigItemFormElement.STEMCOMBOBOX) {
+
+      if (!readOnly) {
+        // config suffixes contain dots; the submitted name must keep them (server reads config_<suffix>Name),
+        // but the DOM id must be dot-free so jQuery/querySelector (used by TomSelect) work
+        String submitBase = "config_" + configId;
+        String domIdBase = submitBase.replaceAll("[^A-Za-z0-9_]", "_");
+        String filterOperation = "../app/UiV2Stem.createStemParentFolderFilter";
+        String valueEscaped = value == null ? "" : StringUtils.replace(value, "'", "\\'");
+        String ariaLabel = StringUtils.isNotBlank(label) ? " aria-label='" + GrouperUtil.xmlEscape(label) + "' " : "";
+
+        // Resolve a friendly display label for the stored value so it renders even when the
+        // async combobox lookup returns nothing (e.g. an existing rule that stored a folder name).
+        // Fall back to the raw value, which is exactly what the old text field showed.
+        String valueLabel = value;
+        if (StringUtils.isNotBlank(value)) {
+          try {
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+            Stem theStem = StemFinder.findByName(grouperSession, value, false);
+            if (theStem == null) {
+              theStem = StemFinder.findByUuid(grouperSession, value, false);
+            }
+            if (theStem != null) {
+              valueLabel = theStem.getDisplayName();
+            }
+          } catch (Exception e) {
+            // leave valueLabel as the raw value
+          }
+        }
+        String valueLabelEscaped = StringUtils.replace(StringUtils.defaultString(valueLabel), "'", "\\'");
+
+        boolean disableEnter = GrouperUiConfig.retrieveConfig()
+            .propertyValueBoolean("grouperUi.disableEnterKeyOnCombobox", false);
+        boolean useEnterForLookup = !disableEnter;
+
+        field.append("<input type='text' id='" + domIdBase + "Id' name='" + submitBase + "Name' autocomplete='off' style='width:30em;'");
+        field.append(ariaLabel);
+        field.append(" />");
+        field.append("<input id='" + domIdBase + "IdDisplay' name='" + submitBase + "NameDisplay' type='hidden' value='' />");
+        field.append("<span id='" + domIdBase + "ErrorId'></span>");
+        field.append("<script>");
+        field.append("$(document).ready(function(){");
+        field.append("grouperRegisterCombobox('#" + domIdBase + "Id', '" + filterOperation + "', null, "
+            + (StringUtils.isBlank(value) ? "null" : "'" + valueEscaped + "'")
+            + ", {searchDelay: null, useEnterForLookup: " + (useEnterForLookup ? "true" : "false")
+            + (StringUtils.isBlank(value) ? "" : ", valueLabel: '" + valueLabelEscaped + "'")
+            + "});");
+        field.append("});");
+        field.append("</script>");
+      }
+
+    }
+
     if (configItemFormElement == ConfigItemFormElement.TEXTAREA) {
             
       field.append("<textarea data-gr-input-type='textarea' style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"

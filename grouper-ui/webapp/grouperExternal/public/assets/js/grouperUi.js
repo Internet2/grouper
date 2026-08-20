@@ -3134,9 +3134,23 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
     ts.wrapper.addEventListener('keydown', grouperEnterHandler, true);
   }
 
-  // If an initial value is provided, call the programmatic setter (which will do an exact lookup and set the label).
+  // If an initial value is provided:
+  //  - if a display label is also provided (options.valueLabel), seed the option and select it synchronously.
+  //    This makes a pre-existing value render even when the current user cannot resolve it via ajax
+  //    (e.g. an old rule referencing a group name the logged in subject cannot read/update).
+  //  - otherwise resolve the label via an ajax exact lookup.
   if (!guiIsEmpty(value)) {
-    grouperComboboxSetId(jquerySelector, value);
+    if (!guiIsEmpty(options.valueLabel)) {
+      try {
+        ts.addOption({ id: value, name: options.valueLabel });
+        ts.setValue(value, true);
+      } catch (e) {
+        // fall back to ajax resolution
+        grouperComboboxSetId(jquerySelector, value);
+      }
+    } else {
+      grouperComboboxSetId(jquerySelector, value);
+    }
   }
 
   return ts;

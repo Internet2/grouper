@@ -6128,6 +6128,13 @@ public class UiV2Group {
             String join = GrouperUtil.join(parameterValues, ",");
             ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), join);
           }
+        } else if (attribute.getFormElement() == ConfigItemFormElement.GROUPCOMBOBOX
+            || attribute.getFormElement() == ConfigItemFormElement.STEMCOMBOBOX) {
+          String value = request.getParameter(htmlElementName+"Name");
+          if (StringUtils.isBlank(value)) {
+            value = request.getParameter(htmlElementName+"NameDisplay");
+          }
+          ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
         } else {
           String value = request.getParameter(htmlElementName);
           ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);

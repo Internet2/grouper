@@ -68,6 +68,12 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
    */
   private String additionalFormElementNames;
 
+  /**
+   * optional display label for the initial value. When provided the combobox seeds this label
+   * so the value renders even if it cannot be resolved via ajax. Defaults to the raw value.
+   */
+  private String valueLabel;
+
   public void setIdBase(String idBase1) {
     this.idBase = idBase1;
   }
@@ -101,6 +107,10 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
 
   public void setAdditionalFormElementNames(String additionalFormElementNames1) {
     this.additionalFormElementNames = additionalFormElementNames1;
+  }
+
+  public void setValueLabel(String valueLabel1) {
+    this.valueLabel = valueLabel1;
   }
 
   /**
@@ -168,13 +178,18 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     // Escape single quotes since filterOperation is embedded in a single-quoted JS string
     String filterOperationEscaped = StringUtils.replace(StringUtils.defaultString(this.filterOperation), "'", "\\'");
     String valueEscaped = StringUtils.replace(StringUtils.defaultString(this.value), "'", "\\'");
+    // Only seed a display label when explicitly provided. Callers with an id-only value (e.g. reports)
+    // omit valueLabel and rely on the async lookup to resolve a friendly label.
+    boolean hasValueLabel = !StringUtils.isBlank(this.value) && !StringUtils.isBlank(this.valueLabel);
+    String valueLabelEscaped = StringUtils.replace(StringUtils.defaultString(this.valueLabel), "'", "\\'");
     // NOTE: no newline immediately before ");" (requested)
     result.append("    grouperRegisterCombobox(" +
         "'#" + this.idBase + "Id', " +
         "'" + filterOperationEscaped + "', " +
         (StringUtils.isBlank(this.additionalFormElementNames) ? "null" : "'" + this.additionalFormElementNames + "'") + ", " +
         (StringUtils.isBlank(this.value) ? "null" : "'" + valueEscaped + "'") + ", " +
-        "{searchDelay: " + this.searchDelayJs() + ", useEnterForLookup: " + (useEnterForLookup ? "true" : "false") + "}" +
+        "{searchDelay: " + this.searchDelayJs() + ", useEnterForLookup: " + (useEnterForLookup ? "true" : "false") +
+        (hasValueLabel ? ", valueLabel: '" + valueLabelEscaped + "'" : "") + "}" +
         ");");
 
     result.append("  });");

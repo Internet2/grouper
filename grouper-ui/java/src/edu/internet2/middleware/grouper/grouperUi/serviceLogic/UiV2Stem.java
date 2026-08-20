@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -4160,7 +4161,16 @@ public class UiV2Stem {
 
       for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
         String htmlElementName = "config_"+attribute.getConfigSuffix();
-        String value = request.getParameter(htmlElementName);
+        String value;
+        if (attribute.getFormElement() == ConfigItemFormElement.GROUPCOMBOBOX
+            || attribute.getFormElement() == ConfigItemFormElement.STEMCOMBOBOX) {
+          value = request.getParameter(htmlElementName+"Name");
+          if (StringUtils.isBlank(value)) {
+            value = request.getParameter(htmlElementName+"NameDisplay");
+          }
+        } else {
+          value = request.getParameter(htmlElementName);
+        }
         ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
       }
 
