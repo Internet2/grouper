@@ -22,8 +22,11 @@
             </div>      
             <div id="messaging" class="row-fluid">
             </div>
-            <div id="grouperMainContentDivId"></div>
-            <!-- end of the main content div where the page content goes -->
+            <!-- main landmark (WCAG 1.3.1).  as with the custom ui shell, the landmark
+                 goes here rather than on the enclosing span9 main-content div, which also
+                 holds the logo and the logged-in-as/logout row. -->
+            <main id="grouperMainContentDivId" tabindex="-1"></main>
+            <!-- end of the main content element where the page content goes -->
           </div>
           
         </div>

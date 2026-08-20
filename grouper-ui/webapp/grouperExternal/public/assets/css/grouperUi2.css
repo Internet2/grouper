@@ -222,6 +222,46 @@ div.c3.instrumentationGraph  {
   position: absolute!important;
 }
 
+/* Skip link (WCAG 2.4.1 Bypass Blocks).  Rendered by assetsJsp/skipLink.jsp as the first
+   focusable element in the body of every page shell.  Parked off screen rather than with
+   display:none, since display:none would take it out of the tab order entirely. */
+.grouper-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+
+/* On keyboard focus it becomes visible, pinned to the top left.  position:fixed (rather
+   than absolute) so it is in view even if the page happens to be scrolled.  The outline
+   is an explicit high contrast one so this link does not inherit the low contrast focus
+   ring used elsewhere. */
+.grouper-skip-link:focus,
+.grouper-skip-link:focus-visible {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2000;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  color: #1c6070;
+  border: 2px solid #1c6070;
+  border-radius: 0 0 4px 0;
+  font-weight: bold;
+  text-decoration: underline;
+  outline: 3px solid #1c6070;
+  outline-offset: 2px;
+}
+
+/* The main landmark is a PROGRAMMATIC focus target only: it carries tabindex="-1" purely
+   so that activating the skip link moves focus into it, and it can never be reached with
+   Tab.  Without this rule the browser draws its default focus ring around the whole page
+   content area when the skip link is used, which looks like a rendering bug.
+   This does not cost a visible focus indicator: no keyboard user can land here, and the
+   next Tab moves to the first real control inside main, which has its own indicator. */
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+
 input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: #757575 !important;
   opacity: 1 !important; /* Firefox */

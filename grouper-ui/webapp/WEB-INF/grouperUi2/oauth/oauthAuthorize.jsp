@@ -86,6 +86,7 @@
     </style>
   </head>
   <body class="full claro">
+    <%@ include file="../assetsJsp/skipLink.jsp"%>
     <div class="top-container">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
@@ -96,7 +97,10 @@
       </div>
       <div class="container-fluid">
         <div id="messaging" role="alert"></div>
-        <div class="oauth-consent-container">
+        <!-- main landmark (WCAG 1.3.1).  this page is not ajax driven so it has no
+             content div of its own; it carries the same id as the other shells only so
+             that one skip link target works across every page. -->
+        <main class="oauth-consent-container" id="grouperMainContentDivId" tabindex="-1">
 
           <c:choose>
             <c:when test="${not empty grouperRequestContainer.oauthContainer.errorMessage}">
@@ -313,7 +317,7 @@
             </c:otherwise>
           </c:choose>
 
-        </div>
+        </main>
       </div>
     </div>
   </body>
