@@ -27,7 +27,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupSave;
 import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireConfigBean;
@@ -335,7 +337,7 @@ public class GrouperMcpGroupSave {
         case "updateGroupPart":
           return executeUpdateGroupPart(arguments, groupName);
         case "renameGroup":
-          return executeRenameGroup(arguments, groupName);
+          return executeRenameGroup(arguments, groupName, authUser);
         case "addGroupType":
           return executeAddGroupType(arguments, groupName);
         case "removeGroupType":
@@ -549,11 +551,19 @@ public class GrouperMcpGroupSave {
    * default here is false so that a rename through MCP does the same thing as a rename through
    * the UI, where the "Update alternate ID path" box starts out unchecked.</p>
    *
+   * <p>The name being renamed to goes through the same protected resource check and the same
+   * readwrite scope check that execute() ran on the name being renamed from, since a rename
+   * puts a group at a name the caller was never granted.  Admin on the group is checked before
+   * either, ahead of where GroupSave would check it, so that a caller who can only view the
+   * group is told the same thing whether or not the new name is already taken.</p>
+   *
    * @param arguments the MCP request arguments
    * @param groupName the fully qualified name of the group to rename
+   * @param authUser the authenticated user, whose readwrite scope the new name is checked against
    * @return the MCP tool result
    */
-  private static ObjectNode executeRenameGroup(JsonNode arguments, String groupName) throws Exception {
+  private static ObjectNode executeRenameGroup(JsonNode arguments, String groupName,
+      GrouperMcpAuthUser authUser) throws Exception {
 
     String newExtension = arguments.has("newExtension")
         ? arguments.get("newExtension").asText() : null;
@@ -580,12 +590,38 @@ public class GrouperMcpGroupSave {
     String newGroupName = parentFolderName + ":" + newExtension;
 
     // the name being renamed to is checked for protection the same way execute() checked the
-    // name being renamed from, so a rename cannot land on a protected name.  there is no
-    // matching readwrite scope check on the new name: a rename keeps the group's uuid and its
-    // folder, so it cannot move the group outside a scope the caller already holds
+    // name being renamed from, so a rename cannot land on a protected name
     if (GrouperMcpProtectedResources.isProtectedGroupName(newGroupName)) {
       return buildErrorResult(
           GrouperMcpProtectedResources.buildProtectedGroupError(newGroupName));
+    }
+
+    // the group is looked up once for the two checks below.  this runs as the authenticated
+    // user, so a caller who cannot see the group gets null and both checks are skipped, and
+    // GroupSave below then fails with its own not found error without having written anything
+    Group groupToRename = GroupFinder.findByName(groupName, false);
+
+    // GroupSave checks admin when it stores the group, which is after it has looked up the new
+    // name with a root session and thrown if a group is already sitting there.  that ordering
+    // would let a caller who can only view this group learn whether a name they cannot see is
+    // taken, so admin is checked first here and a caller without it gets the same answer
+    // whether or not the new name is free
+    if (groupToRename != null
+        && !groupToRename.hasAdmin(GrouperSession.staticGrouperSession().getSubject())) {
+      return buildErrorResult("Cannot rename '" + groupName
+          + "': you are not an admin of that group.");
+    }
+
+    // the new name needs the same readwrite scope check that execute() ran on the old name.  a
+    // rename writes a name into the folder which the caller was never granted, the same way
+    // createGroup does, and other systems resolve groups by name.  the group's uuid goes along
+    // with the new name because a consent may list either one: looking up the new name on its
+    // own would find nothing, since no group has that name yet, and would turn a rename a uuid
+    // based consent does allow into a denial
+    if (authUser.isOAuthAuthenticated() && groupToRename != null
+        && !authUser.isGroupInReadwriteScope(newGroupName, groupToRename.getUuid())) {
+      return buildErrorResult(
+          authUser.buildReadwriteScopeDeniedError("group", newGroupName));
     }
 
     // GroupSave defaults this to true, but the UI's group edit screen leaves the "Update
