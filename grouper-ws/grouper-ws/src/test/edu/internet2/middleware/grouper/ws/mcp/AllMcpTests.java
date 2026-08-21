@@ -50,6 +50,7 @@ public class AllMcpTests {
     suite.addTestSuite(GrouperMcpFindStemsTest.class);
     suite.addTestSuite(GrouperMcpFolderDeleteTest.class);
     suite.addTestSuite(GrouperMcpGroupDeleteTest.class);
+    suite.addTestSuite(GrouperMcpGroupSaveTest.class);
     suite.addTestSuite(GrouperMcpAssignAttributesTest.class);
     suite.addTestSuite(GrouperMcpAdminExternalSystemGetTest.class);
     suite.addTestSuite(GrouperMcpAdminSearchConfigsTest.class);

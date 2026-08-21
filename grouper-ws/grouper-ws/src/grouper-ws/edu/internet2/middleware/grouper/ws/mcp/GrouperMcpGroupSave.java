@@ -54,6 +54,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *       affecting other settings</li>
  *   <li><b>updateGroupPart</b> - Update specific fields on an existing group without
  *       affecting other settings (uses GroupSave with replaceAllSettings=false)</li>
+ *   <li><b>renameGroup</b> - Change the group ID (the last part of the group name, which the
+ *       UI labels "Group ID") of an existing group, keeping it in the same folder and keeping
+ *       its uuid, memberships, and privileges</li>
  *   <li><b>addGroupType</b> - Assign an object type (policy, ref, basis, etc.) to a group</li>
  *   <li><b>removeGroupType</b> - Remove an object type from a group</li>
  *   <li><b>addComposite</b> - Make a group a composite of two other groups</li>
@@ -86,7 +89,8 @@ public class GrouperMcpGroupSave {
     tool.put("description",
         "Create or update a Grouper group, manage group types, composites, and provisioners. "
         + "Use the 'action' parameter to specify which operation to perform. "
-        + "Actions: createGroup, createOrUpdateGroup, updateGroupPart, addGroupType, removeGroupType, "
+        + "Actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, "
+        + "addGroupType, removeGroupType, "
         + "addComposite, updateComposite, removeComposite, "
         + "addEligibilityRequirement, removeEligibilityRequirement, "
         + "addProvisioner, removeProvisioner.");
@@ -103,6 +107,7 @@ public class GrouperMcpGroupSave {
     actionEnum.add("createGroup");
     actionEnum.add("createOrUpdateGroup");
     actionEnum.add("updateGroupPart");
+    actionEnum.add("renameGroup");
     actionEnum.add("addGroupType");
     actionEnum.add("removeGroupType");
     actionEnum.add("addComposite");
@@ -118,6 +123,8 @@ public class GrouperMcpGroupSave {
         + "createGroup = create a new group (fails if exists). "
         + "createOrUpdateGroup = create a new group or update an existing one without replacing all settings. "
         + "updateGroupPart = update specific fields on an existing group without replacing all settings. "
+        + "renameGroup = rename an existing group by giving it a new group ID in the same folder; "
+        + "the group keeps its uuid, memberships, privileges, and attribute assignments. "
         + "addGroupType = assign an object type (e.g., policy, ref, basis) to a group. "
         + "removeGroupType = remove an object type from a group. "
         + "addComposite = make a group a composite of two other groups. "
@@ -149,7 +156,8 @@ public class GrouperMcpGroupSave {
     displayExtensionProp.put("description",
         "Display extension (friendly name) of the group. "
         + "If not provided on createGroup, defaults to the extension portion of the group name. "
-        + "Used with createGroup, createOrUpdateGroup, and updateGroupPart.");
+        + "Used with createGroup, createOrUpdateGroup, updateGroupPart, and optionally with "
+        + "renameGroup to change the friendly name at the same time as the group ID.");
     properties.set("displayExtension", displayExtensionProp);
 
     ObjectNode typeOfGroupProp = objectMapper.createObjectNode();
@@ -158,6 +166,27 @@ public class GrouperMcpGroupSave {
         "Type of group: 'group', 'role', 'entity'. Defaults to 'group'. "
         + "Used with createGroup and createOrUpdateGroup.");
     properties.set("typeOfGroup", typeOfGroupProp);
+
+    // --- parameters for renameGroup ---
+    ObjectNode newExtensionProp = objectMapper.createObjectNode();
+    newExtensionProp.put("type", "string");
+    newExtensionProp.put("description",
+        "The new group ID of the group, which the Grouper UI labels 'Group ID' and the Grouper "
+        + "API calls the extension: the last colon separated part of the group name, e.g. "
+        + "'newName' and not 'stem1:stem2:newName'. This is a name, not the group's uuid. "
+        + "The group is renamed in place, so its new fully qualified name is the existing "
+        + "parent folder plus this group ID, and a group cannot be moved to a different folder "
+        + "by renaming it. Required for renameGroup.");
+    properties.set("newExtension", newExtensionProp);
+
+    ObjectNode setAlternateNameIfRenameProp = objectMapper.createObjectNode();
+    setAlternateNameIfRenameProp.put("type", "boolean");
+    setAlternateNameIfRenameProp.put("description",
+        "Whether to set the group's alternate ID path to its old ID path, which keeps the group "
+        + "searchable and resolvable by the name it had before the rename. Defaults to false, "
+        + "which matches the unchecked 'Update alternate ID path' box on the UI's group edit "
+        + "screen. Used with renameGroup.");
+    properties.set("setAlternateNameIfRename", setAlternateNameIfRenameProp);
 
     // --- parameters for addGroupType and removeGroupType ---
     ObjectNode objectTypeProp = objectMapper.createObjectNode();
@@ -305,6 +334,8 @@ public class GrouperMcpGroupSave {
           return executeCreateOrUpdateGroup(arguments, groupName);
         case "updateGroupPart":
           return executeUpdateGroupPart(arguments, groupName);
+        case "renameGroup":
+          return executeRenameGroup(arguments, groupName);
         case "addGroupType":
           return executeAddGroupType(arguments, groupName);
         case "removeGroupType":
@@ -325,8 +356,8 @@ public class GrouperMcpGroupSave {
           return executeRemoveProvisioner(arguments, groupName);
         default:
           return buildErrorResult("Unknown action: " + action
-              + ". Valid actions: createGroup, createOrUpdateGroup, updateGroupPart, addGroupType, "
-              + "removeGroupType, addComposite, updateComposite, removeComposite, addEligibilityRequirement, "
+              + ". Valid actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, "
+              + "addGroupType, removeGroupType, addComposite, updateComposite, removeComposite, addEligibilityRequirement, "
               + "removeEligibilityRequirement, addProvisioner, removeProvisioner.");
       }
     } catch (Exception e) {
@@ -488,6 +519,105 @@ public class GrouperMcpGroupSave {
     resultNode.put("action", "updateGroupPart");
     resultNode.put("resultCode", saveResultType.name());
     resultNode.put("success", true);
+    resultNode.put("name", group.getName());
+    if (StringUtils.isNotBlank(group.getDisplayExtension())) {
+      resultNode.put("displayExtension", group.getDisplayExtension());
+    }
+    if (StringUtils.isNotBlank(group.getDescription())) {
+      resultNode.put("description", group.getDescription());
+    }
+    resultNode.put("uuid", group.getUuid());
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * Rename an existing group by giving it a new group ID, which is what the UI labels the
+   * extension of a group name.  The group keeps its uuid, memberships, privileges, and
+   * attribute assignments; only the last part of its name changes, so its fully qualified name
+   * becomes parentFolder:newExtension.
+   *
+   * <p>The new name is a group ID rather than a fully qualified name because GroupSave refuses
+   * to move a group to a different folder.  Taking a fully qualified name here would let a
+   * caller ask for a move and get a failure from deep inside the API instead of a message
+   * saying that moving is not what this action does.</p>
+   *
+   * <p>The old name is kept as the group's alternate ID path only when the caller asks for it
+   * with setAlternateNameIfRename=true.  GroupSave itself defaults that to true, but the
+   * default here is false so that a rename through MCP does the same thing as a rename through
+   * the UI, where the "Update alternate ID path" box starts out unchecked.</p>
+   *
+   * @param arguments the MCP request arguments
+   * @param groupName the fully qualified name of the group to rename
+   * @return the MCP tool result
+   */
+  private static ObjectNode executeRenameGroup(JsonNode arguments, String groupName) throws Exception {
+
+    String newExtension = arguments.has("newExtension")
+        ? arguments.get("newExtension").asText() : null;
+    String displayExtension = arguments.has("displayExtension")
+        ? arguments.get("displayExtension").asText() : null;
+
+    if (StringUtils.isBlank(newExtension)) {
+      return buildErrorResult("newExtension is required for renameGroup.");
+    }
+
+    if (StringUtils.contains(newExtension, ":")) {
+      return buildErrorResult("newExtension must be the new group ID of the group, which is the "
+          + "last colon separated part of its name, not a fully qualified name (e.g. 'newName', "
+          + "not 'stem1:stem2:newName').  A group cannot be moved to a different folder by "
+          + "renaming it.");
+    }
+
+    String parentFolderName = GrouperUtil.parentStemNameFromName(groupName);
+    if (StringUtils.isBlank(parentFolderName)) {
+      return buildErrorResult("Cannot rename '" + groupName
+          + "': a group name must contain at least one folder name (separated by colons).");
+    }
+
+    String newGroupName = parentFolderName + ":" + newExtension;
+
+    // the name being renamed to is checked for protection the same way execute() checked the
+    // name being renamed from, so a rename cannot land on a protected name.  there is no
+    // matching readwrite scope check on the new name: a rename keeps the group's uuid and its
+    // folder, so it cannot move the group outside a scope the caller already holds
+    if (GrouperMcpProtectedResources.isProtectedGroupName(newGroupName)) {
+      return buildErrorResult(
+          GrouperMcpProtectedResources.buildProtectedGroupError(newGroupName));
+    }
+
+    // GroupSave defaults this to true, but the UI's group edit screen leaves the "Update
+    // alternate ID path" box unchecked, so a caller who says nothing gets what a person
+    // renaming the same group through the UI would get
+    boolean setAlternateNameIfRename = arguments.has("setAlternateNameIfRename")
+        && arguments.get("setAlternateNameIfRename").asBoolean();
+
+    // groupNameToEdit finds the group, name says what to rename it to, and
+    // replaceAllSettings=false leaves the description, type of group, and everything else alone
+    GroupSave groupSave = new GroupSave()
+        .assignGroupNameToEdit(groupName)
+        .assignName(newGroupName)
+        .assignReplaceAllSettings(false)
+        .assignSetAlternateNameIfRename(setAlternateNameIfRename)
+        .assignSaveMode(SaveMode.UPDATE);
+
+    // the display extension is left as it was unless the caller asks for a new one, since it is
+    // a friendly name a site may well have set to something other than the group ID
+    if (StringUtils.isNotBlank(displayExtension)) {
+      groupSave.assignDisplayExtension(displayExtension);
+    }
+
+    Group group = groupSave.save();
+    SaveResultType saveResultType = groupSave.getSaveResultType();
+
+    // build the response with the renamed group details
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("action", "renameGroup");
+    resultNode.put("resultCode", saveResultType.name());
+    resultNode.put("success", true);
+    resultNode.put("previousName", groupName);
     resultNode.put("name", group.getName());
     if (StringUtils.isNotBlank(group.getDisplayExtension())) {
       resultNode.put("displayExtension", group.getDisplayExtension());
