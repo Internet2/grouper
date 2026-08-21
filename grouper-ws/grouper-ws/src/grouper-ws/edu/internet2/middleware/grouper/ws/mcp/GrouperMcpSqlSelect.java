@@ -15,8 +15,10 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,14 +36,15 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * MCP tool handler for executing read-only SQL SELECT queries against the
- * Grouper database or other configured external systems.  Only SELECT
- * statements are allowed; DML and DDL are rejected.  Results are returned
- * as a JSON array of row objects.
+ * database external systems the administrator has made available to MCP.
+ * Only SELECT statements are allowed; DML and DDL are rejected.  Results are
+ * returned as a JSON array of row objects.
  * Uses paging (pageSize/pageNumber) and a read-only JDBC connection
- * for defense-in-depth.  The default database connection can be configured
- * via grouper.mcp.sqlGrouperExternalSystem.  Additional external systems
- * are available when configured with grouper.mcp.&lt;id&gt;.sqlTablesViews
- * or grouper.mcp.&lt;id&gt;.sqlTablesViewsQuery.
+ * for defense-in-depth.
+ * There is no default database, not even the Grouper database.  The externalSystemId
+ * is both what the caller passes and the grouperClient.jdbc connection name used, and
+ * it is available only when the administrator configured a
+ * grouper.mcp.sql.&lt;externalSystemId&gt;.* property for it.
  * Supports countOnly mode to return just the row count without fetching data.
  *
  * @author mchyzer
@@ -69,17 +72,19 @@ public class GrouperMcpSqlSelect {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "sql_select");
     tool.put("description",
-        "Execute a read-only SQL SELECT query against the Grouper database (or another "
-        + "configured external system) and return the results as a JSON array of row objects. "
-        + "Only SELECT statements are allowed. "
+        "Execute a read-only SQL SELECT query against one of the databases the Grouper "
+        + "administrator has made available and return the results as a JSON array of row "
+        + "objects. Only SELECT statements are allowed. "
+        + "The externalSystemId parameter is required, there is no default database. "
+        + "Call sql_get_schema with action 'listExternalSystems' first to discover which "
+        + "databases are available, 'listTables' to see table/view names, and 'tableInfo' "
+        + "to get column details. Use table and view names exactly as sql_get_schema "
+        + "returns them, including any schema qualification. "
         + "Results are paged; use pageSize (default " + DEFAULT_PAGE_SIZE
         + ", max " + MAX_ROWS + ") and pageNumber (1-based, default 1) to page through "
         + "large result sets. An ORDER BY clause is required when paging beyond page 1 "
         + "to ensure deterministic results. "
-        + "Set countOnly to true to return just the row count without fetching data. "
-        + "Use sql_get_schema with action 'listExternalSystems' to discover available databases, "
-        + "'listTables' to see table/view names, and 'tableInfo' to get column details. "
-        + "Use externalSystemId to query a different configured database connection.");
+        + "Set countOnly to true to return just the row count without fetching data.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
@@ -121,17 +126,17 @@ public class GrouperMcpSqlSelect {
     ObjectNode externalSystemIdProp = objectMapper.createObjectNode();
     externalSystemIdProp.put("type", "string");
     externalSystemIdProp.put("description",
-        "Optional external system ID to query a different database connection. "
-        + "Defaults to the Grouper database. The external system must be configured "
-        + "by the administrator with grouper.mcp.sql.<id>.sqlTablesViews or "
-        + "grouper.mcp.sql.<id>.sqlTablesViewsQuery. Use sql_get_schema with "
-        + "action 'listExternalSystems' to see which external systems are available.");
+        "The ID of the database to query. Required; there is no default database and the "
+        + "Grouper database is not available unless the administrator configured it. "
+        + "Use sql_get_schema with action 'listExternalSystems' to see which external "
+        + "systems are available.");
     properties.set("externalSystemId", externalSystemIdProp);
 
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
     required.add("sql");
+    required.add("externalSystemId");
     inputSchema.set("required", required);
 
     tool.set("inputSchema", inputSchema);
@@ -168,20 +173,20 @@ public class GrouperMcpSqlSelect {
       return buildErrorResult(validationError);
     }
 
-    // validate the external system is allowed
+    // validate the external system is configured, there is no default
     String externalSystemError = validateExternalSystemAllowed(externalSystemId);
     if (externalSystemError != null) {
       return buildErrorResult(externalSystemError);
     }
 
-    // resolve to the actual database connection name
-    String connectionName = resolveConnectionName(externalSystemId);
+    // the external system ID is the database connection name
+    String externalSystem = externalSystemId.trim();
 
     if (countOnly) {
-      return executeCount(sql, connectionName, authUser);
+      return executeCount(sql, externalSystem, authUser);
     }
 
-    return executeSelect(sql, pageSize, pageNumber, connectionName, authUser);
+    return executeSelect(sql, pageSize, pageNumber, externalSystem, authUser);
   }
 
   /**
@@ -300,64 +305,123 @@ public class GrouperMcpSqlSelect {
   }
 
   /**
-   * resolve the database connection name from the externalSystemId parameter.
-   * "grouper" (or null/blank) maps to the configured grouper.mcp.sqlGrouperExternalSystem
-   * value so the caller doesn't need to know the actual connection name.
-   * other external system IDs are returned as-is.
-   * @param externalSystemId the external system ID from the request, or null
-   * @return the resolved database connection name
+   * pattern which matches the config keys that can make an external system available to
+   * the MCP SQL tools, e.g. grouper.mcp.sql.hr_db.sqlTablesViews.  the external system ID
+   * is also the grouperClient.jdbc connection name which is used.
    */
-  static String resolveConnectionName(String externalSystemId) {
-    if (StringUtils.isBlank(externalSystemId) || "grouper".equals(externalSystemId.trim())) {
-      return GrouperConfig.retrieveConfig()
-          .propertyValueString("grouper.mcp.sqlGrouperExternalSystem", "grouper");
+  private static final Pattern EXTERNAL_SYSTEM_CONFIG_PATTERN = Pattern.compile(
+      "^grouper\\.mcp\\.sql\\.([^.]+)\\.(grouperDatabase|sqlTablesViews|sqlTablesViewsQuery)$");
+
+  /**
+   * the external system IDs available to the MCP SQL tools.  no database is available by
+   * default, including the Grouper database.  one is available when it has tables the AI
+   * can discover, which means sqlTablesViews or sqlTablesViewsQuery is configured for it,
+   * or grouperDatabase is true so the tables come from the built-in Grouper DDL.  the
+   * other grouper.mcp.sql.&lt;id&gt;.* properties describe a system, they do not make one
+   * available on their own, since a system with no tables is of no use to the AI.
+   * @return the IDs, empty if none are configured
+   */
+  static Set<String> externalSystemIds() {
+
+    Set<String> externalSystemIds = new LinkedHashSet<String>();
+
+    Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();
+    for (String key : propertyNames) {
+      Matcher matcher = EXTERNAL_SYSTEM_CONFIG_PATTERN.matcher(key);
+      if (matcher.matches()) {
+        String id = matcher.group(1);
+        if ("grouperDatabase".equals(matcher.group(2))) {
+          // grouperDatabase = false says this is not a Grouper database, it does not make
+          // one available
+          if (isGrouperDatabase(id)) {
+            externalSystemIds.add(id);
+          }
+        } else if (StringUtils.isNotBlank(
+            GrouperConfig.retrieveConfig().propertyValueString(key, ""))) {
+          externalSystemIds.add(id);
+        }
+      }
     }
-    return externalSystemId.trim();
+
+    return externalSystemIds;
   }
 
   /**
-   * check if the given externalSystemId refers to the Grouper database.
-   * null, blank, or "grouper" all mean the Grouper database.
-   * @param externalSystemId the external system ID from the request, or null
-   * @return true if this is the Grouper database
+   * if any database is configured.  when none is, the SQL tools are not advertised to the
+   * AI client, since there is nothing they could query.
+   * @return true if at least one external system is configured
    */
-  static boolean isGrouperDb(String externalSystemId) {
-    return StringUtils.isBlank(externalSystemId) || "grouper".equals(externalSystemId.trim());
+  static boolean anyConfigured() {
+    return !externalSystemIds().isEmpty();
   }
 
   /**
-   * validate that the external system is allowed for MCP SQL queries.
-   * the Grouper database ("grouper" or null/blank) is always allowed.
-   * other external systems require
-   * grouper.mcp.&lt;id&gt;.sqlTablesViews or grouper.mcp.&lt;id&gt;.sqlTablesViewsQuery
-   * to be configured.
-   * @param externalSystemId the external system ID from the request (before resolution)
-   * @return null if allowed, error message if not allowed
+   * the message sent to the AI client when the administrator has made no database
+   * available at all, which is how MCP ships
+   * @return the message
+   */
+  static String noDatabasesConfiguredMessage() {
+    return "No databases are configured for MCP SQL queries. The administrator must make "
+        + "each database available with grouper.mcp.sql.<externalSystemId>.sqlTablesViews "
+        + "or .sqlTablesViewsQuery, or with .grouperDatabase = true for a Grouper "
+        + "database. The Grouper database is not available by default.";
+  }
+
+  /**
+   * validate that the external system in the request is available.  there is no default,
+   * so a blank external system ID is an error.
+   * @param externalSystemId the external system ID from the request
+   * @return null if allowed, the error message to send to the AI client if not
    */
   static String validateExternalSystemAllowed(String externalSystemId) {
-    // the Grouper database is always allowed
-    if (isGrouperDb(externalSystemId)) {
-      return null;
+
+    Set<String> externalSystemIds = externalSystemIds();
+
+    if (externalSystemIds.isEmpty()) {
+      return noDatabasesConfiguredMessage();
+    }
+
+    if (StringUtils.isBlank(externalSystemId)) {
+      return "externalSystemId is required, there is no default database. "
+          + "Available external systems: " + StringUtils.join(externalSystemIds, ", ")
+          + ". Use sql_get_schema with action 'listExternalSystems' for details on each one.";
     }
 
     String id = externalSystemId.trim();
 
-    // check if the external system has sqlTablesViews or sqlTablesViewsQuery configured
-    String sqlTablesViews = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sql." + id + ".sqlTablesViews", "");
-    if (StringUtils.isNotBlank(sqlTablesViews)) {
-      return null;
-    }
-
-    String sqlTablesViewsQuery = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sql." + id + ".sqlTablesViewsQuery", "");
-    if (StringUtils.isNotBlank(sqlTablesViewsQuery)) {
+    if (externalSystemIds.contains(id)) {
       return null;
     }
 
     return "External system '" + id + "' is not configured for MCP SQL queries. "
-        + "The administrator must configure grouper.mcp.sql." + id + ".sqlTablesViews "
-        + "or grouper.mcp.sql." + id + ".sqlTablesViewsQuery to enable this external system.";
+        + "Available external systems: " + StringUtils.join(externalSystemIds, ", ") + ". "
+        + "The administrator makes another one available with grouper.mcp.sql." + id
+        + ".sqlTablesViews or .sqlTablesViewsQuery, or .grouperDatabase = true for a "
+        + "Grouper database.";
+  }
+
+  /**
+   * if the external system points at a Grouper database, in which case schema discovery
+   * uses the built-in Grouper DDL as the base list of tables and views.
+   * @param externalSystemId the external system ID
+   * @return true if this is a Grouper database
+   */
+  static boolean isGrouperDatabase(String externalSystemId) {
+
+    return GrouperConfig.retrieveConfig().propertyValueBoolean(
+        "grouper.mcp.sql." + StringUtils.trim(externalSystemId) + ".grouperDatabase", false);
+  }
+
+  /**
+   * the schema which holds the Grouper tables and views, when it is not the connection's
+   * default schema.  the AI is shown schema qualified names so the SQL it writes finds them.
+   * @param externalSystemId the external system ID
+   * @return the schema, or blank if none is configured
+   */
+  static String grouperDatabaseSchema(String externalSystemId) {
+
+    return GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.mcp.sql." + StringUtils.trim(externalSystemId) + ".grouperDatabaseSchema", "");
   }
 
   /**

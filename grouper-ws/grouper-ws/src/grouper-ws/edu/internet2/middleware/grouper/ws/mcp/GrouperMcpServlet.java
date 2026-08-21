@@ -1483,8 +1483,9 @@ public class GrouperMcpServlet extends HttpServlet {
             }
           }
 
-          // SQL readonly tools
-          if (hasSqlReadonlyAccess(authUser)) {
+          // SQL readonly tools.  only advertise them if the administrator made at least
+          // one database available, otherwise there is nothing they can query
+          if (hasSqlReadonlyAccess(authUser) && GrouperMcpSqlSelect.anyConfigured()) {
             addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
             addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
           }

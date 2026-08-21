@@ -15,6 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -59,7 +62,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpSqlSelectTest("testSqlSelectBasic"));
+    TestRunner.run(GrouperMcpSqlSelectTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -79,6 +82,12 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
+    // no database is available to the MCP SQL tools unless the administrator configures it,
+    // so make the Grouper database available to these tests.  the external system ID is
+    // the database connection name
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.grouper.grouperDatabase", "true");
+
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
@@ -91,6 +100,20 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     GrouperContext.deleteDefaultContext();
+  }
+
+  /**
+   * remove any grouper.mcp.sql.* config overrides so that no database is available
+   * to the MCP SQL tools, which is the out of the box state
+   */
+  private static void removeAllSqlExternalSystemConfigs() {
+    List<String> keys = new ArrayList<String>(
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().keySet());
+    for (String key : keys) {
+      if (key.startsWith("grouper.mcp.sql.")) {
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(key);
+      }
+    }
   }
 
   /**
@@ -113,6 +136,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT gg.name, gg.description FROM grouper_groups gg "
           + "WHERE gg.name = 'test:mcpSqlSelectGroup1'");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -149,6 +173,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg "
           + "WHERE gg.name = 'bogus:nonExistentGroup99999'");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -193,6 +218,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
           + "WHERE gg.name LIKE 'test:mcpSqlPage:group%' ORDER BY gg.name");
       arguments.put("pageSize", 2);
       arguments.put("pageNumber", 1);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -215,6 +241,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
           + "WHERE gg.name LIKE 'test:mcpSqlPage:group%' ORDER BY gg.name");
       arguments.put("pageSize", 2);
       arguments.put("pageNumber", 2);
+      arguments.put("externalSystemId", "grouper");
 
       result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -245,6 +272,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg");
       arguments.put("pageNumber", 2);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -268,6 +296,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg WHERE 1=0");
       arguments.put("pageNumber", 1);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -292,6 +321,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -333,6 +363,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "INSERT INTO grouper_groups (name) VALUES ('bad')");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -355,6 +386,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "UPDATE grouper_groups SET name = 'bad'");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -377,6 +409,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "DELETE FROM grouper_groups");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -399,6 +432,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT 1; DROP TABLE grouper_groups");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -419,6 +453,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT 1;");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -457,6 +492,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg "
           + "WHERE gg.name LIKE 'test:mcpSqlCount:group%'");
       arguments.put("countOnly", true);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -491,6 +527,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg "
           + "WHERE gg.name = 'bogus:nonExistentGroup99999'");
       arguments.put("countOnly", true);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -521,6 +558,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "INSERT INTO grouper_groups (name) VALUES ('bad')");
       arguments.put("countOnly", true);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -543,6 +581,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("countOnly", true);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -578,6 +617,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       arguments.put("countOnly", true);
       arguments.put("pageNumber", 2);
       arguments.put("pageSize", 1);
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
@@ -601,45 +641,61 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
   // ========================================================================
 
   /**
-   * test that the default externalSystemId (null/blank) uses the grouper connection
+   * test that a missing externalSystemId is an error since there is no default database
    */
-  public void testSqlSelectDefaultExternalSystem() {
-
-    new GroupSave(GrouperSession.staticGrouperSession())
-        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-        .assignGroupNameToEdit("test:mcpSqlExtSys1")
-        .assignName("test:mcpSqlExtSys1")
-        .assignCreateParentStemsIfNotExist(true)
-        .assignDescription("ext sys test").save();
+  public void testSqlSelectMissingExternalSystem() {
 
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-      // no externalSystemId - should default to grouper and work
+      // no externalSystemId, and there is no default
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("sql", "SELECT gg.name FROM grouper_groups gg "
-          + "WHERE gg.name = 'test:mcpSqlExtSys1'");
+      arguments.put("sql", "SELECT gg.name FROM grouper_groups gg WHERE 1=0");
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
-      assertFalse("Expected success with default external system, got: " + result.toString(),
-          result.get("isError").asBoolean());
+      assertTrue("Expected error when externalSystemId is not passed, got: "
+          + result.toString(), result.get("isError").asBoolean());
 
       String text = result.get("content").get(0).get("text").asText();
-      try {
-        JsonNode responseNode = objectMapper.readTree(text);
-        assertEquals(1, responseNode.get("rowCount").asInt());
-      } catch (Exception e) {
-        fail("Failed to parse result JSON: " + e.getMessage());
-      }
+      assertTrue("Expected message that externalSystemId is required, got: " + text,
+          text.contains("externalSystemId is required"));
     } finally {
       GrouperSession.stopQuietly(session);
     }
   }
 
   /**
-   * test that passing "grouper" explicitly as externalSystemId works the same as default
+   * test that no database at all is available when the administrator configured none
+   */
+  public void testSqlSelectNoExternalSystemsConfigured() {
+
+    removeAllSqlExternalSystemConfigs();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("sql", "SELECT gg.name FROM grouper_groups gg WHERE 1=0");
+      arguments.put("externalSystemId", "grouper");
+
+      ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
+
+      assertTrue("Expected error when no external system is configured, got: "
+          + result.toString(), result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected message that no databases are configured, got: " + text,
+          text.contains("No databases are configured"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that a configured Grouper database external system can be queried
    */
   public void testSqlSelectExplicitGrouper() {
 
@@ -654,7 +710,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-      // explicitly pass "grouper" as externalSystemId - should work the same as default
+      // "grouper" is configured as a Grouper database external system in setUp
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("sql", "SELECT gg.name FROM grouper_groups gg "
           + "WHERE gg.name = 'test:mcpSqlExtSysGrouper1'");
@@ -662,7 +718,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
       ObjectNode result = GrouperMcpSqlSelect.execute(arguments, authUser);
 
-      assertFalse("Expected success with explicit 'grouper' external system, got: "
+      assertFalse("Expected success with the 'grouper' external system, got: "
           + result.toString(), result.get("isError").asBoolean());
 
       String text = result.get("content").get(0).get("text").asText();
@@ -737,6 +793,8 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       assertFalse("Should not get 'not configured' error for configured external system",
           text.contains("not configured"));
     } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+          "grouper.mcp.sql.testExtDb.sqlTablesViews");
       GrouperSession.stopQuietly(session);
     }
   }
@@ -767,58 +825,29 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
   }
 
   /**
-   * test the resolveConnectionName method directly
+   * test the isGrouperDatabase method directly
    */
-  public void testResolveConnectionName() {
+  public void testIsGrouperDatabase() {
 
-    // null/blank should return the default (from grouper.mcp.sqlGrouperExternalSystem config)
-    String resolved = GrouperMcpSqlSelect.resolveConnectionName(null);
-    assertNotNull(resolved);
+    // setUp configured grouper.mcp.sql.grouper.grouperDatabase = true
+    assertTrue("'grouper' should be a grouper database",
+        GrouperMcpSqlSelect.isGrouperDatabase("grouper"));
+    assertTrue("' grouper ' should be a grouper database",
+        GrouperMcpSqlSelect.isGrouperDatabase(" grouper "));
 
-    resolved = GrouperMcpSqlSelect.resolveConnectionName("");
-    assertNotNull(resolved);
+    // not a grouper database unless flagged as one, even if the ID looks like it
+    assertFalse("'hr_db' should not be a grouper database",
+        GrouperMcpSqlSelect.isGrouperDatabase("hr_db"));
 
-    // "grouper" should also return the configured default
-    resolved = GrouperMcpSqlSelect.resolveConnectionName("grouper");
-    assertNotNull(resolved);
-
-    // if sqlGrouperExternalSystem is set to a custom value, "grouper" should resolve to it
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        "grouper.mcp.sqlGrouperExternalSystem", "grouperReadOnly");
+        "grouper.mcp.sql.grouperReadOnly.sqlTablesViews", "some_table");
     try {
-      resolved = GrouperMcpSqlSelect.resolveConnectionName(null);
-      assertEquals("grouperReadOnly", resolved);
-
-      resolved = GrouperMcpSqlSelect.resolveConnectionName("grouper");
-      assertEquals("grouperReadOnly", resolved);
-
-      resolved = GrouperMcpSqlSelect.resolveConnectionName("");
-      assertEquals("grouperReadOnly", resolved);
+      assertFalse("'grouperReadOnly' should not be a grouper database unless flagged",
+          GrouperMcpSqlSelect.isGrouperDatabase("grouperReadOnly"));
     } finally {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
-          "grouper.mcp.sqlGrouperExternalSystem");
+          "grouper.mcp.sql.grouperReadOnly.sqlTablesViews");
     }
-
-    // explicit non-grouper value should be returned as-is (trimmed)
-    resolved = GrouperMcpSqlSelect.resolveConnectionName("myDb");
-    assertEquals("myDb", resolved);
-
-    resolved = GrouperMcpSqlSelect.resolveConnectionName("  myDb  ");
-    assertEquals("myDb", resolved);
-  }
-
-  /**
-   * test the isGrouperDb method directly
-   */
-  public void testIsGrouperDb() {
-
-    assertTrue("null should be grouper db", GrouperMcpSqlSelect.isGrouperDb(null));
-    assertTrue("blank should be grouper db", GrouperMcpSqlSelect.isGrouperDb(""));
-    assertTrue("'grouper' should be grouper db", GrouperMcpSqlSelect.isGrouperDb("grouper"));
-    assertTrue("' grouper ' should be grouper db", GrouperMcpSqlSelect.isGrouperDb(" grouper "));
-    assertFalse("'hr_db' should not be grouper db", GrouperMcpSqlSelect.isGrouperDb("hr_db"));
-    assertFalse("'grouperReadOnly' should not be grouper db",
-        GrouperMcpSqlSelect.isGrouperDb("grouperReadOnly"));
   }
 
   /**
@@ -826,35 +855,65 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
    */
   public void testValidateExternalSystemAllowed() {
 
-    // null (grouper db) should always be allowed
-    assertNull("null should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed(null));
-
-    // blank (grouper db) should always be allowed
-    assertNull("blank should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed(""));
-
-    // "grouper" should always be allowed
+    // the grouper database is allowed since setUp configured it
     assertNull("'grouper' should be allowed",
         GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper"));
 
+    // there is no default, so null and blank are errors
+    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed(null);
+    assertNotNull("null should not be allowed", error);
+    assertTrue(error.contains("externalSystemId is required"));
+
+    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("");
+    assertNotNull("blank should not be allowed", error);
+    assertTrue(error.contains("externalSystemId is required"));
+
     // unconfigured system should be denied
-    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed("unconfiguredDb12345");
+    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("unconfiguredDb12345");
     assertNotNull("Unconfigured system should be denied", error);
     assertTrue(error.contains("not configured"));
 
+    // system with grouperDatabase configured should be allowed
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.allowedDb.grouperDatabase", "true");
+    assertNull("System with grouperDatabase should be allowed",
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb"));
+
     // system with sqlTablesViews configured should be allowed
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        "grouper.mcp.sql.allowedDb.sqlTablesViews", "some_table");
+        "grouper.mcp.sql.allowedDb2.sqlTablesViews", "some_table");
     assertNull("System with sqlTablesViews should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb2"));
 
     // system with sqlTablesViewsQuery configured should be allowed
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        "grouper.mcp.sql.allowedDb2.sqlTablesViewsQuery",
+        "grouper.mcp.sql.allowedDb3.sqlTablesViewsQuery",
         "SELECT table_name FROM information_schema.tables");
     assertNull("System with sqlTablesViewsQuery should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb2"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb3"));
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+        "grouper.mcp.sql.allowedDb.grouperDatabase");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+        "grouper.mcp.sql.allowedDb2.sqlTablesViews");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+        "grouper.mcp.sql.allowedDb3.sqlTablesViewsQuery");
+  }
+
+  /**
+   * test that no external systems are available when nothing is configured
+   */
+  public void testExternalSystemIdsNoneConfigured() {
+
+    removeAllSqlExternalSystemConfigs();
+
+    assertTrue("No external systems should be configured by default",
+        GrouperMcpSqlSelect.externalSystemIds().isEmpty());
+    assertFalse("anyConfigured should be false", GrouperMcpSqlSelect.anyConfigured());
+
+    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper");
+    assertNotNull("The grouper database should not be available by default", error);
+    assertTrue(error.contains("No databases are configured"));
   }
 
   /**
@@ -879,8 +938,9 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     JsonNode required = toolDef.get("inputSchema").get("required");
     assertNotNull(required);
     assertTrue(required.isArray());
-    assertEquals(1, required.size());
+    assertEquals(2, required.size());
     assertEquals("sql", required.get(0).asText());
+    assertEquals("externalSystemId", required.get(1).asText());
   }
 
   /**

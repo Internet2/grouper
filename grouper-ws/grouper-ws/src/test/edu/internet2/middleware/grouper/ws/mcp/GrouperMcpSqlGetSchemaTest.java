@@ -15,6 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -57,7 +60,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpSqlGetSchemaTest("testListTablesGrouper"));
+    TestRunner.run(new GrouperMcpSqlGetSchemaTest("testUnknownAction"));
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -77,6 +80,12 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
+    // no database is available to the MCP SQL tools unless the administrator configures it,
+    // so make the Grouper database available to these tests.  the external system ID is
+    // the database connection name
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.grouper.grouperDatabase", "true");
+
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
@@ -89,6 +98,20 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     GrouperContext.deleteDefaultContext();
+  }
+
+  /**
+   * remove any grouper.mcp.sql.* config overrides so that no database is available
+   * to the MCP SQL tools, which is the out of the box state
+   */
+  private static void removeAllSqlExternalSystemConfigs() {
+    List<String> keys = new ArrayList<String>(
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().keySet());
+    for (String key : keys) {
+      if (key.startsWith("grouper.mcp.sql.")) {
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(key);
+      }
+    }
   }
 
   /**
@@ -171,6 +194,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("externalSystemId", "grouper");
       arguments.put("action", "bogusAction");
 
       ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
@@ -184,7 +208,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
   }
 
   /**
-   * test listExternalSystems returns at least "grouper"
+   * test listExternalSystems returns the configured "grouper" external system
    */
   public void testListExternalSystems() {
 
@@ -206,11 +230,17 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
         JsonNode systems = responseNode.get("externalSystems");
         assertNotNull(systems);
         assertTrue(systems.isArray());
-        assertTrue("Should have at least 'grouper'", systems.size() >= 1);
+        assertTrue("Should have the configured 'grouper' external system", systems.size() >= 1);
 
-        // first entry should be "grouper"
-        assertEquals("grouper", systems.get(0).get("id").asText());
-        assertTrue(systems.get(0).get("isGrouperDb").asBoolean());
+        // "grouper" was configured in setUp as a grouper database
+        boolean foundGrouper = false;
+        for (int i = 0; i < systems.size(); i++) {
+          if ("grouper".equals(systems.get(i).get("id").asText())) {
+            foundGrouper = true;
+            assertTrue(systems.get(i).get("isGrouperDb").asBoolean());
+          }
+        }
+        assertTrue("Should find 'grouper' in external systems", foundGrouper);
       } catch (Exception e) {
         fail("Failed to parse result JSON: " + e.getMessage());
       }
@@ -257,6 +287,8 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
         fail("Failed to parse result JSON: " + e.getMessage());
       }
     } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+          "grouper.mcp.sql.hrDb.sqlTablesViews");
       GrouperSession.stopQuietly(session);
     }
   }
@@ -272,6 +304,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("action", "listTables");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
 
@@ -319,6 +352,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("action", "tableInfo");
       arguments.put("tableName", "grouper_groups");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
 
@@ -346,6 +380,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("action", "tableInfo");
       arguments.put("tableName", "bogus_nonexistent_table_99999");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
 
@@ -368,6 +403,7 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("action", "tableInfo");
+      arguments.put("externalSystemId", "grouper");
 
       ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
 
@@ -429,6 +465,57 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
   }
 
   /**
+   * test listTables without an externalSystemId is an error, there is no default
+   */
+  public void testListTablesMissingExternalSystem() {
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "listTables");
+
+      ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertTrue("Expected error when externalSystemId is not passed",
+          result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected message that externalSystemId is required, got: " + text,
+          text.contains("externalSystemId is required"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test listExternalSystems when the administrator configured no database at all
+   */
+  public void testListExternalSystemsNoneConfigured() {
+
+    removeAllSqlExternalSystemConfigs();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "listExternalSystems");
+
+      ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected message that no databases are configured, got: " + text,
+          text.contains("No databases are configured"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
    * test listTables with explicit "grouper" externalSystemId works
    */
   public void testListTablesExplicitGrouper() {
@@ -454,6 +541,145 @@ public class GrouperMcpSqlGetSchemaTest extends GrouperTest {
         fail("Failed to parse result JSON: " + e.getMessage());
       }
     } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that listTables returns schema qualified names when grouperDatabaseSchema is set
+   */
+  public void testListTablesWithGrouperDatabaseSchema() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.grouper.grouperDatabaseSchema", "my_grouper_schema");
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "listTables");
+      arguments.put("externalSystemId", "grouper");
+
+      ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+
+        assertEquals("my_grouper_schema", responseNode.get("tableSchema").asText());
+
+        JsonNode tables = responseNode.get("tables");
+        boolean foundQualified = false;
+        for (int i = 0; i < tables.size(); i++) {
+          String name = tables.get(i).asText();
+          assertTrue("Every table should be schema qualified, got: " + name,
+              name.startsWith("my_grouper_schema."));
+          if ("my_grouper_schema.grouper_groups".equals(name)) {
+            foundQualified = true;
+          }
+        }
+        assertTrue("Should contain my_grouper_schema.grouper_groups", foundQualified);
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+          "grouper.mcp.sql.grouper.grouperDatabaseSchema");
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that tableInfo accepts the schema qualified name, and the bare name too
+   */
+  public void testTableInfoWithGrouperDatabaseSchema() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.grouper.grouperDatabaseSchema", "my_grouper_schema");
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // the qualified name, which is how listTables advertised it
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "tableInfo");
+      arguments.put("tableName", "my_grouper_schema.grouper_groups");
+      arguments.put("externalSystemId", "grouper");
+
+      ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertFalse("Expected success for qualified name, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Should contain CREATE TABLE", text.toUpperCase().contains("CREATE TABLE"));
+      assertTrue("Should say which name to query it by, got: " + text,
+          text.contains("query this as my_grouper_schema.grouper_groups"));
+
+      // the bare name should still resolve
+      arguments = objectMapper.createObjectNode();
+      arguments.put("action", "tableInfo");
+      arguments.put("tableName", "grouper_groups");
+      arguments.put("externalSystemId", "grouper");
+
+      result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertFalse("Expected success for bare name, got: " + result.toString(),
+          result.get("isError").asBoolean());
+      assertTrue("Should contain CREATE TABLE", result.get("content").get(0).get("text")
+          .asText().toUpperCase().contains("CREATE TABLE"));
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+          "grouper.mcp.sql.grouper.grouperDatabaseSchema");
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that listExternalSystems reports the configured grouperDatabaseSchema
+   */
+  public void testListExternalSystemsWithGrouperDatabaseSchema() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.sql.grouper.grouperDatabaseSchema", "my_grouper_schema");
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "listExternalSystems");
+
+      ObjectNode result = GrouperMcpSqlGetSchema.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        JsonNode systems = responseNode.get("externalSystems");
+
+        boolean checkedGrouper = false;
+        for (int i = 0; i < systems.size(); i++) {
+          if ("grouper".equals(systems.get(i).get("id").asText())) {
+            checkedGrouper = true;
+            assertEquals("my_grouper_schema",
+                systems.get(i).get("tableSchema").asText());
+          }
+        }
+        assertTrue("Should find 'grouper' in external systems", checkedGrouper);
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
+          "grouper.mcp.sql.grouper.grouperDatabaseSchema");
       GrouperSession.stopQuietly(session);
     }
   }
