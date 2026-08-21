@@ -700,7 +700,8 @@ public class GrouperMcpServlet extends HttpServlet {
    * server, sent as the {@code resource_metadata} parameter of the {@code WWW-Authenticate}
    * header on a request which did not authenticate.
    *
-   * <p>Taken from {@code grouper.ws.url} rather than from the request. This is the address a
+   * <p>Taken from {@code grouper.mcp.baseUrl}, which falls back to {@code grouper.ws.url},
+   * rather than from the request. This is the address a
    * client goes to next in order to be told where to authenticate, so a value taken from the
    * request would let whoever set its Host header choose where clients are sent. A client which
    * followed such an address would be handed an authorization server of that party's choosing
@@ -709,7 +710,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * which caches without regard to Host, or which passes on a Host from one request to another;
    * neither should be relied on not to be there.</p>
    *
-   * <p>There is no fallback for {@code grouper.ws.url} not being configured, since every
+   * <p>There is no fallback for the case where neither is configured, since every
    * request which could reach here has already been refused by
    * {@link #rejectIfMcpUrlsNotConfigured(HttpServletResponse)}. It is asked for with
    * {@code exceptionIfNull} so that an entry point added without that check fails here rather
@@ -718,7 +719,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return the URL of this server's protected resource metadata
    */
   static String resourceMetadataUrl() {
-    return GrouperConfig.getGrouperWsUrl(true) + "/.well-known/oauth-protected-resource";
+    return GrouperConfig.getGrouperMcpBaseUrl(true) + "/.well-known/oauth-protected-resource";
   }
 
   /**
@@ -875,7 +876,9 @@ public class GrouperMcpServlet extends HttpServlet {
    * against anything taken from the request.</p>
    *
    * <p>Any other origin must match a configured
-   * {@code grouper.mcp.allowedOrigin.<configId>.regex} pattern. If no patterns are configured
+   * {@code grouper.mcp.allowedOrigin.<configId>.regex} pattern. A deployment behind a gateway
+   * which also wants browsers to reach Grouper directly at the backend address configures that
+   * address as one of these patterns. If no patterns are configured
    * then no cross origin browser request is allowed, which is the safe default and means a
    * deployment has to opt in to browser based clients rather than opt out.</p>
    *
@@ -928,8 +931,9 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
-   * the origin of this server taken from {@code grouper.ws.url}, that is its scheme, host and
-   * port, with the port left off when it is the default for the scheme.
+   * the origin clients reach this server at, taken from {@code grouper.mcp.baseUrl} which falls
+   * back to {@code grouper.ws.url}, that is its scheme, host and port, with the port left off
+   * when it is the default for the scheme.
    *
    * <p>This is deliberately read from configuration and not worked out from the request. What
    * the Origin check defends against is a page which made a name it controls resolve to this
@@ -938,34 +942,44 @@ public class GrouperMcpServlet extends HttpServlet {
    * comparing the attacker's Origin against the attacker's own Host, which always agrees, and
    * the check would pass in exactly the case it exists to catch.</p>
    *
-   * <p>{@code grouper.ws.url} is required whenever MCP is enabled, so a request which reaches
-   * the Origin check has already been past
+   * <p>This is the one origin clients are told to use, and not also the origin of
+   * {@code grouper.ws.url} when the two differ. What a deployment publishes and what it treats
+   * as its own are then the same thing, rather than the trusted set quietly being wider than
+   * the address anybody was given. The consequence, in a deployment which sets
+   * {@code grouper.mcp.baseUrl}, is that a browser reaching Grouper directly at the backend
+   * address is cross origin and needs a {@code grouper.mcp.allowedOrigin.<configId>.regex}
+   * entry, which is the same way every other browser origin is allowed.</p>
+   *
+   * <p>{@code grouper.ws.url} is required whenever MCP is enabled, and
+   * {@code grouper.mcp.baseUrl} falls back to it, so a request which reaches the Origin check
+   * has already been past
    * {@link #rejectIfMcpUrlsNotConfigured(HttpServletResponse)}. What is left here is a value
    * which is set but is not a URL an origin can be taken from, and there is nothing to be done
    * with that but treat no request as same origin. Every browser request then has to match a
    * configured allowed origin pattern instead. Clients which are not browsers send no Origin at
    * all and are not affected either way.</p>
    *
-   * @return the origin, or null if grouper.ws.url cannot be parsed as one
+   * @return the origin, or null if the configured URL cannot be parsed as one
    */
   static String configuredOrigin() {
 
-    String wsUrl = GrouperConfig.getGrouperWsUrl(true);
+    String baseUrl = GrouperConfig.getGrouperMcpBaseUrl(true);
 
     try {
-      URI wsUri = new URI(wsUrl);
-      String scheme = wsUri.getScheme();
-      String host = wsUri.getHost();
+      URI baseUri = new URI(baseUrl);
+      String scheme = baseUri.getScheme();
+      String host = baseUri.getHost();
 
       if (scheme == null || host == null) {
-        LOG.error("grouper.ws.url is not a URL an Origin can be taken from: " + wsUrl);
+        LOG.error(GrouperConfig.getGrouperMcpBaseUrlPropertyName()
+            + " is not a URL an Origin can be taken from: " + baseUrl);
         return null;
       }
 
       StringBuilder origin = new StringBuilder();
       origin.append(scheme).append("://").append(host);
 
-      int port = wsUri.getPort();
+      int port = baseUri.getPort();
       if (port != -1 && !("http".equalsIgnoreCase(scheme) && port == 80)
           && !("https".equalsIgnoreCase(scheme) && port == 443)) {
         origin.append(":").append(port);
@@ -974,7 +988,8 @@ public class GrouperMcpServlet extends HttpServlet {
       return origin.toString();
 
     } catch (URISyntaxException use) {
-      LOG.error("grouper.ws.url cannot be parsed as a URL: " + wsUrl, use);
+      LOG.error(GrouperConfig.getGrouperMcpBaseUrlPropertyName()
+          + " cannot be parsed as a URL: " + baseUrl, use);
       return null;
     }
   }

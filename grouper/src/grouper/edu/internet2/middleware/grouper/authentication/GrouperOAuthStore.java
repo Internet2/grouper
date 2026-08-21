@@ -348,6 +348,13 @@ public class GrouperOAuthStore {
    * tokens with neither an audience nor an issuer, so that a token minted by anything else
    * holding the signing key was accepted here.</p>
    *
+   * <p>{@code grouper.ws.url} is what those addresses default to, not necessarily what they end
+   * up being: a deployment behind a gateway or a reverse proxy sets {@code grouper.mcp.baseUrl}
+   * to the address clients actually reach, and everything published to a client is built from
+   * that instead. {@code grouper.ws.url} is still required either way, since it is what
+   * {@code grouper.mcp.baseUrl} falls back to and it is what says where Grouper WS itself
+   * is.</p>
+   *
    * <p>So both are required whenever MCP is enabled. They cannot be required unconditionally,
    * because deployments which do not use MCP have always run without them, and startup is not
    * refused over them either, because that would take down the UI and WS over a property only
@@ -380,7 +387,9 @@ public class GrouperOAuthStore {
         + "grouper.ws.url is the URL of Grouper WS "
         + "including its context path, for example https://server.school.edu/grouper-ws/, and "
         + "grouper.ui.url is the URL of Grouper UI, for example "
-        + "https://server.school.edu/grouper/.";
+        + "https://server.school.edu/grouper/.  When Grouper WS is behind a gateway or a "
+        + "reverse proxy, set grouper.mcp.baseUrl to the address clients reach it at; "
+        + "grouper.ws.url is still required.";
 
     if (!loggedMcpUrlConfigurationError) {
       loggedMcpUrlConfigurationError = true;
@@ -402,10 +411,20 @@ public class GrouperOAuthStore {
    * The two values are therefore read from here rather than worked out separately in each
    * place, since a value which does not match is worse than no value at all.</p>
    *
+   * <p>This is {@code grouper.mcp.baseUrl}, falling back to {@code grouper.ws.url} when that is
+   * not set. It is the address clients reach, which is not the address this server is deployed
+   * at when it sits behind a gateway or a reverse proxy. A client which implements RFC 9207
+   * compares the {@code iss} it is sent against the issuer it discovered, and a client which
+   * follows RFC 9728 compares the {@code resource} in the protected resource metadata the same
+   * way, so an issuer naming the backend rather than the address the client connected to is
+   * rejected by both.</p>
+   *
    * <p>This comes from configuration only. It deliberately does not fall back to deriving a URL
    * from the request: the metadata is served by the web services application and the
    * authorization response is sent by the UI application, so a request derived value could
-   * differ between the two, for example behind a reverse proxy or on a different context path.</p>
+   * differ between the two, for example behind a reverse proxy or on a different context path.
+   * A value taken from a forwarded header would be no better, since that is set by whatever is
+   * in front of this server and is not something this server can vouch for.</p>
    *
    * <p>Every caller sits behind {@link #mcpUrlConfigurationError()}, which refuses the request
    * with a message naming what is missing before anything gets here, so the property is asked
@@ -417,9 +436,10 @@ public class GrouperOAuthStore {
    */
   public static String retrieveIssuerIdentifier() {
 
-    String issuerIdentifier = GrouperConfig.getGrouperWsUrl(true);
+    String issuerIdentifier = GrouperConfig.getGrouperMcpBaseUrl(true);
 
-    warnIfNotSecurelyReachable(issuerIdentifier, "grouper.ws.url");
+    warnIfNotSecurelyReachable(issuerIdentifier,
+        GrouperConfig.getGrouperMcpBaseUrlPropertyName());
 
     return issuerIdentifier;
   }

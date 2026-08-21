@@ -91,7 +91,8 @@ public class UiV2OAuth extends UiServiceLogicBase {
     try {
 
       // an authorization code issued here is redeemed for a token whose issuer and audience
-      // come from grouper.ws.url, so without it there is nothing worth authorizing.  the page
+      // come from grouper.mcp.baseUrl, falling back to grouper.ws.url, so without one of them
+      // there is nothing worth authorizing.  the page
       // says only that the server is not configured, since whoever is looking at it is a user
       // being asked to approve something and not the person who can fix it; the detail is
       // logged once by mcpUrlConfigurationError

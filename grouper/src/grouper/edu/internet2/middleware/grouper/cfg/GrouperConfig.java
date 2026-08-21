@@ -610,6 +610,51 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   }
 
   /**
+   * get the base URL clients use to reach the MCP endpoint and its OAuth endpoints, without a
+   * slash on the end.
+   *
+   * <p>This is the address clients connect to, which is not the address Grouper WS is deployed
+   * at when it sits behind a gateway or a reverse proxy.  Everything MCP and OAuth publish to a
+   * client, or verify against one, is built from this: the issuer identifier, the MCP resource
+   * identifier and token audience, the endpoints in the discovery metadata, the address in the
+   * {@code WWW-Authenticate} challenge, and the origin the MCP Origin check compares
+   * against.</p>
+   *
+   * <p>Defaults to {@code grouper.ws.url} when not configured, so a deployment which is not
+   * behind anything behaves exactly as before.  {@code grouper.ws.url} keeps meaning the URL
+   * Grouper WS is actually deployed at, and stays required whenever MCP is enabled.</p>
+   *
+   * <p>Configuration only.  It must not be derived from the request or from a forwarded header,
+   * since a value under the control of whoever sets a header would let that party choose where
+   * clients are sent and what tokens are bound to, and it must be identical where a value is
+   * issued and where it is verified.</p>
+   *
+   * @param exceptionIfNull if an exception should be thrown when neither this nor
+   * grouper.ws.url is configured
+   * @return the MCP base URL without trailing slash, or null if not configured
+   */
+  public static String getGrouperMcpBaseUrl(boolean exceptionIfNull) {
+    String url = getProperty("grouper.mcp.baseUrl");
+    if (StringUtils.isBlank(url)) {
+      return getGrouperWsUrl(exceptionIfNull);
+    }
+    if (url.endsWith("/")) {
+      return url.substring(0, url.length() - 1);
+    }
+    return url;
+  }
+
+  /**
+   * the property the MCP base URL is in effect from, so a message about that URL names the
+   * property an administrator would edit.
+   * @return grouper.mcp.baseUrl when it is configured, otherwise grouper.ws.url
+   */
+  public static String getGrouperMcpBaseUrlPropertyName() {
+    return StringUtils.isBlank(getProperty("grouper.mcp.baseUrl"))
+        ? "grouper.ws.url" : "grouper.mcp.baseUrl";
+  }
+
+  /**
    * get the UI url with a slash on the end
    * @param exceptionIfNull
    * @return the UI URL

@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -56,9 +55,9 @@ public class GrouperMcpProtectedResourceServlet extends HttpServlet {
       throws ServletException, IOException {
     try {
       // this is the first thing a client fetches, and what it learns here is which resource
-      // this is and which authorization server protects it.  both are grouper.ws.url, and
-      // taking them from the request instead, as this used to when it was not configured, let
-      // whoever set the Host header answer both questions
+      // this is and which authorization server protects it.  both are built from the address
+      // clients reach this server at, and taking them from the request instead, as this used to
+      // when it was not configured, let whoever set the Host header answer both questions
       String mcpUrlConfigurationError = GrouperOAuthStore.mcpUrlConfigurationError();
       if (mcpUrlConfigurationError != null) {
         ObjectNode error = objectMapper.createObjectNode();
@@ -72,10 +71,14 @@ public class GrouperMcpProtectedResourceServlet extends HttpServlet {
         return;
       }
 
-      String baseUrl = GrouperConfig.getGrouperWsUrl(true);
+      // the same values the token is issued with and verified against, and the same issuer the
+      // authorization server metadata publishes, so a client which compares them per RFC 9728
+      // and RFC 8414 sees them agree.  behind a gateway these are the gateway address, since
+      // that is what the client connected to
+      String baseUrl = GrouperOAuthStore.retrieveIssuerIdentifier();
 
       // resource must match the MCP server URL the client connects to
-      String mcpUrl = baseUrl + "/mcp";
+      String mcpUrl = GrouperOAuthStore.retrieveMcpResourceIdentifier();
 
       ObjectNode metadata = objectMapper.createObjectNode();
       metadata.put("resource", mcpUrl);

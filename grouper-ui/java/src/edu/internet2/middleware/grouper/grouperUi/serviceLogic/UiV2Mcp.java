@@ -84,8 +84,10 @@ public class UiV2Mcp extends UiServiceLogicBase {
 
       McpContainer mcpContainer = grouperRequestContainer.getMcpContainer();
 
-      // MCP server URL from config (normalized without trailing slash)
-      String mcpServerUrl = GrouperConfig.getGrouperWsUrl(false);
+      // the address a client connects to, normalized without trailing slash.  this is
+      // grouper.mcp.baseUrl when Grouper WS is behind a gateway or a reverse proxy, since the
+      // page exists to tell a user where to point their client, not where Grouper is deployed
+      String mcpServerUrl = GrouperConfig.getGrouperMcpBaseUrl(false);
       mcpContainer.setMcpServerUrl(mcpServerUrl);
 
       // look up member for logged-in user
@@ -482,8 +484,9 @@ public class UiV2Mcp extends UiServiceLogicBase {
       LOG.info("Confidential OAuth client registered via UI: clientId=" + client.getClientId()
           + ", clientName=" + clientName + ", by=" + loggedInSubject.getId());
 
-      // build the URLs
-      String wsUrl = GrouperConfig.getGrouperWsUrl(false);
+      // build the URLs.  the token endpoint is the one published in the authorization server
+      // metadata, so it is the address the client reaches, not the deployed address
+      String mcpBaseUrl = GrouperConfig.getGrouperMcpBaseUrl(false);
       String uiUrl = GrouperConfig.getGrouperUiUrl(false);
 
       // uiUrl from getGrouperUiUrl has a trailing slash (e.g. "https://server/grouper/")
@@ -491,7 +494,7 @@ public class UiV2Mcp extends UiServiceLogicBase {
       mcpContainer.setRegisteredClientId(client.getClientId());
       mcpContainer.setRegisteredClientSecret(plainTextSecret);
       mcpContainer.setRegisteredAuthorizationUrl(uiUrl + "grouperUi/app/UiV2OAuth.authorize");
-      mcpContainer.setRegisteredTokenUrl(wsUrl + "/mcp/oauth/token");
+      mcpContainer.setRegisteredTokenUrl(mcpBaseUrl + "/mcp/oauth/token");
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(
           "#mcpConfidentialClientResultId",

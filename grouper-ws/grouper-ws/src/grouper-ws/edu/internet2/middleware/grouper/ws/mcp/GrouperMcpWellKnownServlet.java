@@ -53,7 +53,8 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
-      // every address below is built from grouper.ws.url and grouper.ui.url.  deriving them
+      // every address below is built from grouper.mcp.baseUrl, which falls back to
+      // grouper.ws.url, and from grouper.ui.url.  deriving them
       // from the request instead, which is what this used to do when they were not configured,
       // published whatever the Host header said as the issuer and endpoints of this
       // authorization server, and made the authorization endpoint resolve into the WS context
@@ -72,7 +73,9 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
       }
 
       // the same value the authorization response sends back as its iss parameter, so that a
-      // client comparing the two per RFC 9207 sees them agree
+      // client comparing the two per RFC 9207 sees them agree.  behind a gateway this is the
+      // gateway address, since that is the address the client connected to and the one it
+      // compares against
       String baseUrl = GrouperOAuthStore.retrieveIssuerIdentifier();
 
       // authorization endpoint is in the Grouper UI (user authenticates and sees consent page there)
@@ -112,7 +115,8 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
       // An authorization server which sends the iss parameter on authorization responses has to
       // say so here, per RFC 9207.  The authorization response carries iss whenever the issuer
       // identifier is configured, which it is by the time this line is reached, since a request
-      // which got past the check above has grouper.ws.url set.
+      // which got past the check above has grouper.ws.url set, and grouper.mcp.baseUrl falls
+      // back to it.
       metadata.put("authorization_response_iss_parameter_supported", true);
 
       // when served as /.well-known/openid-configuration, OIDC Discovery requires these fields

@@ -159,6 +159,7 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
   protected void tearDown() {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.ws.url");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.ui.url");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.baseUrl");
     super.tearDown();
   }
 
@@ -1055,6 +1056,76 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
     String url = GrouperMcpServlet.resourceMetadataUrl();
 
     assertEquals("https://server.example.edu/grouper-ws/.well-known/oauth-protected-resource", url);
+  }
+
+  // ==================== the address clients reach this server at ====================
+
+  /**
+   * a deployment behind a gateway or a reverse proxy is reached at an address which is not the
+   * one it is deployed at.  everything published to a client, and everything a client is
+   * checked against, has to name the address the client connected to, or a client which
+   * implements RFC 9207 refuses the authorization response and one which follows RFC 9728
+   * refuses the resource
+   */
+  public void testMcpBaseUrlIsWhatIsPublishedToClients() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+      .put("grouper.mcp.baseUrl", "https://gateway.example.edu/grouper_test");
+
+    assertEquals("the issuer is the address the client reached, not the deployed address",
+        "https://gateway.example.edu/grouper_test",
+        GrouperOAuthStore.retrieveIssuerIdentifier());
+
+    assertEquals("the resource a token is bound to is under that same address",
+        "https://gateway.example.edu/grouper_test/mcp",
+        GrouperOAuthStore.retrieveMcpResourceIdentifier());
+
+    assertEquals("a client which did not authenticate is sent to the address it can reach",
+        "https://gateway.example.edu/grouper_test/.well-known/oauth-protected-resource",
+        GrouperMcpServlet.resourceMetadataUrl());
+  }
+
+  /**
+   * the Origin check compares against the address clients are told to use, and only that one.
+   * what a deployment publishes and what it treats as its own are then the same thing, rather
+   * than the trusted set being wider than the address anybody was given.  a browser reaching
+   * Grouper directly at the deployed address is cross origin and has to be allowed the same way
+   * every other browser origin is, through grouper.mcp.allowedOrigin.&lt;configId&gt;.regex
+   */
+  public void testConfiguredOriginIsTheClientFacingOriginOnly() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+      .put("grouper.mcp.baseUrl", "https://gateway.example.edu/grouper_test");
+
+    assertEquals("https://gateway.example.edu", GrouperMcpServlet.configuredOrigin());
+  }
+
+  /**
+   * a trailing slash is stripped the same way grouper.ws.url has it stripped, since the issuer
+   * a client compares against is compared as a string and a slash which is there in one place
+   * and not the other does not match
+   */
+  public void testMcpBaseUrlTrailingSlashIsStripped() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+      .put("grouper.mcp.baseUrl", "https://gateway.example.edu/grouper_test/");
+
+    assertEquals("https://gateway.example.edu/grouper_test",
+        GrouperOAuthStore.retrieveIssuerIdentifier());
+  }
+
+  /**
+   * left blank, which is how it ships, nothing changes for a deployment which is not behind
+   * anything.  every address falls back to grouper.ws.url exactly as before
+   */
+  public void testMcpBaseUrlFallsBackToWsUrlWhenBlank() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.mcp.baseUrl", "");
+
+    assertEquals("https://server.example.edu/grouper-ws",
+        GrouperOAuthStore.retrieveIssuerIdentifier());
+
+    assertEquals("https://server.example.edu", GrouperMcpServlet.configuredOrigin());
   }
 
   // ==================== refusing to serve unconfigured ====================
