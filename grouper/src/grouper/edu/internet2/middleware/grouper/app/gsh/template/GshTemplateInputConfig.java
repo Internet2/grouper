@@ -78,6 +78,8 @@ public class GshTemplateInputConfig {
   
   private String label;
   
+  private String checkboxLabel;
+  
   private String descriptionExternalizedTextKey;
   
   private String description;
@@ -164,6 +166,32 @@ public class GshTemplateInputConfig {
     }
     
     return localDropdownKeysAndLabels;
+  }
+  
+  /**
+   * for a single boolean checkbox (BOOLEANCHECKBOX form element), the checkbox attributes
+   * to render: one entry of (value="true", label=text next to the checkbox, checked=default).
+   * @return list with a single entry or empty list if not a boolean checkbox
+   */
+  public List<MultiKey> getCheckboxAttributes() {
+    
+    List<MultiKey> checkboxAttributes = new ArrayList<MultiKey>();
+    
+    if (this.getConfigItemFormElement() == ConfigItemFormElement.BOOLEANCHECKBOX) {
+      String labelForCheckbox = this.checkboxLabel == null ? "" : this.checkboxLabel;
+      Boolean defaultChecked = GrouperUtil.booleanObjectValue(this.defaultValue);
+      checkboxAttributes.add(new MultiKey("true", labelForCheckbox, defaultChecked != null && defaultChecked));
+    }
+    
+    return checkboxAttributes;
+  }
+  
+  public String getCheckboxLabel() {
+    return checkboxLabel;
+  }
+
+  public void setCheckboxLabel(String checkboxLabel) {
+    this.checkboxLabel = checkboxLabel;
   }
   
   public String getDescriptionExternalizedTextKey() {

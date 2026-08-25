@@ -243,6 +243,9 @@ public class UiV2Template {
           }
         }
       } else {
+        // for a boolean checkbox (BOOLEANCHECKBOX), the value is carried by a plain hidden field
+        // named "config_X" that the checkbox's onchange keeps in sync ("true"/"false"), so it is
+        // read here the same way as any other simple input. Null (first render) leaves the default.
         value = request.getParameter("config_"+gshTemplateInputConfig.getName());
       }
       

@@ -893,7 +893,13 @@ public class GshTemplateConfig {
           gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
           
           if (gshTemplateInputType == GshTemplateInputType.BOOLEAN) {
-            gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.RADIOBUTTON);
+            String booleanFormElementType = grouperConfig.propertyValueString(inputPrefix + "formElementTypeForBoolean", "radio");
+            if (StringUtils.equalsIgnoreCase("checkbox", booleanFormElementType)) {
+              gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.BOOLEANCHECKBOX);
+              gshTemplateInputConfig.setCheckboxLabel(grouperConfig.propertyValueString(inputPrefix + "checkboxLabel", null));
+            } else {
+              gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.RADIOBUTTON);
+            }
           } else {
             ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(grouperConfig.propertyValueString(inputPrefix + "formElementType", "text"), true);
             gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);

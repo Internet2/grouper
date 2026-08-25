@@ -328,6 +328,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                                 hasExpressionLanguage="false"
                                 ajaxCallback="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;"
                                 valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+                                checkboxAttributes="${guiGshTemplateInputConfig.gshTemplateInputConfig.checkboxAttributes}"
                                 indent="${attribute.configItemMetadata.indent}"
                               />
                                   
