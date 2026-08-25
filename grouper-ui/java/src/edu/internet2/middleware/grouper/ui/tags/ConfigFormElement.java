@@ -682,6 +682,45 @@ public class ConfigFormElement extends SimpleTagSupport {
       
     }
     
+    if (configItemFormElement == ConfigItemFormElement.BOOLEANCHECKBOX) {
+      
+      // a single boolean checkbox: checked = true, unchecked = false.
+      String checkboxLabel = "";
+      boolean defaultChecked = false;
+      if (checkboxAttributes != null && checkboxAttributes.size() > 0) {
+        MultiKey multiKey = checkboxAttributes.get(0);
+        checkboxLabel = GrouperUtil.stringValue(multiKey.getKey(1));
+        defaultChecked = GrouperUtil.booleanValue(multiKey.getKey(2), false);
+      }
+      
+      boolean checked;
+      if (StringUtils.isNotBlank(value)) {
+        checked = GrouperUtil.booleanValue(value, false);
+      } else {
+        checked = defaultChecked;
+      }
+      
+      if (readOnly) {
+        field.append(checked ? "true" : "false");
+      } else {
+        // The visible checkbox intentionally has no "name" attribute so the ajax form serializer
+        // does not transmit it as an array (checkbox values are serialized as arrays and arrive
+        // server-side under "config_X[]", so a directly-named checkbox never round-trips on the
+        // ajax reload). Instead its onchange writes the current state into a plain hidden field
+        // named "config_X", which serializes as a simple string for both the ajax reload and the
+        // final form submit, and is read server-side via request.getParameter("config_X").
+        String hiddenId = "config_" + configId + "__hidden";
+        field.append("<input type='checkbox' class='config-boolean-checkbox' style='" + displayClass + "' id='config_" + configId + "_id' ");
+        field.append(checked ? " checked " : "");
+        field.append("onchange=\"document.getElementById('" + hiddenId + "').value = this.checked ? 'true' : 'false'; " + ajaxCallback + "\"");
+        field.append("></input>");
+        field.append("<input type='hidden' id='" + hiddenId + "' name='config_" + configId + "' value='" + (checked ? "true" : "false") + "' />");
+        if (StringUtils.isNotBlank(checkboxLabel)) {
+          field.append("<span class='config-boolean-checkbox-label' style='margin-left: 8px;'>" + GrouperUtil.escapeHtml(checkboxLabel, true) + "</span>");
+        }
+      }
+    }
+    
     if (!readOnly && required) {
       field.append("<span class='requiredField' rel='tooltip' data-html='true' data-delay-show='200' data-placement='right'>*");
       field.append("</span>");

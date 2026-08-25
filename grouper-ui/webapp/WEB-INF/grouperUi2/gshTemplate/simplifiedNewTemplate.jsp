@@ -41,6 +41,7 @@
 				hasExpressionLanguage="false"
 				ajaxCallback="ajax('../app/UiV2Template.newTemplateSimplifiedUi?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&eventConfigId=${guiGshTemplateInputConfig.gshTemplateInputConfig.name}', {formIds: 'newGroupTemplateFormId'}); return false;"
 				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+				checkboxAttributes="${guiGshTemplateInputConfig.gshTemplateInputConfig.checkboxAttributes}"
         indent="${attribute.configItemMetadata.indent}"
 			/>
   				
