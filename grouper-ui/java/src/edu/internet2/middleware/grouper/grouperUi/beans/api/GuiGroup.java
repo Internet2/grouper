@@ -140,9 +140,11 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
 
         GuiGroup guiGroup = new GuiGroup(theGroup);
         result.append(guiGroup.getCompositeOwnerText());
-        
+
       } catch (GroupNotFoundException gnfe) {
-        return TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewAllGroups");
+        // just note that this one owner cannot be viewed, and keep listing the rest.  returning here
+        // would throw away the lines already built for the composites the user can see
+        result.append(TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewOwner"));
       }
       
       firstLine = false;

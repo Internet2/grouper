@@ -437,16 +437,24 @@ public class UiV2Group {
           Composite composite = group.getComposite(false);
           if (composite != null) {
             groupSummaryContainer.setComposite(true);
-            Group leftGroup = composite.getLeftGroup();
-            GuiGroup guiLeftGroup = new GuiGroup(leftGroup);
-            groupSummaryContainer.setCompositeLeftGroup(guiLeftGroup);
-            Group rightGroup = composite.getRightGroup();
-            GuiGroup guiRightGroup = new GuiGroup(rightGroup);
-            groupSummaryContainer.setCompositeRightGroup(guiRightGroup);
-            CompositeType compositeType = composite.getType();
-            groupSummaryContainer.setCompositeType(compositeType);
+            // the user can be ADMIN on the composite owner and still not have VIEW on a factor group.
+            // Composite.getLeftGroup()/getRightGroup() throw GroupNotFoundException in that case, so
+            // catch it here and let the screen say the factors cannot be viewed instead of blowing up
+            // the whole summary tab
+            try {
+              Group leftGroup = composite.getLeftGroup();
+              GuiGroup guiLeftGroup = new GuiGroup(leftGroup);
+              groupSummaryContainer.setCompositeLeftGroup(guiLeftGroup);
+              Group rightGroup = composite.getRightGroup();
+              GuiGroup guiRightGroup = new GuiGroup(rightGroup);
+              groupSummaryContainer.setCompositeRightGroup(guiRightGroup);
+              CompositeType compositeType = composite.getType();
+              groupSummaryContainer.setCompositeType(compositeType);
+            } catch (GroupNotFoundException gnfe) {
+              groupSummaryContainer.setCompositeFactorsNotViewable(true);
+            }
           }
-          
+
           //get the composites
           Set<Composite> composites = CompositeFinder.findAsFactor(group);
           groupSummaryContainer.setCompositeSize(composites.size());
@@ -454,6 +462,8 @@ public class UiV2Group {
           if (composites.size() < 5) {
             Set<GuiGroup> compositeOwners = new HashSet<GuiGroup>();
             for (Composite composie: composites) {
+              // note: CompositeFinder.findAsFactor() already filters to composites whose owner
+              // this session can view, so getOwnerGroup() will not throw here
               compositeOwners.add(new GuiGroup(composie.getOwnerGroup()));
             }
             groupSummaryContainer.setComposites(compositeOwners);
@@ -5227,10 +5237,19 @@ public class UiV2Group {
       Composite composite = group.getComposite(false);
       
       if (composite != null) {
-        
-        groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(composite.getLeftGroup()));
-        groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(composite.getRightGroup()));
-        
+
+        // the user can have UPDATE/READ here and still not have VIEW on a factor group.  Composite
+        // getLeftGroup()/getRightGroup() throw GroupNotFoundException in that case, so show a friendly
+        // error instead of failing the whole screen
+        try {
+          groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(composite.getLeftGroup()));
+          groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(composite.getRightGroup()));
+        } catch (GroupNotFoundException gnfe) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewAllGroups")));
+          return;
+        }
+
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

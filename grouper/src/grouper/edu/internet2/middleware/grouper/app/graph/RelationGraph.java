@@ -880,21 +880,25 @@ public class RelationGraph {
 
       // get groups where this is a composite factor
       for (Composite composite : CompositeFinder.findAsFactor(theGroup)) {
-        // findAsFactor doesn't distinguish left/right, so need to compare current group with both
+        // findAsFactor doesn't distinguish left/right, so need to compare current group with both.
+        // compare on the factor uuids, not on getLeftGroup()/getRightGroup(): those resolve the other
+        // factor group too, and throw GroupNotFoundException when this session cannot VIEW it
         Group ownerGroup = composite.getOwnerGroup();
         if (!matchesFilter(ownerGroup)) {
           GraphNode fromNode = fetchOrCreateNode(ownerGroup);
           nodesToVisit.add(fromNode);
+          boolean isLeftFactor = theGroup.getId().equals(composite.getLeftFactorUuid());
+          boolean isRightFactor = theGroup.getId().equals(composite.getRightFactorUuid());
           if (composite.getType() == CompositeType.COMPLEMENT) {
-            if (theGroup.equals(composite.getLeftGroup())) {
+            if (isLeftFactor) {
               compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
+            } else if (isRightFactor) {
               compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_COMPLEMENT_RIGHT);
             }
           } else if (composite.getType() == CompositeType.INTERSECTION) {
-            if (theGroup.equals(composite.getLeftGroup())) {
+            if (isLeftFactor) {
               compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_LEFT);
-            } else if (theGroup.equals(composite.getRightGroup())) {
+            } else if (isRightFactor) {
               compositeStyleTypes.put(fromNode, StyleObjectType.EDGE_INTERSECT_RIGHT);
             }
           }
