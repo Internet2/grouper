@@ -1,0 +1,23 @@
+{
+  "skill_name": "grouper-mcp-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need a new MCP tool called 'group_rename' that renames a Grouper group. It should be a readwrite tool. The tool takes groupName (required, the current fully qualified group name) and newExtension (required, the new short name/extension for the group). It should delegate to GroupSave to update the extension. Make sure to check protected resources and OAuth scope. Create the tool class, register it in the servlet, write a test, add it to AllMcpTests, and update the wiki user guide docs in grouper/temp/mcpDocs/mcpWikiUserGuide.html. All new capabilities should have a unit test.",
+      "expected_output": "Creates GrouperMcpGroupRename.java with toolDefinition() and execute() methods, registers in GrouperMcpServlet handleToolsList (readwrite section) and dispatchToolCall, creates GrouperMcpGroupRenameTest.java with test methods, adds to AllMcpTests, and updates mcpWikiUserGuide.html with tool docs including TOC entry and tool section.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a new optional boolean parameter called 'includeCompositeInfo' to the existing group_find MCP tool. When true, it should include whether each group is a composite (factor) group and if so, what type (union, intersection, complement) and what the left and right factor group names are. Also update the wiki user guide documentation for group_find to document this new parameter. All new capabilities should have a unit test.",
+      "expected_output": "Modifies GrouperMcpFindGroups.java to add the includeCompositeInfo parameter to toolDefinition() and execute(), adds composite lookup logic in execute(), adds a test method to GrouperMcpFindGroupsTest.java, and updates the group_find section of mcpWikiUserGuide.html with the new parameter documentation.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create a new readonly MCP tool called 'group_get_permissions' that retrieves the permission assignments for a given group. It should take groupName (required) and an optional action filter. Use the existing Grouper permissions API. Create the tool, register it, write tests, add to AllMcpTests, and update the wiki user guide. The user docs should not be technical at all. All new capabilities should have a unit test.",
+      "expected_output": "Creates GrouperMcpGetGroupPermissions.java with readonly tool pattern, registers in servlet under readonly access, creates test class, adds to AllMcpTests, and adds non-technical documentation to the wiki user guide.",
+      "files": []
+    }
+  ]
+}

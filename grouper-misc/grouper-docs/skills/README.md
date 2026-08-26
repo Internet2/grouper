@@ -47,6 +47,27 @@ the individual skill for the expected path. Never commit tokens.
   page. Uses grouper-jira and grouper-wiki-edit for the writes; holds the
   release-notes table contract (columns, status colours, layout).
 
+- **cherry-pick** -- cherry-pick / backport commits between Grouper branches (v4,
+  v6, v7, v9). Bounds the range by release tags (never past the source branch's
+  last release), groups commits by JIRA, skips what is already applied, and holds
+  the table of which features must not be backported (MCP, sync-back) versus which
+  must (new provisioners). Walks the list in batches with per-JIRA approval and
+  leaves all staging and committing to the user.
+
+- **grouper-ddl** -- add a DDL change (index, table, column, comment, foreign key)
+  to the Grouper codebase without missing a piece. Covers the full checklist: the
+  per-database install SQL files (postgres/oracle/mysql), the GrouperDdl version
+  class used by database compares, the upgrade task, and the DDL reference file.
+
+- **grouper-mcp-edit** -- create and maintain Grouper MCP (Model Context Protocol)
+  tools: the tool class and its tests, servlet registration, configuration
+  properties, and the MCP wiki documentation. Holds the conventions the existing
+  tools (group_find, group_add_member, folder_delete, ...) follow.
+
+- **grouper-provisioner** -- build a new provisioner from scratch, listing every
+  piece it needs: the Java classes, configuration, mock service handler, tests,
+  base properties, externalized text, Hibernate mappings, and documentation.
+
 ## Contributing
 
 Add a new skill as its own folder with a `SKILL.md`, keep instructions tight
