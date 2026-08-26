@@ -121,12 +121,20 @@
               <td style="vertical-align: top;"><strong>${textContainer.text['groupComposites']}</strong></td>
               <td style="padding-left: 0px;">
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.composite}">
-                  ${textContainer.text['groupSummaryPageCompositeGroupMessage']}
+                  <%-- admin of the composite owner might not have VIEW on a factor group --%>
+                  <c:choose>
+                    <c:when test="${grouperRequestContainer.groupSummaryContainer.compositeFactorsNotViewable}">
+                      ${textContainer.text['groupLabelNotAllowedToViewAllGroups']}
+                    </c:when>
+                    <c:otherwise>
+                      ${textContainer.text['groupSummaryPageCompositeGroupMessage']}
+                    </c:otherwise>
+                  </c:choose>
                 </c:if>
-                
+
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
                   ${textContainer.text['groupSummaryPageCompositeFactorMessage']}
-                  <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}"> 
+                  <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}">
                       <c:forEach var="composite" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.composites}">
                         ${composite.shortLinkWithIcon}
                         <c:if test="${!status.last}">,</c:if>

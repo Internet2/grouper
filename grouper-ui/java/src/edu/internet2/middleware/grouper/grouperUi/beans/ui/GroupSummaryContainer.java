@@ -41,7 +41,11 @@ public class GroupSummaryContainer {
   private boolean isComposite;
   
   private int compositeSize;
-  
+
+  /** true if this group is a composite owner but the logged in user cannot VIEW one of the factor groups */
+  private boolean compositeFactorsNotViewable;
+
+
   private Set<GuiGroup> composites = new HashSet<>();
   
   private int provisioningAssignmentCount;
@@ -194,6 +198,18 @@ public class GroupSummaryContainer {
   public void setCompositeSize(int compositeSize) {
     this.compositeSize = compositeSize;
   }
+
+  /**
+   * @return true if the logged in user cannot VIEW one of the factor groups of this composite
+   */
+  public boolean isCompositeFactorsNotViewable() {
+    return compositeFactorsNotViewable;
+  }
+
+  public void setCompositeFactorsNotViewable(boolean compositeFactorsNotViewable) {
+    this.compositeFactorsNotViewable = compositeFactorsNotViewable;
+  }
+
 
   
   public Set<GuiGroup> getComposites() {
