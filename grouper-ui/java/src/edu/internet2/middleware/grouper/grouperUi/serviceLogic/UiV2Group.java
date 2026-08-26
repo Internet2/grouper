@@ -4617,10 +4617,19 @@ public class UiV2Group {
       Composite composite = group.getComposite(false);
       
       if (composite != null) {
-        
-        groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(composite.getLeftGroup()));
-        groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(composite.getRightGroup()));
-        
+
+        // the user can have UPDATE/READ here and still not have VIEW on a factor group.  Composite
+        // getLeftGroup()/getRightGroup() throw GroupNotFoundException in that case, so show a friendly
+        // error instead of failing the whole screen
+        try {
+          groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(composite.getLeftGroup()));
+          groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(composite.getRightGroup()));
+        } catch (GroupNotFoundException gnfe) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewAllGroups")));
+          return;
+        }
+
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
