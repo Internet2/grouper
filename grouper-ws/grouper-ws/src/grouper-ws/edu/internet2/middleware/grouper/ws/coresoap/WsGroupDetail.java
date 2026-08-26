@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Attribute;
@@ -46,6 +47,9 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel(description = "Detail of group if requested from user")
 public class WsGroupDetail {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(WsGroupDetail.class);
 
   /**
    * make sure this is an explicit toString
@@ -202,12 +206,20 @@ public class WsGroupDetail {
 
         this.setCompositeType(composite.getType().getName());
         
+        // note: GroupNotFoundException here does not mean the factor group is missing, it means the
+        // caller is not allowed to VIEW it (Composite.getLeftGroup()/getRightGroup() do a canView
+        // check).  that is a normal privilege situation, so leave the factor out of the detail and
+        // keep going rather than failing the whole request
         try {
           this.setLeftGroup(new WsGroup(composite.getLeftGroup(), null, false));
+        } catch (GroupNotFoundException gnfe) {
+          LOG.warn("Could not resolve left factor group of composite on group: " + group.getName(), gnfe);
+        }
+
+        try {
           this.setRightGroup(new WsGroup(composite.getRightGroup(), null, false));
         } catch (GroupNotFoundException gnfe) {
-          //this means something bad is happening
-          throw new RuntimeException(gnfe);
+          LOG.warn("Could not resolve right factor group of composite on group: " + group.getName(), gnfe);
         }
       }
       //note modify source is not in the grouper api anymore..., since you get the 
