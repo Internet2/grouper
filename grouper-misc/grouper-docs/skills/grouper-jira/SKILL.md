@@ -3,17 +3,43 @@ name: grouper-jira
 description: Create, edit, transition, and resolve issues in the GRP (Grouper)
   open-source project on grouper.atlassian.net via the Jira Cloud REST API with an
   API token. Use whenever the user wants a GRP Jira opened/resolved so they can
-  commit a Grouper code change, or to comment on / transition a GRP-#### issue. This
-  is the Internet2 Grouper project, NOT a local/institution Jira and NOT the
-  frozen on-prem todos.internet2.edu.
+  commit a Grouper code change, or to comment on / transition a GRP-#### issue. Also
+  trigger when the user names the vanity display URL todos.grouper.internet2.edu,
+  which is the SAME Cloud instance as grouper.atlassian.net. This is the Internet2
+  Grouper project, NOT a local/institution Jira and NOT the frozen on-prem tracker
+  at bare todos.internet2.edu (no dot-grouper-dot).
 ---
 
 # Grouper Jira (GRP project on grouper.atlassian.net)
 
 The Internet2 Grouper issue tracker migrated from on-prem todos.internet2.edu to
-grouper.atlassian.net. It is cloud-only now. Do NOT touch the frozen on-prem
-instance. For a Grouper code commit, the convention is one GRP issue, resolved,
-referenced by the commit.
+Jira Cloud. It is cloud-only now. For a Grouper code commit, the convention is
+one GRP issue, resolved, referenced by the commit.
+
+## Two hostnames, ONE Cloud instance (do not be fooled)
+The instance answers on two names, and people refer to it by either:
+- `grouper.atlassian.net`  -- the API base (`baseUrl`). USE THIS FOR REST.
+- `todos.grouper.internet2.edu` -- a vanity display URL (`displayUrl`) for the
+  SAME instance. This is what users see in links and what they will often quote
+  at you.
+
+A `todos.grouper.internet2.edu` URL therefore does NOT mean the project moved
+back to Jira Server/Data Center. It is still Cloud: `/rest/api/3`, ADF
+descriptions, and the transition ids below all apply. Confirmed via
+`GET /rest/api/3/serverInfo`, which returns `deploymentType: Cloud`,
+`baseUrl: https://grouper.atlassian.net`,
+`displayUrl: https://todos.grouper.internet2.edu` (checked Thu Aug 20 2026).
+
+If ever in doubt about which flavor you are talking to, fetch `serverInfo`
+first -- it is unauthenticated and settles it in one call. Server/DC would
+report a non-Cloud `deploymentType` and would need `/rest/api/2` plus wiki
+markup instead of ADF.
+
+Note the OLD on-prem tracker at bare `todos.internet2.edu` (no `.grouper.`) is
+a different, frozen thing -- do NOT touch that one. Mind the hostname.
+
+Related: the Confluence wiki has the same arrangement -- `displayUrlConfluence`
+is `docs.grouper.internet2.edu`. See the grouper-confluence-edit skill.
 
 ## Golden rules
 - WRITE (create / transition / comment) via the Jira Cloud REST API with an API
