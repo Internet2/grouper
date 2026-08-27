@@ -23,6 +23,12 @@ The instance answers on two names, and people refer to it by either:
   SAME instance. This is what users see in links and what they will often quote
   at you.
 
+REST also answers on the vanity host (a `/rest/api/3` GET against
+`todos.grouper.internet2.edu` returns 200 with the same API token, and the
+response self-reports that host in `self`). Prefer `grouper.atlassian.net` for
+REST anyway so the recipes below stay uniform; the point here is only that a
+vanity-host URL is not evidence of a different instance.
+
 A `todos.grouper.internet2.edu` URL therefore does NOT mean the project moved
 back to Jira Server/Data Center. It is still Cloud: `/rest/api/3`, ADF
 descriptions, and the transition ids below all apply. Confirmed via
