@@ -96,7 +96,7 @@
         <antlr.version>2.7.7</antlr.version>
         <asm.version>3.3.1</asm.version>
         <backport.util.version>3.1</backport.util.version>
-        <bouncyCastle.version>1.84</bouncyCastle.version>
+        <bouncyCastle.version>1.85.2</bouncyCastle.version>
         <c3p0.version>0.14.1</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <!-- must track the mchange-commons-java version that c3p0 depends on -->
@@ -183,7 +183,7 @@
         <httpmime>4.5.13</httpmime>
         <geronimo-jms.version>1.1</geronimo-jms.version>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version>
-        <amqp-client.version>5.20.0</amqp-client.version>
+        <amqp-client.version>5.35.0</amqp-client.version>
         
         <!-- note, jackson version is also in grouper ws pom and should be adjusted accordingly -->
         <jackson.databind>2.22.1</jackson.databind>        
