@@ -89,7 +89,7 @@
         <log4j.version>2.26.0</log4j.version>
         <junit.version>4.13.2</junit.version>
         
-        <bouncyCastle.version>1.84</bouncyCastle.version>
+        <bouncyCastle.version>1.85.2</bouncyCastle.version>
         <c3p0.version>0.14.1</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <!-- must track the mchange-commons-java version that c3p0 depends on -->
@@ -160,7 +160,7 @@
         <httpcore>4.4.16</httpcore>
         <httpmime>4.5.14</httpmime>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version><!-- newer major version available -->
-        <amqp-client.version>5.28.0</amqp-client.version>
+        <amqp-client.version>5.35.0</amqp-client.version>
         
         <jackson.version>2.22.1</jackson.version>
         <jsoup.version>1.23.1</jsoup.version>
