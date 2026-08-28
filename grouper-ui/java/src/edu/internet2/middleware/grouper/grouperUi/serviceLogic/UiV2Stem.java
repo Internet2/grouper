@@ -410,6 +410,112 @@ public class UiV2Stem {
   }
 
   /**
+   * combo filter over the folders a user can see, as opposed to the ones they can create in.
+   *
+   * <p>The MCP consent page uses this to pick the folders an AI client may write within.  That
+   * scope means "the groups under here", and in Grouper a group privilege is independent of any
+   * privilege on the folder holding it: somebody can hold UPDATE on a dozen groups without
+   * holding anything on their folders.  Filtering by create or admin privileges on the folder
+   * would therefore hide exactly the folders such a person needs to name.</p>
+   *
+   * <p>Filtering on what they can see is also safe, because a consent scope only ever narrows
+   * what the user could already do.  Naming a folder they turn out to have nothing under grants
+   * nothing.</p>
+   *
+   * @param request
+   * @param response
+   */
+  public void stemViewFilter(final HttpServletRequest request, HttpServletResponse response) {
+
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Stem>() {
+
+      /**
+       * the root folder is deliberately not offered here, unlike the parent folder pickers this
+       * was copied from.  its name is the empty string, and a scope entry which is the empty
+       * string matches nothing, so offering it would only let somebody pick a folder which
+       * cannot narrow anything
+       *
+       * note there is deliberately no assignPrivileges here.  the naming privileges are ones
+       * which have to be assigned on the folder itself, and most people hold none anywhere, so
+       * filtering on them returns nothing.  folder visibility is a different thing: it also
+       * covers a folder you can see because you can see something inside it.  Hib3StemDAO only
+       * applies that visibility filter when no privilege set was passed, so asking for
+       * privileges here would suppress exactly the check we want
+       */
+      @Override
+      public Stem lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+
+        Stem theStem = new StemFinder().assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findStem();
+
+        return theStem != null && theStem.isRootStem() ? null : theStem;
+      }
+
+      /**
+       *
+       */
+      @Override
+      public Collection<Stem> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+
+        Subject loggedInSubject = grouperSession.getSubject();
+        int stemComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.stemComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, stemComboSize);
+
+        //no assignPrivileges: see the note on lookup above
+        Collection<Stem> stems = new StemFinder()
+            .assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
+
+        Collection<Stem> results = new ArrayList<Stem>();
+
+        for (Stem stem : GrouperUtil.nonNull(stems)) {
+          if (!stem.isRootStem()) {
+            results.add(stem);
+          }
+        }
+
+        return results;
+      }
+
+      /**
+       * @param t
+       * @return the id
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Stem t) {
+        return t.getId();
+      }
+
+      /**
+       *
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Stem t) {
+        String displayName = t.isRootStem() ? TextContainer.retrieveFromRequest().getText().get("stem.root.display-name")
+            : t.getDisplayName();
+
+        return displayName;
+      }
+
+      /**
+       *
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Stem t) {
+        String displayName = t.isRootStem() ? TextContainer.retrieveFromRequest().getText().get("stem.root.display-name")
+            : t.getDisplayName();
+        String label = GrouperUiUtils.escapeHtml(displayName, true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        return htmlLabel;
+      }
+
+    });
+
+  }
+
+  /**
    * combo filter copy parent folder
    * @param request
    * @param response

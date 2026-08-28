@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -48,9 +50,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.OAuthContainer;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
@@ -417,12 +419,29 @@ public class UiV2OAuth extends UiServiceLogicBase {
       List<String> readwriteSubjects = new ArrayList<String>();
 
       if (scopeReadwrite) {
-        readwriteFolders = splitAndTrimNonEmpty(
-            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteFolders")));
-        readwriteGroups = splitAndTrimNonEmpty(
-            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteGroups")));
-        readwriteSubjects = splitAndTrimNonEmpty(
-            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteSubjects")));
+        // one hidden field per pick, carrying the id the combobox gave the page.  the scope is
+        // stored by name, so the ids are translated here, once, rather than on every pick
+        List<String> stemIds = readScopeHiddenFields(request, "extraStemId_");
+        List<String> groupIds = readScopeHiddenFields(request, "extraGroupId_");
+
+        readwriteFolders = resolveStemNames(stemIds, loggedInSubject);
+        readwriteGroups = resolveGroupNames(groupIds, loggedInSubject);
+        readwriteSubjects = resolveSubjectIds(readScopeHiddenFields(request, "extraSubjectId_"));
+
+        // Anything which did not resolve is refused rather than dropped.  Carrying on with a
+        // short list would hand out a wider consent than the one on the screen, since a folder
+        // and group list which ends up empty leaves that dimension unscoped rather than closed.
+        //
+        // Subjects are deliberately not checked this way.  Nothing is looked up for them, so the
+        // only reason that list shrinks is resolveSubjectIds collapsing two picks of the same
+        // subject from different sources, which is right: the scope matches a subject id without
+        // a source.  That cannot turn a non empty pick into an empty list, which is the case
+        // this check exists to catch.
+        if (readwriteFolders.size() != stemIds.size() || readwriteGroups.size() != groupIds.size()) {
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+              GrouperTextContainer.textOrNull("oauthConsentReadwriteValidationError"));
+          throw new ControllerDone();
+        }
 
         // validate at least one restriction is present (when config requires it)
         boolean requireReadwriteDataScope = GrouperConfig.retrieveConfig()
@@ -431,6 +450,20 @@ public class UiV2OAuth extends UiServiceLogicBase {
             && readwriteGroups.isEmpty() && readwriteSubjects.isEmpty()) {
           response.sendError(HttpServletResponse.SC_BAD_REQUEST,
               GrouperTextContainer.textOrNull("oauthConsentReadwriteAtLeastOneRequired"));
+          throw new ControllerDone();
+        }
+
+        // The maximums again.  The page keeps to them while somebody is picking and
+        // ajaxValidateReadwriteScope checks them before it lets the form go, but this is the
+        // endpoint which actually issues the code, and it is reachable without either of those.
+        if (readwriteFolders.size() > GrouperConfig.retrieveConfig()
+                .propertyValueInt("grouper.mcp.oauth.maxReadwriteFolders", 10)
+            || readwriteGroups.size() > GrouperConfig.retrieveConfig()
+                .propertyValueInt("grouper.mcp.oauth.maxReadwriteGroups", 10)
+            || readwriteSubjects.size() > GrouperConfig.retrieveConfig()
+                .propertyValueInt("grouper.mcp.oauth.maxReadwriteSubjects", 50)) {
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+              GrouperTextContainer.textOrNull("oauthConsentReadwriteValidationError"));
           throw new ControllerDone();
         }
       }
@@ -549,16 +582,39 @@ public class UiV2OAuth extends UiServiceLogicBase {
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
     try {
 
-      String foldersParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteFolders"));
-      String groupsParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteGroups"));
-      String subjectsParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteSubjects"));
+      grouperSession = GrouperSession.start(loggedInSubject);
 
-      // parse comma-separated values
-      List<String> folderPaths = splitAndTrimNonEmpty(foldersParam);
-      List<String> groupPaths = splitAndTrimNonEmpty(groupsParam);
-      List<String> subjectIds = splitAndTrimNonEmpty(subjectsParam);
+      // one hidden field per pick, carrying the id the combobox gave the page.  the picking is
+      // done in the browser, so this is both the translation to names and the backstop against a
+      // post which did not come from the screen
+      List<String> stemIds = readScopeHiddenFields(request, "extraStemId_");
+      List<String> groupIds = readScopeHiddenFields(request, "extraGroupId_");
+
+      List<String> folderPaths = resolveStemNames(stemIds, loggedInSubject);
+      List<String> groupPaths = resolveGroupNames(groupIds, loggedInSubject);
+      List<String> subjectIds = resolveSubjectIds(readScopeHiddenFields(request, "extraSubjectId_"));
+
+      // see the note on the same check in submitAuthorize: a pick which no longer resolves has to
+      // stop the consent, because dropping it would widen the scope rather than narrow it
+      if (folderPaths.size() != stemIds.size()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteFolderComboErrorId",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteFolderNotFound")));
+        return;
+      }
+
+      if (groupPaths.size() != groupIds.size()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteGroupComboErrorId",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteGroupNotFound")));
+        return;
+      }
 
       // check if data scope restrictions are required by config
       boolean requireReadwriteDataScope = GrouperConfig.retrieveConfig()
@@ -589,7 +645,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
         GrouperTextContainer.assignThreadLocalVariable("maxCount",
             String.valueOf(maxFolders));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#oauthReadwriteFolders",
+            "#oauthReadwriteFolderComboErrorId",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyFolders")));
         return;
       }
@@ -599,7 +655,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
         GrouperTextContainer.assignThreadLocalVariable("maxCount",
             String.valueOf(maxGroups));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#oauthReadwriteGroups",
+            "#oauthReadwriteGroupComboErrorId",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroups")));
         return;
       }
@@ -609,68 +665,36 @@ public class UiV2OAuth extends UiServiceLogicBase {
         GrouperTextContainer.assignThreadLocalVariable("maxCount",
             String.valueOf(maxSubjects));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-            "#oauthReadwriteSubjects",
+            "#oauthReadwriteSubjectComboErrorId",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManySubjects")));
         return;
       }
 
-      // verify folders exist and count groups
+      // How many groups the folders cover.  The folders and groups themselves are not looked up
+      // again: they are here because resolveStemNames and resolveGroupNames just resolved them,
+      // and anything which did not resolve was already dropped rather than carried this far.
       if (!folderPaths.isEmpty()) {
-        GrouperSession grouperSession = GrouperSession.startRootSession();
-        try {
-          long totalGroupCount = 0;
 
-          for (String folderPath : folderPaths) {
-            Stem stem = StemFinder.findByName(grouperSession, folderPath, false);
-            if (stem == null) {
-              GrouperTextContainer.assignThreadLocalVariable("folderName",
-                  GrouperUiUtils.escapeHtml(folderPath, true));
-              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-                  "#oauthReadwriteFolders",
-                  GrouperTextContainer.textOrNull("oauthConsentReadwriteFolderNotFound")));
-              return;
-            }
+        long totalGroupCount = 0;
 
-            // count groups under this folder (recursive)
-            long groupCount = new GcDbAccess()
-                .sql("SELECT count(*) FROM grouper_groups WHERE name LIKE ?")
-                .addBindVar(folderPath + ":%")
-                .select(Long.class);
-            totalGroupCount += groupCount;
-          }
-
-          if (totalGroupCount >= maxGroupsInFolders) {
-            GrouperTextContainer.assignThreadLocalVariable("groupCount",
-                String.valueOf(totalGroupCount));
-            GrouperTextContainer.assignThreadLocalVariable("maxCount",
-                String.valueOf(maxGroupsInFolders));
-            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-                "#oauthReadwriteFolders",
-                GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroupsInFolders")));
-            return;
-          }
-        } finally {
-          GrouperSession.stopQuietly(grouperSession);
+        for (String folderPath : folderPaths) {
+          // count groups under this folder (recursive)
+          long groupCount = new GcDbAccess()
+              .sql("SELECT count(*) FROM grouper_groups WHERE name LIKE ?")
+              .addBindVar(folderPath + ":%")
+              .select(Long.class);
+          totalGroupCount += groupCount;
         }
-      }
 
-      // verify groups exist
-      if (!groupPaths.isEmpty()) {
-        GrouperSession grouperSession = GrouperSession.startRootSession();
-        try {
-          for (String groupPath : groupPaths) {
-            Group group = GroupFinder.findByName(grouperSession, groupPath, false);
-            if (group == null) {
-              GrouperTextContainer.assignThreadLocalVariable("groupName",
-                  GrouperUiUtils.escapeHtml(groupPath, true));
-              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-                  "#oauthReadwriteGroups",
-                  GrouperTextContainer.textOrNull("oauthConsentReadwriteGroupNotFound")));
-              return;
-            }
-          }
-        } finally {
-          GrouperSession.stopQuietly(grouperSession);
+        if (totalGroupCount >= maxGroupsInFolders) {
+          GrouperTextContainer.assignThreadLocalVariable("groupCount",
+              String.valueOf(totalGroupCount));
+          GrouperTextContainer.assignThreadLocalVariable("maxCount",
+              String.valueOf(maxGroupsInFolders));
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#oauthReadwriteFolderComboErrorId",
+              GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroupsInFolders")));
+          return;
         }
       }
 
@@ -681,28 +705,10 @@ public class UiV2OAuth extends UiServiceLogicBase {
       LOG.error("Error in AJAX readwrite scope validation", e);
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
           GrouperTextContainer.textOrNull("oauthConsentReadwriteServerError")));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
   }
-
-  /**
-   * Split a comma-separated string into a list of trimmed non-empty strings.
-   * @param input the comma-separated input
-   * @return list of trimmed non-empty values
-   */
-  private static List<String> splitAndTrimNonEmpty(String input) {
-    List<String> result = new ArrayList<String>();
-    if (StringUtils.isBlank(input)) {
-      return result;
-    }
-    for (String part : GrouperUtil.split(input, ", \t\n\r")) {
-      if (StringUtils.isNotBlank(part)) {
-        result.add(part.trim());
-      }
-    }
-    return result;
-  }
-
-
 
   /**
    * Check if MCP is enabled via the grouper.is.mcp configuration property.
@@ -761,5 +767,159 @@ public class UiV2OAuth extends UiServiceLogicBase {
   private static String issuerParam() {
 
     return "&iss=" + GrouperUtil.escapeUrlEncode(GrouperOAuthStore.retrieveIssuerIdentifier());
+  }
+  
+  /**
+   * Translate the folder ids a consent form is carrying into folder names.
+   *
+   * <p>The picker hands back an id, because that is what a combobox has, and the scope is stored
+   * by name, because a folder scope means the groups whose names start with it.  The translation
+   * happens once here rather than on every pick.  One query, not one per folder.</p>
+   *
+   * <p>Ids which do not resolve are left out, and the caller must treat a short list as a failure
+   * rather than carrying on.  Dropping one quietly would widen the consent, not narrow it: an
+   * empty folder and group list does not mean "no groups", it means "this dimension is not
+   * scoped", so losing the only folder somebody picked turns their consent into every group they
+   * can already write to.  The root folder is dropped here for the same reason it is kept out of
+   * the picker: its name is the empty string, and a folder scope matches the groups whose names
+   * start with the folder and a colon, so it would restrict nothing while still counting as a
+   * restriction for grouper.mcp.oauth.requireReadwriteDataScope.</p>
+   *
+   * <p>Resolved as the user doing the consenting, not as root, and with no privileges assigned,
+   * which is the same thing UiV2Stem.stemViewFilter offers: the folders they can see.  An id for
+   * anything else simply does not resolve and is dropped.  Resolving as root would translate any
+   * id somebody cared to post into a name, and that name is kept on the consent, which would
+   * turn this screen into a way to read the folder tree by guessing ids.</p>
+   *
+   * <p>Runs in the caller's session, which is already the logged in user's.</p>
+   *
+   * @param stemIds the ids from the form
+   * @param loggedInSubject who is consenting
+   * @return the names, in the order the ids were given
+   */
+  private static List<String> resolveStemNames(List<String> stemIds, Subject loggedInSubject) {
+
+    List<String> stemNames = new ArrayList<String>();
+
+    if (stemIds.isEmpty()) {
+      return stemNames;
+    }
+
+    Map<String, String> idToName = new HashMap<String, String>();
+
+    for (Stem stem : GrouperUtil.nonNull(new StemFinder().assignStemIds(stemIds)
+        .assignSubject(loggedInSubject).findStems())) {
+      idToName.put(stem.getId(), stem.getName());
+    }
+
+    for (String stemId : stemIds) {
+      String stemName = idToName.get(stemId);
+      if (StringUtils.isNotBlank(stemName)) {
+        stemNames.add(stemName);
+      }
+    }
+
+    return stemNames;
+  }
+
+  /**
+   * Translate the group ids a consent form is carrying into group names.  See
+   * {@link #resolveStemNames(List, Subject)}, which this mirrors.
+   *
+   * <p>Filtered on UPDATE, which is what UiV2Group.groupUpdateFilter offers in the picker, so a
+   * group the user could not have picked does not resolve here either.</p>
+   *
+   * @param groupIds the ids from the form
+   * @param loggedInSubject who is consenting
+   * @return the names, in the order the ids were given
+   */
+  private static List<String> resolveGroupNames(List<String> groupIds, Subject loggedInSubject) {
+
+    List<String> groupNames = new ArrayList<String>();
+
+    if (groupIds.isEmpty()) {
+      return groupNames;
+    }
+
+    Map<String, String> idToName = new HashMap<String, String>();
+
+    for (Group group : GrouperUtil.nonNull(new GroupFinder().assignGroupIds(groupIds)
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignSubject(loggedInSubject).findGroups())) {
+      idToName.put(group.getId(), group.getName());
+    }
+
+    for (String groupId : groupIds) {
+      String groupName = idToName.get(groupId);
+      if (StringUtils.isNotBlank(groupName)) {
+        groupNames.add(groupName);
+      }
+    }
+
+    return groupNames;
+  }
+
+  /**
+   * Pull the subject ids out of what the subject picker handed back.
+   *
+   * <p>That picker is the shared one, whose ids are sourceId||subjectId.  The scope is stored as
+   * a bare subject id, and matches an id or one of a subject's identifiers, so the source half is
+   * dropped.  Nothing is looked up: a subject id which matches nothing authorizes nothing.</p>
+   *
+   * @param pickedValues what the form carried
+   * @return the subject ids, in the order they were picked
+   */
+  private static List<String> resolveSubjectIds(List<String> pickedValues) {
+
+    List<String> subjectIds = new ArrayList<String>();
+
+    for (String pickedValue : pickedValues) {
+
+      // the first separator, not the last: a source id has no || in it, but nothing stops a
+      // subject id from having one, and that whole id is what the scope is stored as
+      String subjectId = StringUtils.trimToNull(StringUtils.substringAfter(pickedValue, "||"));
+
+      if (subjectId == null) {
+        // typed in rather than picked, so there is no source half to drop
+        subjectId = StringUtils.trimToNull(pickedValue);
+      }
+
+      if (subjectId != null && !subjectIds.contains(subjectId)) {
+        subjectIds.add(subjectId);
+      }
+    }
+
+    return subjectIds;
+  }
+
+  /**
+   * Read the values a consent form is carrying for one dimension of the readwrite data scope.
+   *
+   * <p>Each pick is a hidden field in the form rather than anything held on the server, so nothing
+   * is kept for a consent page somebody abandons.</p>
+   *
+   * <p>Unlike the group import screen this was modelled on, a gap in the numbering is skipped
+   * rather than treated as the end of the list.  Stopping there would silently shorten the scope,
+   * and a folder or group list which ends up empty leaves that dimension unscoped rather than
+   * closed, so a dropped field would widen the consent instead of narrowing it.</p>
+   *
+   * @param request the request
+   * @param fieldNamePrefix e.g. extraStemId_
+   * @return the values in the order they were picked, never null
+   */
+  private static List<String> readScopeHiddenFields(HttpServletRequest request, String fieldNamePrefix) {
+
+    List<String> values = new ArrayList<String>();
+
+    for (int i = 0; i < 1000; i++) {
+
+      String value = StringUtils.trimToNull(request.getParameter(fieldNamePrefix + i));
+
+      if (value != null && !values.contains(value)) {
+        values.add(value);
+      }
+    }
+
+    return values;
   }
 }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+
 /**
  * UI bean container for OAuth consent page data. This container holds fields
  * related to the OAuth 2.1 authorization consent flow and is not specific to MCP.
@@ -251,5 +253,34 @@ public class OAuthContainer {
    */
   public void setRequireReadwriteDataScope(boolean requireReadwriteDataScope1) {
     this.requireReadwriteDataScope = requireReadwriteDataScope1;
+  }
+
+  /**
+   * The most folders which may be picked for the readwrite data scope.
+   *
+   * <p>These three are on the container only so the consent page can hand them to its javascript,
+   * which is what enforces them while somebody is picking.  The server checks them again on
+   * submit: the browser is where the limit is convenient, not where it is decided.</p>
+   *
+   * @return the maximum
+   */
+  public int getMaxReadwriteFolders() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteFolders", 10);
+  }
+
+  /**
+   * the most groups which may be picked for the readwrite data scope
+   * @return the maximum
+   */
+  public int getMaxReadwriteGroups() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteGroups", 10);
+  }
+
+  /**
+   * the most subjects which may be picked for the readwrite data scope
+   * @return the maximum
+   */
+  public int getMaxReadwriteSubjects() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteSubjects", 50);
   }
 }

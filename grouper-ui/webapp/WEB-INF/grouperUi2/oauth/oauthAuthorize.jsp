@@ -67,21 +67,26 @@
       .readwrite-scope-section label:first-child {
         margin-top: 0;
       }
-      .readwrite-scope-section textarea {
-        width: 100%;
-        box-sizing: border-box;
-        font-family: monospace;
-        font-size: 0.9em;
-        padding: 6px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        resize: vertical;
-      }
       .readwrite-scope-section .field-description {
         font-size: 0.85em;
         color: #666;
         margin-top: 2px;
         margin-bottom: 8px;
+      }
+      /* what has been picked so far, sitting under the add button.  without this the first
+         row crowds the button and reads as part of it rather than as the result of it */
+      .readwrite-scope-section .picked-list {
+        margin-top: 10px;
+      }
+      .readwrite-scope-section .picked-list > div {
+        padding: 2px 0;
+      }
+      /* validation next to a picker, set by the add javascript rather than by the server */
+      .readwrite-scope-section .error-message-inline {
+        color: #d9534f;
+        font-size: 0.85em;
+        display: block;
+        margin-top: 2px;
       }
     </style>
   </head>
@@ -130,7 +135,9 @@
 
               <p>${textContainer.text['oauthConsentApproveMessage']}</p>
 
-              <form method="POST" action="UiV2OAuth.submitAuthorize">
+              <%-- the id lets the pickers post this form back to add or remove a pick.  the form
+                   itself still submits normally at the end, carrying every hidden field --%>
+              <form method="POST" action="UiV2OAuth.submitAuthorize" id="oauthConsentFormId">
                 <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
                 <input type="hidden" name="oauthRequestId"
                     value="${grouper:escapeHtml(grouperRequestContainer.oauthContainer.requestId)}" />
@@ -185,17 +192,38 @@
                             </c:otherwise>
                           </c:choose>
                         </p>
-                        <label for="oauthReadwriteFolders">${textContainer.text['oauthConsentReadwriteFoldersLabel']}</label>
-                        <textarea id="oauthReadwriteFolders" name="oauthReadwriteFolders" rows="2"></textarea>
+                        <%-- Each of the three is a picker plus a list of what has been picked.
+                             Adding and removing is done entirely in the browser: the combobox
+                             already knows the id and the label, so a pick just writes a hidden
+                             field and a row.  The id is resolved to a name once, on submit.
+                             Nothing about a half finished consent page reaches the server. --%>
+
+                        <label for="oauthReadwriteFolderComboId">${textContainer.text['oauthConsentReadwriteFoldersLabel']}</label>
+                        <grouper:combobox2 idBase="oauthReadwriteFolderCombo" style="width: 30em"
+                          filterOperation="../app/UiV2Stem.stemViewFilter" />
                         <div class="field-description">${textContainer.text['oauthConsentReadwriteFoldersDescription']}</div>
+                        <a href="#" class="btn btn-mini" role="button"
+                          onclick="oauthAddPick('Folder'); return false;"
+                          >${textContainer.text['oauthConsentReadwriteAddFolderButton']}</a>
+                        <div id="oauthReadwriteFoldersDivId" class="picked-list"></div>
 
-                        <label for="oauthReadwriteGroups">${textContainer.text['oauthConsentReadwriteGroupsLabel']}</label>
-                        <textarea id="oauthReadwriteGroups" name="oauthReadwriteGroups" rows="2"></textarea>
+                        <label for="oauthReadwriteGroupComboId">${textContainer.text['oauthConsentReadwriteGroupsLabel']}</label>
+                        <grouper:combobox2 idBase="oauthReadwriteGroupCombo" style="width: 30em"
+                          filterOperation="../app/UiV2Group.groupUpdateFilter" />
                         <div class="field-description">${textContainer.text['oauthConsentReadwriteGroupsDescription']}</div>
+                        <a href="#" class="btn btn-mini" role="button"
+                          onclick="oauthAddPick('Group'); return false;"
+                          >${textContainer.text['oauthConsentReadwriteAddGroupButton']}</a>
+                        <div id="oauthReadwriteGroupsDivId" class="picked-list"></div>
 
-                        <label for="oauthReadwriteSubjects">${textContainer.text['oauthConsentReadwriteSubjectsLabel']}</label>
-                        <textarea id="oauthReadwriteSubjects" name="oauthReadwriteSubjects" rows="2"></textarea>
+                        <label for="oauthReadwriteSubjectComboId">${textContainer.text['oauthConsentReadwriteSubjectsLabel']}</label>
+                        <grouper:combobox2 idBase="oauthReadwriteSubjectCombo" style="width: 30em"
+                          filterOperation="../app/UiV2Group.addMemberFilter" />
                         <div class="field-description">${textContainer.text['oauthConsentReadwriteSubjectsDescription']}</div>
+                        <a href="#" class="btn btn-mini" role="button"
+                          onclick="oauthAddPick('Subject'); return false;"
+                          >${textContainer.text['oauthConsentReadwriteAddSubjectButton']}</a>
+                        <div id="oauthReadwriteSubjectsDivId" class="picked-list"></div>
                       </div>
                     </div>
                   </c:if>
@@ -291,17 +319,123 @@
                   }
                 }
 
+                <%-- the three pickers, by the piece of their element ids which differs.  the
+                     hidden field carries the id the combobox gave us, not the name: the name is
+                     looked up once on the server when the form is submitted --%>
+                var oauthPickTypes = {
+                  Folder: {div: 'oauthReadwriteFoldersDivId', field: 'extraStemId_',
+                    icon: 'fa-folder', max: ${grouperRequestContainer.oauthContainer.maxReadwriteFolders}},
+                  Group: {div: 'oauthReadwriteGroupsDivId', field: 'extraGroupId_',
+                    icon: 'fa-users', max: ${grouperRequestContainer.oauthContainer.maxReadwriteGroups}},
+                  Subject: {div: 'oauthReadwriteSubjectsDivId', field: 'extraSubjectId_',
+                    icon: 'fa-user', max: ${grouperRequestContainer.oauthContainer.maxReadwriteSubjects}}
+                };
+
+                function oauthPickError(type, message) {
+                  var errorSpan = document.getElementById('oauthReadwrite' + type + 'ComboErrorId');
+                  if (errorSpan) {
+                    errorSpan.textContent = message ? message : '';
+                    errorSpan.className = message ? 'error-message-inline' : '';
+                  }
+                }
+
+                function oauthAddPick(type) {
+                  var config = oauthPickTypes[type];
+                  var combo = document.getElementById('oauthReadwrite' + type + 'ComboId');
+                  var listDiv = document.getElementById(config.div);
+                  var tomSelect = combo ? combo.tomselect : null;
+
+                  <%-- the value is what retrieveId gave: a uuid for folders and groups, and
+                       sourceId||subjectId for subjects.  only a real pick has one, so a half
+                       typed box adds nothing rather than adding something wrong --%>
+                  var value = tomSelect ? tomSelect.getValue() : '';
+
+                  if (!value) {
+                    oauthPickError(type, '${grouper:escapeJavascript(textContainer.text["oauthConsentReadwritePickFirst"])}');
+                    return;
+                  }
+
+                  var existing = listDiv.querySelectorAll('input[type=hidden]');
+
+                  for (var i = 0; i < existing.length; i++) {
+                    if (existing[i].value === value) {
+                      <%-- already there: clear the box so it is obvious the click did land --%>
+                      tomSelect.clear(true);
+                      oauthPickError(type, '');
+                      return;
+                    }
+                  }
+
+                  if (existing.length >= config.max) {
+                    oauthPickError(type, '${grouper:escapeJavascript(textContainer.text["oauthConsentReadwriteTooManyClient"])}'
+                      .replace('$$maxCount$$', config.max));
+                    return;
+                  }
+
+                  <%-- the label the combobox is already holding.  tom select is configured with
+                       labelField 'name', so the option carries the plain label; the rendered item
+                       is not used because the server sends icon markup as the html label.  it is
+                       put on the row as a text node, so a name with markup in it stays text --%>
+                  var option = tomSelect.options ? tomSelect.options[value] : null;
+                  var label = (option && option.name) ? option.name : value;
+
+                  var row = document.createElement('div');
+
+                  var hidden = document.createElement('input');
+                  hidden.type = 'hidden';
+                  hidden.name = config.field + existing.length;
+                  hidden.value = value;
+                  row.appendChild(hidden);
+
+                  var icon = document.createElement('i');
+                  icon.className = 'fa ' + config.icon;
+                  icon.setAttribute('aria-hidden', 'true');
+                  row.appendChild(icon);
+
+                  row.appendChild(document.createTextNode(' ' + label + ' '));
+
+                  var remove = document.createElement('a');
+                  remove.href = '#';
+                  remove.setAttribute('role', 'button');
+                  remove.setAttribute('aria-label',
+                    '${grouper:escapeJavascript(textContainer.text["oauthConsentReadwriteRemoveLabel"])} ' + label);
+                  remove.onclick = function() {
+                    row.parentNode.removeChild(row);
+                    oauthRenumberPicks(type);
+                    oauthPickError(type, '');
+                    return false;
+                  };
+                  remove.innerHTML = '<i class="fa fa-times" style="color: #aaaaaa" aria-hidden="true"></i>';
+                  row.appendChild(remove);
+
+                  listDiv.appendChild(row);
+
+                  tomSelect.clear(true);
+                  oauthPickError(type, '');
+                }
+
+                <%-- Renumber after a removal so the names stay 0..n-1.  The server tolerates a
+                     gap, but this side does not: a new pick is named from the current count, so
+                     leaving a hole would reuse a name which is still on the page.  Remove the
+                     middle of 0,1,2 and the next add would be a second field named 2, and only
+                     one of the two would be read. --%>
+                function oauthRenumberPicks(type) {
+                  var config = oauthPickTypes[type];
+                  var hiddens = document.getElementById(config.div).querySelectorAll('input[type=hidden]');
+                  for (var i = 0; i < hiddens.length; i++) {
+                    hiddens[i].name = config.field + i;
+                  }
+                }
+
                 function oauthApproveWithValidation() {
                   var rwCb = document.getElementById('oauthScopeReadwrite');
                   if (!rwCb || !rwCb.checked) {
                     oauthDoSubmit();
                     return;
                   }
-                  ajax('UiV2OAuth.ajaxValidateReadwriteScope', {requestParams:
-                    'oauthReadwriteFolders=' + encodeURIComponent($('#oauthReadwriteFolders').val() || '')
-                    + '&oauthReadwriteGroups=' + encodeURIComponent($('#oauthReadwriteGroups').val() || '')
-                    + '&oauthReadwriteSubjects=' + encodeURIComponent($('#oauthReadwriteSubjects').val() || '')
-                  });
+                  <%-- post the form rather than hand building parameters: the picks are hidden
+                       fields in it, one per folder, group, and subject --%>
+                  ajax('UiV2OAuth.ajaxValidateReadwriteScope', {formIds: 'oauthConsentFormId'});
                 }
 
                 function oauthDoSubmit() {
