@@ -149,22 +149,24 @@ public class JamfTargetDao extends GrouperProvisionerTargetDaoBase {
       // all accounts (entities) + a name->nativeId index for membership resolution.
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
       Map<String, String> nameToId = new LinkedHashMap<String, String>();
-      for (JamfAccount listAccount : JamfApiCommands.retrieveAccounts(configId, ignoreAccounts)) {
-        JamfAccount account = needDetail ? withDetail(configId, listAccount) : listAccount;
+      if (targetDaoRetrieveAllDataRequest.isRetrieveEntities()) {
+        for (JamfAccount listAccount : JamfApiCommands.retrieveAccounts(configId, ignoreAccounts)) {
+          JamfAccount account = needDetail ? withDetail(configId, listAccount) : listAccount;
 
-        // disable-instead-of-delete: a disabled account is treated as absent, so the framework
-        // re-reads it (retrieveEntity, also filtered) and insertEntity reactivates it rather than
-        // creating a duplicate. See SCIM's isDisableEntitiesInsteadOfDelete filter.
-        if (disableInsteadOfDelete && account.isDisabled()) {
-          continue;
-        }
-        // ignore list matches name/email/email_address -- never surface an ignored account
-        if (JamfApiCommands.isAccountIgnored(account, ignoreAccounts)) {
-          continue;
-        }
-        provisioningEntities.add(account.toProvisioningEntity());
-        if (!StringUtils.isBlank(account.getName()) && !StringUtils.isBlank(account.getId())) {
-          nameToId.put(account.getName().toLowerCase(), account.getId());
+          // disable-instead-of-delete: a disabled account is treated as absent, so the framework
+          // re-reads it (retrieveEntity, also filtered) and insertEntity reactivates it rather than
+          // creating a duplicate. See SCIM's isDisableEntitiesInsteadOfDelete filter.
+          if (disableInsteadOfDelete && account.isDisabled()) {
+            continue;
+          }
+          // ignore list matches name/email/email_address -- never surface an ignored account
+          if (JamfApiCommands.isAccountIgnored(account, ignoreAccounts)) {
+            continue;
+          }
+          provisioningEntities.add(account.toProvisioningEntity());
+          if (!StringUtils.isBlank(account.getName()) && !StringUtils.isBlank(account.getId())) {
+            nameToId.put(account.getName().toLowerCase(), account.getId());
+          }
         }
       }
       targetData.setProvisioningEntities(provisioningEntities);
