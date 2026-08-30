@@ -1,0 +1,18 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.jamf" default-lazy="false">
+  <class name="JamfAccountGroup" table="mock_jamf_account_group">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="name" column="name" />
+    <property name="accessLevel" column="access_level" />
+    <property name="privilegeSet" column="privilege_set" />
+    <property name="siteId" column="site_id" />
+    <property name="siteName" column="site_name" />
+
+  </class>
+</hibernate-mapping>
