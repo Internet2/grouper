@@ -36,6 +36,15 @@ public class JamfProvisionerConfiguration extends GrouperProvisioningConfigurati
    */
   private String jamfIgnoreRoleNames;
 
+  /**
+   * when true, a "delete" disables the account (enabled=Disabled) instead of hard-deleting it, and
+   * disabled accounts are filtered out of reads (so they look absent). A subsequent insert of the
+   * same person re-enables the disabled account and resets its name/full_name/email instead of
+   * creating a duplicate. Defaults to false (hard delete), matching the SCIM provisioner's code
+   * default -- deployments that want the softer behavior set it true in the config.
+   */
+  private boolean disableEntitiesInsteadOfDelete;
+
   public String getJamfExternalSystemConfigId() {
     return jamfExternalSystemConfigId;
   }
@@ -68,6 +77,14 @@ public class JamfProvisionerConfiguration extends GrouperProvisioningConfigurati
     this.jamfIgnoreRoleNames = jamfIgnoreRoleNames;
   }
 
+  public boolean isDisableEntitiesInsteadOfDelete() {
+    return disableEntitiesInsteadOfDelete;
+  }
+
+  public void setDisableEntitiesInsteadOfDelete(boolean disableEntitiesInsteadOfDelete) {
+    this.disableEntitiesInsteadOfDelete = disableEntitiesInsteadOfDelete;
+  }
+
   @Override
   public void configureSpecificSettings() {
 
@@ -81,6 +98,10 @@ public class JamfProvisionerConfiguration extends GrouperProvisioningConfigurati
 
     this.jamfIgnoreRoleNames = GrouperUtil.defaultIfBlank(
         this.retrieveConfigString("jamfIgnoreRoleNames", false), "");
+
+    // default false (hard delete) to match the SCIM provisioner's code default
+    this.disableEntitiesInsteadOfDelete = GrouperUtil.booleanValue(
+        this.retrieveConfigBoolean("disableEntitiesInsteadOfDelete", false), false);
 
   }
 
