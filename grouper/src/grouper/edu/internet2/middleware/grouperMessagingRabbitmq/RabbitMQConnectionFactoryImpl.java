@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperMessagingRabbitmq;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,13 +11,13 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.TrustEverythingTrustManager;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
@@ -98,7 +99,16 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
                 tmf.init(tks);
                 c.init(null, tmf.getTrustManagers(), null);
               } else {
-                c.init(null, new TrustManager[]{new TrustEverythingTrustManager()}, null);
+                // amqp-client 5.x made com.rabbitmq.client.TrustEverythingTrustManager non-public;
+                // inline an equivalent trust-all X509TrustManager (used only when no trust store is configured)
+                c.init(null, new TrustManager[]{new X509TrustManager() {
+                  @Override
+                  public void checkClientTrusted(X509Certificate[] chain, String authType) { }
+                  @Override
+                  public void checkServerTrusted(X509Certificate[] chain, String authType) { }
+                  @Override
+                  public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }}, null);
               }
               factory.useSslProtocol(c);
             }
