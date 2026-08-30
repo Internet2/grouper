@@ -63,6 +63,9 @@ import edu.internet2.middleware.grouper.app.ccure.MockCcurePersonnel;
 import edu.internet2.middleware.grouper.app.datadog.DatadogGroup;
 import edu.internet2.middleware.grouper.app.datadog.DatadogMembership;
 import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
+import edu.internet2.middleware.grouper.app.github.GithubTeam;
+import edu.internet2.middleware.grouper.app.github.GithubMembership;
+import edu.internet2.middleware.grouper.app.github.GithubUser;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryGroup;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMembership;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
@@ -323,6 +326,9 @@ public abstract class Hib3DAO {
         addClass(configuration, DatadogGroup.class);
         addClass(configuration, DatadogUser.class);
         addClass(configuration, DatadogMembership.class);
+        addClass(configuration, GithubTeam.class);
+        addClass(configuration, GithubUser.class);
+        addClass(configuration, GithubMembership.class);
 
         addClass(configuration, TrueFoundryGroup.class);
         addClass(configuration, TrueFoundryUser.class);
