@@ -313,8 +313,8 @@ public class JamfApiCommands {
    * with the access level supplied on the JamfAccount (Grouper uses "Group Access", so privileges
    * come from role membership, not the account itself).
    * @param configId the external system config id
-   * @param account the account to create (name = lowercased EPPN)
-   * @return the account with its new native id set
+   * @param account the account to create (name = EPPN)
+   * @return the account as re-read by name (authoritative native id + stored state)
    */
   public static JamfAccount createAccount(String configId, JamfAccount account) {
     Map<String, Object> debugMap = new java.util.LinkedHashMap<String, Object>();
@@ -325,17 +325,133 @@ public class JamfApiCommands {
     try {
       String xmlBody = buildCreateAccountXml(account);
       int[] returnCode = new int[] {-1};
-      String xml = executeMethod(debugMap, "createAccount", "POST", configId,
+      executeMethod(debugMap, "createAccount", "POST", configId,
           "/JSSResource/accounts/userid/0", GrouperUtil.toSet(200, 201), returnCode, xmlBody);
 
-      Document document = parseXml(xml);
-      if (document != null) {
-        // create response is <account><id>NNN</id></account>
-        String newId = document.getRootElement().elementTextTrim("id");
-        account.setId(newId);
-        debugMap.put("newId", newId);
+      // The create-response id is NOT reliable (Jamf has been observed returning an id that does not
+      // match the stored account). Match-by-id depends on the correct native id, so re-read the
+      // account BY NAME to get the authoritative record + real id.
+      JamfAccount authoritative = retrieveAccountByName(configId, account.getName());
+      if (authoritative != null) {
+        account.setId(authoritative.getId());
+        debugMap.put("newId", authoritative.getId());
+        return authoritative;
       }
+      // fallback: could not re-read (should not happen right after a successful create)
       return account;
+    } finally {
+      JamfLog.jamfLog(debugMap, startNanos);
+    }
+  }
+
+  /**
+   * Retrieve a single account by native id from GET /JSSResource/accounts/userid/{id}. Used for
+   * match-by-id (the stable link that survives a rename).
+   * @param configId the external system config id
+   * @param accountId the native Jamf account id
+   * @return the account, or null if not found (404)
+   */
+  public static JamfAccount retrieveAccountById(String configId, String accountId) {
+    Map<String, Object> debugMap = new java.util.LinkedHashMap<String, Object>();
+    debugMap.put("method", "retrieveAccountById");
+    long startNanos = System.nanoTime();
+
+    try {
+      if (StringUtils.isBlank(accountId)) {
+        return null;
+      }
+      int[] returnCode = new int[] {-1};
+      String xml = executeMethod(debugMap, "retrieveAccountById", "GET", configId,
+          "/JSSResource/accounts/userid/" + GrouperUtil.escapeUrlEncode(accountId),
+          GrouperUtil.toSet(200, 404), returnCode, null);
+
+      if (returnCode[0] == 404) {
+        return null;
+      }
+      Document document = parseXml(xml);
+      if (document == null) {
+        return null;
+      }
+      JamfAccount account = accountFromElement(document.getRootElement());
+      return account;
+    } finally {
+      JamfLog.jamfLog(debugMap, startNanos);
+    }
+  }
+
+  /**
+   * Update an account via PUT /JSSResource/accounts/userid/{id}. Only the fields in
+   * {@code fieldNamesToUpdate} are sent (partial PUT -- Jamf leaves omitted fields unchanged), so
+   * Grouper never overwrites fields it does not manage. The single "email" attribute is written to
+   * BOTH the Jamf {@code email} and {@code email_address} elements.
+   * @param configId the external system config id
+   * @param accountId the native Jamf account id
+   * @param account holds the desired values (from the provisioning entity)
+   * @param fieldNamesToUpdate the target attribute names that changed (e.g. name, fullName, email);
+   *   null sends all managed fields
+   */
+  public static void updateAccount(String configId, String accountId, JamfAccount account,
+      Set<String> fieldNamesToUpdate) {
+    Map<String, Object> debugMap = new java.util.LinkedHashMap<String, Object>();
+    debugMap.put("method", "updateAccount");
+    debugMap.put("accountId", accountId);
+    long startNanos = System.nanoTime();
+    try {
+      if (StringUtils.isBlank(accountId)) {
+        throw new RuntimeException("account id is required for updateAccount");
+      }
+      StringBuilder sb = new StringBuilder("<account>");
+      if (fieldNamesToUpdate == null || fieldNamesToUpdate.contains("name")) {
+        appendElement(sb, "name", account.getName());
+      }
+      if (fieldNamesToUpdate == null || fieldNamesToUpdate.contains("fullName")) {
+        appendElement(sb, "full_name", account.getFullName());
+      }
+      if (fieldNamesToUpdate == null || fieldNamesToUpdate.contains("email")) {
+        // one "email" attribute -> both Jamf email fields
+        appendElement(sb, "email", account.getEmail());
+        appendElement(sb, "email_address", account.getEmail());
+      }
+      // "enabled" is not a Grouper-managed attribute; it is set explicitly by the
+      // disable-instead-of-delete / reactivate paths (see setAccountEnabled)
+      if (fieldNamesToUpdate != null && fieldNamesToUpdate.contains("enabled")) {
+        appendElement(sb, "enabled", account.getEnabled());
+      }
+      sb.append("</account>");
+
+      int[] returnCode = new int[] {-1};
+      executeMethod(debugMap, "updateAccount", "PUT", configId,
+          "/JSSResource/accounts/userid/" + GrouperUtil.escapeUrlEncode(accountId),
+          GrouperUtil.toSet(200, 201), returnCode, sb.toString());
+    } finally {
+      JamfLog.jamfLog(debugMap, startNanos);
+    }
+  }
+
+  /**
+   * Set an account's enabled state via PUT /JSSResource/accounts/userid/{id} (partial update -- only
+   * {@code <enabled>} is sent). Used by disable-instead-of-delete (Disabled) and reactivate (Enabled).
+   * @param configId the external system config id
+   * @param accountId the native Jamf account id
+   * @param enabledValue {@link JamfAccount#ENABLED} or {@link JamfAccount#DISABLED}
+   */
+  public static void setAccountEnabled(String configId, String accountId, String enabledValue) {
+    Map<String, Object> debugMap = new java.util.LinkedHashMap<String, Object>();
+    debugMap.put("method", "setAccountEnabled");
+    debugMap.put("accountId", accountId);
+    debugMap.put("enabled", enabledValue);
+    long startNanos = System.nanoTime();
+    try {
+      if (StringUtils.isBlank(accountId)) {
+        throw new RuntimeException("account id is required for setAccountEnabled");
+      }
+      String xmlBody = "<account>"
+          + "<enabled>" + GrouperUtil.xmlEscape(enabledValue) + "</enabled>"
+          + "</account>";
+      int[] returnCode = new int[] {-1};
+      executeMethod(debugMap, "setAccountEnabled", "PUT", configId,
+          "/JSSResource/accounts/userid/" + GrouperUtil.escapeUrlEncode(accountId),
+          GrouperUtil.toSet(200, 201), returnCode, xmlBody);
     } finally {
       JamfLog.jamfLog(debugMap, startNanos);
     }
@@ -412,6 +528,7 @@ public class JamfApiCommands {
     account.setName(accountElement.elementTextTrim("name"));
     account.setFullName(accountElement.elementTextTrim("full_name"));
     account.setEmail(accountElement.elementTextTrim("email"));
+    account.setEmailAddress(accountElement.elementTextTrim("email_address"));
     account.setAccessLevel(accountElement.elementTextTrim("access_level"));
     account.setPrivilegeSet(accountElement.elementTextTrim("privilege_set"));
     account.setEnabled(accountElement.elementTextTrim("enabled"));
@@ -513,6 +630,24 @@ public class JamfApiCommands {
    */
   public static boolean isIgnored(String name, Set<String> ignoreSet) {
     return name != null && ignoreSet != null && ignoreSet.contains(name.toLowerCase());
+  }
+
+  /**
+   * True if an account should be ignored: its name, email, or email_address matches any value in
+   * the ignore set (case-insensitive). Ignored accounts are never created, updated, disabled,
+   * deleted, or added to / removed from a role. Use this everywhere account detail is available;
+   * where only the name is known (e.g. the id+name accounts list), use {@link #isIgnored(String, Set)}.
+   * @param account the account (name/email/emailAddress considered)
+   * @param ignoreSet the lowercased ignore set (from {@link #parseIgnoreSet})
+   * @return true if any of the account's identifiers is on the ignore list
+   */
+  public static boolean isAccountIgnored(JamfAccount account, Set<String> ignoreSet) {
+    if (account == null || ignoreSet == null || ignoreSet.isEmpty()) {
+      return false;
+    }
+    return isIgnored(account.getName(), ignoreSet)
+        || isIgnored(account.getEmail(), ignoreSet)
+        || isIgnored(account.getEmailAddress(), ignoreSet);
   }
 
 }

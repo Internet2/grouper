@@ -73,7 +73,7 @@ public class JamfProvisionerTestUtils {
     configureProvisionerSuffix(input, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(input, "customizeEntityCrud", "true");
     configureProvisionerSuffix(input, "insertEntities", "true");
-    configureProvisionerSuffix(input, "updateEntities", "false");
+    configureProvisionerSuffix(input, "updateEntities", "true");
     configureProvisionerSuffix(input, "deleteEntities", "false");
     configureProvisionerSuffix(input, "deleteEntitiesIfNotExistInGrouper", "false");
 
@@ -119,8 +119,10 @@ public class JamfProvisionerTestUtils {
     configureProvisionerSuffix(input, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(input, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "email");
 
-    configureProvisionerSuffix(input, "entityMatchingAttributeCount", "1");
-    configureProvisionerSuffix(input, "entityMatchingAttribute0name", "name");
+    // match by native id first (stable across a rename); name (EPPN) is the backup for first linking
+    configureProvisionerSuffix(input, "entityMatchingAttributeCount", "2");
+    configureProvisionerSuffix(input, "entityMatchingAttribute0name", "id");
+    configureProvisionerSuffix(input, "entityMatchingAttribute1name", "name");
 
     // cache the target id (for membership matching) and name (for matching / incremental)
     configureProvisionerSuffix(input, "entityAttributeValueCacheHas", "true");

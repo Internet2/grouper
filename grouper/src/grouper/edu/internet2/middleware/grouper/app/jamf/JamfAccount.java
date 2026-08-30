@@ -31,6 +31,9 @@ public class JamfAccount {
   /** enabled value string as returned/accepted by the Jamf Classic API */
   public static final String ENABLED = "Enabled";
 
+  /** disabled value string as returned/accepted by the Jamf Classic API */
+  public static final String DISABLED = "Disabled";
+
   /**
    * Create the mock DB table used by the test mock service to simulate Jamf accounts.
    * @param ddlVersionBean ddl bean (unused but part of the createTable contract)
@@ -70,6 +73,13 @@ public class JamfAccount {
 
   /** email address (same as name in this tenant) */
   private String email;
+
+  /**
+   * the Jamf {@code email_address} field. Jamf carries two email elements ({@code email} and
+   * {@code email_address}); Grouper writes the same value to both, but reads keep this one separate
+   * so the ignore list can match against either.
+   */
+  private String emailAddress;
 
   /** "Full Access", "Site Access", or "Group Access" */
   private String accessLevel;
@@ -115,6 +125,14 @@ public class JamfAccount {
     this.email = email;
   }
 
+  public String getEmailAddress() {
+    return emailAddress;
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
+  }
+
   public String getAccessLevel() {
     return accessLevel;
   }
@@ -137,6 +155,17 @@ public class JamfAccount {
 
   public void setEnabled(String enabled) {
     this.enabled = enabled;
+  }
+
+  /**
+   * @return true if this account is disabled in Jamf. A null/blank enabled value is treated as
+   *   enabled (the Classic API returns "Enabled"/"Disabled"; some payloads use "true"/"false").
+   */
+  public boolean isDisabled() {
+    if (GrouperClientUtils.isBlank(this.enabled)) {
+      return false;
+    }
+    return DISABLED.equalsIgnoreCase(this.enabled) || "false".equalsIgnoreCase(this.enabled);
   }
 
   public Boolean getDirectoryUser() {
@@ -180,6 +209,7 @@ public class JamfAccount {
     account.name = GrouperUtil.jsonJacksonGetString(accountNode, "name");
     account.fullName = GrouperUtil.jsonJacksonGetString(accountNode, "full_name");
     account.email = GrouperUtil.jsonJacksonGetString(accountNode, "email");
+    account.emailAddress = GrouperUtil.jsonJacksonGetString(accountNode, "email_address");
     account.accessLevel = GrouperUtil.jsonJacksonGetString(accountNode, "access_level");
     account.privilegeSet = GrouperUtil.jsonJacksonGetString(accountNode, "privilege_set");
     account.enabled = GrouperUtil.jsonJacksonGetString(accountNode, "enabled");
@@ -230,6 +260,9 @@ public class JamfAccount {
 
     account.setFullName(targetEntity.retrieveAttributeValueString("fullName"));
     account.setEmail(targetEntity.retrieveAttributeValueString("email"));
+    // Grouper manages one email attribute; it maps to both Jamf email fields, so mirror it here so
+    // the ignore list can match a to-be-created account on either email element
+    account.setEmailAddress(account.getEmail());
     account.setAccessLevel(targetEntity.retrieveAttributeValueString("accessLevel"));
 
     return account;
