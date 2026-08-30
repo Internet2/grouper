@@ -62,7 +62,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncConfiguration;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncRowData;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBean;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableData;
@@ -776,27 +775,15 @@ public class GrouperProvisioningLogic {
     GcTableSyncTableData loadUsersToTableGcTableSyncTableData = new GcTableSyncTableData();
     loadUsersAttributesToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadUsersToTableGcTableSyncTableData);
 
-    loadUsersToTableGcTableSyncTableData.setColumnMetadata(loadUsersToTableGcTableSyncTableDataSql.getColumnMetadata());
-
-    loadUsersToTableGcTableSyncTableData.setGcTableSyncTableBean(loadUsersToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
-
-    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
-    
     List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderEntityAttrTableDataFromDataBean();
-    
-    for (Object[] rowData: targetTableData) {
-      
-      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
-      gcTableSyncRowDatas.add(gcTableSyncRowData);
-      
-      gcTableSyncRowData.setGcTableSyncTableData(loadUsersToTableGcTableSyncTableData);
-      
-      gcTableSyncRowData.setData(rowData);
-      
-    }
-    
-    
-    loadUsersToTableGcTableSyncTableData.setRows(gcTableSyncRowDatas);
+
+    // init() rather than setRows(): init() runs each row through normalizeRow(), coercing every
+    // value to its column's canonical java type.  The TO side always gets that (it comes back
+    // through a jdbc driver); the loader builds these rows as plain java objects with no
+    // conversion, so without init() the same value can be a Long here and a BigDecimal there.
+    // MultiKey compares with equals(), so mismatched types make every row look changed.
+    loadUsersToTableGcTableSyncTableData.init(loadUsersToTableGcTableSyncTableDataSql.getGcTableSyncTableBean(),
+        loadUsersToTableGcTableSyncTableDataSql.getColumnMetadata(), targetTableData);
 
     // compare and sync
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
@@ -891,27 +878,15 @@ public class GrouperProvisioningLogic {
     GcTableSyncTableData loadUsersToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
     loadUsersToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadUsersToTableGcTableSyncTableDataLdap);
 
-    loadUsersToTableGcTableSyncTableDataLdap.setColumnMetadata(loadUsersToTableGcTableSyncTableDataSql.getColumnMetadata());
-
-    loadUsersToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(loadUsersToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
-
-    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
-    
     List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderEntityTableDataFromDataBean();
-    
-    for (Object[] rowData: targetTableData) {
-      
-      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
-      gcTableSyncRowDatas.add(gcTableSyncRowData);
-      
-      gcTableSyncRowData.setGcTableSyncTableData(loadUsersToTableGcTableSyncTableDataLdap);
-      
-      gcTableSyncRowData.setData(rowData);
-      
-    }
-    
-    
-    loadUsersToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+
+    // init() rather than setRows(): init() runs each row through normalizeRow(), coercing every
+    // value to its column's canonical java type.  The TO side always gets that (it comes back
+    // through a jdbc driver); the loader builds these rows as plain java objects with no
+    // conversion, so without init() the same value can be a Long here and a BigDecimal there.
+    // MultiKey compares with equals(), so mismatched types make every row look changed.
+    loadUsersToTableGcTableSyncTableDataLdap.init(loadUsersToTableGcTableSyncTableDataSql.getGcTableSyncTableBean(),
+        loadUsersToTableGcTableSyncTableDataSql.getColumnMetadata(), targetTableData);
 
     // compare and sync
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
@@ -1002,27 +977,15 @@ public class GrouperProvisioningLogic {
     GcTableSyncTableData loadGroupsToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
     loadGroupsToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadGroupsToTableGcTableSyncTableDataLdap);
 
-    loadGroupsToTableGcTableSyncTableDataLdap.setColumnMetadata(loadGroupsToTableGcTableSyncTableDataSql.getColumnMetadata());
-
-    loadGroupsToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(loadGroupsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
-
-    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
-    
     List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderGroupTableDataFromDataBean();
-    
-    for (Object[] rowData: targetTableData) {
-      
-      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
-      gcTableSyncRowDatas.add(gcTableSyncRowData);
-      
-      gcTableSyncRowData.setGcTableSyncTableData(loadGroupsToTableGcTableSyncTableDataLdap);
-      
-      gcTableSyncRowData.setData(rowData);
-      
-    }
-    
-    
-    loadGroupsToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+
+    // init() rather than setRows(): init() runs each row through normalizeRow(), coercing every
+    // value to its column's canonical java type.  The TO side always gets that (it comes back
+    // through a jdbc driver); the loader builds these rows as plain java objects with no
+    // conversion, so without init() the same value can be a Long here and a BigDecimal there.
+    // MultiKey compares with equals(), so mismatched types make every row look changed.
+    loadGroupsToTableGcTableSyncTableDataLdap.init(loadGroupsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean(),
+        loadGroupsToTableGcTableSyncTableDataSql.getColumnMetadata(), targetTableData);
 
     // compare and sync
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
@@ -1113,26 +1076,15 @@ public class GrouperProvisioningLogic {
     GcTableSyncTableData loadMembershipsToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
     loadMembershipsToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadMembershipsToTableGcTableSyncTableDataLdap);
 
-    loadMembershipsToTableGcTableSyncTableDataLdap.setColumnMetadata(loadMembershipsToTableGcTableSyncTableDataSql.getColumnMetadata());
-
-    loadMembershipsToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(loadMembershipsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
-
-    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
-    
     List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderMembershipTableDataFromDataBean();
-    
-    for (Object[] rowData: targetTableData) {
-      
-      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
-      gcTableSyncRowDatas.add(gcTableSyncRowData);
-      
-      gcTableSyncRowData.setGcTableSyncTableData(loadMembershipsToTableGcTableSyncTableDataLdap);
-      
-      gcTableSyncRowData.setData(rowData);
-      
-    }
-    
-    loadMembershipsToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+
+    // init() rather than setRows(): init() runs each row through normalizeRow(), coercing every
+    // value to its column's canonical java type.  The TO side always gets that (it comes back
+    // through a jdbc driver); the loader builds these rows as plain java objects with no
+    // conversion, so without init() the same value can be a Long here and a BigDecimal there.
+    // MultiKey compares with equals(), so mismatched types make every row look changed.
+    loadMembershipsToTableGcTableSyncTableDataLdap.init(loadMembershipsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean(),
+        loadMembershipsToTableGcTableSyncTableDataSql.getColumnMetadata(), targetTableData);
     // compare and sync
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
     loadMembershipsToTableGcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
@@ -2952,50 +2904,84 @@ public class GrouperProvisioningLogic {
       
       targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
       
-      boolean throwException = false;
+      boolean someEntitiesNotRetrieved = false;
       if (GrouperUtil.length(grouperTargetEntitiesToInsert) != GrouperUtil.length(targetEntities)) {
-        // maybe this should be an exception???
-        throwException = true;
+        someEntitiesNotRetrieved = true;
       }
 
       registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
 
-      // log which entities had issues
-      if (throwException) {
-        
+      // Some entities were inserted but could not be read back.  Record that per entity and keep
+      // going - do NOT throw.  Throwing here unwinds out of provisionFull before errorHandling()
+      // and storeAllSyncObjects() run, which discards the whole run: no sync state is stored for
+      // the entities that did succeed, no error codes are stored for entities that failed for
+      // other reasons, and the insert/update/delete counts are never even tallied (they are
+      // derived later in countInsertsUpdatesDeletes).  The result is a loader log claiming zero
+      // inserts for a run that really did create objects in the target.  Marking the objects and
+      // letting the run finish keeps the signal - errorHandlingProvisionerDaemonShouldFailOnObjectError
+      // still decides whether the job ends up ERROR - without destroying the evidence.
+      if (someEntitiesNotRetrieved) {
+
         GrouperProvisioningConfigurationAttribute searchAttribute = null;
-        
+
         // TODO handle multiple search attributes
         if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) > 0) {
           searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes().get(0);
         }
 
         StringBuilder searchAttributeValuesAndObjects = new StringBuilder();
-        int errorCount = 0;
-        
-        for (ProvisioningEntity grouperTargetEntityToInsert : GrouperUtil.nonNull(grouperTargetEntitiesToInsert)) {
-          
-          if (errorCount > 5) {
-            break;
-          }
-          
-          ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntityToInsert.getProvisioningEntityWrapper();
-          
-          if (provisioningEntityWrapper != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
-            Object searchAttributeValue = null;
-            if (searchAttribute != null) {
-              searchAttributeValue = grouperTargetEntityToInsert.retrieveAttributeValue(searchAttribute);  
-            }
-          
-            if (searchAttributeValue != null) {
-              searchAttributeValuesAndObjects.append("searchAttribute: " + searchAttributeValue + ", provisioningEntityWrapper: " + provisioningEntityWrapper.toStringForError() + "\n");
-            }
-            errorCount++;
-          }
-        }    
+        int exampleCount = 0;
+        int notRetrievedCount = 0;
 
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " entities after creating them, but retrieved " + GrouperUtil.length(targetEntities)
-        + " maybe the server is caching results and is not returning the created entity or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n" + searchAttributeValuesAndObjects.toString());
+        for (ProvisioningEntity grouperTargetEntityToInsert : GrouperUtil.nonNull(grouperTargetEntitiesToInsert)) {
+
+          ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntityToInsert.getProvisioningEntityWrapper();
+
+          if (provisioningEntityWrapper == null || provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+            continue;
+          }
+
+          notRetrievedCount++;
+
+          Object searchAttributeValue = null;
+          if (searchAttribute != null) {
+            searchAttributeValue = grouperTargetEntityToInsert.retrieveAttributeValue(searchAttribute);
+          }
+
+          // ERR, not DNE: DNE means the object is missing in the target and not able to be
+          // inserted, and neither half is true here - the insert succeeded, and the object may
+          // well exist but be unfindable (matched under different case, or the search attribute
+          // is not selective enough).  DNE is also gated by
+          // errorHandlingTargetObjectDoesNotExistIsAnError, commonly false, which would quietly
+          // turn these runs green.  A dao that knows the retrieve was ambiguous rather than empty
+          // can set MAT itself; only stamp ERR when nothing else has claimed the error.
+          if (provisioningEntityWrapper.getErrorCode() == null) {
+            provisioningEntityWrapper.setErrorCode(GcGrouperSyncErrorCode.ERR);
+          }
+
+          GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+          if (gcGrouperSyncMember != null && gcGrouperSyncMember.getErrorCode() == null) {
+            gcGrouperSyncMember.setErrorCode(GcGrouperSyncErrorCode.ERR);
+            gcGrouperSyncMember.setErrorMessage("Entity was inserted in the target but could not be retrieved back"
+                + (searchAttributeValue == null ? "" : " searching on '" + searchAttributeValue + "'")
+                + ".  The target may not be returning the newly created object yet, or the matching/searching config may need to be adjusted.");
+            gcGrouperSyncMember.setErrorTimestamp(
+                this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncMember));
+          }
+
+          // keep a handful of examples for the summary log line
+          if (exampleCount < 5 && searchAttributeValue != null) {
+            searchAttributeValuesAndObjects.append("searchAttribute: " + searchAttributeValue + ", provisioningEntityWrapper: " + provisioningEntityWrapper.toStringForError() + "\n");
+            exampleCount++;
+          }
+        }
+
+        this.grouperProvisioner.getDebugMap().put("entitiesInsertedButNotRetrieved", notRetrievedCount);
+
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().error("Searched for "
+            + GrouperUtil.length(grouperTargetEntitiesToInsert) + " entities after creating them, but retrieved " + GrouperUtil.length(targetEntities)
+            + " maybe the server is caching results and is not returning the created entity or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n"
+            + searchAttributeValuesAndObjects.toString(), null);
 
       }
       

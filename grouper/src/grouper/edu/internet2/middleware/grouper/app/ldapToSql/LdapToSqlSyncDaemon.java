@@ -297,24 +297,15 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
       this.gcTableSyncTableDataLdapAttr = new GcTableSyncTableData();
       gcTableSyncAttr.getDataBeanFrom().setDataInitialQuery(this.gcTableSyncTableDataLdapAttr);
 
-      this.gcTableSyncTableDataLdapAttr.setColumnMetadata(this.gcTableSyncTableDataSqlAttr.getColumnMetadata());
+      List<Object[]> targetTableDataAttr = new ArrayList<Object[]>();
 
-      this.gcTableSyncTableDataLdapAttr.setGcTableSyncTableBean(this.gcTableSyncTableDataSqlAttr.getGcTableSyncTableBean());
-
-      List<GcTableSyncRowData> gcTableSyncRowDatasAttr = new ArrayList<GcTableSyncRowData>();
-      
       for (Object[] ldapRawRowAttr : GrouperUtil.nonNull(this.ldapDataAttr)) {
-        
-        GcTableSyncRowData gcTableSyncRowDataAttr = new GcTableSyncRowData();
-        gcTableSyncRowDatasAttr.add(gcTableSyncRowDataAttr);
-        
-        gcTableSyncRowDataAttr.setGcTableSyncTableData(this.gcTableSyncTableDataLdapAttr);
-        
+
         Object[] rowData = new Object[3];
 
-        for (int i=0;i<this.gcTableSyncTableDataLdapAttr.getColumnMetadata().size();i++) {
+        for (int i=0;i<this.gcTableSyncTableDataSqlAttr.getColumnMetadata().size();i++) {
 
-          GcTableSyncColumnMetadata gcTableSyncColumnMetadataAttr = this.gcTableSyncTableDataLdapAttr.getColumnMetadata().get(i);
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadataAttr = this.gcTableSyncTableDataSqlAttr.getColumnMetadata().get(i);
           String columnName = gcTableSyncColumnMetadataAttr.getColumnName();
           if (StringUtils.equalsIgnoreCase("ldap_id", columnName)) {
             rowData[i] = ldapRawRowAttr[0];
@@ -326,11 +317,17 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
             throw new RuntimeException("Invalid column name: '" + columnName + "'");
           }
         }
-        gcTableSyncRowDataAttr.setData(rowData);
+        targetTableDataAttr.add(rowData);
       }
-      
-      
-      this.gcTableSyncTableDataLdapAttr.setRows(gcTableSyncRowDatasAttr);
+
+      // init() rather than setRows(): init() runs each row through normalizeRow(), coercing every
+      // value to its column's canonical java type.  The TO side always gets that (it comes back
+      // through a jdbc driver), and unlike the single-valued block above these values are taken
+      // straight off the ldap row with no convertToType() call, so without init() the two sides
+      // can hold the same value as different types.  MultiKey compares with equals(), so that
+      // makes every row look changed.
+      this.gcTableSyncTableDataLdapAttr.init(this.gcTableSyncTableDataSqlAttr.getGcTableSyncTableBean(),
+          this.gcTableSyncTableDataSqlAttr.getColumnMetadata(), targetTableDataAttr);
 
     }
     
