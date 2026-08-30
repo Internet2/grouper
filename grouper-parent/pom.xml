@@ -88,7 +88,11 @@
         <log4j.version>2.26.0</log4j.version>
         <junit.version>4.13.2</junit.version>
         
+        <!-- bcprov got a provider-only point release 1.85.2 (the CVE fix from GRP-7278);
+             bcpkix did NOT ship a 1.85.2 (Maven Central tops out at 1.85), so it stays at
+             1.85. A bcprov point release is a drop-in for 1.85, so this pairing is correct. -->
         <bouncyCastle.version>1.85.2</bouncyCastle.version>
+        <bouncyCastlePkix.version>1.85</bouncyCastlePkix.version>
         <c3p0.version>0.14.1</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <!-- must track the mchange-commons-java version that c3p0 depends on -->
@@ -257,7 +261,7 @@
             <dependency>
               <groupId>org.bouncycastle</groupId>
               <artifactId>bcpkix-jdk18on</artifactId>
-              <version>${bouncyCastle.version}</version>
+              <version>${bouncyCastlePkix.version}</version>
             </dependency>
           
             <dependency>
