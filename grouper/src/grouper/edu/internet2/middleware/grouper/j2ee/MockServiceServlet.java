@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockSer
 import edu.internet2.middleware.grouper.app.interfolio.InterfolioMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMockServiceHandler;
+import edu.internet2.middleware.grouper.app.jamf.JamfMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -70,6 +71,7 @@ public class MockServiceServlet extends HttpServlet {
       "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName(),
       "teamdynamix", TeamDynamixMockServiceHandler.class.getName(),
       "truefoundry", TrueFoundryMockServiceHandler.class.getName(),
+      "jamf", JamfMockServiceHandler.class.getName(),
       "dropbox", DropboxMockServiceHandler.class.getName(),
       "interfolio", InterfolioMockServiceHandler.class.getName(),
       "ccure", CCureMockServiceHandler.class.getName()
