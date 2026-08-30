@@ -856,17 +856,23 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    //expires in an hour
-    long expiresOnSeconds = System.currentTimeMillis()/1000 + 60*60;
-    
-    resultNode.put("expires_in", expiresOnSeconds);
-    
+    // expires_in is the RELATIVE seconds-to-live, per OAuth. The bearer-token client caches the token
+    // for (expires_in / 60) minutes, so emitting an absolute epoch here made the client cache it
+    // ~forever and then 401 once the stored row (below) actually expired -- which is why okta tests
+    // scheduled more than ~1 hour into a long suite failed with HTTP 401.
+    long expiresInSecondsRelative = 60*60;
+
+    resultNode.put("expires_in", expiresInSecondsRelative);
+
     String accessToken = GrouperUuid.getUuid();
-    
+
     GrouperOktaAuth grouperOktaAuth = new GrouperOktaAuth();
     grouperOktaAuth.setConfigId(configId);
     grouperOktaAuth.setAccessToken(accessToken);
-    grouperOktaAuth.setExpiresInSeconds(expiresOnSeconds);
+    // the stored row is what checkAuthorization() compares against "now"; give it a generous window
+    // so it always outlives the client's cache TTL (the client re-fetches well before this). A mock
+    // token should never expire mid-suite.
+    grouperOktaAuth.setExpiresInSeconds(System.currentTimeMillis()/1000 + 60*60*24);
     HibernateSession.byObjectStatic().save(grouperOktaAuth);
     
     resultNode.put("access_token", accessToken);
