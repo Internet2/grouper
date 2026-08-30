@@ -3178,7 +3178,21 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+
+      // for jexl script (abac scripted) groups there is no LDAP/SQL config to diagnose, so running loader
+      // diagnostics performs the analyze action instead (equivalent to the Analyze button on the edit form)
+      if (grouperLoaderContainer.isGrouperJexlScriptLoader()) {
+        grouperLoaderContainer.setEditLoaderIsLoader(true);
+        grouperLoaderContainer.setEditLoaderType("JEXL_SCRIPT");
+        grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(grouperLoaderContainer.getJexlScriptJexlScript());
+        grouperLoaderContainer.setEditLoaderJexlScriptSubjectSourceIds(grouperLoaderContainer.getJexlScriptSubjectSourceIds());
+        grouperLoaderContainer.setEditLoaderConstructScript("inputScript");
+        editGrouperLoaderAnalyze(request, response);
+        return;
+      }
+
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
 
       if (!canEditLoader) {
         return;
@@ -3188,8 +3202,6 @@ public class UiV2GrouperLoader {
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
 
-      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
-      
       StringBuilder loaderReport = new StringBuilder();
       
       boolean fatal = false;
