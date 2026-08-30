@@ -147,28 +147,24 @@ public class JamfTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean needDetail = disableInsteadOfDelete || !ignoreAccounts.isEmpty();
 
       // all accounts (entities) + a name->nativeId index for membership resolution.
-      // GRP-7048: skip the (large) user pull entirely when entities are served from the sync-back
-      // cache this run.
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
       Map<String, String> nameToId = new LinkedHashMap<String, String>();
-      if (targetDaoRetrieveAllDataRequest.isRetrieveEntities()) {
-        for (JamfAccount listAccount : JamfApiCommands.retrieveAccounts(configId, ignoreAccounts)) {
-          JamfAccount account = needDetail ? withDetail(configId, listAccount) : listAccount;
+      for (JamfAccount listAccount : JamfApiCommands.retrieveAccounts(configId, ignoreAccounts)) {
+        JamfAccount account = needDetail ? withDetail(configId, listAccount) : listAccount;
 
-          // disable-instead-of-delete: a disabled account is treated as absent, so the framework
-          // re-reads it (retrieveEntity, also filtered) and insertEntity reactivates it rather than
-          // creating a duplicate. See SCIM's isDisableEntitiesInsteadOfDelete filter.
-          if (disableInsteadOfDelete && account.isDisabled()) {
-            continue;
-          }
-          // ignore list matches name/email/email_address -- never surface an ignored account
-          if (JamfApiCommands.isAccountIgnored(account, ignoreAccounts)) {
-            continue;
-          }
-          provisioningEntities.add(account.toProvisioningEntity());
-          if (!StringUtils.isBlank(account.getName()) && !StringUtils.isBlank(account.getId())) {
-            nameToId.put(account.getName().toLowerCase(), account.getId());
-          }
+        // disable-instead-of-delete: a disabled account is treated as absent, so the framework
+        // re-reads it (retrieveEntity, also filtered) and insertEntity reactivates it rather than
+        // creating a duplicate. See SCIM's isDisableEntitiesInsteadOfDelete filter.
+        if (disableInsteadOfDelete && account.isDisabled()) {
+          continue;
+        }
+        // ignore list matches name/email/email_address -- never surface an ignored account
+        if (JamfApiCommands.isAccountIgnored(account, ignoreAccounts)) {
+          continue;
+        }
+        provisioningEntities.add(account.toProvisioningEntity());
+        if (!StringUtils.isBlank(account.getName()) && !StringUtils.isBlank(account.getId())) {
+          nameToId.put(account.getName().toLowerCase(), account.getId());
         }
       }
       targetData.setProvisioningEntities(provisioningEntities);
@@ -664,10 +660,6 @@ public class JamfTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanReplaceGroupMemberships(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
-
-    // sync-back: accounts/roles are captured from the typed beans at the JamfApiCommands read seams;
-    // role memberships are captured here in the DAO (where account ids are resolved) and write-tracked
-    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
 }
