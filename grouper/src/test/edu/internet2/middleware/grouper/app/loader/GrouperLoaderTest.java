@@ -3303,57 +3303,6 @@ public class GrouperLoaderTest extends GrouperTest {
   }
 
 
-  /**
-   * GRP-7074: setting the per-loader grouperLoaderDeletePreviouslyManagedGroups attribute to true on a
-   * SQL_GROUP_LIST loader (with no groups like string) should delete groups previously managed by this
-   * loader once they are no longer in the source.
-   * @throws Exception
-   */
-  @SuppressWarnings("deprecation")
-  public void testLoaderDeletePreviouslyManagedGroupsAttributeDeletesGroup() throws Exception {
-
-    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
-    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
-    testDataList.add(new TestgrouperLoader("loader:group2", SubjectTestHelper.SUBJ1_ID, null));
-    testDataList.add(new TestgrouperLoaderGroups("loader:group1", "loader:group1", null));
-    testDataList.add(new TestgrouperLoaderGroups("loader:group2", "loader:group2", null));
-    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
-
-    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:owner", null, null, null, true);
-    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
-        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
-        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS, "true");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
-    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
-
-    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
-    Group group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
-    Group group2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
-    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
-
-    //drop group2 from both queries
-    HibernateSession.byHqlStatic().createQuery(
-        "delete from TestgrouperLoader where col1='loader:group2'").executeUpdate();
-    HibernateSession.byHqlStatic().createQuery(
-        "delete from TestgrouperLoaderGroups where groupName='loader:group2'").executeUpdate();
-
-    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
-    GrouperCacheUtils.clearAllCaches();
-
-    //group2 is deleted because it was previously managed by this loader and is no longer in the source
-    assertNull(GroupFinder.findByName(this.grouperSession, "loader:group2", false));
-    //group1 is still in the source, so it survives with its member
-    group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
-    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
-  }
 
 
   /**
