@@ -27,7 +27,6 @@ import edu.internet2.middleware.grouper.app.gshTemplateProvisioner.GshTemplatePr
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
@@ -385,52 +384,6 @@ public abstract class GrouperProvisioner {
   
   public Map<String, Object> getDebugMap() {
     return debugMap;
-  }
-
-  /**
-   * debug map key holding the target-side progress label (what the provisioner is currently doing
-   * against the target: retrieving/inserting/updating/deleting).  This is a "piece" of the debug map
-   * that rides the once-a-minute job_message write, so an operator can see live progress on the
-   * daemon log screen.  Separate from the grouper-side label because the two are distinct progress
-   * streams that can run concurrently.
-   */
-  public static final String PROGRESS_LABEL_TARGET = "progressLabelTarget";
-
-  /**
-   * debug map key holding the grouper-side progress label (e.g. retrieving grouper data).  See
-   * {@link #PROGRESS_LABEL_TARGET}.
-   */
-  public static final String PROGRESS_LABEL_GROUPER = "progressLabelGrouper";
-
-  /**
-   * Assign the target-side progress label.  Called from long-running target work (framework write
-   * batches, target DAO retrieves) so a running provisioner reports what it is doing right now.
-   * Best effort / advisory: this only writes into the (synchronized) debug map; the heartbeat thread
-   * folds the map into job_message about once a minute.  Pass null to clear.
-   *
-   * Multiple worker threads (e.g. the batch thread pool) may call this; last write wins, which is
-   * fine for an advisory status line.  Do not build the label string on the very hottest inner loop
-   * iteration - update it every N items so the string allocation stays cheap.
-   * @param label short human-readable label, e.g. "inserted user 56 of 1042", or null to clear
-   */
-  public void assignProgressLabelTarget(String label) {
-    if (label == null) {
-      this.getDebugMap().remove(PROGRESS_LABEL_TARGET);
-    } else {
-      this.getDebugMap().put(PROGRESS_LABEL_TARGET, label);
-    }
-  }
-
-  /**
-   * Assign the grouper-side progress label.  See {@link #assignProgressLabelTarget(String)}.
-   * @param label short human-readable label, e.g. "retrieving all data from grouper", or null to clear
-   */
-  public void assignProgressLabelGrouper(String label) {
-    if (label == null) {
-      this.getDebugMap().remove(PROGRESS_LABEL_GROUPER);
-    } else {
-      this.getDebugMap().put(PROGRESS_LABEL_GROUPER, label);
-    }
   }
 
   /**
@@ -851,15 +804,8 @@ public abstract class GrouperProvisioner {
   public void logPeriodically(Map<String, Object> debugMap, GrouperProvisioningOutput grouperProvisioningOutput) {
     
     if (System.currentTimeMillis() - this.lastLog > (1000 * 60) - 10) {
-
-      // debugMap is a Collections.synchronizedMap; per its contract iteration (mapToString walks the
-      // entries) must hold the map's monitor, otherwise a worker thread doing a put concurrently -
-      // e.g. a progress-label update or a counter - can throw ConcurrentModificationException.  This
-      // runs on the heartbeat thread while the provisioning worker thread(s) mutate the map.
-      String debugString;
-      synchronized (debugMap) {
-        debugString = GrouperClientUtils.mapToString(debugMap);
-      }
+    
+      String debugString = GrouperClientUtils.mapToString(debugMap);
       String theMessage = debugString;
       StringBuffer objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
       if (objectLog.length() > 0) {
@@ -926,7 +872,7 @@ public abstract class GrouperProvisioner {
     this.millisWhenSyncStarted = System.currentTimeMillis();
     
     this.startedNanos = System.nanoTime();
-
+    
     try {
 
       debugMap.put("finalLog", false);
@@ -935,21 +881,9 @@ public abstract class GrouperProvisioner {
 
       debugMap.put("state", "init");
       this.initialize(grouperProvisioningType1);
-
-      // The heartbeat (which writes job_message) does not start until after the wait below, so a job
-      // queued behind another would otherwise sit at "(no message)" the whole time.  Set a one-time
-      // message so the daemon log screen shows WHY it is parked - but ONLY when another related job is
-      // actually running/pending, so we never falsely claim to be waiting.  When there is no contention
-      // job_message stays empty and the first heartbeat (~15s) fills it with real progress.  During a
-      // real wait it will not tick (no heartbeat yet); it is replaced once provisioning starts.
-      Hib3GrouperLoaderLog hib3GrouperLoaderLogForWait = this.retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog();
-      if (hib3GrouperLoaderLogForWait != null && this.getGcGrouperSyncJob().isAnotherRelatedJobRunningOrPending()) {
-        hib3GrouperLoaderLogForWait.setJobMessage("waiting for other jobs to finish");
-        hib3GrouperLoaderLogForWait.store();
-      }
-
+      
       this.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
-
+      
       if (this.getGcGrouperSyncLog() == null) {
         this.setGcGrouperSyncLog(this.getGcGrouperSync().getGcGrouperSyncJobDao().jobCreateLog(this.getGcGrouperSyncJob()));
       }
@@ -958,18 +892,15 @@ public abstract class GrouperProvisioner {
 
       this.gcGrouperSyncHeartbeat.setGcGrouperSyncJob(this.gcGrouperSyncJob);
       this.gcGrouperSyncHeartbeat.setFullSync(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
-      // insert (not add) so this runs BEFORE the full-sync job's copyToHib3LoaderLog heartbeat logic:
-      // logPeriodically rebuilds the output message (with the current progress labels) and copyToHib3LoaderLog
-      // then stores it, so job_message reflects the current tick rather than lagging one tick behind
-      this.gcGrouperSyncHeartbeat.insertHeartbeatLogic(new Runnable() {
+      this.gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
 
         @Override
         public void run() {
 
           logPeriodically(debugMap, GrouperProvisioner.this.retrieveGrouperProvisioningOutput());
-
+          
         }
-
+        
       });
       if (!this.gcGrouperSyncHeartbeat.isStarted()) {
         this.gcGrouperSyncHeartbeat.runHeartbeatThread();
@@ -1024,11 +955,6 @@ public abstract class GrouperProvisioner {
     this.done = true;
     
     GcGrouperSyncHeartbeat.endAndWaitForThread(this.gcGrouperSyncHeartbeat);
-
-    // job is done; clear the live progress labels so the final job_message does not show a stale
-    // "inserting entities: N of N" / "retrieving..." line
-    this.assignProgressLabelTarget(null);
-    this.assignProgressLabelGrouper(null);
 
     debugMap.put("finalLog", true);
     

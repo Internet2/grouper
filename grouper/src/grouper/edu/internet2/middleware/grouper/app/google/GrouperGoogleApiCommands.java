@@ -938,13 +938,6 @@ public class GrouperGoogleApiCommands {
           results.add(grouperGoogleGroup);
         }
         
-        // live progress: pages groups over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForGroups != null) {
-          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far (page " + numberOfCalls + ")");
-        }
-
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
           break;
         }
@@ -1024,14 +1017,7 @@ public class GrouperGoogleApiCommands {
           GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(userNode);
           results.add(grouperGoogleUser);
         }
-
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far (page " + numberOfCalls + ")");
-        }
-
+        
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
           break;
         }
@@ -1207,13 +1193,6 @@ public class GrouperGoogleApiCommands {
           memberIds.add(memberId);
         }
         
-        // live progress: pages memberships over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForMembers != null) {
-          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + memberIds.size() + " so far (page " + numberOfCalls + ")");
-        }
-
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
           break;
         }
@@ -1299,13 +1278,6 @@ public class GrouperGoogleApiCommands {
           memberIds.add(memberId);
         }
         
-        // live progress: pages memberships over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForMemberIds = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForMemberIds != null) {
-          currentProvisionerForMemberIds.assignProgressLabelTarget("retrieving memberships from target: " + memberIds.size() + " so far (page " + numberOfCalls + ")");
-        }
-
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
           break;
         }

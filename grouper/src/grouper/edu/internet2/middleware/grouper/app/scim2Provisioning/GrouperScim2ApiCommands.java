@@ -1388,13 +1388,6 @@ public class GrouperScim2ApiCommands {
           }
         }
         
-        // live progress: SCIM pages users over many slow WS calls, so report count-so-far.
-        // Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
-        }
-
         previousStartIndex = startIndex;
         
         // this doesnt increase by pageSize since the server might not support it
@@ -2273,13 +2266,6 @@ public class GrouperScim2ApiCommands {
           }
         }
         
-        // live progress: SCIM pages groups over many slow WS calls, so report count-so-far.
-        // Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForGroups != null) {
-          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
-        }
-
         previousStartIndex = startIndex;
         
         // this doesnt increase by pageSize since the server might not support it

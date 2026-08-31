@@ -260,13 +260,6 @@ public class TrueFoundryApiCommands {
           }
         }
 
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + subjectsData.users.size() + " so far");
-        }
-
         if (returnedCount < pageSize) {
           break;
         }
@@ -342,13 +335,6 @@ public class TrueFoundryApiCommands {
             continue;
           }
           results.add(user);
-        }
-
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsersList = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsersList != null) {
-          currentProvisionerForUsersList.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
         }
 
         if (returnedCount < pageSize) {
@@ -992,13 +978,6 @@ public class TrueFoundryApiCommands {
             continue;
           }
           results.add(team);
-        }
-
-        // live progress: pages groups over many slow WS calls with no total available, so report
-        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForTeams = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForTeams != null) {
-          currentProvisionerForTeams.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
         }
 
         if (returnedCount < pageSize) {

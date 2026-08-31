@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -546,13 +545,6 @@ public class GrouperZoomCommands {
         
         result.putAll(tempResult);
 
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + result.size() + " so far (page " + (i + 1) + ")");
-        }
-
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
           break;
@@ -565,13 +557,6 @@ public class GrouperZoomCommands {
         
         resultInactive.putAll(tempResult);
 
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsersInactive = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsersInactive != null) {
-          currentProvisionerForUsersInactive.assignProgressLabelTarget("retrieving users from target: " + resultInactive.size() + " so far (page " + (i + 1) + ")");
-        }
-
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
           break;
@@ -583,13 +568,6 @@ public class GrouperZoomCommands {
         Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?status=pending&");
         
         resultPending.putAll(tempResult);
-
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsersPending = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsersPending != null) {
-          currentProvisionerForUsersPending.assignProgressLabelTarget("retrieving users from target: " + resultPending.size() + " so far (page " + (i + 1) + ")");
-        }
 
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
@@ -789,13 +767,6 @@ public class GrouperZoomCommands {
           idsSeen.add(id);
         }
         
-        // live progress: pages memberships over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForMembers != null) {
-          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + result.size() + " so far (page " + (i + 1) + ")");
-        }
-
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
           break;
@@ -1381,13 +1352,6 @@ public class GrouperZoomCommands {
           idsSeen.add(id);
         }
         
-        // live progress: pages memberships over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForRoleMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForRoleMembers != null) {
-          currentProvisionerForRoleMembers.assignProgressLabelTarget("retrieving memberships from target: " + result.size() + " so far (page " + (i + 1) + ")");
-        }
-
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
           break;
@@ -1733,13 +1697,6 @@ public class GrouperZoomCommands {
         debugMap.put("count", tempResult.size());
         
         result.putAll(tempResult);
-
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForPhoneUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForPhoneUsers != null) {
-          currentProvisionerForPhoneUsers.assignProgressLabelTarget("retrieving users from target: " + result.size() + " so far");
-        }
 
       } while (nextPageToken != "");
 
@@ -2435,13 +2392,6 @@ public class GrouperZoomCommands {
         
         result.putAll(tempResult);
   
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForSubaccountUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForSubaccountUsers != null) {
-          currentProvisionerForSubaccountUsers.assignProgressLabelTarget("retrieving users from target: " + result.size() + " so far (page " + (i + 1) + ")");
-        }
-
         // we are done when there are no reults or its less than the page size
         if (tempResult.size() < pageSize) {
           break;

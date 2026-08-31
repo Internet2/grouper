@@ -73,14 +73,7 @@ public class GrouperProvisioningObjectLog {
         .append("' type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType())
         .append("': ");
     
-    // getDebugMap() is a Collections.synchronizedMap; the copy constructor iterates it, so we must
-    // hold the map's monitor or a concurrent put on a worker thread (progress label / counter) can
-    // throw ConcurrentModificationException
-    Map<String, Object> sourceDebugMap = this.grouperProvisioner.getDebugMap();
-    Map<String, Object> debugLog;
-    synchronized (sourceDebugMap) {
-      debugLog = new LinkedHashMap<String, Object>(sourceDebugMap);
-    }
+    Map<String, Object> debugLog = new LinkedHashMap<String, Object>(this.grouperProvisioner.getDebugMap());
     
     // remove known things:
     debugLog.remove("provisionerClass");

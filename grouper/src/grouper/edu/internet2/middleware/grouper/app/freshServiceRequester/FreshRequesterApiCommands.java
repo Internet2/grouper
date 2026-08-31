@@ -626,13 +626,6 @@ public class FreshRequesterApiCommands {
           results.add(grouperRequesterGroup);
         }
 
-        // live progress: pages groups over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForGroups != null) {
-          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far (page " + page + ")");
-        }
-
         page++;
         
         if (groupsArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
@@ -812,13 +805,6 @@ public class FreshRequesterApiCommands {
             continue;
           }
           results.add(grouperRequesterUser);
-        }
-
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far (page " + page + ")");
         }
 
         page++;

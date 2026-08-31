@@ -391,13 +391,6 @@ public class GrouperRemedyApiCommands {
         
         resultsOverall.putAll(results);
         
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + resultsOverall.size() + " so far (page " + page + ")");
-        }
-
         if (size[0] < 2000) {
           break;
         }
@@ -569,13 +562,6 @@ public class GrouperRemedyApiCommands {
 
         resultsOverall.putAll(results);
         
-        // live progress: pages memberships over many slow WS calls with no total available, so report
-        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForMembers != null) {
-          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + resultsOverall.size() + " so far (page " + page + ")");
-        }
-
         if (size[0] < 2000) {
           break;
         }

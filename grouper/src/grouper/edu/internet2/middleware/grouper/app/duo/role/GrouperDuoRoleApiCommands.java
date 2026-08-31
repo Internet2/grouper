@@ -437,13 +437,6 @@ public class GrouperDuoRoleApiCommands {
           results.add(grouperDuoUser);
         }
         
-        // live progress: pages users over many slow WS calls with no total available, so report
-        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
-        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisionerForUsers != null) {
-          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
-        }
-
         JsonNode metadata = jsonNode.get("metadata");
         
         if (metadata != null && metadata.get("next_offset") != null) {

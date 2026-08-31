@@ -700,31 +700,6 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   /**
-   * Whether another related sync job (different syncType, same grouper_sync) is currently running or
-   * pending with a live heartbeat.  Used to decide whether to advertise a "waiting for other jobs"
-   * message - if nothing else is running, do not claim we are waiting.
-   * @return true if another related job is running or pending
-   */
-  public boolean isAnotherRelatedJobRunningOrPending() {
-    List<GcGrouperSyncJob> allGcGrouperSyncJobs = this.getGrouperSync().getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll();
-    for (GcGrouperSyncJob currentGrouperSyncJob : GrouperClientUtils.nonNull(allGcGrouperSyncJobs)) {
-      if (GrouperClientUtils.equals(currentGrouperSyncJob.getSyncType(), this.syncType)) {
-        continue;
-      }
-      // ignore jobs whose heartbeat is stale (dead job)
-      if (currentGrouperSyncJob.getHeartbeat() == null
-          || System.currentTimeMillis() - currentGrouperSyncJob.getHeartbeat().getTime() > 90000) {
-        continue;
-      }
-      GcGrouperSyncJobState state = currentGrouperSyncJob.getJobState();
-      if (state == GcGrouperSyncJobState.running || state == GcGrouperSyncJobState.pending) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * assign heartbeat and end job
    */
   public void assignHeartbeatAndEndJob() {
