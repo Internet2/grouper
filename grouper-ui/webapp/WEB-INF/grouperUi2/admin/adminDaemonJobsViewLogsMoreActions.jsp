@@ -21,8 +21,6 @@
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).showMoreActionsRunNow}" >
                           <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&source=logs&jobName=${grouper:escapeUrl(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}'); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
                         </c:if>
-                        <li><a href="?operation=UiV2Admin.viewLogs&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
-                        <li><a href="?operation=UiV2Admin.viewPerformanceChart&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewPerformanceChart&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsPerformance'] }</a></li>
                         <br />
                         <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).multiple && grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).editable}">                        
