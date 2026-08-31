@@ -30,7 +30,97 @@ Work a new release newest-first: the new row goes ABOVE the current top row.
 - Release date (YYYY/MM/DD).
 - Status for the new row (see Status values).
 
-## 1. Container prep (Dockerfile)
+## 1. Refresh the grouper-docs mirrors FIRST
+
+Do this BEFORE tagging, so the mirror refresh is part of the release commit rather
+than a commit that lands after the tag and leaves the branch ahead of it.
+
+Run them in the checkout for the branch being released -- a v6 release refreshes
+v6's mirror. Note that `issueMirror` and `sitemap.xml` exist only on v7; older
+branches carry `wikiMirror` alone, so there is just one script to run there.
+
+Both mirrors are incremental, so this is cheap.
+
+```bash
+set -a && . ~/.secrets/grouper_confluence.env && set +a
+cd grouper-misc/grouper-docs/wikiMirror  && python3 wikiToMarkdown.py
+cd ../issueMirror                        && python3 jiraToMarkdown.py   # v7 only
+```
+
+**Dependency:** the scripts need `beautifulsoup4`, and it is often not installed
+(`ModuleNotFoundError: No module named 'bs4'`). Homebrew's python is
+externally-managed, so do not pip install into it -- use a throwaway venv:
+
+```bash
+python3 -m venv /tmp/wikivenv && /tmp/wikivenv/bin/pip install -q beautifulsoup4
+/tmp/wikivenv/bin/python wikiToMarkdown.py
+```
+
+- The wiki run also regenerates `wikiMirror/sitemap.xml` (v7 only); copy it to
+  `i2midev6:/var/www/html/sitemap.xml` (see the sitemap section of
+  `wikiMirror/convertToMarkdownAiInstructions.md`).
+- `jiraToMarkdown.py` deliberately skips `GRP-1 .. GRP-7143` -- the cloud
+  metadata for many of those is misaligned by the CSV import, so the existing
+  files are the accurate record. See
+  `issueMirror/convertJiraToMarkdownAiInstructions.md`.
+- Review both diffs and commit separately (`wiki: sync`, `issues: sync`);
+  a human pushes.
+
+**What this run will NOT capture:** the new release-notes row, because it does not
+exist yet -- that row needs the published container digest, which needs the image,
+which needs the tag. That is unavoidable, and it is fine: the row gets mirrored by
+the NEXT release's run. Do not re-run the mirror after writing the row just to pick
+it up, or you reintroduce the post-tag commit this ordering exists to avoid.
+
+## 2. Push everything, THEN tag
+
+The git tag is what Maven Central and the container build read. Tag a tree that is
+not fully pushed and the release itself is still correct -- the tag carries the
+commit -- but the BRANCH POINTER is left behind its own release tag, which is
+invisible unless someone checks for it explicitly.
+
+This is easy to do by accident, because pushing the tag and pushing the branch are
+two separate operations and `git push --tags` does NOT push the branch. It happened
+on 6.4.0: `GROUPER_RELEASE_6.4.0` was on origin pointing at the right commit while
+`origin/GROUPER_6_BRANCH` still pointed one commit back.
+
+Before tagging, confirm the working tree is clean and nothing is unpushed:
+
+```bash
+git status --short                                    # expect no tracked changes
+git log --oneline origin/<BRANCH>..<BRANCH>           # expect NO output
+```
+
+If that second command prints anything, push it first:
+
+```bash
+git push origin <BRANCH>
+```
+
+Only then tag, and push the tag:
+
+```bash
+git tag GROUPER_RELEASE_<version>
+git push origin GROUPER_RELEASE_<version>
+```
+
+Then prove the tag and the pushed branch agree. Do not skip this -- it is the only
+check that catches the split, and it costs one command:
+
+```bash
+git fetch origin
+git merge-base --is-ancestor GROUPER_RELEASE_<version>^{commit} origin/<BRANCH> \
+  && echo "OK: tag is on the pushed branch" || echo "BAD: branch is behind the tag"
+```
+
+If it reports BAD, push the branch -- it is a plain fast-forward, since the branch
+head is an ancestor of the tagged commit. Never force-push or move the tag to
+"fix" this.
+
+Remember the OTHER repos too. The container lives in a separate repo with a branch
+per version, and the same split applies there.
+
+## 3. Container prep (Dockerfile)
 
 The container Dockerfile pins `ARG TOMCAT_VERSION`, `ARG GROUPER_VERSION`, and
 the OS/Java base. For a version/security bump:
@@ -48,7 +138,7 @@ the OS/Java base. For a version/security bump:
   Confirm `apache-tomcat-<version>.tar.gz` is present there (use a ranged GET --
   the mirror may 404 on HEAD but serve 206 on GET).
 
-## 2. Confirm DDL / upgrade tasks since the last release
+## 4. Confirm DDL / upgrade tasks since the last release
 
 Determines the `Upgrade tasks` cell (usually `None` for a patch release).
 
@@ -59,7 +149,7 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
 - If DDL did change, the cell links the "Grouper upgrade tasks" wiki page with the
   new task numbers and `(DDL)`.
 
-## 3. Resolve the GRP issues that shipped
+## 5. Resolve the GRP issues that shipped
 
 - List GRP-#### keys from commits since the last release tag
   (`git log <TAG>..HEAD`).
@@ -74,7 +164,7 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
 - An unresolved issue can still carry the fixVersion -- it just will not appear in
   the release-notes count, which filters on status. Subtract it from the count.
 
-## 4. Create the version and tag fixVersion
+## 6. Create the version and tag fixVersion
 
 - Create the new version in GRP if it does not exist (grouper-jira:
   `POST /rest/api/3/version` with `projectId` 10100). Match existing versions'
@@ -91,7 +181,7 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
   Sanity-check the endpoint by running the same JQL for the PREVIOUS version and
   confirming it matches the number already on that release-notes row.
 
-## 5. Smoke-test the published image with a local quickstart
+## 7. Smoke-test the published image with a local quickstart
 
 Run the published container locally before writing the release-notes row. This is
 not optional polish -- two of the row's cells can only be read out of the running
@@ -207,7 +297,7 @@ volume when you only changed a Grouper env var -- wiping costs another full DDL
 build for nothing, and `up --detach --force-recreate` already recreates any
 container whose config changed.
 
-## 6. Add the row to the release-notes wiki page
+## 8. Add the row to the release-notes wiki page
 
 Page: **v7 Release Notes**, pageId `28549113`
 (`/wiki/spaces/Grouper/pages/28549113`). Edit via grouper-wiki-edit (fetch
@@ -239,7 +329,7 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
 4. **Versions** -- `OS: <os>` / `Tomcat: <t>` / `Java Corretto: <j>` /
    `Grouper API: <version>` (one per line via `<br>`).
 5. **Enhancements and bugs fixed / known issues** -- first `<p>` is the
-   `<N> Jiras` link (the fixVersion JQL from step 4). Second `<p>` is the
+   `<N> Jiras` link (the fixVersion JQL from step 6). Second `<p>` is the
    highlight list: **sentence case**, each linked to its GRP issue (or a wiki page
    when one exists), separated by `<br>`. Keep it curated -- not every issue.
    **Security items go FIRST** -- vulnerability fixes, then third-party jar
@@ -274,34 +364,24 @@ starve. Full-width + colgroup is what makes the Cloud table read like the old
 on-prem one; without column widths Cloud squeezes every column and wraps tags
 mid-token.
 
-## 7. Refresh the grouper-docs mirrors
-
-Both mirrors under `grouper-misc/grouper-docs/` are incremental, so this is
-cheap. Run them after the release-notes edit so the new row is captured.
-
-```
-set -a && . ~/.secrets/grouper_confluence.env && set +a
-cd grouper-misc/grouper-docs/wikiMirror  && python3 wikiToMarkdown.py
-cd ../issueMirror                        && python3 jiraToMarkdown.py
-```
-
-- The wiki run also regenerates `wikiMirror/sitemap.xml`; copy it to
-  `i2midev6:/var/www/html/sitemap.xml` (see the sitemap section of
-  `wikiMirror/convertToMarkdownAiInstructions.md`).
-- `jiraToMarkdown.py` deliberately skips `GRP-1 .. GRP-7143` -- the cloud
-  metadata for many of those is misaligned by the CSV import, so the existing
-  files are the accurate record. See
-  `issueMirror/convertJiraToMarkdownAiInstructions.md`.
-- Review both diffs and commit separately (`wiki: sync`, `issues: sync`);
-  a human pushes.
-
-## 8. Verify
+## 9. Verify
 
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
 the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and
 every row still has 5 cells. Give the user the page URL.
 
-## 9. Slack announcement
+Re-run the tag/branch check from step 2 as well, for every repo the release touched
+(grouper, and the container repo). Commits often land after tagging -- a late fix,
+a doc tweak -- so a branch that was in sync at tag time can be behind by the end:
+
+```bash
+git fetch origin
+git log --oneline origin/<BRANCH>..<BRANCH>    # expect NO output
+git merge-base --is-ancestor GROUPER_RELEASE_<version>^{commit} origin/<BRANCH> \
+  && echo "OK" || echo "BAD: branch is behind the tag"
+```
+
+## 10. Slack announcement
 
 Two things close out a release: the demo server is upgraded to the new container
 tag, and the release is announced on Slack.

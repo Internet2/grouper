@@ -154,6 +154,7 @@ being skipped, but still list them.
 | MCP / OAuth for MCP | no | no | yes | yes |
 | Sync-back / native-sync capture | no | no | yes | yes |
 | Compiled GSH templates (`templateMode=compiled`) | no | no | yes | yes |
+| Composite-in-place conversion (GRP-7187) | no | no | yes | yes |
 
 Identify features by keywords in commit messages and changed file paths:
 
@@ -185,6 +186,16 @@ for t in templateMode compiledJava GshTemplateCompile "TemplateMode.compiled"; d
   echo "$t: $(git grep -il "$t" <target_branch> -- 'grouper/src' 'grouper/conf' | wc -l)"
 done
 ```
+
+#### Composite-in-place conversion is v7+ only
+
+Converting a group that already has members into a composite in place, without
+change log / PIT churn (GRP-7187: `CompositeInPlaceConverter`, plus the
+`CompositeSave` and `Group` changes that back it), stays on v7 and later. Do not
+backport it to v6 or v4, and do not treat it as an oversight -- it is a
+deliberate decision to keep that path off the maintenance branches, because it
+reaches into core `Group` / `CompositeSave` membership handling and bypasses the
+normal change log. Skip it and any follow-up commit that builds on it.
 
 #### Sync-back is v7+ only -- ALWAYS skip it on v6 and earlier
 
@@ -300,6 +311,51 @@ commit hash(es), date/time, author, and description, then ask "Cherry-pick? (y/n
 as plain text. Do not use a multiple-choice prompt tool. On approval, pick all of
 that JIRA's commits in order.
 
+**Describe the batch, then STOP and wait for the answer.** Do not print the
+descriptions and start picking in the same turn -- the user cannot approve what
+they have not read yet, and an approval given to a bare list of JIRA numbers is
+not informed consent. In particular:
+
+- Naming the next batch at the end of the previous one ("batch 5 is GRP-7175,
+  7177, ...") is a preview, NOT a description. A "yes" to that is not approval to
+  proceed; describe what each one actually does, then ask again.
+- Every JIRA in the batch needs a plain description of what it changes and why it
+  matters, not just its summary line. The user is deciding whether it is worth the
+  risk on a maintenance branch.
+- Never write "picking these now" in the same message as the table. End on the
+  question and wait.
+
+Re-confirm mid-batch whenever the situation changes from what was approved:
+
+- A conflict resolution that changes BEHAVIOUR rather than just placing code (see
+  the conflict rules below).
+- A commit that turns out to need more than the JIRA describes -- e.g. bumping a
+  dependency in a second pom the source branch no longer has.
+- A pick that turns out difficult, so the necessary/difficult trade-off applies.
+
+#### Difficult AND unnecessary -- revert or skip, do not push through
+
+Weigh every hard pick against how much it actually buys the target branch. When a
+commit is BOTH difficult and not necessary, skip it (or revert it if already
+applied) rather than spending effort forcing it in. Difficulty is a real signal:
+it usually means the branches diverged in that area, so a forced resolution is
+where silent breakage gets introduced.
+
+Rough guide, but ASK rather than deciding alone:
+
+- **Necessary** -- crashes, data corruption, security fixes, provisioner runs
+  aborting, anything a site would hit in production.
+- **Not necessary** -- string externalization, styling and contrast tweaks,
+  monitoring and progress labels, cosmetic UI work, new conveniences.
+
+Signs a pick is difficult enough to trigger the question: more than a handful of
+conflict blocks; conflicts spanning whole functions rather than adjacent lines; a
+resolution that needs an API the target branch does not have; or a file that has
+diverged so far that git offers the whole region.
+
+Say plainly what was skipped and why, and keep a running skip list so the release
+notes and the summary agree.
+
 **Do not use `git cherry-pick -x`.** The Grouper history does not carry
 `(cherry picked from commit ...)` trailers -- the backported commit keeps the
 original one-line message unchanged. Verify on any branch with:
@@ -341,7 +397,42 @@ If a conflict occurs:
 Push periodically rather than at the very end, so a long run is not one giant
 push. The user does the pushing.
 
-### 9. Summary
+### 9. Run unit tests after merging
+
+A backport is not done when the last commit lands. Cherry-picks apply by context, and
+a modified pick (sync-back stripped, a v7-only half dropped) can leave code that
+compiles but no longer behaves. Run tests before handing the branch over.
+
+Do NOT run the full suite -- it is far too slow for this. Build a **throwaway suite**
+that covers what the backport actually touched, one test class per area:
+
+1. List the test classes the backport modified:
+   `git diff --name-only <TARGET_TAG>..HEAD | grep -E 'src/test/.*Test\.java$'`
+2. Pick roughly 8-12 of them, one per distinct area (config, caching, HTTP, loader,
+   hooks, ABAC, rules, export, ...). Enough to be meaningful, few enough to finish.
+3. Write it as a JUnit 3 suite named so nobody mistakes it for permanent -- e.g.
+   `TrashV6BackportTests` -- with a class comment saying to delete it, and a
+   `// GRP-####:` comment on each entry naming what it covers.
+4. Tell the user to delete it once the release is verified. Never add it to `AllTests`
+   and never let it reach a release branch.
+
+Two traps when choosing classes:
+
+- **Module classpath.** `addTestSuite` only compiles against classes on the same
+  module's test classpath. A test under `grouper-misc/grouperClient/src/test/java`
+  cannot be referenced from a suite in `grouper/src/test` -- it must be run from its
+  own module. Verify each candidate resolves under the suite's own module before
+  including it.
+- **Tests needing the mock service Tomcat.** Provisioner tests gate on
+  `tomcatRunTests()` and need the mock service Tomcat in a separate JVM; they do not
+  belong in a quick verification run. List them for the user as a separate run, and
+  note that the Tomcat must have the daemon OFF or the changelog daemon races
+  `fullProvision`.
+
+Report which areas the suite covers and which it deliberately does not, so the user
+knows what was and was not exercised.
+
+### 10. Summary
 
 When done, report:
 
@@ -350,12 +441,17 @@ When done, report:
 - Which JIRAs were auto-skipped and why
 - Any conflicts resolved, and how
 - Any modified picks, and exactly what was stripped
+- Which JIRAs were skipped or reverted as difficult-and-unnecessary, and which
+  were applied then reverted (name the revert commit)
 
 ## Important notes
 
 - Resolving, staging, and completing picks is yours. **Pushing is the user's** --
   never push. Report every resolution so nothing lands silently.
 - Always cherry-pick in chronological order, oldest first.
+- Describe a batch and then WAIT. Approval of a bare list of JIRA numbers is not
+  approval to proceed; never present the descriptions and start picking in the
+  same turn.
 - Never force-push or rewrite history.
 - If `git cherry-pick` fails with "empty commit", the change is already applied --
   skip it with `git cherry-pick --skip`.
