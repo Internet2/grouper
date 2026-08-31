@@ -2,8 +2,8 @@
 title: "Grouper developers coding standards"
 space: GrIntDev
 pageId: 48792568
-version: 61
-lastUpdated: 2026-07-12T17:02:38.248Z
+version: 62
+lastUpdated: 2026-08-17T16:57:09.970Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards
 ---
 
@@ -50,7 +50,7 @@ If you are writing Grouper (commits / pull requests) code with AI please use Git
 
 ##### Github SSH keys
 
-After August 2021, Github will stop allowing password logins for commits. By then, developers will need to generate an SSH key to authenticate for commits. To generate the key, follow [this page](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent). You will be generating a key called *id_ed25519* and *id_ed25519.pub*. Then, change the repository URL in the project's git config (this is less well documented). On the project's homepage, click on the Code button to bring up the clone urls. Change from HTTPS to SSH and copy the URL (i.e., [git@example.com](mailto:git@example.com):Internet2/grouper.git). Then edit your local .git/config file and change the project URL to it. After that, you will be asked for the ssh passphrase for commits instead of username and password.
+After August 2021, Github will stop allowing password logins for commits. By then, developers will need to generate an SSH key to authenticate for commits. To generate the key, follow [this page](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent). You will be generating a key called *id_ed25519* and *id_ed25519.pub*. Then, change the repository URL in the project's git config (this is less well documented). On the project's homepage, click on the Code button to bring up the clone urls. Change from HTTPS to SSH and copy the URL (i.e., [git@example.com](mailto:git@example.com)[:Internet2/grouper.git](#)). Then edit your local .git/config file and change the project URL to it. After that, you will be asked for the ssh passphrase for commits instead of username and password.
 
 ##### Branches
 
@@ -105,10 +105,14 @@ Developers must create a separate (local) branch for a specific feature if a com
 - code templates - catch block has nothing (no printStackTrace()
 - git
   
+  
+  
   - include untracked file
   - auto stage deleted files
   - auto crlf
 - java errors/warnings
+  
+  
   
   - unqualified access to instance: warn
   - serializable class without id: ignore
@@ -147,6 +151,8 @@ Intellij
 - Use curlies always e.g. for loops and if statements
 - Try to be explicit in naming classes and variables, try not to abbreviate
   
+  
+  
   - If a field or variable can be named the same as its type it might make things more clear or easier to read later.
   - e.g. if the type is "GrouperAttestationAttribute", maybe name it "grouperAttestationAttribute" instead of just "attribute"
 - Comment a lot
@@ -160,9 +166,12 @@ Intellij
 - Try not to use javascript, use the ajax API to write logic in Java and views in JSP
 - Externalize all text (even text in placeholders, from java, error messages, text from javascript if applicable)
   
+  
+  
   - Only share externalized text keys if you expect it to always be tied together
 - We have a look and feel using tables and alternating rows and bold labels on left and more info before the form elements. We should try to use that when possible
 - Be consistent with accessibility using "for" tags with labels and aria tags when applicable
+- Use `<button>` for actions and `<a href>` only for navigation — never `<a href="#">` as a fake button; it breaks screen-reader roles and keyboard support.
 - Pages should have breadcrumbs underneath the parent page so it can be navigated back
 - Generally navigation should be consistent with "more actions" drop downs
 - Security of who is allowed to do what needs to be checked when buttons are displayed, and on the server side when actions are processed (ajax included)
