@@ -29,67 +29,7 @@ public class ExternalSystemContainer {
    * html for external system
    */
   private String html;
-
-  /**
-   * references (usages) of the external system currently being viewed, i.e.
-   * everywhere in Grouper this external system is used.  Shown in the References
-   * section of the view details screen.
-   */
-  private List<GuiGrouperExternalSystemUsage> guiGrouperExternalSystemUsages = new ArrayList<GuiGrouperExternalSystemUsage>();
-
-  /**
-   * true if the references list was truncated because some type had more than
-   * the max references shown per type
-   */
-  private boolean externalSystemUsagesTruncated = false;
-
-  /**
-   * max references shown per type (used in the truncation info note)
-   */
-  private int externalSystemUsagesMaxPerType;
-
-  /**
-   * @return references (usages) of the external system currently being viewed
-   */
-  public List<GuiGrouperExternalSystemUsage> getGuiGrouperExternalSystemUsages() {
-    return guiGrouperExternalSystemUsages;
-  }
-
-  /**
-   * @param guiGrouperExternalSystemUsages1 references (usages) of the external system
-   */
-  public void setGuiGrouperExternalSystemUsages(List<GuiGrouperExternalSystemUsage> guiGrouperExternalSystemUsages1) {
-    this.guiGrouperExternalSystemUsages = guiGrouperExternalSystemUsages1;
-  }
-
-  /**
-   * @return true if the references list was truncated
-   */
-  public boolean isExternalSystemUsagesTruncated() {
-    return externalSystemUsagesTruncated;
-  }
-
-  /**
-   * @param externalSystemUsagesTruncated1 true if the references list was truncated
-   */
-  public void setExternalSystemUsagesTruncated(boolean externalSystemUsagesTruncated1) {
-    this.externalSystemUsagesTruncated = externalSystemUsagesTruncated1;
-  }
-
-  /**
-   * @return max references shown per type
-   */
-  public int getExternalSystemUsagesMaxPerType() {
-    return externalSystemUsagesMaxPerType;
-  }
-
-  /**
-   * @param externalSystemUsagesMaxPerType1 max references shown per type
-   */
-  public void setExternalSystemUsagesMaxPerType(int externalSystemUsagesMaxPerType1) {
-    this.externalSystemUsagesMaxPerType = externalSystemUsagesMaxPerType1;
-  }
-
+  
   
   public List<GuiGrouperExternalSystem> getGuiGrouperExternalSystems() {
     return guiGrouperExternalSystems;
