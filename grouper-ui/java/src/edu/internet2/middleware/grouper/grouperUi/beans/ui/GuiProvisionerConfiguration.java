@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -65,7 +66,17 @@ public class GuiProvisionerConfiguration {
    * @return
    */
   public static GuiProvisionerConfiguration convertFromProvisioningConfiguration(ProvisioningConfiguration provisioningConfiguration) {
-    
+
+    return convertFromProvisioningConfiguration(Collections.singletonList(provisioningConfiguration)).get(0);
+  }
+
+  /**
+   * convert from provisioner configuration without loading the associated daemon job names
+   * @param provisioningConfiguration
+   * @return
+   */
+  private static GuiProvisionerConfiguration convertFromProvisioningConfigurationWithoutJobNames(ProvisioningConfiguration provisioningConfiguration) {
+
     GuiProvisionerConfiguration guiProvisioningConfig = new GuiProvisionerConfiguration();
     guiProvisioningConfig.provisionerConfiguration = provisioningConfiguration;
     return guiProvisioningConfig;
@@ -88,7 +99,7 @@ public class GuiProvisionerConfiguration {
     
     for (ProvisioningConfiguration provisioningConfiguration: provisioningConfigurations) {
       
-      GuiProvisionerConfiguration guiProvisionerConfiguration = convertFromProvisioningConfiguration(provisioningConfiguration);
+      GuiProvisionerConfiguration guiProvisionerConfiguration = convertFromProvisioningConfigurationWithoutJobNames(provisioningConfiguration);
       guiProvisioningConfigurations.add(guiProvisionerConfiguration);
       
       List<String> fullSyncConfigIds = new ArrayList<>();
