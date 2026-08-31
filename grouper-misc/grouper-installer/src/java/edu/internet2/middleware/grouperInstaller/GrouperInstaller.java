@@ -90,7 +90,14 @@ import org.apache.commons.httpclient.methods.GetMethod;
  */
 public class GrouperInstaller {
 
-  public static final String TOMCAT_VERSION = "9.0.118";
+  /**
+   * Tomcat version this installer downloads and installs.  Note this is not only used by
+   * people running the installer by hand: the v4 grouper container has no Tomcat pin of its
+   * own, it runs this installer at image build time, so bumping this constant is what moves
+   * the container to a new Tomcat.  Keep it on a release that is actually published to
+   * https://software.internet2.edu/grouper/downloads/tools/
+   */
+  public static final String TOMCAT_VERSION = "9.0.121";
 
   /**
    * tomcat version
