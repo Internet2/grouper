@@ -392,7 +392,43 @@ in the row):
 - `STABLE` -> no `data-highlight-colour` attribute (plain / no fill).
 - `NOT STABLE` -> no fill; add the blocking `GRP-####` link under the status.
 - `RELEASED` -> white (`#ffffff`); an interim state before a stability call.
-- `EXPIRED` -> older superseded releases.
+- `EXPIRED` -> no fill; older superseded releases, see the sweep below.
+
+### Expire old rows -- run this on EVERY release AND every promotion
+
+Without a sweep the table accumulates rows that still claim to be STABLE years
+after anyone would recommend them. The rule:
+
+1. **Anchor on the `LATEST STABLE` row's date** -- NOT the new release's date, and
+   not today. The anchor is "what we currently recommend", so a release that has
+   only just shipped and is still `RELEASED` must not expire anything yet.
+2. **Cutoff = anchor date minus 3 months.**
+3. For every row **older than the cutoff**:
+   - `STABLE` -> `EXPIRED`
+   - `RELEASED` -> `EXPIRED` (an aged RELEASED means nobody ever made the
+     stability call; expiring it IS that call, and leaving it reads as more
+     current than the EXPIRED rows above it)
+   - `NOT STABLE` -> **leave alone.** That is a permanent judgment about that
+     release and stays visible.
+   - `EXPIRED` -> already done.
+4. **Strip `data-highlight-colour` when expiring.** EXPIRED and STABLE carry no
+   fill. This matters because the attribute has historically been left behind:
+   a row promoted RELEASED -> STABLE keeps its `#ffffff` unless someone removes
+   it, so the drift accumulates silently. Remove it on every demotion too.
+
+Run it at BOTH points, because the anchor moves:
+
+- **At release**, the anchor is still the PREVIOUS release (the new row is only
+  `RELEASED`), so the cutoff has not moved much and the sweep is usually small.
+- **At promotion**, the new row becomes `LATEST STABLE`, so the anchor jumps
+  forward and the cutoff moves with it -- typically expiring one or two more rows.
+  Skip this and those expiries silently wait for the NEXT release.
+
+Worked example from the v4 page at 4.25.0: anchor `4.24.0` dated 2026/07/17,
+cutoff 2026/04/17. `4.22.0`, `4.22.1` and `4.22.3` (March 2026, all STABLE) expire;
+`4.23.0` (2026/05/24) is inside the window and stays STABLE; the `NOT STABLE` rows
+from 2024-2025 are untouched. When 4.25.0 is later promoted, the anchor becomes
+2026/08/31, the cutoff moves to 2026/05/31, and `4.23.0` expires then.
 
 ### Table layout
 
@@ -407,6 +443,10 @@ mid-token.
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
 the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and
 every row still has 5 cells. Give the user the page URL.
+
+Also confirm the expiry sweep ran: no row older than (LATEST STABLE date - 3
+months) should still say `STABLE` or `RELEASED`, and no `EXPIRED` or `STABLE` row
+should carry a `data-highlight-colour` attribute.
 
 Re-run the tag/branch check from step 2 as well, for every repo the release touched
 (grouper, and the container repo). Commits often land after tagging -- a late fix,
