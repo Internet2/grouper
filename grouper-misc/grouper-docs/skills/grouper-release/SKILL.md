@@ -91,7 +91,123 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
   Sanity-check the endpoint by running the same JQL for the PREVIOUS version and
   confirming it matches the number already on that release-notes row.
 
-## 5. Add the row to the release-notes wiki page
+## 5. Smoke-test the published image with a local quickstart
+
+Run the published container locally before writing the release-notes row. This is
+not optional polish -- two of the row's cells can only be read out of the running
+image, and this is the cheapest way to catch a broken build before the demo server
+and the announcement.
+
+### Wait for the image to actually publish
+
+Pushing the container branch only triggers the Jenkins build; the tag 404s for a
+while afterwards. Do not conclude the build failed from one early check. Poll the
+registry without pulling anything:
+
+```bash
+TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:i2incommon/grouper:pull" \
+  | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://registry-1.docker.io/v2/i2incommon/grouper/tags/list" \
+  | python3 -c "import sys,json;print(sorted(json.load(sys.stdin)['tags'])[-8:])"
+```
+
+The same token gets the **sha256 digest** for the notes, again without pulling:
+
+```bash
+curl -s -o /dev/null -w 'HTTP %{http_code}  digest: %header{docker-content-digest}\n' \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+  -I "https://registry-1.docker.io/v2/i2incommon/grouper/manifests/<version>"
+```
+
+### Compose file
+
+Works with docker or podman. Use a real random password, not this one.
+
+```yaml
+services:
+  postgres:
+    image: "postgres:14"
+    restart: always
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=BlKIS9FeyezRnAw7gW7K
+  grouper:
+    image: "i2incommon/grouper:<version>"
+    restart: always
+    ports:
+      - '8443:8443'
+    command:
+      - quickstart
+    environment:
+      - GROUPERSYSTEM_QUICKSTART_PASS=BlKIS9FeyezRnAw7gW7K
+      - GROUPER_MORPHSTRING_ENCRYPT_KEY=abcd1234
+      - GROUPER_DATABASE_PASSWORD=BlKIS9FeyezRnAw7gW7K
+      - GROUPER_DATABASE_USERNAME=postgres
+      - GROUPER_DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
+      - GROUPER_AUTO_DDL_UPTOVERSION=6.*.*
+```
+
+```bash
+docker compose up --detach          # first start builds the schema, several minutes
+docker compose logs -f grouper
+```
+
+Then **https://localhost:8443/grouper** as `GrouperSystem` with the quickstart
+password. Self-signed cert, so expect the browser warning.
+
+### Four mistakes that cost real time
+
+- **`GROUPER_AUTO_DDL_UPTOVERSION` must match the major being released** (`6.*.*`
+  for a v6 release). The wiki quickstart lesson still says `5.*.*` because it
+  predates v6, and a wrong value means the DDL never builds.
+- **Never put the published host port in `GROUPER_DATABASE_URL`.** `'5433:5432'`
+  publishes the container's 5432 as 5433 *on the host only*; container-to-container
+  it is still `postgres:5432`. The host port exists so a human can attach with
+  `psql -h localhost -p 5433 -U postgres`, nothing more.
+- **The database name is lowercase `postgres`.** Postgres preserves the case of a
+  name sent over the wire, so `/Postgres` fails with `database "Postgres" does not
+  exist`.
+- **The webapp is at `/grouper`, not the root.** A 404 from Tomcat at `/` is
+  normal and says nothing about whether the app deployed.
+
+A database connection failure looks far worse than it is: Grouper reads its config
+FROM the database, so a refused connection surfaces as `Problem reading config:
+'database:grouper'` inside a static initializer, failing
+`CommonServletContainerInitializer` and then the whole context. Read to the LAST
+`Caused by` -- that one names the actual port or database problem.
+
+### Read the two image-derived values for the notes
+
+The Rocky minor can no longer be read off the Dockerfile or the image labels: the
+base is pinned to a **floating major** (`ARG ROCKY_VERSION=9`), and the label
+reports only `version: 9`. Both values have to come from the running image:
+
+```bash
+docker compose exec grouper cat /etc/rocky-release
+docker compose exec grouper java -version
+```
+
+Ignore any `ImageOS: centos7` label -- stale metadata inherited from the TIER base,
+wrong for years.
+
+### Tear down
+
+```bash
+docker compose stop            # keep containers and data, restart with `start`
+docker compose down            # remove containers, KEEP the data volume
+docker compose down --volumes  # remove the data too
+```
+
+Use `down --volumes` when re-testing against a genuinely fresh schema. Keep the
+volume when you only changed a Grouper env var -- wiping costs another full DDL
+build for nothing, and `up --detach --force-recreate` already recreates any
+container whose config changed.
+
+## 6. Add the row to the release-notes wiki page
 
 Page: **v7 Release Notes**, pageId `28549113`
 (`/wiki/spaces/Grouper/pages/28549113`). Edit via grouper-wiki-edit (fetch
@@ -158,7 +274,7 @@ starve. Full-width + colgroup is what makes the Cloud table read like the old
 on-prem one; without column widths Cloud squeezes every column and wraps tags
 mid-token.
 
-## 6. Refresh the grouper-docs mirrors
+## 7. Refresh the grouper-docs mirrors
 
 Both mirrors under `grouper-misc/grouper-docs/` are incremental, so this is
 cheap. Run them after the release-notes edit so the new row is captured.
@@ -179,13 +295,13 @@ cd ../issueMirror                        && python3 jiraToMarkdown.py
 - Review both diffs and commit separately (`wiki: sync`, `issues: sync`);
   a human pushes.
 
-## 7. Verify
+## 8. Verify
 
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
 the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and
 every row still has 5 cells. Give the user the page URL.
 
-## 8. Slack announcement
+## 9. Slack announcement
 
 Two things close out a release: the demo server is upgraded to the new container
 tag, and the release is announced on Slack.
