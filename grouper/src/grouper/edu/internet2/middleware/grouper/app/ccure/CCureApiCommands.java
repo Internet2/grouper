@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mchange.v2.collection.MapEntry;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureUser;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureGroup;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureMembership;
@@ -229,14 +228,6 @@ public class CCureApiCommands {
                 result.add(user);
                 hasData = true;
               }
-              // live progress: pages over many slow WS calls with no total available, so report
-              // count-so-far and page number.  Uses the thread-scoped current provisioner; null off a run.
-              GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-              if (currentProvisionerForUsers != null) {
-                currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + result.size()
-                        + " so far (page " + numberOfCalls + ")");
-              }
-
               if (!hasData) {
                 nextPageNumber = -1;
               }
@@ -385,14 +376,6 @@ public class CCureApiCommands {
                 result.add(mship);
                 hasData = true;
               }
-              // live progress: pages over many slow WS calls with no total available, so report
-              // count-so-far and page number.  Uses the thread-scoped current provisioner; null off a run.
-              GrouperProvisioner currentProvisionerForMemberships = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-              if (currentProvisionerForMemberships != null) {
-                currentProvisionerForMemberships.assignProgressLabelTarget("retrieving memberships from target: " + result.size()
-                        + " so far (page " + numberOfCalls + ")");
-              }
-
               if (!hasData) {
                 nextPageNumber = -1;
               }
@@ -465,14 +448,6 @@ public class CCureApiCommands {
                 result.add(mship);
                 hasData = true;
               }
-              // live progress: pages over many slow WS calls with no total available, so report
-              // count-so-far and page number.  Uses the thread-scoped current provisioner; null off a run.
-              GrouperProvisioner currentProvisionerForMembershipsByUser = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-              if (currentProvisionerForMembershipsByUser != null) {
-                currentProvisionerForMembershipsByUser.assignProgressLabelTarget("retrieving memberships from target: " + result.size()
-                        + " so far (page " + numberOfCalls + ")");
-              }
-
               if (!hasData) {
                 nextPageNumber = -1;
               }
@@ -544,14 +519,6 @@ public class CCureApiCommands {
                 result.add(mship);
                 hasData = true;
               }
-              // live progress: pages over many slow WS calls with no total available, so report
-              // count-so-far and page number.  Uses the thread-scoped current provisioner; null off a run.
-              GrouperProvisioner currentProvisionerForMembershipsByGroup = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-              if (currentProvisionerForMembershipsByGroup != null) {
-                currentProvisionerForMembershipsByGroup.assignProgressLabelTarget("retrieving memberships from target: " + result.size()
-                        + " so far (page " + numberOfCalls + ")");
-              }
-
               if (!hasData) {
                 nextPageNumber = -1;
               }
