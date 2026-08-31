@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -162,7 +161,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     for (T item : items) {
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
       final T itemFinal = item;
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>(callableLabel) {
 
