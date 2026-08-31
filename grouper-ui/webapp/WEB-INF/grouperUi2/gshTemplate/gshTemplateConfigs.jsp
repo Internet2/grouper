@@ -105,6 +105,12 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			                <tr>
 			                   <td style="white-space: nowrap;">
 			                    ${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}
+			                    <c:if test="${guiGshTemplateConfiguration.defaultRunButtonResolutionError}">
+			                      <span class="text-warning" rel="tooltip" tabindex="0" data-placement="right" data-original-title="${textContainer.textEscapeDouble['gshTemplatesDefaultRunButtonTargetNotFound']}" style="margin-left: 4px;">
+			                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+			                        <span class="sr-only">${textContainer.text['gshTemplatesConfigurationWarning']}</span>
+			                      </span>
+			                    </c:if>
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
@@ -162,11 +168,11 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
                                
                                <li><a href="?operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
                                
-                               <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'group'}">
-                                 <li><a id="groupTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&groupId=${guiGshTemplateConfiguration.gshTemplateConfiguration.groupId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&groupId=${guiGshTemplateConfiguration.gshTemplateConfiguration.groupId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
+                               <c:if test="${not guiGshTemplateConfiguration.defaultRunButtonResolutionError and guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'group'}">
+                                 <li><a id="groupTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&groupId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&groupId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
                                </c:if>
-                               <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
-                                <li><a id="stemTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.gshTemplateConfiguration.folderId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.gshTemplateConfiguration.folderId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
+                               <c:if test="${not guiGshTemplateConfiguration.defaultRunButtonResolutionError and guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
+                                <li><a id="stemTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
                                </c:if>
                                <li><a href="#" onclick="ajax('../app/UiV2Template.test?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;"
                                     >${textContainer.text['gshTemplatesTableTestActionOption'] }</a></li>
