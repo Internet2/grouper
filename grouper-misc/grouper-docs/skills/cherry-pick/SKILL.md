@@ -245,6 +245,11 @@ over and then **strip the sync-back parts** on the target:
   `grouper-loader.base.properties` and any matching externalized text.
 - Drop any native-sync test class, and any sync-back cases inside a kept test.
 
+This is avoidable at authoring time -- see the "How to commit this work" section
+of the grouper-provisioner skill, which says to keep sync-back in its own commit
+so the backport is "skip commit N" instead. CCure did that and applied clean to
+v4 and v6; Jamf did not and needed the surgery below on both branches.
+
 Do this as a modified pick: `git cherry-pick -n <hash>` applies without
 committing; make the removals in the working tree, then stage and commit it
 yourself. Say plainly that it is a modified pick and exactly what was stripped,

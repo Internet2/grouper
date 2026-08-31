@@ -181,6 +181,34 @@ Determines the `Upgrade tasks` cell (usually `None` for a patch release).
   Sanity-check the endpoint by running the same JQL for the PREVIOUS version and
   confirming it matches the number already on that release-notes row.
 
+### Reconcile the tagged set against reality BEFORE writing the row
+
+The release-notes count and the highlight lines are both built from the tagged
+fixVersion set, so anything missing from it propagates silently into the row, the
+Jiras link and the Slack announcement. Two independent checks, both cheap:
+
+**1. Commits vs tagged.** Every JIRA in the commit range should carry this
+version:
+
+```bash
+git log --format=%s <PREV_TAG>..<THIS_TAG> | grep -oE 'GRP-[0-9]+' | sort -u > /tmp/from_commits.txt
+# then list the tagged set via the JQL below and diff the two
+```
+
+Investigate BOTH directions. In commits but not tagged is the common gap. On
+7.5.0 this found `GRP-7197` with NO fixVersion at all, whose commit was the very
+commit the release tag pointed at.
+
+**2. Container-level changes need a JIRA tagged for THIS branch.** A Tomcat or
+base-image bump often has no commit in the grouper repo at all -- it lives in the
+container repo -- so check 1 cannot see it. Compare the Versions cell you are
+about to write against the PREVIOUS row: anything that moved needs a JIRA carrying
+this version. On 7.5.0 Tomcat went 9.0.120 -> 9.0.121 while `GRP-7277` was tagged
+only `6.4.0` and `4.25.0`, so the security highlight silently omitted it.
+
+Jira's search index lags a write by a few seconds -- if a count looks unchanged
+right after a fixVersion edit, re-query before concluding anything.
+
 ## 7. Smoke-test the published image with a local quickstart
 
 Run the published container locally before writing the release-notes row. This is
@@ -349,8 +377,34 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
    `GRP-####` link under the status (as 7.3.0 carries GRP-7119, 7.3.1 carries
    GRP-7132).
 2. **Container tag (version)** -- `<p>i2incommon/grouper:<version></p>` then a `<p>`
-   with `sha256:` and the full 64-char digest. **Do NOT put `<br>` in the hash** --
-   a continuous run wraps to the column; hardcoded breaks double-wrap and look bad.
+   with `sha256:` and the 64-char digest **split across four spans, 10/18/18/18,
+   separated by `<br />`**. `sha256:` shares the first line, which is why the first
+   chunk is 10 and the rest are 18. Every row on every page uses this; a continuous
+   run stands out immediately. Copy the shape from the row above:
+
+   ```
+   <p><span style="color: rgb(193,199,208);">sha256:</span>
+   <span style="color: rgb(151,160,175);">444227ae6d</span><br />
+   <span style="color: rgb(151,160,175);">7eb362afbe65bce07b</span><br />
+   <span style="color: rgb(151,160,175);">16070d20e07b556a99</span><br />
+   <span style="color: rgb(151,160,175);">06925d6b63cad52194</span></p>
+   ```
+
+   **Use the multi-arch manifest-list digest, not a per-arch one.** `docker image
+   inspect ... {{ .RepoDigests }}` prints BOTH and the order is not stable -- on
+   4.25.0 the list came first, on 7.5.0 it came second. Resolve it against the
+   registry instead of trusting position:
+
+   ```bash
+   TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:i2incommon/grouper:pull" \
+     | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
+   curl -s -o /dev/null -w '%header{docker-content-digest}\n' -H "Authorization: Bearer $TOKEN" \
+     -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+     -I "https://registry-1.docker.io/v2/i2incommon/grouper/manifests/<version>"
+   ```
+
+   Picking a per-arch digest pins the row to one architecture and excludes the
+   other platform's users.
 3. **Upgrade instructions / Upgrade tasks** -- one cell, bold labels:
    `<p><strong>Upgrade instructions:</strong></p>` + value, then
    `<p><strong>Upgrade tasks:</strong></p>` + value. The two lines mean different
@@ -441,8 +495,13 @@ mid-token.
 ## 9. Verify
 
 Re-GET the page and confirm: the new row is on top, exactly one `LATEST STABLE`,
-the `<N> Jiras` link resolves to the expected count, hashes have no `<br>`, and
+the `<N> Jiras` link resolves to the expected count, the new hash is split
+10/18/18/18 across four spans like every other row, and
 every row still has 5 cells. Give the user the page URL.
+
+Confirm the reconciliation from step 6 still holds: the `<N> Jiras` count on the
+row equals the JQL count, every JIRA in the commit range carries this version, and
+anything that changed in the Versions cell has a JIRA tagged for this branch.
 
 Also confirm the expiry sweep ran: no row older than (LATEST STABLE date - 3
 months) should still say `STABLE` or `RELEASED`, and no `EXPIRED` or `STABLE` row
