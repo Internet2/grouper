@@ -51,9 +51,8 @@
                     <tr>
                       <th>
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId"
+                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" aria-label="${textContainer.text['subjectPrivilegesInGroupCheckboxAriaLabel']}"
                            onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
-                          <span class="sr-only">${textContainer.text['subjectPrivilegesInGroupCheckboxAriaLabel']}</span>
                         </label>
                       </th>
                       <th>
@@ -86,33 +85,20 @@
                         <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
-                            <%-- GRP-7096: build specific accessible names for this cell, e.g. "Remove Update for someGroup" (column label minus its line break) --%>
-                            <c:choose>
-                              <c:when test="${fieldName == 'admins'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAdmin'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'readers'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colRead'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'updaters'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colUpdate'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'optins'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colOptin'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'optouts'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colOptout'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'groupAttrReaders'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttributeRead'], '<br />', ' ')}" /></c:when>
-                              <c:when test="${fieldName == 'groupAttrUpdaters'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttributeUpdate'], '<br />', ' ')}" /></c:when>
-                              <c:otherwise><c:set var="privName" value="${fn:replace(textContainer.text['priv.colView'], '<br />', ' ')}" /></c:otherwise>
-                            </c:choose>
-                            <c:set var="ariaRemovePrivilege" value="${textContainer.text['ariaLabelPrivilegeRemove']} ${privName} ${textContainer.text['ariaLabelPrivilegeForSubject']} ${guiMembershipSubjectContainer.guiGroup.group.displayExtension}" />
-                            <c:set var="ariaAssignPrivilege" value="${textContainer.text['ariaLabelPrivilegeAssign']} ${privName} ${textContainer.text['ariaLabelPrivilegeForSubject']} ${guiMembershipSubjectContainer.guiGroup.group.displayExtension}" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="fa fa-check fa-direct" tabindex="0" aria-label="${grouper:escapeHtml(ariaRemovePrivilege)}" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=false&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i>
-                                <a title="${textContainer.textEscapeXml['thisSubjectsPrivilegesRemoveTitle'] }" aria-label="${grouper:escapeHtml(ariaRemovePrivilege)}" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <i class="fa fa-check fa-direct" tabindex="0" aria-label="${textContainer.textEscapeXml['thisSubjectsPrivilegesRemoveTitle'] }" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=false&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i>
+                                <a title="${textContainer.textEscapeXml['thisSubjectsPrivilegesRemoveTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=false&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
-                                  ><i class="fa fa-times" aria-hidden="true"></i></a>
+                                  ><i class="fa fa-times"></i></a>
                               </c:when>
                               <c:otherwise>
-                                <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled" tabindex="0" aria-label="${grouper:escapeHtml(ariaAssignPrivilege)}" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=true&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i></c:if>
-                                <a title="${textContainer.textEscapeXml['thisSubjectsPrivilegesAssignTitle'] }" aria-label="${grouper:escapeHtml(ariaAssignPrivilege)}" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled" tabindex="0" aria-label="${textContainer.textEscapeXml['thisSubjectsPrivilegesAssignTitle'] }" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=true&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i></c:if>
+                                <a title="${textContainer.textEscapeXml['thisSubjectsPrivilegesAssignTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignPrivilege?assign=true&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
-                                  ><i class="fa fa-plus" aria-hidden="true"></i></a>
+                                  ><i class="fa fa-plus"></i></a>
                               </c:otherwise>
                             </c:choose>
                           </td>
@@ -120,18 +106,18 @@
                         <td>
                           <div class="btn-group">
                           	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="btn btn-mini dropdown-toggle"
-                          		aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#subject-group-priv-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-group-priv-more-options${i} li').first().focus();return true;});">
+                          		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#subject-group-priv-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-group-priv-more-options${i} li').first().focus();return true;});">
                           		${textContainer.text['thisSubjectsPrivilegesActionsButton']} 
                           		<span class="caret"></span>
                           	</a>
                             <ul class="dropdown-menu dropdown-menu-right" id="subject-group-priv-more-options${i}">
-                              <li><a href="?operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject');" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject');" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
 
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
-                                <li><a href="?operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
                               </c:if>
 
-                              <li><a href="?operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">${textContainer.text['thisSubjectsPrivilegesActionsMenuViewGroup']}</a></li>
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">${textContainer.text['thisSubjectsPrivilegesActionsMenuViewGroup']}</a></li>
                             </ul>
                           </div>
                         </td>
