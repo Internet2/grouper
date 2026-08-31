@@ -17,6 +17,45 @@ All provisioner source files go under `grouper/src/grouper/edu/internet2/middlew
 
 ---
 
+## How to commit this work -- layer it
+
+New provisioners ARE backported to v4 and v6 (see the cherry-pick skill). How you
+commit decides whether that backport is "skip commit N" or reconstructive surgery,
+so decide the layering before you start, not after.
+
+**A commit must not mix code that backports with code that does not.** Anything
+gated on a capability the older branches lack -- sync-back, compiled GSH templates,
+progress labels, job pause -- goes in its own commit.
+
+Commit in this order, each layer its own commit:
+
+1. **Base provisioner** -- everything in the checklist below. NO sync-back, NO
+   progress labels. It must be complete and testable on its own, because this is
+   the layer v4 and v6 receive.
+2. **Fixes and polish** -- one commit each (timing labels, attribute dropdowns,
+   dead code removal), so any one can be reverted alone.
+3. **Progress reporting** -- separate. It depends on
+   `GrouperProvisioner.assignProgressLabelTarget`, which only exists where
+   GRP-7154 landed.
+4. **Sync-back** -- separate, and last. v7 and later only.
+
+Why this matters, from the 4.25.0 / 6.4.0 backports:
+
+- **CCure did it this way.** Sync-back was its own commit (94 sync-back tokens;
+  the two base commits had zero). Backporting was mechanical -- skip one commit,
+  take the rest -- and all six commits applied clean to v4 with no hand editing.
+- **Jamf did not.** `GRP-7221: add Jamf Pro admin-account provisioner` carried 58
+  sync-back tokens in the base commit, so there was nothing to skip. v6 needed a
+  modified pick that stripped 11 capture calls across `JamfTargetDao` and
+  `JamfApiCommands`, removed `setCanSyncBack(true)` and deleted two dead
+  `memberNativeIds` lists, plus a follow-up commit recording the divergence. v4
+  then needed the same work again.
+- **The progress layer proved it twice.** CCure's progress reporting was its own
+  commit, so when it turned out to need an API v4 does not have, the v4 fix was one
+  `git revert` of one file. Folded into the base commit it would have been surgery.
+
+---
+
 ## 1. Model Classes (Java)
 
 Domain objects representing the target system's entities. Each model class typically needs:
