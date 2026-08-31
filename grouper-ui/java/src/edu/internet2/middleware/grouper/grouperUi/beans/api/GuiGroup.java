@@ -321,7 +321,18 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return groups
    */
   public static Set<GuiGroup> convertFromGroups(Set<Group> groups) {
-    return convertFromGroups(groups, null, -1);
+    return convertFromGroups(groups, null, -1, GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
+  /**
+   * Convert groups using an explicitly supplied logged-in subject.  Use this overload when conversion
+   * can run outside the servlet request thread (for example, in a home-page widget worker).
+   * @param groups groups to convert
+   * @param loggedInSubject subject whose privileges should be prefetched
+   * @return groups
+   */
+  public static Set<GuiGroup> convertFromGroups(Set<Group> groups, Subject loggedInSubject) {
+    return convertFromGroups(groups, null, -1, loggedInSubject);
   }
 
   /**
@@ -332,6 +343,20 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return groups
    */
   public static Set<GuiGroup> convertFromGroups(Set<Group> groups, String configMax, int defaultMax) {
+    return convertFromGroups(groups, configMax, defaultMax, GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
+  /**
+   * Convert groups using an explicitly supplied logged-in subject.  Use this overload when conversion
+   * can run outside the servlet request thread (for example, in a home-page widget worker).
+   * @param groups groups to convert
+   * @param configMax config key containing the maximum number of groups
+   * @param defaultMax default maximum number of groups
+   * @param loggedInSubject subject whose privileges should be prefetched
+   * @return groups
+   */
+  public static Set<GuiGroup> convertFromGroups(Set<Group> groups, String configMax, int defaultMax,
+      Subject loggedInSubject) {
     Set<GuiGroup> tempGroups = new LinkedHashSet<GuiGroup>();
     
     Integer max = null;
@@ -353,7 +378,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
 
     //bulk-prefetch the logged-in subject's privileges in ONE query so per-row canRead()/canUpdate()/
     //canAdmin()/canGroupAttrRead() are answered from the object (avoids an N+1 of privilege resolution)
-    cacheLoggedInPrivileges(tempGroups, CAN_GETTER_PRIVILEGES);
+    cacheLoggedInPrivileges(tempGroups, CAN_GETTER_PRIVILEGES, loggedInSubject);
 
     return tempGroups;
     
@@ -607,13 +632,21 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @param privilegesToCheck the access privileges to resolve (only these are resolved/stored)
    */
   public static void cacheLoggedInPrivileges(Collection<GuiGroup> guiGroups, Set<Privilege> privilegesToCheck) {
+    cacheLoggedInPrivileges(guiGroups, privilegesToCheck, GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
 
-    if (GrouperUtil.length(guiGroups) == 0 || GrouperUtil.length(privilegesToCheck) == 0) {
-      return;
-    }
+  /**
+   * Bulk-resolve privileges for an explicitly supplied logged-in subject.  This overload has no
+   * dependency on servlet request state and is safe to use from a worker thread.
+   * @param guiGroups the gui groups to prefetch privileges for
+   * @param privilegesToCheck the access privileges to resolve (only these are resolved/stored)
+   * @param loggedInSubject subject whose privileges should be prefetched
+   */
+  public static void cacheLoggedInPrivileges(Collection<GuiGroup> guiGroups,
+      Set<Privilege> privilegesToCheck, Subject loggedInSubject) {
 
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (loggedInSubject == null) {
+    if (GrouperUtil.length(guiGroups) == 0 || GrouperUtil.length(privilegesToCheck) == 0
+        || loggedInSubject == null) {
       return;
     }
 
