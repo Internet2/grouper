@@ -238,8 +238,11 @@ services:
       - GROUPER_DATABASE_PASSWORD=BlKIS9FeyezRnAw7gW7K
       - GROUPER_DATABASE_USERNAME=postgres
       - GROUPER_DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
-      - GROUPER_AUTO_DDL_UPTOVERSION=6.*.*
 ```
+
+Note there is NO `GROUPER_AUTO_DDL_UPTOVERSION` line. prep_quickstart sets its own
+default (`v6.*.*` on v6, `v4.*.*` on v4 -- note the `v` prefix) and only when the
+variable is unset, so anything you pass OVERRIDES the correct value. Leave it out.
 
 ```bash
 docker compose up --detach          # first start builds the schema, several minutes
@@ -249,11 +252,46 @@ docker compose logs -f grouper
 Then **https://localhost:8443/grouper** as `GrouperSystem` with the quickstart
 password. Self-signed cert, so expect the browser warning.
 
-### Four mistakes that cost real time
+#### The port differs by branch -- v4 is NOT the same as v6/v7
 
-- **`GROUPER_AUTO_DDL_UPTOVERSION` must match the major being released** (`6.*.*`
-  for a v6 release). The wiki quickstart lesson still says `5.*.*` because it
-  predates v6, and a wrong value means the DDL never builds.
+**v6 and v7** dropped Apache: Tomcat serves HTTPS directly on **8443**, so
+`'8443:8443'` above is right.
+
+**v4 still bundles Apache and Shibboleth.** Its quickstart sets
+`GROUPER_RUN_APACHE=true` and configures only the AJP and HTTP connectors -- there
+is no HTTPS connector, so **nothing listens on 8443**. Apache terminates TLS on 443
+and proxies to Tomcat over AJP. Publishing `'8443:8443'` on v4 maps to a closed
+port and the browser just hangs. On v4 use:
+
+```yaml
+    ports:
+      - '8443:443'          # host 8443 -> Apache 443 inside the container
+```
+
+The URL is unchanged (`https://localhost:8443/grouper/`); only the container-side
+port differs. Host-side 8443 keeps it non-privileged, which matters for rootless
+podman.
+
+Confirm what is actually listening rather than guessing:
+
+```bash
+docker compose exec grouper netstat -ltnp     # or: ss -ltnp
+```
+
+On v4 expect 443 and 80 (httpd), 8080 and 8009 (Tomcat HTTP/AJP), 8005 shutdown --
+and no 8443. On v6/v7 expect 8443.
+
+Mapping `'8443:8080'` also reaches v4 and skips the cert warning, but it bypasses
+Apache, so it does not exercise the path a real v4 deployment uses. Prefer 443.
+
+### Five mistakes that cost real time
+
+- **Do not set `GROUPER_AUTO_DDL_UPTOVERSION` at all.** prep_quickstart sets the
+  right value itself (`v4.*.*` / `v6.*.*`, with a `v` prefix) and only when unset,
+  so passing your own overrides it. The wiki quickstart lesson still shows `5.*.*`,
+  which is both the wrong major and the wrong format -- do not copy it.
+- **v4 has no HTTPS on 8443** -- see the port section above. This one looks like a
+  hung container or a broken build and is neither.
 - **Never put the published host port in `GROUPER_DATABASE_URL`.** `'5433:5432'`
   publishes the container's 5432 as 5433 *on the host only*; container-to-container
   it is still `postgres:5432`. The host port exists so a human can attach with
