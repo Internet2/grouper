@@ -317,6 +317,10 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   
   /**
    * 
+   * <p>REQUEST THREAD ONLY: this resolves the logged-in subject from the servlet request
+   * threadlocal, which is null on a worker thread (GRP-7242).  From inside a GrouperCallable
+   * or any other non-request thread, capture the subject on the request thread and call the
+   * overload that takes a loggedInSubject.</p>
    * @param groups
    * @return groups
    */
@@ -337,6 +341,10 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
 
   /**
    * 
+   * <p>REQUEST THREAD ONLY: this resolves the logged-in subject from the servlet request
+   * threadlocal, which is null on a worker thread (GRP-7242).  From inside a GrouperCallable
+   * or any other non-request thread, capture the subject on the request thread and call the
+   * overload that takes a loggedInSubject.</p>
    * @param groups
    * @param configMax
    * @param defaultMax
@@ -628,6 +636,10 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * cache) instead of an N+1 of per-group privilege resolution.  Each screen passes the privilege set
    * its getters actually use (and only that) - e.g. {@link AccessPrivilege#UPDATE_PRIVILEGES} for a
    * screen that renders canUpdate, or the union for a screen that renders canRead and canUpdate.
+   * <p>REQUEST THREAD ONLY: this resolves the logged-in subject from the servlet request
+   * threadlocal, which is null on a worker thread (GRP-7242).  From inside a GrouperCallable
+   * or any other non-request thread, capture the subject on the request thread and call the
+   * overload that takes a loggedInSubject.</p>
    * @param guiGroups the gui groups to prefetch privileges for
    * @param privilegesToCheck the access privileges to resolve (only these are resolved/stored)
    */
