@@ -2,8 +2,8 @@
 title: "Roadmap: interpreted Groovy or only compiled Java"
 space: Grouper
 pageId: 48168966
-version: 8
-lastUpdated: 2026-07-11T17:22:22.532Z
+version: 9
+lastUpdated: 2026-07-15T16:51:29.181Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48168966/Roadmap+interpreted+Groovy+or+only+compiled+Java
 ---
 
@@ -17,7 +17,7 @@ This is a potential direction — interpreted mode keeps working today, so nothi
 
 - For new work, write compiled Java. Every template type supports it: gsh, abac, provisioner, daemon, daemonChangeLog, report, customUi, hook, and library.
 - Migrate existing interpreted templates and scripts over time — help is offered below, and AI has made this nearly free.
-- Proposed roadmap: interpreted stays available through v7 and v8, and is removed in v9. That gives people time to migrate gracefully.
+- Proposed roadmap: interpreted stays available through v7 and v8, and is removed in v9 or v11. That gives people time to migrate gracefully.
 
 The case for standardizing: less technical debt, one consistent language, all institutional code consolidated in one inventory (the GSH template screen) with compile status visible at upgrade time, better performance, and real object-oriented Java.
 

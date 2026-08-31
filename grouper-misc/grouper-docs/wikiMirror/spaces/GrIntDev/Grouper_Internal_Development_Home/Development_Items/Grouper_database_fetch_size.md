@@ -2,14 +2,14 @@
 title: "Grouper database fetch size"
 space: GrIntDev
 pageId: 48792725
-version: 11
-lastUpdated: 2026-07-12T07:01:14.130Z
+version: 12
+lastUpdated: 2026-07-19T00:32:50.294Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792725/Grouper+database+fetch+size
 ---
 
 Fetch size is how many rows are delivered in a "chunk" when selecting data.
 
-Grouper is setting fetch size 1000 in Grouper in 2.5.44+. [GRP-3167](https://todos.internet2.edu/browse/GRP-3167).
+Grouper is setting fetch size 1000 in Grouper in 2.5.44+. [GRP-3167](https://grouper.atlassian.net/browse/GRP-3167).
 
 This does not need to be configurable since Grouper gets all data in queries and does not stop from cursors. Even if it did occasionally the penalty of getting 1000 rows for a few hundred millis is not worth worrying about. i.e. it should not be changed.
 

@@ -2,12 +2,14 @@
 title: "Release steps for new container build"
 space: GrIntDev
 pageId: 48794029
-version: 60
-lastUpdated: 2026-07-12T06:46:27.256Z
+version: 62
+lastUpdated: 2026-08-30T23:40:46.950Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+steps+for+new+container+build
 ---
 
 1. Look at maven for each project and update libraries for any vulnerabilities
+  
+  
   
   1. Look at owasp dependency check goal
     
@@ -19,24 +21,26 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
 2. Look at the jiras for the stable branch and make sure all commits are cherry picked back
 3. See if there is an updated Tomcat version (ITS webprod6 NOW!)
   
+  
+  
   1. If so, get the tomcat tar.gz to the webprod6 server in the proper directory
     
     
     ```
     [mchyzer@webprod6 ~]$ cd /home/htdocs/software.internet2.edu/grouper/downloads/tools/
-    [mchyzer@webprod6 tools]$ wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.98/bin/apache-tomcat-9.0.98.tar.gz
+    [mchyzer@webprod6 tools]$ wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.121/bin/apache-tomcat-9.0.121.tar.gz
     ```
   2. Adjust the tomcat version in GrouperInstaller.java (v4)
     
     
     ```
-      public static final String TOMCAT_VERSION = "9.0.98";
+      public static final String TOMCAT_VERSION = "9.0.121";
     ```
-  3. Adjust the tomcat version in the Dockerfile (v5+)  
-      
+  3. Adjust the tomcat version in the Dockerfile (v5+)
+    
     
     ```
-    ARG TOMCAT_VERSION=9.0.108
+    ARG TOMCAT_VERSION=9.0.121
     ```
   4. Might need to run patches again in container (if new server.xml is different from server.xml.original)
     
@@ -45,11 +49,12 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
     put server.xml in server.xml.original, adjust server.xml.grouper
     diff -u server.xml.original server.xml.grouper > server.xml.grouper.patch
     ```
-4. Run "ant build" in grouper-client, make sure it compiles
-5. If there are DDL changes make sure theres not an index longer than expected 768
-6. Check unit tests (email with CI test results (summary))
+4. If there are DDL changes make sure theres not an index longer than expected 768
+5. Check unit tests (email with CI test results (summary))
+6. Copy wiki back to markdown (point AI at grouper-misc/grouper-docs/wikiMirror)
 7. Tag as GROUPER_RELEASE_x.y.z in grouper git
-8. In [Internet2 build git](https://github.internet2.edu/internet2/grouper.git), branch as x.y.z.  
+8. In [Internet2 build git](https://github.internet2.edu/internet2/grouper.git), branch as x.y.z.
+  
   
   
   1. Branch from the latest commit in the proper branch (check the [network graph](https://github.internet2.edu/internet2/grouper/network) if unclear)  
@@ -64,15 +69,21 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
 9. Wait 15 minutes [build to finish](https://jenkins.testbed.tier.internet2.edu/job/internet2/job/grouper/) (old: [for build to finish](https://travis-ci.com/github/Internet2/grouper/builds))
 10. Go to: [https://central.sonatype.com/](https://central.sonatype.com/)
   
+  
+  
   1. Select the x.y.z version and click "Release"  
     (ok to leave checked "automatically drop")
   2. Browse public repositories, Navigate the folder structure to /edu/internet2/middleware/grouper/grouper to make sure the new version is there
-  3. Wait for a while until the installer is resolvable here: [https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/X.Y.Z/grouper-installer-](https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/5.19.1/grouper-installer-5.19.1.jar)[X.Y.Z](https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/5.19.1/grouper-installer-5.19.1.jar)[.jar](https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/5.19.1/grouper-installer-5.19.1.jar)
+  3. Wait for a while until the installer is resolvable here: [https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/X.Y.Z/grouper-installer-X.Y.Z.jar](https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/5.19.1/grouper-installer-5.19.1.jar)
 11. In the docker_grouper project
+  
+  
   
   1. remove any patches
   2. make an x.y.z branch if not already there
 12. Make sure docker unit test count matches the number of changed unit tests in grouperContainerUnitTest.sh
+  
+  
   
   1. have there been any new tests (assert*) since the last release? If so, update grouperContainerUnitTest.sh by incrementing expectedSuccesses by the number of new tests  
     git log -p 2.5.62.. -- container_files/tier-support/test/grouperContainerUnitTestUi.sh container_files/tier-support/test/grouperContainerUnitTest.sh
@@ -140,6 +151,8 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
   ```
 19. [Use the installer](https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-installer/2.5.xx/) to install the container against a mysql from docker (case sensitive)
   
+  
+  
   1. jdbc:mysql://docker.for.win.localhost:3306/grouper_v2_5?useSSL=false
 20. Upgrade the demo server
 21. Adjust the version of apache/shib/java/tomcat in the [release notes](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793539/v2.5+Release+Notes)  
@@ -156,7 +169,8 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
   ```
   docker run --rm i2incommon/grouper:2.5.xx bash -c "java -version && grep 'Apache Tomcat Version' /opt/tomcat/RELEASE-NOTES && grep PRETTY_NAME /etc/os-release"
   ```
-22. Adjust the SHA in release notes  
+22. Adjust the SHA in release notes
+  
   
   
   1. docker image inspect i2incommon/grouper:2.5.xx --format '{{ .RepoDigests }}'
@@ -164,7 +178,7 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
 After stable
 
 1. When the release has been used for a few days and no issues, then mark as stable
-2. Update this page too: InCommon Trusted Access Platform Release
+2. Update this page too: [InCommon Trusted Access Platform Release](https://grouper.atlassian.net/wiki/pages/createpage.action?spaceKey=ITAP&title=InCommon%20Trusted%20Access%20Platform%20Release)
 
 **See Also**
 

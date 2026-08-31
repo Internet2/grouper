@@ -2,8 +2,8 @@
 title: "Grouper Training - Use cases - Lesson 01: Basis and reference groups part 1"
 space: Grouper
 pageId: 28544224
-version: 41
-lastUpdated: 2026-07-12T15:26:14.082Z
+version: 43
+lastUpdated: 2026-08-03T03:53:40.256Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544224/Grouper+Training+-+Use+cases+-+Lesson+01+Basis+and+reference+groups+part+1
 ---
 
@@ -57,10 +57,10 @@ Navigate to group `ref:student:students`
 
 Add the following groups to ref:students
 
-- `basis:sis:prog_status:year:ac:2025`
-- `basis:sis:prog_status:year:ac:2026`
 - `basis:sis:prog_status:year:ac:2027`
 - `basis:sis:prog_status:year:ac:2028`
+- `basis:sis:prog_status:year:ac:2029`
+- `basis:sis:prog_status:year:ac:2030`
 
 ### Filter for Direct Membership
 
@@ -79,11 +79,11 @@ You suddenly remember that recently graduated students have a 7 month grace peri
 Add to students
 
 ```
-basis:sis:prog_status:year:cm:2024
+basis:sis:prog_status:year:cm:2026
 ```
 
 Before submitting, edit the membership and set the end date to
 
 ```
-12/31/2025 05:00:00 PM
+12/31/2026 05:00:00 PM
 ```

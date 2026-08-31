@@ -1,17 +1,17 @@
 ---
-title: "Grouper documentation move to Atlassian cloud"
-space: GrIntDev
-pageId: 48793162
-version: 5
-lastUpdated: 2026-07-12T06:46:10.232Z
-url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793162/Grouper+documentation+move+to+Atlassian+cloud
+title: "Grouper documentation moved to Atlassian cloud"
+space: Grouper
+pageId: 65241668
+version: 1
+lastUpdated: 2026-07-19T00:44:31.118Z
+url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/65241668/Grouper+documentation+moved+to+Atlassian+cloud
 ---
 
 From the Internet2 on-prem Confluence (Data Center) to a free Atlassian Cloud open-source Premium instance
 
 ## Summary
 
-Grouper's community documentation moved from the Internet2 on-prem Confluence (Data Center) to a free Atlassian Cloud open-source Premium instance at [https://grouper.atlassian.net/](https://grouper.atlassian.net/). We migrated to give it a stronger home: better search, lower-effort upkeep with AI tooling, and a platform that keeps improving. The move also gets us well ahead of the on-prem Data Center end-of-life on March 28, 2029, and the recurring technology problems that come with the on-prem stack. Data-migration testing has proven the move viable. We switched on Tuesday June 30, 2026. Grouper Jira is hopefully soon to follow.
+Grouper's community documentation moved from the Internet2 on-prem Confluence (Data Center) to a free Atlassian Cloud open-source Premium instance at [https://grouper.atlassian.net/](https://grouper.atlassian.net/). We migrated to give it a stronger home: better search, lower-effort upkeep with AI tooling, and a platform that keeps improving. The move also gets us well ahead of the on-prem Data Center end-of-life on March 28, 2029, and the recurring technology problems that come with the on-prem stack. Data-migration testing has proven the move viable. We switched on Tuesday June 30, 2026. Grouper Jira has now followed too - see [Grouper issue tracker moved to Atlassian cloud](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/65241091/Grouper+issue+tracker+moved+to+Atlassian+cloud).
 
 ## Background
 

@@ -2,8 +2,8 @@
 title: "Authentication to the Grouper UI"
 space: Grouper
 pageId: 28548676
-version: 44
-lastUpdated: 2026-07-12T15:26:56.717Z
+version: 46
+lastUpdated: 2026-07-19T22:29:28.735Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548676/Authentication+to+the+Grouper+UI
 ---
 
@@ -44,6 +44,16 @@ Note: if you use a load balancer or reverse proxy that offloads the SSL then you
 ## Grouper built-in authentication (v2.5+)
 
 For a UI/WS that was installed using the Grouper Installer, Tomcat authentication using web.xml security-constraint directives is not used by default since v2.5. It has been replaced by a Grouper authentication module that stores usernames and encrypted passwords in the database. See [this page](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549360/Grouper+Built-in+Basic+Authentication+to+UI+and+Web+Services) for further explanation. It is not enabled by default, except for a quickstart container. It is enabled by setting container parameters `GROUPER_UI_GROUPER_AUTH` and `GROUPER_WS_GROUPER_AUTH` , or by `grouper.hibernate.properties parameters grouper.is.ui.basicAuthn` and `grouper.is.ws.basicAuthn` . It is not recommended to use tomcat-users.xml anymore, but it can be added back manually if desired. Besides built-in authentication, external authentication services like Shibboleth and CAS are excellent options.
+
+## Development-only form based login
+
+This is for Grouper v7.3.2+, v6.3.1+, and v4.24.1+.
+
+For local development and automated or headless UI testing, Grouper can show an HTML login form instead of the native HTTP BASIC popup (which automated browsers cannot drive). It uses the same built-in credential store as basic authentication.
+
+Enable it with `grouper.is.ui.formAuthn = true` in grouper.hibernate.properties. It only takes effect when `grouper.is.ui.basicAuthn` is false, and credentials are checked the same way as basic authentication (the grouper_password store and `grouperPasswordConfigOverride_UI_<user>_pass` overrides).
+
+> This is a development convenience only. It is ignored in production: it is disabled (with a warning logged) whenever `grouper.env.name` is blank, `prod`, or `production`. Do not use it as a production authentication method.
 
 ## Authentication using Shibboleth single sign-on (SSO)
 
@@ -141,6 +151,8 @@ This will assume that you have disabled other environment variable enabled metho
 1. Create a directory for your docker overlay and create the directory `slashRoot` inside it.
 2. Create a `Dockerfile` with at least the following contents.
   
+  **Dockerfile**
+  
   
   ```
   ARG GROUPER_VERSION=2.5.XX
@@ -155,7 +167,8 @@ This will assume that you have disabled other environment variable enabled metho
   RUN chown -R tomcat:tomcat /opt/grouper \
   && chown -R tomcat:tomcat /opt/tomee
   ```
-3. Add the files below under `slashRoot`:  
+3. Add the files below under `slashRoot`:
+  
   
   
   1. /etc/httpd/conf.d/auth_cas.conf.cas
@@ -176,6 +189,8 @@ This will assume that you have disabled other environment variable enabled metho
     </Location>
     ```
   2. /usr/local/bin/grouperScriptHooks.sh
+    
+    
     
     1. This hook script only installs the CAS filter in the apache layer when running the UI. It copies the file above over the default installed by yum, and then replaces the placeholder text with environment variables.
   3. ```bash
@@ -236,11 +251,13 @@ This will assume that you have disabled other environment variable enabled metho
 
 ### CAS authentication method 2: Tomcat <Realm> authentication
 
-See also:  [https://github.com/apereo/java-cas-client](https://github.com/apereo/java-cas-client)
+See also: [https://github.com/apereo/java-cas-client](https://github.com/apereo/java-cas-client)
 
 Tomcat authentication using realms works both before and after v2.5.0, although some of the file locations differ in containers.
 
 The context definition in server.xml for Tomcat (in the container, this is /opt/tomee/conf/Catalina/localhost/grouper.xml) looks like this:
+
+##### **grouper.xml (Tomcat context)**
 
 ```xml
 <Context docBase="/ucd/opt/grouper-ui/dist/grouper" path="/grouper"
@@ -316,4 +333,4 @@ In addition to these files, if there are issues with Tomcat communicating with C
 
 [University of Pennsylvania Example](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545158/Grouper+UI+custom+authentication+example)
 
-For an overview of authenticating to Grouper using Shib, see also the  [Grouper UI Training Video, around minute 7.30](http://www.youtube.com/watch?v=fhl8FUauRM0&feature=plcp).
+For an overview of authenticating to Grouper using Shib, see also the [Grouper UI Training Video, around minute 7.30](http://www.youtube.com/watch?v=fhl8FUauRM0&feature=plcp).

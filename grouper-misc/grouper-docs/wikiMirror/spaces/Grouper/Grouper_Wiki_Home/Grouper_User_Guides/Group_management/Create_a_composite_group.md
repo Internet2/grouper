@@ -2,8 +2,8 @@
 title: "Create a composite group"
 space: Grouper
 pageId: 28545340
-version: 16
-lastUpdated: 2024-05-21T17:12:25.679Z
+version: 17
+lastUpdated: 2026-07-28T15:21:15.238Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545340/Create+a+composite+group
 ---
 
@@ -42,3 +42,15 @@ For this example, we are going to create a group itsAffiliates whose members are
 4. Set **Composite** to **Yes**, then find your first and second factors by searching for them in the given fields and selecting the group when it's returned.
 5. Select the desired operation from the drop-down.
 6. Click "Save". This will assign the composite to the group.
+
+## Convert an existing group with members to a composite
+
+> The Edit composite screen requires the group to have no direct members. In these versions an existing group that already has members can instead be converted to a composite in place, without churning the change log or point-in-time (PIT) history for members whose membership does not change.
+
+When a group is converted to a composite in place:
+
+- Members who are also in the composite result keep their membership: the row is relabeled from a direct (immediate) membership to a composite membership, with no change log entry and no PIT record, so provisioning and history are not disturbed.
+- Members who are not in the composite result are removed, producing one membership delete each.
+- Members newly included by the composite are added, producing one membership add each.
+
+The conversion runs in a single transaction. For the largest reference groups, run it during a maintenance window, since it holds that transaction until every relabeled row is committed.

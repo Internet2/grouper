@@ -2,8 +2,8 @@
 title: "Grouper Training - Use cases - Lesson 10: VPN access control part 3 - custom UI"
 space: Grouper
 pageId: 28545541
-version: 15
-lastUpdated: 2026-07-12T15:26:44.066Z
+version: 16
+lastUpdated: 2026-08-13T18:39:02.297Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545541/Grouper+Training+-+Use+cases+-+Lesson+10+VPN+access+control+part+3+-+custom+UI
 ---
 
@@ -53,7 +53,7 @@ Send email due to disabled date
   
   
   ```
-  You will lose access to VPN networking on ${ruleElUtils.formatDate(membershipDisabledTimestamp, 'yyyy/MM/dd')}, unless you read and acknowledge the lastest AUP. Please go to https://localhost:8443/grouper/grouperUi/app/UiV2Main.indexCustomUi?operation=UiV2CustomUi.customUiGroup&groupId=${groupId} to access the form.
+  You will lose access to VPN networking on ${ruleElUtils.formatDate(membershipDisabledTimestamp, 'yyyy/MM/dd')}, unless you read and acknowledge the latest AUP. Please go to https://localhost:8443/grouper/grouperUi/app/UiV2Main.indexCustomUi?operation=UiV2CustomUi.customUiGroup&groupId=${groupId} to access the form.
   
   ```
 

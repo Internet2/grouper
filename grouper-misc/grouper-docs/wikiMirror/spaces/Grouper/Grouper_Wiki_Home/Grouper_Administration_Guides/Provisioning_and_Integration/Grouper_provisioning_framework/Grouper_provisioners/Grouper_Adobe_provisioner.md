@@ -2,8 +2,8 @@
 title: "Grouper Adobe provisioner"
 space: Grouper
 pageId: 28555458
-version: 14
-lastUpdated: 2026-07-01T05:38:10.357Z
+version: 18
+lastUpdated: 2026-07-21T21:02:26.293Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555458/Grouper+Adobe+provisioner
 ---
 
@@ -32,7 +32,7 @@ Advice
 
 [Use an Oauth Web service external system for Adobe](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547372/Grouper+external+system+-+Web+service+-+Oauth+credential+-+Adobe)
 
-| Config | Example | Description |
+| **Config** | **Example** | **Description** |
 | --- | --- | --- |
 | Config id | adobe  would be in config key:  grouper.wsBearerToken.adobe.scopes | Used in configuration file grouper-loader.properties |
 | Authentication type | oauthClientCredentials | Bearer token: just an Authentication header with a value (token can have a prefix, e.g. Bearer: )  Basic auth: Authentication header with basic auth standard |
@@ -60,11 +60,13 @@ Provisioning type is membershipObjects
 
 ## Provisioning groups
 
+**User groups vs product profiles (licenses):** In Adobe, a license is granted by membership in a **product profile** (also called a product configuration), not by a plain **user group**. This provisioner can target either one -- the "Group name in Adobe" group metadata (the group `name` attribute) can be a user group or a product profile. To have Grouper drive license assignment directly, point the group at the product profile name. That keeps Grouper authoritative for licensing, so assignments are not made by hand in the Adobe Admin Console. Support admins can also be provisioned (as a role); the high-level system and org admins cannot be externalized in Adobe, so those are the only thing this provisioner does not manage.
+
 You can search by name or id. You should cache the name and id.
 
 #### [API documentation](https://adobe-apiplatform.github.io/umapi-documentation/en/api/usergroupActionCommands.html)
 
-| Grouper name | Type | Required? | Adobe API | Description |
+| **Grouper name** | **Type** | **Required?** | **Adobe API** | **Description** |
 | --- | --- | --- | --- | --- |
 | id | String | required | groupId | This is the id read from Adobe. Select only. This should not be translated from Grouper, and the target attribute should be cached.  Note: this is a number in JSON but it is a String type in the provisioner |
 | name | String | required | name | This is the name of the group on the Adobe side. |
@@ -75,7 +77,7 @@ You can search by email only. You should cache the email and id.
 
 #### [API documentation](https://adobe-apiplatform.github.io/umapi-documentation/en/api/getUser.html)
 
-| Grouper name | Type | Required? | Adobe API | Description |
+| **Grouper name** | **Type** | **Required?** | **Adobe API** | **Description** |
 | --- | --- | --- | --- | --- |
 | id | String | required | groupId | This is the id read from Adobe. Select only. This should not be translated from Grouper, and the target attribute should be cached. |
 | email | String | required | name | Email which will be the username too |
@@ -83,6 +85,10 @@ You can search by email only. You should cache the email and id.
 | lastname | String | required usually | lastname | [Docs](https://adobe-apiplatform.github.io/umapi-documentation/en/api/ActionsCmds.html#user-information) |
 | country | String | required usually | country | e.g. US. You can hard code if you want in the provisioner translation |
 | emailsForLookup   v5.21.4+ | String | no | N/A | If email does not match userName, this can be multi-valued, or single-valued comma separated, and will look up the user based on those emails (and will use the email attribute too) |
+
+## Deprovisioning
+
+When Grouper deletes a user in the target, the provisioner always calls Adobe's `removeFromOrg` action. The optional `deleteAccountWhenDeleteUser` config (boolean, default `false`) sets the `deleteAccount` flag on that call. When `false`, the user is only removed from the Adobe org and the underlying Adobe account is left intact; when `true`, the account itself is also deleted (only meaningful for org-owned identity types such as Enterprise ID / Federated ID). It is a single global flag, so it applies to every deleted user regardless of identity type. It appears in the config UI only when "Delete entities" is enabled.
 
 ## Loading
 

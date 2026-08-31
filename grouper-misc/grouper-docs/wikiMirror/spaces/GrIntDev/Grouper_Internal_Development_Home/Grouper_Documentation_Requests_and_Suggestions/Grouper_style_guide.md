@@ -2,8 +2,8 @@
 title: "Grouper style guide"
 space: GrIntDev
 pageId: 48792966
-version: 33
-lastUpdated: 2026-07-12T17:02:42.567Z
+version: 34
+lastUpdated: 2026-08-28T19:37:19.460Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792966/Grouper+style+guide
 ---
 
@@ -43,10 +43,15 @@ Note: manage wiki contributors [here](https://comanage.at.internet2.edu)
 | Delete incoming links of removed pages | We do not want broken links | When you remove a page in the wiki, confluence will tell you about the broken incoming links. Make sure to go to all those pages and remove the links so we do not have broken links |
 | Use labels for wiki lists of non-children | Use convention of grouper-labelname-wiki | Use the labels list macro, sort by name. |
 | Use standard labels | [needsdocupdate](https://spaces.at.internet2.edu/dosearchsite.action?cql=space%20in%20(%22Grouper%22)%20AND%20type%20in%20(%22space%22%2C%22user%22%2C%22com.atlassian.confluence.extra.team-calendars%3Acalendar-content-type%22%2C%22attachment%22%2C%22com.atlassian.confluence.extra.team-calendars%3Aspace-calendars-view-content-type%22%2C%22page%22%2C%22blogpost%22%2C%22com.k15t.scroll.scroll-platform%3Ascroll-search-proxy-content-type%22)%20AND%20label%20in%20(%22needsdocupdate%22)&includeArchivedSpaces=false): wiki page needs updating  [needsmove](https://spaces.at.internet2.edu/dosearchsite.action?cql=space%20in%20(%22Grouper%22)%20AND%20type%20in%20(%22space%22%2C%22user%22%2C%22com.atlassian.confluence.extra.team-calendars%3Acalendar-content-type%22%2C%22attachment%22%2C%22com.atlassian.confluence.extra.team-calendars%3Aspace-calendars-view-content-type%22%2C%22page%22%2C%22blogpost%22%2C%22com.k15t.scroll.scroll-platform%3Ascroll-search-proxy-content-type%22)%20AND%20label%20in%20(%22needsmove%22)&includeArchivedSpaces=false): wiki page needs move, not sure where  [needsarchive](https://spaces.at.internet2.edu/dosearchsite.action?cql=space%20in%20(%22Grouper%22)%20AND%20type%20in%20(%22space%22%2C%22user%22%2C%22com.atlassian.confluence.extra.team-calendars%3Acalendar-content-type%22%2C%22attachment%22%2C%22com.atlassian.confluence.extra.team-calendars%3Aspace-calendars-view-content-type%22%2C%22page%22%2C%22blogpost%22%2C%22com.k15t.scroll.scroll-platform%3Ascroll-search-proxy-content-type%22)%20AND%20label%20in%20(%22needsarchive%22)&includeArchivedSpaces=false): wiki page does not belong, could be deleted | Also add a comment to the page which describes what needs updating specifically |
+| Be concise | Pages are read by people and by AI assistants. Cover the topic fully, then stop. Say a thing once, and prefer lists and tight prose over long paragraphs. AI assistants tend to over-write, so trim what they draft. | Full information, minimal words |
+| Long code or config goes in an attachment | More than roughly two dozen lines -- a whole properties file, a full GSH script, a complete provisioner config -- should be an attachment rather than a code macro. Keep the few lines that matter inline and describe what the rest does. Short snippets stay inline. | Attach the whole grouper-loader.properties, and show inline only the `provisioner.myProv.*` lines the page is explaining |
+| Describe every diagram and image in text | Pages are converted to markdown for AI assistants, and images do not survive that conversion. Every diagram and screenshot needs prose beside it carrying the same information: the boxes, the arrows, the order of the steps, the values shown. If the text alone does not convey the point, the page is unusable for an AI reader. This is in addition to attaching the diagram source (.svg, .drawio) next to the embedded image. | After a provisioning flow diagram, list the steps in order: Grouper loader reads the SQL source, the change log picks up the membership add, the provisioner writes to the target LDAP |
+| Label community contributions | If a page describes something an institution built on top of Grouper -- a GSH template, a script, a config pattern, a custom provisioner -- say so near the top of the page. It is not built-in Grouper functionality; it is a way to use the Grouper platform to accomplish a task. The adopting institution implements the configuration or code itself and is responsible for maintaining it. Use an info or note panel so it cannot be missed. | > This is a community contribution, not built-in Grouper functionality. It is a way to use the Grouper platform to accomplish a task. An institution adopting it implements the configuration or code itself and is responsible for maintaining it. |
 
 ## Grouper documentation rubric to determine if a wiki page needs to be updated
 
 - Adheres to style guide
+- Diagrams and screenshots are explained in text, and long code or config is attached rather than pasted inline
 - Is accurate to the advertised version
 - Are required privileges described
 - Identify which version this feature was introduced (or when it ended)

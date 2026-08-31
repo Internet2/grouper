@@ -2,8 +2,8 @@
 title: "How To Setup a Grouper Development Environment for Grouper v2.4"
 space: Grouper
 pageId: 48792949
-version: 43
-lastUpdated: 2026-07-12T06:45:56.149Z
+version: 44
+lastUpdated: 2026-07-19T00:32:48.147Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48792949/How+To+Setup+a+Grouper+Development+Environment+for+Grouper+v2.4
 ---
 
@@ -275,4 +275,4 @@ Grouper UI should be available at [http://localhost:8080/grouper](http://localho
 2. Start the server in debug mode
 3. Login and try to search in the Grouper UI
 
-Congrats! You now have a working Grouper development environment. Now go check out [Grouper developers coding standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards) and then pick up some [JIRAs](https://todos.internet2.edu/projects/GRP/issues/)!
+Congrats! You now have a working Grouper development environment. Now go check out [Grouper developers coding standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards) and then pick up some [JIRAs](https://grouper.atlassian.net/projects/GRP/issues/)!

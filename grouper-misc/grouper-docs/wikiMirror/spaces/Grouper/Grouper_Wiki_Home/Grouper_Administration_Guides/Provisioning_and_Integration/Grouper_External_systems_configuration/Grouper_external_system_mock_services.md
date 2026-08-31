@@ -2,8 +2,8 @@
 title: "Grouper external system mock services"
 space: Grouper
 pageId: 28547497
-version: 15
-lastUpdated: 2026-07-01T05:46:38.494Z
+version: 16
+lastUpdated: 2026-07-19T00:32:30.780Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547497/Grouper+external+system+mock+services
 ---
 
@@ -194,7 +194,7 @@ Once created, you will then need to set two testing properties,
 
 ### Okta
 
-> Not working in v4.17.0 to v4.17.6 and v5.14.1 to v5.17.1 (JIRA [GRP-6063](https://todos.internet2.edu/browse/GRP-6063))
+> Not working in v4.17.0 to v4.17.6 and v5.14.1 to v5.17.1 (JIRA [GRP-6063](https://grouper.atlassian.net/browse/GRP-6063))
 
 Configure a Web service external system with the following properties:  
   

@@ -2,8 +2,8 @@
 title: "6-November-2024"
 space: GrIntDev
 pageId: 48793185
-version: 19
-lastUpdated: 2026-07-12T17:27:28.695Z
+version: 20
+lastUpdated: 2026-07-19T00:32:52.494Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793185/6-November-2024
 ---
 
@@ -88,7 +88,7 @@ Vivek
 - AI, Chris update the wiki [DDL in Grouper](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548570/DDL+in+Grouper) to reflect upgrade tasks work
 - Vivek will work on task reordering
 - Vivek and Chris will discuss
-- Chris worked on: [GRP-5796 improve upgrade tasks in grouper](https://todos.internet2.edu/browse/GRP-5796)
+- Chris worked on: [GRP-5796 improve upgrade tasks in grouper](https://grouper.atlassian.net/browse/GRP-5796)
 - Chris working on Adobe full cycle config
 
 Shilen
@@ -160,7 +160,7 @@ Chris
 - No need for SQL cache attribute in easy to query repository
 - Dependency table
 - Where Grouper calculates groups where attributes are dependent on one and other
-- Chris working on [GRP-5805](https://todos.internet2.edu/browse/GRP-5805)
+- Chris working on [GRP-5805](https://grouper.atlassian.net/browse/GRP-5805)
 
 - Adobe provisioner errors when provisionable users do not exist in target
 - Extra retry switch for each condition
@@ -181,65 +181,65 @@ Chad
 **Jiras**
 
 - [GRP-5807  
-  membership with user not exist is listed as ERR in provisioner](https://todos.internet2.edu/browse/GRP-5807)
+  membership with user not exist is listed as ERR in provisioner](https://grouper.atlassian.net/browse/GRP-5807)
 - [GRP-5806  
-  provisioning changes can log or have dupes](https://todos.internet2.edu/browse/GRP-5806)
+  provisioning changes can log or have dupes](https://grouper.atlassian.net/browse/GRP-5806)
 - [GRP-5805  
-  adobe provisioner errors when provisionable users do not exist in target](https://todos.internet2.edu/browse/GRP-5805)
+  adobe provisioner errors when provisionable users do not exist in target](https://grouper.atlassian.net/browse/GRP-5805)
 - [GRP-5804  
-  do not show anything that is encrypted in database on screen](https://todos.internet2.edu/browse/GRP-5804)
+  do not show anything that is encrypted in database on screen](https://grouper.atlassian.net/browse/GRP-5804)
 - [GRP-5803  
-  change text from WS (bearer token or basic authn) to Web service](https://todos.internet2.edu/browse/GRP-5803)
+  change text from WS (bearer token or basic authn) to Web service](https://grouper.atlassian.net/browse/GRP-5803)
 - [GRP-5802  
-  if there are disabled memberships, those should be removed when a composite is added](https://todos.internet2.edu/browse/GRP-5802)
+  if there are disabled memberships, those should be removed when a composite is added](https://grouper.atlassian.net/browse/GRP-5802)
 - [GRP-5801  
-  do a rule example that requires an expiration date](https://todos.internet2.edu/browse/GRP-5801)
+  do a rule example that requires an expiration date](https://grouper.atlassian.net/browse/GRP-5801)
 - [GRP-5800  
-  adjust content type and accept for scim provisioner](https://todos.internet2.edu/browse/GRP-5800)
+  adjust content type and accept for scim provisioner](https://grouper.atlassian.net/browse/GRP-5800)
 - [GRP-5799  
-  incremental object log can throw errors for object being null](https://todos.internet2.edu/browse/GRP-5799)
+  incremental object log can throw errors for object being null](https://grouper.atlassian.net/browse/GRP-5799)
 - [GRP-5798  
-  invalid provisioner throws error on group provisioning screen](https://todos.internet2.edu/browse/GRP-5798)
+  invalid provisioner throws error on group provisioning screen](https://grouper.atlassian.net/browse/GRP-5798)
 - [GRP-5797  
-  allow testing for oauth external system](https://todos.internet2.edu/browse/GRP-5797)
+  allow testing for oauth external system](https://grouper.atlassian.net/browse/GRP-5797)
 - [GRP-5796  
-  improve upgrade tasks in grouper](https://todos.internet2.edu/browse/GRP-5796)
+  improve upgrade tasks in grouper](https://grouper.atlassian.net/browse/GRP-5796)
 - [GRP-5795  
-  GrouperHttpClient should handle UTF bodies](https://todos.internet2.edu/browse/GRP-5795)
+  GrouperHttpClient should handle UTF bodies](https://grouper.atlassian.net/browse/GRP-5795)
 - [GRP-5794  
-  adobe provisioner](https://todos.internet2.edu/browse/GRP-5794)
+  adobe provisioner](https://grouper.atlassian.net/browse/GRP-5794)
 - [GRP-5793  
-  Visualization show rules relationships](https://todos.internet2.edu/browse/GRP-5793)
+  Visualization show rules relationships](https://grouper.atlassian.net/browse/GRP-5793)
 - [GRP-5792  
-  Recreate grouper_sql_cache_mship_hst table](https://todos.internet2.edu/browse/GRP-5792)
+  Recreate grouper_sql_cache_mship_hst table](https://grouper.atlassian.net/browse/GRP-5792)
 - [GRP-5791  
-  1password in scim does not send itemsPerPage in the last page of users](https://todos.internet2.edu/browse/GRP-5791)
+  1password in scim does not send itemsPerPage in the last page of users](https://grouper.atlassian.net/browse/GRP-5791)
 - [GRP-5790  
-  WS find groups with FIND_BY_EXACT_ATTRIBUTE only works with legacy attributes](https://todos.internet2.edu/browse/GRP-5790)
+  WS find groups with FIND_BY_EXACT_ATTRIBUTE only works with legacy attributes](https://grouper.atlassian.net/browse/GRP-5790)
 - [GRP-5789  
-  Javadoc and swagger reference FIND_BY_ATTRIBUTE, should be FIND_BY_EXACT_ATTRIBUTE](https://todos.internet2.edu/browse/GRP-5789)
+  Javadoc and swagger reference FIND_BY_ATTRIBUTE, should be FIND_BY_EXACT_ATTRIBUTE](https://grouper.atlassian.net/browse/GRP-5789)
 - [GRP-5788  
-  Swagger URLS contain zero-width characters and can't be used directly](https://todos.internet2.edu/browse/GRP-5788)
+  Swagger URLS contain zero-width characters and can't be used directly](https://grouper.atlassian.net/browse/GRP-5788)
 - [GRP-5787  
-  Notification job fail](https://todos.internet2.edu/browse/GRP-5787)
+  Notification job fail](https://grouper.atlassian.net/browse/GRP-5787)
 - [GRP-5786  
-  Sample config for Helm charts](https://todos.internet2.edu/browse/GRP-5786)
+  Sample config for Helm charts](https://grouper.atlassian.net/browse/GRP-5786)
 - [GRP-5785  
-  Visualization should include all the "cannot VIEW group rectangles" but only show a label as "no access to this group"](https://todos.internet2.edu/browse/GRP-5785)
+  Visualization should include all the "cannot VIEW group rectangles" but only show a label as "no access to this group"](https://grouper.atlassian.net/browse/GRP-5785)
 - [GRP-5784  
-  add test case for azure group display name with multiple caches and matching attributes](https://todos.internet2.edu/browse/GRP-5784)
+  add test case for azure group display name with multiple caches and matching attributes](https://grouper.atlassian.net/browse/GRP-5784)
 - [GRP-5783  
-  add select group by id to azure mock](https://todos.internet2.edu/browse/GRP-5783)
+  add select group by id to azure mock](https://grouper.atlassian.net/browse/GRP-5783)
 - [GRP-5782  
-  duo update user name is not working](https://todos.internet2.edu/browse/GRP-5782)
+  duo update user name is not working](https://grouper.atlassian.net/browse/GRP-5782)
 - [GRP-5781  
-  Convert grouper_sql_cache_mship.flattened_add_timestamp to microseconds from epoch](https://todos.internet2.edu/browse/GRP-5781)
+  Convert grouper_sql_cache_mship.flattened_add_timestamp to microseconds from epoch](https://grouper.atlassian.net/browse/GRP-5781)
 - [GRP-5778  
-  only query policy groups in provisioning if needed and directly, performance improvement](https://todos.internet2.edu/browse/GRP-5778)
+  only query policy groups in provisioning if needed and directly, performance improvement](https://grouper.atlassian.net/browse/GRP-5778)
 - [GRP-5777  
-  Group UI should hide (or support ) Import a list of Privileges when the group UI is in Privileges mode](https://todos.internet2.edu/browse/GRP-5777)
+  Group UI should hide (or support ) Import a list of Privileges when the group UI is in Privileges mode](https://grouper.atlassian.net/browse/GRP-5777)
 - [GRP-5776  
-  incremental user not in provisionable group in entity attribute](https://todos.internet2.edu/browse/GRP-5776)
+  incremental user not in provisionable group in entity attribute](https://grouper.atlassian.net/browse/GRP-5776)
 
 **Wiki pages updated in past two weeks**
 

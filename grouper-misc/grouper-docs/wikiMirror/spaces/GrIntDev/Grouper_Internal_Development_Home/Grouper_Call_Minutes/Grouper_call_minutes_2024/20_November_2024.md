@@ -2,8 +2,8 @@
 title: "20-November-2024"
 space: GrIntDev
 pageId: 48793199
-version: 11
-lastUpdated: 2026-07-12T17:27:29.655Z
+version: 12
+lastUpdated: 2026-07-19T00:32:53.572Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793199/20-November-2024
 ---
 
@@ -192,20 +192,20 @@ Administrivia
 Chris worked on several Jiras, inluding
 
 - [GRP-5834  
-  add change log events to data field changes](https://todos.internet2.edu/browse/GRP-5834)
+  add change log events to data field changes](https://grouper.atlassian.net/browse/GRP-5834)
 - [GRP-5836  
-  cannot delete jexl loaded population script setting](https://todos.internet2.edu/browse/GRP-5836)
+  cannot delete jexl loaded population script setting](https://grouper.atlassian.net/browse/GRP-5836)
 - [GRP-5831  
-  current ABAC only should return non-group](https://todos.internet2.edu/browse/GRP-5831)s
+  current ABAC only should return non-group](https://grouper.atlassian.net/browse/GRP-5831)s
 - [GRP-5811  
-  adobe throttles with two jsons in the body](https://todos.internet2.edu/browse/GRP-5811)
+  adobe throttles with two jsons in the body](https://grouper.atlassian.net/browse/GRP-5811)
 
 **Chad**
 
 - Client is waiting for Content Type for SCIM provisioner
-- Another customer is waiting for [GRP-5657](https://todos.internet2.edu/browse/GRP-5657)
+- Another customer is waiting for [GRP-5657](https://grouper.atlassian.net/browse/GRP-5657)
 
-- AI Chris will work on [GRP-5657](https://todos.internet2.edu/browse/GRP-5657)
+- AI Chris will work on [GRP-5657](https://grouper.atlassian.net/browse/GRP-5657)
 
 Can't delete group due to dependency on grouper_sync_dep_group_group
 
@@ -218,7 +218,7 @@ Chad working on data dictionary issue
 - Chris suggests not using “Group by”
 - AI Chris will look into issue from Tushar Walaskar, Weber State U around long query
 - Chris made a jira for this
-- [GRP-5838](https://todos.internet2.edu/browse/GRP-5838) long query for tushar with list of groups
+- [GRP-5838](https://grouper.atlassian.net/browse/GRP-5838) long query for tushar with list of groups
 - Chris will configure Tushar in COmanage so he can create Jiras
 
 ## **Issue Roundup**

@@ -2,8 +2,8 @@
 title: "Grouper entity data fields for ABAC"
 space: Grouper
 pageId: 28545275
-version: 57
-lastUpdated: 2026-07-12T05:33:56.288Z
+version: 58
+lastUpdated: 2026-07-19T05:02:25.601Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545275/Grouper+entity+data+fields+for+ABAC
 ---
 
@@ -81,6 +81,8 @@ A data provider is a set of queries that load data into Grouper in real time or 
 ### Configure data provider queries
 
 These select data from the target to populate Grouper with data field values. A single provider can have multiple queries. Each query has one provider.
+
+**Subject id column casing:** Grouper wraps your query and references the subject id column by name. On databases that fold unquoted identifiers (Postgres, Oracle), give the subject id column a plain unquoted alias so it folds to a consistent case (for example, `rspmail AS subjectId`). Do not give it a case-sensitive double-quoted mixed-case alias (for example, `rspmail AS "subjectId"`) or the wrapper query will not find the column and full sync fails with an error like `column "subjectid" does not exist`. This applies only to the subject id column (and, for change log queries, the timestamp column); other columns are returned via `select *` and matched case-insensitively, so they can be aliased however you like.
 
 ### Configure data provider real time query
 

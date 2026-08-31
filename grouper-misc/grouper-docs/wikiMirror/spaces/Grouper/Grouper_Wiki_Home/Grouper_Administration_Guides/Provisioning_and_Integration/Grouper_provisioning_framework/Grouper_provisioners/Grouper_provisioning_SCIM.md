@@ -2,8 +2,8 @@
 title: "Grouper provisioning SCIM"
 space: Grouper
 pageId: 28555423
-version: 44
-lastUpdated: 2026-07-12T15:27:13.151Z
+version: 45
+lastUpdated: 2026-07-19T00:32:44.340Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM
 ---
 
@@ -206,9 +206,9 @@ Try (e.g. curl): <scimUrl>/Groups/6789
 
 Priority 1: Retrieves groups when retrieving list of users. If this is the strategy then you should select all users at once.
 
-Priority 2: Retrieves groups when retrieving individual users. Do not select all users at once (until this is resolved: [GRP-6479](https://todos.internet2.edu/browse/GRP-6479))
+Priority 2: Retrieves groups when retrieving individual users. Do not select all users at once (until this is resolved: [GRP-6479](https://grouper.atlassian.net/browse/GRP-6479))
 
-Priority 3: Retrieves users when retrieving individual groups. Do not select all groups at once (until this is resolved: [GRP-6479](https://todos.internet2.edu/browse/GRP-6479))
+Priority 3: Retrieves users when retrieving individual groups. Do not select all groups at once (until this is resolved: [GRP-6479](https://grouper.atlassian.net/browse/GRP-6479))
 
 Priority 4: Retrieves users when retrieving list of groups. If this is the strategy then you should select all groups at once.
 

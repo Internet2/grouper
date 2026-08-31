@@ -2,8 +2,8 @@
 title: "23-October-2024"
 space: GrIntDev
 pageId: 48793216
-version: 7
-lastUpdated: 2026-07-12T17:02:49.961Z
+version: 8
+lastUpdated: 2026-07-19T00:32:54.774Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793216/23-October-2024
 ---
 
@@ -78,7 +78,7 @@ Shilen
 - Shilen changed it to check other stuff to be sure still in sync
 - After that it should be quicker
 - [GRP-5749  
-  SqlCacheFullSyncDaemon should verify flattened add timestamps](https://todos.internet2.edu/browse/GRP-5749)
+  SqlCacheFullSyncDaemon should verify flattened add timestamps](https://grouper.atlassian.net/browse/GRP-5749)
 - Got into rat hole because with the way using dates, using date type in database, does not keep track of timezone.
 - Noticed every time he ran it, it wanted to update 1000 memberships from 1st Sunday of Nov. There is an hour every day for folks on ET, 1:30am , when daylight savings time ends.
 - So Shilen made temporary adjustments.
@@ -138,11 +138,11 @@ Chris
 
 - Worked on JIRAS, including
 
-- - SCIM and paths [GRP-5771 scim is not updating name properties correctly](https://todos.internet2.edu/browse/GRP-5771)
-  - [GRP-5770 add a way to see what the provisioner will do exactly in readonly mode](https://todos.internet2.edu/browse/GRP-5770)
-  - [GRP-5767 add setting and global default to not run logic in full or incremental daemon](https://todos.internet2.edu/browse/GRP-5767)
+- - SCIM and paths [GRP-5771 scim is not updating name properties correctly](https://grouper.atlassian.net/browse/GRP-5771)
+  - [GRP-5770 add a way to see what the provisioner will do exactly in readonly mode](https://grouper.atlassian.net/browse/GRP-5770)
+  - [GRP-5767 add setting and global default to not run logic in full or incremental daemon](https://grouper.atlassian.net/browse/GRP-5767)
   - [GRP-5765  
-    allow provisioning objects logs count to be configurable](https://todos.internet2.edu/browse/GRP-5765)
+    allow provisioning objects logs count to be configurable](https://grouper.atlassian.net/browse/GRP-5765)
 
 Chad
 
@@ -161,7 +161,7 @@ Chad
 - Just need read on the group to access this graph
 - For audit logs you need admin
 - Chad also worked on
-- [https://todos.internet2.edu/browse/GRP-5657](https://todos.internet2.edu/browse/GRP-5657)
+- [https://grouper.atlassian.net/browse/GRP-5657](https://grouper.atlassian.net/browse/GRP-5657)
 - Can't delete group due to dependency on grouper_sync_dep_group_group
 - 
 - Chris Hyzer: Foreign keys with cascade delete makes sense
@@ -200,92 +200,92 @@ Bert
 **Jiras in past 2 weeks**
 
 - [GRP-5776  
-  incremental user not in provisionable group in entity attributes](https://todos.internet2.edu/browse/GRP-5776)
+  incremental user not in provisionable group in entity attributes](https://grouper.atlassian.net/browse/GRP-5776)
 - 
 - [GRP-5773  
-  add primary key to grouper_prov_scim_user_attr for mysql](https://todos.internet2.edu/browse/GRP-5773)
+  add primary key to grouper_prov_scim_user_attr for mysql](https://grouper.atlassian.net/browse/GRP-5773)
 - [GRP-5772  
-  if there is a provisioning sub option set, and the parent is hid, then errors are displayed](https://todos.internet2.edu/browse/GRP-5772)
+  if there is a provisioning sub option set, and the parent is hid, then errors are displayed](https://grouper.atlassian.net/browse/GRP-5772)
 - [GRP-5771  
-  scim is not updating name properties correctly](https://todos.internet2.edu/browse/GRP-5771)
+  scim is not updating name properties correctly](https://grouper.atlassian.net/browse/GRP-5771)
 - [GRP-5770  
-  add a way to see what the provisioner will do exactly in readonly mode](https://todos.internet2.edu/browse/GRP-5770)
+  add a way to see what the provisioner will do exactly in readonly mode](https://grouper.atlassian.net/browse/GRP-5770)
 - [GRP-5769  
-  Provisioning: SQL Provisioning and IdIndex](https://todos.internet2.edu/browse/GRP-5769)
+  Provisioning: SQL Provisioning and IdIndex](https://grouper.atlassian.net/browse/GRP-5769)
 - [GRP-5768  
-  Provisioning: LoaderLog Summary: Error without details nor jobid](https://todos.internet2.edu/browse/GRP-5768)
+  Provisioning: LoaderLog Summary: Error without details nor jobid](https://grouper.atlassian.net/browse/GRP-5768)
 - [GRP-5767  
-  add setting and global default to not run logic in full or incremental daemon](https://todos.internet2.edu/browse/GRP-5767)
+  add setting and global default to not run logic in full or incremental daemon](https://grouper.atlassian.net/browse/GRP-5767)
 - [GRP-5766  
-  global provisioning readonly setting to default all provisioners to readonly](https://todos.internet2.edu/browse/GRP-5766)
+  global provisioning readonly setting to default all provisioners to readonly](https://grouper.atlassian.net/browse/GRP-5766)
 - [GRP-5765  
-  allow provisioning objects logs count to be configurable](https://todos.internet2.edu/browse/GRP-5765)
+  allow provisioning objects logs count to be configurable](https://grouper.atlassian.net/browse/GRP-5765)
 - [GRP-5764  
-  provisioning messages should add to daemon screen total count (in addition to change log count)](https://todos.internet2.edu/browse/GRP-5764)
+  provisioning messages should add to daemon screen total count (in addition to change log count)](https://grouper.atlassian.net/browse/GRP-5764)
 - [GRP-5763  
-  provisioning debug logs should filter memberships based on group/entity filters](https://todos.internet2.edu/browse/GRP-5763)
+  provisioning debug logs should filter memberships based on group/entity filters](https://grouper.atlassian.net/browse/GRP-5763)
 - [GRP-5762  
-  provisioning debug logs should filter on sync objects](https://todos.internet2.edu/browse/GRP-5762)
+  provisioning debug logs should filter on sync objects](https://grouper.atlassian.net/browse/GRP-5762)
 - [GRP-5761  
-  match provisioning debug log filter based on type of attribute](https://todos.internet2.edu/browse/GRP-5761)
+  match provisioning debug log filter based on type of attribute](https://grouper.atlassian.net/browse/GRP-5761)
 - [GRP-5760  
-  allow provisioning debug log to input attributes to focus on (in addition to value)](https://todos.internet2.edu/browse/GRP-5760)
+  allow provisioning debug log to input attributes to focus on (in addition to value)](https://grouper.atlassian.net/browse/GRP-5760)
 - [GRP-5759  
-  log inserts of groups and entities also at bottom of object logs](https://todos.internet2.edu/browse/GRP-5759)
+  log inserts of groups and entities also at bottom of object logs](https://grouper.atlassian.net/browse/GRP-5759)
 - [GRP-5758  
-  add report numbers for crud operations in compare section of object logs](https://todos.internet2.edu/browse/GRP-5758)
+  add report numbers for crud operations in compare section of object logs](https://grouper.atlassian.net/browse/GRP-5758)
 - [GRP-5757  
-  rename provisioning debug label provisioningMshipsToDelete to provisioningMshipsInTargetNotGrouper](https://todos.internet2.edu/browse/GRP-5757)
+  rename provisioning debug label provisioningMshipsToDelete to provisioningMshipsInTargetNotGrouper](https://grouper.atlassian.net/browse/GRP-5757)
 - [GRP-5756  
-  provisioner setting "Remove accented characters" should also massage smart quotes to normal single or double quote](https://todos.internet2.edu/browse/GRP-5756)
+  provisioner setting "Remove accented characters" should also massage smart quotes to normal single or double quote](https://grouper.atlassian.net/browse/GRP-5756)
 - [GRP-5755  
-  azure provisioning error when dealing with owners](https://todos.internet2.edu/browse/GRP-5755)
+  azure provisioning error when dealing with owners](https://grouper.atlassian.net/browse/GRP-5755)
 - [GRP-5754  
-  provisioning metadata of type "set" does not translate correctly](https://todos.internet2.edu/browse/GRP-5754)
+  provisioning metadata of type "set" does not translate correctly](https://grouper.atlassian.net/browse/GRP-5754)
 - [GRP-5753  
-  entity attributes provisioning is authoritative when it should not be](https://todos.internet2.edu/browse/GRP-5753)
+  entity attributes provisioning is authoritative when it should not be](https://grouper.atlassian.net/browse/GRP-5753)
 - [GRP-5752  
-  refactor entity attributes provisioning](https://todos.internet2.edu/browse/GRP-5752)
+  refactor entity attributes provisioning](https://grouper.atlassian.net/browse/GRP-5752)
 - [GRP-5751  
-  entity attribute provisioner full run will delete and add memberships flapping back and forth](https://todos.internet2.edu/browse/GRP-5751)
+  entity attribute provisioner full run will delete and add memberships flapping back and forth](https://grouper.atlassian.net/browse/GRP-5751)
 - [GRP-5749  
-  SqlCacheFullSyncDaemon should verify flattened add timestamps](https://todos.internet2.edu/browse/GRP-5749)
+  SqlCacheFullSyncDaemon should verify flattened add timestamps](https://grouper.atlassian.net/browse/GRP-5749)
 - [GRP-5748  
-  allow un-attested groups to be disabled](https://todos.internet2.edu/browse/GRP-5748)
+  allow un-attested groups to be disabled](https://grouper.atlassian.net/browse/GRP-5748)
 - [GRP-5747  
-  upgrade libraries for security](https://todos.internet2.edu/browse/GRP-5747)
+  upgrade libraries for security](https://grouper.atlassian.net/browse/GRP-5747)
 - [GRP-5746  
-  upgrade tomcat](https://todos.internet2.edu/browse/GRP-5746)
+  upgrade tomcat](https://grouper.atlassian.net/browse/GRP-5746)
 - [GRP-5745  
-  edit incremental sql ddl upgrades and files and remove things that are in upgrade steps](https://todos.internet2.edu/browse/GRP-5745)
+  edit incremental sql ddl upgrades and files and remove things that are in upgrade steps](https://grouper.atlassian.net/browse/GRP-5745)
 - [GRP-5744  
-  add "days before to email" for attestation. default to a global config which defaults to 0](https://todos.internet2.edu/browse/GRP-5744)
+  add "days before to email" for attestation. default to a global config which defaults to 0](https://grouper.atlassian.net/browse/GRP-5744)
 - [GRP-5743  
-  allow jexl abac to use assignment instead of comparison (one equals sign)](https://todos.internet2.edu/browse/GRP-5743)
+  allow jexl abac to use assignment instead of comparison (one equals sign)](https://grouper.atlassian.net/browse/GRP-5743)
 - [GRP-5742  
-  data provider should resolve subjects in bulk](https://todos.internet2.edu/browse/GRP-5742)
+  data provider should resolve subjects in bulk](https://grouper.atlassian.net/browse/GRP-5742)
 - [GRP-5741  
-  Can't unset scripted jexl - only option is Analyze and Cancel](https://todos.internet2.edu/browse/GRP-5741)
+  Can't unset scripted jexl - only option is Analyze and Cancel](https://grouper.atlassian.net/browse/GRP-5741)
 - [GRP-5740  
-  Run SqlCacheFullSyncDaemon for an extra hour to process groups without recent changes](https://todos.internet2.edu/browse/GRP-5740)
+  Run SqlCacheFullSyncDaemon for an extra hour to process groups without recent changes](https://grouper.atlassian.net/browse/GRP-5740)
 - [GRP-5739  
-  scripted group not filtering when set to only include "institution defined subject sources"](https://todos.internet2.edu/browse/GRP-5739)
+  scripted group not filtering when set to only include "institution defined subject sources"](https://grouper.atlassian.net/browse/GRP-5739)
 - [GRP-5738  
-  Online Betting: A Deep Dive into the Digital Gambling Revolution](https://todos.internet2.edu/browse/GRP-5738)
+  Online Betting: A Deep Dive into the Digital Gambling Revolution](https://grouper.atlassian.net/browse/GRP-5738)
 - [GRP-5737  
-  Remove old sqlCacheGroup attributes (sqlCacheableGroupMarkerDef and sqlCacheableGroupDef)](https://todos.internet2.edu/browse/GRP-5737)
+  Remove old sqlCacheGroup attributes (sqlCacheableGroupMarkerDef and sqlCacheableGroupDef)](https://grouper.atlassian.net/browse/GRP-5737)
 - [GRP-5736  
-  do not allow duplicate object changes in provisioning](https://todos.internet2.edu/browse/GRP-5736)
+  do not allow duplicate object changes in provisioning](https://grouper.atlassian.net/browse/GRP-5736)
 - [GRP-5735  
-  update bouncecastle and remove duplicates](https://todos.internet2.edu/browse/GRP-5735)
+  update bouncecastle and remove duplicates](https://grouper.atlassian.net/browse/GRP-5735)
 - [GRP-5734  
-  entity attribute provisioner with new provisionable group does not create member and membership sync objects in incremental run for existing memberships](https://todos.internet2.edu/browse/GRP-5734)
+  entity attribute provisioner with new provisionable group does not create member and membership sync objects in incremental run for existing memberships](https://grouper.atlassian.net/browse/GRP-5734)
 - [GRP-5733  
-  entity attributes deleteValueIfManagedByGrouper does not delete if attribute not assigned to anything in grouper (empty group)](https://todos.internet2.edu/browse/GRP-5733)
+  entity attributes deleteValueIfManagedByGrouper does not delete if attribute not assigned to anything in grouper (empty group)](https://grouper.atlassian.net/browse/GRP-5733)
 - [GRP-5732  
-  Scripted loader syntax error sometimes redirects to "Click here to start over." page](https://todos.internet2.edu/browse/GRP-5732)
+  Scripted loader syntax error sometimes redirects to "Click here to start over." page](https://grouper.atlassian.net/browse/GRP-5732)
 - [GRP-5731  
-  Date picker format is mm/dd/yyyy which is rejecte](https://todos.internet2.edu/browse/GRP-5731)
+  Date picker format is mm/dd/yyyy which is rejecte](https://grouper.atlassian.net/browse/GRP-5731)
 
 **Wiki Updates**
 
