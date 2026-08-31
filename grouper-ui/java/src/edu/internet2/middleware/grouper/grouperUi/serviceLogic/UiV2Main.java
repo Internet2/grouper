@@ -644,6 +644,7 @@ public class UiV2Main extends UiServiceLogicBase {
   public static void initRecentlyUsed() {
         
     final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperCallable<Boolean> callable = new GrouperCallable<Boolean>(
         "GrouperUi.UiV2Main.initRecentlyUsed()") {
@@ -676,7 +677,8 @@ public class UiV2Main extends UiServiceLogicBase {
         GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
 
         indexContainer.setGuiGroupsRecentlyUsedAbbreviated(
-            GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5));
+            GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5,
+                loggedInSubject));
 
         Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
         
@@ -722,6 +724,7 @@ public class UiV2Main extends UiServiceLogicBase {
   public static void initGroupsImanage() {
     
     final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperCallable<Void> callable = new GrouperCallable<Void>(
         "GrouperUi.UiV2Main.initGroupsImanage()") {
@@ -743,7 +746,8 @@ public class UiV2Main extends UiServiceLogicBase {
 
         GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(theGroups);
 
-        indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(theGroups));
+        indexContainer.setGuiGroupsUserManagesAbbreviated(
+            GuiGroup.convertFromGroups(theGroups, loggedInSubject));
         indexContainer.setGroupsImanageRetrieved(true);
         return null;
       }
@@ -1742,6 +1746,7 @@ public class UiV2Main extends UiServiceLogicBase {
   public static void initMyFavorites() {
     
     final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperCallable<Void> callable = new GrouperCallable<Void>(
         "GrouperUi.UiV2Main.initMyFavorites()") {
@@ -1775,7 +1780,8 @@ public class UiV2Main extends UiServiceLogicBase {
         GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
 
         indexContainer.setGuiGroupsMyFavoritesAbbreviated(
-            GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5));
+            GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5,
+                loggedInSubject));
 
         Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
         
@@ -1822,6 +1828,7 @@ public class UiV2Main extends UiServiceLogicBase {
   public static void initMyMemberships() {
     
     final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperCallable<Void> callable = new GrouperCallable<Void>(
         "GrouperUi.UiV2Main.initMyMemberships()") {
@@ -1836,8 +1843,10 @@ public class UiV2Main extends UiServiceLogicBase {
           }
         }
 
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+
         Set<Group> groups = new GroupFinder()
-            .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+            .assignSubject(grouperSession.getSubject())
             .assignField(Group.getDefaultList())
             .assignPrivileges(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
             .assignQueryOptions(new QueryOptions().paging(
@@ -1845,7 +1854,8 @@ public class UiV2Main extends UiServiceLogicBase {
     
         GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
 
-        indexContainer.setGuiGroupsMyMembershipsAbbreviated(GuiGroup.convertFromGroups(groups));
+        indexContainer.setGuiGroupsMyMembershipsAbbreviated(
+            GuiGroup.convertFromGroups(groups, loggedInSubject));
 
         indexContainer.setMyMembershipsRetrieved(true);
         return null;
