@@ -8,7 +8,11 @@
     <input type="hidden" name="groupRefreshPart" value="summary" /> 
   </form> 
   
-  <div id="groupDetailsId">
+  <%-- id was "groupDetailsId" which collided with the header details div of the
+       same name (groupHeader.jsp); the header keeps the canonical id since its
+       show/hide JS targets it, so the summary copy is renamed to be unique
+       (GRP a11y item 14 - no duplicate ids / aria-controls must resolve to one) --%>
+  <div id="groupSummaryDetailsId">
     <table class="table table-condensed" id="groupDetailsTableId">
       <tbody>
         <!-- colspan across for next title -->
@@ -146,8 +150,14 @@
           </c:if>
         </c:if>
         <!-- PROVISIONING -->
+        <%-- id was "groupMoreActionsProvisioningButtonId" which collided with the
+             identically-named link in the more-actions menu (groupMoreActionsButtonContents.jsp).
+             The menu item keeps the canonical id because the provisioning browser tests
+             (GrouperUiBrowserProvisioningAssignGroup/RemoveGroup) open the more-actions
+             menu and click it by that id; this summary-row link is unreferenced, so it
+             is renamed to be unique (GRP a11y item 14). --%>
         <tr style="display: none" id="groupConfigurationProvisioningRowId">
-          <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+          <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupSummaryProvisioningLinkId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                           >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></strong></td>
           <td style="padding-left: 0px;" id="groupProvisioningSummaryCellId">
 
