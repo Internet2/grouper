@@ -102,15 +102,20 @@ public class GrouperFailsafe {
   /**
    * assign an failure to this job
    * @param jobName
+   * @return true if this run is the one that transitioned the job into the failsafe state, false if the
+   * job was already in the failsafe state before this run.  Since last_failsafe_issue_started is only set
+   * when it is null (and is cleared by assignSuccess and removeFailure), this is true exactly once per
+   * failsafe episode even across multiple daemon nodes.  Callers use this to notify only on the transition.
    */
-  public static void assignFailed(String jobName) {
+  public static boolean assignFailed(String jobName) {
     insertRow(jobName);
     long now = System.currentTimeMillis();
-    new GcDbAccess().sql("update grouper_failsafe set last_failsafe_issue_started = ?, last_updated = ? where name = ? and last_failsafe_issue_started is null")
+    int rowsFailsafeIssueStarted = new GcDbAccess().sql("update grouper_failsafe set last_failsafe_issue_started = ?, last_updated = ? where name = ? and last_failsafe_issue_started is null")
       .addBindVar(now).addBindVar(now).addBindVar(jobName).executeSql();
     new GcDbAccess().sql("update grouper_failsafe set last_run = ?, last_failsafe_issue = ?, "
         + "last_updated = ? where name = ?").addBindVar(now).addBindVar(now).addBindVar(now).addBindVar(jobName).executeSql();
     
+    return rowsFailsafeIssueStarted > 0;
   }
 
   /**
