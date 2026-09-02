@@ -142,7 +142,7 @@ public class GrouperUiBrowserGroupEdit
    */
   public GrouperUiBrowserGroupEdit browse() {
     this.getGrouperPage().navigateToGroup(groupToEditName);
-    this.getGrouperPage().getPage().locator("#more-action-button").click();
+    this.getGrouperPage().getPage().locator("#group-more-action-button").click();
     GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
 
     // No ajax here so must sleep

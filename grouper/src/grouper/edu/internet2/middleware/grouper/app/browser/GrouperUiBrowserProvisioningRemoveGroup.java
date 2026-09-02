@@ -94,7 +94,7 @@ public class GrouperUiBrowserProvisioningRemoveGroup extends GrouperUiBrowser {
    */
   public GrouperUiBrowserProvisioningRemoveGroup browse() {
     this.getGrouperPage().navigateToGroup(groupToRemoveName);
-    this.getGrouperPage().getPage().locator("#more-action-button").click();
+    this.getGrouperPage().getPage().locator("#group-more-action-button").click();
     this.getGrouperPage().getPage().locator("#groupMoreActionsProvisioningButtonId").click();
     this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");
     this.getGrouperPage().getPage().locator("#actions_" + provisionerName + "_id").click();

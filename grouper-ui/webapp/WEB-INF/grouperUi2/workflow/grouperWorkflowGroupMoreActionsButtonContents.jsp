@@ -2,7 +2,7 @@
 
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGrouperWorkflowActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGrouperWorkflowActions']}" id="grouper-workflow-more-action-button" aria-controls="grouper-workflow-more-options" class="btn btn-medium btn-block dropdown-toggle" 
                         aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#grouper-workflow-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#grouper-workflow-more-options li').first().focus();return true;});">
                           ${textContainer.text['grouperWorkflowMoreActionsButton'] } <span class="caret"></span></a>
 

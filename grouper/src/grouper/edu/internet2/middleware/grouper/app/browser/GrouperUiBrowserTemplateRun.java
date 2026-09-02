@@ -223,7 +223,7 @@ public class GrouperUiBrowserTemplateRun extends GrouperUiBrowser {
       }
       else if (groupToExecuteInName != null) {
         this.getGrouperPage().navigateToGroup(groupToExecuteInName);
-        this.getGrouperPage().getPage().locator("#more-action-button").click();
+        this.getGrouperPage().getPage().locator("#group-more-action-button").click();
         GrouperUtil.sleep(200);
         GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#groupMoreActionsRunTemplateButton").click();
