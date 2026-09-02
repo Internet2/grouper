@@ -16,15 +16,19 @@
     <table class="table table-condensed" id="groupDetailsTableId">
       <tbody>
         <!-- colspan across for next title -->
+        <%-- GRP a11y item 15: the two section headings under the group h1 (this one and
+             "Fields" below) were h3, skipping h2 in the document outline. Promoted to h2 so
+             heading levels increase by one step. The visible size comes from the inner
+             p.lead, so the level change is style-neutral. --%>
         <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" />
-        <h3 style="margin-bottom: 0px; padding-bottom: 0px"><p class="lead" style="margin-bottom: 0px; padding-bottom: 0px">${textContainer.text['groupSummaryDecription'] }
+        <h2 style="margin-bottom: 0px; padding-bottom: 0px"><p class="lead" style="margin-bottom: 0px; padding-bottom: 0px">${textContainer.text['groupSummaryDecription'] }
           <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canRead or grouperRequestContainer.groupContainer.guiGroup.canUpdate}">
             &nbsp;
             <span id="groupSummaryMoreId" style="font-size: 0.65em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
                onclick="$('#groupSummaryMoreId').hide('slow'); ajax('../app/UiV2Group.viewGroupSummaryMore?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
           </c:if>
-        </p></h3>
+        </p></h2>
         
         <span style="font-size: 0.8em">${textContainer.text['guiGroupSummaryDisclaimer']}</span>
         
@@ -228,8 +232,8 @@
           </td>
         </tr>
         <!-- colspan across for next title -->
-        <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" /><h3><p 
-          class="lead">${textContainer.text['groupSummaryFields'] }</p></h3><p style="display: block; margin-top: 0;" /></td></tr>
+        <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" /><h2><p
+          class="lead">${textContainer.text['groupSummaryFields'] }</p></h2><p style="display: block; margin-top: 0;" /></td></tr>
         <tr>
           <td style="vertical-align: top;"><strong><grouper:message key="groupLabelName" /></strong></td>
           <td style="padding-left: 0px;">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</td>
