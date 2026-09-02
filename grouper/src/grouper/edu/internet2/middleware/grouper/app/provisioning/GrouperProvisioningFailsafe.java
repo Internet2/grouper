@@ -49,6 +49,20 @@ public class GrouperProvisioningFailsafe {
   private int groupsEvaluatedForPercentRemove = 0;
 
   /**
+   * GRP-7071: record the failsafe failure and send the notification email only if this run is the one
+   * that put the job into the failsafe state.  While the failsafe stays tripped every subsequent run
+   * would otherwise send another email (an incremental provisioner runs every minute), so admins got a
+   * stream of duplicate notifications until the failsafe was approved.  One email per failsafe episode:
+   * approving the failsafe or a successful run clears the state and re-arms the notification.
+   */
+  private void notifyEmailIfNewFailsafeIssue() {
+    boolean newFailsafeIssue = GrouperFailsafe.assignFailed(this.grouperFailsafeBean.getJobName());
+    if (newFailsafeIssue) {
+      this.grouperFailsafeBean.notifyEmailAboutFailsafe();
+    }
+  }
+
+  /**
    * see if there is a failsafe issue and throw a failsafe error
    */
   public void processFailsafes() {
@@ -175,8 +189,7 @@ public class GrouperProvisioningFailsafe {
         writeFailsafeSummaryTripped("minManagedGroups", detail);
         LOG.info("Failsafe TRIPPED minManagedGroups for job '" + this.grouperFailsafeBean.getJobName() + "': " + detail);
         this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
-        GrouperFailsafe.assignFailed(this.grouperFailsafeBean.getJobName());
-        this.grouperFailsafeBean.notifyEmailAboutFailsafe();
+        notifyEmailIfNewFailsafeIssue();
         throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Can't clear out "
             + groupUuidsToDelete.size() + " groups (totalManagedGroupsWithMembersCount: "
             + this.groupCountWithMembers + ")"
@@ -209,9 +222,15 @@ public class GrouperProvisioningFailsafe {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
       for (String theJobName : GrouperUtil.nonNull(this.getGrouperProvisioner().getJobNames())) {
         if (!GrouperFailsafe.isApproved(theJobName) && GrouperFailsafe.isFailsafeIssue(theJobName)) {
-          this.grouperFailsafeBean.setJobName(theJobName);
-          this.grouperFailsafeBean.notifyEmailAboutFailsafe();
-          throw new RuntimeException("Failsafe error from '" + theJobName + "' prevents the incremental from running");
+          // GRP-7071: do not email here.  This is pre-existing failsafe state from another job, not a new
+          // failsafe issue, and this runs on every incremental (often every minute), so emailing here sent
+          // a duplicate notification per run.  The job that actually tripped the failsafe already notified.
+          // This matches the loader incremental job, which only logs when the full sync has a failsafe issue.
+          String message = "Failsafe error from '" + theJobName + "' prevents the incremental from running."
+              + "  Approve the failsafe or fix the data issue and run the full sync.";
+          LOG.warn(message);
+          this.getGrouperProvisioner().getDebugMap().put("failsafe", "blocked by unapproved failsafe issue on '" + theJobName + "'");
+          throw new RuntimeException(message);
         }
       }
     }
@@ -377,8 +396,7 @@ public class GrouperProvisioningFailsafe {
             writeFailsafeSummaryTripped("maxGroupPercentRemove", detail);
             LOG.info("Failsafe TRIPPED maxGroupPercentRemove for job '" + this.grouperFailsafeBean.getJobName() + "': " + detail);
             this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
-            GrouperFailsafe.assignFailed(this.grouperFailsafeBean.getJobName());
-            this.grouperFailsafeBean.notifyEmailAboutFailsafe();
+            notifyEmailIfNewFailsafeIssue();
             // TODO consider inserts?
             throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Failsafe error on group: '"
             + groupName
@@ -409,8 +427,7 @@ public class GrouperProvisioningFailsafe {
         writeFailsafeSummaryTripped("minOverallNumberOfMembers", detail);
         LOG.info("Failsafe TRIPPED minOverallNumberOfMembers for job '" + this.grouperFailsafeBean.getJobName() + "': " + detail);
         this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
-        GrouperFailsafe.assignFailed(this.grouperFailsafeBean.getJobName());
-        this.grouperFailsafeBean.notifyEmailAboutFailsafe();
+        notifyEmailIfNewFailsafeIssue();
         throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Failsafe error current mship count: " + this.overallMemberships + ", assumed deletions: " + membershipDeletes + ", assumedInserts: " + membershipAdds
             + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
       }
