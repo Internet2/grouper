@@ -11,8 +11,17 @@
 
                     </c:if>
                     <div class="btn-group btn-block">
-                    
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+
+                    <%-- a11y GRP-7301 (accessibility item 16): this trigger id was the shared
+                         literal "more-action-button", reused by every *MoreActionsButtonContents.jsp.
+                         This group menu is included from groupHeader.jsp, so on every group
+                         SUB-screen (rules, loader, attestation, object types, workflow, report,
+                         deprovisioning, provisioning membership) it co-rendered with that
+                         sub-screen's own "more-action-button" - a live duplicate id. Each menu
+                         trigger now takes a unique id mirroring its already-unique <ul>, and
+                         aria-controls names that <ul>. Keep role="button" (this is an <a>, not a
+                         native button). The five *Browser* tests were retargeted to this id. --%>
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupActions']}" id="group-more-action-button" aria-controls="group-more-options" class="btn btn-medium btn-block dropdown-toggle"
                       	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#group-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-more-options li').first().focus();return true;});">
                       		${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
   

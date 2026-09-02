@@ -3,7 +3,7 @@
 
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOverallAttestationActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOverallAttestationActions']}" id="overall-attestation-more-action-button" aria-controls="overall-attestation-more-options" class="btn btn-medium btn-block dropdown-toggle" 
                         aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#overall-attestation-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#overall-attestation-more-options li').first().focus();return true;});">
                           ${textContainer.text['stemAttestationViewMoreActionsButton'] } <span class="caret"></span></a>
   

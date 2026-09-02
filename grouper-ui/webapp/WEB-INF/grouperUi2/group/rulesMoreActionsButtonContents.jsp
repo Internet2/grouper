@@ -2,7 +2,7 @@
 
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreRulesActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreRulesActions']}" id="rules-more-action-button" aria-controls="rules-more-options" class="btn btn-medium btn-block dropdown-toggle" 
                         aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#rules-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#rules-more-options li').first().focus();return true;});">
                           ${textContainer.text['rulesMoreActionsButton'] } <span class="caret"></span></a>
 

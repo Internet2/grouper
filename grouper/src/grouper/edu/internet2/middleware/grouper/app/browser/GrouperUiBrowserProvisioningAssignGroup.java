@@ -95,7 +95,7 @@ public class GrouperUiBrowserProvisioningAssignGroup extends GrouperUiBrowser {
    */
   public GrouperUiBrowserProvisioningAssignGroup browse() {
     this.getGrouperPage().navigateToGroup(groupToAssignName);
-    this.getGrouperPage().getPage().locator("#more-action-button").click();
+    this.getGrouperPage().getPage().locator("#group-more-action-button").click();
 
     this.getGrouperPage().getPage().locator("#groupMoreActionsProvisioningButtonId").click();
     this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");

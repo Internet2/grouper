@@ -4,7 +4,7 @@
 
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupAttestationActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupAttestationActions']}" id="group-attestation-more-action-button" aria-controls="group-attestation-more-options" class="btn btn-medium btn-block dropdown-toggle" 
                         aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#group-attestation-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-attestation-more-options li').first().focus();return true;});">
                           ${textContainer.text['groupAttestationViewMoreActionsButton'] } <span class="caret"></span></a>
   

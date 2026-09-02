@@ -75,7 +75,7 @@ public class GrouperUiBrowserGroupDelete
    */
   public GrouperUiBrowserGroupDelete browse() {
     this.getGrouperPage().navigateToGroup(groupToDeleteName); 
-    this.getGrouperPage().getPage().locator("#more-action-button").click();
+    this.getGrouperPage().getPage().locator("#group-more-action-button").click();
     GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     GrouperUtil.sleep(500);
     this.getGrouperPage().getPage().locator("#groupActionsGroupDeleteButton").click();
