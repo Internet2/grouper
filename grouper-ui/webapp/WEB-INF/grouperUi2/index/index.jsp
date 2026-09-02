@@ -52,8 +52,12 @@
             <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="?operation=UiV2Group.newGroup"
               onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
               class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
-              <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle" 
-              	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#main-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#main-more-options li').first().focus();return true;});">
+              <%-- disclosure/menu trigger (GRP a11y item 3): native button already
+                   provides the button role and Enter/Space/click, so the explicit
+                   role="button" was redundant and is removed. aria-controls points at
+                   the menu it opens so the relationship is exposed to assistive tech. --%>
+              <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle"
+              	aria-haspopup="true" aria-expanded="false" aria-controls="main-more-options" onclick="$('#main-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#main-more-options li').first().focus();return true;});">
               	<span class="caret"></span>
                 <span class="visually-hidden">${textContainer.text['ariaLabelGuiMoreOptions']}</span>
             </button>
@@ -68,7 +72,11 @@
               </ul>
             </div>
             <div class="leftnav-accordions">
-              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first" aria-expanded="true" role="button" ariahaspopup="true" 
+              <%-- collapse disclosure trigger (GRP a11y item 3): removed the redundant
+                   role="button" (native button already has it) and the malformed
+                   "ariahaspopup" attribute - a collapse is a disclosure, not a menu, so it
+                   has no popup. aria-controls names the region it shows/hides (#demo2). --%>
+              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first" aria-expanded="true" aria-controls="demo2"
               	onclick="$('#demo2').hasClass('in') ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded','true');">
               	${textContainer.text['indexQuickLinksLabel']}
               	<i class="fa fa-plus"></i><i class="fa fa-minus"></i>
