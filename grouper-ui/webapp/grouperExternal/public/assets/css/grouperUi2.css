@@ -663,3 +663,51 @@ a:focus {
 .grouper-copy-btn:focus {
   color: #23527c;
 }
+
+/* GRP-7302 accessibility: two shared non-text-contrast fixes overriding bootstrap.css.
+   grouperUi2.css loads after bootstrap.css (see commonHead.jsp) so these win. */
+
+/* Item 7 - form field boundary contrast (SC 1.4.11 requires 3:1 for UI component
+   boundaries). Bootstrap gives inputs/textareas/selects a 1px solid #cccccc border,
+   which is ~1.61:1 on white and fails. Darken the resting boundary to #767676
+   (~4.54:1). The type-selector list mirrors bootstrap's own so this matches its
+   specificity and wins on order; .form-control and select are covered too. The
+   :focus border (bootstrap's blue) is left alone - this is only the resting state. */
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+textarea,
+select,
+.form-control,
+.uneditable-input {
+  border-color: #767676;
+}
+
+/* Item 2 - authored focus indicator contrast (SC 2.4.11 Focus Appearance, 1.4.11).
+   Bootstrap's link focus is a thin dotted #333 outline, which is ~1.78:1 on the teal
+   #1c6070 breadcrumb bar - effectively invisible there. Replace it with a robust
+   focus-visible indicator that clears 3:1 on ANY background: a teal outline for light
+   backgrounds plus a white+teal double ring (box-shadow) whose white layer shows on the
+   teal bar (white-on-teal and teal-on-white are each ~7.1:1). :focus-visible keeps the
+   ring off mouse clicks. The outline is retained so Windows High Contrast Mode, which
+   ignores box-shadow, still shows an indicator. The skip link keeps its own (more
+   specific) focus rule; this does not touch it. */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #1c6070;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1c6070;
+}
