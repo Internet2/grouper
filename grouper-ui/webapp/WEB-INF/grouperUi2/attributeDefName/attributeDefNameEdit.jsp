@@ -68,8 +68,8 @@ ${grouper:titleFromKeyAndText('attributeDefNameEditTitle', grouperRequestContain
                   </div>
                  
                   <div class="form-actions">
-                    <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</a> 
-                    <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</a>
+                    <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefName.attributeDefNameEditSubmit', {formIds: 'editAttributeDefNameForm'}); return false;">${textContainer.text['attributeDefNameEditSaveButton'] }</button> 
+                    <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</button>
                   </div>
                 </form>
               </div>

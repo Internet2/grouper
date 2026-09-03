@@ -79,7 +79,7 @@
               </div>
           </div>
           
-          <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectPermission.assignSubjectPermissionSubmit', {formIds: 'assignPermissionSubjectForm'}); return false;">${textContainer.text['subjectAssignPermissionSaveButton'] }</a> 
+          <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectPermission.assignSubjectPermissionSubmit', {formIds: 'assignPermissionSubjectForm'}); return false;">${textContainer.text['subjectAssignPermissionSaveButton'] }</button> 
           </div>
         </form>
          

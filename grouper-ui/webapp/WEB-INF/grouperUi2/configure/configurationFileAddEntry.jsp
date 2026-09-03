@@ -118,8 +118,8 @@ ${grouper:title('miscellaneousConfigurationFilesAddEntryBreadcrumb')}
                    </div>
                  </div>
 
-                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileAddConfigSubmit', {formIds: 'configurationSelectForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</a> 
-                 <a href="#" onclick="return guiV2link('operation=UiV2Configure.configure&configFile=${grouperRequestContainer.configurationContainer.configFileName}');" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</a></div>
+                 <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileAddConfigSubmit', {formIds: 'configurationSelectForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</button> 
+                 <button type="button" onclick="return guiV2link('operation=UiV2Configure.configure&configFile=${grouperRequestContainer.configurationContainer.configFileName}');" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</button></div>
 
                 </form>
              

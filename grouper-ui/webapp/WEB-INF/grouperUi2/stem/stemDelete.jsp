@@ -285,11 +285,11 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
                           <td style="vertical-align: top; white-space: nowrap;"></td>
                           <td>
                             <c:if test="${grouperRequestContainer.stemDeleteContainer.areYouSure == true}">
-                                <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Stem.stemDeleteSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'deleteFolderFormId'}); return false;">${textContainer.text['stemDeleteButton'] }</a>
+                                <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.stemDeleteSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'deleteFolderFormId'}); return false;">${textContainer.text['stemDeleteButton'] }</button>
                                 &nbsp;
                             </c:if>
                             
-                            <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemCancelButton'] }</a></div>
+                            <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemCancelButton'] }</button></div>
                           </td>
                         </tr>
                       </tbody>

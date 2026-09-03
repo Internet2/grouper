@@ -98,8 +98,8 @@ ${grouper:title('miscellaneousConfigurationFilesImportBreadcrumb')}
                  </div>
                 </div>
                 
-                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#configurationImportForm', '../app/UiV2Configure.configurationFileImportSubmit');">${textContainer.text['configurationFilesImportSubmit'] }</a> 
-                 <a href="#" onclick="return guiV2link('operation=UiV2Configure.configure&configFile=${grouperRequestContainer.configurationContainer.configFileName}');" class="btn btn-cancel">${textContainer.text['configurationFilesImportCancel'] }</a></div>
+                 <div class="form-actions"><button type="button" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#configurationImportForm', '../app/UiV2Configure.configurationFileImportSubmit');">${textContainer.text['configurationFilesImportSubmit'] }</button> 
+                 <button type="button" onclick="return guiV2link('operation=UiV2Configure.configure&configFile=${grouperRequestContainer.configurationContainer.configFileName}');" class="btn btn-cancel">${textContainer.text['configurationFilesImportCancel'] }</button></div>
 
                 </form>
              

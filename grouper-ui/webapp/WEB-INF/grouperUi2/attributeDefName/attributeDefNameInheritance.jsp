@@ -107,8 +107,8 @@ ${grouper:titleFromKeyAndText('attributeDefNameEditTitle', grouperRequestContain
                   </div>
                  
                   <div class="form-actions">
-                    <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefName.editAttributeDefNameInheritanceSubmit', {formIds: 'editAttributeDefNameInheritanceForm'}); return false;">${textContainer.text['attributeDefNameInheritanceEditSaveButton'] }</a> 
-                    <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['attributeDefNameInhertianceEditCancelButton'] }</a>
+                    <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefName.editAttributeDefNameInheritanceSubmit', {formIds: 'editAttributeDefNameInheritanceForm'}); return false;">${textContainer.text['attributeDefNameInheritanceEditSaveButton'] }</button> 
+                    <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['attributeDefNameInhertianceEditCancelButton'] }</button>
                   </div>
                 </form>
               </div>

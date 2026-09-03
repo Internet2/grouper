@@ -188,7 +188,7 @@
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
 	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;"> --%>
             
-            <a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newStemTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</a>
+            <button type="button" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newStemTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</button>
             
           </c:if>
           
@@ -199,7 +199,7 @@
             onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.loadBeansForServiceTemplateType?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
           &nbsp;
-          <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemTemplateCancelButton'] }</a>
+          <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemTemplateCancelButton'] }</button>
         </td>
       </tr>
     </tbody>

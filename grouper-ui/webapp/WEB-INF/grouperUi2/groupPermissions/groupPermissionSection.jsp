@@ -67,7 +67,7 @@
 			                      </div>
 			                  </div>
 			                  
-			                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2GroupPermission.assignGroupPermissionSubmit', {formIds: 'assignPermissionGroupForm'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
+			                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2GroupPermission.assignGroupPermissionSubmit', {formIds: 'assignPermissionGroupForm'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</button> 
 			                  </div>
 			                </form>
                     
@@ -82,9 +82,9 @@
                   <div class="row-fluid">
                     <div class="span9">
                       <span>${textContainer.text['groupPermissionsGroupNotRoleText'] }</span> &nbsp;
-                      <a href="#" class="btn btn-primary"
+                      <button type="button" class="btn btn-primary"
                         onclick="return guiV2link('operation=UiV2Group.convertGroupToRole&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupPermissionsGroupToRoleButton'] }
-                      </a>
+                      </button>
                     </div>
                     </div>
                   </c:otherwise>

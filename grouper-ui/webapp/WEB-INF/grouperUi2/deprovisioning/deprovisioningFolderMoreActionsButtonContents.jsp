@@ -29,8 +29,8 @@
 	                    </c:if>
                             
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Deprovisioning.updateFolderLastCertifiedDateClear'); return false;"
-                              >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Deprovisioning.updateFolderLastCertifiedDateClear'); return false;"
+                              >${textContainer.text['deprovisioningMoreActionsClearCertify'] }</button></li>
                         </c:if>
                         
                       </ul>

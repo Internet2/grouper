@@ -52,9 +52,9 @@ ${grouper:title('externalSubjectSelfRegister.registerTitle')}
 	     class="btn btn-cancel redButton">${navMap['externalSubjectSelfRegister.deleteRecordButtonText']}</a>        
      </c:if>
    
-     <a href="#" class="btn btn-primary"
+     <button type="button" class="btn btn-primary"
   	   onclick="ajax('../app/UiV2ExternalSubjectSelfRegister.submit', {formIds: 'selfRegisterFormId'}); return false;">
-  	     ${navMap['externalSubjectSelfRegister.submitButtonText']}</a> 
+  	     ${navMap['externalSubjectSelfRegister.submitButtonText']}</button> 
    </div> 
  </form></div>
 </div>

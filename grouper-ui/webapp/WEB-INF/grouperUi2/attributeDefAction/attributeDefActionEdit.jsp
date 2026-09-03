@@ -108,8 +108,8 @@ ${grouper:titleFromKeyAndText('attributeDefActionEditTitle', attributeUpdateRequ
                   </div>
                  
                   <div class="form-actions">
-                    <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAction.attributeDefActionEditSubmit', {formIds: 'editAttributeDefActionForm'}); return false;">${textContainer.text['attributeDefActionEditSaveButton'] }</a> 
-                    <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['attributeDefActionEditCancelButton'] }</a>
+                    <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefAction.attributeDefActionEditSubmit', {formIds: 'editAttributeDefActionForm'}); return false;">${textContainer.text['attributeDefActionEditSaveButton'] }</button> 
+                    <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');" >${textContainer.text['attributeDefActionEditCancelButton'] }</button>
                   </div>
                 </form>
               </div>

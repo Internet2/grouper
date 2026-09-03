@@ -90,7 +90,7 @@ ${grouper:title('adminSubjectApiDiagnosticsBreadcrumb')}
                   </div>
 --%>                  
                   
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Admin.subjectApiDiagnosticsRun', {formIds: 'subjectApiDiagnosticsForm'}); return false;">${textContainer.text['subjectApiDiagnosticsSubmitButton'] }</a> 
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Admin.subjectApiDiagnosticsRun', {formIds: 'subjectApiDiagnosticsForm'}); return false;">${textContainer.text['subjectApiDiagnosticsSubmitButton'] }</button> 
                   
                   <a class="btn btn-cancel" role="button"
                           onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources'); return false;"

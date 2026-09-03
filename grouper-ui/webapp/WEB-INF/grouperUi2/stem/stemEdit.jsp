@@ -71,8 +71,8 @@ ${grouper:titleFromKeyAndText('stemEditPageTitle', grouperRequestContainer.stemC
                         class="help-block">${textContainer.text['stemCreateDescriptionDescription'] }</span>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Stem.stemEditSubmit', {formIds: 'editStemForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" class="btn btn-cancel" role="button">${textContainer.text['stemCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.stemEditSubmit', {formIds: 'editStemForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Stem.viewStem?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" class="btn btn-cancel">${textContainer.text['stemCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

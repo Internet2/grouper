@@ -28,7 +28,7 @@
                </div>
              </div>
              
-             <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeForm'}); return false;">${textContainer.text['attributeDefAssignSaveButton'] }</a> 
+             <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeForm'}); return false;">${textContainer.text['attributeDefAssignSaveButton'] }</button> 
              </div>
            </form>
          

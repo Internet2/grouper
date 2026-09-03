@@ -90,8 +90,8 @@ ${grouper:titleFromKeyAndText('groupCopyPageTitle', grouperRequestContainer.grou
                       </label>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupCopySubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupCopyFormId'}); return false;">${textContainer.text['groupCopyCopyButton'] }</a> 
-                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupCopyCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupCopySubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupCopyFormId'}); return false;">${textContainer.text['groupCopyCopyButton'] }</button> 
+                  <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupCopyCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

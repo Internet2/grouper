@@ -21,14 +21,14 @@ ${grouper:titleFromKeyAndText('attributeDefNameDeleteTitle', grouperRequestConta
               <c:when test="${grouperRequestContainer.attributeDefNameContainer.configPreventUiDeletion}">
                 <p>${textContainer.text['attributeDefNameDeleteUiDisallowedText'] }</p>
                 <div class="form-actions">
-                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</a>
+                  <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</button>
                 </div>
               </c:when>
               <c:otherwise>
                 <p>${textContainer.text['attributeDefNameDeleteText'] }</p>
                 <div class="form-actions">
-                  <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNameSubmit?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">${textContainer.text['attributeDefNameDeleteDeleteButton'] }</a>
-                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</a>
+                  <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNameSubmit?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">${textContainer.text['attributeDefNameDeleteDeleteButton'] }</button>
+                  <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');" >${textContainer.text['attributeDefNameDeleteCancelButton'] }</button>
                 </div>
               </c:otherwise>
             </c:choose>

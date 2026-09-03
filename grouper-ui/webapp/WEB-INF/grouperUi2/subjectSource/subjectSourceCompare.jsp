@@ -82,7 +82,7 @@ ${grouper:title('miscellaneousSubjectSourceConfigCompareBreadcrumb')}
                     </div>
                   </div>
                   
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectSource.compareSubjectSourcesSubmit', {formIds: 'subjectApiCompareForm'}); return false;">${textContainer.text['subjectSourcesCompareSubmitButton'] }</a> 
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectSource.compareSubjectSourcesSubmit', {formIds: 'subjectApiCompareForm'}); return false;">${textContainer.text['subjectSourcesCompareSubmitButton'] }</button> 
                   
                   <a class="btn btn-cancel" role="button"
                           onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources'); return false;"

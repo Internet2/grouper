@@ -75,12 +75,12 @@
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
 	          onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'newGroupTemplateFormId'}); return false;"> --%>
             
-            <a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newGroupTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</a>
+            <button type="button" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newGroupTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</button>
             
           </c:if>
           
           &nbsp;
-          <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['stemTemplateCancelButton'] }</a>
+          <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['stemTemplateCancelButton'] }</button>
         </td>
       </tr>
     </tbody>

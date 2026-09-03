@@ -50,7 +50,7 @@
                </div>
              </div>
              
-             <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeMembershipForm'}); return false;">${textContainer.text['membershipAssignAttributeButton'] }</a> 
+             <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeMembershipForm'}); return false;">${textContainer.text['membershipAssignAttributeButton'] }</button> 
              </div>
            </form>
          

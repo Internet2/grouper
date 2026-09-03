@@ -80,7 +80,7 @@
 	                          <li><a href="?operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
 	                          <li><a href="?operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
 	                          <li><a href="?operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-	                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
+	                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</button></li>
 	                        </ul>
 	                     </div>
                      </c:if>
@@ -144,7 +144,7 @@
                         <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                           <li><a href="?operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
                           <li><a href="?operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
-                          <li><a href="#" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</button></li>
                         </ul>
                     </div>
                   </c:if>

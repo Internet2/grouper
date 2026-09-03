@@ -15,17 +15,17 @@
                             <li class="nav-header">${textContainer.text['indexSelectWidgetToDisplay']}</li>
                             <li class="divider"></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColMyFavorites?col=${col}'); return false;">${textContainer.text['myFavoritesBreadcrumb']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColMyFavorites?col=${col}'); return false;">${textContainer.text['myFavoritesBreadcrumb']}</button></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColGroupsImanage?col=${col}'); return false;">${textContainer.text['myGroupsTabMyGroups']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColGroupsImanage?col=${col}'); return false;">${textContainer.text['myGroupsTabMyGroups']}</button></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColMyServices?col=${col}'); return false;">${textContainer.text['myServicesBreadcrumb']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColMyServices?col=${col}'); return false;">${textContainer.text['myServicesBreadcrumb']}</button></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColStemsImanage?col=${col}'); return false;">${textContainer.text['myStemsBreadcrumb']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColStemsImanage?col=${col}'); return false;">${textContainer.text['myStemsBreadcrumb']}</button></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColMyMemberships?col=${col}'); return false;">${textContainer.text['myGroupsTabMyMemberships']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColMyMemberships?col=${col}'); return false;">${textContainer.text['myGroupsTabMyMemberships']}</button></li>
                             <!-- HJ : 20150319 -->
-                            <li><a href="#" onclick="ajax('UiV2Main.indexColRecentlyUsed?col=${col}'); return false;">${textContainer.text['indexRecentlyUsedRecentlyUsed']}</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('UiV2Main.indexColRecentlyUsed?col=${col}'); return false;">${textContainer.text['indexRecentlyUsedRecentlyUsed']}</button></li>
                           </ul>
                         </li>
                       </ul>

@@ -18,7 +18,7 @@ ${grouper:title('configurationDdlDeepCheckPageTitle')}
             <div class="row-fluid">
               <div class="span12">
                 <div class="form-actions">
-                  <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Configure.ddlDeepCheckSubmit'); return false;">${textContainer.text['configurationDdlDeepCheckRunButton'] }</a>
+                  <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.ddlDeepCheckSubmit'); return false;">${textContainer.text['configurationDdlDeepCheckRunButton'] }</button>
                 </div>
               </div>
             </div>

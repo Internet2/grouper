@@ -323,8 +323,8 @@ ${grouper:title('newAttributeDefPageTitle')}
                       </div>
                     </div --%>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDef.newAttributeDefSubmit', {formIds: 'addAttributeDefForm'}); return false;">${textContainer.text['attributeDefCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['attributeDefCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDef.newAttributeDefSubmit', {formIds: 'addAttributeDefForm'}); return false;">${textContainer.text['attributeDefCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['attributeDefCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

@@ -15,7 +15,7 @@
                         </ul>
                       </c:when>
                       <c:otherwise>
-                        <a href="#" onclick="ajax('UiV2Main.indexColMyMemberships?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyMembershipsMyMembershipsLoad'] }</a>
+                        <button type="button" class="grouper-linkbutton" onclick="ajax('UiV2Main.indexColMyMemberships?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyMembershipsMyMembershipsLoad'] }</button>
                         <br /><br /><br /><br/>
                       </c:otherwise>
                     </c:choose>

@@ -76,7 +76,7 @@
                       <tr>
                       <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
                       
-                      <a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#importLoaderConfigFormId', '../app/UiV2GrouperLoader.importLoaderConfigSubmit');">${textContainer.text['grouperLoaderEditButtonSave'] }</a>
+                      <button type="button" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#importLoaderConfigFormId', '../app/UiV2GrouperLoader.importLoaderConfigSubmit');">${textContainer.text['grouperLoaderEditButtonSave'] }</button>
                       
                       
                       <%-- <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
