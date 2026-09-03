@@ -16,7 +16,10 @@ ${grouper:titleFromKeyAndText('stemPrivilegesPageTitle', grouperRequestContainer
                 <form class="form-inline form-filter" id="stemFilterPrivilegesFormId">
                   <div class="row-fluid stemPrivilegeAdvancedShow" style="display: none">
                     <div class="span1">
-                      <label for="table-filter" style="white-space: nowrap;">${textContainer.text['stemPrivilegeFilterFor'] }</label>
+                      <%-- a11y: this label now points at the privilege select it sits next to (was
+                           for="table-filter", which both mis-associated it and duplicated the text
+                           input's label below). --%>
+                      <label for="people-filter" style="white-space: nowrap;">${textContainer.text['stemPrivilegeFilterFor'] }</label>
                     </div>
                     <div class="span4">
                       <select id="people-filter" name="privilegeField">
@@ -30,7 +33,10 @@ ${grouper:titleFromKeyAndText('stemPrivilegesPageTitle', grouperRequestContainer
                     </div>
                   </div>
                   <div class="row-fluid stemPrivilegeAdvancedShow" style="margin-top: 5px; display: none;">
-                    <div class="span1">&nbsp;</div>
+                    <div class="span1" style="white-space: nowrap;">
+                      <%-- a11y: give the membership-type select a visible label (was an empty cell) --%>
+                      <label for="people-filter2">${textContainer.text['groupFilterMembershipType']}</label>
+                    </div>
                     <div class="span4">
                       <select id="people-filter2" name="privilegeMembershipType">
                         <option value="">${textContainer.text['stemPrivilegesFilterAllAssignments']}</option>

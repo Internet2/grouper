@@ -19,31 +19,28 @@ ${grouper:title('myStemsBreadcrumb')}
                   <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;">${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myStemsContainingAttributesImanageDescription'] }</p>
-                <form class="form-inline form-filter" id="myStemsForm"
+                <form class="form-horizontal form-filter" id="myStemsForm"
                     onsubmit="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageSubmit', {formIds: 'myStemsForm'}); return false;">
-                  <div class="row-fluid">
-
-                    <div class="span1">
-                      <label for="stem-filter" style="white-space: nowrap;">${textContainer.text['myStemsFilterFor'] }</label>
-                    </div>
-                    <div class="span5">
-                      <select id="stem-filter" class="span12" name="stemFilterType">
-                        <option value="all">${textContainer.text['myStemsFilterOptionAll'] }</option>
+                  <div class="control-group">
+                    <label class="control-label" for="stem-filter">${textContainer.text['myStemsFilterFor']}</label>
+                    <div class="controls">
+                      <select id="stem-filter" name="stemFilterType" style="width:100%; max-width:420px;"><option value="all">${textContainer.text['myStemsFilterOptionAll'] }</option>
                         <option value="createGroups">${textContainer.text['myStemsFilterOptionCreateGroups'] }</option>
                         <option value="createStems">${textContainer.text['myStemsFilterOptionCreateStems'] }</option>
                         <option value="attributeRead">${textContainer.text['myStemsFilterOptionAttributeRead'] }</option>
                         <option value="attributeUpdate">${textContainer.text['myStemsFilterOptionAttributeUpdate'] }</option>
-<%-- TODO this doesnt exist in the API     <option value="groupsManage">${textContainer.text['myStemsFilterOptionGroupsManage'] }</option>   --%>
-                      </select>
-                      
+<%-- TODO this doesnt exist in the API     <option value="groupsManage">${textContainer.text['myStemsFilterOptionGroupsManage'] }</option>   --%></select>
                     </div>
-                    <div class="span3"  style="white-space: nowrap;">
-                      <input type="text" name="myStemsFilter" placeholder="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder'] }" id="myStemsFilterId" aria-label="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder']}" class="span12"/>
+                  </div>
+                  <div class="control-group">
+                    <label class="control-label" for="myStemsFilterId">${textContainer.text['myStemsSearchNamePlaceholder']}</label>
+                    <div class="controls">
+                      <input type="text" name="myStemsFilter" id="myStemsFilterId" style="width:100%; max-width:420px;"/>
                     </div>
-                    <div class="span3"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
-                      <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
-                    </div>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
+                    <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
                   </div>
                 </form>
                 <div id="myStemsResultsId" role="region" aria-live="polite">
