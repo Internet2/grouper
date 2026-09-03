@@ -84,13 +84,13 @@
                           onmouseout="UnTip()"
                         /></c:otherwise></c:choose></a>
                     <div class="btn-group" style="display: inline-block;">
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                        aria-haspopup="true" aria-expanded="false" role="button"
+                      <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                        aria-haspopup="true" aria-expanded="false"
                         onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                         <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                           id="permissionMenuButton_${guiPermissionId}__${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}" 
                           alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                      </a>
+                      </button>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <li>
                           <a href="#" onclick="ajax('../app/UiV2GroupPermission.assignmentMenu', {requestParams: {menuItemId: 'addLimit', menuIdOfMenuTarget: 'permissionMenuButton_${guiPermissionId}__${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}'}}); return false;">${textContainer.text['simplePermissionAssign.addLimit']}</a>
@@ -121,12 +121,12 @@
                   <c:choose>
                     <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
                       <div class="btn-group" style="display: inline-block;">
-                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                          aria-haspopup="true" aria-expanded="false" role="button"
+                        <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                          aria-haspopup="true" aria-expanded="false"
                           onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                           <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                             id="limitMenuButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                        </a>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                           <li>
                             <a href="#" onclick="ajax('../app/UiV2GroupPermission.limitMenu', {requestParams: {menuItemId: 'addValue', menuIdOfMenuTarget: 'limitMenuButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}'}}); return false;">${textContainer.text['simplePermissionAssign.limitMenuAddValue']}</a>
@@ -183,12 +183,12 @@
                         <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
                         
                           <div class="btn-group" style="display: inline-block;">
-                            <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                              aria-haspopup="true" aria-expanded="false" role="button"
+                            <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                              aria-haspopup="true" aria-expanded="false"
                               onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                               <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                                id="limitAssignValueButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}_${limitAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                            </a>
+                            </button>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <li>
                                 <a href="#" onclick="ajax('../app/UiV2GroupPermission.limitValueMenu', {requestParams: {menuItemId: 'editLimitValue', menuIdOfMenuTarget: 'limitAssignValueButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}_${limitAssignValue.id}'}}); return false;">${textContainer.text['simplePermissionAssign.limitMenuEditValue']}</a>

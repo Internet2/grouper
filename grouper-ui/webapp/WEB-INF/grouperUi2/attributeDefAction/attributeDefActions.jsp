@@ -37,9 +37,8 @@
                         <td>${attributeAssignAction.name}</td>
                         <td>
                           <div class="btn-group">
-                          	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeActionActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
-                          		role="button" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
-                          		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
+                          	<button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeActionActions']}" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
+                          		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                             
                               <c:if test="${isAdmin}">

@@ -177,11 +177,11 @@ ${grouper:title('miscellaneousConfigurationFilesBreadcrumb')}
                               </td>
 		                          <td style="vertical-align: top">
 		                             
-		                            <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiConfigurationFilesActions']}" href="#" class="btn btn-mini dropdown-toggle"
-		                              aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+		                            <div class="btn-group"><button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiConfigurationFilesActions']}" class="btn btn-mini dropdown-toggle"
+		                              aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
 		                                ${textContainer.text['groupViewActionsButton'] } 
 		                                <span class="caret"></span>
-		                              </a>
+		                              </button>
 		                              <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 		                                <li><a href="#" onclick="return ajax('../app/UiV2Configure.configurationFileItemEdit?configFile=${grouper:escapeUrl(grouperRequestContainer.configurationContainer.configFileName.configFileName)}&propertyNameName=${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}&index=${i}');" class="actions-revoke-membership">${textContainer.text['configurationFilesActionEdit'] }</a></li>
 		                                <c:if test="${guiConfigProperty.fromDatabase }">

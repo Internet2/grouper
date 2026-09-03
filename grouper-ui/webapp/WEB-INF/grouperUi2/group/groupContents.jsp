@@ -55,7 +55,7 @@
                             <td>${guiPITMembershipView.getEndTimeLabel()}</td>
                             <td>
                               <div class="btn-group">
-                                <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">${textContainer.text['groupViewActionsButton'] }<span class="caret"></span></a>
+                                <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">${textContainer.text['groupViewActionsButton'] }<span class="caret"></span></button>
                                 <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    <li><a href="?operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiPITMembershipView.memberId}&field=members"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiPITMembershipView.memberId}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
                                 </ul>
@@ -100,11 +100,11 @@
                                   || guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate
                                   || guiMembershipSubjectContainer.canReadProvisioningForMembership
                                   || guiMembershipSubjectContainer.guiSubject.group}">
-                                <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle"
-                                	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                                <div class="btn-group"><button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" class="btn btn-mini dropdown-toggle"
+                                	aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                 		${textContainer.text['groupViewActionsButton'] } 
                                 		<span class="caret"></span>
-                                	</a>
+                                	</button>
                                   <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                     <c:if test="${grouperRequestContainer.groupContainer.canAdmin || grouperRequestContainer.groupContainer.canReadAttributes || grouperRequestContainer.groupContainer.canUpdateAttributes}">
                                       <li><a href="?operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewMembershipAttributeAssignments'] }</a></li>

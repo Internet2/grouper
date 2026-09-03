@@ -53,11 +53,11 @@ ${grouper:title('customUiConfigsPageTitle')}
                         
                          <td>
                            <div class="btn-group">
-                                 <a data-toggle="dropdown" id="actions_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                                   aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                                 <button type="button" data-toggle="dropdown" id="actions_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                                   aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                    ${textContainer.text['customUiConfigsRowActionsButton'] }
                                    <span class="caret"></span>
-                                 </a>
+                                 </button>
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">

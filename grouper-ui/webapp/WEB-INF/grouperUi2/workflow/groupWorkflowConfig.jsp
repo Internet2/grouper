@@ -71,11 +71,11 @@ ${grouper:titleFromKeyAndText('groupFormsPageTitle', grouperRequestContainer.gro
                   
                    <td>
                      <div class="btn-group">
-                           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                             aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                           <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                             aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                              ${textContainer.text['stemViewActionsButton'] }
                              <span class="caret"></span>
-                           </a>
+                           </button>
                            <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                              <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
                                <li><a href="?operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>

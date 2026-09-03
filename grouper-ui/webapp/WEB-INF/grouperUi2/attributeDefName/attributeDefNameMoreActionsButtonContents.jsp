@@ -9,9 +9,8 @@
                     --%>
                     
                     <div class="btn-group btn-block">
-                      <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeNameActions']}" href="#" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
-                        role="button" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
-                        ${textContainer.text['attributeDefViewActionsDropdownButton'] } <span class="caret"></span></a>
+                      <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeNameActions']}" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
+                        ${textContainer.text['attributeDefViewActionsDropdownButton'] } <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options">
 
                         <c:choose>

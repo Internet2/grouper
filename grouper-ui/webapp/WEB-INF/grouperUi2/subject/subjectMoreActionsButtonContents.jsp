@@ -4,31 +4,31 @@
  <%-- on the privs tab, show the add member button --%>            
  <c:choose>
    <c:when test="${grouperRequestContainer.stemContainer.showAddMember}">
-     <a id="show-add-block" href="#" onclick="$('#add-block-stem-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
-       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToStem'] }</a>
+     <button type="button" id="show-add-block" onclick="$('#add-block-stem-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
+       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToStem'] }</button>
    </c:when>
    <c:when test="${grouperRequestContainer.attributeDefContainer.showAddMember}">
-     <a id="show-add-block" href="#" onclick="$('#add-block-attributeDef-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
-       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToAttributeDef'] }</a>
+     <button type="button" id="show-add-block" onclick="$('#add-block-attributeDef-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
+       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToAttributeDef'] }</button>
    </c:when>
    <c:when test="${grouperRequestContainer.subjectContainer.showEntityPrivilege}">
-     <a id="show-add-block" href="javascript:void(0);" onclick="showHideMemberAddBlock()" 
-       class="btn btn-medium btn-primary btn-block" role="button">
+     <button type="button" id="show-add-block" onclick="showHideMemberAddBlock()" 
+       class="btn btn-medium btn-primary btn-block">
          <i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
-     </a>
+     </button>
    </c:when>
    <c:otherwise>
-     <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-block btn-primary"
+     <button type="button" id="show-add-block" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-block btn-primary"
          style="white-space: nowrap;">
-       <i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</a> 
+       <i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</button> 
    </c:otherwise>
  </c:choose>
  
  <div class="btn-group btn-block">
  
-   <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreSubjectActions']}" id="subject-more-action-button" aria-controls="subject-more-options" class="btn btn-medium btn-block dropdown-toggle" 
-   	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#subject-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-more-options li').first().focus();return true;});">
-   		${textContainer.text['subjectViewMoreActionsButton'] } <span class="caret"></span></a>
+   <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreSubjectActions']}" id="subject-more-action-button" aria-controls="subject-more-options" class="btn btn-medium btn-block dropdown-toggle" 
+   	aria-haspopup="true" aria-expanded="false" onclick="$('#subject-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-more-options li').first().focus();return true;});">
+   		${textContainer.text['subjectViewMoreActionsButton'] } <span class="caret"></span></button>
 
    <ul class="dropdown-menu dropdown-menu-right" id="subject-more-options">
      

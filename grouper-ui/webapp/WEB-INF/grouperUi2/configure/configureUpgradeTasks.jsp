@@ -43,12 +43,12 @@ ${grouper:title('configurationUpgradeTasksPageTitle')}
                         <%-- first column: actions dropdown (check status / run / mark complete / mark not complete) --%>
                         <td style="vertical-align: top; white-space: nowrap;">
                           <div class="btn-group">
-                            <a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle"
-                              aria-haspopup="true" aria-expanded="false" role="button"
+                            <button type="button" data-toggle="dropdown" class="btn btn-mini dropdown-toggle"
+                              aria-haspopup="true" aria-expanded="false"
                               aria-label="${textContainer.text['configurationUpgradeTasksActionsButton'] }">
                               ${textContainer.text['configurationUpgradeTasksActionsButton'] }
                               <span class="caret"></span>
-                            </a>
+                            </button>
                             <ul class="dropdown-menu" id="upgradeTaskActions_${guiUpgradeTask.version}">
                               <%-- actions in alphabetical order by label --%>
                               <c:choose>

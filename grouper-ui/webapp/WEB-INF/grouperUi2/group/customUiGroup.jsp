@@ -74,10 +74,10 @@
                     <form class="form form-inline" id="enrollFormId">
                       <input name="memberId" type="hidden" value="${grouperRequestContainer.customUiContainer.member.id}"/> 
                       <input name="groupId" type="hidden" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"/> 
-                      <a id="show-add-block" href="javascript:void(0);" onclick="ajax('../app/UiV2CustomUi.joinGroup', {formIds: 'enrollFormId'}); return false;"
-                          class="btn btn-medium btn-primary btn-block span2" role="button" style="margin-left: 0; color:black; letter-spacing: .1em;">
+                      <button type="button" id="show-add-block" onclick="ajax('../app/UiV2CustomUi.joinGroup', {formIds: 'enrollFormId'}); return false;"
+                          class="btn btn-medium btn-primary btn-block span2" style="margin-left: 0; color:black; letter-spacing: .1em;">
                        ${grouperRequestContainer.customUiContainer.enrollButtonText}
-                      </a><br />
+                      </button><br />
                     </form>
                   
                   </c:when>
@@ -87,10 +87,10 @@
                       <form class="form form-inline" id="unenrollFormId">
                       <input name="memberId" type="hidden" value="${grouperRequestContainer.customUiContainer.member.id}"/> 
                         <input name="groupId" type="hidden" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"/> 
-                        <a id="show-add-block" href="javascript:void(0);" onclick="ajax('../app/UiV2CustomUi.leaveGroup', {formIds: 'unenrollFormId'}); return false;"
-                            class="btn btn-medium btn-primary btn-block span2" role="button" style="margin-left: 0; color:black; letter-spacing: .1em;">
+                        <button type="button" id="show-add-block" onclick="ajax('../app/UiV2CustomUi.leaveGroup', {formIds: 'unenrollFormId'}); return false;"
+                            class="btn btn-medium btn-primary btn-block span2" style="margin-left: 0; color:black; letter-spacing: .1em;">
                         ${grouperRequestContainer.customUiContainer.unenrollButtonText}
-                        </a><br />
+                        </button><br />
                       </form>
                     </c:if>
                   

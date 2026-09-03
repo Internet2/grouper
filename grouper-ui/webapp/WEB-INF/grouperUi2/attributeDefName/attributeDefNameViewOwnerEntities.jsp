@@ -98,12 +98,12 @@
                        ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
                        <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                          <div class="btn-group" style="display: inline-block;">
-                           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                             aria-haspopup="true" aria-expanded="false" role="button"
+                           <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                             aria-haspopup="true" aria-expanded="false"
                              onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                              <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                               alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                           </a>
+                           </button>
                            <ul class="dropdown-menu dropdown-menu-right">
                              <li>
                                <a href="#" onclick="ajax('../app/UiV2AttributeDefName.assignmentValueMenu', {requestParams: {menuItemId: 'editValue', menuIdOfMenuTarget: 'assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}_${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'}}); return false;">${textContainer.text['simpleAttributeUpdate.editValueAssignmentAlt']}</a>
@@ -125,11 +125,11 @@
                    <td>
                     <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                       <div class="btn-group">
-                          <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                            aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                          <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                            aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                           ${textContainer.text['groupViewActionsButton'] } 
                             <span class="caret"></span>
-                          </a>
+                          </button>
                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                             <li><a href="?operation=UiV2AttributeDefName.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
                             <li><a href="?operation=UiV2AttributeDefName.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>

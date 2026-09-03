@@ -93,11 +93,11 @@
                                   || (guiMembershipContainer.membershipContainer.membershipAssignType.immediate && guiMembershipSubjectContainer.guiGroup.canUpdate)
                                   || guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate
                                   || guiMembershipSubjectContainer.guiSubject.group}">
-                                <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle"
-                                	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                                <div class="btn-group"><button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" class="btn btn-mini dropdown-toggle"
+                                	aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                 		${textContainer.text['groupViewActionsButton'] } 
                                 		<span class="caret"></span>
-                                	</a>
+                                	</button>
                                   <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                     <c:if test="${guiMembershipSubjectContainer.guiGroup.canRead}">
                                       <li><a href="?operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>

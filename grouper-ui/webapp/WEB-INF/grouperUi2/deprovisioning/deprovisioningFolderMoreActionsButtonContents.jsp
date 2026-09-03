@@ -4,9 +4,9 @@
 
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreDeprovisioningActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-                        aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#deprovisioning-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#deprovisioning-more-options li').first().focus();return true;});">
-                          ${textContainer.text['deprovisioningMoreActionsButton'] } <span class="caret"></span></a>
+                      <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreDeprovisioningActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                        aria-haspopup="true" aria-expanded="false" onclick="$('#deprovisioning-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#deprovisioning-more-options li').first().focus();return true;});">
+                          ${textContainer.text['deprovisioningMoreActionsButton'] } <span class="caret"></span></button>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="deprovisioning-more-options">
 

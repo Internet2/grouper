@@ -100,11 +100,11 @@
                         </c:forEach>
                         <td>
                           <div class="btn-group">
-                          	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="btn btn-mini dropdown-toggle"
-                          		aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#subject-stem-priv-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-stem-priv-more-options${i} li').first().focus();return true;});">
+                          	<button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                          		aria-haspopup="true" aria-expanded="false" onclick="$('#subject-stem-priv-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-stem-priv-more-options${i} li').first().focus();return true;});">
                           		${textContainer.text['thisSubjectsPrivilegesActionsButton']} 
                           			<span class="caret"></span>
-                          	</a>
+                          	</button>
                             <ul class="dropdown-menu dropdown-menu-right" id="subject-stem-priv-more-options${i}">
                               
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">

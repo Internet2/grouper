@@ -74,9 +74,9 @@
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.lastRunStatus}</span></td>
                           <td class="expand foo-clicker">
                             <div class="btn-group btn-block">
-                              <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreDaemonJobActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#daemon-jobs-more-actions').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#daemon-jobs-more-actions li').first().focus();return true;});">
+                              <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreDaemonJobActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#daemon-jobs-more-actions').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#daemon-jobs-more-actions li').first().focus();return true;});">
                                 ${textContainer.text['adminDaemonJobsMoreActionsDefaultText'] } <span class="caret"></span>
-                              </a>
+                              </button>
                               <ul class="dropdown-menu dropdown-menu-right" id="daemon-jobs-more-actions">
                                 <c:if test="${guiDaemonJob.loader == false && guiDaemonJob.editable }">
 	                                <li><a href="?operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
