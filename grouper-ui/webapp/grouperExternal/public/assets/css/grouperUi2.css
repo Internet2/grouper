@@ -778,3 +778,26 @@ button:focus-visible,
   background-color: #006f9b;
   background-image: linear-gradient(to bottom, #0076a5, #00648c);
 }
+
+/* GRP-7314 accessibility (WCAG 2.5.8 Target Size Minimum): icon-only action
+   controls - the copy-to-clipboard button and the grey remove (fa-times) X's in
+   the import / role-inheritance lists - rendered as just a ~14px glyph, well
+   under the 24x24 CSS px minimum. Grow the CLICKABLE box to 24x24 with the glyph
+   centered, and pull the extra height back with negative top/bottom margins so
+   table rows and inline text do not grow and the glyph does not visibly move
+   (an invisible hit-area, not a bigger-looking icon). This rule is appended
+   after .grouper-copy-btn above so its display/padding win. margin-left on the
+   copy buttons is set inline in the JSPs and is intentionally left untouched. */
+.grouper-icon-btn,
+.grouper-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  vertical-align: middle;
+  margin-top: -4px;
+  margin-bottom: -4px;
+}
