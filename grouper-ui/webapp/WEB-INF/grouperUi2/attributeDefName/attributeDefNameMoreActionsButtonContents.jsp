@@ -16,14 +16,14 @@
 
                         <c:choose>
                           <c:when test="${grouperRequestContainer.attributeDefNameContainer.favorite}">
-                            <li><a href="#" 
+                            <li><button type="button" class="grouper-menuitem" 
                             onclick="ajax('../app/UiV2AttributeDefName.removeFromMyFavorites?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" 
-                            >${textContainer.text['attributeDefNameViewMoreActionsRemoveFromMyFavorites'] }</a></li>
+                            >${textContainer.text['attributeDefNameViewMoreActionsRemoveFromMyFavorites'] }</button></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="#" 
+                            <li><button type="button" class="grouper-menuitem" 
                             onclick="ajax('../app/UiV2AttributeDefName.addToMyFavorites?attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" 
-                            >${textContainer.text['attributeDefNameViewMoreActionsAddToMyFavorites'] }</a></li>
+                            >${textContainer.text['attributeDefNameViewMoreActionsAddToMyFavorites'] }</button></li>
                           </c:otherwise>
                         </c:choose>
 

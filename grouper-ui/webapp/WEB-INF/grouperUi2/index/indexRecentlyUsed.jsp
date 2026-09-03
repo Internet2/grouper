@@ -38,7 +38,7 @@
                         </ul>
                       </c:when>
                       <c:otherwise>
-                        <a href="#" onclick="ajax('UiV2Main.indexColRecentlyUsed?col=${col}&storePref=false'); return false;">${textContainer.text['indexRecentlyUsedRecentlyUsedLoad'] }</a>
+                        <button type="button" class="grouper-linkbutton" onclick="ajax('UiV2Main.indexColRecentlyUsed?col=${col}&storePref=false'); return false;">${textContainer.text['indexRecentlyUsedRecentlyUsedLoad'] }</button>
                         <br /><br /><br /><br/>
                       </c:otherwise>
                     </c:choose>

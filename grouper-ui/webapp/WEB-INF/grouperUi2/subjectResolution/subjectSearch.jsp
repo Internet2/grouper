@@ -41,7 +41,7 @@ ${grouper:title('miscellaneousSubjectResolutionSubjectSearchBreadcrumb')}
                   </div>
                   <div class="form-actions">
                     <div class="span2">&nbsp;</div>
-                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectResolution.searchSubjectsSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a>
+                    <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectResolution.searchSubjectsSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</button>
                   </div>
                 </form>
                 

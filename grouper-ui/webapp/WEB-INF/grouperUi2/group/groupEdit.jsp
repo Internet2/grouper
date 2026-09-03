@@ -219,8 +219,8 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                       </div>
                     </c:if>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" id="editGroupSaveButton" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" id="editGroupSaveButton" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

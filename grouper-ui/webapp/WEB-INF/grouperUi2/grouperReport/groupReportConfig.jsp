@@ -115,7 +115,7 @@ ${grouper:titleFromKeyAndText('groupReportConfigPageTitle', grouperRequestContai
 
                              </c:if>
 
-                             <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&source=reports&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}'); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
+                             <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&source=reports&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}'); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</button></li>
 
                              <c:if test="${not empty guiReportConfig.mostRecentReportInstance }">
                                <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>

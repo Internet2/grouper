@@ -12,7 +12,7 @@
                         </c:choose>
                         <td colspan="${colspan}" class="table-toolbar gradient-background">
                           <c:if test="${grouperRequestContainer.groupContainer.canUpdate && !grouperRequestContainer.groupContainer.showPointInTimeAudit}">
-                            <a href="#" id="groupRemoveSelectedMembersButton" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
+                            <button type="button" id="groupRemoveSelectedMembersButton" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</button>
                           </c:if>
                         </td>
                       </tr>
@@ -116,7 +116,7 @@
                                       <li><a href="?operation=UiV2Provisioning.viewProvisioningOnGroupMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningOnGroupMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
                                     </c:if>
                                     <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate && grouperRequestContainer.groupContainer.canUpdate}">
-                                      <li><a href="#" onclick="ajax('../app/UiV2Group.removeMember?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</a></li>
+                                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.removeMember?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</button></li>
                                     </c:if>
                                     <li><a href="?operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
                                     <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">

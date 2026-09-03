@@ -29,9 +29,9 @@
                         <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsQuickLinks'] }</li>
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:if test="${!grouperRequestContainer.groupContainer.favorite}">
-                            <li><a href="#" 
+                            <li><button type="button" class="grouper-menuitem" 
                             onclick="ajax('../app/UiV2Group.addToMyFavorites?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" 
-                            >${textContainer.text['groupViewMoreActionsAddToMyFavorites']}</a></li>
+                            >${textContainer.text['groupViewMoreActionsAddToMyFavorites']}</button></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.groupContainer.hasCustomUi }">
                           <li><a href="?operation=UiV2CustomUi.customUiGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUi.customUiGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
@@ -39,16 +39,16 @@
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptout }">
-                          <li><a href="#" onclick="ajax('../app/UiV2Group.leaveGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" >${textContainer.text['groupViewLeaveGroupButton']}</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.leaveGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" >${textContainer.text['groupViewLeaveGroupButton']}</button></li>
                         </c:if>
                         <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canJoin }">
-                          <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</button></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.groupContainer.favorite}">
-                          <li><a href="#" 
+                          <li><button type="button" class="grouper-menuitem" 
                           onclick="ajax('../app/UiV2Group.removeFromMyFavorites?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" 
-                          >${textContainer.text['groupViewMoreActionsRemoveFromMyFavorites'] }</a></li>
+                          >${textContainer.text['groupViewMoreActionsRemoveFromMyFavorites'] }</button></li>
                         </c:if>
 
                         <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.groupView&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"

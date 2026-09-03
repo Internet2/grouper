@@ -26,7 +26,7 @@
                </div>
              </div>
              
-             <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeSubjectForm'}); return false;">${textContainer.text['subjectAssignAttributeButton'] }</a> 
+             <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignAttributeSubmit', {formIds: 'assignAttributeSubjectForm'}); return false;">${textContainer.text['subjectAssignAttributeButton'] }</button> 
              </div>
            </form> --%>
          

@@ -95,8 +95,8 @@ ${grouper:title('newLocalEntityPageTitle')}
                       </div>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2LocalEntity.newLocalEntitySubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['localEntityCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['localEntityCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2LocalEntity.newLocalEntitySubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['localEntityCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['localEntityCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

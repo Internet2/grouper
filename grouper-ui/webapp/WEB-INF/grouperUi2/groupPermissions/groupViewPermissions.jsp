@@ -232,7 +232,7 @@
 
     </table>
     <div>
-      <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2GroupPermission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</a> 
+      <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2GroupPermission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</button> 
     </div>
     </form>
   </c:otherwise>

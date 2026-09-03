@@ -159,11 +159,11 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 			                             
 			                             <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == true}">
-					                      <li><a href="#" onclick="ajax('../app/UiV2GshTemplateConfig.disableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableDisableActionOption'] }</a></li>
+					                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GshTemplateConfig.disableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableDisableActionOption'] }</button></li>
 					                     </c:if>
 					                     
 					                     <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == false}">
-					                      <li><a href="#" onclick="ajax('../app/UiV2GshTemplateConfig.enableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableEnableActionOption'] }</a></li>
+					                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GshTemplateConfig.enableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableEnableActionOption'] }</button></li>
 					                     </c:if>
                                
                                <li><a href="?operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
@@ -174,8 +174,8 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
                                <c:if test="${not guiGshTemplateConfiguration.defaultRunButtonResolutionError and guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
                                 <li><a id="stemTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
                                </c:if>
-                               <li><a href="#" onclick="ajax('../app/UiV2Template.test?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;"
-                                    >${textContainer.text['gshTemplatesTableTestActionOption'] }</a></li>
+                               <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Template.test?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;"
+                                    >${textContainer.text['gshTemplatesTableTestActionOption'] }</button></li>
                                
                                
 <li>&nbsp;</li>			                             

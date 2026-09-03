@@ -69,7 +69,7 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignMetadataAddSubmit', {formIds: 'simpleAttributeMetadataAddForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignAddValueSubmitButton'] }</a>
+        <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignMetadataAddSubmit', {formIds: 'simpleAttributeMetadataAddForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignAddValueSubmitButton'] }</button>
         <a href="#" onclick="return guiV2link(buildCancelLink())" class="btn">${textContainer.text['simpleAttributeAssign.assignAddValueCancelButton']}</a> 
       </div>
       

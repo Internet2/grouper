@@ -66,8 +66,8 @@
                         <li><a href="?operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderMoreActionsViewLoaderLogs'] }</a></li>
 
-                        <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-                        >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
+                        <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        >${textContainer.text['groupRunLoaderProcessButton'] }</button></li>
 
                         <li><a href="?operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
@@ -75,8 +75,8 @@
                         <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
 
-                        <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-                        >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
+                        <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        >${textContainer.text['groupScheduleLoaderProcessButton'] }</button></li>
 
                     </ul>
                 </div>

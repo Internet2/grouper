@@ -36,8 +36,8 @@ ${grouper:title('attributeActionNewBreadcrumb')}
                     </div>
                   </div>
                  
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAction.newAttributeDefActionSubmit', {formIds: 'addAttributeActionForm'}); return false;">${textContainer.text['attributeDefActionCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['attributeDefActionCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefAction.newAttributeDefActionSubmit', {formIds: 'addAttributeActionForm'}); return false;">${textContainer.text['attributeDefActionCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['attributeDefActionCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

@@ -21,13 +21,13 @@
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Attestation.clearGroupAttestation?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['groupAttestationMoreActionsClearAttestation'] }</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Attestation.clearGroupAttestation?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupAttestationMoreActionsClearAttestation'] }</button></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2Attestation.attestGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['groupAttestationMoreActionsAttestGroup'] }</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Attestation.attestGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupAttestationMoreActionsAttestGroup'] }</button></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.attestationContainer.canReadAncestorAttestation}" >

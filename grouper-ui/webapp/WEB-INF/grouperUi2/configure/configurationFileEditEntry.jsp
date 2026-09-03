@@ -62,8 +62,8 @@
                  </div>
                </div>
 
-                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileItemEditSubmit', {formIds: 'configurationEditForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</a> 
-                 <a href="#" onclick="$('.configFormRow').hide('slow');$('.configFormRow').remove();return false;" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</a></div>
+                 <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.configurationFileItemEditSubmit', {formIds: 'configurationEditForm'}); return false;">${textContainer.text['configurationFilesAddEntrySubmit'] }</button> 
+                 <button type="button" onclick="$('.configFormRow').hide('slow');$('.configFormRow').remove();return false;" class="btn btn-cancel">${textContainer.text['configurationFilesAddEntryCancel'] }</button></div>
 
                 </form>
              

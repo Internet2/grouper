@@ -308,22 +308,22 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                 </div>
               </div>
               <div class="form-actions">
-                <a href="#" 
+                <button type="button" 
                   onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2GroupImport.groupImportSubmit')"
-                  class="btn btn-primary" role="button">${textContainer.text['groupImportAddMembersButton'] }</a> 
+                  class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</button> 
                 <%-- needs to go back to the calling page which is set in a param --%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
-                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
+                    <button type="button" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</button>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
+                    <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</button>
                   </c:when>
                   <c:otherwise>
-                    <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
-                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
+                    <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</button>
                   </c:otherwise>
                 </c:choose>
               </div>

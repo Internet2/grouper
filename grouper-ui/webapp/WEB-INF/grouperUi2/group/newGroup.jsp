@@ -156,8 +156,8 @@ ${grouper:title('newGroupPageTitle')}
                       </div>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" id="newgroupsavebutton" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['groupCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" id="newgroupsavebutton" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

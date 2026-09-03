@@ -103,8 +103,8 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectPermission.permissionEditSubmit', {formIds: 'simplePermissionEditForm'}); return false;">${textContainer.text['simplePermissionAssign.assignEditSubmitButton'] }</a> 
-        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2SubjectPermission.subjectPermission', {formIds: 'simplePermissionEditForm'}); return false;">${textContainer.text['groupAssignPermissionCancelButton'] }</a>
+        <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2SubjectPermission.permissionEditSubmit', {formIds: 'simplePermissionEditForm'}); return false;">${textContainer.text['simplePermissionAssign.assignEditSubmitButton'] }</button> 
+        <button type="button" class="btn btn-cancel" onclick="ajax('../app/UiV2SubjectPermission.subjectPermission', {formIds: 'simplePermissionEditForm'}); return false;">${textContainer.text['groupAssignPermissionCancelButton'] }</button>
       </div>
       
     </form>

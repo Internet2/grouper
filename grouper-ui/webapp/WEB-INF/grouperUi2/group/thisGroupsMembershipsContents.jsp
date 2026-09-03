@@ -67,7 +67,7 @@
                                   </c:if>
                                   <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate
                                       && guiMembershipContainer.guiGroupOwner.canUpdate}">
-                                    <li><a href="#" onclick="ajax('../app/UiV2Group.removeMemberForThisGroupsMemberships?ownerGroupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</a></li>
+                                    <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.removeMemberForThisGroupsMemberships?ownerGroupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</button></li>
                                   </c:if>
                                   <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                     <li><a href="?operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>

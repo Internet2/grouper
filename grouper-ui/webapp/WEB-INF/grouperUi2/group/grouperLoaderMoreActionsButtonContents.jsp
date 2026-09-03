@@ -58,15 +58,15 @@
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader && !grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader || mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true'}" >
-                            <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupRunLoaderProcessButton'] }</button></li>
                           </c:if>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader && !grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}" >
-                            <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupScheduleLoaderProcessButton'] }</button></li>
                           </c:if>
                         </c:if>
                               

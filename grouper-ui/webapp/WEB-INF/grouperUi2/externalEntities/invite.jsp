@@ -121,11 +121,11 @@ ${grouper:title('groupImportMembersBreadcrumb')}
                     </div>
                   </div>                  
                   
-                  <div class="form-actions"><a href="#" 
+                  <div class="form-actions"><button type="button" 
                     onclick="ajax('../app/UiV2ExternalEntities.inviteSubmit', {formIds: 'inviteFormId'}); return false;"
-                    class="btn btn-primary">${textContainer.text['inviteExternalInviteButton']}</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                    class="btn btn-cancel">${textContainer.text['inviteExternalCancelButton'] }</a></div>
+                    class="btn btn-primary">${textContainer.text['inviteExternalInviteButton']}</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                    class="btn btn-cancel">${textContainer.text['inviteExternalCancelButton'] }</button></div>
                 </form>
                 
                 

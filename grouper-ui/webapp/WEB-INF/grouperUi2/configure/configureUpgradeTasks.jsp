@@ -18,7 +18,7 @@ ${grouper:title('configurationUpgradeTasksPageTitle')}
             <div class="row-fluid">
               <div class="span12">
                 <div class="form-actions">
-                  <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Configure.upgradeTasksSubmit'); return false;">${textContainer.text['configurationUpgradeTasksLoadButton'] }</a>
+                  <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Configure.upgradeTasksSubmit'); return false;">${textContainer.text['configurationUpgradeTasksLoadButton'] }</button>
                 </div>
               </div>
             </div>
@@ -60,7 +60,7 @@ ${grouper:title('configurationUpgradeTasksPageTitle')}
                                 </c:when>
                                 <c:otherwise>
                                   <%-- check status: runs the live DDL applicability check for this one task --%>
-                                  <li><a href="#" onclick="ajax('../app/UiV2Configure.upgradeTasksCheckStatus?version=${guiUpgradeTask.version}'); return false;">${textContainer.text['configurationUpgradeTasksActionCheckStatus'] }</a></li>
+                                  <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Configure.upgradeTasksCheckStatus?version=${guiUpgradeTask.version}'); return false;">${textContainer.text['configurationUpgradeTasksActionCheckStatus'] }</button></li>
                                   <%-- mark complete without running, so confirm first --%>
                                   <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkComplete'] }</a></li>
                                   <%-- mark not complete so it runs again, so confirm first --%>

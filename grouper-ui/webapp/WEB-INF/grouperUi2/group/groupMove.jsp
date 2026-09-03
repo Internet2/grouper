@@ -49,8 +49,8 @@ ${grouper:titleFromKeyAndText('groupMovePageTitle', grouperRequestContainer.grou
                       </label>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupMoveSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupCopyFormId'}); return false;">${textContainer.text['groupMoveMoveButton'] }</a> 
-                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupMoveCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupMoveSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupCopyFormId'}); return false;">${textContainer.text['groupMoveMoveButton'] }</button> 
+                  <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupMoveCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

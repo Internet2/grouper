@@ -286,7 +286,7 @@
                       </table>
                     </div>
                     <%-- <p id="groupDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p> --%>
-                    <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="groupDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
                   </div>
                 </div>
               </div>

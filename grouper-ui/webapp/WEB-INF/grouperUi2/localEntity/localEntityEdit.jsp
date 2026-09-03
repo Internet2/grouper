@@ -79,8 +79,8 @@ ${grouper:titleFromKeyAndText('localEntityEditTitle', grouperRequestContainer.gr
                       </div>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2LocalEntity.localEntityEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['localEntityCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['localEntityCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2LocalEntity.localEntityEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['localEntityCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['localEntityCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

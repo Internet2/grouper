@@ -68,7 +68,7 @@
           </c:if>
           
           &nbsp;
-          <a href="#" class="btn btn-cancel" role="button" onclick="location.reload()" >${textContainer.text['stemTemplateCancelButton'] }</a>
+          <button type="button" class="btn btn-cancel" onclick="location.reload()" >${textContainer.text['stemTemplateCancelButton'] }</button>
         </td>
       </tr>
     </tbody>

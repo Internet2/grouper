@@ -22,8 +22,8 @@
                         <li><a href="?operation=UiV2GrouperLoader.loaderOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderOverall'); return false;"
                             >${textContainer.text['adminLoaderLink'] }</a></li>
 
-                        <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSchedule'); return false;"
-                            >${textContainer.text['adminJobSchedule'] }</a></li>
+                        <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Admin.daemonJobsSchedule'); return false;"
+                            >${textContainer.text['adminJobSchedule'] }</button></li>
 
                       </ul>
                     </div>

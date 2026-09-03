@@ -72,8 +72,8 @@ ${grouper:title('newStemPageTitle')}
                       <textarea id="stemDescription" name=description rows="3" cols="40" class="input-block-level"></textarea><span class="help-block">${textContainer.text['stemCreateDescriptionDescription'] }</span>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Stem.newStemSubmit', {formIds: 'addStemForm'}); return false;">${textContainer.text['stemCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['stemCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.newStemSubmit', {formIds: 'addStemForm'}); return false;">${textContainer.text['stemCreateSaveButton'] }</button> 
+                  <button type="button" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['stemCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

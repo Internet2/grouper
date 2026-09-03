@@ -13,7 +13,7 @@
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/tom-select.v2.4.3.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/jstree_themes/default/style.css" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=09032026_3" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=09032026_5" rel="stylesheet">
 
 <link href="../../grouperExternal/public/assets/css/c3.min.css" rel="stylesheet" type="text/css">
 

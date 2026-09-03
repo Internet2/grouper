@@ -14,7 +14,7 @@ ${grouper:titleFromKeyAndText('localEntityDeleteTitle', grouperRequestContainer.
             <div class="row-fluid">
               <div class="span12">
                 <p>${textContainer.text['localEntityDeleteText'] }</p>
-                <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2LocalEntity.localEntityDeleteSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['localEntityDeleteDeleteButton'] }</a> 
-                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['localEntityDeleteCancelButton'] }</a></div>
+                <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2LocalEntity.localEntityDeleteSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['localEntityDeleteDeleteButton'] }</button> 
+                <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['localEntityDeleteCancelButton'] }</button></div>
               </div>
             </div>

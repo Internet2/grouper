@@ -727,3 +727,54 @@ button:focus-visible,
   font-size: 16.25px;
   line-height: 18px;
 }
+
+/* GRP a11y item 5: a native <button> styled as an inline text link. In-page-action
+   controls should be real buttons (correct role + keyboard semantics), not fake
+   <a href="#"> anchors, but many are visually plain text links. This class strips the
+   button chrome and inherits the surrounding text metrics so a <button> looks exactly
+   like a link, using the standard link blue #0076a5 (5.08:1 on white). Reusable for the
+   fake-button-anchor conversion across the UI. */
+.grouper-linkbutton {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: #0076a5;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.grouper-linkbutton:hover,
+.grouper-linkbutton:focus {
+  color: #003f59;
+}
+
+/* GRP a11y item 5: a native <button> styled exactly like a Bootstrap dropdown menu item,
+   for in-page-action menu items (onclick=ajax) that were fake <a href="#"> anchors. Mirrors
+   bootstrap's ".dropdown-menu li > a" rule (block, full-width, left aligned, same padding /
+   colour / hover) so the menu looks and behaves identically. NOTE: we intentionally do NOT
+   add role="menu"/"menuitem" - bootstrap 2 has no arrow-key menu navigation, and those roles
+   without it make screen-reader UX worse; the items are simply correct buttons in a list.
+   Navigation menu items (guiV2link) stay as anchors. */
+.dropdown-menu li > button.grouper-menuitem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 18px;
+  color: #333333;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.dropdown-menu li > button.grouper-menuitem:hover,
+.dropdown-menu li > button.grouper-menuitem:focus {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #006f9b;
+  background-image: linear-gradient(to bottom, #0076a5, #00648c);
+}

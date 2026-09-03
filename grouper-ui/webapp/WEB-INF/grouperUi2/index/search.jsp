@@ -43,9 +43,9 @@ ${grouper:title('searchBreadcrumb')}
                   </div>
                   <div class="form-actions">
                     <div class="span2">&nbsp;</div>
-                    <a href="#" class="btn btn-primary" onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery,filterType'});">${textContainer.text['searchButton'] }</a>
+                    <button type="button" class="btn btn-primary" onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery,filterType'});">${textContainer.text['searchButton'] }</button>
                     &nbsp;
-                    <a href="#" onclick="ajax('../app/UiV2Main.searchReset'); return false;" class="btn btn-cancel">${textContainer.text['searchResetButton'] }</a>
+                    <button type="button" onclick="ajax('../app/UiV2Main.searchReset'); return false;" class="btn btn-cancel">${textContainer.text['searchResetButton'] }</button>
                   </div>
                 </form>
                 <%-- this div will be filled with searchContents.jsp via ajax --%>

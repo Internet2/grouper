@@ -78,7 +78,7 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</a>
+        <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</button>
         <a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerAttributeDefId}');"
                            class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</a> 
       </div>

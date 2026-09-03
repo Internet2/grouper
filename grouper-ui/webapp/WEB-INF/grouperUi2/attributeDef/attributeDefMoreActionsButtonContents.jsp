@@ -22,14 +22,14 @@
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
                           <c:when test="${grouperRequestContainer.attributeDefContainer.favorite}">
-                            <li><a href="#" 
+                            <li><button type="button" class="grouper-menuitem" 
                             onclick="ajax('../app/UiV2AttributeDef.removeFromMyFavorites?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" 
-                            >${textContainer.text['attributeDefViewMoreActionsRemoveFromMyFavorites'] }</a></li>
+                            >${textContainer.text['attributeDefViewMoreActionsRemoveFromMyFavorites'] }</button></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="#"
+                            <li><button type="button" class="grouper-menuitem"
                             onclick="ajax('../app/UiV2AttributeDef.addToMyFavorites?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" 
-                            >${textContainer.text['attributeDefViewMoreActionsAddToMyFavorites'] }</a></li>
+                            >${textContainer.text['attributeDefViewMoreActionsAddToMyFavorites'] }</button></li>
                           </c:otherwise>
                         </c:choose>
 

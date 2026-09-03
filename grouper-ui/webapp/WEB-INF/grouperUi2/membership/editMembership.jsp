@@ -138,7 +138,7 @@ ${grouper:titleFromKeyAndText('membershipEditSubHeader', grouperRequestContainer
                   <div class="form-actions">
                   
                     <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
-                      <a href="#" onclick="ajax('../app/UiV2Membership.saveMembership', {formIds: 'editMembershipFormId'}); return false;" class="btn btn-primary">${textContainer.text['membershipEditSaveButton'] }</a> 
+                      <button type="button" onclick="ajax('../app/UiV2Membership.saveMembership', {formIds: 'editMembershipFormId'}); return false;" class="btn btn-primary">${textContainer.text['membershipEditSaveButton'] }</button> 
                     </c:if>
                     <c:choose>
                       <c:when test="${grouperRequestContainer.membershipGuiContainer.editMembershipFromSubject}">

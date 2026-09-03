@@ -8,14 +8,14 @@
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
                           <c:when test="${grouperRequestContainer.stemContainer.favorite}">
-                            <li><a href="#"
+                            <li><button type="button" class="grouper-menuitem"
                             onclick="ajax('../app/UiV2Stem.removeFromMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                            >${textContainer.text['stemViewMoreActionsRemoveFromMyFavorites']}</a></li>
+                            >${textContainer.text['stemViewMoreActionsRemoveFromMyFavorites']}</button></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="#"
+                            <li><button type="button" class="grouper-menuitem"
                             onclick="ajax('../app/UiV2Stem.addToMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                            >${textContainer.text['stemViewMoreActionsAddToMyFavorites']}</a></li>
+                            >${textContainer.text['stemViewMoreActionsAddToMyFavorites']}</button></li>
                           </c:otherwise>
                         </c:choose>
 

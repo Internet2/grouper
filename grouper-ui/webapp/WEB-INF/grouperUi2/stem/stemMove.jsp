@@ -50,8 +50,8 @@ ${grouper:titleFromKeyAndText('stemMovePageTitle', grouperRequestContainer.stemC
                       </label>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Stem.stemMoveSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemCopyFormId'}); return false;">${textContainer.text['stemMoveMoveButton'] }</a> 
-                  <a href="#" class="btn btn-cancel" role="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemMoveCancelButton'] }</a></div>
+                  <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.stemMoveSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemCopyFormId'}); return false;">${textContainer.text['stemMoveMoveButton'] }</button> 
+                  <button type="button" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >${textContainer.text['stemMoveCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

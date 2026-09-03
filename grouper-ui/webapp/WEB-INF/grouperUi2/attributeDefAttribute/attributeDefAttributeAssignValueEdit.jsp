@@ -76,8 +76,8 @@
       </div>
       
       <div class="form-actions">
-        <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignValueEditSubmit', {formIds: 'simpleAttributeAssignValueEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignValueEditSubmitButton'] }</a> 
-        <a href="#" class="btn btn-cancel" role="button" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.viewAttributeAssignments', {formIds: 'simpleAttributeAssignValueEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignValueEditCancelButton'] }</a>
+        <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.assignValueEditSubmit', {formIds: 'simpleAttributeAssignValueEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignValueEditSubmitButton'] }</button> 
+        <button type="button" class="btn btn-cancel" onclick="ajax('../app/UiV2AttributeDefAttributeAssignment.viewAttributeAssignments', {formIds: 'simpleAttributeAssignValueEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignValueEditCancelButton'] }</button>
       </div>
       
     </form>
