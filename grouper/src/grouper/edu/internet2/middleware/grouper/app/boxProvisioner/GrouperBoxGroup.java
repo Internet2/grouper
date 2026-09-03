@@ -407,15 +407,22 @@ public class GrouperBoxGroup {
       result.put("name", this.name);
     }
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("external_sync_identifier")) {      
+    // note: fieldNamesToSet holds GROUPER side attribute names, not the box json names.  The only
+    // caller that passes a non-null set is GrouperBoxTargetDao.updateGroup, which builds it from
+    // ProvisioningObjectChange.getAttributeName(), i.e. the names configured in
+    // targetGroupAttribute.$i$.name -- and the config UI only offers the grouper spelling.
+    // GrouperBoxUser.toJson already tests grouper names (isExemptFromDeviceLimits etc); this method
+    // used to test the box json spellings, so any attribute whose two spellings differ was silently
+    // dropped from the PUT body and never updated in box.  The emitted json keys stay box spelling.
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalSyncIdentifier")) {
       result.put("external_sync_identifier", this.externalSyncIdentifier);
     }
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("invitability_level")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("invitabilityLevel")) {
       result.put("invitability_level", this.invitabilityLevel);
     }
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("member_viewability_level")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("memberViewabilityLevel")) {
       result.put("member_viewability_level", this.memberViewabilityLevel);
     }
 

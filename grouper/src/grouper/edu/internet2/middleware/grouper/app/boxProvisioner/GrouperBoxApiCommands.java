@@ -773,14 +773,21 @@ public class GrouperBoxApiCommands {
       requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
     }
 
+    // see retrieveBoxUsers: offset paging can return the same record on two pages, and a repeat
+    // makes the provisioner see two target objects where there is one
+    Set<String> seenGroupIds = new HashSet<String>();
+
+    // raw count drives paging; results is deduped and must not be used for the offset
+    int rawGroupEntriesRetrieved = 0;
+
     try {
-      
+
       boolean allGroupsFetched = false;
-      
+
       while (allGroupsFetched == false) {
-        
+
         int[] returnCode = new int[] { -1 };
-        
+
         JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxGroups", configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
@@ -792,9 +799,15 @@ public class GrouperBoxApiCommands {
         int groupsArraySize = groupsArray == null ? 0 : groupsArray.size();
         for (int i = 0; i < groupsArraySize; i++) {
           JsonNode groupNode = groupsArray.get(i);
+          rawGroupEntriesRetrieved++;
           GrouperBoxGroup grouperBoxGroup = GrouperBoxGroup.fromJson(groupNode);
           if (grouperBoxGroup != null) {
-            results.add(grouperBoxGroup);
+            // exact repeat across pages: same id AND same name.  See retrieveBoxUsers for why.
+            if (seenGroupIds.add(grouperBoxGroup.getId())) {
+              results.add(grouperBoxGroup);
+            } else {
+              GrouperUtil.mapAddValue(debugMap, "duplicateGroupsSkipped", 1);
+            }
           }
           // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
           // not the lossy typed bean) while the JSON node is in scope. No-op outside a Box
@@ -811,8 +824,9 @@ public class GrouperBoxApiCommands {
 
         long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
-        long newOffset = results.size();
-        if (Long.valueOf(results.size()).compareTo(totalGroups) == 0 || groupsArraySize == 0) {
+        // raw count, not results.size(), since results is deduped -- see above
+        long newOffset = rawGroupEntriesRetrieved;
+        if (Long.valueOf(rawGroupEntriesRetrieved).compareTo(totalGroups) == 0 || groupsArraySize == 0) {
           allGroupsFetched = true;
         } else {
           requestUrl =  "/groups?offset="+newOffset+"&limit="+limit+"&fields=" + fieldsToSelectSingleString;
@@ -927,14 +941,25 @@ public class GrouperBoxApiCommands {
       requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
     }
 
+    // Box pages /users by offset, so a record can be returned on two pages if the underlying set
+    // shifts between calls.  A repeat makes the provisioner see two target entities for one login
+    // and park that person with a MAT error (Matching ID [login, val: x] matches 2 target
+    // entities), so drop repeats.  Keyed on the box id alone: it is box's primary key, so the same
+    // id cannot carry two different logins.
+    Set<String> seenUserIds = new HashSet<String>();
+
+    // paging offset and the termination test must count RAW entries returned by box, not the
+    // deduped results, or the offset drifts backwards and the loop re-fetches or never ends
+    int rawUserEntriesRetrieved = 0;
+
     try {
-      
+
       boolean allUsersFetched = false;
-      
+
       while (allUsersFetched == false) {
-        
+
         int[] returnCode = new int[] { -1 };
-        
+
         JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxUsers", configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
@@ -946,9 +971,15 @@ public class GrouperBoxApiCommands {
         int usersArraySize = usersArray == null ? 0 : usersArray.size();
         for (int i = 0; i < usersArraySize; i++) {
           JsonNode userNode = usersArray.get(i);
+          rawUserEntriesRetrieved++;
           GrouperBoxUser grouperBoxUser = GrouperBoxUser.fromJson(userNode);
           if (grouperBoxUser != null) {
-            results.add(grouperBoxUser);
+            // exact repeat across pages: same id AND same login
+            if (seenUserIds.add(grouperBoxUser.getId())) {
+              results.add(grouperBoxUser);
+            } else {
+              GrouperUtil.mapAddValue(debugMap, "duplicateUsersSkipped", 1);
+            }
           }
           // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
           // not the lossy typed bean) while the JSON node is in scope. No-op outside a Box
@@ -965,8 +996,9 @@ public class GrouperBoxApiCommands {
 
         long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
-        long newOffset = results.size();
-        if (Long.valueOf(results.size()).compareTo(totalUsers) == 0 || usersArraySize == 0) {
+        // raw count, not results.size(), since results is deduped -- see above
+        long newOffset = rawUserEntriesRetrieved;
+        if (Long.valueOf(rawUserEntriesRetrieved).compareTo(totalUsers) == 0 || usersArraySize == 0) {
           allUsersFetched = true;
         } else {
           requestUrl =  "/users?offset="+newOffset+"&limit="+limit+"&fields=" + fieldsToSelectSingleString;
@@ -1063,9 +1095,14 @@ public class GrouperBoxApiCommands {
     try {
 
       Map<String, String> memberIdToMembershipId = new HashMap<String, String>();
-      
+
+      // this map already collapses a member returned on two pages, so its size cannot drive the
+      // paging offset: on a repeat the size would not grow, the next offset would point at a page
+      // already read, and the loop would either spin forever or stop early.  Count raw entries.
+      int rawMemberEntriesRetrieved = 0;
+
       boolean allMembersFetched = false;
-      
+
       String urlSuffix = "/groups/"+groupId+"/memberships?limit=1000&offset=0";
       
       while (allMembersFetched == false) {
@@ -1083,7 +1120,8 @@ public class GrouperBoxApiCommands {
         int entriesSize = entries == null ? 0 : entries.size();
         for (int i = 0; i < entriesSize; i++) {
           JsonNode singleEntry = entries.get(i);
-          
+          rawMemberEntriesRetrieved++;
+
           String membershipId = GrouperUtil.jsonJacksonGetString(singleEntry, "id");
           JsonNode userNode  = GrouperUtil.jsonJacksonGetNode(singleEntry, "user");
           String userId = GrouperUtil.jsonJacksonGetString(userNode, "id");
@@ -1099,8 +1137,9 @@ public class GrouperBoxApiCommands {
 
         long totalMembers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
-        long newOffset = memberIdToMembershipId.size();
-        if (Long.valueOf(memberIdToMembershipId.size()).compareTo(totalMembers) == 0 || entriesSize == 0) {
+        // raw count, not the map size, since the map collapses repeats -- see above
+        long newOffset = rawMemberEntriesRetrieved;
+        if (Long.valueOf(rawMemberEntriesRetrieved).compareTo(totalMembers) == 0 || entriesSize == 0) {
           allMembersFetched = true;
         } else {
           urlSuffix =  "/groups/"+groupId+"/memberships?limit=1000&offset="+newOffset;

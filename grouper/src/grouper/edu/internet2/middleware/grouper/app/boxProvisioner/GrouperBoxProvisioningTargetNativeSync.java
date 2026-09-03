@@ -71,15 +71,28 @@ public class GrouperBoxProvisioningTargetNativeSync extends GrouperProvisioningT
    * is not configured. JSON-Pointer based (reads the raw Box group JSON). Excludes {@code id}
    * (already the target_group_id column). Each default's Box JSON field equals its name, so the
    * path defaults to {@code "/" + name}. Operators can configure any other Box group JSON field
-   * (description, external_sync_identifier, ...) via {@code nativeAttributesGroups} with a
-   * {@code name} (and optional {@code path}), since capture now reads the full JSON rather than the
-   * typed bean.
+   * via {@code nativeAttributesGroups} with a {@code name} (and optional {@code path}), since
+   * capture now reads the full JSON rather than the typed bean.
+   *
+   * <p>This list is deliberately generous, unlike the entity one. Box returns every group in a
+   * single call no matter how many fields are asked for, and a tenant rarely has more than a few
+   * hundred groups, so each extra attribute costs one narrow row per group per sync. The entity
+   * side is tens of thousands of users, where the same choice would add a row per user per sync.
+   * GrouperBoxConfiguration widens the box fields= list to match whenever group sync-back is on,
+   * otherwise box would never return these and every one of them would be captured as null.</p>
+   *
+   * <p>{@code permissions.can_invite_as_collaborator} is intentionally absent: it is a nested json
+   * path rather than a top level box field, so it cannot be requested in fields=.</p>
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_GROUP_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
           attrConfig("name"),
+          attrConfig("description"),
           attrConfig("group_type"),
-          attrConfig("provenance")));
+          attrConfig("provenance"),
+          attrConfig("external_sync_identifier"),
+          attrConfig("invitability_level"),
+          attrConfig("member_viewability_level")));
 
   private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
     return attrConfigWithPath(name, null);
