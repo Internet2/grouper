@@ -322,12 +322,30 @@ public class GrouperGoogleApiCommands {
 
       @Override
       public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
-        boolean isThrottle = httpClient.getResponseCode() == 403
-            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
-        if (isThrottle) {
+
+        int responseCode = httpClient.getResponseCode();
+
+        // these mean the request was rejected and not applied, so it is safe to retry any method
+        if (responseCode == 403 || responseCode == 429 || responseCode == 503) {
+          httpClient.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
+          httpClient.setRetryForThrottlingOrNetworkIssuesBackOffMillis(60*1000);
           GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+          return true;
         }
-        return isThrottle;
+
+        // google returns a 500 backendError when something is transiently wrong on their side and
+        // documents that it should be retried.  unlike a throttle, a 500 means the outcome is
+        // unknown, so dont retry a POST since the object might have been created already and the
+        // retry would come back as a duplicate.  google recommends backing off seconds, not
+        // minutes, for a backend error
+        if (responseCode == 500 && !StringUtils.equalsIgnoreCase("POST", httpMethodName)) {
+          httpClient.setRetryForThrottlingOrNetworkIssuesSleepMillis(5000);
+          httpClient.setRetryForThrottlingOrNetworkIssuesBackOffMillis(5000);
+          GrouperUtil.mapAddValue(debugMap, "serverErrorRetryCount", 1);
+          return true;
+        }
+
+        return false;
       }
     });
 
