@@ -10,7 +10,7 @@
                     <%@ include file="groupMoreActionsButtonContents.jsp"%>
                   </div>
                   <div class="span10 pull-left">
-                    <h1><i class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
+                    <h1><i aria-hidden="true" class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
@@ -285,8 +285,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <%-- <p id="groupDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p> --%>
-                    <p id="groupDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
+                    <%-- <p id="groupDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></a></p> --%>
+                    <p id="groupDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i aria-hidden="true" class="fa fa-angle-up"></i></button></p>
                   </div>
                 </div>
               </div>

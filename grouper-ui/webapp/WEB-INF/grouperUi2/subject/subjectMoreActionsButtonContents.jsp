@@ -5,22 +5,22 @@
  <c:choose>
    <c:when test="${grouperRequestContainer.stemContainer.showAddMember}">
      <button type="button" id="show-add-block" onclick="$('#add-block-stem-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
-       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToStem'] }</button>
+       ><i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToStem'] }</button>
    </c:when>
    <c:when test="${grouperRequestContainer.attributeDefContainer.showAddMember}">
      <button type="button" id="show-add-block" onclick="$('#add-block-attributeDef-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"
-       ><i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToAttributeDef'] }</button>
+       ><i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembersToAttributeDef'] }</button>
    </c:when>
    <c:when test="${grouperRequestContainer.subjectContainer.showEntityPrivilege}">
      <button type="button" id="show-add-block" onclick="showHideMemberAddBlock()" 
        class="btn btn-medium btn-primary btn-block">
-         <i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
+         <i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
      </button>
    </c:when>
    <c:otherwise>
      <button type="button" id="show-add-block" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-block btn-primary"
          style="white-space: nowrap;">
-       <i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</button> 
+       <i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</button> 
    </c:otherwise>
  </c:choose>
  

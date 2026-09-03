@@ -7,7 +7,7 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
             <div class="bread-header-container">
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
                 <br /><small>${textContainer.text['stemDeleteTitle'] }</small></h1>
               </div>
             </div>

@@ -9,7 +9,7 @@ ${grouper:titleFromKeyAndText('attributeDefActionEditTitle', attributeUpdateRequ
                ${attributeUpdateRequestContainer.guiAttributeDefToEdit.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-cog"></i>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}
+                <h1> <i aria-hidden="true" class="fa fa-cog"></i>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}
                 <br /><small>${textContainer.text['attributeDefActionEditTitle'] }</small></h1>
               </div>
 

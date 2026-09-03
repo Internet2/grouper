@@ -8,14 +8,14 @@ ${grouper:titleFromKeyAndText('stemEditTitle', grouperRequestContainer.stemConta
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}
                 <br /><small>
                 <c:choose>
                     <c:when test="${grouperRequestContainer.stemContainer.progressBean.complete}">
                       ${textContainer.text['stemEditSuccess']}
                     </c:when>
                     <c:otherwise>
-                      <i class="fa fa-spinner fa-spin"></i> ${textContainer.text['stemEditProgressSubheading']}
+                      <i aria-hidden="true" class="fa fa-spinner fa-spin"></i> ${textContainer.text['stemEditProgressSubheading']}
                     </c:otherwise>
                   </c:choose></small>
  

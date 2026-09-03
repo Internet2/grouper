@@ -5,7 +5,7 @@
                 <div class="row-fluid">
                   <div class="span10">
                     <h4>${textContainer.text['attributeDefHeaderAttributeDefinition'] }</h4>
-                    <h1><i class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}</h1>
+                    <h1><i aria-hidden="true" class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}</h1>
 
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
@@ -218,8 +218,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="attributeDefDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefDetails']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
-                    <p id="attributeDefDetailsLessId" style="display: none"><a href="#" onclick="$('#attributeDefDetailsId').hide('slow'); $('#attributeDefDetailsLessId').hide(); $('#attributeDefDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="attributeDefDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefDetails']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></a></p>
+                    <p id="attributeDefDetailsLessId" style="display: none"><a href="#" onclick="$('#attributeDefDetailsId').hide('slow'); $('#attributeDefDetailsLessId').hide(); $('#attributeDefDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i aria-hidden="true" class="fa fa-angle-up"></i></a></p>
                   </div>
                   <div class="span2" id="attributeDefMoreActionsButtonContentsDivId">
                     <%@ include file="attributeDefMoreActionsButtonContents.jsp"%>

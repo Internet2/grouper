@@ -8,14 +8,14 @@ ${grouper:titleFromKeyAndText('groupEditCompositeTitle', grouperRequestContainer
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupEditCompositeTitle'] }<br />
                   <c:choose>
                     <c:when test="${grouperRequestContainer.groupContainer.progressBean.complete}">
                       ${textContainer.text['groupCompositeProgressSubheading']}
                     </c:when>
                     <c:otherwise>
-                      <i class="fa fa-spinner fa-spin"></i> ${textContainer.text['groupCompositeProgressSubheading']}
+                      <i aria-hidden="true" class="fa fa-spinner fa-spin"></i> ${textContainer.text['groupCompositeProgressSubheading']}
                     </c:otherwise>
                   </c:choose>
               

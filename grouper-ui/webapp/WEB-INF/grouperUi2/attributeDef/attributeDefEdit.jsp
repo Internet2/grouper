@@ -9,7 +9,7 @@ ${grouper:titleFromKeyAndText('attributeDefEditTitle', grouperRequestContainer.a
               ${grouperRequestContainer.attributeDefContainer.guiAttributeDef.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}
+                <h1> <i aria-hidden="true" class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}
                 <br /><small>${textContainer.text['attributeDefEditTitle'] }</small></h1>
               </div>
 
@@ -242,10 +242,10 @@ ${grouper:titleFromKeyAndText('attributeDefEditTitle', grouperRequestContainer.a
                   
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
-                    >${textContainer.text['attributeDefCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>
+                    >${textContainer.text['attributeDefCreateAdvanced'] } <i aria-hidden="true" class="fa fa-angle-down"></i></a></p>
                   <p class="hiddenAdvancedProperties" style="display: none"
                     onclick="$('.hiddenAdvancedProperties').hide('slow'); $('.shownAdvancedProperties').show('slow'); return false;" 
-                    ><a href="#" >${textContainer.text['attributeDefCreateHideAdvanced'] } <i class="fa fa-angle-up"></i></a></p>
+                    ><a href="#" >${textContainer.text['attributeDefCreateHideAdvanced'] } <i aria-hidden="true" class="fa fa-angle-up"></i></a></p>
                   <div class="hiddenAdvancedProperties" style="display: none">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['attributeDefCreateAssignPrivilegesToEveryone'] }</label>

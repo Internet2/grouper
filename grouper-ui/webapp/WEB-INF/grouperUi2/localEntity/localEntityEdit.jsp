@@ -8,7 +8,7 @@ ${grouper:titleFromKeyAndText('localEntityEditTitle', grouperRequestContainer.gr
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-cloud-download"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-cloud-download"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['localEntityEditTitle'] }</small></h1>
               </div>
 
@@ -56,10 +56,10 @@ ${grouper:titleFromKeyAndText('localEntityEditTitle', grouperRequestContainer.gr
                   </div>
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
-                    >${textContainer.text['groupCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>
+                    >${textContainer.text['groupCreateAdvanced'] } <i aria-hidden="true" class="fa fa-angle-down"></i></a></p>
                   <p class="hiddenAdvancedProperties" style="display: none"
                     onclick="$('.hiddenAdvancedProperties').hide('slow'); $('.shownAdvancedProperties').show('slow'); return false;" 
-                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i class="fa fa-angle-up"></i></a></p>
+                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i aria-hidden="true" class="fa fa-angle-up"></i></a></p>
                   <div class="hiddenAdvancedProperties" style="display: none">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['groupCreateAssignPrivilegesToEveryone'] }</label>

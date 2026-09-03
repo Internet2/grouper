@@ -25,7 +25,7 @@
 
               <form id="searchForm" role="search" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
                 <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" aria-label="${textContainer.textEscapeXml['ariaLabelGuiSearch']}" class="search-query"><a href="?operation=UiV2Main.searchSubmit"
-                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i aria-hidden="true" class="fa fa-search"></i></a>
               </form>
 
             </div>
@@ -51,7 +51,7 @@
           <div class="span3 left-column">
             <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="?operation=UiV2Group.newGroup"
               onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
-              class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
+              class="btn btn-bigger btn-create" role="button"><i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
               <%-- disclosure/menu trigger (GRP a11y item 3): native button already
                    provides the button role and Enter/Space/click, so the explicit
                    role="button" was redundant and is removed. aria-controls points at
@@ -79,7 +79,7 @@
               <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first" aria-expanded="true" aria-controls="demo2"
               	onclick="$('#demo2').hasClass('in') ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded','true');">
               	${textContainer.text['indexQuickLinksLabel']}
-              	<i class="fa fa-plus"></i><i class="fa fa-minus"></i>
+              	<i aria-hidden="true" class="fa fa-plus"></i><i aria-hidden="true" class="fa fa-minus"></i>
               </button>
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
@@ -90,7 +90,7 @@
               </div>
               <button class="btn btn-block btn-grouper first" onclick="dojoInitMenu(true)" aria-label="${textContainer.text['indexBrowseFolders'] } ${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }">
                 ${textContainer.text['indexBrowseFolders'] }
-                <i class="fa fa-exchange"></i>
+                <i aria-hidden="true" class="fa fa-exchange"></i>
                 <span class="visually-hidden">${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }</span>
               </button>
               <div class="accordion-inner">

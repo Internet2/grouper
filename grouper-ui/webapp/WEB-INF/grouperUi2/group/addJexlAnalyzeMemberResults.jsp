@@ -18,7 +18,7 @@
 
                               </c:forEach>
 <%--                               <tr>
-                                <td><a href="#" data-dismiss="modal"><i class="fa fa-user"></i> Smith, Jane</a></td>
+                                <td><a href="#" data-dismiss="modal"><i aria-hidden="true" class="fa fa-user"></i> Smith, Jane</a></td>
                               </tr>
                               --%>
                             </tbody>

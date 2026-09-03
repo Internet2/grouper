@@ -19,11 +19,11 @@
                           var="guiStem" >
                           <%-- tr>
                             <td>Root : Applications</td>
-                            <td><i class="fa fa-folder"></i> <a href="#" data-dismiss="modal">Directories</a></td>
+                            <td><i aria-hidden="true" class="fa fa-folder"></i> <a href="#" data-dismiss="modal">Directories</a></td>
                           </tr --%>
                           <tr>
                             <td>${grouper:escapeHtml(guiStem.pathColonSpaceSeparated)}</td>
-                            <td><i class="fa fa-folder"></i> <a href="#" onclick="grouperComboboxSetId('#parentFolderComboId', '${grouper:escapeJavascript(guiStem.stem.id)}'); return true;"
+                            <td><i aria-hidden="true" class="fa fa-folder"></i> <a href="#" onclick="grouperComboboxSetId('#parentFolderComboId', '${grouper:escapeJavascript(guiStem.stem.id)}'); return true;"
                                 data-dismiss="modal">${grouper:escapeHtml(guiStem.stem.displayExtension) }</a></td>
                           </tr>
                         </c:forEach>

@@ -11,7 +11,7 @@
                   <tbody>
                     <%-- <tr>
                       <td>Root : Applications : Directories</td>
-                      <td><i class="fa fa-group"></i>&nbsp; <a href="view-group.html">Admins</a></td>
+                      <td><i aria-hidden="true" class="fa fa-group"></i>&nbsp; <a href="view-group.html">Admins</a></td>
                     </tr>  --%>
                     <c:forEach items="${grouperRequestContainer.myGroupsContainer.guiGroupsUserManages}" 
                        var="guiGroup">
