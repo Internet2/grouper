@@ -53,7 +53,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                 <form class="form-inline form-filter" id="daemonJobsFilterFormId"
                     onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
                   <div class="row-fluid">
-                    <div class="span1">
+                    <div class="span2">
                       <label for="daemonJobsFilterId" style="white-space: nowrap;">${textContainer.text['daemonJobsFilterFor'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
@@ -64,9 +64,11 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                     </div>
                   </div>
                   <div class="row-fluid" style="margin-top: 0.5em">
-                    <div class="span1">&nbsp;</div>
+                    <div class="span2" style="white-space: nowrap;">
+                      <label for="daemonJobsCommonFilterId">${textContainer.text['daemonJobsCommonSearchNamePlaceholder']}</label>
+                    </div>
                     <div class="span4" style="white-space: nowrap;">
-                      <select name="daemonJobsCommonFilter" id="daemonJobsCommonFilterId" aria-label="${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder']}">
+                      <select name="daemonJobsCommonFilter" id="daemonJobsCommonFilterId">
                         <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder'] }</option>
                         <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsCommonFilters}" var="daemonJobsCommonFilter" >
                           <option value="${grouper:escapeHtml(daemonJobsCommonFilter.value)}"
@@ -79,9 +81,11 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                   </div>
 
                   <div class="row-fluid" style="margin-top: 0.5em">
-                    <div class="span1">&nbsp;</div>
+                    <div class="span2" style="white-space: nowrap;">
+                      <label for="daemonJobsStatusFilterId">${textContainer.text['daemonJobsStatusSearchNamePlaceholder']}</label>
+                    </div>
                     <div class="span4" style="white-space: nowrap;">
-                      <select name="daemonJobsStatusFilter" id="daemonJobsStatusFilterId" aria-label="${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder']}">
+                      <select name="daemonJobsStatusFilter" id="daemonJobsStatusFilterId">
                         <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder'] }</option>
                         <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsStatusFilters}" var="daemonJobsStatusFilter" >
                           <option value="${grouper:escapeHtml(daemonJobsStatusFilter.value)}"
@@ -95,7 +99,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
 
 
                   <div class="row-fluid" style="margin-top: 0.5em">
-                    <div class="span1">&nbsp;</div>
+                    <div class="span2">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
                       <label class="checkbox">
                         <input type="checkbox" name="daemonJobsFilterShowExtendedResults" id="daemonJobsFilterShowExtendedResultsId" 
@@ -105,8 +109,8 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                       </label>
                     </div>
                   </div>
-                  <div class="row-fluid">
-                    <div class="span1">&nbsp;</div>
+                  <div class="row-fluid" style="margin-top: 1em">
+                    <div class="span2">&nbsp;</div>
                       <a class="btn" role="button" id="applyfilterdaemonjobs" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
                       <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); /*grouperAssignDaemonUrl();*/ return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
                     </div>

@@ -14,24 +14,26 @@ ${grouper:title('myActivityPageTitle')}
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <form class="form-inline form-filter" id="myActivityForm"
+                <form class="form-horizontal form-filter" id="myActivityForm"
                     onsubmit="ajax('../app/UiV2Main.myActivitySubmit', {formIds: 'myActivityForm'}); return false;">
-                  <div class="row-fluid">
-
-                    <div class="span2">
-                      <label for="myActivityFilterId" style="white-space: nowrap;">${textContainer.text['myActivityFilterFor'] }</label>
+                  <fieldset style="margin:0; padding:0;">
+                    <legend style="font-size: inherit; font-weight: bold; border: 0; margin-bottom: 8px; width: auto; line-height: inherit;">${textContainer.text['myActivityFilterFor'] }</legend>
+                    <div class="control-group">
+                      <label class="control-label" for="myActivityStartDate">${textContainer.text['myActivitySearchRangeFromPlaceholder'] }</label>
+                      <div class="controls">
+                        <input type="date" name="startDate" id="myActivityStartDate" style="width:100%; max-width:220px;" />
+                      </div>
                     </div>
-                    
-                    <div class="span6" id="dateRangeFilters"  style="white-space: nowrap;">
-                      <input type="date" name="startDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeFromPlaceholder'] }" class="span6" id="myActivityStartDate" />
-					  <input type="date" name="endDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeToPlaceholder'] }" class="span6" id="myActivityEndDate" />
+                    <div class="control-group">
+                      <label class="control-label" for="myActivityEndDate">${textContainer.text['myActivitySearchRangeToPlaceholder'] }</label>
+                      <div class="controls">
+                        <input type="date" name="endDate" id="myActivityEndDate" style="width:100%; max-width:220px;" />
+                      </div>
                     </div>
-                    
-                    <div class="span4"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" aria-controls="myActivityResultsId" onclick="ajax('../app/UiV2Main.myActivitySubmit', {formIds: 'myActivityForm'}); return false;">${textContainer.text['myActivityApplyFilterButton'] }</button>
-                      <button type="submit" onclick="ajax('../app/UiV2Main.myActivityReset'); return false;" class="btn">${textContainer.text['myActivityResetButton'] }</button>
-                    </div>
-                    
+                  </fieldset>
+                  <div class="form-actions">
+                    <button type="submit" class="btn" aria-controls="myActivityResultsId" onclick="ajax('../app/UiV2Main.myActivitySubmit', {formIds: 'myActivityForm'}); return false;">${textContainer.text['myActivityApplyFilterButton'] }</button>
+                    <button type="submit" onclick="ajax('../app/UiV2Main.myActivityReset'); return false;" class="btn">${textContainer.text['myActivityResetButton'] }</button>
                   </div>
                 </form>
                 <div id="myActivityResultsId" role="region" aria-live="polite">

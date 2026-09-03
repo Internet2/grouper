@@ -20,80 +20,47 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
                 
                 <form class="form-inline form-filter" id="logFilterFormId">
                 
-                  <div class="row-fluid">
+                                    <div class="row-fluid" role="group" aria-labelledby="startTimeGroupLabel">
                     <div class="span2">
-                      <label for="people-filter">${textContainer.text['grouperLoaderLogsFilterFor'] }</label>
-                    </div>
-                    <div class="span9" style="white-space: nowrap;">
-                      ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}
-                    </div>
-                  </div>
-
-                  <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportJob && not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}">
-                    <c:set var="daemonReportOwnerId" value="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}" />
-                    <div class="row-fluid">
-                      <div class="span2">
-                        <label class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsViewLogsReportLabel'] }</label>
-                      </div>
-                      <div class="span9">
-                        <c:if test="${not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName}">
-                          ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName)}
-                          ${textContainer.text['daemonJobsViewLogsReportOnLabel'] }
-                        </c:if>
-                        <c:choose>
-                          <c:when test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerStem}">
-                            <a href="?operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
-                            &nbsp;
-                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
-                          </c:when>
-                          <c:otherwise>
-                            <a href="?operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
-                            &nbsp;
-                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
-                          </c:otherwise>
-                        </c:choose>
-                      </div>
-                    </div>
-                  </c:if>
-
-                  <div class="row-fluid">
-                    <div class="span2">
-                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsStartedTooltip']}">
-                        <label for="startTimeFromId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsStartedTime'] }</label>
+                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsStartedTooltip']}">
+                        <span class="control-label" style="white-space: nowrap; font-weight: bold;" id="startTimeGroupLabel">${textContainer.text['grouperLoaderLogsStartedTime'] }</span>
                       </span>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
+                      <label for="startTimeFromId" class="visually-hidden">${textContainer.text['guiFrom']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="startTimeFromName" id="startTimeFromId" style="width: 12em;" />
                       &nbsp;
+                      <label for="startTimeToId" class="visually-hidden">${textContainer.text['guiTo']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="startTimeToName" id="startTimeToId" style="width: 12em;" />
                     </div>
                   </div>
 
-                  <div class="row-fluid">
+                                    <div class="row-fluid" role="group" aria-labelledby="endTimeGroupLabel">
                     <div class="span2">
-                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsEndedTooltip']}">
-                        <label for="endTimeFromId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsEndedTime'] }</label>
+                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsEndedTooltip']}">
+                        <span class="control-label" style="white-space: nowrap; font-weight: bold;" id="endTimeGroupLabel">${textContainer.text['grouperLoaderLogsEndedTime'] }</span>
                       </span>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
+                      <label for="endTimeFromId" class="visually-hidden">${textContainer.text['guiFrom']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="endTimeFromName" id="endTimeFromId" style="width: 12em;" />
                       &nbsp;
+                      <label for="endTimeToId" class="visually-hidden">${textContainer.text['guiTo']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="endTimeToName" id="endTimeToId" style="width: 12em;" />
                     </div>
                   </div>
 
-                  <div class="row-fluid">
+                                    <div class="row-fluid" role="group" aria-labelledby="lastUpdateTimeGroupLabel">
                     <div class="span2">
-                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsLastUpdatedTooltip']}">
-                        <label for="lastUpdateTimeFromId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsLastUpdatedTime'] }</label>
+                      <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsLastUpdatedTooltip']}">
+                        <span class="control-label" style="white-space: nowrap; font-weight: bold;" id="lastUpdateTimeGroupLabel">${textContainer.text['grouperLoaderLogsLastUpdatedTime'] }</span>
                       </span>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
+                      <label for="lastUpdateTimeFromId" class="visually-hidden">${textContainer.text['guiFrom']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="lastUpdateTimeFromName" id="lastUpdateTimeFromId" style="width: 12em;" />
                       &nbsp;
+                      <label for="lastUpdateTimeToId" class="visually-hidden">${textContainer.text['guiTo']}</label>
                       <input type="text" placeholder="${textContainer.text['grouperLoaderLogsTimePlaceholder'] }" name="lastUpdateTimeToName" id="lastUpdateTimeToId" style="width: 12em;" />
                     </div>
                   </div>
@@ -128,14 +95,14 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
 
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="filterZeroCountTotalId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsFilterZeroCount'] }:</label>
+                      <span class="control-label" style="white-space: nowrap; font-weight: bold;">${textContainer.text['grouperLoaderLogsFilterZeroCount'] }:</span>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
 
-                      <span style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountTotal" id="filterZeroCountTotalId" value="true" />
-                        ${textContainer.text['grouperLoaderZeroFilter_Total'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountCrud" id="filterZeroCountCrudId" value="true" />
-                        ${textContainer.text['grouperLoaderZeroFilter_CRUD'] }</span> &nbsp;
+                      <label style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountTotal" id="filterZeroCountTotalId" value="true" />
+                        ${textContainer.text['grouperLoaderZeroFilter_Total'] }</label> &nbsp;
+                      <label style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountCrud" id="filterZeroCountCrudId" value="true" />
+                        ${textContainer.text['grouperLoaderZeroFilter_CRUD'] }</label> &nbsp;
                     </div>
                   </div>
 
