@@ -16,7 +16,10 @@
 <script type="text/javascript">
   var grouperCopiedToClipboardText = "${textContainer.text['copiedToClipboardMessage']}";
   $().ajaxStop($.unblockUI);
-  $.blockUI.defaults.message = "<img src='../../grouperExternal/public/assets/images/busy.gif' alt='busy'/>";
+  // a11y item 11: the blockUI spinner is the only loading indicator during ajax. Wrap it in a
+  // role=status live region with visually-hidden "Loading" text so screen readers announce the
+  // loading state, and make the spinner image decorative (empty alt) so it is not read as "busy".
+  $.blockUI.defaults.message = "<div role='status'><img src='../../grouperExternal/public/assets/images/busy.gif' alt=''/><span class='visually-hidden'>${textContainer.text['guiLoading']}</span></div>";
   $.blockUI.defaults.css.border = 'none';
   $.blockUI.defaults.css.backgroundColor = 'transparent';
   $.blockUI.defaults.overlayCSS.opacity = '0.02';
