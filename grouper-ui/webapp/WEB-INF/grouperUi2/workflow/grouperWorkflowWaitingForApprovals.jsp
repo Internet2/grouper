@@ -62,11 +62,11 @@ ${grouper:title('workflowMiscFormsWaitingForApprovalTitle')}
                    
                 <td>
                   <div class="btn-group">
-                    <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                      aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                    <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                      aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                       ${textContainer.text['workflowInstanceTableColumnHeaderInstanceActions'] }
                       <span class="caret"></span>
-                    </a>
+                    </button>
                       <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                       
                         <li><a href="?operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}');">${textContainer.text['workflowInstanceTableColumnHeaderInstanceActionsViewInstanceForm'] }</a></li>

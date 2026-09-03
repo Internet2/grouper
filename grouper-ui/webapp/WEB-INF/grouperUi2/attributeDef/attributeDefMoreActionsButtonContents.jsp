@@ -6,7 +6,7 @@
                       <%-- on the privs tab, show the add member button --%>            
                       <c:choose>
                         <c:when test="${grouperRequestContainer.attributeDefContainer.showAddMember}">
-                          <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['attributeDefViewMoreActionsAddMembers'] }</a>
+                          <button type="button" id="show-add-block" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['attributeDefViewMoreActionsAddMembers'] }</button>
                         </c:when>
                         <c:otherwise>
                           <a href="?operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a>
@@ -14,10 +14,9 @@
                       </c:choose>
                     </c:if>
                     <div class="btn-group btn-block">
-                    	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefActions']}" href="#" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
-                    		role="button" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
+                    	<button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefActions']}" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
                     		${textContainer.text['attributeDefViewMoreActionsButton'] } <span class="caret"></span>
-                    	</a>
+                    	</button>
                       <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>

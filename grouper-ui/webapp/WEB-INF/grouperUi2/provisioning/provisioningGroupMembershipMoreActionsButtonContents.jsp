@@ -2,9 +2,9 @@
 
   <div class="btn-group btn-block">
   
-    <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreProvisioningActions']}" id="provisioning-more-action-button" aria-controls="provisioning-more-options" class="btn btn-medium btn-block dropdown-toggle" 
-      aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#grouperTypes-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioning-more-options li').first().focus();return true;});">
-        ${textContainer.text['provisioningMoreActionsButton'] } <span class="caret"></span></a>
+    <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreProvisioningActions']}" id="provisioning-more-action-button" aria-controls="provisioning-more-options" class="btn btn-medium btn-block dropdown-toggle" 
+      aria-haspopup="true" aria-expanded="false" onclick="$('#grouperTypes-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioning-more-options li').first().focus();return true;});">
+        ${textContainer.text['provisioningMoreActionsButton'] } <span class="caret"></span></button>
 
     <ul class="dropdown-menu dropdown-menu-right" id="provisioning-more-options">
 

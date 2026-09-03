@@ -18,9 +18,9 @@ ${grouper:title('rulesConfigsPageTitle')}
                   <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreProvisionerConfigsActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-                        aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#provisioner-configs-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioner-configs-more-options li').first().focus();return true;});">
-                          ${textContainer.text['provisionerConfigsMainScreenMoreActionsButton'] } <span class="caret"></span></a>
+                      <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreProvisionerConfigsActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                        aria-haspopup="true" aria-expanded="false" onclick="$('#provisioner-configs-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioner-configs-more-options li').first().focus();return true;});">
+                          ${textContainer.text['provisionerConfigsMainScreenMoreActionsButton'] } <span class="caret"></span></button>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
                         <li><a href="?operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
@@ -68,11 +68,11 @@ ${grouper:title('rulesConfigsPageTitle')}
                     
                       <td>
                          <div class="btn-group">
-                               <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                                 aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                               <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                                 aria-haspopup="true" aria-expanded="false" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                  ${textContainer.text['rulesTableActionsButton'] }
                                  <span class="caret"></span>
-                               </a>
+                               </button>
                                <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                 
                             <%--     <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">

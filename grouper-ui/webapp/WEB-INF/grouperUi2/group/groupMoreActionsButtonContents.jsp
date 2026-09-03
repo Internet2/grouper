@@ -4,10 +4,10 @@
 
                     <c:if test="${grouperRequestContainer.groupContainer.canUpdate && grouperRequestContainer.groupContainer.showAddMember}">
 
-                      <a id="show-add-block" href="javascript:void(0);" onclick="showHideMemberAddBlock()" 
-                      	class="btn btn-medium btn-primary btn-block" role="button">
+                      <button type="button" id="show-add-block" onclick="showHideMemberAddBlock()" 
+                      	class="btn btn-medium btn-primary btn-block">
                       		<i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
-                      </a>
+                      </button>
 
                     </c:if>
                     <div class="btn-group btn-block">
@@ -21,9 +21,9 @@
                          trigger now takes a unique id mirroring its already-unique <ul>, and
                          aria-controls names that <ul>. Keep role="button" (this is an <a>, not a
                          native button). The five *Browser* tests were retargeted to this id. --%>
-                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupActions']}" id="group-more-action-button" aria-controls="group-more-options" class="btn btn-medium btn-block dropdown-toggle"
-                      	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#group-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-more-options li').first().focus();return true;});">
-                      		${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
+                      <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreGroupActions']}" id="group-more-action-button" aria-controls="group-more-options" class="btn btn-medium btn-block dropdown-toggle"
+                      	aria-haspopup="true" aria-expanded="false" onclick="$('#group-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-more-options li').first().focus();return true;});">
+                      		${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></button>
   
                       <ul class="dropdown-menu dropdown-menu-right" id="group-more-options">
                         <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsQuickLinks'] }</li>

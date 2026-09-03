@@ -116,11 +116,11 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle" 
-                          	aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#membership-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#membership-more-options${i} li').first().focus();return true;});">
+                          <div class="btn-group"><button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle" 
+                          	aria-haspopup="true" aria-expanded="false" onclick="$('#membership-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#membership-more-options${i} li').first().focus();return true;});">
                           	${textContainer.text['groupPrivilegesActions']} 
                           		<span class="caret"></span>
-                          	</a>
+                          	</button>
                             <ul class="dropdown-menu dropdown-menu-right" id="membership-more-options${i}">
                                                         
                               <li><a href="?operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
