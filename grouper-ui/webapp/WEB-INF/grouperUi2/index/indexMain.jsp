@@ -14,7 +14,10 @@ ${grouper:title('grouperHomePageTitle')}
               </div>
               <div class="row-fluid">
                 <div class="span12">
-                  <h3>${textContainer.text['indexRecentActivity']}<!-- Recent activity --></h3>
+                  <%-- GRP a11y GRP-7304: bumped h3->h2 (kept at h3 visual size) so the home
+                       page outline is h1 -> h2 -> h3 with no skipped level; panel titles below
+                       are h4->h3 to match. --%>
+                  <h2 class="grouper-heading-as-h3">${textContainer.text['indexRecentActivity']}<!-- Recent activity --></h2>
   
                   <table class="table table-bottom-borders" style="background-color: white">
                     <thead>

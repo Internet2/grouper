@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexMyServices.jsp -->
-                    <h4>${textContainer.text['indexMyServicesSectionTitle'] }</h4>
+                    <h3 class="grouper-heading-as-h4">${textContainer.text['indexMyServicesSectionTitle'] }</h3>
 
                     <c:choose>
                       <c:when test="${grouperRequestContainer.indexContainer.myServicesRetrieved}">

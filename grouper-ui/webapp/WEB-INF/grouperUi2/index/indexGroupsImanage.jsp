@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexGroupsIManage.jsp -->
-                    <h4>${textContainer.text['indexMyGroupsTitle'] }</h4>
+                    <h3 class="grouper-heading-as-h4">${textContainer.text['indexMyGroupsTitle'] }</h3>
                     <c:choose>
                       <c:when test="${grouperRequestContainer.indexContainer.groupsImanageRetrieved}">
                         <ul class="unstyled list-widget">

@@ -18,7 +18,7 @@ ${grouper:title('miscellaneousDataProvidersBreadcrumb')}
 
     <div class="row-fluid">
       <div class="lead span9 pull-left">
-        <h4>${textContainer.text['miscellaneousDataProvidersMainDescription'] }</h4>
+        <h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousDataProvidersMainDescription'] }</h1>
       </div>
       <div class="span3 pull-right">
         <%@ include file="dataProviderConfigsMoreActionsButtonContents.jsp"%>

@@ -18,7 +18,7 @@ ${grouper:title('miscellaneousUserLifecycleEventsBreadcrumb')}
 
     <div class="row-fluid">
       <div class="lead span8 pull-left">
-        <h4>${textContainer.text['miscellaneousUserLifecycleEventsMainDescription'] }</h4>
+        <h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousUserLifecycleEventsMainDescription'] }</h1>
       </div>
       <div class="span3 pull-right">
         <%@ include file="userLifecycleEventsMoreActionsButtonContents.jsp"%>

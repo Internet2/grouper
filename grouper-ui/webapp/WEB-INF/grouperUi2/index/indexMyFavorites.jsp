@@ -5,7 +5,7 @@
                     <%-- HJ 20150319 
                     <h4>My favorites</h4>
                     --%>
-                    <h4>${textContainer.text['indexMyFavoritesTitle'] }</h4>
+                    <h3 class="grouper-heading-as-h4">${textContainer.text['indexMyFavoritesTitle'] }</h3>
                     <ul class="unstyled list-widget">
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiGroupsMyFavoritesAbbreviated}" var="guiGroup">
                         <li>
