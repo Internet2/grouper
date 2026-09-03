@@ -13,7 +13,7 @@
                               var="guiAttributeDef" >
                               <%-- <tr>
                                 <td>Root : Applications : Directories</td>
-                                <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
+                                <td><i aria-hidden="true" class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
                               </tr> --%>
                               <tr>
                                 <td>${guiAttributeDef.pathColonSpaceSeparated}</td>

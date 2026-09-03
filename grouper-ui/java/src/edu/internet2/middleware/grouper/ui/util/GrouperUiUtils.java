@@ -1543,7 +1543,7 @@ public class GrouperUiUtils {
                 "grouperUi.screenSubjectIcon2.screenHtmlEl.default");
 
         if (StringUtils.isBlank(defaultIconEl)) {
-          defaultIconEl = "${'<i class=\"fa fa-user\"></i> '}";  // fallback in case grouper-ui.base.properties wasn't upgraded
+          defaultIconEl = "${'<i class=\"fa fa-user\" aria-hidden=\"true\"></i> '}";  // fallback in case grouper-ui.base.properties wasn't upgraded
         }
 
         String defaultIconHtml = GrouperUtil.substituteExpressionLanguage(defaultIconEl, new HashMap<String, Object>(), false, true, true);

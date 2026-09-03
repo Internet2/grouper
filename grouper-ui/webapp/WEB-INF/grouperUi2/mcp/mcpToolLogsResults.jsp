@@ -28,10 +28,10 @@
                             <td>
                               <c:choose>
                                 <c:when test="${guiMcpToolLog.grouperMcpToolLog.isError == 'T'}">
-                                  <i class="fa fa-exclamation-circle" style="color: red;" title="Error"></i>
+                                  <i aria-hidden="true" class="fa fa-exclamation-circle" style="color: red;" title="Error"></i>
                                 </c:when>
                                 <c:otherwise>
-                                  <i class="fa fa-check-circle" style="color: green;" title="OK"></i>
+                                  <i aria-hidden="true" class="fa fa-check-circle" style="color: green;" title="OK"></i>
                                 </c:otherwise>
                               </c:choose>
                             </td>

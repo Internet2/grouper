@@ -169,7 +169,7 @@ ${grouper:title('scriptTesterScreenPageTitle')}
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['scriptExecuted']}</label></strong></td>
                                 <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
                                 <td>
-                                 <p class="showHideGshScript"><a href="#" onclick="$('.gshScript').toggle('slow'); return false;">${textContainer.text['showHideGshScript']} <i class="fa fa-angle-down"></i></a></p>
+                                 <p class="showHideGshScript"><a href="#" onclick="$('.gshScript').toggle('slow'); return false;">${textContainer.text['showHideGshScript']} <i aria-hidden="true" class="fa fa-angle-down"></i></a></p>
                                  
                                  <code class="gshScript" style="display: none; white-space: pre-wrap;"
                                   >${grouper:escapeHtml(grouperRequestContainer.scriptTesterContainer.jexlScriptTesterResult.gshScriptThatWasExecuted)}</code>

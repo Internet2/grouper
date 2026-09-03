@@ -6,7 +6,7 @@
 
                       <button type="button" id="show-add-block" onclick="showHideMemberAddBlock()" 
                       	class="btn btn-medium btn-primary btn-block">
-                      		<i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
+                      		<i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
                       </button>
 
                     </c:if>

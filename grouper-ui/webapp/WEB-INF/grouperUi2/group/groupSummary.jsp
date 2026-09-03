@@ -26,7 +26,7 @@
             &nbsp;
             <span id="groupSummaryMoreId" style="font-size: 0.65em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
                onclick="$('#groupSummaryMoreId').hide('slow'); ajax('../app/UiV2Group.viewGroupSummaryMore?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-               >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
+               >${textContainer.text['guiGroupSummaryMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></a></span>
           </c:if>
         </p></h2>
         

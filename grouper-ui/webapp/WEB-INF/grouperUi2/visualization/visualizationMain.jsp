@@ -236,7 +236,7 @@
     ${textContainer.text['visualization.graph.copySVG']}
     <span class="caret"></span>
   </button>
-  <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i class="fa fa-expand"></i></a></span>
+  <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i aria-hidden="true" class="fa fa-expand"></i></a></span>
 
   <div id="vis-copy-dot-output" style="display: none">
     <textarea id="vis-copy-dot-output-txt" aria-label="${textContainer.text['visualization.graph.copyDot']}" cols="80" rows="20" style="width: 99%"></textarea>

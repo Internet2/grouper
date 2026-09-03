@@ -192,12 +192,12 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
                 <c:if test="${isSysadmin}">
                   <a href="?operation=UiV2EntityDataFields.editDataFieldConfig&dataFieldConfigId=${grouper:escapeUrl(guiDataFieldRowDictionary.dataFieldConfigId)}" 
                      class="btn btn-mini" title="${textContainer.text['dataFieldDictionaryEditButton']}" style="margin-left: 3px;">
-                    <i class="fa fa-pencil"></i>
+                    <i aria-hidden="true" class="fa fa-pencil"></i>
                   </a>
                 </c:if>
                 <a href="#" onclick="dictionaryCopyPermalink('${grouper:escapeJavascript(guiDataFieldRowDictionary.dataFieldConfigId)}', '${grouper:escapeJavascript(guiDataFieldRowDictionary.dataRowConfigId)}'); return false;"
                    title="${textContainer.text['dataFieldDictionaryPermalinkTitle']}" style="margin-left: 3px;">
-                  <i class="fa fa-link"></i>
+                  <i aria-hidden="true" class="fa fa-link"></i>
                 </a>
               </td>
               

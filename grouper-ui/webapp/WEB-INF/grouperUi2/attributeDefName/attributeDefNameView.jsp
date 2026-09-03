@@ -17,7 +17,7 @@ ${grouper:titleFromKeyAndText('viewAttributeDefNamePageTitle', grouperRequestCon
     
                   <div class="span9 pull-left">
                     <h4>${textContainer.text['attributeDefNameHeaderAttributeDefinitionName'] }</h4>
-                    <h1> <i class="fa fa-cogs"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.displayExtension)}
+                    <h1> <i aria-hidden="true" class="fa fa-cogs"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.displayExtension)}
                     </h1>
                   </div>
                   
@@ -122,8 +122,8 @@ ${grouper:titleFromKeyAndText('viewAttributeDefNamePageTitle', grouperRequestCon
                         </tbody>
                       </table>
                     </div>
-                    <p id="attributeDefNameDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefNameDetails']}" id="moreButtonId" onclick="$('.attributeDefNameDetailsName').show('slow'); $('#attributeDefNameDetailsMoreId').hide(); $('#attributeDefNameDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
-                    <p id="attributeDefNameDetailsLessId" style="display: none"><a href="#" onclick="$('.attributeDefNameDetailsName').hide('slow'); $('#attributeDefNameDetailsLessId').hide(); $('#attributeDefNameDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
+                    <p id="attributeDefNameDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefNameDetails']}" id="moreButtonId" onclick="$('.attributeDefNameDetailsName').show('slow'); $('#attributeDefNameDetailsMoreId').hide(); $('#attributeDefNameDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></a></p>
+                    <p id="attributeDefNameDetailsLessId" style="display: none"><a href="#" onclick="$('.attributeDefNameDetailsName').hide('slow'); $('#attributeDefNameDetailsLessId').hide(); $('#attributeDefNameDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i aria-hidden="true" class="fa fa-angle-up"></i></a></p>
                                       
                   </div>
                 </div> <%-- row fluid --%>

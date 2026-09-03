@@ -13,7 +13,7 @@ ${grouper:titleFromKeyAndText('attributeDefDeleteTitle', grouperRequestContainer
               --%>
               ${grouperRequestContainer.attributeDefContainer.guiAttributeDef.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}
                 <br /><small>${textContainer.text['attributeDefDeleteTitle'] }</small></h1>
               </div>
             </div>

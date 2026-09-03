@@ -8,7 +8,7 @@
                       <%-- on the privs tab, show the add member button --%>
                       <c:choose>
                         <c:when test="${grouperRequestContainer.stemContainer.showAddMember}">
-                          <button type="button" id="show-add-block" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['stemViewMoreActionsAddMembers'] }</button>
+                          <button type="button" id="show-add-block" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['stemViewMoreActionsAddMembers'] }</button>
                         </c:when>
                         <c:otherwise>
                           <a href="?operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['stemViewEditStemButton'] }</a>

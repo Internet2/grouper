@@ -9,7 +9,7 @@ ${grouper:titleFromKeyAndText('attributeDefNameDeleteTitle', grouperRequestConta
 
               <div class="page-header blue-gradient">
                 <h4>${textContainer.text['attributeDefNameHeaderAttributeDefinitionName'] }</h4>
-                <h1> <i class="fa fa-cogs"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-cogs"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.displayExtension)}
                 <br /><small>${textContainer.text['attributeDefNameDeleteTitle'] }</small></h1>
               </div>
 

@@ -6,7 +6,7 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span10">
-                    <h1><i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}</h1>
+                    <h1><i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}</h1>
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="member-search-label">${textContainer.text['stemSearchForEntityButton'] }</h3>
@@ -251,8 +251,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="stemDetailsMoreId"><button type="button" class="grouper-linkbutton" aria-label="${textContainer.text['ariaLabelGuiMoreStemDetails']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false">${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></button></p>
-                    <p id="stemDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#stemDetailsId').hide('slow'); $('#stemDetailsLessId').hide(); $('#stemDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
+                    <p id="stemDetailsMoreId"><button type="button" class="grouper-linkbutton" aria-label="${textContainer.text['ariaLabelGuiMoreStemDetails']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false">${textContainer.text['guiMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></button></p>
+                    <p id="stemDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#stemDetailsId').hide('slow'); $('#stemDetailsLessId').hide(); $('#stemDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i aria-hidden="true" class="fa fa-angle-up"></i></button></p>
                      
                   </div>
                   <div class="span2" id="stemMoreActionsButtonContentsDivId">

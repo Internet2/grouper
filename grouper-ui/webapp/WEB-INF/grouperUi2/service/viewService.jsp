@@ -10,7 +10,7 @@ ${grouper:titleFromKeyAndText('viewServiceHeaderLabel', grouperRequestContainer.
                 <div class="row-fluid">
                   <div class="span10">
                     <h4>${textContainer.text['viewServiceHeaderLabel'] }</h4>
-                    <h1><i class="fa fa-cubes"></i> ${grouper:escapeHtml(grouperRequestContainer.serviceContainer.guiService.guiAttributeDefName.attributeDefName.displayExtension)}</h1>                    
+                    <h1><i aria-hidden="true" class="fa fa-cubes"></i> ${grouper:escapeHtml(grouperRequestContainer.serviceContainer.guiService.guiAttributeDefName.attributeDefName.displayExtension)}</h1>                    
                     <p>${grouper:escapeHtml(grouperRequestContainer.serviceContainer.guiService.guiAttributeDefName.attributeDefName.description)}</p>
                   </div>
                 </div>

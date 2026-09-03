@@ -18,7 +18,7 @@ ${grouper:title('groupImportMembersBreadcrumb')}
                         ${textContainer.text['groupImportReportSubheading']}
                       </c:when>
                       <c:otherwise>
-                        <i class="fa fa-spinner fa-spin"></i> ${textContainer.text['groupImportReportSubheading']}
+                        <i aria-hidden="true" class="fa fa-spinner fa-spin"></i> ${textContainer.text['groupImportReportSubheading']}
                       </c:otherwise>
                     </c:choose>
                    </small>

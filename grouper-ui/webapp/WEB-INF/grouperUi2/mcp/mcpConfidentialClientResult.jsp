@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                 <div class="alert alert-warning" style="margin-top: 10px;">
-                  <i class="fa fa-exclamation-triangle"></i> <strong>${textContainer.text['mcpInfoConfidentialClientSecretWarning']}</strong>
+                  <i aria-hidden="true" class="fa fa-exclamation-triangle"></i> <strong>${textContainer.text['mcpInfoConfidentialClientSecretWarning']}</strong>
                 </div>
                 <table class="table table-condensed table-striped" style="margin-top: 10px;">
                   <tbody>

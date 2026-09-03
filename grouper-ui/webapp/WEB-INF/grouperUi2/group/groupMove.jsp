@@ -7,7 +7,7 @@ ${grouper:titleFromKeyAndText('groupMovePageTitle', grouperRequestContainer.grou
             <div class="bread-header-container">
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupMoveTitle'] }</small></h1>
               </div>
             </div>
@@ -38,7 +38,7 @@ ${grouper:titleFromKeyAndText('groupMovePageTitle', grouperRequestContainer.grou
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
                         filterOperation="../app/UiV2Stem.createGroupParentFolderFilter"/>
                       
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i aria-hidden="true" class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['groupMoveIntoFolderDescription'] }</span>
                     </div>
                   </div>

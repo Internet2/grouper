@@ -8,7 +8,7 @@ ${grouper:titleFromKeyAndText('stemCopyPageTitle', grouperRequestContainer.stemC
             <div class="bread-header-container">
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
                 <br /><small>${textContainer.text['stemCopyTitle'] }</small></h1>
               </div>
             </div>
@@ -51,7 +51,7 @@ ${grouper:titleFromKeyAndText('stemCopyPageTitle', grouperRequestContainer.stemC
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
                         filterOperation="../app/UiV2Stem.stemCopyParentFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
                       
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i aria-hidden="true" class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }</span>
                     </div>
                   </div>

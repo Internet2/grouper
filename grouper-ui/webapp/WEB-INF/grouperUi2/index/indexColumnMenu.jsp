@@ -9,7 +9,7 @@
                         <li class="dropdown">
                         	<button type="button" data-toggle="dropdown" class="dropdown-toggle"
                         		aria-haspopup="true" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" aria-expanded="false" onclick="$('#widget-more-options${col}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#widget-more-options${col} li').first().focus();return true;});">
-                        	<i class="fa fa-cog edit-widget dropdown"></i></button>
+                        	<i aria-hidden="true" class="fa fa-cog edit-widget dropdown"></i></button>
                           <ul class="dropdown-menu dropdown-menu-right" id="widget-more-options${col}">
                           	<!-- HJ : 20150319 -->
                             <li class="nav-header">${textContainer.text['indexSelectWidgetToDisplay']}</li>

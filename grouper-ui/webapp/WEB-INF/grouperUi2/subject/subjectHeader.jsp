@@ -135,7 +135,7 @@
                                 <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
-                                <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
+                                <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i aria-hidden="true" class="fa fa-search"></i></a --%>
                                 ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty(); $('#addGroupSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
                                 
                               </div>
@@ -382,8 +382,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="subjectDetailsMoreId"><button type="button" class="grouper-linkbutton" aria-label="${textContainer.text['ariaLabelGuiMoreSubjectDetails']}" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false">${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></button></p>
-                    <p id="subjectDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#subjectDetailsId').hide('slow'); $('#subjectDetailsLessId').hide(); $('#subjectDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></button></p>
+                    <p id="subjectDetailsMoreId"><button type="button" class="grouper-linkbutton" aria-label="${textContainer.text['ariaLabelGuiMoreSubjectDetails']}" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false">${textContainer.text['guiMore']} <i aria-hidden="true" class="fa fa-angle-down"></i></button></p>
+                    <p id="subjectDetailsLessId" style="display: none"><button type="button" class="grouper-linkbutton" onclick="$('#subjectDetailsId').hide('slow'); $('#subjectDetailsLessId').hide(); $('#subjectDetailsMoreId').show(); return false">${textContainer.text['guiLess']} <i aria-hidden="true" class="fa fa-angle-up"></i></button></p>
                   </div>
                   <div class="span3" id="subjectMoreActionsButtonContentsDivId">
                     <%@ include file="subjectMoreActionsButtonContents.jsp"%>

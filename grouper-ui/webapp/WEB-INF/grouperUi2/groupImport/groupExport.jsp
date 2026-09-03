@@ -7,7 +7,7 @@ ${grouper:titleFromKeyAndText('groupExportPageTitle', grouperRequestContainer.gr
             <div class="bread-header-container">
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i aria-hidden="true" class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupExportTitle'] }</small></h1>
               </div>
             </div>

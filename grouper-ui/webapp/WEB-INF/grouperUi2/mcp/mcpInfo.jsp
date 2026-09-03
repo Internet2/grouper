@@ -19,13 +19,13 @@
 
                 <c:if test="${!grouperRequestContainer.mcpContainer.mcpEnabled}">
                   <div class="alert alert-warning">
-                    <i class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoNotEnabled']}
+                    <i aria-hidden="true" class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoNotEnabled']}
                   </div>
                 </c:if>
 
                 <c:if test="${grouperRequestContainer.mcpContainer.mcpUrlsNotConfigured}">
                   <div class="alert alert-error">
-                    <i class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoUrlsNotConfigured']}
+                    <i aria-hidden="true" class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoUrlsNotConfigured']}
                   </div>
                 </c:if>
 
@@ -50,31 +50,31 @@
                   </tbody>
                 </table>
 
-                <p style="margin-top: 4px; color: #666;"><i class="fa fa-info-circle"></i> ${textContainer.text['mcpInfoSessionNotePre']} ${grouperRequestContainer.mcpContainer.sessionDurationHours} ${textContainer.text['mcpInfoSessionNotePost']}</p>
+                <p style="margin-top: 4px; color: #666;"><i aria-hidden="true" class="fa fa-info-circle"></i> ${textContainer.text['mcpInfoSessionNotePre']} ${grouperRequestContainer.mcpContainer.sessionDurationHours} ${textContainer.text['mcpInfoSessionNotePost']}</p>
 
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoAccessHeader']}</h4>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.mcpContainer.allowedReadonly || grouperRequestContainer.mcpContainer.allowedReadwrite || grouperRequestContainer.mcpContainer.allowedSqlReadonly || grouperRequestContainer.mcpContainer.allowedAdminReadonly || grouperRequestContainer.mcpContainer.allowedAdminReadwrite}">
                     <ul style="list-style: none; padding-left: 20px;">
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedReadonly}">
-                        <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessReadonly']}</li>
+                        <li><i aria-hidden="true" class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessReadonly']}</li>
                       </c:if>
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedReadwrite}">
-                        <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessReadwrite']}</li>
+                        <li><i aria-hidden="true" class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessReadwrite']}</li>
                       </c:if>
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedSqlReadonly}">
-                        <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessSqlReadonly']}</li>
+                        <li><i aria-hidden="true" class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessSqlReadonly']}</li>
                       </c:if>
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedAdminReadonly}">
-                        <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessAdminReadonly']}</li>
+                        <li><i aria-hidden="true" class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessAdminReadonly']}</li>
                       </c:if>
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedAdminReadwrite}">
-                        <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessAdminReadwrite']}</li>
+                        <li><i aria-hidden="true" class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessAdminReadwrite']}</li>
                       </c:if>
                     </ul>
                   </c:when>
                   <c:otherwise>
-                    <p><span class="text-warning"><i class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoAccessDenied']}</span></p>
+                    <p><span class="text-warning"><i aria-hidden="true" class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoAccessDenied']}</span></p>
                   </c:otherwise>
                 </c:choose>
 
@@ -83,7 +83,7 @@
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoToolLogsHeader']}</h4>
                 <p>
                   <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpToolLogs'); return false;">
-                    <i class="fa fa-refresh"></i> ${textContainer.text['mcpInfoToolLogsLoadButton']}
+                    <i aria-hidden="true" class="fa fa-refresh"></i> ${textContainer.text['mcpInfoToolLogsLoadButton']}
                   </a>
                 </p>
                 <div id="mcpToolLogsResultsId"></div>
@@ -97,7 +97,7 @@
                     <label for="confidentialClientRedirectUri" style="margin-right: 6px;">${textContainer.text['mcpInfoConfidentialClientRedirectUriLabel']}</label>
                     <input type="text" name="confidentialClientRedirectUri" id="confidentialClientRedirectUri" placeholder="${textContainer.text['mcpInfoConfidentialClientRedirectUriPlaceholder']}" style="margin-right: 10px; width: 350px;" />
                     <button type="submit" class="btn btn-primary btn-small">
-                      <i class="fa fa-key"></i> ${textContainer.text['mcpInfoConfidentialClientRegisterButton']}
+                      <i aria-hidden="true" class="fa fa-key"></i> ${textContainer.text['mcpInfoConfidentialClientRegisterButton']}
                     </button>
                   </form>
                   <div id="mcpConfidentialClientResultId"></div>
@@ -106,7 +106,7 @@
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoOAuthRegistrationsHeader']}</h4>
                 <p>
                   <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpOAuthRegistrations'); return false;">
-                    <i class="fa fa-refresh"></i> ${textContainer.text['mcpInfoOAuthRegistrationsLoadButton']}
+                    <i aria-hidden="true" class="fa fa-refresh"></i> ${textContainer.text['mcpInfoOAuthRegistrationsLoadButton']}
                   </a>
                 </p>
                 <div id="mcpOAuthRegistrationsResultsId"></div>
