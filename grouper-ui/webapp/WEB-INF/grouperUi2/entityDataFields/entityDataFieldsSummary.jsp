@@ -14,7 +14,7 @@ ${grouper:title('miscellaneousEntityDataFieldsBreadcrumb')}
 
     <div class="row-fluid">
       <div class="lead span9 pull-left">
-        <h4>${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h4>
+        <h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h1>
       </div>
       <div class="span10 pull-left">
         <a href="?operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;">${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>

@@ -69,7 +69,9 @@
                 
                 <c:if test="${grouperRequestContainer.adminContainer.administrationLinksShow}">
                 	<div class="row-fluid">
-                	<h4 style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h4>
+                	<%-- GRP-7305 a11y: this section heading under the page h1 was h4 (h1->h4 skip).
+                	     Bumped to h2, size-preserved via grouper-heading-as-h4 so it looks unchanged. --%>
+                	<h2 class="grouper-heading-as-h4" style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h2>
                 		
                 	 <c:if test="${grouperRequestContainer.authenticationContainer.canViewAuthentication}">
                       <br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">

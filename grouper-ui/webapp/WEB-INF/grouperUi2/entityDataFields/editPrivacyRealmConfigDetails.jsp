@@ -17,7 +17,7 @@ ${grouper:title('miscellaneousPrivacyRealmEditBreadcrumb')}
             <div class="page-header blue-gradient">
             
               <div class="row-fluid">
-                <div class="lead span8 pull-left"><h4>${textContainer.text['miscellaneousPrivacyRealmsMainDescription'] }</h4></div>
+                <div class="lead span8 pull-left"><h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousPrivacyRealmsMainDescription'] }</h1></div>
                 <div class="span3 pull-right">
                      <%@ include file="privacyRealmConfigsMoreActionsButtonContents.jsp"%>
                  </div>

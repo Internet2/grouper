@@ -711,3 +711,19 @@ button:focus-visible,
   outline-offset: 2px;
   box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1c6070;
 }
+
+/* GRP-7304 / GRP-7305 accessibility: heading-hierarchy helpers. Used to fix outlines
+   that skip a level (home page went h1 -> h3 -> h4; config screens had a page-title h4
+   with no h1) by bumping a heading's semantic level while KEEPING its original bootstrap
+   visual size, so pages look unchanged. bootstrap sizes: h1 35.75 / h2 29.25 / h3 22.75 /
+   h4 16.25px, with line-height 36px on h1-h3 but 18px on h4. The classes are tag-agnostic
+   (a class beats bootstrap's element selector) so e.g. an h1 shown at h4 size, or an h2
+   shown at h3 size, both render at the smaller size. "-as-h4" also restores the h4
+   line-height, which h1-h3 would otherwise widen. */
+.grouper-heading-as-h3 {
+  font-size: 22.75px;
+}
+.grouper-heading-as-h4 {
+  font-size: 16.25px;
+  line-height: 18px;
+}

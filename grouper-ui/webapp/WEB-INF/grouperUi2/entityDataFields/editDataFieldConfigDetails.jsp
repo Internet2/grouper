@@ -17,7 +17,7 @@ ${grouper:title('miscellaneousDataFieldEditBreadcrumb')}
             <div class="page-header blue-gradient">
             
               <div class="row-fluid">
-                <div class="lead span9 pull-left"><h4>${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h4></div>
+                <div class="lead span9 pull-left"><h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h1></div>
                 <div class="span3 pull-right">
                      <%@ include file="dataFieldConfigsMoreActionsButtonContents.jsp"%>
                  </div>

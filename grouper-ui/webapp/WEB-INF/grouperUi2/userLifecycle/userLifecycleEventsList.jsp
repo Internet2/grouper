@@ -15,7 +15,7 @@ ${grouper:title('miscellaneousUserLifecycleEventsListBreadcrumb')}
 
     <div class="row-fluid">
       <div class="lead span8 pull-left">
-        <h4>${textContainer.text['miscellaneousUserLifecycleEventsListMainDescription'] }</h4>
+        <h1 class="grouper-heading-as-h4">${textContainer.text['miscellaneousUserLifecycleEventsListMainDescription'] }</h1>
       </div>
     </div>
     <div class="row-fluid">

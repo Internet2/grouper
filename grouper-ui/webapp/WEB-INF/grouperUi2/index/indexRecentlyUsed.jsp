@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexRecentlyUsed.jsp -->
-                    <h4>${textContainer.text['indexRecentlyUsedRecentlyUsed'] }</h4>
+                    <h3 class="grouper-heading-as-h4">${textContainer.text['indexRecentlyUsedRecentlyUsed'] }</h3>
                     
                     <c:choose>
                       <c:when test="${grouperRequestContainer.indexContainer.recentlyUsedRetrieved}">
