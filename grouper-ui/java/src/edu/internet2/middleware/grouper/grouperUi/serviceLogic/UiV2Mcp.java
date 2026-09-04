@@ -15,12 +15,18 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -33,14 +39,18 @@ import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiMcpRecipeConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiMcpToolLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiOAuthClient;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.McpContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipe;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipeConfiguration;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -502,6 +512,409 @@ public class UiV2Mcp extends UiServiceLogicBase {
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("mcpInfoConfidentialClientSuccess")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * show the table of MCP recipes
+   * @param request
+   * @param response
+   */
+  public void viewMcpRecipes(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      // an administrator sees every recipe and can do anything to it.  somebody who only owns
+      // the content of a recipe or two still gets here, but sees just those, with the
+      // restricted edit screen behind them.  without that a delegated editor has nowhere to
+      // edit at all when editing over MCP is off, which is the default
+      boolean canAdmin = mcpContainer.isCanOperateOnMcpRecipeConfigs();
+
+      if (!canAdmin && !mcpContainer.isCanEditAnyMcpRecipe()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      List<GrouperMcpRecipeConfiguration> mcpRecipeConfigurations =
+          GrouperMcpRecipeConfiguration.retrieveAllMcpRecipeConfigurations();
+
+      if (!canAdmin) {
+        Map<String, GrouperMcpRecipe> editableRecipes =
+            GrouperMcpRecipe.retrieveRecipesCanEdit(loggedInSubject);
+
+        Set<String> editableConfigIds = new HashSet<String>();
+        for (GrouperMcpRecipe editableRecipe : editableRecipes.values()) {
+          editableConfigIds.add(editableRecipe.getConfigId());
+        }
+
+        List<GrouperMcpRecipeConfiguration> filteredConfigurations =
+            new ArrayList<GrouperMcpRecipeConfiguration>();
+        for (GrouperMcpRecipeConfiguration mcpRecipeConfiguration : mcpRecipeConfigurations) {
+          if (editableConfigIds.contains(mcpRecipeConfiguration.getConfigId())) {
+            filteredConfigurations.add(mcpRecipeConfiguration);
+          }
+        }
+        mcpRecipeConfigurations = filteredConfigurations;
+      }
+
+      List<GuiMcpRecipeConfiguration> guiMcpRecipeConfigurations =
+          GuiMcpRecipeConfiguration.convertFromMcpRecipeConfiguration(mcpRecipeConfigurations);
+
+      mcpContainer.setGuiMcpRecipeConfigurations(guiMcpRecipeConfigurations);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/mcp/mcpRecipes.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * show the add recipe form
+   * @param request
+   * @param response
+   */
+  public void addMcpRecipe(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      if (!mcpContainer.isCanOperateOnMcpRecipeConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      String configId = request.getParameter("mcpRecipeConfigId");
+
+      // the form posts back to itself as fields change so that show/hide and expression
+      // language evaluation stay live.  on the first load there is no configId yet
+      if (StringUtils.isNotBlank(configId)) {
+
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#mcpRecipeConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+
+        GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();
+        mcpRecipeConfiguration.setConfigId(configId);
+        mcpRecipeConfiguration.populateConfigurationValuesFromUi(request);
+
+        mcpContainer.setGuiMcpRecipeConfiguration(
+            GuiMcpRecipeConfiguration.convertFromMcpRecipeConfiguration(mcpRecipeConfiguration));
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/mcp/mcpRecipeAdd.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * insert a new recipe
+   * @param request
+   * @param response
+   */
+  public void addMcpRecipeSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      if (!mcpContainer.isCanOperateOnMcpRecipeConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      String configId = request.getParameter("mcpRecipeConfigId");
+
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#mcpRecipeConfigId",
+            TextContainer.retrieveFromRequest().getText().get("mcpRecipeCreateErrorConfigIdRequired")));
+        return;
+      }
+
+      GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();
+
+      mcpRecipeConfiguration.setConfigId(configId);
+      mcpRecipeConfiguration.populateConfigurationValuesFromUi(request);
+
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+
+      mcpRecipeConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay,
+          new ArrayList<String>());
+
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay : errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey : validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey,
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Mcp.viewMcpRecipes')"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("mcpRecipeAddEditSuccess")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * show the edit recipe form
+   * @param request
+   * @param response
+   */
+  public void editMcpRecipe(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      String configId = request.getParameter("mcpRecipeConfigId");
+
+      // one screen for both audiences: a recipe administrator, or the content owner of this
+      // particular recipe.  which fields each may change is decided by
+      // GrouperMcpRecipeConfiguration.retrieveAttributes, not here
+      if (!canEditThisMcpRecipe(loggedInSubject, mcpContainer, configId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#mcpRecipeConfigId",
+            TextContainer.retrieveFromRequest().getText().get("mcpRecipeCreateErrorConfigIdRequired")));
+        return;
+      }
+
+      GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();
+      mcpRecipeConfiguration.setConfigId(configId);
+
+      // a content owner sees the administration fields read only.  before the populate below, so
+      // a posted value for one of them is skipped rather than read
+      mcpRecipeConfiguration.markAdminOnlyFieldsReadOnly(loggedInSubject);
+
+      String previousConfigId = request.getParameter("previousMcpRecipeConfigId");
+
+      // blank previous config id means this is the first render, so the values come from
+      // config.  otherwise the form is posting back to itself and the values come from it
+      if (StringUtils.isNotBlank(previousConfigId)) {
+        mcpRecipeConfiguration.populateConfigurationValuesFromUi(request);
+      }
+
+      mcpContainer.setGuiMcpRecipeConfiguration(
+          GuiMcpRecipeConfiguration.convertFromMcpRecipeConfiguration(mcpRecipeConfiguration));
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/mcp/mcpRecipeEdit.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * save an edited recipe
+   * @param request
+   * @param response
+   */
+  public void editMcpRecipeSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      String configId = request.getParameter("mcpRecipeConfigId");
+
+      if (!canEditThisMcpRecipe(loggedInSubject, mcpContainer, configId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#mcpRecipeConfigId",
+            TextContainer.retrieveFromRequest().getText().get("mcpRecipeCreateErrorConfigIdRequired")));
+        return;
+      }
+
+      GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();
+
+      mcpRecipeConfiguration.setConfigId(configId);
+
+      // a content owner's post carries the administration fields too, since they were rendered
+      // read only rather than left out.  mark them read only again here, on this request's own
+      // instance: populateConfigurationValuesFromUi skips read only attributes, so what they
+      // sent for those is then ignored rather than trusted
+      mcpRecipeConfiguration.markAdminOnlyFieldsReadOnly(loggedInSubject);
+
+      mcpRecipeConfiguration.populateConfigurationValuesFromUi(request);
+
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      mcpRecipeConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
+
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay : errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey : validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey,
+              validationErrorsToDisplay.get(validationKey)));
+        }
+        return;
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Mcp.viewMcpRecipes')"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("mcpRecipeAddEditSuccess")));
+
+      for (String actionPerformed : actionsPerformed) {
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, actionPerformed));
+      }
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+
+  /**
+   * find the recipe named on the request, if this user owns its content or administers recipes
+   * @param request the request carrying mcpRecipeConfigId
+   * @param loggedInSubject the logged in subject
+   * @param mcpContainer the container
+   * @return the recipe, or null if this user may not edit its content
+   */
+  private static boolean canEditThisMcpRecipe(Subject loggedInSubject, McpContainer mcpContainer,
+      String configId) {
+
+    configId = StringUtils.trimToNull(configId);
+
+    if (configId == null) {
+      return false;
+    }
+
+    // a recipe administrator can edit any recipe, including one which is turned off.  otherwise
+    // turning a recipe off in order to rewrite it would make it impossible to rewrite
+    if (mcpContainer.isCanOperateOnMcpRecipeConfigs()) {
+      return true;
+    }
+
+    // otherwise this has to be a recipe whose groupNameCanEdit names a group they are in.  the
+    // fields they may actually change are decided in GrouperMcpRecipeConfiguration
+    Map<String, GrouperMcpRecipe> recipesCanEdit =
+        GrouperMcpRecipe.retrieveRecipesCanEdit(loggedInSubject);
+
+    for (GrouperMcpRecipe candidateRecipe : recipesCanEdit.values()) {
+      if (Strings.CS.equals(configId, candidateRecipe.getConfigId())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * delete a recipe
+   * @param request
+   * @param response
+   */
+  public void deleteMcpRecipe(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final McpContainer mcpContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMcpContainer();
+
+      if (!mcpContainer.isCanOperateOnMcpRecipeConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      String configId = request.getParameter("mcpRecipeConfigId");
+
+      if (StringUtils.isBlank(configId)) {
+        throw new RuntimeException("ConfigId cannot be blank");
+      }
+
+      GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();
+      mcpRecipeConfiguration.setConfigId(configId);
+
+      mcpRecipeConfiguration.deleteConfig(true);
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Mcp.viewMcpRecipes')"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("mcpRecipeDeleteSuccess")));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

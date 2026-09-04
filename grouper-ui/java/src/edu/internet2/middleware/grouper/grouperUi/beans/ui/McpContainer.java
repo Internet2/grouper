@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipe;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -433,5 +434,105 @@ public class McpContainer {
    */
   public void setGuiOAuthClients(List<GuiOAuthClient> guiOAuthClients) {
     this.guiOAuthClients = guiOAuthClients;
+  }
+
+  /** the MCP recipes shown on the recipes screen */
+  private List<GuiMcpRecipeConfiguration> guiMcpRecipeConfigurations;
+
+  /** the one MCP recipe being added or edited */
+  private GuiMcpRecipeConfiguration guiMcpRecipeConfiguration;
+
+  /**
+   * the one MCP recipe being added or edited
+   * @return the recipe
+   */
+  public GuiMcpRecipeConfiguration getGuiMcpRecipeConfiguration() {
+    return this.guiMcpRecipeConfiguration;
+  }
+
+  /**
+   * @param guiMcpRecipeConfiguration1 the recipe to set
+   */
+  public void setGuiMcpRecipeConfiguration(GuiMcpRecipeConfiguration guiMcpRecipeConfiguration1) {
+    this.guiMcpRecipeConfiguration = guiMcpRecipeConfiguration1;
+  }
+
+  /**
+   * the MCP recipes shown on the recipes screen
+   * @return the recipes
+   */
+  public List<GuiMcpRecipeConfiguration> getGuiMcpRecipeConfigurations() {
+    return this.guiMcpRecipeConfigurations;
+  }
+
+  /**
+   * @param guiMcpRecipeConfigurations1 the recipes to set
+   */
+  public void setGuiMcpRecipeConfigurations(List<GuiMcpRecipeConfiguration> guiMcpRecipeConfigurations1) {
+    this.guiMcpRecipeConfigurations = guiMcpRecipeConfigurations1;
+  }
+
+  /**
+   * whether the logged in user can view and edit MCP recipe configurations.  a recipe is
+   * standing guidance handed to every future AI session of everybody who can see it, so this
+   * is deliberately the same bar as other configuration editing rather than something a
+   * recipe's own audience can reach.
+   * @return true if the user can operate on recipe configs
+   */
+  public boolean isCanOperateOnMcpRecipeConfigs() {
+
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    return GrouperMcpRecipe.canAdminInUi(loggedInSubject);
+  }
+
+  /**
+   * whether the logged in user owns at least one recipe through its groupNameCanEdit, and so
+   * reaches the edit screen even though they administer nothing.  they get the same form an
+   * administrator gets, with the fields they may not change read only.  this is what keeps the
+   * delegation working when editing over MCP is turned off, which is the default
+   * @return true if the user can edit at least one recipe's content
+   */
+  public boolean isCanEditAnyMcpRecipe() {
+
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (loggedInSubject == null) {
+      return false;
+    }
+
+    return !GrouperMcpRecipe.retrieveRecipesCanEdit(loggedInSubject).isEmpty();
+  }
+
+  /**
+   * recipes which look fine but do nothing: pointing at a tool which no longer exists, or
+   * naming a group which has been deleted.  both are usually the aftermath of an upgrade or a
+   * tidy up, and neither shows anywhere else.  only worked out for people who can act on it
+   * @return one line per problem, empty when there are none
+   */
+  public List<String> getMcpRecipeProblems() {
+
+    if (!this.isCanOperateOnMcpRecipeConfigs()) {
+      return new java.util.ArrayList<String>();
+    }
+
+    return GrouperMcpRecipe.retrieveProblems();
+  }
+
+  /**
+   * whether the logged in user should see the MCP recipes link at all: either they administer
+   * recipes, or they own the content of at least one
+   * @return true if the recipes screens are reachable for this user
+   */
+  public boolean isCanSeeMcpRecipesLink() {
+
+    // recipes only do anything through MCP, so with MCP switched off the screen has nothing to
+    // offer.  checking this first also keeps a deployment which does not use MCP from resolving
+    // recipe memberships on every render of the Miscellaneous page
+    if (!this.isMcpEnabled()) {
+      return false;
+    }
+
+    return this.isCanOperateOnMcpRecipeConfigs() || this.isCanEditAnyMcpRecipe();
   }
 }

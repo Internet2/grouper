@@ -42,6 +42,16 @@
                         >${textContainer.text['miscMcpLink'] }</a>
                     </c:if>
 
+                    <%-- shown to recipe administrators and to anybody who owns the content of a
+                         recipe, otherwise a delegated editor has a screen they cannot reach.
+                         deliberately NOT in the Administration section below: that whole block is
+                         gated on isWheelOrRoot, which would hide this from both populations this
+                         link exists for, since neither is a Grouper root by design --%>
+                    <c:if test="${grouperRequestContainer.mcpContainer.canSeeMcpRecipesLink}">
+                      <br /><br /><a id="miscMcpRecipesLink" href="?operation=UiV2Mcp.viewMcpRecipes" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Mcp.viewMcpRecipes');" style="white-space: nowrap;"
+                        >${textContainer.text['miscAdminMcpRecipesLink'] }</a>
+                    </c:if>
+
                     <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
                       <br /><br /><a id="miscInheritedPrivilegesLink" href="?operation=UiV2Main.globalInheritedPrivileges" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
                       >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
@@ -107,7 +117,7 @@
                     
                     <br /><br /><a href="?operation=UiV2EntityDataFields.viewEntityDataFieldsSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');" style="white-space: nowrap;"
                       >${textContainer.text['miscAdminDataFieldsLink'] }</a>
-                      
+
                     <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
                       <br /><br /><a id="miscExternalSystemsLink" href="?operation=UiV2ExternalSystem.viewExternalSystems" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>

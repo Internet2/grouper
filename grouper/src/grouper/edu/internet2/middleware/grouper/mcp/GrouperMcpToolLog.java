@@ -119,6 +119,26 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
    * @return the tool category string
    */
   public static String getToolCategory(String toolName) {
+    return getToolCategory(toolName, null);
+  }
+
+  /**
+   * category of a tool call, taking the action into account for tools where one name covers
+   * both reads and writes.  the recipe tool is the case: list and get are ordinary reads which
+   * happen whenever a client consults guidance, while update writes standing guidance for a
+   * whole population and belongs on a tighter limit
+   * @param toolName the tool name
+   * @param action the action argument, may be null
+   * @return the category
+   */
+  public static String getToolCategory(String toolName, String action) {
+
+    if ("recipe".equals(toolName)) {
+      // an unrecognised or missing action is going to be refused by the tool anyway, so it
+      // counts against the reads rather than being given the more generous write budget
+      return "update".equals(action) ? CATEGORY_READWRITE : CATEGORY_READONLY;
+    }
+
     if (toolName == null) {
       return CATEGORY_READONLY;
     }
@@ -135,6 +155,8 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
       case "group_has_member":
       case "memberships_get":
       case "privilege_get":
+        // recipe is not here: its category depends on the action, and is worked out above.  a
+        // case for it here would be unreachable and would tell a reader the wrong thing
         return CATEGORY_READONLY;
       case "attribute_assignment_save":
       case "folder_delete":

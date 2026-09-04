@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpDocSearchIndex;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpToolNames;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -1482,6 +1483,14 @@ public class GrouperMcpServlet extends HttpServlet {
                 addToolIfAllowed(toolsArray, institutionalToolDef);
               }
             }
+
+            {
+              ObjectNode recipeToolDef = GrouperMcpRecipeTool.toolDefinition(authUser,
+                  hasReadwriteAccess(authUser));
+              if (recipeToolDef != null) {
+                addToolIfAllowed(toolsArray, recipeToolDef);
+              }
+            }
           }
 
           // readwrite tools
@@ -1527,6 +1536,11 @@ public class GrouperMcpServlet extends HttpServlet {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+    // a recipe which names tools gets a pointer added to those tools' own descriptions.  it is
+    // done here, over the finished list, so it covers every tool without each one having to
+    // know about recipes, and so the recipes are looked up once rather than per tool
+    GrouperMcpRecipeTool.appendRecipePointers(toolsArray, authUser);
+
     result.set("tools", toolsArray);
 
     // caching hints, required on this operation in spec version 2026-07-28.  the scope is
@@ -1548,6 +1562,16 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private static void addToolIfAllowed(ArrayNode toolsArray, ObjectNode toolDef) {
     String toolName = toolDef.get("name").asText();
+
+    // a tool which is not in GrouperMcpToolNames cannot be pointed at by a recipe, because the
+    // recipe configuration validates against that list.  failing here rather than quietly
+    // advertising it means adding a tool without registering it is caught the first time the
+    // list is built, not months later by somebody wondering why their recipe does nothing
+    if (!GrouperMcpToolNames.isToolName(toolName)) {
+      throw new RuntimeException("MCP tool '" + toolName + "' is not in GrouperMcpToolNames. "
+          + "Add it there so recipes can point at it.");
+    }
+
     if (isToolAllowedByConfig(toolName)) {
       toolsArray.add(toolDef);
     }
@@ -1563,7 +1587,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param toolName the tool name
    * @return true if the tool is allowed
    */
-  private static boolean isToolAllowedByConfig(String toolName) {
+  static boolean isToolAllowedByConfig(String toolName) {
     String allowList = StringUtils.trimToNull(
         GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.allow"));
     String denyList = StringUtils.trimToNull(
@@ -1645,7 +1669,11 @@ public class GrouperMcpServlet extends HttpServlet {
 
     String toolName = params.get("name").asText();
     JsonNode arguments = params.get("arguments");
-    String toolCategory = GrouperMcpToolLog.getToolCategory(toolName);
+    // the action is passed as well because one tool can cover both reads and writes, and those
+    // do not belong on the same rate limit
+    String toolAction = arguments != null && arguments.has("action")
+        && !arguments.get("action").isNull() ? arguments.get("action").asText() : null;
+    String toolCategory = GrouperMcpToolLog.getToolCategory(toolName, toolAction);
 
     // --- throttle check ---
     String throttleError = GrouperMcpToolLogUtil.checkThrottle(authUser, toolCategory);
@@ -1690,6 +1718,16 @@ public class GrouperMcpServlet extends HttpServlet {
               if (firstContent.has("text")) {
                 responseTextHolder[0] = firstContent.get("text").asText();
               }
+            }
+
+            // a failed call is the one moment a model is certainly reading, since it is looking
+            // at the response to its own request rather than deciding whether to go and look
+            // something up.  so if this institution has a recipe for this tool, the failure
+            // carries it, rather than leaving the model to report a dead end.  this is done
+            // after the response text is captured above, so the audit log keeps the tool's own
+            // message and does not grow by the length of a recipe on every failure
+            if (isErrorHolder[0]) {
+              GrouperMcpRecipeTool.appendRecipesToError(resultHolder[0], toolName, authUser);
             }
 
           } catch (GrouperMcpProtocolException gmpe) {
@@ -1883,6 +1921,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP readonly or readwrite group is required.");
         }
         return GrouperMcpInstitutionalTools.execute(arguments, authUser, hasReadwriteAccess(authUser));
+      case "recipe":
+        if (!hasReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for recipe. "
+              + "Membership in the MCP readonly or readwrite group is required.");
+        }
+        return GrouperMcpRecipeTool.execute(arguments, authUser, hasReadwriteAccess(authUser));
       // SQL readonly tools (alphabetical)
       case "sql_get_schema":
         if (!hasSqlReadonlyAccess(authUser)) {
