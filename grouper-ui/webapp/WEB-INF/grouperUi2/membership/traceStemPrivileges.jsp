@@ -48,7 +48,7 @@ ${grouper:title('privilegesTraceBreadcrumb')}
                   <p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
                   <p style="margin-left:20px;"><i aria-hidden="true" class="fa fa-arrow-circle-o-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
                   <p style="margin-left:40px;"><i aria-hidden="true" class="fa fa-arrow-circle-o-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
-                  <p style="margin-left:60px"><i aria-hidden="true" class="fa fa-arrow-circle-o-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+                  <p style="margin-left:60px"><i aria-hidden="true" class="fa fa-arrow-circle-o-right"></i> Root : Applications : Wiki : Editors</p>
                   <hr />
                 --%>
                 <%-- note, this is generated in Java in UiV2Membership.traceMembership --%>

@@ -14,7 +14,7 @@
                     <tr>
                       <td colspan="7" class="table-toolbar gradient-background">
                         <c:if test="${grouperRequestContainer.stemContainer.canUpdateAttributes}">
-                          <a href="#" onclick="ajax('../app/UiV2Stem.removeInheritedPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemPrivilegeFormId'}); return false;" class="btn">${textContainer.text['stemRemoveSelectedInheritedPrivilegesButton'] }</a>
+                          <button type="button" onclick="ajax('../app/UiV2Stem.removeInheritedPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemPrivilegeFormId'}); return false;" class="btn">${textContainer.text['stemRemoveSelectedInheritedPrivilegesButton'] }</button>
                         </c:if>
                       </td>
                     </tr>

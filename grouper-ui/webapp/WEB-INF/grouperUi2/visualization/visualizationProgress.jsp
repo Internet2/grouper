@@ -3,9 +3,9 @@
 <c:choose>
   <c:when test="${grouperRequestContainer.visualizationContainer.progressBean == null || grouperRequestContainer.visualizationContainer.progressBean.complete}">
     ${textContainer.text['visualization.title']}
-    <a href="#" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">
-      <span class="fa fa-cog"></span><span class="caret"></span>
-    </a>
+    <button type="button" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">
+      <span aria-hidden="true" class="fa fa-cog"></span><span class="caret"></span>
+    </button>
   </c:when>
   <c:otherwise>
     <i aria-hidden="true" class="fa fa-spinner fa-spin"></i> ${textContainer.text['visualizationProgressSubheading']}

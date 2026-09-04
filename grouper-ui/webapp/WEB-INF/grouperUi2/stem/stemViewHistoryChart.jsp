@@ -30,8 +30,8 @@ ${grouper:titleFromKeyAndText('groupHistoryChartPageTitle', grouperRequestContai
                           <label for="dateFromAbsoluteOptionId" style="white-space: nowrap;">${textContainer.text['groupHistoryChartRange'] }</label>
                         </div>
                         <div class="span4" style="white-space: nowrap;">
-                          <a class="btn chartRangeOption" role="button" id="dateFromRelativeOptionId" aria-controls="dateFromRelativeOptionId" href="#" onclick="return showHideActivityChartFormDates(this)">${textContainer.text['groupHistoryChartBtnDateFromRelativeOption'] }</a>
-                          <a class="btn chartRangeOption" role="button" id="dateFromAbsoluteOptionId" aria-controls="dateFromAbsoluteOptionId" href="#" onclick="return showHideActivityChartFormDates(this)">${textContainer.text['groupHistoryChartBtnDateFromAbsoluteOption'] }</a>
+                          <button type="button" class="btn chartRangeOption" id="dateFromRelativeOptionId" aria-controls="dateFromRelativeOptionId" onclick="return showHideActivityChartFormDates(this)">${textContainer.text['groupHistoryChartBtnDateFromRelativeOption'] }</button>
+                          <button type="button" class="btn chartRangeOption" id="dateFromAbsoluteOptionId" aria-controls="dateFromAbsoluteOptionId" onclick="return showHideActivityChartFormDates(this)">${textContainer.text['groupHistoryChartBtnDateFromAbsoluteOption'] }</button>
                           <input type="hidden" name="dateRangeType" id="dateRangeTypeId" />
                         </div>
                       </div>
