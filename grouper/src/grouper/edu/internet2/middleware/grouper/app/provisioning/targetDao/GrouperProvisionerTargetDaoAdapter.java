@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCrudOperationOrder;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
@@ -403,51 +404,139 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         commandLogFinallyBlock(commandLogStarted, hasError, "sendChangesToTarget");
       }
 
+    } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getCrudOperationOrder() 
+        == GrouperProvisioningCrudOperationOrder.insertsFirst) {
+      sendChangesToTargetInsertsFirst(targetDaoSendChangesToTargetRequest);
     } else {
-      boolean sendAllMembershipChangesAtOnce = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendMembershipChangesToTarget(), false);
-      
-      if (sendAllMembershipChangesAtOnce) {
-        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
-            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
-            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
-        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
-        
-      } else {
-        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
-            new ArrayList<>(), 
-            new ArrayList<>(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
-            new HashMap<>());
-        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
-      }
-      
-      {
-        TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
-            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
-            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningGroups(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningGroups());
-        sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
-      }
-      {
-        TargetDaoSendEntityChangesToTargetRequest targetDaoSendEntityChangesToTargetRequest = new TargetDaoSendEntityChangesToTargetRequest(
-            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningEntities(), 
-            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningEntities(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningEntities());
-        sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
-      }
-      if (!sendAllMembershipChangesAtOnce) {
-        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
-            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
-            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-            new ArrayList<>(),
-            targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
-        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
-      }
+      sendChangesToTargetDeletesFirst(targetDaoSendChangesToTargetRequest);
     }
     return null;
 
+  }
+
+  /**
+   * send the changes to the target with removing operations before creating operations.  Membership
+   * deletes go first so a group is emptied before it is deleted, and so capacity limited targets have
+   * room freed up before the inserts run.  This is the default order.
+   * @param targetDaoSendChangesToTargetRequest
+   */
+  private void sendChangesToTargetDeletesFirst(
+      TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest) {
+
+    boolean sendAllMembershipChangesAtOnce = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendMembershipChangesToTarget(), false);
+    
+    if (sendAllMembershipChangesAtOnce) {
+      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
+      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+      
+    } else {
+      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+          new ArrayList<>(), 
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new HashMap<>());
+      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+    }
+    
+    {
+      TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningGroups(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningGroups());
+      sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
+    }
+    {
+      TargetDaoSendEntityChangesToTargetRequest targetDaoSendEntityChangesToTargetRequest = new TargetDaoSendEntityChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningEntities(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningEntities(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningEntities());
+      sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
+    }
+    if (!sendAllMembershipChangesAtOnce) {
+      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
+      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+    }
+  }
+
+  /**
+   * send the changes to the target with every creating operation before every removing operation, so
+   * that entities gaining access do not wait behind the entire delete queue.  Membership inserts stay
+   * after the group and entity inserts since they depend on them, and membership deletes stay ahead of
+   * the group and entity deletes so a group is emptied before it is removed.
+   * 
+   * Note: a rename within a single run (old object deleted, new object inserted carrying the same
+   * unique name) will collide here since the old object is still in the target when the insert runs.
+   * Capacity capped targets have the same exposure.  That is why this is opt in.
+   * @param targetDaoSendChangesToTargetRequest
+   */
+  private void sendChangesToTargetInsertsFirst(
+      TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest) {
+
+    boolean sendAllMembershipChangesAtOnce = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendMembershipChangesToTarget(), false);
+
+    List<ProvisioningGroup> groupInserts = targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups();
+    List<ProvisioningGroup> groupUpdates = targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningGroups();
+    List<ProvisioningGroup> groupDeletes = targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningGroups();
+
+    List<ProvisioningEntity> entityInserts = targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningEntities();
+    List<ProvisioningEntity> entityUpdates = targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningEntities();
+    List<ProvisioningEntity> entityDeletes = targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningEntities();
+
+    // group inserts and updates.  skip the call if there is nothing to do so a dao which implements
+    // canSendGroupChangesToTarget does not get an extra no-op invocation
+    if (GrouperUtil.length(groupInserts) > 0 || GrouperUtil.length(groupUpdates) > 0) {
+      sendGroupChangesToTarget(new TargetDaoSendGroupChangesToTargetRequest(
+          groupInserts, groupUpdates, new ArrayList<>()));
+    }
+
+    // entity inserts and updates
+    if (GrouperUtil.length(entityInserts) > 0 || GrouperUtil.length(entityUpdates) > 0) {
+      sendEntityChangesToTarget(new TargetDaoSendEntityChangesToTargetRequest(
+          entityInserts, entityUpdates, new ArrayList<>()));
+    }
+
+    if (sendAllMembershipChangesAtOnce) {
+      // the dao receives all the membership changes in one call and picks its own order
+      sendMembershipChangesToTarget(new TargetDaoSendMembershipChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships()));
+    } else {
+      // membership inserts, updates, replaces
+      sendMembershipChangesToTarget(new TargetDaoSendMembershipChangesToTargetRequest(
+          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships()));
+
+      // then membership deletes
+      sendMembershipChangesToTarget(new TargetDaoSendMembershipChangesToTargetRequest(
+          new ArrayList<>(), 
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new HashMap<>()));
+    }
+
+    // group deletes
+    if (GrouperUtil.length(groupDeletes) > 0) {
+      sendGroupChangesToTarget(new TargetDaoSendGroupChangesToTargetRequest(
+          new ArrayList<>(), new ArrayList<>(), groupDeletes));
+    }
+
+    // entity deletes
+    if (GrouperUtil.length(entityDeletes) > 0) {
+      sendEntityChangesToTarget(new TargetDaoSendEntityChangesToTargetRequest(
+          new ArrayList<>(), new ArrayList<>(), entityDeletes));
+    }
   }
 
 

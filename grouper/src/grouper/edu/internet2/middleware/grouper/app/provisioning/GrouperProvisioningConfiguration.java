@@ -64,6 +64,12 @@ public abstract class GrouperProvisioningConfiguration {
   private int threadPoolSize = 5;
 
   /**
+   * order that create/update/delete operations are sent to the target.  Only applies to daos which
+   * do not implement canSendChangesToTarget, since those receive all the changes in one call.
+   */
+  private GrouperProvisioningCrudOperationOrder crudOperationOrder = GrouperProvisioningCrudOperationOrder.deletesFirst;
+
+  /**
    * user configured default batch size for all operations, -1 means use DAO capability value
    */
   private int provisionerBatchingDefault = -1;
@@ -3704,6 +3710,12 @@ public abstract class GrouperProvisioningConfiguration {
       this.threadPoolSize = 1;
     }
     
+    this.crudOperationOrder = GrouperProvisioningCrudOperationOrder.valueOfIgnoreCase(
+        this.retrieveConfigString("crudOperationOrder", false), false);
+    if (this.crudOperationOrder == null) {
+      this.crudOperationOrder = GrouperProvisioningCrudOperationOrder.deletesFirst;
+    }
+    
     if (this.entityAttributesMultivalued == null) {
       this.entityAttributesMultivalued = new HashSet<String>();
     }
@@ -4592,6 +4604,16 @@ public abstract class GrouperProvisioningConfiguration {
   
   public void setThreadPoolSize(int threadPoolSize) {
     this.threadPoolSize = threadPoolSize;
+  }
+
+  
+  public GrouperProvisioningCrudOperationOrder getCrudOperationOrder() {
+    return crudOperationOrder;
+  }
+
+  
+  public void setCrudOperationOrder(GrouperProvisioningCrudOperationOrder crudOperationOrder) {
+    this.crudOperationOrder = crudOperationOrder;
   }
 
   
