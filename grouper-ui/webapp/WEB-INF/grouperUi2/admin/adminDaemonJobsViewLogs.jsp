@@ -79,7 +79,7 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
 
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="daemonLogsStatusFilterId" class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsStatusSearchNamePlaceholder'] }:</label>
+                      <label for="daemonLogsStatusFilterId" class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsStatusSearchNamePlaceholder'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <select name="daemonLogsStatusFilter" id="daemonLogsStatusFilterId">

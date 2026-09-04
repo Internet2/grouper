@@ -147,10 +147,10 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
               <div class="control-group"><span>${guiDataFieldRowDictionaryTable.description}</span></div>
             </c:if>
             <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.dataOwner)}">
-              <div class="control-group"><strong>${textContainer.text['entityDataFieldRowDictionaryHeaderDataOwner']}:</strong> ${guiDataFieldRowDictionaryTable.dataOwner}</div>
+              <div class="control-group"><strong>${textContainer.text['entityDataFieldRowDictionaryHeaderDataOwner']}</strong> ${guiDataFieldRowDictionaryTable.dataOwner}</div>
             </c:if>
             <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.howToGetAccess)}">
-              <div class="control-group"><strong>${textContainer.text['entityDataFieldRowDictionaryHeaderHowToGetAccess']}:</strong> ${guiDataFieldRowDictionaryTable.howToGetAccess}</div>
+              <div class="control-group"><strong>${textContainer.text['entityDataFieldRowDictionaryHeaderHowToGetAccess']}</strong> ${guiDataFieldRowDictionaryTable.howToGetAccess}</div>
             </c:if>
             
             <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.documentation)}">

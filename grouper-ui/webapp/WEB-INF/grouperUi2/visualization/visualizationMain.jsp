@@ -33,7 +33,7 @@
         <!-- show name type -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label>${textContainer.text['visualization.form.objectNameType']}:</label></strong>
+            <strong><label>${textContainer.text['visualization.form.objectNameType']}</label></strong>
           </td>
           <td>
             <input type="radio" name="drawObjectNameType" id="vis-settings-name-dispextension" value="displayExtension" ${grouperRequestContainer.visualizationContainer.drawObjectNameType=="displayExtension" ? "checked": ""} />
@@ -47,7 +47,7 @@
         <!-- parent levels -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-parents-levels">${textContainer.text['visualization.form.showParents']}:</label></strong>
+            <strong><label for="vis-settings-parents-levels">${textContainer.text['visualization.form.showParents']}</label></strong>
           </td>
           <td>
             <input type="checkbox" name="drawNumParentsAll" id="vis-settings-parents-all" value="true" ${grouperRequestContainer.visualizationContainer.drawNumParentsLevels <= -1 ? "checked": ""} />
@@ -60,7 +60,7 @@
         <!-- child levels -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-children-levels">${textContainer.text['visualization.form.showChildren']}:</label></strong>
+            <strong><label for="vis-settings-children-levels">${textContainer.text['visualization.form.showChildren']}</label></strong>
           </td>
           <td>
             <input type="checkbox" name="drawNumChildrenAll" id="vis-settings-children-all" value="true" ${grouperRequestContainer.visualizationContainer.drawNumChildrenLevels <= -1 ? "checked": ""} />

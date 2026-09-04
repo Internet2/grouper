@@ -26,7 +26,7 @@ ${grouper:title('loaderJobsPageTitle')}
                 <form class="form-inline form-filter" id="loaderJobsFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">
-                      <label for="loaderJobsFilterId" style="white-space: nowrap;">${textContainer.text['grouperLoaderOverallColumnHeaderGroup'] }:</label>
+                      <label for="loaderJobsFilterId" style="white-space: nowrap;">${textContainer.text['grouperLoaderOverallColumnHeaderGroup'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <input type="text" name="loaderJobsFilter" id="loaderJobsFilterId" class="span12"
@@ -37,7 +37,7 @@ ${grouper:title('loaderJobsPageTitle')}
 
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">
-                      <label for="loaderJobsCommonFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderType'] }:</label>
+                      <label for="loaderJobsCommonFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderType'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <select name="loaderJobsCommonFilter" id="loaderJobsCommonFilterId">
@@ -53,7 +53,7 @@ ${grouper:title('loaderJobsPageTitle')}
 
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">
-                      <label for="loaderJobsStatusFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }:</label>
+                      <label for="loaderJobsStatusFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <select name="loaderJobsStatusFilter" id="loaderJobsStatusFilterId">
