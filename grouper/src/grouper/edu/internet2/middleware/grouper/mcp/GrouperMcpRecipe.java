@@ -1181,9 +1181,15 @@ public class GrouperMcpRecipe {
             groupsByName.put(groupName, group);
 
             if (membershipFinder == null) {
+              // enabled only.  MembershipFinder defaults to all memberships, so without this a
+              // membership whose disabledTime has passed, or whose enabledTime has not yet
+              // arrived, would still hand somebody the recipe.  the audience group is the only
+              // control on who a recipe reaches, and the edit group is a write grant, so a
+              // lapsed membership has to stop counting on the day it lapses
               membershipFinder = new MembershipFinder()
                   .addSubject(subject)
                   .addField(Group.getDefaultList())
+                  .assignEnabled(true)
                   .assignCheckSecurity(false);
             }
             membershipFinder.addGroup(group);
