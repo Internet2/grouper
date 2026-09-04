@@ -285,13 +285,28 @@ public class GrouperMcpRecipe {
   }
 
   /**
-   * cache key for one subject
+   * cache key for one subject.
+   *
+   * <p>The source id and subject id are length prefixed rather than just joined by a separator.
+   * Both come from a subject source, so either may contain whatever the separator is, and a
+   * plain join is ambiguous: source "jdbc" with id "a__b" and source "jdbc__a" with id "b" both
+   * flatten to the same key.  Two subjects sharing a key would hand one of them the other's
+   * cached recipes, so the encoding has to be one that cannot collide rather than one that is
+   * merely unlikely to.  Lengths make each part self delimiting.</p>
+   *
+   * <p>The suffix is one of this class's own constants, so it needs no such treatment.</p>
+   *
    * @param subject the subject
    * @param suffix what is being cached about them
    * @return the key
    */
   private static String subjectCacheKey(Subject subject, String suffix) {
-    return suffix + "__" + subject.getSourceId() + "__" + subject.getId();
+
+    String sourceId = StringUtils.defaultString(subject.getSourceId());
+    String subjectId = StringUtils.defaultString(subject.getId());
+
+    return suffix + "__" + sourceId.length() + "_" + sourceId
+        + "__" + subjectId.length() + "_" + subjectId;
   }
 
   /**
