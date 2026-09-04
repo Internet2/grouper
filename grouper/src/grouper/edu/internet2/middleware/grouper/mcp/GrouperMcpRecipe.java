@@ -690,6 +690,18 @@ public class GrouperMcpRecipe {
    * apart.  So the screens and the checks around them pass true here, and everything which
    * hands a recipe to a client does not.</p>
    *
+   * <p>Being an MCP administrator is not a reason to pass true.  It widens which recipes reach
+   * that caller past their own audience, and reusing it to reach past enabled as well is how a
+   * disabled recipe came to be named in a tool description and returned by get, which is a client
+   * following guidance nobody decided is in force.  MCP has no notion of a disabled recipe: it
+   * cannot see one, read one, write one, or turn one on or off.  That belongs to the recipes
+   * screen, so the switch which decides whether guidance steers every later request stays with a
+   * person rather than with a client acting on it.</p>
+   *
+   * <p>{@link #retrieveRecipesCanEdit(Subject)} does pass true, because the delegated edit screen
+   * is built from it.  MCP shares that method and filters the disabled ones out on its own side
+   * rather than narrowing it, which would take those recipes away from the screen as well.</p>
+   *
    * @param includeDisabled true for administration, false for anything a client sees
    * @return the recipes, keyed by name, never null
    */
@@ -837,7 +849,10 @@ public class GrouperMcpRecipe {
    * @return the recipes the subject may edit, keyed by name, never null
    */
   public static Map<String, GrouperMcpRecipe> retrieveRecipesCanEdit(Subject subject) {
-    // editing is administration, so a recipe which is turned off is still the owner's to fix
+    // the disabled ones are included because the delegated edit screen in the UI is built from
+    // this, and a recipe turned off pending a rewrite is exactly the one its owner has to be
+    // able to open.  MCP shares this method and must not act on a disabled recipe, so the update
+    // action filters them out itself rather than narrowing what the screen can reach
     return retrieveRecipesForGroups(subject, false, true);
   }
 
@@ -1096,6 +1111,8 @@ public class GrouperMcpRecipe {
    * filter all recipes down to the ones whose use or edit group contains this subject
    * @param subject the authenticated subject
    * @param useGroup true to check groupNameCanUse, false to check groupNameCanEdit
+   * @param includeDisabled whether to include recipes which are turned off, which only the
+   * screens want; see {@link #retrieveAllRecipes(boolean)}
    * @return the recipes, keyed by name, never null
    */
   @SuppressWarnings("unchecked")

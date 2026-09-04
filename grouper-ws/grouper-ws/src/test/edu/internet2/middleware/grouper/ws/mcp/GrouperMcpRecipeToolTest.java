@@ -286,8 +286,8 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
   }
 
   /**
-   * an administrator lists every recipe, including other audiences and the disabled ones, and
-   * the disabled ones say so
+   * an administrator lists every enabled recipe, whatever audience it is for, and no disabled
+   * one: being an administrator reaches past the audience, not past enabled
    */
   public void testListAsAdminIncludesOtherAudiences() {
 
@@ -296,18 +296,146 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
     JsonNode recipes = payload(GrouperMcpRecipeTool.execute(arguments("list"), authUser, true))
         .get("recipes");
 
-    assertEquals("every recipe, whatever its audience or state", 3, recipes.size());
+    assertEquals("every enabled recipe, whatever its audience", 2, recipes.size());
 
     assertNotNull("another audience's recipe is listed", findRecipe(recipes, "recipe-two"));
 
-    JsonNode disabled = findRecipe(recipes, "recipe-three");
-    assertNotNull("the disabled recipe is listed", disabled);
-    assertFalse("and is marked as off, so it does not read as guidance in force",
-        disabled.get("enabled").asBoolean());
+    assertNull("the disabled recipe is listed to nobody, an administrator included",
+        findRecipe(recipes, "recipe-three"));
 
     JsonNode enabled = findRecipe(recipes, "recipe-one");
-    assertFalse("an enabled recipe carries no enabled flag", enabled.has("enabled"));
     assertTrue("an administrator may edit anything", enabled.get("canEdit").asBoolean());
+  }
+
+  /**
+   * a disabled recipe is not named in the tool description either.  the description is the one
+   * place a client is demonstrably reading when it chooses what to do, so a name here is a
+   * recipe it will fetch and follow
+   */
+  public void testToolDefinitionForAdminOmitsDisabled() {
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectAdmin);
+
+    String toolDescription = GrouperMcpRecipeTool.toolDefinition(authUser, true)
+        .get("description").asText();
+
+    assertTrue("an enabled recipe is advertised", toolDescription.contains("recipe-one"));
+    assertFalse("a disabled one is not", toolDescription.contains("recipe-three"));
+  }
+
+  /**
+   * a deployment whose every recipe is turned off has no recipe tool at all, for anybody.  an
+   * administrator turns one back on in the UI, which is the only place a disabled recipe exists
+   */
+  public void testToolDefinitionGoneWhenEveryRecipeDisabled() {
+
+    for (String configId : new String[] { "recipeOne", "recipeTwo" }) {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap()
+          .put(GrouperMcpRecipe.CONFIG_PREFIX + configId + ".enabled", "false");
+    }
+
+    GrouperMcpRecipe.clearCache();
+
+    assertNull("not for an administrator",
+        GrouperMcpRecipeTool.toolDefinition(new GrouperMcpAuthUser(this.subjectAdmin), true));
+
+    assertNull("and not for an audience member",
+        GrouperMcpRecipeTool.toolDefinition(new GrouperMcpAuthUser(this.subjectInAudience), true));
+  }
+
+  /**
+   * enabled is not a field MCP can write.  an administrator is offered it in neither the schema
+   * nor the prose, so a recipe cannot be turned on or off by a client acting on one
+   */
+  public void testEnabledIsNotEditableOverMcp() {
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectAdmin);
+
+    ObjectNode tool = GrouperMcpRecipeTool.toolDefinition(authUser, true);
+
+    assertFalse("the schema does not offer it",
+        tool.get("inputSchema").get("properties").has("enabled"));
+
+    assertTrue("and the prose says so, so it is not attempted",
+        tool.get("description").asText().contains("not editable here"));
+
+    // sent alongside a field which would otherwise have been written, since the whole update has
+    // to be refused: a caller told the summary was stored would take the rest as stored too
+    ObjectNode updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-one");
+    updateArguments.put("summary", "a new summary");
+    updateArguments.put("enabled", "false");
+
+    assertTrue("sending it is refused, not ignored",
+        errorMessage(executeAsAuthUser(updateArguments, authUser, true)).contains("'enabled'"));
+
+    assertNotNull("the recipe is still on",
+        GrouperMcpRecipe.retrieveAllRecipes().get("recipe-one"));
+
+    // the seed would mask a write, so drop it and read what was actually persisted.  nothing was,
+    // so the key is simply absent
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+        .remove(GrouperMcpRecipe.CONFIG_PREFIX + "recipeOne.summary");
+
+    ConfigPropertiesCascadeBase.clearCache();
+    GrouperMcpRecipe.clearCache();
+
+    assertNull("and the summary sent in the same call was not written either",
+        GrouperConfig.retrieveConfig().propertyValueString(
+            GrouperMcpRecipe.CONFIG_PREFIX + "recipeOne.summary"));
+  }
+
+  /**
+   * an administrator cannot read a disabled recipe over MCP.  the body is guidance the client
+   * will act on, and a recipe which is turned off is guidance nobody decided is in force; the
+   * recipes screen in the UI is where it is administered
+   */
+  public void testGetAsAdminDoesNotReachDisabled() {
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectAdmin);
+
+    ObjectNode getArguments = arguments("get");
+    getArguments.put("name", "recipe-three");
+
+    assertTrue("it reads as a recipe which is not there",
+        errorMessage(GrouperMcpRecipeTool.execute(getArguments, authUser, true))
+            .contains("no recipe named"));
+  }
+
+  /**
+   * update does not reach a disabled recipe either, for an administrator or for the editor whose
+   * group owns it.  rewriting one from here would be editing something the caller cannot read
+   */
+  public void testUpdateDoesNotReachDisabled() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        GrouperMcpRecipe.CONFIG_ALLOW_EDIT_IN_MCP, "true");
+
+    // recipe-three is disabled, and this hands its wording to the editor group, so the only
+    // thing left keeping it out of reach is that it is turned off
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+        .put(GrouperMcpRecipe.CONFIG_PREFIX + "recipeThree.groupNameCanEdit", "test:recipeEditors");
+
+    GrouperMcpRecipe.clearCache();
+
+    ObjectNode updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-three");
+    updateArguments.put("summary", "a new summary");
+
+    for (Subject subject : new Subject[] { this.subjectAdmin, this.subjectEditor }) {
+
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(subject);
+
+      assertTrue("refused for " + subject.getId(),
+          errorMessage(executeAsAuthUser(updateArguments, authUser, true))
+              .contains("no recipe named"));
+    }
+
+    ConfigPropertiesCascadeBase.clearCache();
+    GrouperMcpRecipe.clearCache();
+
+    assertEquals("and the wording is untouched", "Turned off pending a rewrite",
+        GrouperMcpRecipe.retrieveAllRecipes(true).get("recipe-three").getSummary());
   }
 
   /**

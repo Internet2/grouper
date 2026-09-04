@@ -51,9 +51,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * the members of its groupNameCanEdit, may change its name, summary, and body, and only while
  * grouper.mcp.recipe.allowEditInMcp is on, which it is not by default; they are refused the
  * fields which decide who the recipe reaches and what it attaches to.  Members of
- * grouper.mcp.recipe.groupNameCanAdminInMcp may change any field of any recipe, and may read any
- * recipe, since being able to rewrite something one cannot read is worse than either consistent
- * answer.  Creating and deleting recipes stays in the UI for both.</p>
+ * grouper.mcp.recipe.groupNameCanAdminInMcp may change any other field of any enabled recipe, and
+ * may read any enabled recipe, since being able to rewrite something one cannot read is worse
+ * than either consistent answer.  Creating and deleting recipes, and turning one on or off, stays
+ * in the UI for both.</p>
+ *
+ * <p>Nothing here reaches a disabled recipe.  Not list, not get, not update, not the tool
+ * description, and not for an administrator either: being one widens which recipes reach this
+ * client past the audience their own groups put them in, and stops there.  Everything here which
+ * names or returns a recipe is read by a client, and a client has no notion of administration, so
+ * a recipe it can see is one it will fetch and follow; a recipe somebody turned off pending a
+ * rewrite would go on being applied to real requests.  Nor is enabled a field update can write:
+ * whether guidance steers every later request is a decision for a person on the recipes screen,
+ * which is where a disabled recipe is seen, rewritten, and turned back on.  When every recipe is
+ * disabled this tool is not advertised at all, the same as when none is configured.</p>
  *
  * @author mchyzer
  */
@@ -97,12 +108,18 @@ public class GrouperMcpRecipeTool {
   private static final String CONFIG_MAX_BODY_CHARS_ON_ERROR = "grouper.mcp.recipe.maxBodyCharsOnError";
 
   /**
-   * the fields which decide who a recipe reaches, what it attaches to, whether it is on, and
-   * where it ranks.  a recipe administrator may change these over MCP; a delegated editor is
-   * refused them.  listed once so the refusal and the write cannot fall out of step
+   * the fields which decide who a recipe reaches, what it attaches to, and where it ranks.  a
+   * recipe administrator may change these over MCP; a delegated editor is refused them.  listed
+   * once so the refusal and the write cannot fall out of step.
+   *
+   * <p>enabled is deliberately not among them, and is not reachable from MCP at all.  Turning a
+   * recipe on or off decides whether guidance steers every later request, which is a decision
+   * for a person on the recipes screen rather than for a client acting on one.  Leaving it out
+   * is also what keeps the rule without an exception: nothing here reaches a disabled recipe, so
+   * there is no way to turn one off from here and then find it unreachable to turn back on.</p>
    */
   private static final String[] CONTROL_FIELD_NAMES = new String[] {
-      "groupNameCanUse", "groupNameCanEdit", "toolNames", "enabled", "priority" };
+      "groupNameCanUse", "groupNameCanEdit", "toolNames", "priority" };
 
   /** the name this tool is advertised and dispatched under */
   public static final String RECIPE_TOOL_NAME = "recipe";
@@ -137,11 +154,16 @@ public class GrouperMcpRecipeTool {
 
     // an administrator gets the tool whenever there is any recipe at all, since they can read
     // and rewrite all of them.  without this, one who happens not to be in any recipe's
-    // groupNameCanUse is offered no tool and has no way to reach the recipes they administer
+    // groupNameCanUse is offered no tool and has no way to reach the recipes they administer.
+    // disabled ones stay out even for them: this description is read by the client, which has no
+    // notion of administration and will act on any recipe named here
     Map<String, GrouperMcpRecipe> recipes = canAdmin
-        ? GrouperMcpRecipe.retrieveAllRecipes(true)
+        ? GrouperMcpRecipe.retrieveAllRecipes()
         : GrouperMcpRecipe.retrieveRecipesCanUse(authUser.getSubject());
 
+    // a deployment whose every recipe is turned off is a deployment with no recipes, as far as
+    // anything here can tell.  the tool goes away with the last enabled one and comes back when
+    // somebody re-enables one on the recipes screen
     if (recipes.isEmpty()) {
       return null;
     }
@@ -166,8 +188,10 @@ public class GrouperMcpRecipeTool {
     // has to as well.  telling an administrator they may change only the wording would have them
     // not attempt a field the schema does offer them
     if (canAdmin) {
-      description.append("Use action 'update' to change any field of any recipe, including who it "
-          + "is for and which tools it applies to. ");
+      description.append("Use action 'update' to change any recipe listed here, including who it "
+          + "is for and which tools it applies to. Whether a recipe is turned on is not editable "
+          + "here, and a recipe which is turned off is not listed here or readable here at all; "
+          + "that is done on the recipes screen in the Grouper UI. ");
     } else if (canEditAny) {
       description.append("Use action 'update' to change the name, summary, or text of a recipe you "
           + "are allowed to edit. ");
@@ -272,12 +296,8 @@ public class GrouperMcpRecipeTool {
           + "everybody who can see the recipe. Leave it out to keep the current ones.");
       properties.set("toolNames", toolNamesProp);
 
-      ObjectNode enabledProp = objectMapper.createObjectNode();
-      enabledProp.put("type", "string");
-      enabledProp.put("description", "For 'update': 'true' or 'false'. A disabled recipe is shown "
-          + "to nobody. Leave it out to keep the current setting.");
-      properties.set("enabled", enabledProp);
-
+      // no 'enabled' property.  a recipe is turned on and off on the recipes screen in the
+      // Grouper UI, which is also the only place a disabled one can be seen or edited
       ObjectNode priorityProp = objectMapper.createObjectNode();
       priorityProp.put("type", "string");
       priorityProp.put("description", "For 'update': a whole number deciding which recipes are "
@@ -595,12 +615,14 @@ public class GrouperMcpRecipeTool {
     boolean canAdmin = hasReadwriteAccess && GrouperMcpRecipe.canAdminInMcp(authUser.getSubject());
     boolean delegationOn = hasReadwriteAccess && GrouperMcpRecipe.isAllowEditInMcp();
 
-    // an administrator sees every recipe, including the disabled ones and the ones whose
-    // audience they are not in.  they can already read and rewrite any of them through get and
-    // update, so listing only their own audience would leave them guessing names for the rest.
-    // everybody else sees the recipes their groups reach
+    // an administrator sees every enabled recipe, including the ones whose audience they are not
+    // in.  they can already read and rewrite any of them through get and update, so listing only
+    // their own audience would leave them guessing names for the rest.  everybody else sees the
+    // recipes their groups reach.  a disabled recipe is listed to neither: the caller here is a
+    // client, and a name it can see is a name it can fetch and follow.  the recipes screen in
+    // the UI is where a disabled one is administered
     Map<String, GrouperMcpRecipe> recipes = canAdmin
-        ? GrouperMcpRecipe.retrieveAllRecipes(true)
+        ? GrouperMcpRecipe.retrieveAllRecipes()
         : GrouperMcpRecipe.retrieveRecipesCanUse(authUser.getSubject());
 
     ObjectNode result = objectMapper.createObjectNode();
@@ -613,12 +635,6 @@ public class GrouperMcpRecipeTool {
       recipeNode.put("summary", recipe.getSummary());
       recipeNode.put("canEdit",
           canAdmin || (delegationOn && editable.containsKey(recipe.getName())));
-
-      // only an administrator is shown disabled recipes, and only they need telling: a disabled
-      // recipe reaches nobody, so listing it without saying so would read as guidance in force
-      if (!recipe.isEnabled()) {
-        recipeNode.put("enabled", false);
-      }
 
       if (!recipe.getToolNames().isEmpty()) {
         ArrayNode toolNamesArray = objectMapper.createArrayNode();
@@ -657,10 +673,12 @@ public class GrouperMcpRecipeTool {
     // being able to rewrite something one cannot read is worse than either consistent answer.
     // this is the MCP administration group only, not the UI one.  readwrite is required on top
     // of it, the same way list and the tool definition require it, so that a readonly session
-    // is not handed recipes outside its own audience
+    // is not handed recipes outside its own audience.  it reaches past the audience and not past
+    // enabled: a body returned here is guidance the client will follow, and a recipe which is
+    // turned off is guidance nobody decided is in force
     if (recipe == null && hasReadwriteAccess
         && GrouperMcpRecipe.canAdminInMcp(authUser.getSubject())) {
-      recipe = GrouperMcpRecipe.retrieveAllRecipes(true).get(name);
+      recipe = GrouperMcpRecipe.retrieveAllRecipes().get(name);
     }
 
     // a recipe which exists but is not for this user reads the same as one which does not
@@ -711,11 +729,18 @@ public class GrouperMcpRecipeTool {
     // turned that path on, which is off by default
     boolean canAdmin = GrouperMcpRecipe.canAdminInMcp(authUser.getSubject());
 
-    // both sides include the disabled recipes: editing one is administration, and a recipe
-    // turned off pending a rewrite is exactly the one somebody needs to open
     GrouperMcpRecipe recipe = canAdmin
-        ? GrouperMcpRecipe.retrieveAllRecipes(true).get(name)
+        ? GrouperMcpRecipe.retrieveAllRecipes().get(name)
         : GrouperMcpRecipe.retrieveRecipesCanEdit(authUser.getSubject()).get(name);
+
+    // retrieveRecipesCanEdit does include the disabled ones, because the delegated edit screen in
+    // the UI is built from it and an owner has to be able to open a recipe they turned off.  MCP
+    // does not get that: rewriting a disabled recipe from here would be editing something this
+    // caller cannot read back through get and nobody can see the effect of.  filtered here rather
+    // than by narrowing that method, which would take the recipe away from the screen too
+    if (recipe != null && !recipe.isEnabled()) {
+      recipe = null;
+    }
 
     if (recipe == null) {
       return buildErrorResult("There is no recipe named '" + name + "' which you are allowed to edit.");
@@ -740,6 +765,16 @@ public class GrouperMcpRecipeTool {
               + "only the name, summary, and text of this recipe.");
         }
       }
+    }
+
+    // enabled is refused to everybody, an administrator included, rather than dropped along with
+    // the fields nobody offered.  a caller which sent it and got a success back would believe it
+    // had taken this recipe out of force, and would have written the other fields it sent while
+    // believing that
+    if (argumentString(arguments, "enabled") != null) {
+      return buildErrorResult("'enabled' cannot be changed here. Turning a recipe on or off is "
+          + "done on the recipes screen in the Grouper UI, which is also the only place a recipe "
+          + "which is turned off can be seen or edited.");
     }
 
     // only what was actually supplied is written.  filling the rest in from the recipe we read
