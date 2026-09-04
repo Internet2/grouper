@@ -82,9 +82,9 @@
 
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoToolLogsHeader']}</h4>
                 <p>
-                  <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpToolLogs'); return false;">
+                  <button type="button" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpToolLogs'); return false;">
                     <i aria-hidden="true" class="fa fa-refresh"></i> ${textContainer.text['mcpInfoToolLogsLoadButton']}
-                  </a>
+                  </button>
                 </p>
                 <div id="mcpToolLogsResultsId"></div>
 
@@ -105,9 +105,9 @@
 
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoOAuthRegistrationsHeader']}</h4>
                 <p>
-                  <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpOAuthRegistrations'); return false;">
+                  <button type="button" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpOAuthRegistrations'); return false;">
                     <i aria-hidden="true" class="fa fa-refresh"></i> ${textContainer.text['mcpInfoOAuthRegistrationsLoadButton']}
-                  </a>
+                  </button>
                 </p>
                 <div id="mcpOAuthRegistrationsResultsId"></div>
 

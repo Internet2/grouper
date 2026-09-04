@@ -32,8 +32,8 @@ ${grouper:title('miscellaneousUserLifecycleEventsListBreadcrumb')}
       <thead>
         <tr>
           <td colspan="6" class="table-toolbar gradient-background">
-            <a href="#" id="groupKeepSelectedMembersButton" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['miscellaneousUserLifecycleEventsListKeepSelectedConfirmChanges']}')) {ajax('../app/UiV2UserLifecycleEvents.keepMembers', {formIds: 'membershipsToKeepOrRemove'});} return false;" class="btn" role="button">${textContainer.text['miscellaneousUserLifecycleEventsListKeepSelectedUsersButton'] }</a>
-            <a href="#" id="groupRemoveSelectedMembersButton" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['miscellaneousUserLifecycleEventsListRemoveSelectedConfirmChanges']}')) {ajax('../app/UiV2UserLifecycleEvents.removeMembers', {formIds: 'membershipsToKeepOrRemove'});} return false;" class="btn" role="button">${textContainer.text['miscellaneousUserLifecycleEventsListRemoveSelectedUsersButton'] }</a>
+            <button type="button" id="groupKeepSelectedMembersButton" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['miscellaneousUserLifecycleEventsListKeepSelectedConfirmChanges']}')) {ajax('../app/UiV2UserLifecycleEvents.keepMembers', {formIds: 'membershipsToKeepOrRemove'});} return false;" class="btn">${textContainer.text['miscellaneousUserLifecycleEventsListKeepSelectedUsersButton'] }</button>
+            <button type="button" id="groupRemoveSelectedMembersButton" onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['miscellaneousUserLifecycleEventsListRemoveSelectedConfirmChanges']}')) {ajax('../app/UiV2UserLifecycleEvents.removeMembers', {formIds: 'membershipsToKeepOrRemove'});} return false;" class="btn">${textContainer.text['miscellaneousUserLifecycleEventsListRemoveSelectedUsersButton'] }</button>
           </td>
         </tr>
         <tr>

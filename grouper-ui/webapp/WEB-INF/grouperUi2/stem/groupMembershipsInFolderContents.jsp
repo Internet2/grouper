@@ -6,7 +6,7 @@
                       <tr>
                         <td colspan="${grouperRequestContainer.stemContainer.showEnabledStatus ? 9 : 6}" class="table-toolbar gradient-background">
                           <c:if test="${!grouperRequestContainer.stemContainer.showPointInTimeAudit}">
-                            <a href="#" onclick="ajax('../app/UiV2Stem.removeGroupMembers?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
+                            <button type="button" onclick="ajax('../app/UiV2Stem.removeGroupMembers?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</button>
                           </c:if>
                         </td>
                       </tr>

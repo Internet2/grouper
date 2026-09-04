@@ -25,7 +25,7 @@
                             <td>${grouper:escapeHtml(guiOAuthClient.grouperOAuthClient.redirectUrisDb)}</td>
                             <td style="white-space: nowrap">${grouper:escapeHtml(guiOAuthClient.registeredTimeFormatted)}</td>
                             <td>
-                              <a href="#" class="btn btn-mini btn-danger" onclick="if (confirm('${textContainer.textEscapeSingleDouble['mcpInfoOAuthDeleteConfirm']}')) { ajax('../app/UiV2Mcp.mcpDeleteOAuthRegistration?oauthClientInternalId=${guiOAuthClient.grouperOAuthClient.internalId}'); } return false;">${textContainer.text['mcpInfoOAuthDeleteButton']}</a>
+                              <button type="button" class="btn btn-mini btn-danger" onclick="if (confirm('${textContainer.textEscapeSingleDouble['mcpInfoOAuthDeleteConfirm']}')) { ajax('../app/UiV2Mcp.mcpDeleteOAuthRegistration?oauthClientInternalId=${guiOAuthClient.grouperOAuthClient.internalId}'); } return false;">${textContainer.text['mcpInfoOAuthDeleteButton']}</button>
                             </td>
                           </tr>
                         </c:forEach>

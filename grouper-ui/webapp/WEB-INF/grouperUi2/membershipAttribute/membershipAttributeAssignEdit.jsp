@@ -85,7 +85,7 @@
       
       <div class="form-actions">
         <button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2MembershipAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</button>
-        <a href="#" onclick="return guiV2link(buildCancelLink())" class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</a> 
+        <button type="button" onclick="return guiV2link(buildCancelLink())" class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</button> 
       </div>
       
     </form>
