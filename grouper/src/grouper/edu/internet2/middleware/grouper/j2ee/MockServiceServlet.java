@@ -197,7 +197,8 @@ public class MockServiceServlet extends HttpServlet {
       String className = urlToHandler.get(mockServiceRequest.getMockName());
       mockServiceRequest.getDebugMap().put("mockHandlerClassName", className);
       if (className == null) {
-        throw new RuntimeException("Cant find mock name for '" + className + "'");
+        throw new RuntimeException("Cant find mock name for '" + mockServiceRequest.getMockName()
+            + "', expecting one of: " + GrouperUtil.setToString(urlToHandler.keySet()));
       }
       Class<MockServiceHandler> mockServiceHandlerClass = GrouperUtil.forName(className);
       MockServiceHandler mockServiceHandler = GrouperUtil.newInstance(mockServiceHandlerClass);
