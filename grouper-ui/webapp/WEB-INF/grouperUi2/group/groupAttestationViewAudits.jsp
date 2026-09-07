@@ -24,7 +24,7 @@
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['groupAuditLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2Attestation.viewGroupAuditsFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterAuditFormId,groupPagingAuditFormId,groupQuerySortAscendingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2Attestation.viewGroupAuditsFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterAuditFormId', formIdsOptional: 'groupPagingAuditFormId,groupQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['groupAuditLogFilterFindEntriesButton']}</button>
                 </form>
 

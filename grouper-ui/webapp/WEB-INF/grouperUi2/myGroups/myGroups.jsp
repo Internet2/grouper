@@ -30,8 +30,8 @@ ${grouper:title('myGroupsPageTitle')}
                       <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
-                    <div class="span3">&nbsp; &nbsp; <button type="button" class="btn" aria-controls="myGroupsResultsId" onclick="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsPagingFormId,myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</button> &nbsp;
-                    <button type="button" onclick="ajax('../app/UiV2MyGroups.myGroupsReset', {formIds: 'myGroupsPagingFormId'}); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</button></div>
+                    <div class="span3">&nbsp; &nbsp; <button type="button" class="btn" aria-controls="myGroupsResultsId" onclick="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsForm', formIdsOptional: 'myGroupsPagingFormId'}); return false;">${textContainer.text['myGroupsSearchButton'] }</button> &nbsp;
+                    <button type="button" onclick="ajax('../app/UiV2MyGroups.myGroupsReset', {formIdsOptional: 'myGroupsPagingFormId'}); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</button></div>
                   </div>
                 </form>
                 <div id="myGroupsResultsId" role="region" aria-live="polite">

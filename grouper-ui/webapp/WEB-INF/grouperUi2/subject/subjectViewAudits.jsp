@@ -30,7 +30,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectAuditLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {formIds: 'subjectFilterAuditFormId', formIdsOptional: 'subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['subjectAuditLogFilterFindEntriesButton']}</button>
                 </form>
 

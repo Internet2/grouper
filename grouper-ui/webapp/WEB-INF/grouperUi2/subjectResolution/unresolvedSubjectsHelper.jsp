@@ -6,7 +6,7 @@
                       <tr>
                         <tr>
                           <td colspan="11" class="table-toolbar gradient-background">
-                            <button type="button" onclick="ajax('../app/UiV2SubjectResolution.removeMembers', {formIds: 'unresolvedSubjectsPagingFormPageNumberId,membersToDeleteFormId,usduFormId'}); return false;" class="btn">${textContainer.text['subjectResolutionDeleteSelectedEntitiesButton'] }</button>
+                            <button type="button" onclick="ajax('../app/UiV2SubjectResolution.removeMembers', {formIds: 'membersToDeleteFormId,usduFormId', formIdsOptional: 'unresolvedSubjectsPagingFormPageNumberId'}); return false;" class="btn">${textContainer.text['subjectResolutionDeleteSelectedEntitiesButton'] }</button>
                           </td>
                         </tr>
                         

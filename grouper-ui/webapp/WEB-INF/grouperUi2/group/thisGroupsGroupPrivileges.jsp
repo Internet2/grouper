@@ -53,7 +53,7 @@ ${grouper:titleFromKeyAndText('groupGroupPrivilegesPageTitle', grouperRequestCon
                     </div>
 
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" aria-controls="thisGroupsGroupPrivilegesFilterResultsId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Group.filterThisGroupsGroupPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2Group.filterThisGroupsGroupPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                     </div>
                     

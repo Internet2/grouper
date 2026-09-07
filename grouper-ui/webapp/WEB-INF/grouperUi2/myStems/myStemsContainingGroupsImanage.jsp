@@ -39,8 +39,8 @@ ${grouper:title('myStemsBreadcrumb')}
                     </div>
                   </div>
                   <div class="form-actions">
-                    <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
-                    <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
+                    <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageSubmit', {formIds: 'myStemsForm', formIdsOptional: 'myStemsPagingFormId'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
+                    <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageReset', {formIdsOptional: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
                   </div>
                 </form>
                 <div id="myStemsResultsId" role="region" aria-live="polite">

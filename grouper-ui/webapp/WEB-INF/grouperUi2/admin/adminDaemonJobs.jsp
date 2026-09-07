@@ -37,7 +37,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                     $("#daemonJobsRefreshed").val("0");
                     daemonJobsNextRefreshSeconds = ${grouperRequestContainer.adminContainer.daemonJobsRefreshInterval};
                     daemonJobsRefreshCountRemaining = daemonJobsRefreshCountRemaining - 1;
-                    ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'});
+                    ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId', formIdsOptional: 'daemonJobsPagingFormId,daemonJobsPagingFormPageNumberId'});
                   } else {
                     daemonJobsNextRefreshSeconds = daemonJobsNextRefreshSeconds - 1;
                   }
@@ -51,7 +51,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
             <div class="row-fluid">
               <div class="span12">
                 <form class="form-inline form-filter" id="daemonJobsFilterFormId"
-                    onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">
+                    onsubmit="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId', formIdsOptional: 'daemonJobsPagingFormId'}); return false;">
                   <div class="row-fluid">
                     <div class="span2">
                       <label for="daemonJobsFilterId" style="white-space: nowrap;">${textContainer.text['daemonJobsFilterFor'] }</label>
@@ -111,8 +111,8 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                   </div>
                   <div class="row-fluid" style="margin-top: 1em">
                     <div class="span2">&nbsp;</div>
-                      <button type="button" class="btn" id="applyfilterdaemonjobs" aria-controls="daemonJobsResultsId" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</button> &nbsp;
-                      <button type="button" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); /*grouperAssignDaemonUrl();*/ return false;" class="btn">${textContainer.text['daemonJobsResetButton'] }</button>
+                      <button type="button" class="btn" id="applyfilterdaemonjobs" aria-controls="daemonJobsResultsId" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId', formIdsOptional: 'daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</button> &nbsp;
+                      <button type="button" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIdsOptional: 'daemonJobsPagingFormId'}); /*grouperAssignDaemonUrl();*/ return false;" class="btn">${textContainer.text['daemonJobsResetButton'] }</button>
                     </div>
                   </div>
                 </form>

@@ -23,7 +23,7 @@
          <div class="span3" id="groupFilterSubmitDiv">
           <input type="submit" class="btn" id="filterSubmitId" aria-controls="attributeDefOwnersResultId"
             value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-             onclick="ajax('../app/UiV2AttributeDef.viewAttributeDefAssignedOwners?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefOwnersFilterFormId, attributeDefOwnersPagingFormId'}); return false;">
+             onclick="ajax('../app/UiV2AttributeDef.viewAttributeDefAssignedOwners?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefOwnersFilterFormId', formIdsOptional: 'attributeDefOwnersPagingFormId'}); return false;">
              <!-- onclick="ajax('../app/UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefOwnersFilterFormId, attributeDefOwnersPagingFormId'}); return false;"> --> 
            <a class="btn" role="button" onclick="$('#filterId').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
          </div>
