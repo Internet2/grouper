@@ -60,7 +60,7 @@ ${grouper:titleFromKeyAndText('groupPrivilegesPageTitle', grouperRequestContaine
                        name="privilegeFilterText" id="table-filter" aria-label="${textContainer.text['ariaLabelGuiEntityName']}">
                     </div>
                     <div class="span4"><input type="submit" class="btn" aria-controls="groupPrivilegeFilterResultsId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                       <a role="button" class="btn groupPrivilegeAdvancedHide" onclick="$('.groupPrivilegeAdvancedShow').show('slow'); $('.groupPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['groupAdvancedButton'] }</a>
                     </div>

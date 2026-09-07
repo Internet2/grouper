@@ -271,7 +271,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addStemSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-stems-form,groupPrivilegeFormId,groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addStemSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-stems-form,groupPrivilegeFormId,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
                                 id="add-stem-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddStemLink']}</button>
                             </div>
                           </div>
@@ -345,7 +345,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addAttributeDefSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-attributeDefs-form,groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addAttributeDefSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-attributeDefs-form,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
                                 id="add-attributeDef-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddAttributeDefLink']}</button>
                             </div>
                           </div>

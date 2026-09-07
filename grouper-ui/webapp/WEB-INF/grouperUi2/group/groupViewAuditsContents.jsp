@@ -12,7 +12,7 @@
                   <thead>
                     <tr>
                       <th class="${grouperRequestContainer.groupContainer.guiSorting.columnCssClass['lastUpdatedDb']}"
-                         onclick="ajax('../app/UiV2Group.viewAuditsFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&querySortAscending=${!grouperRequestContainer.groupContainer.guiSorting.ascending}', {formIds: 'groupFilterAuditFormId,groupPagingAuditFormId'}); return false;"
+                         onclick="ajax('../app/UiV2Group.viewAuditsFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&querySortAscending=${!grouperRequestContainer.groupContainer.guiSorting.ascending}', {formIds: 'groupFilterAuditFormId', formIdsOptional: 'groupPagingAuditFormId'}); return false;"
                          >${textContainer.text['groupAuditLogFilterColumnDate']}</th>
                       <th>${textContainer.text['groupAuditLogFilterColumnActor']}</th>
                       <th>${textContainer.text['groupAuditLogFilterColumnEngine']}</th>

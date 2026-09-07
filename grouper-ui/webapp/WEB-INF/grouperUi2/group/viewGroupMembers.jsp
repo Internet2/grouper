@@ -226,7 +226,7 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                         </div>
     
                         <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                            onclick="ajax('../app/UiV2Group.filter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
+                            onclick="ajax('../app/UiV2Group.filter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId', formIdsOptional: 'groupPagingFormId'}); return false;"> 
                           <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#subject-source-filter').val(''); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                           <a id="advanced-button" role="button" class="btn groupMembersAdvancedHide">${textContainer.text['groupAdvancedButton'] }</a>
                         </div>

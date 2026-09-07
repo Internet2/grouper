@@ -26,7 +26,7 @@ ${grouper:titleFromKeyAndText('viewAttributeDefPageTitle', grouperRequestContain
                     </div>
 
                     <div class="span3"><input type="submit" class="btn" aria-controls="attributeDefFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2AttributeDef.filter?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2AttributeDef.filter?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId', formIdsOptional: 'attributeDefPagingFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['attributeDefResetButton'] }</a>
                     </div>
                     

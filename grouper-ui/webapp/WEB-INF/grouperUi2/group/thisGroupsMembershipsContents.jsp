@@ -9,7 +9,7 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
-                      <td colspan="5" class="table-toolbar gradient-background"><button type="button" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,groupsToDeleteFormId'}); return false;" class="btn">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</button></td>
+                      <td colspan="5" class="table-toolbar gradient-background"><button type="button" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupsToDeleteFormId', formIdsOptional: 'groupPagingFormId'}); return false;" class="btn">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</button></td>
                     </tr>
                     <tr>
                       <th>
@@ -67,7 +67,7 @@
                                   </c:if>
                                   <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate
                                       && guiMembershipContainer.guiGroupOwner.canUpdate}">
-                                    <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.removeMemberForThisGroupsMemberships?ownerGroupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</button></li>
+                                    <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.removeMemberForThisGroupsMemberships?ownerGroupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId', formIdsOptional: 'groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</button></li>
                                   </c:if>
                                   <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                     <li><a href="?operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>

@@ -6,7 +6,7 @@
                   <thead>
                     <c:if test="${isAdmin}" >
                       <tr>
-                        <td colspan="4" class="table-toolbar gradient-background"><button type="button" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNames?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId,attributeDefNamesToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefNamesButton'] }</button></td>
+                        <td colspan="4" class="table-toolbar gradient-background"><button type="button" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNames?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefNamesToDeleteFormId', formIdsOptional: 'attributeDefPagingFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefNamesButton'] }</button></td>
                       </tr>
                     </c:if>
                     <tr>

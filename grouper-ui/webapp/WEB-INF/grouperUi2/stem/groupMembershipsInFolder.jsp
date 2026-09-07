@@ -160,7 +160,7 @@ ${grouper:titleFromKeyAndText('groupMembershipsInFolderPageTitle', grouperReques
                     </div>
     
                     <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Stem.groupMembershipsInFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;">
+                        onclick="ajax('../app/UiV2Stem.groupMembershipsInFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'groupFilterFormId', formIdsOptional: 'groupPagingFormId'}); return false;">
                       <a id="advanced-button" role="button" class="btn groupMembersAdvancedHide">${textContainer.text['groupAdvancedButton'] }</a>
                       <input type="button" class="btn" value="${textContainer.textEscapeDouble['stemGroupMembershipsInFolderExportButton'] }"
                         onclick="return configurationFileExport(event, '../app/UiV2Stem.groupMembershipsInFolderExport?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {optionalFormElementNamesToSend: 'membershipType,filterText,membershipEnabledDisabledOptions,membershipPITOptions,membershipPITFromDate,membershipPITToDate,membershipCustomCompositeOptions'}); return false;" />

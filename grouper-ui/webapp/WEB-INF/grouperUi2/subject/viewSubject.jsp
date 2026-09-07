@@ -37,7 +37,7 @@ ${grouper:titleFromKeyAndText('viewSubjectPageTitle', grouperRequestContainer.su
                     </div>
 
                     <div class="span3"><input type="submit" aria-controls="subjectFilterResultsId" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['subjectApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Subject.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2Subject.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterFormId', formIdsOptional: 'groupPagingFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['subjectResetButton'] }</a>
                     </div>
                     

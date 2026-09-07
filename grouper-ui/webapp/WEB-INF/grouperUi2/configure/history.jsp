@@ -46,7 +46,7 @@ ${grouper:title('miscellaneousConfigurationFilesHistoryBreadcrumb')}
                       <thead>
                        <tr>
 	                      <td colspan="8" class="table-toolbar gradient-background">
-	                      <button type="button" onclick="ajax('../app/UiV2Configure.revertConfigValues', {formIds: 'configHistoryFormId,configHistoyrPagingFormId,configureHistoryFilterForm'}); return false;" class="btn">${textContainer.text['configurationHistoryRevertPropertyValues'] }</button></td>
+	                      <button type="button" onclick="ajax('../app/UiV2Configure.revertConfigValues', {formIds: 'configHistoryFormId,configureHistoryFilterForm', formIdsOptional: 'configHistoyrPagingFormId'}); return false;" class="btn">${textContainer.text['configurationHistoryRevertPropertyValues'] }</button></td>
 	                    </tr>
                       
                         <tr>

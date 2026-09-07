@@ -40,7 +40,7 @@ ${grouper:titleFromKeyAndText('stemPageTitle', grouperRequestContainer.stemConta
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
                     <div class="span3"><input type="submit" class="btn" aria-controls="stemFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
-                      onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId,stemPagingFormId'}); return false;"> 
+                      onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId', formIdsOptional: 'stemPagingFormId'}); return false;"> 
                     <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>

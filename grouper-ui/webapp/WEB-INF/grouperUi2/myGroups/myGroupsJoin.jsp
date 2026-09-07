@@ -20,7 +20,7 @@ ${grouper:title('myGroupsBreadcrumb')}
                 </ul>
                 <p class="lead">${textContainer.text['myGroupsJoinDescription'] }</p>
                 <form class="form-inline form-filter" id="myGroupsForm"
-                    onsubmit="ajax('../app/UiV2MyGroups.myGroupsJoinSubmit', {formIds: 'myGroupsForm, myGroupsPagingFormId'}); return false;">
+                    onsubmit="ajax('../app/UiV2MyGroups.myGroupsJoinSubmit', {formIds: 'myGroupsForm', formIdsOptional: 'myGroupsPagingFormId'}); return false;">
                   <div class="row-fluid">
                     <div class="span1">
                       <label for="myGroupsFilterId" style="white-space: nowrap;">${textContainer.text['myGroupsFilterFor'] }</label>
@@ -29,8 +29,8 @@ ${grouper:title('myGroupsBreadcrumb')}
                       <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
-                    <div class="span3">&nbsp; &nbsp; <button type="button" class="btn" aria-controls="myGroupsResultsId" onclick="ajax('../app/UiV2MyGroups.myGroupsJoinSubmit', {formIds: 'myGroupsForm, myGroupsPagingFormId'}); return false;">${textContainer.text['myGroupsSearchButton'] }</button> &nbsp;
-                    <button type="button" onclick="ajax('../app/UiV2MyGroups.myGroupsJoinReset', {formIds: 'myGroupsPagingFormId'}); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</button></div>
+                    <div class="span3">&nbsp; &nbsp; <button type="button" class="btn" aria-controls="myGroupsResultsId" onclick="ajax('../app/UiV2MyGroups.myGroupsJoinSubmit', {formIds: 'myGroupsForm', formIdsOptional: 'myGroupsPagingFormId'}); return false;">${textContainer.text['myGroupsSearchButton'] }</button> &nbsp;
+                    <button type="button" onclick="ajax('../app/UiV2MyGroups.myGroupsJoinReset', {formIdsOptional: 'myGroupsPagingFormId'}); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</button></div>
                   </div>
                 </form>
                 <div id="myGroupsResultsId" role="region" aria-live="polite">

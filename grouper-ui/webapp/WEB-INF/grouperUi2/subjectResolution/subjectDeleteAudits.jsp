@@ -42,7 +42,7 @@ ${grouper:title('miscellaneousSubjectResolutionAuditsBreadcrumb')}
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectResolutionSubjectDeleteLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2SubjectResolution.viewSubjectDeleteAudits', {formIds: 'subjectDeleteAuditFormId,unresolvedSubjectsPagingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2SubjectResolution.viewSubjectDeleteAudits', {formIds: 'subjectDeleteAuditFormId', formIdsOptional: 'unresolvedSubjectsPagingFormId'}); return false;"
                   >${textContainer.text['subjectResolutionSubjectDeleteLogFilterFindEntriesButton']}</button>
                 </form>
                 

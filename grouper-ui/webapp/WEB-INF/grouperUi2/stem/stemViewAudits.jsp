@@ -33,7 +33,7 @@ ${grouper:titleFromKeyAndText('stemAuditsPageTitle', grouperRequestContainer.ste
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['groupAuditLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2Stem.viewAuditsFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterAuditFormId,stemPagingAuditFormId,stemQuerySortAscendingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2Stem.viewAuditsFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterAuditFormId', formIdsOptional: 'stemPagingAuditFormId,stemQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['groupAuditLogFilterFindEntriesButton']}</button>
                   <input type="button" class="btn" value="${textContainer.textEscapeDouble['stemAuditLogExportButton'] }"
                     onclick="return configurationFileExport(event, '../app/UiV2Stem.viewAuditsExport?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {optionalFormElementNamesToSend: 'filterType,filterFromDate,filterToDate,showExtendedResults'}); return false;" />

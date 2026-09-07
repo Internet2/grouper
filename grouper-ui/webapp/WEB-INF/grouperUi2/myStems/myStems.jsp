@@ -40,8 +40,8 @@ ${grouper:title('myStemsPageTitle')}
                     </div>
                   </div>
                   <div class="form-actions">
-                    <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
-                    <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
+                    <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsSubmit', {formIds: 'myStemsForm', formIdsOptional: 'myStemsPagingFormId'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
+                    <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsReset', {formIdsOptional: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
                   </div>
                 </form>
                 <div id="myStemsResultsId" role="region" aria-live="polite">
