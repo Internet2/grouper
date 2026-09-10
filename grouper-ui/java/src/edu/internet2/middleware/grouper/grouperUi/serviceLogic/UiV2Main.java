@@ -377,7 +377,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Stem childStem : childrenStems) {
           if (stemCt < numberOfStemsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childStem.getDisplayExtension(), childStem.getUuid(), DojoTreeItemType.stem, true);
+              GrouperUtil.escapeHtml(childStem.getDisplayExtension(), true), childStem.getUuid(), DojoTreeItemType.stem, true);
             ++stemCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
