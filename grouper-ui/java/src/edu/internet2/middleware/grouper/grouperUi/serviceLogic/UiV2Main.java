@@ -391,7 +391,7 @@ public class UiV2Main extends UiServiceLogicBase {
           if (groupCt < numberOfGroupsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
               (childGroup.getTypeOfGroup() == TypeOfGroup.entity ?
-                  "<i class=\"fas fa-cloud-download\"></i>&nbsp;" : "<i class=\"fas fa-users\"></i>&nbsp;") + childGroup.getDisplayExtension(), childGroup.getUuid(),
+                  "<i class=\"fas fa-cloud-download\"></i>&nbsp;" : "<i class=\"fas fa-users\"></i>&nbsp;") + GrouperUtil.escapeHtml(childGroup.getDisplayExtension(), true), childGroup.getUuid(),
               childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group,
               null);
             ++groupCt;
@@ -406,7 +406,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {
           if (attrDefCt < numberOfAttrDefsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "<i class=\"fas fa-cog\"></i>&nbsp;" + childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+              "<i class=\"fas fa-cog\"></i>&nbsp;" + GrouperUtil.escapeHtml(childAttributeDef.getExtension(), true), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
             ++attrDefCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
@@ -419,7 +419,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
           if (attrDefNameCt < numberOfAttrDefNamesInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-                "<i class=\"fas fa-cogs\"></i>&nbsp;" + childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
+                "<i class=\"fas fa-cogs\"></i>&nbsp;" + GrouperUtil.escapeHtml(childAttributeDefName.getDisplayExtension(), true), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
             ++attrDefNameCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
