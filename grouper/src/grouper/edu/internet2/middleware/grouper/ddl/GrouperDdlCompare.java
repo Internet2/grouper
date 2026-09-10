@@ -415,12 +415,27 @@ public class GrouperDdlCompare {
         //     The 38 is baked into the type string, so the pinned precision of 19 never reaches the
         //     generated DDL - the column installs as NUMBER(38).  mysql/postgres store bigint as a
         //     19-digit type, which matches the pinned 19, so only Oracle diverges.
-        // So when both sides are BIGINT and the database is the expected NUMBER(38), the precision
-        // difference is cosmetic - treat it as equal.  Narrower integers are untouched: SMALLINT maps
-        // to NUMBER(5), DECIMAL/NUMERIC to NUMBER(size), so a genuinely narrower column does not read
-        // back as NUMBER(38)/BIGINT and is still compared normally.
+        //  3. The database side does not reliably read back as BIGINT.  JdbcModelReader takes the type
+        //     code straight from the jdbc driver's DATA_TYPE, and BIGINT only appears because
+        //     Oracle8ModelReader back-maps it, which it does only when the driver said DECIMAL.  Older
+        //     oracle drivers (the 10g/11g ones that back-map was written against) report NUMBER that
+        //     way, newer ones can report NUMERIC instead, and nothing re-normalizes it here -
+        //     PlatformInfo.getTargetJdbcType (which maps NUMERIC to DECIMAL for oracle) is only used by
+        //     ModelComparator/SqlBuilder when generating scripts, not by this compare.  So the same
+        //     database can compare clean or dirty depending on which ojdbc jar is on the classpath.
+        // So when the java side is BIGINT and the database is the expected NUMBER(38) - however the
+        // driver labels it - the precision difference is cosmetic, so treat it as equal.  Narrower
+        // integers are untouched: SMALLINT maps to NUMBER(5), DECIMAL/NUMERIC to NUMBER(size), so a
+        // genuinely narrower column does not read back as 38 and is still compared normally.  Scale is
+        // deliberately not part of this: a column that is 38 but scaled is still caught by the scale
+        // comparison below, which is not suppressed.
+        int databaseTypeCode = databaseColumn.getTypeCode();
+        boolean databaseIsOracleNumber = databaseTypeCode == Types.BIGINT
+            || databaseTypeCode == Types.DECIMAL
+            || databaseTypeCode == Types.NUMERIC;
+
         boolean oracleBigintPrecisionEquivalent = GrouperDdlUtils.isOracle()
-            && databaseColumn.getTypeCode() == Types.BIGINT
+            && databaseIsOracleNumber
             && javaColumn.getTypeCode() == Types.BIGINT
             && databaseColumn.getSizeAsInt() == 38;
 
