@@ -381,7 +381,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Group childGroup : childrenGroups) {
           if (groupCt < numberOfGroupsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childGroup.getDisplayExtension(), childGroup.getUuid(),
+              GrouperUtil.escapeHtml(childGroup.getDisplayExtension(), true), childGroup.getUuid(),
               childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group,
               null);
             ++groupCt;
@@ -396,7 +396,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {
           if (attrDefCt < numberOfAttrDefsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+              GrouperUtil.escapeHtml(childAttributeDef.getExtension(), true), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
             ++attrDefCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
@@ -409,7 +409,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
           if (attrDefNameCt < numberOfAttrDefNamesInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
+              GrouperUtil.escapeHtml(childAttributeDefName.getDisplayExtension(), true), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
             ++attrDefNameCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
