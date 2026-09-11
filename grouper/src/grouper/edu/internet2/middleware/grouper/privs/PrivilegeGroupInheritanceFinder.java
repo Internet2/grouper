@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -396,7 +397,8 @@ public class PrivilegeGroupInheritanceFinder {
           
         }
         
-        MembershipResult membershipResult = new MembershipFinder().assignGroupIds(groupIds).addSubject(subject).findMembershipResult();
+        MembershipResult membershipResult = new MembershipFinder().assignGroupIds(groupIds).addSubject(subject)
+            .addField(Group.getDefaultList()).assignEnabled(true).findMembershipResult();
         Set<String> groupIdsTheUserIsMemberOf = membershipResult.groupIds();
         
         // find assigned privileges to the user or a group the user is in

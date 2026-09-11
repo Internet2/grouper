@@ -257,6 +257,7 @@ public class GrouperMcpInstitutionalTools {
               membershipFinder = new MembershipFinder()
                   .addSubject(subject)
                   .addField(Group.getDefaultList())
+                  .assignEnabled(true)
                   .assignCheckSecurity(false);
             }
             membershipFinder.addGroup(groupThatCanRun);
@@ -408,6 +409,7 @@ public class GrouperMcpInstitutionalTools {
             membershipFinder = new MembershipFinder()
                 .addSubject(subject)
                 .addField(Group.getDefaultList())
+                .assignEnabled(true)
                 .assignCheckSecurity(false);
           }
           membershipFinder.addGroup(groupThatCanRun);
