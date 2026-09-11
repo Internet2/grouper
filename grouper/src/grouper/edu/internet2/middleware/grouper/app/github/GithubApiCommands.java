@@ -46,7 +46,6 @@ public class GithubApiCommands {
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
 
   /** cached loader config */
-  public static GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
 
   /**
    * Null-safe read of a text/number field off a Jackson node as a String.
@@ -74,7 +73,7 @@ public class GithubApiCommands {
    * @param configId the external system config id
    */
   private static void attachGithubAuthentication(GrouperHttpClient grouperHttpClient, String configId) {
-    String token = grouperLoaderConfig.propertyValueStringRequired(
+    String token = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
         "grouper.wsBearerToken." + configId + ".accessTokenPassword");
 
     if (StringUtils.isBlank(token)) {
@@ -117,7 +116,7 @@ public class GithubApiCommands {
 
     String configPrefix = "grouper.wsBearerToken." + configId + ".";
 
-    String url = grouperLoaderConfig.propertyValueStringRequired(configPrefix + "endpoint");
+    String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(configPrefix + "endpoint");
 
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -141,7 +140,7 @@ public class GithubApiCommands {
     }
 
     if (addPerPage) {
-      int pageSize = grouperLoaderConfig.propertyValueInt(configPrefix + "pageSize", MAX_PAGE_SIZE);
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(configPrefix + "pageSize", MAX_PAGE_SIZE);
       grouperHttpClient.addUrlParameter("per_page", Integer.toString(pageSize));
     }
 
@@ -199,7 +198,7 @@ public class GithubApiCommands {
 
     List<JsonNode> elements = new ArrayList<JsonNode>();
 
-    int pageSize = grouperLoaderConfig.propertyValueInt(
+    int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
         "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
     int pageNumber = 1;

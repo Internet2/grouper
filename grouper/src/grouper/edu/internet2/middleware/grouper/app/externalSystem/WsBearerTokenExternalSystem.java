@@ -353,9 +353,22 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
 
     grouperLoaderConfig = grouperLoaderConfig != null ? grouperLoaderConfig : GrouperLoaderConfig.retrieveConfig();
     
-    String httpAuthnType = grouperLoaderConfig
+    String httpAuthnTypeFromConfig = grouperLoaderConfig
         .propertyValueString(
-            "grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType", "bearerToken");
+            "grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType");
+
+    String httpAuthnType = StringUtils.defaultIfBlank(httpAuthnTypeFromConfig, "bearerToken");
+
+    // if httpAuthnType is not there but the basicAuth properties are, then this is a partial or stale
+    // config, so do not silently fall through to the bearerToken default and complain about a token
+    // property that does not apply to this external system
+    if (StringUtils.isBlank(httpAuthnTypeFromConfig)
+        && (StringUtils.isNotBlank(grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthUser"))
+            || StringUtils.isNotBlank(grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthPassword")))) {
+      throw new RuntimeException("Cant find property: grouper.wsBearerToken." + externalSystemConfigId
+          + ".httpAuthnType but the basicAuth properties are configured for external system '" + externalSystemConfigId
+          + "', this config is stale or incomplete.  If the external system was added or changed recently, the config in this JVM is stale.");
+    }
 
     if (StringUtils.equals(httpAuthnType, "bearerToken")) {
       String bearerToken = grouperLoaderConfig

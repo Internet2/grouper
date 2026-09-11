@@ -61,7 +61,6 @@ public class DropboxApiCommands {
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
 
   /** loader config, used to resolve endpoint + token by configId */
-  public static GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
 
   /**
    * Cache of Dropbox admin-role name -&gt; role_id, keyed by configId. Dropbox has no "list all
@@ -79,7 +78,7 @@ public class DropboxApiCommands {
    * @return the bearer token string
    */
   private static String getToken(String configId) {
-    String accessTokenPassword = grouperLoaderConfig.propertyValueStringRequired(
+    String accessTokenPassword = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
         "grouper.wsBearerToken." + configId + ".accessTokenPassword");
     if (StringUtils.isBlank(accessTokenPassword)) {
       throw new RuntimeException("accessTokenPassword is required for Dropbox configId: " + configId);
@@ -197,7 +196,7 @@ public class DropboxApiCommands {
     try {
 
       String configPrefix = "grouper.wsBearerToken." + configId + ".";
-      String url = grouperLoaderConfig.propertyValueStringRequired(configPrefix + "endpoint");
+      String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(configPrefix + "endpoint");
       if (url.endsWith("/")) {
         url = url.substring(0, url.length() - 1);
       }
@@ -299,7 +298,7 @@ public class DropboxApiCommands {
     attachAuthentication(grouperHttpClient, configId);
 
     String configPrefix = "grouper.wsBearerToken." + configId + ".";
-    String url = grouperLoaderConfig.propertyValueStringRequired(configPrefix + "endpoint");
+    String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(configPrefix + "endpoint");
 
     // same trim/append logic as TrueFoundry: strip a trailing slash on the base, then append the
     // suffix (unless the suffix is already an absolute URL, in which case it wins outright)
@@ -585,7 +584,7 @@ public class DropboxApiCommands {
 
     try {
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
 
       // first page
@@ -846,7 +845,7 @@ public class DropboxApiCommands {
         throw new RuntimeException("groupId is required for retrieveDropboxGroupMemberships");
       }
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
 
       ObjectNode listBody = GrouperUtil.jsonJacksonNode();
@@ -1050,7 +1049,7 @@ public class DropboxApiCommands {
 
     try {
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
 
       ObjectNode listBody = GrouperUtil.jsonJacksonNode();

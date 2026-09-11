@@ -26,8 +26,6 @@ public class TrueFoundryApiCommands {
 
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
 
-  public static GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
-
   /**
    * Read the accessTokenPassword from the WsBearerToken external system config,
    * parse it as JSON containing {"apiToken": "...", "scimToken": "..."},
@@ -37,7 +35,7 @@ public class TrueFoundryApiCommands {
    * @return the token value
    */
   private static String getToken(String configId, boolean scim) {
-    String accessTokenPassword = grouperLoaderConfig.propertyValueStringRequired(
+    String accessTokenPassword = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
         "grouper.wsBearerToken." + configId + ".accessTokenPassword");
 
     JsonNode keysNode = GrouperUtil.jsonJacksonNode(accessTokenPassword);
@@ -103,7 +101,7 @@ public class TrueFoundryApiCommands {
     attachAuthentication(grouperHttpClient, configId, scim);
 
     String configPrefix = "grouper.wsBearerToken." + configId + ".";
-    String url = grouperLoaderConfig.propertyValueStringRequired(configPrefix + "endpoint");
+    String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(configPrefix + "endpoint");
 
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -260,7 +258,7 @@ public class TrueFoundryApiCommands {
 
     try {
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
       int offset = 0;
 
@@ -385,7 +383,7 @@ public class TrueFoundryApiCommands {
 
     try {
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
       int offset = 0;
 
@@ -1055,7 +1053,7 @@ public class TrueFoundryApiCommands {
 
     try {
 
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", DEFAULT_PAGE_SIZE);
       int offset = 0;
 

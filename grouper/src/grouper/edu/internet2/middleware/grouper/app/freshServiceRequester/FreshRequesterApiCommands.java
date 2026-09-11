@@ -28,8 +28,6 @@ public class FreshRequesterApiCommands {
   public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
   
-  public static GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
-  
   public static void main(String[] args) {
     
     GrouperStartup.startup();
@@ -79,6 +77,10 @@ public class FreshRequesterApiCommands {
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
     grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders).assignDoNotLogParameters(doNotLogParameters);
+    
+    // do not cache this in a static, the config object is replaced when config is reloaded, so a
+    // cached instance never sees external systems added after this class was loaded in this JVM
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
     
     WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpClient, configId, grouperLoaderConfig, debugMap);
     
@@ -644,7 +646,7 @@ public class FreshRequesterApiCommands {
 
         page++;
         
-        if (groupsArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
+        if (groupsArray.size() < GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
           lastPage = true;
         }
         
@@ -837,7 +839,7 @@ public class FreshRequesterApiCommands {
 
         page++;
 
-        if (requesterUsersArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
+        if (requesterUsersArray.size() < GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
           lastPage = true;
         }
       }
@@ -1200,7 +1202,7 @@ public class FreshRequesterApiCommands {
 
         page++;
 
-        if (requesterUsersArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
+        if (requesterUsersArray.size() < GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
           lastPage = true;
         }
       }

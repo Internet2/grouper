@@ -25,8 +25,6 @@ public class DatadogApiCommands {
   private static final int MAX_PAGE_SIZE = 100;
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("dd-api-key", "dd-application-key");
 
-  public static GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
-
   /**
    * Read the accessTokenPassword from the WsBearerToken external system config,
    * parse it as JSON containing {"apiKey": "...", "applicationKey": "..."},
@@ -35,7 +33,7 @@ public class DatadogApiCommands {
    * @param configId the external system config id
    */
   private static void attachDatadogAuthentication(GrouperHttpClient grouperHttpClient, String configId) {
-    String accessTokenPassword = grouperLoaderConfig.propertyValueStringRequired(
+    String accessTokenPassword = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
         "grouper.wsBearerToken." + configId + ".accessTokenPassword");
 
     JsonNode keysNode = GrouperUtil.jsonJacksonNode(accessTokenPassword);
@@ -379,7 +377,7 @@ public class DatadogApiCommands {
 
     String configPrefix = "grouper.wsBearerToken." + configId + ".";
 
-    String url = grouperLoaderConfig.propertyValueStringRequired(configPrefix + "endpoint");
+    String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(configPrefix + "endpoint");
 
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -403,7 +401,7 @@ public class DatadogApiCommands {
     }
 
     if (addPageSize) {
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
       grouperHttpClient.addUrlParameter("page[size]", Integer.toString(pageSize));
     }
@@ -475,7 +473,7 @@ public class DatadogApiCommands {
     try {
 
       int pageNumber = 0;
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
       while (true) {
@@ -824,7 +822,7 @@ public class DatadogApiCommands {
     try {
 
       int pageNumber = 0;
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
       while (true) {
@@ -1048,7 +1046,7 @@ public class DatadogApiCommands {
     try {
 
       int pageNumber = 0;
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
       while (true) {
@@ -1222,7 +1220,7 @@ public class DatadogApiCommands {
     try {
 
       int pageNumber = 0;
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
       while (true) {
@@ -1432,7 +1430,7 @@ public class DatadogApiCommands {
     try {
 
       int pageNumber = 0;
-      int pageSize = grouperLoaderConfig.propertyValueInt(
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
           "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
       while (true) {
