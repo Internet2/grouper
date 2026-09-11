@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -81,6 +82,9 @@ public class AddMissingGroupSets {
 
   /** */
   private Set<String> compositeOwnerIds = new HashSet<String>();
+
+  /** immediate group sets that were not added since they would create a circular membership */
+  private List<String> circularMembershipErrors = new ArrayList<String>();
   
   /** Whether or not to print out results of what's being done */
   private boolean showResults = true;
@@ -164,6 +168,15 @@ public class AddMissingGroupSets {
     
     addMissingImmediateGroupSetsForStemOwners();
     GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+    if (this.circularMembershipErrors.size() > 0) {
+      StringBuilder message = new StringBuilder(this.circularMembershipErrors.size()
+          + " immediate groupSets were not added since they would create a circular membership, remove one of the memberships in each loop:");
+      for (String circularMembershipError : this.circularMembershipErrors) {
+        message.append("\n").append(circularMembershipError);
+      }
+      throw new RuntimeException(message.toString());
+    }
   }
   
   /**
@@ -438,18 +451,21 @@ public class AddMissingGroupSets {
           GrouperDaemonUtils.stopProcessingIfJobPaused();
 
           if (saveUpdates) {
-            // We're not doing batch inserts here because the onPostSave 
-            // of one groupSet insert might insert another groupSet in a child 
+            // We're not doing batch inserts here because the onPostSave
+            // of one groupSet insert might insert another groupSet in a child
             // transaction that the parent transaction needs to know about
             // for the next batch insert.
-            GrouperDAOFactory.getFactory().getGroupSet().save(batch);
+            // Save one at a time so a groupSet that would create a circular membership can be skipped.
+            for (GroupSet groupSet : batch) {
+              saveImmediateGroupSetUnlessCircular(groupSet);
+            }
           }
           batch.clear();
         }
-        
+
         processedCount++;
       }
-      
+
       if (mships.size() > 0 && saveUpdates) {
         showStatus("Done making " + totalCount + " updates");
       }
@@ -457,7 +473,27 @@ public class AddMissingGroupSets {
       stopStatusThread();
     }
   }
-  
+
+  /**
+   * save the immediate group set, unless it would create a circular membership, in which case skip it and track the error
+   * @param groupSet
+   */
+  private void saveImmediateGroupSetUnlessCircular(GroupSet groupSet) {
+    try {
+      GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+    } catch (RuntimeException re) {
+      HookVeto hookVeto = GroupSet.retrieveCircularMembershipVeto(re);
+      if (hookVeto == null) {
+        throw re;
+      }
+      String error = "Not adding groupSet for ownerGroupId = " + groupSet.getOwnerGroupId()
+          + ", memberGroupId = " + groupSet.getMemberGroupId() + ": " + hookVeto.getReason();
+      LOG.error(error);
+      showStatus(error);
+      this.circularMembershipErrors.add(error);
+    }
+  }
+
   /**
    * Add missing group sets for immediate memberships where the owner is a stem
    */

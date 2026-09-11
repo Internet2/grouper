@@ -25,9 +25,13 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.PrivilegeGroupInheritanceSave;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonEnabledDisabledCheck;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -51,6 +55,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
 /**
@@ -1622,5 +1627,64 @@ public class TestDisabledGroup extends GrouperTest {
  
     ChangeLogTempToEntity.convertRecords();
     assertEquals(4, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+  }
+
+  /**
+   * A membership that would create a circular membership when the daemon enables it stays disabled,
+   * and the job ends in a warning until the membership is removed
+   */
+  public void testEnableCircularMembershipWarns() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    group1.addMember(group2.toSubject());
+
+    // group1 as a member of group2 starting tomorrow is allowed since it is not enabled yet
+    new MembershipSave().assignGroup(group2).assignSubject(group1.toSubject())
+      .assignImmediateMshipEnabledTime(System.currentTimeMillis() + 86400000L).save();
+    String group1MemberUuid = MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid();
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), group1MemberUuid, Group.getDefaultList(), "immediate", true, false);
+    assertFalse(membership.isEnabled());
+
+    // now the start date has passed
+    new GcDbAccess().sql("update grouper_memberships set enabled_timestamp = ? where id = ?")
+      .addBindVar(System.currentTimeMillis() - 60000L).addBindVar(membership.getImmediateMembershipId()).executeSql();
+
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runEnabledDisabledJob();
+    assertEquals(GrouperLoaderStatus.WARNING.name(), hib3GrouperLoaderLog.getStatus());
+    String jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    assertTrue(jobMessage, jobMessage.contains(membership.getImmediateMembershipId()));
+    assertTrue(jobMessage, jobMessage.contains(group1.getName()));
+    assertTrue(jobMessage, jobMessage.contains(group2.getName()));
+
+    assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), group1MemberUuid, Group.getDefaultList(), "immediate", true, false).isEnabled());
+    assertNull(GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        group2.getUuid(), group1.getUuid(), Group.getDefaultList()));
+    assertFalse(group2.hasMember(group1.toSubject()));
+
+    // the next run uses the cache and warns again
+    hib3GrouperLoaderLog = runEnabledDisabledJob();
+    assertEquals(GrouperLoaderStatus.WARNING.name(), hib3GrouperLoaderLog.getStatus());
+
+    // removing the membership clears the warning
+    GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), group1MemberUuid, Group.getDefaultList(), "immediate", true, false).delete();
+    hib3GrouperLoaderLog = runEnabledDisabledJob();
+    assertFalse(GrouperLoaderStatus.WARNING.name().equals(hib3GrouperLoaderLog.getStatus()));
+  }
+
+  /**
+   * run the enabled/disabled daemon logic
+   * @return the loader log with the status and job message
+   */
+  private Hib3GrouperLoaderLog runEnabledDisabledJob() {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    OtherJobInput otherJobInput = new OtherJobInput();
+    otherJobInput.setJobName("OTHER_JOB_enabledDisabled");
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    otherJobInput.setGrouperSession(grouperSession);
+    new GrouperDaemonEnabledDisabledCheck().run(otherJobInput);
+    return hib3GrouperLoaderLog;
   }
 }

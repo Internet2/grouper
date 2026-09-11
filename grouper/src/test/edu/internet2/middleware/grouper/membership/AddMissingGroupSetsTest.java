@@ -42,10 +42,13 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -66,6 +69,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * @author shilen
@@ -85,6 +89,47 @@ public class AddMissingGroupSetsTest extends GrouperTest {
    */
   public AddMissingGroupSetsTest(String name) {
     super(name);
+  }
+
+  /**
+   * A missing immediate group set that would create a circular membership is not added, the other missing
+   * group sets still are, and it ends in an error
+   */
+  public void testAddMissingGroupSetsCircularMembership() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group1").save();
+    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group2").save();
+    Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group3").save();
+    Group group4 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:group4").save();
+    group1.addMember(group2.toSubject());
+    group3.addMember(group4.toSubject());
+
+    // group1 as a member of group2, enabled in the database but missing its group set, e.g. from before circular memberships were vetoed
+    new MembershipSave().assignGroup(group2).assignSubject(group1.toSubject())
+      .assignImmediateMshipEnabledTime(System.currentTimeMillis() + 86400000L).save();
+    String group1MemberUuid = MemberFinder.findBySubject(grouperSession, group1.toSubject(), true).getUuid();
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), group1MemberUuid, Group.getDefaultList(), "immediate", true, false);
+    new GcDbAccess().sql("update grouper_memberships set enabled = 'T', enabled_timestamp = null where id = ?")
+      .addBindVar(membership.getImmediateMembershipId()).executeSql();
+
+    // group4 as a member of group3 is missing its group set
+    GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        group3.getUuid(), group4.getUuid(), Group.getDefaultList()).delete(false);
+
+    try {
+      new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
+      fail("Expected an error for the circular membership");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("circular membership"));
+      assertTrue(re.getMessage(), re.getMessage().contains(group1.getName()));
+      assertTrue(re.getMessage(), re.getMessage().contains(group2.getName()));
+    }
+
+    assertNotNull(GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        group3.getUuid(), group4.getUuid(), Group.getDefaultList()));
+    assertNull(GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        group2.getUuid(), group1.getUuid(), Group.getDefaultList()));
   }
 
   /**

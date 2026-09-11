@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
@@ -241,6 +242,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public static final String TABLE_GROUPER_GROUP_SET = "grouper_group_set";
 
+  /** veto reason key (also the UI text key) when adding a group as a member would create a circular membership */
+  public static final String VETO_MEMBERSHIP_CIRCULAR_KEY = "groups.add.member.error.circular";
+
   /** id of this type */
   private String id;
   
@@ -408,7 +412,17 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       Set<GroupSet> results = new LinkedHashSet<GroupSet>();
       Set<GroupSet> groupSetHasMembers = GrouperDAOFactory.getFactory().getGroupSet().findAllByGroupOwnerAndField(
           this.getMemberGroupId(), Group.getDefaultList());
-      
+
+      // a group cannot be a member of itself at any depth.  If the owner group is already reachable from the
+      // member group, then this immediate group set would create a circular membership.  This cannot be bypassed.
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+        for (GroupSet groupSetHasMember : groupSetHasMembers) {
+          if (StringUtils.equals(this.getOwnerGroupId(), groupSetHasMember.getMemberGroupId())) {
+            throw this.circularMembershipVeto();
+          }
+        }
+      }
+
       // Add members of member to owner group set
       results.addAll(addHasMembersToOwner(this, groupSetHasMembers));
   
@@ -761,7 +775,40 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     return false;
   }
 
-  
+  /**
+   * veto for when this immediate group set would make its owner group an effective member of itself
+   * @return the veto to throw
+   */
+  private HookVeto circularMembershipVeto() {
+    Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getOwnerGroupId(), false, null);
+    Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMemberGroupId(), false, null);
+    String ownerGroupName = ownerGroup == null ? this.getOwnerGroupId() : ownerGroup.getName();
+    String memberGroupName = memberGroup == null ? this.getMemberGroupId() : memberGroup.getName();
+
+    return new HookVeto(VETO_MEMBERSHIP_CIRCULAR_KEY, "Cannot add group '" + memberGroupName + "' as a member of group '"
+        + ownerGroupName + "' since '" + ownerGroupName + "' is already a member of '" + memberGroupName
+        + "' (directly or indirectly), which would create a circular membership");
+  }
+
+  /**
+   * find the veto thrown when a membership would be circular, anywhere in the cause chain of this throwable
+   * @param throwable
+   * @return the veto or null if this is not a circular membership veto
+   */
+  public static HookVeto retrieveCircularMembershipVeto(Throwable throwable) {
+    Throwable current = throwable;
+
+    // limit the depth in case of a cause loop
+    for (int i = 0; i < 20 && current != null; i++) {
+      if (current instanceof HookVeto && StringUtils.equals(VETO_MEMBERSHIP_CIRCULAR_KEY, ((HookVeto)current).getReasonKey())) {
+        return (HookVeto)current;
+      }
+      current = current.getCause();
+    }
+
+    return null;
+  }
+
   /**
    * @return the parent group set
    */

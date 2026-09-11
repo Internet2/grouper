@@ -42,10 +42,8 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMemberOf.class);
     suite.addTestSuite(TestMembership.class);
     suite.addTestSuite(TestMembershipDeletes2.class);
-    suite.addTestSuite(TestMemberOf0.class);
     suite.addTestSuite(TestMembership7.class);
     suite.addTestSuite(TestMembership2.class);
-    suite.addTestSuite(TestMembershipDeletes4.class);
     suite.addTestSuite(TestMembershipDeletes1.class);
     suite.addTestSuite(TestMembership0.class);
     suite.addTestSuite(TestMembership6.class);
@@ -60,7 +58,6 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMembership8.class);
     suite.addTestSuite(TestMemberOf1.class);
     suite.addTestSuite(TestMembershipDeletes3.class);
-    suite.addTestSuite(TestMembershipDeletes5.class);
     suite.addTestSuite(TestInvalidGrouperAllMemberships.class);
     suite.addTestSuite(MembershipPathGroupTest.class);
     suite.addTestSuite(TestSelfMembershipRead.class);

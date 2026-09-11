@@ -637,50 +637,8 @@ public class TestFindBadMemberships extends GrouperTest {
    */
   public void testCircular() throws Exception {
     setUpComposites();
-    Group gA1 = top.addChildGroup("gA1", "gA1");
-    Group gA2 = top.addChildGroup("gA2", "gA2");
-    gA1.addMember(gA2.toSubject());
-    gA2.addMember(gA1.toSubject());
-    
-    Group gB1 = top.addChildGroup("gB1", "gB1");
-    Group gB2 = top.addChildGroup("gB2", "gB2");
-    Group gB3 = top.addChildGroup("gB3", "gB3");
-    gB1.addMember(gB2.toSubject());
-    gB2.addMember(gB3.toSubject());
-    gB3.addMember(gB1.toSubject());
-    
-    Group gC1 = top.addChildGroup("gC1", "gC1");
-    Group gC2 = top.addChildGroup("gC2", "gC2");
-    Group gC3 = top.addChildGroup("gC3", "gC3");
-    Group gC4 = top.addChildGroup("gC4", "gC4");
-    gC1.addMember(gC2.toSubject());
-    gC2.addMember(gC3.toSubject());
-    gC3.addMember(gC4.toSubject());
-    gC4.addMember(gC1.toSubject());
-    
-    Group gD1 = top.addChildGroup("gD1", "gD1");
-    Group gD2 = top.addChildGroup("gD2", "gD2");
-    Group gD3 = top.addChildGroup("gD3", "gD3");
-    gD1.addMember(gD2.toSubject());
-    gD2.addMember(gD3.toSubject());
-    gD3.addMember(gD2.toSubject());
-    
-    Stem sE1 = top.addChildStem("sE1", "sE1");
-    Group gE2 = top.addChildGroup("gE2", "gE2");
-    Group gE3 = top.addChildGroup("gE3", "gE3");
-    sE1.grantPriv(gE2.toSubject(), NamingPrivilege.STEM);
-    gE2.addMember(gE3.toSubject());
-    gE3.addMember(gE2.toSubject());
-    
-    Stem sF1 = top.addChildStem("sF1", "sF1");
-    Group gF2 = top.addChildGroup("gF2", "gF2");
-    Group gF3 = top.addChildGroup("gF3", "gF3");
-    Group gF4 = top.addChildGroup("gF4", "gF4");
-    sF1.grantPriv(gF2.toSubject(), NamingPrivilege.STEM);
-    gF2.addMember(gF3.toSubject());
-    gF3.addMember(gF4.toSubject());
-    gF4.addMember(gF2.toSubject());
-    
+
+    // circular memberships in the members list are vetoed, but circular group sets through privileges are allowed
     Group gG1 = top.addChildGroup("gG1", "gG1");
     gG1.grantPriv(gG1.toSubject(), AccessPrivilege.ADMIN);
     

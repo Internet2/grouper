@@ -15,7 +15,9 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -28,11 +30,13 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.AuditTypeIdentifier;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -56,10 +60,21 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     Hib3GrouperLoaderLog hib3GrouploaderLog = otherJobInput.getHib3GrouperLoaderLog();
-    int records = GrouperDaemonEnabledDisabledCheck.fixEnabledDisabled();
+    List<String> circularMembershipWarnings = new ArrayList<String>();
+    int records = GrouperDaemonEnabledDisabledCheck.fixEnabledDisabled(circularMembershipWarnings);
     hib3GrouploaderLog.setUpdateCount(records);
-    hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");    
-    
+
+    StringBuilder jobMessage = new StringBuilder("Ran enabled/disabled daemon, changed " + records + " records");
+    if (circularMembershipWarnings.size() > 0) {
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
+      jobMessage.append(", " + circularMembershipWarnings.size()
+          + " memberships were not enabled since they would create a circular membership, remove them to clear this warning:");
+      for (String circularMembershipWarning : circularMembershipWarnings) {
+        jobMessage.append("\n").append(circularMembershipWarning);
+      }
+    }
+    hib3GrouploaderLog.setJobMessage(jobMessage.toString());
+
     return null;
   }
   
@@ -68,6 +83,15 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
    * @return number of updates
    */
   public synchronized static int fixEnabledDisabled() {
+    return fixEnabledDisabled(null);
+  }
+
+  /**
+   * @param circularMembershipWarnings if not null, a warning is added for each membership that was not enabled
+   * since it would create a circular membership
+   * @return number of updates
+   */
+  public synchronized static int fixEnabledDisabled(List<String> circularMembershipWarnings) {
     int records = 0;
     
     if (System.currentTimeMillis() > lastQuery) {
@@ -76,7 +100,7 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
       records += internal_groupsFixEnabledDisabled(queryTime);
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
-      records += internal_membershipsFixEnabledDisabled(queryTime);
+      records += internal_membershipsFixEnabledDisabled(queryTime, circularMembershipWarnings);
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       records += internal_attributeAssignsFixEnabledDisabled(queryTime);
@@ -87,7 +111,7 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
       records += internal_groupsFixEnabledDisabledUsingCache();
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
-      records += internal_membershipsFixEnabledDisabledUsingCache();
+      records += internal_membershipsFixEnabledDisabledUsingCache(circularMembershipWarnings);
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       records += internal_attributeAssignsFixEnabledDisabledUsingCache();
@@ -163,7 +187,7 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
     return updates;
   }
   
-  private static int internal_membershipsFixEnabledDisabledUsingCache() {
+  private static int internal_membershipsFixEnabledDisabledUsingCache(List<String> circularMembershipWarnings) {
     int updates = 0;
     
     if (LOG.isDebugEnabled()) {
@@ -177,7 +201,10 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
         
         if (isEnabledUsingTimestamps != membership.isEnabled()) {
           membership.setEnabled(isEnabledUsingTimestamps);
-          updateMembershipWithAuditing(membership);
+          if (!updateMembershipWithAuditingUnlessCircular(membership, circularMembershipWarnings)) {
+            // leave it in the cache so it is checked (and warned about) again next run
+            continue;
+          }
           updates++;
           cachedMembershipIds.remove(membership.getImmediateMembershipId());
           
@@ -269,6 +296,17 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
    * @return the number of records affected
    */
   public static int internal_membershipsFixEnabledDisabled(long queryTime) {
+    return internal_membershipsFixEnabledDisabled(queryTime, null);
+  }
+
+  /**
+   * fix enabled and disabled memberships, and return the count of how many were fixed
+   * @param queryTime
+   * @param circularMembershipWarnings if not null, a warning is added for each membership that was not enabled
+   * since it would create a circular membership
+   * @return the number of records affected
+   */
+  public static int internal_membershipsFixEnabledDisabled(long queryTime, List<String> circularMembershipWarnings) {
     cachedMembershipIds = new HashSet<String>();
     
     int updates = 0;
@@ -283,9 +321,13 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
       
       if (isEnabledUsingTimestamps != membership.isEnabled()) {
         membership.setEnabled(isEnabledUsingTimestamps);
-        updateMembershipWithAuditing(membership);
+        if (!updateMembershipWithAuditingUnlessCircular(membership, circularMembershipWarnings)) {
+          // cache it so it is checked (and warned about) again next run
+          cachedMembershipIds.add(membership.getImmediateMembershipId());
+          continue;
+        }
         updates++;
-        
+
         if (LOG.isDebugEnabled()) {
           LOG.debug("Updated membership " + membership.getImmediateMembershipId() + " with enabled=" + isEnabledUsingTimestamps);
         }
@@ -298,6 +340,30 @@ public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
     return updates;
   }
   
+  /**
+   * update the membership, unless enabling it would create a circular membership, in which case it stays disabled
+   * @param membership
+   * @param circularMembershipWarnings if not null, a warning is added if the membership would be circular
+   * @return true if updated, false if not since it would create a circular membership
+   */
+  private static boolean updateMembershipWithAuditingUnlessCircular(Membership membership, List<String> circularMembershipWarnings) {
+    try {
+      updateMembershipWithAuditing(membership);
+      return true;
+    } catch (RuntimeException re) {
+      HookVeto hookVeto = GroupSet.retrieveCircularMembershipVeto(re);
+      if (hookVeto == null) {
+        throw re;
+      }
+      String warning = "Membership " + membership.getImmediateMembershipId() + ": " + hookVeto.getReason();
+      LOG.warn(warning);
+      if (circularMembershipWarnings != null) {
+        circularMembershipWarnings.add(warning);
+      }
+      return false;
+    }
+  }
+
   private static void updateMembershipWithAuditing(Membership membership) {
     final boolean isEnabled = membership.isEnabled();
     

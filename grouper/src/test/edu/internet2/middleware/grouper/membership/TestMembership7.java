@@ -31,501 +31,196 @@
 */
 
 package edu.internet2.middleware.grouper.membership;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.helper.DateHelper;
+import edu.internet2.middleware.grouper.MembershipSave;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
-import edu.internet2.middleware.grouper.helper.R;
-import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
+ * A group cannot be a member of itself at any depth
  * @author Shilen Patel.
  */
 public class TestMembership7 extends GrouperTest {
 
+  /**
+   *
+   * @param args
+   */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembership7("testCircularMembershipsWithoutComposites"));
+    TestRunner.run(new TestMembership7("testRemoveMembershipFromExistingCircularMembership"));
   }
-  
-  private static final Log LOG = GrouperUtil.getLog(TestMembership7.class);
 
-  Date before;
-  R       r;
-  Group   gA;
-  Group   gB;
-  Group   gC;
-  Group   gD;
-  Group   gE;
-  Subject subjA;
-  Subject subjB;
-  Stem    nsA;
+  /** root session */
+  private GrouperSession grouperSession;
 
-  Field fieldMembers;
-  Field fieldUpdaters;
-  Field fieldOptIns;
+  /** */
+  private Group gA;
 
+  /** */
+  private Group gB;
+
+  /** */
+  private Group gC;
+
+  /** */
+  private Group gD;
+
+  /**
+   * @param name
+   */
   public TestMembership7(String name) {
     super(name);
   }
 
-  public void testCircularMembershipsWithoutComposites() {
-    LOG.info("testCircularMembershipsWithoutComposites");
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+
+    this.grouperSession = GrouperSession.startRootSession();
+    this.gA = new GroupSave(this.grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:gA").save();
+    this.gB = new GroupSave(this.grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:gB").save();
+    this.gC = new GroupSave(this.grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:gC").save();
+    this.gD = new GroupSave(this.grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:gD").save();
+  }
+
+  /**
+   * A -> B -> A
+   */
+  public void testCircularMembershipDepth2Vetoed() {
+    this.gA.addMember(this.gB.toSubject());
+    this.gB.addMember(SubjectTestHelper.SUBJ0);
+
+    assertCircularMembershipVetoed(this.gB, this.gA);
+
+    // nothing changed
+    assertTrue(this.gA.hasMember(this.gB.toSubject()));
+    assertTrue(this.gA.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(this.gB.hasMember(this.gA.toSubject()));
+  }
+
+  /**
+   * A -> B -> C -> A
+   */
+  public void testCircularMembershipDepth3Vetoed() {
+    this.gA.addMember(this.gB.toSubject());
+    this.gB.addMember(this.gC.toSubject());
+    this.gC.addMember(SubjectTestHelper.SUBJ0);
+
+    assertCircularMembershipVetoed(this.gC, this.gA);
+
+    // other add member paths are vetoed too
     try {
-      GrouperUtil.sleep(100);
-      before  = new Date();
-      GrouperUtil.sleep(100);
-
-      r     = R.populateRegistry(1, 5, 1);
-      gA    = r.getGroup("a", "a");
-      gB    = r.getGroup("a", "b");
-      gC    = r.getGroup("a", "c");
-      gD    = r.getGroup("a", "d");
-      gE    = r.getGroup("a", "e");
-      subjA = r.getSubject("a");
-
-      fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
-      fieldOptIns = FieldFinder.find(Field.FIELD_NAME_OPTINS, true);
-
-      Set<Group> goodGroups = new LinkedHashSet<Group>();
-      Set<Group> badGroups = new LinkedHashSet<Group>();
-
-      goodGroups.add(gA);
-      goodGroups.add(gB);
-      goodGroups.add(gC);
-      goodGroups.add(gD);
-      goodGroups.add(gE);
-
-
-      // Test 1:  Test when the last operation is adding update privilege for gC.
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      verifyMemberships();
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-
-      Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 1", 0, listMemberships.size());
-
-      Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 1", 0, updateMemberships.size());
-
-      Set<Membership> optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 1", 0, optInMemberships.size());
-
-      // Test 2:  Test when the last operation is adding gB as a member of gA.
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-  
-      verifyMemberships();
-  
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 2", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 2", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 2", 0, optInMemberships.size());
-
-      // Test 3:  Test when the last operation is adding gC as a member of gB.
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-  
-      verifyMemberships();
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 3", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 3", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 3", 0, optInMemberships.size());
-
-      // Test 4:  Test when the last operation is adding gA as a member of gC.
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-  
-      verifyMemberships();
-  
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 4", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 4", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 4", 0, optInMemberships.size());
-
-      // Test 5:  Test when the last operation is adding gC as a member of gD.
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-  
-      verifyMemberships();
-  
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 5", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 5", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 5", 0, optInMemberships.size());
-
-      // Test 6:  Test when the last operation is adding subjA as a member of gC.
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-  
-      verifyMemberships();
-  
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 6", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 6", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 6", 0, optInMemberships.size());
-
-      // Test 7:  Test when the last operation is adding opt-in privileges for gB.
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-  
-      verifyMemberships();
-  
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-  
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 7", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 7", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 7", 0, optInMemberships.size());
-
-      // Test 8:  Test when the last operation is adding gD as a member of gE.
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
- 
-      verifyMemberships();
- 
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 8", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 8", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 8", 0, optInMemberships.size());
-
-      // Test 9:  Test when the last operation is adding update privileges to gD.
-      gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gA.addMember(gB.toSubject());
-      gB.addMember(gC.toSubject());
-      gC.addMember(gA.toSubject());
-      gD.addMember(gC.toSubject());
-      gC.addMember(subjA);
-      gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gE.addMember(gD.toSubject());
-      gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
-
-      verifyMemberships();
-    
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gC.toSubject());
-      gC.deleteMember(gA.toSubject());
-      gD.deleteMember(gC.toSubject());
-      gC.deleteMember(subjA);
-      gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-      gC.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gE.deleteMember(gD.toSubject());
-      gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-    
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 9", 0, listMemberships.size());
-    
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 9", 0, updateMemberships.size());
-
-      optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-      T.amount("Number of opt-in privileges after test 9", 0, optInMemberships.size());
-
-
-
-      r.rs.stop();
+      new MembershipSave().assignGroup(this.gC).assignSubject(this.gA.toSubject()).save();
+      fail("Expected circular membership veto from MembershipSave");
+    } catch (RuntimeException re) {
+      assertNotNull("Expected circular membership veto but was: " + re, GroupSet.retrieveCircularMembershipVeto(re));
     }
-    catch (Exception e) {
-      T.e(e);
-    }
+
+    // nothing changed
+    assertFalse(this.gC.hasMember(this.gA.toSubject()));
+    assertTrue(this.gA.hasMember(this.gC.toSubject()));
+    assertTrue(this.gA.hasMember(SubjectTestHelper.SUBJ0));
+
+    // adding the top group to a group outside the chain is not circular
+    this.gD.addMember(this.gA.toSubject());
+    assertTrue(this.gD.hasMember(SubjectTestHelper.SUBJ0));
   }
 
+  /**
+   * A loop that was created before circular memberships were vetoed can still be broken by removing a membership,
+   * and once it is broken it cannot be created again
+   */
+  public void testRemoveMembershipFromExistingCircularMembership() {
+    this.gA.addMember(this.gB.toSubject());
+    createExistingCircularMembership(this.gB, this.gA);
+    assertTrue(this.gB.hasMember(this.gA.toSubject()));
 
-  public  void verifyMemberships() throws Exception {
-    // gB -> gA
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gB -> gA", gA, gB.toSubject(), fieldMembers);
+    // an existing loop does not block adding a group in the loop to another group
+    this.gC.addMember(this.gA.toSubject());
+    assertTrue(this.gC.hasMember(this.gB.toSubject()));
 
-    // gC -> gA (parent: gB -> gA) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gC -> gA", gA, gC.toSubject(), gB, 1, gA, gB.toSubject(), null, 0, fieldMembers);
+    this.gB.deleteMember(this.gA.toSubject());
+    assertFalse(this.gB.hasMember(this.gA.toSubject()));
+    assertNull(GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        this.gB.getUuid(), this.gA.getUuid(), Group.getDefaultList()));
 
-    // SA -> gA (parent: gC -> gA) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gA", gA, subjA, gC, 2, gA, gC.toSubject(), gB, 1, fieldMembers);
-
-    // gC -> gB
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gC -> gB", gB, gC.toSubject(), fieldMembers);
-
-    // gC -> gB
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gC -> gB", gB, gC.toSubject(), fieldOptIns);
-
-    // gA -> gB (parent: gC -> gB) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gB", gB, gA.toSubject(), gC, 1, gB, gC.toSubject(), null, 0, fieldMembers);
-
-    // SA -> gB (parent: gC -> gB) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gB", gB, subjA, gC, 1, gB, gC.toSubject(), null, 0, fieldMembers);
-
-    // gA -> gB (parent: gC -> gB) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gB", gB, gA.toSubject(), gC, 1, gB, gC.toSubject(), null, 0, fieldOptIns);
-
-    // SA -> gB (parent: gC -> gB) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gB", gB, subjA, gC, 1, gB, gC.toSubject(), null, 0, fieldOptIns);
-
-    // gB -> gB (parent: gA -> gB) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gB", gB, gB.toSubject(), gA, 2, gB, gA.toSubject(), gC, 1, fieldOptIns);
-
-    // gA -> gC
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gC", gC, gA.toSubject(), fieldMembers);
-
-    // SA -> gC
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "SA -> gC", gC, subjA, fieldMembers);
-
-    // gA -> gC
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gC", gC, gA.toSubject(), fieldUpdaters);
-
-    // gB -> gC (parent: gA -> gC) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gC", gC, gB.toSubject(), gA, 1, gC, gA.toSubject(), null, 0, fieldMembers);
-
-    // gB -> gC (parent: gA -> gC) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gC", gC, gB.toSubject(), gA, 1, gC, gA.toSubject(), null, 0, fieldUpdaters);
-
-    // gC -> gC (parent: gB -> gC) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gC -> gC", gC, gC.toSubject(), gB, 2, gC, gB.toSubject(), gA, 1, fieldUpdaters);
-
-    // SA -> gC (parent: gC -> gC) (depth: 3)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gC", gC, subjA, gC, 3, gC, gC.toSubject(), gB, 2, fieldUpdaters);
-
-    // gC -> gD
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gC -> gD", gD, gC.toSubject(), fieldMembers);
-
-    // gA -> gD (parent: gC -> gD) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gD", gD, gA.toSubject(), gC, 1, gD, gC.toSubject(), null, 0, fieldMembers);
-
-    // SA -> gD (parent: gC -> gD) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gD", gD, subjA, gC, 1, gD, gC.toSubject(), null, 0, fieldMembers);
-
-    // gB -> gD (parent: gA -> gD) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gD", gD, gB.toSubject(), gA, 2, gD, gA.toSubject(), gC, 1, fieldMembers);
-
-    // gC -> gD
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gC -> gD", gD, gC.toSubject(), fieldUpdaters);
-    
-    // gA -> gD (parent: gC -> gD) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gD", gD, gA.toSubject(), gC, 1, gD, gC.toSubject(), null, 0, fieldUpdaters);
-    
-    // SA -> gD (parent: gC -> gD) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gD", gD, subjA, gC, 1, gD, gC.toSubject(), null, 0, fieldUpdaters);
-
-    // gB -> gD (parent: gA -> gD) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gD", gD, gB.toSubject(), gA, 2, gD, gA.toSubject(), gC, 1, fieldUpdaters);
-
-    // gD -> gE
-    MembershipTestHelper.verifyImmediateMembership(r.rs, "gD -> gE", gE, gD.toSubject(), fieldMembers);
-
-    // gC -> gE (parent: gD -> gE) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gC -> gE", gE, gC.toSubject(), gD, 1, gE, gD.toSubject(), null, 0, fieldMembers);
-
-    // gA -> gE (parent: gC -> gE) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gE", gE, gA.toSubject(), gC, 2, gE, gC.toSubject(), gD, 1, fieldMembers);
-
-    // SA -> gE (parent: gC -> gE) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gE", gE, subjA, gC, 2, gE, gC.toSubject(), gD, 1, fieldMembers);
-
-    // gB -> gE (parent: gA -> gE) (depth: 3)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gE", gE, gB.toSubject(), gA, 3, gE, gA.toSubject(), gC, 2, fieldMembers);
-
-
-    // verify the total number of list memberships
-    Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 23, listMemberships.size());
-
-    // verify the total number of update privileges
-    Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-    T.amount("Number of update privileges", 10, updateMemberships.size());
-
-    // verify the total number of opt-in privileges
-    Set<Membership> optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-    T.amount("Number of opt-in privileges", 5, optInMemberships.size());
+    assertCircularMembershipVetoed(this.gB, this.gA);
   }
 
+  /**
+   * Adding the member group to the owner group should be vetoed and leave nothing behind
+   * @param owner
+   * @param member
+   */
+  private void assertCircularMembershipVetoed(Group owner, Group member) {
+    try {
+      owner.addMember(member.toSubject());
+      fail("Expected circular membership veto adding " + member.getName() + " to " + owner.getName());
+    } catch (RuntimeException re) {
+      assertNotNull("Expected circular membership veto but was: " + re, GroupSet.retrieveCircularMembershipVeto(re));
+    }
+
+    String memberUuid = MemberFinder.findBySubject(this.grouperSession, member.toSubject(), true).getUuid();
+    assertNull(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        owner.getUuid(), memberUuid, Group.getDefaultList(), "immediate", false, false));
+    assertNull(GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(
+        owner.getUuid(), member.getUuid(), Group.getDefaultList()));
+  }
+
+  /**
+   * Create a circular membership the way it looks if it was added before circular memberships were vetoed:
+   * an enabled immediate membership and its immediate group set, but no effective group sets through the loop
+   * @param owner
+   * @param member
+   */
+  private void createExistingCircularMembership(Group owner, Group member) {
+
+    // add it disabled so there is no group set yet
+    new MembershipSave().assignGroup(owner).assignSubject(member.toSubject())
+      .assignImmediateMshipEnabledTime(System.currentTimeMillis() + 86400000L).save();
+
+    String memberUuid = MemberFinder.findBySubject(this.grouperSession, member.toSubject(), true).getUuid();
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        owner.getUuid(), memberUuid, Group.getDefaultList(), "immediate", true, false);
+
+    new GcDbAccess().sql("update grouper_memberships set enabled = 'T', enabled_timestamp = null where id = ?")
+      .addBindVar(membership.getImmediateMembershipId()).executeSql();
+
+    GroupSet ownerSelfGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(
+        owner.getUuid(), Group.getDefaultList().getUuid());
+
+    new GcDbAccess().sql("insert into grouper_group_set (id, owner_group_id, owner_group_id_null, owner_stem_id_null, "
+        + "owner_attr_def_id_null, member_group_id, member_id, field_id, member_field_id, owner_id, mship_type, depth, "
+        + "via_group_id, parent_id, creator_id, create_time, hibernate_version_number) "
+        + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'effective', 1, ?, ?, ?, ?, 0)")
+      .addBindVar(GrouperUuid.getUuid())
+      .addBindVar(owner.getUuid())
+      .addBindVar(owner.getUuid())
+      .addBindVar(GroupSet.nullColumnValue)
+      .addBindVar(GroupSet.nullColumnValue)
+      .addBindVar(member.getUuid())
+      .addBindVar(member.getUuid())
+      .addBindVar(Group.getDefaultList().getUuid())
+      .addBindVar(Group.getDefaultList().getUuid())
+      .addBindVar(owner.getUuid())
+      .addBindVar(member.getUuid())
+      .addBindVar(ownerSelfGroupSet.getId())
+      .addBindVar(ownerSelfGroupSet.getCreatorId())
+      .addBindVar(System.currentTimeMillis())
+      .executeSql();
+  }
 }
-
