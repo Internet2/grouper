@@ -871,7 +871,7 @@ public class GrouperMcpGroupSave {
   }
 
   /**
-   * Remove the composite definition from a group using CompositeSave with SaveMode.DELETE.
+   * Remove the composite definition from a group using Group.deleteCompositeMember.
    * After removal, the group will no longer have automatically computed membership
    * from factor groups.
    *
@@ -880,13 +880,16 @@ public class GrouperMcpGroupSave {
    */
   private static ObjectNode executeRemoveComposite(String groupName) throws Exception {
 
-    // use CompositeSave with DELETE mode; only the owner group name is needed
-    CompositeSave compositeSave = new CompositeSave()
-        .assignOwnerName(groupName)
-        .assignSaveMode(SaveMode.DELETE);
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
 
-    compositeSave.save();
-    SaveResultType saveResultType = compositeSave.getSaveResultType();
+    // CompositeSave needs both factor groups even to delete, and reading them from the composite
+    // needs VIEW on each.  deleteCompositeMember needs neither, only UPDATE on this group
+    SaveResultType saveResultType = SaveResultType.NO_CHANGE;
+
+    if (group.isHasComposite()) {
+      group.deleteCompositeMember();
+      saveResultType = SaveResultType.DELETE;
+    }
 
     ObjectNode resultNode = objectMapper.createObjectNode();
     resultNode.put("action", "removeComposite");

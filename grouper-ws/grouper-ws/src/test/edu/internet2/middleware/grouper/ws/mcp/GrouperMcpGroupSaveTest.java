@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -198,6 +199,55 @@ public class GrouperMcpGroupSaveTest extends GrouperTest {
     Group byAlternateName = GroupFinder.findByAlternateName(
         GrouperSession.staticGrouperSession(), "test:mcpRenameGroup1", false);
     assertNull("Old name should not be kept as an alternate ID path by default", byAlternateName);
+  }
+
+  /**
+   * get the resultCode of a successful tool result
+   * @param result
+   * @return the result code
+   */
+  private String resultCode(ObjectNode result) {
+    try {
+      return objectMapper.readTree(resultText(result)).get("resultCode").asText();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to parse result JSON: " + resultText(result), e);
+    }
+  }
+
+  /**
+   * removeComposite removes the composite even though SUBJ0 cannot see the factor groups, and
+   * removing it again reports NO_CHANGE.  it used to fail with "leftFactorGroup is required"
+   */
+  public void testRemoveComposite() {
+
+    createGroupForSubj0("test:mcpRemoveCompositeOwner", "Mcp Remove Composite Owner", null);
+
+    // factor groups SUBJ0 cannot see, since removing a composite needs only UPDATE on the owner
+    Group left = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpRemoveCompositeLeft").assignCreateParentStemsIfNotExist(true).save();
+    Group right = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpRemoveCompositeRight").assignCreateParentStemsIfNotExist(true).save();
+
+    GroupFinder.findByName("test:mcpRemoveCompositeOwner", true)
+        .addCompositeMember(CompositeType.INTERSECTION, left, right);
+    assertTrue(GroupFinder.findByName("test:mcpRemoveCompositeOwner", true).isHasComposite());
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "removeComposite");
+    arguments.put("groupName", "test:mcpRemoveCompositeOwner");
+
+    ObjectNode result = executeAsSubj0(arguments);
+
+    assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+    assertEquals("DELETE", resultCode(result));
+    assertFalse("the composite should be gone",
+        GroupFinder.findByName("test:mcpRemoveCompositeOwner", true).isHasComposite());
+
+    // nothing left to remove
+    result = executeAsSubj0(arguments);
+
+    assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+    assertEquals("NO_CHANGE", resultCode(result));
   }
 
   /**
