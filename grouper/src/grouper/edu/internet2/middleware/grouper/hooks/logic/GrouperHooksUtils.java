@@ -128,22 +128,49 @@ public class GrouperHooksUtils {
             //just ignore, probably not running unit tests
           }
           
-          registerBuiltInHook("AttributeDefAttributeNameValidationHook",
-              () -> AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true));
-          registerBuiltInHook("AttributeDefNameAttributeNameValidationHook",
-              () -> AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true));
-          registerBuiltInHook("GroupAttributeNameValidationHook",
-              () -> GroupAttributeNameValidationHook.registerHookIfNecessary(true));
-          registerBuiltInHook("StemAttributeNameValidationHook",
-              () -> StemAttributeNameValidationHook.registerHookIfNecessary(true));
-          registerBuiltInHook("GroupTypeTupleIncludeExcludeHook",
-              () -> GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false));
-          registerBuiltInHook("GroupTypeSecurityHook",
-              () -> GroupTypeSecurityHook.registerHookIfNecessary(false));
-          registerBuiltInHook("GrouperAttributeAssignValueRulesConfigHook",
-              () -> GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true));
-          registerBuiltInHook("GroupDoNotDeleteIfProvisionable",
-              () -> GroupDoNotDeleteIfProvisionable.registerHookIfNecessary());
+          // each built in hook registers in its own try/catch.  If one throws (generally a
+          // grouper.properties misconfiguration) log it loudly and keep going, otherwise every
+          // hook after it in this sequence is silently skipped for the life of the jvm.
+          try {
+            AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("AttributeDefAttributeNameValidationHook", re);
+          }
+          try {
+            AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("AttributeDefNameAttributeNameValidationHook", re);
+          }
+          try {
+            GroupAttributeNameValidationHook.registerHookIfNecessary(true);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("GroupAttributeNameValidationHook", re);
+          }
+          try {
+            StemAttributeNameValidationHook.registerHookIfNecessary(true);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("StemAttributeNameValidationHook", re);
+          }
+          try {
+            GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("GroupTypeTupleIncludeExcludeHook", re);
+          }
+          try {
+            GroupTypeSecurityHook.registerHookIfNecessary(false);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("GroupTypeSecurityHook", re);
+          }
+          try {
+            GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("GrouperAttributeAssignValueRulesConfigHook", re);
+          }
+          try {
+            GroupDoNotDeleteIfProvisionable.registerHookIfNecessary();
+          } catch (RuntimeException re) {
+            logBuiltInHookRegistrationError("GroupDoNotDeleteIfProvisionable", re);
+          }
           
           GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
               LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
@@ -156,20 +183,15 @@ public class GrouperHooksUtils {
   }
   
   /**
-   * register one built in hook.  If the registration throws (generally a grouper.properties
-   * misconfiguration) log it loudly and keep going, otherwise every built in hook after this
-   * one in the registration sequence would be silently skipped for the life of the jvm
+   * log a built in hook that failed to register.  The caller keeps going so the hooks after it
+   * in the registration sequence are not silently skipped for the life of the jvm
    * @param hookName simple name of the hook, for logging
-   * @param registerRunnable calls the hook's registerHookIfNecessary
+   * @param re the exception the registration threw
    */
-  private static void registerBuiltInHook(String hookName, Runnable registerRunnable) {
-    try {
-      registerRunnable.run();
-    } catch (RuntimeException re) {
-      LOG.error("Error registering built in hook: " + hookName
-          + ".  This hook will not be active until the problem is fixed and grouper is restarted.  "
-          + "The other built in hooks are still being registered.", re);
-    }
+  private static void logBuiltInHookRegistrationError(String hookName, RuntimeException re) {
+    LOG.error("Error registering built in hook: " + hookName
+        + ".  This hook will not be active until the problem is fixed and grouper is restarted.  "
+        + "The other built in hooks are still being registered.", re);
   }
 
   /**
