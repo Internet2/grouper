@@ -41,7 +41,12 @@ import urllib.parse
 import urllib.request
 import xml.sax.saxutils
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+# beautifulsoup4 is only needed for the markdown mirror (convert()); the
+# --sitemap-only path does not use it, so keep the import optional.
+try:
+    from bs4 import BeautifulSoup, NavigableString, Tag
+except ImportError:
+    BeautifulSoup = NavigableString = Tag = None
 
 SITE = "https://grouper.atlassian.net/wiki"
 API = SITE + "/rest/api"
@@ -372,21 +377,40 @@ def write_sitemap(pages, path):
     Only pages in SITEMAP_SPACES (public spaces) are included -- GrIntDev and any
     other internal space are skipped so they are never advertised to search
     engines. URLs are built against the public custom domain (DOCS_SITE), not the
-    grouper.atlassian.net host. The list is de-duplicated and sorted so the file
-    is idempotent: the same wiki state always produces byte-identical output and a
-    clean `git diff`.
+    grouper.atlassian.net host.
+
+    Each entry carries a <lastmod> set to the page's real Confluence last-updated
+    date (YYYY-MM-DD). Google uses lastmod to prioritize what to (re)crawl, so
+    accurate dates help it work through the backlog and refresh stale results.
+    Pages with no usable date are emitted without a lastmod (valid).
+
+    The list is de-duplicated and sorted so the file is idempotent: the same wiki
+    state always produces byte-identical output and a clean `git diff`.
 
     Returns the number of URLs written.
     """
-    urls = sorted({DOCS_SITE + p["webui"]
-                   for p in pages if p["space"] in SITEMAP_SPACES})
+    # url -> lastmod date (YYYY-MM-DD, or "" if unknown); dedupe, keep latest date
+    by_url = {}
+    for p in pages:
+        if p["space"] not in SITEMAP_SPACES:
+            continue
+        url = DOCS_SITE + p["webui"]
+        when = (p.get("lastUpdated") or "")[:10]  # ISO 8601 -> date part
+        lastmod = when if (len(when) == 10 and when[4] == "-" and when[7] == "-") else ""
+        if url not in by_url or lastmod > by_url[url]:
+            by_url[url] = lastmod
     with open(path, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
-        for u in urls:
-            f.write(f"  <url><loc>{xml.sax.saxutils.escape(u)}</loc></url>\n")
+        for url in sorted(by_url):
+            loc = xml.sax.saxutils.escape(url)
+            lm = by_url[url]
+            if lm:
+                f.write(f"  <url><loc>{loc}</loc><lastmod>{lm}</lastmod></url>\n")
+            else:
+                f.write(f"  <url><loc>{loc}</loc></url>\n")
         f.write('</urlset>\n')
-    return len(urls)
+    return len(by_url)
 
 
 # --------------------------------------------------------------------------- #
@@ -436,6 +460,11 @@ def main():
 
     if args.sitemap_only:
         return
+
+    # the markdown mirror needs beautifulsoup4 (the sitemap above does not)
+    if BeautifulSoup is None:
+        sys.exit("beautifulsoup4 is required for the markdown mirror "
+                 "(pip install beautifulsoup4); use --sitemap-only to skip it")
 
     # 2. compute target paths; FAIL on any collision (fix the title upstream)
     targets = {}  # abspath -> page

@@ -18,7 +18,7 @@ Grouper releases can be downloaded from [here](https://spaces.internet2.edu/disp
 
 ## Documentation
 
-* Grouper wiki is available [here](https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home).
+* Grouper wiki is available [here](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview).
 * API documentation is available [here](https://software.internet2.edu/grouper/doc/).
 * Issue tracking system is available [here](https://bugs.internet2.edu/jira/browse/GRP).
 
