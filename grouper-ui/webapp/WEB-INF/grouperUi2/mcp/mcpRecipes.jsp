@@ -96,8 +96,9 @@ ${grouper:title('miscellaneousMcpRecipesBreadcrumb')}
                          second, lesser edit option to choose between --%>
                     <li><a href="?operation=UiV2Mcp.editMcpRecipe&mcpRecipeConfigId=${mcpRecipeConfigId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Mcp.editMcpRecipe&mcpRecipeConfigId=${mcpRecipeConfigId}');">${textContainer.text['mcpRecipesEditActionsOption'] }</a></li>
 
-                    <%-- deleting a recipe is administration, never delegated --%>
-                    <c:if test="${grouperRequestContainer.mcpContainer.canOperateOnMcpRecipeConfigs}">
+                    <%-- deleting a recipe is administration, never delegated.  a built in recipe or
+                         one set in a config file comes back from its file, so it cannot be deleted --%>
+                    <c:if test="${grouperRequestContainer.mcpContainer.canOperateOnMcpRecipeConfigs and guiMcpRecipeConfiguration.deletable}">
 
                       <li class="divider"></li>
                       <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['mcpRecipesConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Mcp.deleteMcpRecipe&mcpRecipeConfigId=${mcpRecipeConfigId}');}">${textContainer.text['mcpRecipesDeleteActionsOption'] }</a></li>

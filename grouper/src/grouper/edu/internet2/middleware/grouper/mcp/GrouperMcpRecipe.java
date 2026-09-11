@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.mcp;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +48,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.ConfigFile;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -887,6 +890,160 @@ public class GrouperMcpRecipe {
   }
 
   /**
+   * where a recipe's configuration comes from, which decides what can be changed through Grouper.
+   * the UI and MCP always write to the database, and a database value wins over a file, so
+   * writing over a recipe kept in a file would leave the file saying one thing and Grouper doing
+   * another
+   */
+  public static enum GrouperMcpRecipeSource {
+
+    /** created in Grouper, so everything about it can be changed in Grouper */
+    database,
+
+    /** set in a config file other than the base one, so it is managed there and read only in Grouper */
+    configFile,
+
+    /** shipped in the base config file.  only the fields which fit it to this deployment can change */
+    builtIn;
+  }
+
+  /**
+   * the fields of a built in recipe which can be changed: whether it is on and who it is for.  its
+   * wording and tools stay Grouper's, so it keeps getting improvements when Grouper is upgraded.
+   * groupNameCanEdit is not here since it only grants changing the wording, which nobody can
+   */
+  private static final Set<String> BUILT_IN_EDITABLE_FIELDS = new LinkedHashSet<String>(
+      Arrays.asList("enabled", "groupNameCanUse"));
+
+  /**
+   * the fields of a built in recipe which can be changed
+   * @return the config suffixes
+   */
+  public static Set<String> builtInEditableFields() {
+    return Collections.unmodifiableSet(BUILT_IN_EDITABLE_FIELDS);
+  }
+
+  /** config id to source, for testing only, since a test cannot add to a config file */
+  private static Map<String, GrouperMcpRecipeSource> test_sourceByConfigId = null;
+
+  /**
+   * for testing only: say where these recipes come from
+   * @param theSourceByConfigId config id to source, or null to go back to normal
+   */
+  public static void setTest_sourceByConfigId(Map<String, GrouperMcpRecipeSource> theSourceByConfigId) {
+    test_sourceByConfigId = theSourceByConfigId;
+    clearCache();
+  }
+
+  /**
+   * where one recipe comes from
+   * @param configId the recipe
+   * @return the source, database when it is not in a config file
+   */
+  public static GrouperMcpRecipeSource retrieveSource(String configId) {
+    GrouperMcpRecipeSource source = retrieveSources().get(configId);
+    return source == null ? GrouperMcpRecipeSource.database : source;
+  }
+
+  /**
+   * whether a field of a recipe can be changed through Grouper, in the UI or over MCP
+   * @param configId the recipe
+   * @param field the config suffix, e.g. body
+   * @return true if it can be changed
+   */
+  public static boolean isFieldEditable(String configId, String field) {
+
+    GrouperMcpRecipeSource source = retrieveSource(configId);
+
+    if (source == GrouperMcpRecipeSource.database) {
+      return true;
+    }
+
+    if (source == GrouperMcpRecipeSource.builtIn) {
+      return BUILT_IN_EDITABLE_FIELDS.contains(field);
+    }
+
+    return false;
+  }
+
+  /**
+   * where each recipe comes from, read from the config Grouper already has loaded, which keeps each
+   * source in the config hierarchy separately.  a later source wins over an earlier one, the same
+   * way config values cascade.  see sourceOf for how each source is classified.  a recipe in no
+   * source, e.g. one just created which this server has not loaded yet, is not in the map
+   * @return config id to source, never null
+   */
+  @SuppressWarnings("unchecked")
+  private static Map<String, GrouperMcpRecipeSource> retrieveSources() {
+
+    Map<String, GrouperMcpRecipeSource> cached =
+        (Map<String, GrouperMcpRecipeSource>) cacheGet("recipeSources");
+
+    if (cached != null) {
+      return cached;
+    }
+
+    Map<String, GrouperMcpRecipeSource> result = new TreeMap<String, GrouperMcpRecipeSource>();
+
+    List<ConfigFile> configFiles = GrouperConfig.retrieveConfig().internalRetrieveConfigFiles();
+
+    for (ConfigFile configFile : GrouperUtil.nonNull(configFiles)) {
+
+      if (configFile.getProperties() == null) {
+        continue;
+      }
+
+      GrouperMcpRecipeSource source = sourceOf(configFile);
+
+      for (Object key : configFile.getProperties().keySet()) {
+
+        // a name set with expression language is stored as name.elConfig
+        String configKey = GrouperUtil.stripSuffix((String) key, ".elConfig");
+        Matcher matcher = CONFIG_ID_PATTERN.matcher(configKey);
+
+        if (matcher.matches()) {
+          result.put(matcher.group(1), source);
+        }
+      }
+    }
+
+    if (test_sourceByConfigId != null) {
+      result.putAll(test_sourceByConfigId);
+    }
+
+    Map<String, GrouperMcpRecipeSource> unmodifiableResult = Collections.unmodifiableMap(result);
+
+    cachePut("recipeSources", unmodifiableResult);
+
+    return unmodifiableResult;
+  }
+
+  /**
+   * what the recipes in one source of the config hierarchy count as.  the base config file ships
+   * inside Grouper, so its name is fixed, and ConfigFileName declares it
+   * @param hierarchySource one source in the config hierarchy, e.g. classpath:grouper.base.properties
+   * or database:grouper
+   * @return the source
+   */
+  public static GrouperMcpRecipeSource sourceOf(ConfigFile hierarchySource) {
+
+    String originalConfig = StringUtils.defaultString(hierarchySource.getOriginalConfig());
+    String configType = StringUtils.trim(GrouperUtil.prefixOrSuffix(originalConfig, ":", true));
+    String configLocation = StringUtils.trim(hierarchySource.getConfigFileTypeConfig());
+
+    if ("classpath".equalsIgnoreCase(configType)
+        && StringUtils.equals(configLocation, ConfigFileName.GROUPER_PROPERTIES.getClasspath())) {
+      return GrouperMcpRecipeSource.builtIn;
+    }
+
+    if ("database".equalsIgnoreCase(configType)) {
+      return GrouperMcpRecipeSource.database;
+    }
+
+    return GrouperMcpRecipeSource.configFile;
+  }
+
+  /**
    * update the content fields of one recipe.  only name, summary, and body can be changed here:
    * groupNameCanUse, groupNameCanEdit, toolNames, and enabled decide who a recipe reaches and
    * what it can influence, so they are deliberately not reachable from MCP and stay with
@@ -973,6 +1130,22 @@ public class GrouperMcpRecipe {
 
     if (GrouperUtil.length(fieldValues) == 0) {
       return null;
+    }
+
+    // a recipe kept in a config file is managed there, and a built in one keeps its wording.
+    // checked here since MCP and updateRecipeFields both come through here
+    for (String field : fieldValues.keySet()) {
+
+      if (isAttributionField(field) || isFieldEditable(configId, field)) {
+        continue;
+      }
+
+      if (retrieveSource(configId) == GrouperMcpRecipeSource.configFile) {
+        return "This recipe is set in a config file, so it can only be changed there.";
+      }
+
+      return "'" + field + "' of a built-in recipe cannot be changed. Only who can use it can be "
+          + "changed, and whether it is turned on, which is done on the recipes screen in the Grouper UI.";
     }
 
     GrouperMcpRecipeConfiguration recipeConfiguration = new GrouperMcpRecipeConfiguration();
@@ -1090,6 +1263,15 @@ public class GrouperMcpRecipe {
 
     Set<GrouperConfigHibernate> existing = GrouperDAOFactory.getFactory().getConfig()
         .findAll(ConfigFileName.GROUPER_PROPERTIES, null, configKey);
+
+    // blank means the default, so remove the database value rather than store a blank one, the
+    // same as the recipes screen's normal save
+    if (StringUtils.isBlank(value)) {
+      for (GrouperConfigHibernate grouperConfigHibernate : GrouperUtil.nonNull(existing)) {
+        grouperConfigHibernate.delete();
+      }
+      return;
+    }
 
     if (GrouperUtil.length(existing) == 0) {
       GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();

@@ -15,6 +15,11 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,12 +31,17 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipe;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipeConfiguration;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -110,6 +120,7 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
 
   @Override
   protected void tearDown() {
+    GrouperMcpRecipe.setTest_sourceByConfigId(null);
     GrouperMcpRecipe.clearCache();
     super.tearDown();
     GrouperContext.deleteDefaultContext();
@@ -627,6 +638,225 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
     assertTrue("the collision is reported",
         errorMessage(GrouperMcpRecipeTool.execute(updateArguments, authUser, true))
             .contains("already a recipe named"));
+  }
+
+  /** where the recipes set up by a test come from, since a test cannot add to a config file */
+  private Map<String, GrouperMcpRecipe.GrouperMcpRecipeSource> testSources =
+      new HashMap<String, GrouperMcpRecipe.GrouperMcpRecipeSource>();
+
+  /**
+   * say where a recipe set up by this test comes from
+   * @param configId the recipe
+   * @param source where it comes from
+   */
+  private void setSource(String configId, GrouperMcpRecipe.GrouperMcpRecipeSource source) {
+    this.testSources.put(configId, source);
+    GrouperMcpRecipe.setTest_sourceByConfigId(this.testSources);
+  }
+
+  /**
+   * a recipe in no config source, like the ones this test sets up through the override map or one
+   * just created which this server has not loaded yet, counts as created in Grouper so it is not
+   * wrongly locked.  the other sources are set through the test hook
+   */
+  public void testRecipeSource() {
+
+    configureRecipe("recipeFile", "recipe-file", "Set in a config file",
+        "test:recipeAudience", null, null, true);
+    configureRecipe("recipeBuiltIn", "recipe-built-in", "Ships with Grouper",
+        "test:recipeAudience", null, null, true);
+
+    setSource("recipeFile", GrouperMcpRecipe.GrouperMcpRecipeSource.configFile);
+    setSource("recipeBuiltIn", GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn);
+
+    assertEquals(GrouperMcpRecipe.GrouperMcpRecipeSource.database,
+        GrouperMcpRecipe.retrieveSource("recipeOne"));
+    assertEquals(GrouperMcpRecipe.GrouperMcpRecipeSource.configFile,
+        GrouperMcpRecipe.retrieveSource("recipeFile"));
+    assertEquals(GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn,
+        GrouperMcpRecipe.retrieveSource("recipeBuiltIn"));
+  }
+
+  /**
+   * detecting where a recipe comes from relies on how Grouper loads its config: the base config
+   * file is a classpath source named as ConfigFileName declares, and the database is a database
+   * source.  if either stops being true, built in or database recipes would quietly be treated as
+   * config file recipes, so this fails instead.  it runs the same sourceOf the detection uses
+   * against the config Grouper actually loaded
+   */
+  public void testRecipeSourceAssumptions() {
+
+    ConfigPropertiesCascadeBase.ConfigFile builtInSource = null;
+    int builtInCount = 0;
+    int databaseCount = 0;
+
+    for (ConfigPropertiesCascadeBase.ConfigFile configFile
+        : GrouperConfig.retrieveConfig().internalRetrieveConfigFiles()) {
+
+      GrouperMcpRecipe.GrouperMcpRecipeSource source = GrouperMcpRecipe.sourceOf(configFile);
+
+      if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn) {
+        builtInSource = configFile;
+        builtInCount++;
+      }
+
+      if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.database) {
+        databaseCount++;
+      }
+    }
+
+    assertEquals("exactly one loaded config source is the base config file, classpath:"
+        + ConfigFileName.GROUPER_PROPERTIES.getClasspath(), 1, builtInCount);
+
+    // and it really is the base config file, which is the file that defines the hierarchy
+    assertTrue("the source counted as built in is the base config file",
+        builtInSource.getProperties().containsKey("grouper.config.hierarchy"));
+
+    assertEquals("exactly one loaded config source is the database", 1, databaseCount);
+  }
+
+  /**
+   * a recipe set in a config file cannot be changed over MCP, even by an administrator
+   */
+  public void testUpdateRefusedForConfigFileRecipe() {
+
+    configureRecipe("recipeFile", "recipe-file", "Set in a config file",
+        "test:recipeAudience", null, null, true);
+    setSource("recipeFile", GrouperMcpRecipe.GrouperMcpRecipeSource.configFile);
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectAdmin);
+
+    ObjectNode updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-file");
+    updateArguments.put("summary", "a new summary");
+
+    assertTrue(errorMessage(GrouperMcpRecipeTool.execute(updateArguments, authUser, true))
+        .contains("config file"));
+  }
+
+  /**
+   * a built in recipe keeps its wording and its edit group, but an administrator can change who
+   * can use it
+   */
+  public void testUpdateBuiltInRecipe() {
+
+    configureRecipe("recipeBuiltIn", "recipe-built-in", "Ships with Grouper",
+        "test:recipeAudience", null, null, true);
+    setSource("recipeBuiltIn", GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn);
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectAdmin);
+
+    ObjectNode updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-built-in");
+    updateArguments.put("summary", "a new summary");
+
+    assertTrue("the wording cannot change",
+        errorMessage(GrouperMcpRecipeTool.execute(updateArguments, authUser, true)).contains("built-in"));
+
+    updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-built-in");
+    updateArguments.put("groupNameCanEdit", "test:recipeEditors");
+
+    assertTrue("nor who owns the wording",
+        errorMessage(GrouperMcpRecipeTool.execute(updateArguments, authUser, true)).contains("built-in"));
+
+    updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-built-in");
+    updateArguments.put("groupNameCanUse", "test:recipeEditors");
+
+    payload(executeAsAuthUser(updateArguments, authUser, true));
+
+    // the seed would mask the write, so drop it and read what was persisted
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+        .remove(GrouperMcpRecipe.CONFIG_PREFIX + "recipeBuiltIn.groupNameCanUse");
+    ConfigPropertiesCascadeBase.clearCache();
+    GrouperMcpRecipe.clearCache();
+
+    assertEquals("test:recipeEditors",
+        GrouperMcpRecipe.retrieveAllRecipes(true).get("recipe-built-in").getGroupNameCanUse());
+    assertEquals("its name was not written, so it stays built in", 0, GrouperUtil.length(GrouperDAOFactory
+        .getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null,
+            GrouperMcpRecipe.CONFIG_PREFIX + "recipeBuiltIn.name")));
+  }
+
+  /**
+   * the recipes screen cannot save or delete a recipe set in a config file
+   */
+  public void testConfigFileRecipeReadOnlyInUi() {
+
+    configureRecipe("recipeFile", "recipe-file", "Set in a config file",
+        "test:recipeAudience", null, null, true);
+    setSource("recipeFile", GrouperMcpRecipe.GrouperMcpRecipeSource.configFile);
+
+    GrouperMcpRecipeConfiguration configuration = new GrouperMcpRecipeConfiguration();
+    configuration.setConfigId("recipeFile");
+    configuration.markFieldsReadOnlyForSource();
+
+    for (GrouperConfigurationModuleAttribute attribute : configuration.retrieveAttributes().values()) {
+      assertTrue(attribute.getConfigSuffix() + " is read only", attribute.isReadOnly());
+    }
+
+    List<String> errorsToDisplay = new ArrayList<String>();
+    configuration.editConfig(true, new StringBuilder(), errorsToDisplay,
+        new HashMap<String, String>(), new ArrayList<String>());
+    assertEquals("the save is refused", 1, errorsToDisplay.size());
+
+    try {
+      configuration.deleteConfig(true);
+      fail("a recipe set in a config file cannot be deleted");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("cannot be deleted"));
+    }
+  }
+
+  /**
+   * saving a built in recipe on the recipes screen writes only whether it is on and who can use
+   * it, never its wording, and it cannot be deleted
+   */
+  public void testBuiltInRecipeUiSaveWritesOnlyEditableFields() {
+
+    configureRecipe("recipeBuiltIn", "recipe-built-in", "Ships with Grouper",
+        "test:recipeAudience", null, null, true);
+    setSource("recipeBuiltIn", GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn);
+
+    GrouperMcpRecipeConfiguration configuration = new GrouperMcpRecipeConfiguration();
+    configuration.setConfigId("recipeBuiltIn");
+    configuration.markFieldsReadOnlyForSource();
+
+    Map<String, GrouperConfigurationModuleAttribute> attributes = configuration.retrieveAttributes();
+    assertFalse(attributes.get("enabled").isReadOnly());
+    assertFalse(attributes.get("groupNameCanUse").isReadOnly());
+    assertTrue(attributes.get("groupNameCanEdit").isReadOnly());
+    assertTrue(attributes.get("body").isReadOnly());
+
+    attributes.get("groupNameCanUse").setValue("test:recipeEditors");
+
+    // the screen skips a posted value for a read only field, but even if one got here it must not
+    // be written
+    attributes.get("body").setValue("a changed body");
+
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    configuration.editConfig(true, new StringBuilder(), errorsToDisplay, validationErrorsToDisplay,
+        new ArrayList<String>());
+    assertEquals(errorsToDisplay.toString(), 0, errorsToDisplay.size());
+    assertEquals(validationErrorsToDisplay.toString(), 0, validationErrorsToDisplay.size());
+
+    String prefix = GrouperMcpRecipe.CONFIG_PREFIX + "recipeBuiltIn.";
+
+    assertEquals("who can use it was written", 1, GrouperUtil.length(GrouperDAOFactory.getFactory()
+        .getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, prefix + "groupNameCanUse")));
+    assertEquals("the wording was not", 0, GrouperUtil.length(GrouperDAOFactory.getFactory()
+        .getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, prefix + "body")));
+    assertEquals("nor the name, so it is still built in", 0, GrouperUtil.length(GrouperDAOFactory.getFactory()
+        .getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, prefix + "name")));
+
+    try {
+      configuration.deleteConfig(true);
+      fail("a built in recipe cannot be deleted");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("cannot be deleted"));
+    }
   }
 
   /**

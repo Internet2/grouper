@@ -744,6 +744,9 @@ public class UiV2Mcp extends UiServiceLogicBase {
       // a posted value for one of them is skipped rather than read
       mcpRecipeConfiguration.markAdminOnlyFieldsReadOnly(loggedInSubject);
 
+      // a built in recipe or one set in a config file can only be partly changed, or not at all
+      mcpRecipeConfiguration.markFieldsReadOnlyForSource();
+
       String previousConfigId = request.getParameter("previousMcpRecipeConfigId");
 
       // blank previous config id means this is the first render, so the values come from
@@ -804,6 +807,8 @@ public class UiV2Mcp extends UiServiceLogicBase {
       // instance: populateConfigurationValuesFromUi skips read only attributes, so what they
       // sent for those is then ignored rather than trusted
       mcpRecipeConfiguration.markAdminOnlyFieldsReadOnly(loggedInSubject);
+
+      mcpRecipeConfiguration.markFieldsReadOnlyForSource();
 
       mcpRecipeConfiguration.populateConfigurationValuesFromUi(request);
 
@@ -904,6 +909,13 @@ public class UiV2Mcp extends UiServiceLogicBase {
 
       if (StringUtils.isBlank(configId)) {
         throw new RuntimeException("ConfigId cannot be blank");
+      }
+
+      // a built in recipe or one set in a config file comes back from its file
+      if (GrouperMcpRecipe.retrieveSource(configId) != GrouperMcpRecipe.GrouperMcpRecipeSource.database) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("mcpRecipeCannotDeleteError")));
+        return;
       }
 
       GrouperMcpRecipeConfiguration mcpRecipeConfiguration = new GrouperMcpRecipeConfiguration();

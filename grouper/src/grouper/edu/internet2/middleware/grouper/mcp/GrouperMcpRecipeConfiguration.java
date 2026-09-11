@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.mcp;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -104,6 +105,25 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
   @Override
   public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay,
       Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
+
+    GrouperMcpRecipe.GrouperMcpRecipeSource source = GrouperMcpRecipe.retrieveSource(this.getConfigId());
+
+    // a recipe in a config file is managed there.  saving it here would put database values in
+    // front of the file, and the file would stop meaning anything
+    if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.configFile) {
+      errorsToDisplay.add(GrouperTextContainer.retrieveFromRequest().getText()
+          .get("mcpRecipeConfigFileCannotEditError"));
+      return;
+    }
+
+    // the generic save writes every field back, read only ones included, which would copy a
+    // built in recipe's wording into the database and freeze it there.  write only the fields
+    // a deployment can change
+    if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn) {
+      this.editBuiltInConfig(errorsToDisplay, validationErrorsToDisplay);
+      return;
+    }
+
     super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
       GrouperMcpRecipe.stampAttribution(this.getConfigId());
@@ -111,8 +131,53 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
     GrouperMcpRecipe.clearCache();
   }
 
+  /**
+   * save a built in recipe: only the fields a deployment can change, and only the ones this
+   * person is allowed to change
+   * @param errorsToDisplay errors to show
+   * @param validationErrorsToDisplay errors keyed by element id
+   */
+  private void editBuiltInConfig(List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+
+    this.validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    }
+
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    Map<String, String> fieldValues = new LinkedHashMap<String, String>();
+
+    for (String field : GrouperMcpRecipe.builtInEditableFields()) {
+
+      GrouperConfigurationModuleAttribute attribute = attributes.get(field);
+
+      // read only for this person, e.g. a content owner, who cannot change these
+      if (attribute == null || attribute.isReadOnly()) {
+        continue;
+      }
+
+      fieldValues.put(field, StringUtils.defaultString(attribute.getValue()));
+    }
+
+    if (fieldValues.isEmpty()) {
+      return;
+    }
+
+    // validatePreSave above has checked these fields, and updateRecipeFields validates them again
+    GrouperMcpRecipe.updateRecipeFields(this.getConfigId(), fieldValues);
+  }
+
   @Override
   public void deleteConfig(boolean fromUi) {
+
+    // a built in recipe or one in a config file comes back from its file, so deleting it here
+    // would do nothing
+    if (GrouperMcpRecipe.retrieveSource(this.getConfigId()) != GrouperMcpRecipe.GrouperMcpRecipeSource.database) {
+      throw new RuntimeException("MCP recipe '" + this.getConfigId()
+          + "' is built in or set in a config file, so it cannot be deleted here");
+    }
+
     super.deleteConfig(fromUi);
     GrouperMcpRecipe.clearCache();
   }
@@ -158,6 +223,31 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
       if (attribute != null) {
         attribute.setReadOnly(true);
       }
+    }
+  }
+
+  /**
+   * a recipe set in a config file is read only here, and a built in one can only have the fields
+   * changed which fit it to this deployment.  like markAdminOnlyFieldsReadOnly this is
+   * enforcement: call it before populating from the request, so posted values for these are
+   * ignored
+   */
+  public void markFieldsReadOnlyForSource() {
+
+    GrouperMcpRecipe.GrouperMcpRecipeSource source = GrouperMcpRecipe.retrieveSource(this.getConfigId());
+
+    if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.database) {
+      return;
+    }
+
+    for (Map.Entry<String, GrouperConfigurationModuleAttribute> entry : this.retrieveAttributes().entrySet()) {
+
+      if (source == GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn
+          && GrouperMcpRecipe.builtInEditableFields().contains(entry.getKey())) {
+        continue;
+      }
+
+      entry.getValue().setReadOnly(true);
     }
   }
 

@@ -29,6 +29,13 @@ ${grouper:title('miscellaneousMcpRecipeEditBreadcrumb')}
     <form class="form-inline form-small form-filter" id="mcpRecipeDetails">
       <input type="hidden" name="previousMcpRecipeConfigId" value="${grouper:escapeHtml(mcpRecipeConfigId)}" />
 
+      <c:if test="${grouperRequestContainer.mcpContainer.guiMcpRecipeConfiguration.builtIn}">
+        <div class="alert alert-info">${textContainer.text['mcpRecipeEditBuiltInNote'] }</div>
+      </c:if>
+      <c:if test="${grouperRequestContainer.mcpContainer.guiMcpRecipeConfiguration.inConfigFile}">
+        <div class="alert alert-info">${textContainer.text['mcpRecipeEditConfigFileNote'] }</div>
+      </c:if>
+
       <table class="table table-condensed table-striped">
         <tbody>
           <tr>
@@ -80,11 +87,14 @@ ${grouper:title('miscellaneousMcpRecipeEditBreadcrumb')}
       </table>
 
       <div class="span6">
+        <%-- nothing on a recipe set in a config file can be saved here --%>
+        <c:if test="${!grouperRequestContainer.mcpContainer.guiMcpRecipeConfiguration.inConfigFile}">
         <input type="submit" class="btn btn-primary"
           aria-controls="mcpRecipeDetails" id="submitId"
           value="${textContainer.text['mcpRecipeAddFormSubmitButton'] }"
           onclick="ajax('../app/UiV2Mcp.editMcpRecipeSubmit?mcpRecipeConfigId=${mcpRecipeConfigId}', {formIds: 'mcpRecipeDetails'}); return false;">
           &nbsp;
+        </c:if>
         <button type="button" class="btn btn-cancel"
           onclick="return guiV2link('operation=UiV2Mcp.viewMcpRecipes'); return false;"
           >${textContainer.text['mcpRecipeAddFormCancelButton'] }</button>

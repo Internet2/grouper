@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipe;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpRecipeConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -153,6 +154,33 @@ public class GuiMcpRecipeConfiguration {
   public boolean isEnabled() {
     String enabled = this.grouperMcpRecipeConfiguration.retrieveAttributeValueFromConfig("enabled", false);
     return GrouperUtil.booleanValue(enabled, true);
+  }
+
+  /**
+   * if this recipe ships with Grouper, so only whether it is on and who it is for can change
+   * @return true if built in
+   */
+  public boolean isBuiltIn() {
+    return GrouperMcpRecipe.retrieveSource(this.grouperMcpRecipeConfiguration.getConfigId())
+        == GrouperMcpRecipe.GrouperMcpRecipeSource.builtIn;
+  }
+
+  /**
+   * if this recipe is set in a config file, so it is read only here
+   * @return true if in the config file
+   */
+  public boolean isInConfigFile() {
+    return GrouperMcpRecipe.retrieveSource(this.grouperMcpRecipeConfiguration.getConfigId())
+        == GrouperMcpRecipe.GrouperMcpRecipeSource.configFile;
+  }
+
+  /**
+   * only a recipe created in Grouper can be deleted here.  the others come back from their file
+   * @return true if it can be deleted
+   */
+  public boolean isDeletable() {
+    return GrouperMcpRecipe.retrieveSource(this.grouperMcpRecipeConfiguration.getConfigId())
+        == GrouperMcpRecipe.GrouperMcpRecipeSource.database;
   }
 
   /**
