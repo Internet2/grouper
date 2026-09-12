@@ -248,7 +248,7 @@ public class RuleConfig {
 
   public RuleOwnerType getCheckOwnerType() {
     
-    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false);
+    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false, false);
     
     if (ruleCheckType != null) {
       return ruleCheckType.getOwnerType();
@@ -333,7 +333,7 @@ public class RuleConfig {
       return null;
     }
     
-    RuleIfConditionEnum ifConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false);
+    RuleIfConditionEnum ifConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false, false);
     
     if (ifConditionEnum != null) {
       return ifConditionEnum.getOwnerType();
@@ -348,7 +348,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false);
+    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false, false);
     
     if (ruleCheckType != null) {
       return ruleCheckType.usesArg0();
@@ -363,7 +363,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false);
+    RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false, false);
     
     if (ruleCheckType != null) {
       return ruleCheckType.usesArg1();
@@ -378,7 +378,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false);
+    RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false, false);
     
     if (ruleIfConditionEnum != null) {
       return ruleIfConditionEnum.usesArg0();
@@ -393,7 +393,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false);
+    RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false, false);
     
     if (ruleIfConditionEnum != null) {
       return ruleIfConditionEnum.usesArg1();
@@ -498,7 +498,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
+    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false, false);
     
     if (ruleThenEnum != null) {
       return ruleThenEnum.usesArg0();
@@ -513,7 +513,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
+    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false, false);
     
     if (ruleThenEnum != null) {
       return ruleThenEnum.usesArg1();
@@ -528,7 +528,7 @@ public class RuleConfig {
       return false;
     }
     
-    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
+    RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false, false);
     
     if (ruleThenEnum != null) {
       return ruleThenEnum.usesArg2();

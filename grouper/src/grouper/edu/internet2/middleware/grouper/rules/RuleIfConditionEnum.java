@@ -1715,6 +1715,21 @@ public enum RuleIfConditionEnum {
   }
   
   /**
+   * do a case-insensitive matching
+   * 
+   * @param string
+   * @param exceptionOnNull will not allow null or blank entries
+   * @param exceptionIfInvalid if there is a string, but it is not an enum, if it should throw an exception.
+   * pass false to look up the enum of an invalid rule without blowing up
+   * @return the enum or null or exception if not found
+   */
+  public static RuleIfConditionEnum valueOfIgnoreCase(String string, boolean exceptionOnNull, boolean exceptionIfInvalid) {
+    return GrouperUtil.enumValueOfIgnoreCase(RuleIfConditionEnum.class, 
+        string, exceptionOnNull, exceptionIfInvalid);
+
+  }
+  
+  /**
    * validate the enum
    * @param ruleDefinition 
    * @return error message or null if ok

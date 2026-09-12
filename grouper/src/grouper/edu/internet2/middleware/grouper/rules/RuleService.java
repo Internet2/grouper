@@ -500,7 +500,8 @@ public class RuleService {
       if (StringUtils.equals(RuleUtils.ruleCheckTypeName(),  attributeAssignSingle.getAttributeDefName().getName())) {
         ruleConfig.setCheckType(value);
         
-        ruleCheckType = RuleCheckType.valueOfIgnoreCase(value, true);
+        //an invalid rule can have a check type that isnt an enum, and it needs to be editable so it can be fixed
+        ruleCheckType = RuleCheckType.valueOfIgnoreCase(value, true, false);
         
       } else if (StringUtils.equals(RuleUtils.ruleCheckArg0Name(),  attributeAssignSingle.getAttributeDefName().getName())) {
         ruleConfig.setCheckArg0(value);

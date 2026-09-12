@@ -368,6 +368,12 @@ public class RuleEngine {
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
+      //invalid rules are kept in the rule definitions so the UI can list them and they can be fixed,
+      //but they must not be indexed, since the index is what makes rules fire
+      if (!ruleDefinition.isValidInAttributes()) {
+        continue;
+      }
+      
       RuleCheck originalRuleCheck = ruleDefinition.getCheck();
       if (originalRuleCheck == null || StringUtil.isBlank(originalRuleCheck.getCheckType())) {
         continue;

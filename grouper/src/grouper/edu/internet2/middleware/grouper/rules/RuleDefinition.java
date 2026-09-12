@@ -558,8 +558,14 @@ public class RuleDefinition {
     
     RulePattern[] rulePatterns = RulePattern.values();
     for (RulePattern rulePattern: rulePatterns) {
-      if (rulePattern.isThisThePattern(this)) {
-        return rulePattern;
+      try {
+        if (rulePattern.isThisThePattern(this)) {
+          return rulePattern;
+        }
+      } catch (RuntimeException re) {
+        //an invalid rule has unparseable enums, and invalid rules are shown in the UI so they can be fixed.
+        //dont let pattern detection, which is only for display, blow up the screen
+        LOG.debug("Cant tell if rule matches pattern " + rulePattern.name() + ": " + this, re);
       }
     }
     return null;

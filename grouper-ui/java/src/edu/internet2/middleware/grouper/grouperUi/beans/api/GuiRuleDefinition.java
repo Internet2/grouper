@@ -32,7 +32,9 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RulePattern;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -416,19 +418,63 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     return "";
   }
 
+  /**
+   * invalid rules are shown in this table so they can be fixed, and an invalid rule can have a
+   * check type that isnt an enum, so look it up without an exception
+   * @return the check type or null if there is none or it isnt an enum
+   */
+  private RuleCheckType checkTypeEnum() {
+    if (this.ruleDefinition.getCheck() == null) {
+      return null;
+    }
+    return RuleCheckType.valueOfIgnoreCase(this.ruleDefinition.getCheck().getCheckType(), false, false);
+  }
+  
+  /**
+   * invalid rules are shown in this table so they can be fixed, and an invalid rule can have an
+   * if condition that isnt an enum, so look it up without an exception
+   * @return the if condition or null if there is none or it isnt an enum
+   */
+  private RuleIfConditionEnum ifConditionEnum() {
+    if (this.ruleDefinition.getIfCondition() == null) {
+      return null;
+    }
+    return RuleIfConditionEnum.valueOfIgnoreCase(this.ruleDefinition.getIfCondition().getIfConditionEnum(), false, false);
+  }
+  
+  /**
+   * invalid rules are shown in this table so they can be fixed, and an invalid rule can have a
+   * then that isnt an enum, so look it up without an exception
+   * @return the then or null if there is none or it isnt an enum
+   */
+  private RuleThenEnum thenEnum() {
+    if (this.ruleDefinition.getThen() == null) {
+      return null;
+    }
+    return RuleThenEnum.valueOfIgnoreCase(this.ruleDefinition.getThen().getThenEnum(), false, false);
+  }
+  
   public String getCheck() {
     
-    if (this.ruleDefinition.getCheck() != null && this.ruleDefinition.getCheck().checkTypeEnum() != null) {
+    RuleCheckType ruleCheckType = this.checkTypeEnum();
+    
+    if (ruleCheckType == null && this.ruleDefinition.getCheck() != null 
+        && StringUtils.isNotBlank(this.ruleDefinition.getCheck().getCheckType())) {
+      //invalid rule, show the value so it can be fixed
+      return GrouperUtil.escapeHtml(this.ruleDefinition.getCheck().getCheckType(), true);
+    }
+    
+    if (ruleCheckType != null) {
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
       //e.g. flattenedMembershipAdd
-      String checkName = this.ruleDefinition.getCheck().checkTypeEnum().name();
+      String checkName = ruleCheckType.name();
       
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       
-      if (this.ruleDefinition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(this.ruleDefinition)) {
+      if (ruleCheckType.isCheckOwnerTypeGroup(this.ruleDefinition)) {
         
         String groupId = this.ruleDefinition.getCheck().getCheckOwnerId();
         Group group = null;
@@ -468,7 +514,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
           return TextContainer.retrieveFromRequest().getText().get("rulesTableCheckHumanFriendlyValue_"+checkName);
         }
         
-      } else if (this.ruleDefinition.getCheck().checkTypeEnum().isCheckOwnerTypeStem(this.ruleDefinition)) {
+      } else if (ruleCheckType.isCheckOwnerTypeStem(this.ruleDefinition)) {
         
         String stemId = this.ruleDefinition.getCheck().getCheckOwnerId();
         Stem stem = null;
@@ -537,16 +583,23 @@ public class GuiRuleDefinition implements Serializable, Comparable {
           + " " + GrouperUtil.abbreviate(this.ruleDefinition.getIfCondition().getIfConditionEl(), 53);
     }
      
-    if (this.ruleDefinition.getIfCondition().ifConditionEnum() != null) {
+    RuleIfConditionEnum ruleIfConditionEnum = this.ifConditionEnum();
+    
+    if (ruleIfConditionEnum == null && StringUtils.isNotBlank(this.ruleDefinition.getIfCondition().getIfConditionEnum())) {
+      //invalid rule, show the value so it can be fixed
+      return GrouperUtil.escapeHtml(this.ruleDefinition.getIfCondition().getIfConditionEnum(), true);
+    }
+    
+    if (ruleIfConditionEnum != null) {
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       
       //e.g. flattenedMembershipAdd
-      String ifConditionEnumName = this.ruleDefinition.getIfCondition().ifConditionEnum().name();
+      String ifConditionEnumName = ruleIfConditionEnum.name();
       
-      if (this.ruleDefinition.getIfCondition().ifConditionEnum().isIfOwnerTypeGroup(this.ruleDefinition)) {
+      if (ruleIfConditionEnum.isIfOwnerTypeGroup(this.ruleDefinition)) {
         
         String groupId = this.ruleDefinition.getIfCondition().getIfOwnerId();
         Group group = null;
@@ -589,7 +642,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
           return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionHumanFriendlyValue_"+ifConditionEnumName);
         }
         
-      } else if (this.ruleDefinition.getIfCondition().ifConditionEnum().isIfOwnerTypeStem(this.ruleDefinition)) {
+      } else if (ruleIfConditionEnum.isIfOwnerTypeStem(this.ruleDefinition)) {
         
         String stemId = this.ruleDefinition.getIfCondition().getIfOwnerId();
         Stem stem = null;
@@ -724,9 +777,16 @@ public class GuiRuleDefinition implements Serializable, Comparable {
       }
     }
     
-    if (this.ruleDefinition.getThen().thenEnum() != null) {
-      String thenEnumName = this.ruleDefinition.getThen().thenEnum().name();
+    RuleThenEnum ruleThenEnum = this.thenEnum();
+    
+    if (ruleThenEnum != null) {
+      String thenEnumName = ruleThenEnum.name();
       return TextContainer.retrieveFromRequest().getText().get("rulesTableResultHumanFriendlyValue_"+thenEnumName);
+    }
+    
+    if (StringUtils.isNotBlank(this.ruleDefinition.getThen().getThenEnum())) {
+      //invalid rule, show the value so it can be fixed
+      return GrouperUtil.escapeHtml(this.ruleDefinition.getThen().getThenEnum(), true);
     }
     
     return "";
@@ -734,15 +794,13 @@ public class GuiRuleDefinition implements Serializable, Comparable {
 
   public String getWillRunDaemon() {
     
-    for (RulePattern rulePattern : RulePattern.values()) {
-      if (rulePattern.isThisThePattern(this.ruleDefinition)) {
-        if (rulePattern.isDaemonApplicable()) {
-          if (GrouperUtil.booleanValue(this.ruleDefinition.getRunDaemon(), true)) {
-            return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableYesLabel");
-          }
-          return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableNoLabel");
-        }
+    RulePattern rulePattern = this.ruleDefinition.getPattern();
+    
+    if (rulePattern != null && rulePattern.isDaemonApplicable()) {
+      if (GrouperUtil.booleanValue(this.ruleDefinition.getRunDaemon(), true)) {
+        return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableYesLabel");
       }
+      return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableNoLabel");
     }
     
     return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableNotApplicableLabel");
@@ -750,8 +808,9 @@ public class GuiRuleDefinition implements Serializable, Comparable {
   }
   
   public boolean isFiresImmeditately() {
-    if (this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAddInFolder
-        || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemoveInFolder) {
+    RuleCheckType ruleCheckType = this.checkTypeEnum();
+    if (ruleCheckType == RuleCheckType.flattenedMembershipAdd || ruleCheckType == RuleCheckType.flattenedMembershipAddInFolder
+        || ruleCheckType == RuleCheckType.flattenedMembershipRemove || ruleCheckType == RuleCheckType.flattenedMembershipRemoveInFolder) {
       return false;
     }
     return true;
