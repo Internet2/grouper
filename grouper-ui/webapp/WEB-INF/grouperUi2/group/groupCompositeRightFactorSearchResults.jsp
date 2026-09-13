@@ -16,7 +16,7 @@
                                 <td><i aria-hidden="true" class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
                               </tr> --%>
                               <tr>
-                                <td>${guiGroup.pathColonSpaceSeparated}</td>
+                                <td>${grouper:escapeHtml(guiGroup.pathColonSpaceSeparated)}</td>
                                 <td><a href="#" onclick="grouperComboboxSetId('#groupCompositeRightFactorComboId', '${grouper:escapeJavascript(guiGroup.group.id)}'); return true;"
                                     data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
                               </tr>

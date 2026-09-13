@@ -16,7 +16,7 @@
                                 <td><i aria-hidden="true" class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
                               </tr> --%>
                               <tr>
-                                <td>${guiAttributeDef.pathColonSpaceSeparated}</td>
+                                <td>${grouper:escapeHtml(guiAttributeDef.pathColonSpaceSeparated)}</td>
                                 <td><a href="#" onclick="grouperComboboxSetId('#attributeDefAddMemberComboId', '${grouper:escapeJavascript(guiAttributeDef.attributeDef.id)}'); return true;"
                                     data-dismiss="modal">${grouper:escapeHtml(guiAttributeDef.attributeDef.extension)}</a></td>
                               </tr>
