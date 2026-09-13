@@ -13,7 +13,7 @@
                       <td>
                         <c:choose>
                           <c:when test="${guiObjectBase.value == null}">
-                            ${guiObjectBase.key.pathColonSpaceSeparated }
+                            ${grouper:escapeHtml(guiObjectBase.key.pathColonSpaceSeparated)}
                           </c:when>
                           <c:otherwise>
                            ${guiObjectBase.value}
