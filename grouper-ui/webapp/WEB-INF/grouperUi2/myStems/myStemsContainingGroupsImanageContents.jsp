@@ -18,7 +18,7 @@
                       </tr> --%>
 
                       <tr>
-                        <td>${grouper:escapeHtml(guiStem.pathColonSpaceSeparated)}</td>
+                        <td>${guiStem.parentGuiStem.linkWithIcon}</td>
                         <td>${guiStem.shortLinkWithIcon}</td>
                       </tr>
 

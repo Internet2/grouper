@@ -16,7 +16,7 @@
                                 <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
                               </tr> --%>
                               <tr>
-                                <td>${guiAttributeDef.pathColonSpaceSeparated}</td>
+                                <td>${grouper:escapeHtml(guiAttributeDef.pathColonSpaceSeparated)}</td>
                                 <td><a href="#" onclick="dijit.byId('attributeDefAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiAttributeDef.attributeDef.name)}'); dijit.byId('attributeDefAddMemberComboId').set('value', '${guiAttributeDef.attributeDef.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiAttributeDef.attributeDef.extension)}</a></td>
                               </tr>
 
