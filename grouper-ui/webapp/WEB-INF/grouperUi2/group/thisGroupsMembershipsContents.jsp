@@ -44,7 +44,7 @@
                               </c:choose>
                             </label>
                           </td>
-                          <td data-hide="phone,medium" style="white-space: nowrap;">${guiMembershipSubjectContainer.guiGroup.parentGuiStem.linkWithIcon}</td>
+                          <td data-hide="phone,medium" style="white-space: nowrap;">${grouper:escapeHtml(guiMembershipSubjectContainer.guiGroup.pathColonSpaceSeparated)}</td>
                           <td>${guiMembershipSubjectContainer.guiGroup.shortLinkWithIcon}</td>
                           <td data-hide="phone,medium">
                             ${textContainer.text[grouper:concat2('groupMembershipAssignType_',guiMembershipContainer.membershipContainer.membershipAssignType)] }

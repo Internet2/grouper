@@ -59,7 +59,7 @@ ${textContainer.text['deprovisioningUserResultsDescription'] }
                             </c:if>
                           </td>
                           <td data-hide="phone,medium" style="white-space: nowrap;">
-                            ${guiMembershipSubjectContainer.guiObjectBase.parentGuiStem.linkWithIcon}
+                            ${grouper:escapeHtml(guiMembershipSubjectContainer.guiObjectBase.pathColonSpaceSeparated)}
                           </td>
                           <td>${guiMembershipSubjectContainer.guiObjectBase.shortLinkWithIcon}</td>
                           <td>${textContainer.text[grouper:concat2('deprovisioningObjectType_',objectType)] }

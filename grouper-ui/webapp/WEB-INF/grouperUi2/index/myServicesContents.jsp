@@ -18,7 +18,7 @@
                       </tr> --%>
 
                       <tr>
-                        <td>${guiService.guiAttributeDefName.parentGuiStem.linkWithIcon}</td>
+                        <td>${grouper:escapeHtml(guiService.guiAttributeDefName.pathColonSpaceSeparated)}</td>
                         <td>${guiService.shortLinkWithIcon}</td>
                       </tr>
 
