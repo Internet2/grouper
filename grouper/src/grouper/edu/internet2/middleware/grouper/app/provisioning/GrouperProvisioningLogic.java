@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -4740,6 +4741,9 @@ public class GrouperProvisioningLogic {
           }
           gcGrouperSyncJob.setPercentComplete(100);
 
+          // create per-group logs for the group provisioning logs screen (incremental only)
+          createPerGroupSyncLogsIncremental();
+
           // do this in the right spot, after assigning correct sync info about sync
           int objectStoreCount = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
           this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
@@ -7215,6 +7219,150 @@ public class GrouperProvisioningLogic {
     this.calculateProvisioningEntitiesToDelete();
     this.calculateProvisioningMembershipsToDelete();
     
+  }
+
+  /**
+   * create one grouper_sync_log row per group processed in this incremental run, owned by the group's
+   * sync group record.  these show up on the group provisioning logs screen
+   * (UiV2Provisioning.viewProvisioningTargetLogsOnGroup).  only done for incremental syncs; a full sync
+   * would create a row for every group on every run which is too much volume, and full syncs are
+   * represented by the overall job log instead.
+   */
+  protected void createPerGroupSyncLogsIncremental() {
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
+      return;
+    }
+
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+
+    Timestamp syncStart = new Timestamp(this.getGrouperProvisioner().getMillisWhenSyncStarted());
+    Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+    int jobTookMillis = (int)(nowTimestamp.getTime() - syncStart.getTime());
+
+    // sync group id -> sync group / records processed / records changed for this run
+    Map<String, GcGrouperSyncGroup> syncGroupIdToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
+    Map<String, Integer> syncGroupIdToRecordsProcessed = new HashMap<String, Integer>();
+    Map<String, Integer> syncGroupIdToRecordsChanged = new HashMap<String, Integer>();
+
+    // records processed: every group wrapper (with a sync group) touched this run, plus its memberships
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        continue;
+      }
+      String syncGroupId = gcGrouperSyncGroup.getId();
+      syncGroupIdToSyncGroup.put(syncGroupId, gcGrouperSyncGroup);
+      // count the group itself as one record processed
+      addToCountMap(syncGroupIdToRecordsProcessed, syncGroupId, 1);
+    }
+
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = syncGroupForMembership(provisioningMembershipWrapper);
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        continue;
+      }
+      String syncGroupId = gcGrouperSyncGroup.getId();
+      if (!syncGroupIdToSyncGroup.containsKey(syncGroupId)) {
+        continue;
+      }
+      addToCountMap(syncGroupIdToRecordsProcessed, syncGroupId, 1);
+    }
+
+    GrouperProvisioningDataChanges dataChanges = this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges();
+
+    // records changed: provisioned group object changes
+    List<ProvisioningGroup> changedGroups = new ArrayList<ProvisioningGroup>();
+    changedGroups.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectInserts().getProvisioningGroups()));
+    changedGroups.addAll(GrouperUtil.nonNull(dataChanges.getGrouperTargetObjectsMissing().getProvisioningGroups()));
+    changedGroups.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectUpdates().getProvisioningGroups()));
+    changedGroups.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectDeletes().getProvisioningGroups()));
+
+    for (ProvisioningGroup provisioningGroup : changedGroups) {
+      if (provisioningGroup.getProvisioned() == null || !provisioningGroup.getProvisioned()) {
+        continue;
+      }
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroup.getProvisioningGroupWrapper() == null
+          ? null : provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        continue;
+      }
+      addToCountMap(syncGroupIdToRecordsChanged, gcGrouperSyncGroup.getId(), 1);
+    }
+
+    // records changed: provisioned membership changes
+    List<ProvisioningMembership> changedMemberships = new ArrayList<ProvisioningMembership>();
+    changedMemberships.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectInserts().getProvisioningMemberships()));
+    changedMemberships.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectUpdates().getProvisioningMemberships()));
+    changedMemberships.addAll(GrouperUtil.nonNull(dataChanges.getTargetObjectDeletes().getProvisioningMemberships()));
+    for (List<ProvisioningMembership> replaceMemberships : GrouperUtil.nonNull(dataChanges.getTargetObjectReplaces().getProvisioningMemberships()).values()) {
+      changedMemberships.addAll(GrouperUtil.nonNull(replaceMemberships));
+    }
+
+    for (ProvisioningMembership provisioningMembership : changedMemberships) {
+      if (provisioningMembership.getProvisioned() == null || !provisioningMembership.getProvisioned()) {
+        continue;
+      }
+      GcGrouperSyncGroup gcGrouperSyncGroup = syncGroupForMembership(provisioningMembership.getProvisioningMembershipWrapper());
+      if (gcGrouperSyncGroup == null || gcGrouperSyncGroup.getId() == null) {
+        continue;
+      }
+      addToCountMap(syncGroupIdToRecordsChanged, gcGrouperSyncGroup.getId(), 1);
+    }
+
+    // create one log per processed group; it is flushed to grouper_sync_log by storeAllObjects()
+    for (String syncGroupId : syncGroupIdToSyncGroup.keySet()) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = syncGroupIdToSyncGroup.get(syncGroupId);
+
+      GcGrouperSyncLog gcGrouperSyncLog = gcGrouperSync.getGcGrouperSyncGroupDao().groupCreateLog(gcGrouperSyncGroup);
+      gcGrouperSyncLog.setSyncTimestampStart(syncStart);
+      gcGrouperSyncLog.setSyncTimestamp(nowTimestamp);
+      gcGrouperSyncLog.setJobTookMillis(jobTookMillis);
+
+      Integer recordsProcessedInteger = syncGroupIdToRecordsProcessed.get(syncGroupId);
+      int recordsProcessed = recordsProcessedInteger == null ? 0 : recordsProcessedInteger.intValue();
+      Integer recordsChangedInteger = syncGroupIdToRecordsChanged.get(syncGroupId);
+      int recordsChanged = recordsChangedInteger == null ? 0 : recordsChangedInteger.intValue();
+
+      gcGrouperSyncLog.setRecordsProcessed(recordsProcessed);
+      gcGrouperSyncLog.setRecordsChanged(recordsChanged);
+
+      if (!StringUtils.isBlank(gcGrouperSyncGroup.getErrorMessage())) {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+      } else {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.SUCCESS);
+      }
+
+      gcGrouperSyncLog.setDescription("incremental: records processed " + recordsProcessed
+          + ", records changed " + recordsChanged);
+    }
+  }
+
+  /**
+   * add an amount to a count in a map, treating a missing key as zero
+   * @param countMap
+   * @param key
+   * @param amount
+   */
+  private static void addToCountMap(Map<String, Integer> countMap, String key, int amount) {
+    Integer current = countMap.get(key);
+    countMap.put(key, (current == null ? 0 : current.intValue()) + amount);
+  }
+
+  /**
+   * find the sync group that owns a membership wrapper, or null if it cannot be resolved
+   * @param provisioningMembershipWrapper
+   * @return the sync group or null
+   */
+  private GcGrouperSyncGroup syncGroupForMembership(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    if (provisioningMembershipWrapper == null) {
+      return null;
+    }
+    ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+    if (provisioningGroupWrapper == null) {
+      return null;
+    }
+    return provisioningGroupWrapper.getGcGrouperSyncGroup();
   }
 
   protected void countInsertsUpdatesDeletes() {
