@@ -197,7 +197,9 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
               row, null, group, GrouperLoaderType.SQL_GROUP_LIST.name(), 
               this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog(), groupsRequiringLoaderMetadataUpdates, 
               null, null, GrouperRecentMemberships.groupQuery,
-              GrouperRecentMemberships.query, "grouper", false, false, true);
+              // null group names since this loader's group query runs on grouper's own connection
+              GrouperRecentMemberships.query, "grouper", false, false, true,
+              null);
           
         }
       }

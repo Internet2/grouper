@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -86,6 +87,13 @@ public class GrouperLoaderIncrementalJob implements Job {
   
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderIncrementalJob.class);
     
+  /**
+   * how many group names to put in one in-list when looking up a subject's memberships.  a
+   * database caps the expressions in one in-list (e.g. oracle's ORA-01795 at 1000), and this
+   * matches the batch size used for this same query shape elsewhere, e.g. SubjectFinder
+   */
+  private static final int GROUP_NAME_BATCH_SIZE = 900;
+
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
@@ -412,6 +420,10 @@ public class GrouperLoaderIncrementalJob implements Job {
             String grouperLoaderGroupQuery1 = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
             final String grouperLoaderGroupQuery = GrouperLoaderJob.substituteExpression(grouperLoaderGroupQuery1);
 
+            // if the loader's group query has to run on the loader's own connection, it returns the
+            // same group names for every row of this loader group, so only run it once per run.
+            // accessed under synchronized in lookupGrouperMembershipsForSubject since rows run across threads
+            final Set<String> groupNamesFromLoaderSource = new LinkedHashSet<String>();
 
             for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
 
@@ -429,7 +441,8 @@ public class GrouperLoaderIncrementalJob implements Job {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                   processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup,
                       GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups,
-                      grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource, true, runFullSyncIfGroupDoesntExist);
+                      grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource, true, runFullSyncIfGroupDoesntExist,
+                      groupNamesFromLoaderSource);
                   return null;
                 }
               };
@@ -773,6 +786,25 @@ public class GrouperLoaderIncrementalJob implements Job {
    */
   public static boolean testingWithCaseInSensitiveSubjectSource = false;
   
+  /**
+   * for testing purposes only.  run the loader's group query on the loader's own connection even
+   * when that is grouper's own database, so that code path can be tested without configuring a
+   * second database
+   */
+  public static boolean testingRunGroupQueryOnLoaderSource = false;
+
+  /**
+   * for testing purposes only.  if greater than zero, use this instead of GROUP_NAME_BATCH_SIZE so
+   * more than one batch can be tested without hundreds of groups
+   */
+  public static int testingGroupNameBatchSize = -1;
+
+  /**
+   * for testing purposes only.  how many times the loader's group query was run on the loader's
+   * own connection, so tests can assert it is only run once for a job run
+   */
+  public static int testingGroupQueryOnLoaderSourceCount = 0;
+
   private static Subject resolveSubject(Row row) {
     String subjectId = row.getSubjectId();
     String subjectIdentifier = row.getSubjectIdentifier();
@@ -873,7 +905,7 @@ public class GrouperLoaderIncrementalJob implements Job {
 
         handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, null, grouperLoaderType,
             hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, true, runFullSyncIfGroupDoesntExist,
-            ldapGroupNameToDisplayName, ldapGroupNameToDescription, null, null, null);
+            ldapGroupNameToDisplayName, ldapGroupNameToDescription, null, null, null, null, null);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
@@ -890,7 +922,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       Group loaderGroup, String grouperLoaderType,
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
       String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderQuery, String grouperLoaderDbName,
-      boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist) {
+      boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist,
+      Set<String> groupNamesFromLoaderSource) {
     
     GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
 
@@ -1062,15 +1095,29 @@ public class GrouperLoaderIncrementalJob implements Job {
           GrouperFuture<Set<String>> sourceFuture = GrouperUtil.executorServiceSubmit(
               GrouperUtil.retrieveExecutorService(), sourceQueryCallable, true);
 
-          membershipsInGrouperPrecomputed = lookupGrouperMembershipsForSubject(subject,
-              mshipRecalcGroupName, grouperLoaderGroupsLike, grouperLoaderGroupQuery);
+          membershipsInGrouperPrecomputed = lookupGrouperMembershipsForSubject(grouperLoaderDbForLoaderSource,
+              hib3GrouperloaderLog.getJobName(), hib3GrouperloaderLog, subject,
+              mshipRecalcGroupName, grouperLoaderGroupsLike, grouperLoaderGroupQuery,
+              groupNamesFromLoaderSource);
 
           membershipsInSource = sourceFuture.get();
+
+          if (LOG.isDebugEnabled()) {
+            List<String> sourceSample = new ArrayList<String>(membershipsInSource);
+            List<String> grouperSample = new ArrayList<String>(membershipsInGrouperPrecomputed);
+            LOG.debug("subject=" + GrouperUtil.subjectToString(subject)
+                + ", loaderGroupName=" + row.getLoaderGroupName()
+                + ", membershipsInSource.size()=" + membershipsInSource.size()
+                + ", membershipsInGrouperPrecomputed.size()=" + membershipsInGrouperPrecomputed.size()
+                + ", membershipsInSource(sample)=" + sourceSample.subList(0, Math.min(10, sourceSample.size()))
+                + ", membershipsInGrouperPrecomputed(sample)=" + grouperSample.subList(0, Math.min(10, grouperSample.size())));
+          }
         }
 
         handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderType,
             hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, updateIncrementalTable, runFullSyncIfGroupDoesntExist,
-            null, null, mshipRecalcGroupName, mshipRecalcType, membershipsInGrouperPrecomputed);
+            null, null, mshipRecalcGroupName, mshipRecalcType, membershipsInGrouperPrecomputed, grouperLoaderDbForLoaderSource,
+            groupNamesFromLoaderSource);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
@@ -1086,15 +1133,25 @@ public class GrouperLoaderIncrementalJob implements Job {
   /**
    * Query Grouper for the subject's current memberships in groups managed by this loader.
    */
-  private static Set<String> lookupGrouperMembershipsForSubject(Subject subject,
-      String groupNameFilter, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery) {
+  private static Set<String> lookupGrouperMembershipsForSubject(GrouperLoaderDb grouperLoaderDbForLoaderSource,
+      String jobName, Hib3GrouperLoaderLog hib3GrouperloaderLog, Subject subject,
+      String groupNameFilter, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery,
+      Set<String> groupNamesFromLoaderSource) {
 
     String groupNameList = null;
+    String groupNameBindVar = null;
+
     if (!StringUtils.isEmpty(groupNameFilter)) {
       groupNameList = " and g123.name = ? ";
+      groupNameBindVar = groupNameFilter;
     } else if (!StringUtils.isBlank(grouperLoaderGroupsLike)) {
       groupNameList = " and g123.name like ? ";
-    } else {
+      groupNameBindVar = grouperLoaderGroupsLike;
+    } else if (loaderSourceIsGrouperDb(grouperLoaderDbForLoaderSource)) {
+
+      // if the loader's group query runs on grouper's own connection, then it can stay a
+      // subquery like it always has.  that is one query instead of a query on the loader
+      // source plus a batch of queries here, and it is by far the most common configuration
       if (GrouperDdlUtils.isOracle()) {
         groupNameList = " and g123.name in (select group_name from (" + grouperLoaderGroupQuery + ")) ";
       } else {
@@ -1102,7 +1159,128 @@ public class GrouperLoaderIncrementalJob implements Job {
       }
     }
 
-    String sql = "select g123.name " +
+    // unless the loader's group query has to run on another connection, one query is enough
+    if (groupNameList != null) {
+
+      GcDbAccess gcDbAccess = new GcDbAccess().sql(membershipsForSubjectSql(groupNameList));
+
+      if (groupNameBindVar != null) {
+        gcDbAccess.addBindVar(groupNameBindVar);
+      }
+
+      return new HashSet<String>(gcDbAccess
+        .addBindVar(subject.getId())
+        .addBindVar(subject.getSourceId()).selectList(String.class));
+    }
+
+    // grouperLoaderGroupQuery may reference tables that only exist on the loader's
+    // configured source DB connection (e.g. a cross-schema/cross-database view), so it
+    // must be run there rather than embedded as a subquery against the core Grouper DB.
+    // that query returns the same group names for every row of a loader group, so the caller
+    // passes an empty set to hold them and the query only runs for the first row.  a null set
+    // means run the query for this row.  note if the query returns no group names there is
+    // nothing to hold so it runs for each row, but then this loader has no groups to sync anyways
+    Set<String> groupNamesFromQuery = null;
+
+    if (groupNamesFromLoaderSource == null) {
+      groupNamesFromQuery = retrieveGroupNamesFromLoaderSource(grouperLoaderDbForLoaderSource,
+          grouperLoaderGroupQuery, jobName, hib3GrouperloaderLog);
+    } else {
+
+      // rows are processed across threads, so hold the set while the query runs, and the
+      // other threads will use what it holds instead of running the query again
+      synchronized (groupNamesFromLoaderSource) {
+
+        if (groupNamesFromLoaderSource.isEmpty()) {
+          groupNamesFromLoaderSource.addAll(retrieveGroupNamesFromLoaderSource(
+              grouperLoaderDbForLoaderSource, grouperLoaderGroupQuery, jobName, hib3GrouperloaderLog));
+        }
+
+        groupNamesFromQuery = groupNamesFromLoaderSource;
+      }
+    }
+
+    if (groupNamesFromQuery.isEmpty()) {
+      return new HashSet<String>();
+    }
+
+    // The candidate group-name set from that query can be very large (tens of thousands of
+    // rows), and a database caps how many expressions one in-list can hold (e.g. oracle's
+    // ORA-01795 at 1000).  Run the lookup in batches so each query stays under that cap while
+    // remaining scoped by group name, rather than pulling back every group the subject belongs
+    // to system-wide.  Note the cap is on the in-list, not on the bind variables in the
+    // statement, so the subject binds below do not count against it.
+    List<String> groupNamesForBatching = new ArrayList<String>(groupNamesFromQuery);
+    int batchSize = testingGroupNameBatchSize > 0 ? testingGroupNameBatchSize : GROUP_NAME_BATCH_SIZE;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesForBatching.size(), batchSize, true);
+
+    Set<String> membershipsInGrouper = new HashSet<String>();
+
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatch = GrouperUtil.batchList(groupNamesForBatching, batchSize, i);
+
+      GcDbAccess gcDbAccess = new GcDbAccess()
+          .sql(membershipsForSubjectSql(" and g123.name in (" + GrouperClientUtils.appendQuestions(currentBatch.size()) + ") "))
+          .addBindVars(currentBatch)
+          .addBindVar(subject.getId())
+          .addBindVar(subject.getSourceId());
+
+      membershipsInGrouper.addAll(gcDbAccess.selectList(String.class));
+    }
+
+    return membershipsInGrouper;
+  }
+
+  /**
+   * run the loader's group query on the loader's own connection to find the group names it manages
+   * @param grouperLoaderDbForLoaderSource
+   * @param grouperLoaderGroupQuery
+   * @param jobName
+   * @param hib3GrouperloaderLog
+   * @return the group names from the loader's group query
+   */
+  private static Set<String> retrieveGroupNamesFromLoaderSource(GrouperLoaderDb grouperLoaderDbForLoaderSource,
+      String grouperLoaderGroupQuery, String jobName, Hib3GrouperLoaderLog hib3GrouperloaderLog) {
+
+    testingGroupQueryOnLoaderSourceCount++;
+
+    String groupNameQuery = "select group_name from (" + grouperLoaderGroupQuery + ") grp_inc_qry";
+
+    GrouperLoaderResultset groupNameResultset = new GrouperLoaderResultset(
+        grouperLoaderDbForLoaderSource, groupNameQuery, jobName, hib3GrouperloaderLog);
+
+    return groupNameResultset.groupNames();
+  }
+
+  /**
+   * the loader's group query only needs to run on the loader's own connection if that is a
+   * different database than grouper's.  note if the connection name isnt known, this returns
+   * false, which runs the query on the loader source, which works either way
+   * @param grouperLoaderDbForLoaderSource
+   * @return true if the loader source is grouper's own database
+   */
+  private static boolean loaderSourceIsGrouperDb(GrouperLoaderDb grouperLoaderDbForLoaderSource) {
+
+    if (testingRunGroupQueryOnLoaderSource) {
+      return false;
+    }
+
+    if (grouperLoaderDbForLoaderSource == null) {
+      return false;
+    }
+
+    return StringUtils.equals("grouper", grouperLoaderDbForLoaderSource.getConnectionName());
+  }
+
+  /**
+   * sql for the immediate members list memberships of a subject, restricted to certain groups.
+   * the subject id and subject source are bound after whatever the group name restriction binds
+   * @param groupNameList restriction on g123.name, e.g. " and g123.name = ? "
+   * @return the sql
+   */
+  private static String membershipsForSubjectSql(String groupNameList) {
+
+    return "select g123.name " +
         "from grouper_members m123, grouper_memberships_all_v ms123, grouper_groups g123 " +
         "where ms123.owner_group_id = g123.id and ms123.member_id = m123.id " +
         groupNameList +
@@ -1110,18 +1288,6 @@ public class GrouperLoaderIncrementalJob implements Job {
         "and m123.subject_source = ? " +
         "and ms123.mship_type = 'immediate' and ms123.immediate_mship_enabled = 'T' " +
         "and ms123.field_id = '" + Group.getDefaultList().getUuid() + "' ";
-
-    GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
-
-    if (!StringUtils.isEmpty(groupNameFilter)) {
-      gcDbAccess.addBindVar(groupNameFilter);
-    } else if (!StringUtils.isBlank(grouperLoaderGroupsLike)) {
-      gcDbAccess.addBindVar(grouperLoaderGroupsLike);
-    }
-
-    return new HashSet<String>(gcDbAccess
-      .addBindVar(subject.getId())
-      .addBindVar(subject.getSourceId()).selectList(String.class));
   }
 
   /**
@@ -1196,7 +1362,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       Subject subject, Set<String> membershipsInSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist,
       Map<String, String> ldapGroupNameToDisplayName, Map<String, String> ldapGroupNameToDescription,
       String groupNameFilter, String mshipRecalcType,
-      Set<String> membershipsInGrouperPrecomputed) throws SchedulerException, SQLException {
+      Set<String> membershipsInGrouperPrecomputed, GrouperLoaderDb grouperLoaderDbForLoaderSource,
+      Set<String> groupNamesFromLoaderSource) throws SchedulerException, SQLException {
 
     Set<String> membershipsInGrouper;
 
@@ -1209,7 +1376,9 @@ public class GrouperLoaderIncrementalJob implements Job {
     } else if (membershipsInGrouperPrecomputed != null) {
       membershipsInGrouper = membershipsInGrouperPrecomputed;
     } else {
-      membershipsInGrouper = lookupGrouperMembershipsForSubject(subject, groupNameFilter, grouperLoaderGroupsLike, grouperLoaderGroupQuery);
+      membershipsInGrouper = lookupGrouperMembershipsForSubject(grouperLoaderDbForLoaderSource,
+          hib3GrouperloaderLog.getJobName(), hib3GrouperloaderLog, subject, groupNameFilter, grouperLoaderGroupsLike, grouperLoaderGroupQuery,
+          groupNamesFromLoaderSource);
     }
     
     Set<String> membershipsInSourceAfterAndGroupsConsideration = new LinkedHashSet<String>(membershipsInSource);
