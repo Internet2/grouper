@@ -1197,7 +1197,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerGroupNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -1585,7 +1585,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerGroupNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -1703,7 +1703,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerGroupNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -1848,7 +1848,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerStemNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -2060,7 +2060,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerGroupNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -2258,7 +2258,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerStemNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -3442,7 +3442,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerStemNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -4004,7 +4004,7 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+          attribute.setValue(checkOwnerStemNameForUi(ruleDefinition.getCheck()));
         }
         elements.add(attribute);
       }
@@ -4110,6 +4110,50 @@ public enum RulePattern {
   };
   
   
+  /**
+   * the group name to show in the UI for the rule's check owner.  a rule created with RuleApi
+   * stores the uuid instead of the name, so resolve the uuid in that case, otherwise the field
+   * comes up blank and the rule cannot be edited in the UI
+   * @param ruleCheck
+   * @return the group name or null if it cant be resolved
+   */
+  private static String checkOwnerGroupNameForUi(RuleCheck ruleCheck) {
+
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return ruleCheck.getCheckOwnerName();
+    }
+
+    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())) {
+      return null;
+    }
+
+    Group checkOwnerGroup = GroupFinder.findByUuid(ruleCheck.getCheckOwnerId(), false);
+
+    return checkOwnerGroup == null ? null : checkOwnerGroup.getName();
+  }
+
+  /**
+   * the folder name to show in the UI for the rule's check owner.  a rule created with RuleApi
+   * stores the uuid instead of the name, so resolve the uuid in that case, otherwise the field
+   * comes up blank and the rule cannot be edited in the UI
+   * @param ruleCheck
+   * @return the folder name or null if it cant be resolved
+   */
+  private static String checkOwnerStemNameForUi(RuleCheck ruleCheck) {
+
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return ruleCheck.getCheckOwnerName();
+    }
+
+    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())) {
+      return null;
+    }
+
+    Stem checkOwnerStem = RuleEngine.findStemById(ruleCheck.getCheckOwnerId(), false);
+
+    return checkOwnerStem == null ? null : checkOwnerStem.getName();
+  }
+
   public abstract Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId);
   
   /**

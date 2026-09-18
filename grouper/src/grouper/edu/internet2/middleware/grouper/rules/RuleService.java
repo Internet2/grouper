@@ -36,6 +36,9 @@ public class RuleService {
     AttributeAssign attributeAssign = null;
     
     String checkOwnerName = null;
+    // the uuid of whatever checkOwnerName resolved to, captured where we still know if it is a
+    // group or a folder, so a rule which stores its check owner as a uuid can keep doing that
+    String checkOwnerIdResolved = null;
     String checkOwnerStemScope = null;
     
     String ifConditionOwnerName = null;
@@ -67,6 +70,7 @@ public class RuleService {
         //value must be thisGroup, anotherGroup
         if (StringUtils.equals(checkOwner, "thisGroup")) {
           checkOwnerName = group.getName();
+          checkOwnerIdResolved = group.getId();
         } else if (StringUtils.equals(checkOwner, "anotherGroup")) {
           String groupIdOrName = ruleConfig.getCheckOwnerUuidOrName();
           Group checkOwnerGroup = GroupFinder.findByName(groupIdOrName, false);
@@ -76,6 +80,7 @@ public class RuleService {
           
           if (checkOwnerGroup != null) {
             checkOwnerName = checkOwnerGroup.getName();
+            checkOwnerIdResolved = checkOwnerGroup.getId();
           } else {
             //Add error and return
             String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidGroup");
@@ -99,6 +104,7 @@ public class RuleService {
           
           if (stem != null) {
             checkOwnerName = stem.getName();
+            checkOwnerIdResolved = stem.getUuid();
           } else {
             String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidFolder");
             error = error.replace("##folderUuidOrName##", stemIdOrName);
@@ -184,6 +190,7 @@ public class RuleService {
         //value must be thisStem, anotherStem
         if (StringUtils.equals(checkOwner, "thisStem")) {
           checkOwnerName = stem.getName();
+          checkOwnerIdResolved = stem.getUuid();
         } else if (StringUtils.equals(checkOwner, "anotherStem")) {
           String stemIdOrName = ruleConfig.getCheckOwnerUuidOrName();
           Stem checkOwnerStem = RuleEngine.findStemByName(stemIdOrName, false);
@@ -193,6 +200,7 @@ public class RuleService {
           
           if (checkOwnerStem != null) {
             checkOwnerName = checkOwnerStem.getName();
+            checkOwnerIdResolved = checkOwnerStem.getUuid();
           } else {
             //Add error and return
             String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidFolder");
@@ -213,6 +221,7 @@ public class RuleService {
           
           if (group != null) {
             checkOwnerName = group.getName();
+            checkOwnerIdResolved = group.getId();
           } else {
             String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidGroup");
             error = error.replace("##groupUuidOrName##", groupIdOrName);
@@ -282,8 +291,23 @@ public class RuleService {
     ruleCheck.setCheckType(ruleConfig.getCheckType());
     
     if (StringUtils.isNotBlank(checkOwnerName)) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleCheckOwnerNameName(), checkOwnerName);
-      ruleCheck.setCheckOwnerName(checkOwnerName);
+
+      // only one of checkOwnerId and checkOwnerName can be set, so whichever one we store, clear
+      // the other one.  if this rule already stores the uuid (e.g. it was created with RuleApi),
+      // then keep storing the uuid, even if a different group or folder was picked, so that
+      // editing a rule in the UI doesnt change the way that rule stores its check owner
+      boolean ruleAlreadyStoresCheckOwnerId = !StringUtils.isBlank(
+          attributeValueDelegate.retrieveValueString(RuleUtils.ruleCheckOwnerIdName()));
+
+      if (ruleAlreadyStoresCheckOwnerId && !StringUtils.isBlank(checkOwnerIdResolved)) {
+        attributeValueDelegate.assignValue(RuleUtils.ruleCheckOwnerIdName(), checkOwnerIdResolved);
+        attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerNameName());
+        ruleCheck.setCheckOwnerId(checkOwnerIdResolved);
+      } else {
+        attributeValueDelegate.assignValue(RuleUtils.ruleCheckOwnerNameName(), checkOwnerName);
+        attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerIdName());
+        ruleCheck.setCheckOwnerName(checkOwnerName);
+      }
     } else {
       attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerNameName());
     }
