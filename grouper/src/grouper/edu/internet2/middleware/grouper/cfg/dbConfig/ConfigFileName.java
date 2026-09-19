@@ -267,13 +267,17 @@ public enum ConfigFileName {
       
       // cache this since its heavyweight
       ConfigFileMetadata configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
-      if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+      // GRP-7350: only bypass the cache when caching is turned OFF. This condition used to be
+      // un-negated, so the documented default of true (cache it) discarded the cached value and
+      // regenerated the metadata on every call.
+      if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
         configFileMetadata = null;
       }
       if (configFileMetadata == null) {
         synchronized(this) {
           configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
-          if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+          // GRP-7350: see above, only bypass the cache when caching is turned OFF
+          if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
             configFileMetadata = null;
           }
           if (configFileMetadata == null) {
