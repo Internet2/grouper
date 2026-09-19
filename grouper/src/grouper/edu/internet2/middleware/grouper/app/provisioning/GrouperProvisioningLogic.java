@@ -4563,13 +4563,30 @@ public class GrouperProvisioningLogic {
           createMissingEntitiesFull();
   
           // ######### STEP 31: retrieve target group and entity link
+          // GRP-7052: capture which entities/groups are already flagged for membership recalc BEFORE the
+          // link phase.  The link phase can flag additional objects for membership recalc when it detects
+          // a target id change (target object recreated with a new id); those flags are set after the
+          // initial grouper membership load, so we detect and reload them below.
+          Set<String> memberIdsRecalcMembershipsBeforeLink = grouperProvisioningLogicIncremental.membersFlaggedForMembershipRecalc();
+          Set<String> groupIdsRecalcMembershipsBeforeLink = grouperProvisioningLogicIncremental.groupsFlaggedForMembershipRecalc();
+
           debugMap.put("state", "updateGroupLinkFull");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
           
           debugMap.put("state", "updateEntityLinkFull");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkFull();
-          
-          
+
+          // ######### STEP 31.5 (GRP-7052): if the link phase flagged an entity/group for membership
+          // recalc due to a detected target id change, its memberships were not loaded in the initial
+          // grouper membership retrieval (which keys off these same flags but ran earlier).  Reload the
+          // grouper memberships for those newly-flagged objects so ALL of the object's memberships are
+          // re-sent to the recreated target object rather than waiting for a full sync.  This is a no-op
+          // (no retrieval) unless the link phase flagged a NEW object.
+          debugMap.put("state", "retrieveGrouperMembershipsForLinkDetectedIdChanges");
+          grouperProvisioningLogicIncremental.retrieveGrouperMembershipsForLinkDetectedIdChanges(
+              memberIdsRecalcMembershipsBeforeLink, groupIdsRecalcMembershipsBeforeLink);
+
+
           // ######### STEP 35: index matching ID of grouper and target objects
           debugMap.put("state", "indexMatchingIdOfGrouperObjects");
           this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);

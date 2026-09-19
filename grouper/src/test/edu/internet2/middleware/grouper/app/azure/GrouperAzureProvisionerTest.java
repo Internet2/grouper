@@ -78,7 +78,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testStaleEntityCacheMembershipErrorRetriesEntityIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testGroupTargetIdChangePureRecreateNotDetectedIncremental"));
     //realAzureAddUsers();
   }
 
@@ -2927,6 +2927,433 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member.getId());
     assertTrue("T".equals(gcGrouperSyncMembership.getInTargetDb()));
     assertNull(gcGrouperSyncMembership.getErrorCode());
+  }
+
+  /**
+   * assign a michiganAzure (security team) provisioning attribute to a group so it is provisioned to configId
+   */
+  private static void assignMichiganAzureProvisioning(String configId, Group group) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeam", true);
+    metadataNameValues.put("md_grouper_azureGroupType", "security");
+    attributeValue.setMetadataNameValues(metadataNameValues);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, group);
+  }
+
+  /**
+   * GRP-7052: when a user's target id changes (the target account is recreated out of band with a
+   * new id), incremental must recalc and re-send ALL of that user's memberships to the recreated
+   * target object rather than waiting for a full sync.
+   *
+   * <p>The user is in two groups.  We simulate the state left by a prior incremental in which only
+   * the test:test0 membership failed to add (it carries an error); the test:test1 membership is still
+   * "in target" with no error.  On the next incremental the error path recalcs the entity, which
+   * re-retrieves the target user and detects the stale->fresh target id.  The GRP-7050 behavior alone
+   * would only retry the errored test:test0 membership; the GRP-7052 fix additionally marks the
+   * entity's memberships for recalc, so the NON-errored test:test1 membership is ALSO re-sent to the
+   * recreated user.  The fix-specific assertion is that test:test1 contains the fresh user id.
+   */
+  public void testEntityTargetIdChangeReSendsAllMembershipsIncremental() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    RegistrySubject.add(grouperSession, "Fred5052", "person", "Fred5052");
+    Subject fred = SubjectFinder.findById("Fred5052", true);
+
+    String configId = "AZURE_AD";
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput()
+          .assignConfigId(configId)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
+
+    List<GrouperAzureGroup> existingAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0", "test:test1"), "displayName", false, new HashSet<String>());
+    if (existingAzureGroups != null && existingAzureGroups.size() > 0) {
+      GrouperAzureApiCommands.deleteAzureGroups("myAzure", existingAzureGroups);
+    }
+
+    fullProvision(configId);
+    incrementalProvision(configId);
+
+    // pre-create the target user so the entity links cleanly on the full sync below (no member error)
+    azureAddUsersHelper(5052, 5053);
+
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:test1").save();
+    testGroup.addMember(fred, false);
+    testGroup2.addMember(fred, false);
+    Member member = MemberFinder.findBySubject(grouperSession, fred, true);
+
+    assignMichiganAzureProvisioning(configId, testGroup);
+    assignMichiganAzureProvisioning(configId, testGroup2);
+
+    // full sync: both groups, the user, and both memberships are all in the target;
+    // the entity link cache holds the current target user id
+    fullProvision(configId);
+
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0", "test:test1"), "displayName", false, new HashSet<String>());
+    assertEquals(2, azureGroups.size());
+    String testGroup0AzureId = null;
+    String testGroup1AzureId = null;
+    for (GrouperAzureGroup azureGroup : azureGroups) {
+      if ("test:test0".equals(azureGroup.getDisplayName())) {
+        testGroup0AzureId = azureGroup.getId();
+      } else if ("test:test1".equals(azureGroup.getDisplayName())) {
+        testGroup1AzureId = azureGroup.getId();
+      }
+    }
+    assertNotNull(testGroup0AzureId);
+    assertNotNull(testGroup1AzureId);
+
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers.size());
+    String staleUserId = azureUsers.get(0).getId();
+
+    assertTrue(GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", testGroup0AzureId).contains(staleUserId));
+    assertTrue(GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", testGroup1AzureId).contains(staleUserId));
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    // entityAttributeValueCache0 is the cached target id (michiganAzure entityAttributeValueCache0 = target "id")
+    assertEquals(staleUserId, gcGrouperSyncMember.getEntityAttributeValueCache0());
+
+    // ---- out-of-band target recreate: drop BOTH membership target rows, delete the user, then recreate
+    //      the user with the SAME userPrincipalName but a NEW id, so the cached target id is now stale ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership where user_id = ?").addBindVar(staleUserId).executeSql();
+    GrouperAzureApiCommands.deleteAzureUsers("myAzure", azureUsers);
+
+    azureAddUsersHelper(5052, 5053);
+    List<GrouperAzureUser> recreatedAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, recreatedAzureUsers.size());
+    String freshUserId = recreatedAzureUsers.get(0).getId();
+    assertFalse(staleUserId.equals(freshUserId));
+
+    // ---- simulate the state left by a previous incremental that failed to add ONLY the test:test0
+    //      membership: it carries an error and is not in the target, while test:test1 is still "in
+    //      target" with no error.  The member sync object is clean (stale link cache), so only the
+    //      membership error will recalc the entity this run. ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertTrue(GrouperUtil.intValue(debugMap.get("addErrorsToQueue"), 0) > 0);
+
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member.getId());
+    assertNotNull(provisioningEntityWrapper);
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
+    // the target id changed on re-link, so the entity's memberships were marked for recalc (the fix)
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+
+    // the stale link cache was refreshed to the recreated target user id
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    assertEquals(freshUserId, gcGrouperSyncMember.getEntityAttributeValueCache0());
+
+    // the errored test:test0 membership was re-sent (GRP-7050 behavior)
+    assertTrue(GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", testGroup0AzureId).contains(freshUserId));
+
+    // KEY (GRP-7052): the NON-errored test:test1 membership was ALSO re-sent to the recreated user
+    // because the target id changed -- without the fix it would stay "in target" and never reach the
+    // new object until a full sync.
+    assertTrue("non-errored membership must be re-sent after the target id change",
+        GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", testGroup1AzureId).contains(freshUserId));
+  }
+
+  /**
+   * GRP-7052 (group side): when a group's target id changes (the target group is recreated out of
+   * band with a new id), incremental must re-send ALL of that group's memberships to the recreated
+   * target group.
+   *
+   * <p>The group has two members.  We simulate the state left by a prior incremental in which only
+   * one member's membership failed to add (it carries an error); the other membership is still "in
+   * target" with no error.  On the next incremental the error path recalcs the group, which
+   * re-retrieves the target group and detects the stale->fresh target id.  The GRP-7050 behavior
+   * alone would only retry the errored membership; the GRP-7052 fix additionally marks the group's
+   * memberships for recalc, so the NON-errored membership is ALSO re-sent to the recreated group.
+   * The fix-specific assertion is that the recreated group contains the non-errored member.
+   */
+  public void testGroupTargetIdChangeReSendsAllMembershipsIncremental() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    RegistrySubject.add(grouperSession, "Fred5053", "person", "Fred5053");
+    RegistrySubject.add(grouperSession, "Fred5054", "person", "Fred5054");
+    Subject fred1 = SubjectFinder.findById("Fred5053", true);
+    Subject fred2 = SubjectFinder.findById("Fred5054", true);
+
+    String configId = "AZURE_AD";
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput()
+          .assignConfigId(configId)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
+
+    String azureGroupDisplayName = "test:test0";
+    List<GrouperAzureGroup> existingAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    if (existingAzureGroups != null && existingAzureGroups.size() > 0) {
+      GrouperAzureApiCommands.deleteAzureGroups("myAzure", existingAzureGroups);
+    }
+
+    fullProvision(configId);
+    incrementalProvision(configId);
+
+    // pre-create the target users so they link cleanly (only the group target id will change)
+    azureAddUsersHelper(5053, 5055);
+
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    testGroup.addMember(fred1, false);
+    testGroup.addMember(fred2, false);
+    Member member1 = MemberFinder.findBySubject(grouperSession, fred1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, fred2, true);
+
+    assignMichiganAzureProvisioning(configId, testGroup);
+
+    fullProvision(configId);
+
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    assertEquals(1, azureGroups.size());
+    String staleGroupId = azureGroups.get(0).getId();
+
+    List<GrouperAzureUser> azureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred1.getId() + "@" + domain), "userPrincipalName");
+    List<GrouperAzureUser> azureUsers2 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred2.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers1.size());
+    assertEquals(1, azureUsers2.size());
+    String user1Id = azureUsers1.get(0).getId();
+    String user2Id = azureUsers2.get(0).getId();
+
+    Set<String> staleMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", staleGroupId);
+    assertTrue(staleMembers.contains(user1Id));
+    assertTrue(staleMembers.contains(user2Id));
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    // groupAttributeValueCache0 is the cached target id (michiganAzure groupAttributeValueCache0 = target "id")
+    assertEquals(staleGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache0());
+
+    // ---- out-of-band target recreate: drop both memberships, delete the group, then recreate the
+    //      group with the SAME displayName but a NEW id, so the cached target group id is now stale ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership where group_id = ?").addBindVar(staleGroupId).executeSql();
+    GrouperAzureApiCommands.deleteAzureGroups("myAzure", azureGroups);
+
+    Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert = new HashMap<GrouperAzureGroup, Set<String>>();
+    GrouperAzureGroup recreatedGroup = new GrouperAzureGroup();
+    recreatedGroup.setDisplayName(azureGroupDisplayName);
+    recreatedGroup.setMailNickname("test_test0");
+    groupToFieldNamesToInsert.put(recreatedGroup, null);
+    GrouperAzureApiCommands.createAzureGroups("myAzure", groupToFieldNamesToInsert);
+
+    List<GrouperAzureGroup> recreatedAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    assertEquals(1, recreatedAzureGroups.size());
+    String freshGroupId = recreatedAzureGroups.get(0).getId();
+    assertFalse(staleGroupId.equals(freshGroupId));
+
+    // ---- simulate the state left by a previous incremental that failed to add ONLY fred1's membership:
+    //      it carries an error and is not in the target, while fred2's is still "in target" with no
+    //      error.  The group sync object is clean (stale link cache), so only the membership error will
+    //      recalc the group this run. ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertTrue(GrouperUtil.intValue(debugMap.get("addErrorsToQueue"), 0) > 0);
+
+    ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
+    assertNotNull(provisioningGroupWrapper);
+    assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+    // the target id changed on re-link, so the group's memberships were marked for recalc (the fix)
+    assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+
+    // the stale link cache was refreshed to the recreated target group id
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(freshGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache0());
+
+    Set<String> freshMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", freshGroupId);
+    // the errored membership was re-sent (GRP-7050 behavior)
+    assertTrue(freshMembers.contains(user1Id));
+    // KEY (GRP-7052): the NON-errored membership was ALSO re-sent to the recreated group because the
+    // target id changed -- without the fix it would stay "in target" and never reach the new group
+    // until a full sync.
+    assertTrue("non-errored membership must be re-sent after the target id change",
+        freshMembers.contains(user2Id));
+  }
+
+  /**
+   * GRP-7052 characterization (entity, pure recreate, no triggering event): recreating the target
+   * user with a new id and running incremental with NO grouper change does NOT proactively refresh
+   * the link cache or re-send memberships.  Incremental only re-retrieves a non-recalc entity's link
+   * when its cache is BLANK (retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks), so a
+   * stale-but-present id is not detected until something recalcs the entity.  This documents the gap:
+   * the fix helps once the object is recalc'd, but a bare recreate still waits for a full sync.
+   */
+  public void testEntityTargetIdChangePureRecreateNotDetectedIncremental() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    RegistrySubject.add(grouperSession, "Fred5054", "person", "Fred5054");
+    Subject fred = SubjectFinder.findById("Fred5054", true);
+
+    String configId = "AZURE_AD";
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput()
+          .assignConfigId(configId)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
+
+    String azureGroupDisplayName = "test:test0";
+    List<GrouperAzureGroup> existingAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    if (existingAzureGroups != null && existingAzureGroups.size() > 0) {
+      GrouperAzureApiCommands.deleteAzureGroups("myAzure", existingAzureGroups);
+    }
+
+    fullProvision(configId);
+    incrementalProvision(configId);
+
+    azureAddUsersHelper(5054, 5055);
+
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    testGroup.addMember(fred, false);
+    Member member = MemberFinder.findBySubject(grouperSession, fred, true);
+
+    assignMichiganAzureProvisioning(configId, testGroup);
+
+    fullProvision(configId);
+
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    assertEquals(1, azureGroups.size());
+    String testGroup0AzureId = azureGroups.get(0).getId();
+
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers.size());
+    String staleUserId = azureUsers.get(0).getId();
+
+    // recreate the target user with a new id, but generate NO grouper change / event
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership where user_id = ?").addBindVar(staleUserId).executeSql();
+    GrouperAzureApiCommands.deleteAzureUsers("myAzure", azureUsers);
+    azureAddUsersHelper(5054, 5055);
+    List<GrouperAzureUser> recreatedAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    String freshUserId = recreatedAzureUsers.get(0).getId();
+    assertFalse(staleUserId.equals(freshUserId));
+
+    incrementalProvision(configId);
+
+    // current behavior: with no event to recalc the entity, the stale cache is NOT refreshed...
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    assertEquals("bare recreate is not proactively detected; cache stays stale", staleUserId, gcGrouperSyncMember.getEntityAttributeValueCache0());
+
+    // ...and the membership is NOT re-sent to the recreated target user
+    assertFalse("bare recreate does not re-send memberships until the entity is recalc'd",
+        GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", testGroup0AzureId).contains(freshUserId));
+  }
+
+  /**
+   * GRP-7052 characterization (group, pure recreate, no triggering event): recreating the target
+   * group with a new id and running incremental with NO grouper change does NOT proactively refresh
+   * the group link cache or re-send memberships.  Mirrors
+   * {@link #testEntityTargetIdChangePureRecreateNotDetectedIncremental} for groups.
+   */
+  public void testGroupTargetIdChangePureRecreateNotDetectedIncremental() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    RegistrySubject.add(grouperSession, "Fred5055", "person", "Fred5055");
+    Subject fred = SubjectFinder.findById("Fred5055", true);
+
+    String configId = "AZURE_AD";
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput()
+          .assignConfigId(configId)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
+
+    String azureGroupDisplayName = "test:test0";
+    List<GrouperAzureGroup> existingAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    if (existingAzureGroups != null && existingAzureGroups.size() > 0) {
+      GrouperAzureApiCommands.deleteAzureGroups("myAzure", existingAzureGroups);
+    }
+
+    fullProvision(configId);
+    incrementalProvision(configId);
+
+    azureAddUsersHelper(5055, 5056);
+
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    testGroup.addMember(fred, false);
+
+    assignMichiganAzureProvisioning(configId, testGroup);
+
+    fullProvision(configId);
+
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    assertEquals(1, azureGroups.size());
+    String staleGroupId = azureGroups.get(0).getId();
+
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers.size());
+    String userId = azureUsers.get(0).getId();
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(staleGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache0());
+
+    // recreate the target group with a new id, but generate NO grouper change / event
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership where group_id = ?").addBindVar(staleGroupId).executeSql();
+    GrouperAzureApiCommands.deleteAzureGroups("myAzure", azureGroups);
+    Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert = new HashMap<GrouperAzureGroup, Set<String>>();
+    GrouperAzureGroup recreatedGroup = new GrouperAzureGroup();
+    recreatedGroup.setDisplayName(azureGroupDisplayName);
+    recreatedGroup.setMailNickname("test_test0");
+    groupToFieldNamesToInsert.put(recreatedGroup, null);
+    GrouperAzureApiCommands.createAzureGroups("myAzure", groupToFieldNamesToInsert);
+    List<GrouperAzureGroup> recreatedAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    String freshGroupId = recreatedAzureGroups.get(0).getId();
+    assertFalse(staleGroupId.equals(freshGroupId));
+
+    incrementalProvision(configId);
+
+    // current behavior: with no event to recalc the group, the stale cache is NOT refreshed...
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals("bare recreate is not proactively detected; cache stays stale", staleGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache0());
+
+    // ...and the membership is NOT re-sent to the recreated target group
+    assertFalse("bare recreate does not re-send memberships until the group is recalc'd",
+        GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", freshGroupId).contains(userId));
   }
 
   public void testDeleteGroupMichiganFull() {

@@ -1,14 +1,18 @@
 package edu.internet2.middleware.grouper.app.okta;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -33,7 +37,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
@@ -48,7 +54,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncParallelRetrieveThreadPool25"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testGroupTargetIdChangePureRecreateNotDetectedIncremental"));
     
   }
   
@@ -430,6 +436,343 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("DNE", gcGrouperSyncMembership.getErrorCode().toString());
     }
     
+  }
+
+  /**
+   * assign a provisioning attribute to a stem so everything under it is provisioned to configId
+   */
+  private static void assignOktaProvisioningToStem(String configId, Stem stem) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  }
+
+  /**
+   * GRP-7052: when a user's target id changes (the target account is recreated out of band with a
+   * new id), incremental must recalc and re-send ALL of that user's memberships to the recreated
+   * target object rather than waiting for a full sync.
+   *
+   * <p>The user is in two groups.  We simulate the state left by a prior incremental in which only
+   * the test:testGroup membership failed to add (it carries an error); the test:testGroup2 membership
+   * is still "in target" with no error.  On the next incremental the error path recalcs the entity,
+   * which re-retrieves the target user and detects the stale->fresh target id.  The GRP-7050 behavior
+   * alone would only retry the errored membership; the GRP-7052 fix additionally marks the entity's
+   * memberships for recalc, so the NON-errored membership is ALSO re-sent to the recreated user.  The
+   * fix-specific assertion is that test:testGroup2 contains the fresh user id.
+   *
+   * <p>(Okta caches the target user id in entityAttributeValueCache2 and matches entities by login.)
+   */
+  public void testEntityTargetIdChangeReSendsAllMembershipsIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    // this creates the mock tables
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    // full sync: both groups, the user, and both memberships are all in the target
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    // entityAttributeValueCache2 is the cached target id (okta entityAttributeValueCache2 = target "id")
+    String staleUserId = gcGrouperSyncMember.getEntityAttributeValueCache2();
+    assertNotNull(staleUserId);
+
+    GcGrouperSyncGroup gcGrouperSyncGroup0 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    GcGrouperSyncGroup gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+    String group0TargetId = gcGrouperSyncGroup0.getGroupAttributeValueCache2();
+    String group1TargetId = gcGrouperSyncGroup1.getGroupAttributeValueCache2();
+    assertNotNull(group0TargetId);
+    assertNotNull(group1TargetId);
+
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(staleUserId));
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId).contains(staleUserId));
+
+    // ---- out-of-band target recreate: drop BOTH membership target rows, then give the target user a
+    //      NEW id (keeping the same login), so the cached target id is now stale ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUserId).executeSql();
+    String freshUserId = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUserId).addBindVar(staleUserId).executeSql();
+    assertFalse(staleUserId.equals(freshUserId));
+
+    // ---- simulate the state left by a previous incremental that failed to add ONLY the test:testGroup
+    //      membership: it carries an error and is not in the target, while test:testGroup2 is still "in
+    //      target" with no error.  The member sync object is clean (stale link cache), so only the
+    //      membership error will recalc the entity this run. ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertTrue(GrouperUtil.intValue(debugMap.get("addErrorsToQueue"), 0) > 0);
+
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member.getId());
+    assertNotNull(provisioningEntityWrapper);
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
+    // the target id changed on re-link, so the entity's memberships were marked for recalc (the fix)
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+
+    // the stale link cache was refreshed to the recreated target user id
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    assertEquals(freshUserId, gcGrouperSyncMember.getEntityAttributeValueCache2());
+
+    // the errored test:testGroup membership was re-sent (GRP-7050 behavior)
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(freshUserId));
+
+    // KEY (GRP-7052): the NON-errored test:testGroup2 membership was ALSO re-sent to the recreated user
+    // because the target id changed -- without the fix it would stay "in target" and never reach the
+    // new object until a full sync.
+    assertTrue("non-errored membership must be re-sent after the target id change",
+        GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId).contains(freshUserId));
+  }
+
+  /**
+   * GRP-7052 (group side): when a group's target id changes (the target group is recreated out of
+   * band with a new id), incremental must re-send ALL of that group's memberships to the recreated
+   * target group.  The group has two members; only one member's membership carries an error.  The
+   * error path recalcs the group, the link detects the target id change, and the fix re-sends the
+   * NON-errored member's membership too.  (Okta caches the target group id in groupAttributeValueCache2
+   * and matches groups by name.)
+   */
+  public void testGroupTargetIdChangeReSendsAllMembershipsIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    // groupAttributeValueCache2 is the cached target id (okta groupAttributeValueCache2 = target "id")
+    String staleGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache2();
+    assertNotNull(staleGroupId);
+
+    GcGrouperSyncMember gcGrouperSyncMember0 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId());
+    GcGrouperSyncMember gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId());
+    String user0Id = gcGrouperSyncMember0.getEntityAttributeValueCache2();
+    String user1Id = gcGrouperSyncMember1.getEntityAttributeValueCache2();
+    assertNotNull(user0Id);
+    assertNotNull(user1Id);
+
+    Set<String> staleMembers = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", staleGroupId);
+    assertTrue(staleMembers.contains(user0Id));
+    assertTrue(staleMembers.contains(user1Id));
+
+    // ---- out-of-band target recreate: drop both memberships, then give the target group a NEW id
+    //      (keeping the same name), so the cached target group id is now stale ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where group_id = ?").addBindVar(staleGroupId).executeSql();
+    String freshGroupId = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_group set id = ? where id = ?").addBindVar(freshGroupId).addBindVar(staleGroupId).executeSql();
+    assertFalse(staleGroupId.equals(freshGroupId));
+
+    // ---- error ONLY member0's membership; member1's stays "in target" with no error ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertTrue(GrouperUtil.intValue(debugMap.get("addErrorsToQueue"), 0) > 0);
+
+    ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
+    assertNotNull(provisioningGroupWrapper);
+    assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+    // the target id changed on re-link, so the group's memberships were marked for recalc (the fix)
+    assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+
+    // the stale link cache was refreshed to the recreated target group id
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(freshGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache2());
+
+    Set<String> freshMembers = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", freshGroupId);
+    // the errored membership was re-sent (GRP-7050 behavior)
+    assertTrue(freshMembers.contains(user0Id));
+    // KEY (GRP-7052): the NON-errored membership was ALSO re-sent to the recreated group because the
+    // target id changed -- without the fix it would stay "in target" and never reach the new group
+    // until a full sync.
+    assertTrue("non-errored membership must be re-sent after the target id change",
+        freshMembers.contains(user1Id));
+  }
+
+  /**
+   * GRP-7052 characterization (entity, pure recreate, no triggering event): recreating the target
+   * user with a new id and running incremental with NO grouper change does NOT proactively refresh the
+   * link cache or re-send memberships.  Incremental only re-retrieves a non-recalc entity's link when
+   * its cache is BLANK, so a stale-but-present id is not detected until something recalcs the entity.
+   */
+  public void testEntityTargetIdChangePureRecreateNotDetectedIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    String staleUserId = gcGrouperSyncMember.getEntityAttributeValueCache2();
+    assertNotNull(staleUserId);
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    String group0TargetId = gcGrouperSyncGroup.getGroupAttributeValueCache2();
+
+    // recreate the target user with a new id, but generate NO grouper change / event
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUserId).executeSql();
+    String freshUserId = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUserId).addBindVar(staleUserId).executeSql();
+    assertFalse(staleUserId.equals(freshUserId));
+
+    incrementalProvision(configId);
+
+    // current behavior: with no event to recalc the entity, the stale cache is NOT refreshed...
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    assertEquals("bare recreate is not proactively detected; cache stays stale", staleUserId, gcGrouperSyncMember.getEntityAttributeValueCache2());
+
+    // ...and the membership is NOT re-sent to the recreated target user
+    assertFalse("bare recreate does not re-send memberships until the entity is recalc'd",
+        GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(freshUserId));
+  }
+
+  /**
+   * GRP-7052 characterization (group, pure recreate, no triggering event): mirrors the entity
+   * characterization test for a recreated target group.
+   */
+  public void testGroupTargetIdChangePureRecreateNotDetectedIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    String staleGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache2();
+    assertNotNull(staleGroupId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    String userId = gcGrouperSyncMember.getEntityAttributeValueCache2();
+
+    // recreate the target group with a new id, but generate NO grouper change / event
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where group_id = ?").addBindVar(staleGroupId).executeSql();
+    String freshGroupId = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_group set id = ? where id = ?").addBindVar(freshGroupId).addBindVar(staleGroupId).executeSql();
+    assertFalse(staleGroupId.equals(freshGroupId));
+
+    incrementalProvision(configId);
+
+    // current behavior: with no event to recalc the group, the stale cache is NOT refreshed...
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals("bare recreate is not proactively detected; cache stays stale", staleGroupId, gcGrouperSyncGroup.getGroupAttributeValueCache2());
+
+    // ...and the membership is NOT re-sent to the recreated target group
+    assertFalse("bare recreate does not re-send memberships until the group is recalc'd",
+        GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", freshGroupId).contains(userId));
   }
 
   public void testFullSyncOkta() throws IOException {

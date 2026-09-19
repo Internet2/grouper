@@ -1595,6 +1595,140 @@ public class GrouperProvisioningLogicIncremental {
     }
   }
 
+  /**
+   * GRP-7052: member ids of entities currently flagged for membership recalc.
+   * @return set of member ids
+   */
+  public Set<String> membersFlaggedForMembershipRecalc() {
+    Set<String> memberIds = new HashSet<String>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper.getMemberId() != null && provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+        memberIds.add(provisioningEntityWrapper.getMemberId());
+      }
+    }
+    return memberIds;
+  }
+
+  /**
+   * GRP-7052: group ids of groups currently flagged for membership recalc.
+   * @return set of group ids
+   */
+  public Set<String> groupsFlaggedForMembershipRecalc() {
+    Set<String> groupIds = new HashSet<String>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      if (provisioningGroupWrapper.getGroupId() != null && provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+        groupIds.add(provisioningGroupWrapper.getGroupId());
+      }
+    }
+    return groupIds;
+  }
+
+  /**
+   * GRP-7052: the entity/group link phase flags an object for membership recalc when it detects a
+   * target id change (e.g. the target object was recreated with a new id).  That happens after the
+   * initial grouper membership load (which keys off the same flags), so those memberships were never
+   * retrieved and would not be re-sent to the recreated target object until a full sync.  If the link
+   * phase flagged any entity/group that was not already flagged before link, reload the grouper
+   * memberships now (retrieveGrouperDataIncrementalMemberships keys off the recalc flags) so all of the
+   * object's memberships are re-sent this run.  No-op unless link flagged a new object.
+   * @param memberIdsRecalcMembershipsBeforeLink entities flagged for membership recalc before link
+   * @param groupIdsRecalcMembershipsBeforeLink groups flagged for membership recalc before link
+   */
+  public void retrieveGrouperMembershipsForLinkDetectedIdChanges(Set<String> memberIdsRecalcMembershipsBeforeLink,
+      Set<String> groupIdsRecalcMembershipsBeforeLink) {
+
+    boolean needsRetrieve = false;
+
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper.getMemberId() != null
+          && provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()
+          && !GrouperUtil.nonNull(memberIdsRecalcMembershipsBeforeLink).contains(provisioningEntityWrapper.getMemberId())) {
+        needsRetrieve = true;
+        break;
+      }
+    }
+    if (!needsRetrieve) {
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+        if (provisioningGroupWrapper.getGroupId() != null
+            && provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()
+            && !GrouperUtil.nonNull(groupIdsRecalcMembershipsBeforeLink).contains(provisioningGroupWrapper.getGroupId())) {
+          needsRetrieve = true;
+          break;
+        }
+      }
+    }
+
+    if (!needsRetrieve) {
+      return;
+    }
+
+    this.getGrouperProvisioner().getDebugMap().put("retrieveGrouperMembershipsForLinkDetectedIdChanges", true);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalMemberships();
+
+    // the reloaded memberships can reference groups/entities that were not part of this run (e.g. the
+    // other groups the recreated user still belongs to).  Attach their sync objects the same way the
+    // normal membership-retrieval passes do, otherwise the membership translate/compare hits a null
+    // GcGrouperSyncGroup / GcGrouperSyncMember.
+    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships();
+    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("linkDetectedIdChange");
+    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("linkDetectedIdChange");
+
+    // those groups/entities were also not translated to target / matching-id'd earlier this run (that
+    // happened before the reload), so a re-sent membership would translate with a null target group/
+    // entity id.  Translate and (re)compute matching ids for all grouper groups/entities and re-index
+    // so the membership translate/compare below can resolve their target ids.
+    this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().translateGrouperToTargetGroups(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups(), false, false);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().translateGrouperToTargetEntities(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities(), false, false);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().idTargetGroups(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups());
+    this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().idTargetEntities(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetEntities());
+    this.getGrouperProvisioner().retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
+
+    // Some provisioners can only retrieve memberships by one side (e.g. Okta retrieves memberships by
+    // group, not by entity).  In that case an id change on the entity cannot pull the recreated user's
+    // (empty) roster by entity, so the compare never sees the still-"in target" memberships as missing.
+    // Bridge to the other side: for a newly-flagged entity, mark the groups of its memberships for
+    // membership recalc (and symmetrically for a newly-flagged group when only by-entity retrieval is
+    // available), so those rosters are retrieved and the missing memberships re-inserted.
+    boolean selectMembershipsAllForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity();
+    boolean selectMembershipsAllForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup();
+    if ((!selectMembershipsAllForEntity && selectMembershipsAllForGroup)
+        || (!selectMembershipsAllForGroup && selectMembershipsAllForEntity)) {
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+        ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+        ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+        if (entityWrapper == null || groupWrapper == null) {
+          continue;
+        }
+        // entity id change, but memberships are retrieved by group -> recalc the entity's groups
+        if (!selectMembershipsAllForEntity && selectMembershipsAllForGroup
+            && entityWrapper.getMemberId() != null
+            && entityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()
+            && !GrouperUtil.nonNull(memberIdsRecalcMembershipsBeforeLink).contains(entityWrapper.getMemberId())) {
+          groupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+        }
+        // group id change, but memberships are retrieved by entity -> recalc the group's entities
+        if (!selectMembershipsAllForGroup && selectMembershipsAllForEntity
+            && groupWrapper.getGroupId() != null
+            && groupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()
+            && !GrouperUtil.nonNull(groupIdsRecalcMembershipsBeforeLink).contains(groupWrapper.getGroupId())) {
+          entityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+        }
+      }
+    }
+
+    // mark the recalc entity/group to select ALL its memberships (determine*ToSelect ran earlier this
+    // run, before the link flagged these objects).  This makes retrieveIncrementalTargetMemberships pull
+    // the object's full target membership roster so the compare inserts the memberships that are missing
+    // on the recreated target object.
+    this.determineGroupsToSelect();
+    this.determineEntitiesToSelect();
+  }
+
 
   
   public void filterNonRecalcActionsCapturedByRecalc() {

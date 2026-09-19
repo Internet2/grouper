@@ -326,6 +326,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(groupAttributeValueCache0Value, gcGrouperSyncGroup.getGroupAttributeValueCache0())) {
           gcGrouperSyncGroup.setGroupAttributeValueCache0(groupAttributeValueCache0Value);
           hasChange = true;
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
         }
       }
       
@@ -341,6 +342,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(groupAttributeValueCache1Value, gcGrouperSyncGroup.getGroupAttributeValueCache1())) {
           gcGrouperSyncGroup.setGroupAttributeValueCache1(groupAttributeValueCache1Value);
           hasChange = true;
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
         }
       }
       
@@ -356,6 +358,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(groupAttributeValueCache2Value, gcGrouperSyncGroup.getGroupAttributeValueCache2())) {
           gcGrouperSyncGroup.setGroupAttributeValueCache2(groupAttributeValueCache2Value);
           hasChange = true;
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
         }
       }
       
@@ -371,6 +374,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(groupAttributeValueCache3Value, gcGrouperSyncGroup.getGroupAttributeValueCache3())) {
           gcGrouperSyncGroup.setGroupAttributeValueCache3(groupAttributeValueCache3Value);
           hasChange = true;
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
         }
       }
       
@@ -748,6 +752,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(entityFromId2Value, gcGrouperSyncEntity.getEntityAttributeValueCache0())) {
           gcGrouperSyncEntity.setEntityAttributeValueCache0(entityFromId2Value);
           hasChange = true;
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
         }
       }
       
@@ -764,6 +769,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(entityFromId3Value, gcGrouperSyncEntity.getEntityAttributeValueCache1())) {
           gcGrouperSyncEntity.setEntityAttributeValueCache1(entityFromId3Value);
           hasChange = true;
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
         }
       }
       
@@ -780,6 +786,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(entityToId2Value, gcGrouperSyncEntity.getEntityAttributeValueCache2())) {
           gcGrouperSyncEntity.setEntityAttributeValueCache2(entityToId2Value);
           hasChange = true;
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
         }
       }
       
@@ -796,6 +803,7 @@ public class GrouperProvisioningLinkLogic {
         if (!StringUtils.equals(entityToId3Value, gcGrouperSyncEntity.getEntityAttributeValueCache3())) {
           gcGrouperSyncEntity.setEntityAttributeValueCache3(entityToId3Value);
           hasChange = true;
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
         }
       }
       if (hasChange) {
