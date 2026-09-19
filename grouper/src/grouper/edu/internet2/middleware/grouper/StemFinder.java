@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -415,16 +416,18 @@ public class StemFinder {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Stem ns = stemFlashCacheRetrieve(uuid, queryOptions);
-    if (ns != null) {
-      return ns;
-    }      
-    
-    ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNotFound, queryOptions) ;
-    
-    if (ns != null) {
-      stemFlashCacheAddIfSupposedTo(ns);
+    if (ns == null) {
+      ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, false, queryOptions) ;
+      if (ns != null) {
+        stemFlashCacheAddIfSupposedTo(ns);
+      }
+    }
+
+    //check security so we don't leak information about stems the subject cannot view
+    if (ns != null && PrivilegeHelper.canStemView(s.internal_getRootSession(), ns, s.getSubject())) {
       return ns;
     }
+
     if (!exceptionIfNotFound) {
       return null;
     }

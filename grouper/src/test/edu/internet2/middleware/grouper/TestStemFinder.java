@@ -276,6 +276,41 @@ public class TestStemFinder extends GrouperTest {
     Set<Stem> stems = StemFinder.findByUuids(s, uuids, new QueryOptions().secondLevelCache(false));
     assertEquals(1000, GrouperUtil.length(stems));
   }
+
+  /**
+   * findByUuid should honor security so it doesn't leak stem information to subjects who cannot view the stem
+   */
+  public void testFindByUuidSecure() {
+    GrouperSession rootSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(rootSession).assignName("test:secureStem").assignCreateParentStemsIfNotExist(true).save();
+    String stemId = stem.getId();
+
+    //SUBJ0 can view, SUBJ1 cannot
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_VIEW);
+
+    //root can find it
+    assertNotNull(StemFinder.findByUuid(rootSession, stemId, true));
+    GrouperSession.stopQuietly(rootSession);
+
+    //subject with STEM_VIEW can find it
+    GrouperSession sessionSubj0 = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    assertNotNull(StemFinder.findByUuid(sessionSubj0, stemId, true));
+    GrouperSession.stopQuietly(sessionSubj0);
+
+    //subject without any privilege cannot find it (no information leak)
+    GrouperSession sessionSubj1 = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    assertNull(StemFinder.findByUuid(sessionSubj1, stemId, false));
+
+    try {
+      StemFinder.findByUuid(sessionSubj1, stemId, true);
+      fail("shouldnt get here, subject cannot view stem");
+    } catch (StemNotFoundException snfe) {
+      //good
+    }
+    GrouperSession.stopQuietly(sessionSubj1);
+  }
+
   
   /**
    * 
