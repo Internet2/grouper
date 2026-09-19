@@ -66,6 +66,10 @@
                                   <li><a href="?operation=UiV2Provisioning.runSubjectSync&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.runSubjectSync&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}');">${textContainer.text['provisioningConfigTableActionsRunMemberSync'] }</a></li>   
                                 </c:if>
 
+                                <c:if test="${guiGrouperSyncObject.canAssignProvisioning}">
+                                  <li><a href="?operation=UiV2Provisioning.runSubjectGroupsSync&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.runSubjectGroupsSync&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}');">${textContainer.text['provisioningConfigTableActionsRunMemberGroupsSync'] }</a></li>   
+                                </c:if>
+
                          	<li><a href="?operation=UiV2Provisioning.viewProvisioningTargetDetailsOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMemberId=${guiGrouperSyncObject.gcGrouperSyncMember.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningTargetDetailsOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMemberId=${guiGrouperSyncObject.gcGrouperSyncMember.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
                          </ul>
                        </div>
