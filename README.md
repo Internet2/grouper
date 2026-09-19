@@ -41,3 +41,16 @@ mvn site site:deploy
 cd /tmp/grouper-parent
 [launch] index.html
 ```
+
+## Profiling
+
+The Grouper development team uses [YourKit Java Profiler](https://www.yourkit.com/java/profiler/)
+to find and fix performance issues in Grouper.
+
+![YourKit logo](https://www.yourkit.com/images/yklogo.png)
+
+YourKit supports open source projects with innovative and intelligent tools for monitoring
+and profiling Java and .NET applications. YourKit is the creator of
+[YourKit Java Profiler](https://www.yourkit.com/java/profiler/),
+[YourKit .NET Profiler](https://www.yourkit.com/dotnet-profiler/), and
+[YourKit YouMonitor](https://www.yourkit.com/youmonitor/).
