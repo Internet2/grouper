@@ -1753,6 +1753,10 @@ public class UiV2Configure {
 
       Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
       
+      // GRP-7298: import writes many properties; without this each write cleared the whole
+      // config cache and the next read rebuilt every config class. Batch the clears into one.
+      ConfigPropertiesCascadeBase.suppressClearCacheStart();
+      try {
       for (Object keyObject : propertiesToImport.keySet()) {
         try {
         
@@ -1796,6 +1800,13 @@ public class UiV2Configure {
           countError++;
         }
         
+      }
+      } finally {
+        // stop suppression BEFORE clearing, or the clear would suppress itself
+        ConfigPropertiesCascadeBase.suppressClearCacheStop();
+        // single rebuild for the whole import, and in a finally so a failed or partial
+        // import can never leave a stale cache behind
+        ConfigPropertiesCascadeBase.clearCache();
       }
   
       configurationContainer.setCountAdded(countAdded);

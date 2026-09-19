@@ -1387,6 +1387,13 @@ public class GrouperUiFilter implements Filter {
 
     GrouperRequestWrapper httpServletRequest = null;
     HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+    long configInstrStartAlloc = 0, configInstrStartRebuilds = 0, configInstrStartClears = 0, configInstrStartMs = 0;
+    if (edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_INSTRUMENTATION) {
+      configInstrStartAlloc = configInstrAllocatedBytes();
+      configInstrStartRebuilds = edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_REBUILDS.get();
+      configInstrStartClears = edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_CLEARS.get();
+      configInstrStartMs = System.currentTimeMillis();
+    }
     try {
       
       servletRequest.setCharacterEncoding("UTF-8");
@@ -1557,11 +1564,66 @@ public class GrouperUiFilter implements Filter {
         //throw new ControllerDone();
       }
     } finally {
+      if (edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_INSTRUMENTATION) {
+        configInstrLogAlloc(servletRequest, configInstrStartAlloc, configInstrStartRebuilds, configInstrStartClears, configInstrStartMs);
+      }
       sendErrorEmailIfNeeded();
      
       finallyRequest();
       
       ServletRequestUtils.requestEnd();
+    }
+  }
+
+  /** Dev only, see ConfigPropertiesCascadeBase.CONFIG_CACHE_INSTRUMENTATION: where lines are appended. */
+  private static final String CONFIG_INSTR_FILE = "/tmp/grouperConfigCacheInstrumentation.txt";
+
+  /** Dev only: only log requests allocating at least this many bytes, or that rebuilt config. */
+  private static final long CONFIG_INSTR_MIN_BYTES = 20000000L;
+
+  /**
+   * Dev only, see ConfigPropertiesCascadeBase.CONFIG_CACHE_INSTRUMENTATION: exact cumulative bytes
+   * allocated by the current thread, via com.sun.management.ThreadMXBean. This is an exact JVM
+   * counter, not a sampled estimate.
+   */
+  private static long configInstrAllocatedBytes() {
+    try {
+      java.lang.management.ThreadMXBean bean = java.lang.management.ManagementFactory.getThreadMXBean();
+      if (bean instanceof com.sun.management.ThreadMXBean) {
+        return ((com.sun.management.ThreadMXBean)bean).getThreadAllocatedBytes(Thread.currentThread().getId());
+      }
+    } catch (Throwable t) {
+      // diagnostic only
+    }
+    return -1;
+  }
+
+  /**
+   * Dev only, see ConfigPropertiesCascadeBase.CONFIG_CACHE_INSTRUMENTATION: append a line to
+   * CONFIG_INSTR_FILE for any request that allocated more than CONFIG_INSTR_MIN_BYTES or that
+   * rebuilt config at all, so a heavy request can be tied to the config rebuilds it caused.
+   */
+  private static void configInstrLogAlloc(ServletRequest servletRequest, long startAlloc, long startRebuilds, long startClears, long startMs) {
+    try {
+      if (startAlloc < 0) {
+        return;
+      }
+      long deltaBytes = configInstrAllocatedBytes() - startAlloc;
+      long rebuilds = edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_REBUILDS.get() - startRebuilds;
+      long clears = edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.CONFIG_CACHE_CLEARS.get() - startClears;
+      if (deltaBytes < CONFIG_INSTR_MIN_BYTES && rebuilds == 0) {
+        return;
+      }
+      long millis = System.currentTimeMillis() - startMs;
+      String uri = "";
+      if (servletRequest instanceof HttpServletRequest) {
+        uri = ((HttpServletRequest)servletRequest).getRequestURI();
+      }
+      java.io.FileWriter fileWriter = new java.io.FileWriter(CONFIG_INSTR_FILE, true);
+      fileWriter.write((deltaBytes / 1000000L) + " MB, " + rebuilds + " rebuilds, " + clears + " clears, " + millis + " ms, " + uri + "\n");
+      fileWriter.close();
+    } catch (Throwable t) {
+      // diagnostic only
     }
   }
 

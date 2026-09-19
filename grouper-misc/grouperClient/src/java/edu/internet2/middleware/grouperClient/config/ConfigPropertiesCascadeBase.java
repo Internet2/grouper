@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,7 +60,7 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public static void assignInitted() {
     configSingletonFromClass = null;
-    configFileCache = null;
+    configFileCache.clear();
     clearCache();
 //    if (LOG.isDebugEnabled()) {
 //      LOG.debug("initted called from", new RuntimeException("initted"));
@@ -206,11 +207,68 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * 
    */
+  /**
+   * GRP-7298: when a batch of config changes is applied (for example a config file import that
+   * writes many properties), each individual write used to clear the whole config cache, and the
+   * next read of each config class then rebuilt everything. Callers applying a batch bracket it
+   * with suppressClearCacheStart / suppressClearCacheStop and then clear once, in a finally, so
+   * the rebuild happens a single time instead of once per property.
+   *
+   * Suppression is per thread and must always be stopped in a finally, otherwise a pooled request
+   * thread would carry the suppression into later unrelated requests.
+   */
+  private static ThreadLocal<Boolean> suppressClearCacheThreadLocal = new ThreadLocal<Boolean>();
+
+  /**
+   * Dev only instrumentation switch for the config cache. Leave this false in released code: it
+   * is a compile time constant, so javac drops the guarded blocks entirely and there is no cost
+   * when it is off. Flip it to true locally and rebuild when measuring how often config is
+   * cleared and rebuilt, for example when changing how config is cached or invalidated. Read the
+   * counters below from wherever is convenient (GRP-7298 read them per request in GrouperUiFilter).
+   */
+  public static final boolean CONFIG_CACHE_INSTRUMENTATION = false;
+
+  /**
+   * Dev only, see CONFIG_CACHE_INSTRUMENTATION: how many times the config cache was actually
+   * emptied. Counted in clearCacheThisOnly rather than clearCache, because that is the real
+   * chokepoint: GrouperConfigHibernate.clearConfigsInMemory empties the cache without going
+   * through clearCache, so counting in clearCache misses most of the clears.
+   */
+  public static final java.util.concurrent.atomic.AtomicLong CONFIG_CACHE_CLEARS = new java.util.concurrent.atomic.AtomicLong();
+
+  /**
+   * GRP-7298: begin a batch of config changes. Cache clears are deferred until the batch owner
+   * calls suppressClearCacheStop and then clearCache. MUST be paired in a finally.
+   */
+  public static void suppressClearCacheStart() {
+    suppressClearCacheThreadLocal.set(Boolean.TRUE);
+  }
+
+  /**
+   * GRP-7298: end a batch of config changes. Uses remove rather than set(false) so nothing is
+   * left behind on a pooled thread. The caller is responsible for calling clearCache afterwards.
+   */
+  public static void suppressClearCacheStop() {
+    suppressClearCacheThreadLocal.remove();
+  }
+
+  /**
+   * @return true if cache clears are currently deferred on this thread
+   */
+  public static boolean isClearCacheSuppressed() {
+    return Boolean.TRUE.equals(suppressClearCacheThreadLocal.get());
+  }
+
   public static void clearCache() {
+    // GRP-7298: inside a batch, defer to the single clear the batch owner does in its finally
+    if (isClearCacheSuppressed()) {
+      return;
+    }
     clearCacheThisOnly();
     ConfigDatabaseLogic.clearCache();
     lastTimeCacheClearNanos = System.nanoTime();
   }
+
   
   private static long lastTimeCacheClearNanos = -1L;
   private static long lastTimeCacheBuiltNanos = -1L;
@@ -219,9 +277,18 @@ public abstract class ConfigPropertiesCascadeBase {
    * 
    */
   public static void clearCacheThisOnly() {
-    if (configFileCache != null) {
-      configFileCache.clear();
+    // GRP-7298: this is the chokepoint that actually empties the built config objects, and it is
+    // reached two ways: clearCache() above, and GrouperConfigHibernate.clearConfigsInMemory(),
+    // which every config row save calls via updateLastUpdated(). Guarding only clearCache() left
+    // that second path wiping the cache once per property, so each write was followed by a full
+    // rebuild of every config class. Guard it here so a batch defers both.
+    if (isClearCacheSuppressed()) {
+      return;
     }
+    if (CONFIG_CACHE_INSTRUMENTATION) {
+      CONFIG_CACHE_CLEARS.incrementAndGet();
+    }
+    configFileCache.clear();
   }
 
   /**
@@ -651,7 +718,20 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * config file cache
    */
-  private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configFileCache = null;
+  private static final Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configFileCache 
+      = new ConcurrentHashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+
+  /**
+   * GRP-7298: guards the REBUILD of a missing config class, not the cache itself. The cache is a
+   * ConcurrentHashMap, so its reads and writes are already safe; what this lock adds is that when
+   * several threads miss on the same class at once, only the first pays for the full rebuild and
+   * the rest pick up its result, instead of each one rebuilding the entire configuration.
+   */
+  private static final Object CONFIG_FILE_CACHE_LOCK = new Object();
+
+  /** Dev only, see CONFIG_CACHE_INSTRUMENTATION: how many times the full config was rebuilt. */
+  public static final java.util.concurrent.atomic.AtomicLong CONFIG_CACHE_REBUILDS = new java.util.concurrent.atomic.AtomicLong();
+
   
   /**
    * 
@@ -977,6 +1057,9 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the config object
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFiles() {
+    if (CONFIG_CACHE_INSTRUMENTATION) {
+      CONFIG_CACHE_REBUILDS.incrementAndGet();
+    }
     return this.retrieveFromConfigFiles(true);
   }
 
@@ -1179,28 +1262,29 @@ public abstract class ConfigPropertiesCascadeBase {
 
     try {
 
-      if (configFileCache == null) {
-        if (LOG != null && isDebugEnabled) {
-          debugMap.put("configFileCache", null);
-        }
-
-        configFileCache = 
-            new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
-      }
-
       ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
 
       if (configObject == null) {
 
-        if (LOG != null && isDebugEnabled) {
-          debugMap.put("configObject", null);
-        }
-        if (LOG != null && isDebugEnabled) {
-          debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
-        }
+        // GRP-7298: re-check inside the lock so only the first thread through pays for the
+        // full rebuild, instead of every concurrent miss rebuilding the whole configuration.
+        synchronized (CONFIG_FILE_CACHE_LOCK) {
 
-        configObject = retrieveFromConfigFiles();
-        configFileCache.put(this.getClass(), configObject);
+          configObject = configFileCache.get(this.getClass());
+
+          if (configObject == null) {
+
+            if (LOG != null && isDebugEnabled) {
+              debugMap.put("configObject", null);
+            }
+            if (LOG != null && isDebugEnabled) {
+              debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
+            }
+
+            configObject = retrieveFromConfigFiles();
+            configFileCache.put(this.getClass(), configObject);
+          }
+        }
 
       } else {
 
