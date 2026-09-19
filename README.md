@@ -14,7 +14,7 @@ Grouper is an enterprise access management system designed for the highly distri
 
 ## Download
 
-Grouper releases can be downloaded from [here](https://spaces.internet2.edu/display/Grouper/Grouper+Downloads).
+Grouper releases can be downloaded from [here](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview).
 
 ## Documentation
 

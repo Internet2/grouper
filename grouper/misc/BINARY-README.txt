@@ -19,14 +19,14 @@ Grouper binary distribution
 - There is no build.xml, everything is built
 - Follow these instructions to upgrade grouper from v1.6:
 
-https://spaces.internet2.edu/display/Grouper/v2.0+Upgrade+Instructions+from+v1.6.*
-https://spaces.internet2.edu/display/Grouper/Grouper+changes+v2.0
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview
 
 - Google for a Grouper quick start document, e.g.
 
-https://spaces.internet2.edu/display/Grouper/Getting+Started+with+Grouper
-https://spaces.internet2.edu/display/Grouper/Starting+with+Grouper
-https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview
 
 - Generally:
 
@@ -37,6 +37,6 @@ https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
 3. start gsh: [windows]: bin\gsh
                  [unix]: bin/gsh
 
-https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545249/GrouperShell+gsh
 
 4. install the ui quickstart, or web services

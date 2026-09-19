@@ -69,7 +69,7 @@ public class UiV2Attestation {
   private static final Log LOG = GrouperUtil.getLog(UiV2Attestation.class);
   
   /**
-   * group attestation https://spaces.internet2.edu/display/Grouper/Grouper+attestation
+   * group attestation https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545015/Grouper+attestation
    * @param request
    * @param response
    */

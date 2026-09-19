@@ -165,7 +165,7 @@ public class IndexContainer {
    * @return link to support docs
    */
   public String getSupportDocsLink() {
-    return GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.supportDocLink", "https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home");
+    return GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.supportDocLink", "https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview");
   }
   
   /**

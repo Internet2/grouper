@@ -19,7 +19,7 @@ Grouper Client USAGE:
 This program runs queries against grouper ldap and web services
 The system exit code will be 0 for success, and not 0 for failure
 Output data is printed to stdout, error messages are printed to stderr or logs (configured in grouper.client.properties)
-Grouper client webpage: https://spaces.internet2.edu/display/Grouper/Grouper+Client
+Grouper client webpage: https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545215/Grouper+Client
 
 Arguments are in the format: --argName=argValue
 Example argument: --operation=encryptPassword

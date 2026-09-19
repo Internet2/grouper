@@ -77,7 +77,7 @@ public class help {
     
     if (helpOn == null) {
       appendLine(builder, "Visit the wiki for more GSH documentation:");
-      appendLine(builder, "  https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859");
+      appendLine(builder, "  https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545249/GrouperShell+gsh");
       appendLine(builder, "Also see the Java BeanShell docs: http://www.beanshell.org/manual/contents.html");
       appendLine(builder, "# COMMANDS"                                            );
       appendLine(builder, "* var = method(args)    Invoke any Grouper API method" );

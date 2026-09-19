@@ -62,7 +62,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  * 
  * Documentation is available via the 'Unresolvable Subject Deletion Utility' on
  * the Grouper Product wiki
- * https://spaces.internet2.edu/pages/viewpage.action?pageId=14517820
+ * https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548392/Universal+Subject+Daemon+Utility+USDU
  */
 
 public class USDU {

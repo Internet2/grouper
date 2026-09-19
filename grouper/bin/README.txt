@@ -21,4 +21,4 @@ If the file GROUPER_HOME/bin/setenv.sh exists (setenv.bat in Windows), the scrip
 
 Note that Windows has a -initEnv option for adding gsh to the path so you can run it from anywhere. For *nix 'source gsh.sh' for the same result.
 
-gsh provides an interactive shell. See https://spaces.internet2.edu/pages/viewpage.action?pageId=14517859 for details.
+gsh provides an interactive shell. See https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545249/GrouperShell+gsh for details.

@@ -11,7 +11,7 @@
   <artifactId>grouper-installer</artifactId>
   <name>Grouper Installer</name>
   <description>The Grouper installer</description>
-  <url>https://spaces.internet2.edu/display/Grouper/Grouper+Installer</url>
+  <url>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/overview</url>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>

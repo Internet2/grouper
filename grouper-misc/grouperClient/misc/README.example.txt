@@ -18,7 +18,7 @@ Grouper client institution distribution:
 
 - Here is information on grouperClient:
 
-https://spaces.internet2.edu/display/Grouper/Grouper+Client
+https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545215/Grouper+Client
 
 - Generally:
 

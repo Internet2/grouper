@@ -133,7 +133,7 @@
         <attribute name="Implementation-Vendor"   value="Internet2"/>
         <attribute name="Implementation-Title"    value="grouperClient"/>
         <attribute name="Implementation-Version"  value="${version}"/>
-        <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/Grouper/Grouper+Client"/>
+        <attribute name="Implementation-URL"      value="https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545215/Grouper+Client"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
