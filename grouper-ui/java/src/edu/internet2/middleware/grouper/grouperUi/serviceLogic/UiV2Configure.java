@@ -1797,10 +1797,14 @@ public class UiV2Configure {
     // rather than sending the browser on to the config listing. That listing is every documented
     // property of the file, thousands of rows for a typical config file, which is a slow and not
     // very useful confirmation that an import worked. Use the config files menu to go and look at
-    // the file if you want to. Keep the two cache clears that buildConfigFileAndMetadata used to
-    // do up front, so whatever is viewed next sees the imported values.
-    ConfigPropertiesCascadeBase.clearCache();
-    GrouperUiApiTextConfig.clearCache();
+    // the file if you want to. Keep the cache clear that buildConfigFileAndMetadata used to do up
+    // front, so whatever is viewed next sees the imported values.
+    // GRP-7346: clear only the config for the file that was imported. clearConfigsInMemory drops
+    // the database config cache, the config objects built from that file, and that file's entry in
+    // the text config cache. Without this the per property writes are scoped but the one clear at
+    // the end of the import would still throw away every other file's config.
+    GrouperConfigHibernate.clearConfigsInMemory(
+        configurationContainer.getConfigFileName() == null ? null : configurationContainer.getConfigFileName().getConfigFileName());
 
     boolean success = configurationContainer.getCountSuccess() > 0 && configurationContainer.getCountWarning() == 0 && configurationContainer.getCountError() == 0;
     boolean error = configurationContainer.getCountWarning() > 0 || configurationContainer.getCountError() > 0;

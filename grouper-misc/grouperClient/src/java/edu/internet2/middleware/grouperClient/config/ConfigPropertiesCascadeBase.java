@@ -277,18 +277,46 @@ public abstract class ConfigPropertiesCascadeBase {
    * 
    */
   public static void clearCacheThisOnly() {
-    // GRP-7298: this is the chokepoint that actually empties the built config objects, and it is
-    // reached two ways: clearCache() above, and GrouperConfigHibernate.clearConfigsInMemory(),
-    // which every config row save calls via updateLastUpdated(). Guarding only clearCache() left
-    // that second path wiping the cache once per property, so each write was followed by a full
-    // rebuild of every config class. Guard it here so a batch defers both.
+    clearCacheThisOnly(null);
+  }
+
+  /**
+   * GRP-7298: this is the chokepoint that actually empties the built config objects, and it is
+   * reached two ways: clearCache() above, and GrouperConfigHibernate.clearConfigsInMemory(),
+   * which every config row save calls via updateLastUpdated(). Guarding only clearCache() left
+   * that second path wiping the cache once per property, so each write was followed by a full
+   * rebuild of every config class. Guard it here so a batch defers both.
+   *
+   * GRP-7346: when the caller knows which config file changed, only the config objects built from
+   * that file are dropped. Config is very lopsided (in one production database grouper.properties
+   * has 11767 rows while grouper-ui.properties has 19), so clearing everything meant a change to a
+   * tiny file threw away the biggest one on every node.
+   *
+   * @param mainConfigFileName e.g. grouper.properties, or null/blank to clear all config objects
+   */
+  public static void clearCacheThisOnly(String mainConfigFileName) {
     if (isClearCacheSuppressed()) {
       return;
     }
     if (CONFIG_CACHE_INSTRUMENTATION) {
       CONFIG_CACHE_CLEARS.incrementAndGet();
     }
-    configFileCache.clear();
+
+    if (GrouperClientUtils.isBlank(mainConfigFileName)) {
+      configFileCache.clear();
+      return;
+    }
+
+    // note this looks at the objects already in the cache rather than asking ConfigFileName for the
+    // config class, since that would BUILD a config object as a side effect of invalidating one. A
+    // class that is not cached has nothing to drop anyway.
+    for (Map.Entry<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> entry
+        : configFileCache.entrySet()) {
+      ConfigPropertiesCascadeBase configObject = entry.getValue();
+      if (configObject != null && mainConfigFileName.equals(configObject.getMainConfigFileName())) {
+        configFileCache.remove(entry.getKey());
+      }
+    }
   }
 
   /**

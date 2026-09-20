@@ -643,7 +643,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
           }
         });
     
-    updateLastUpdated();
+    updateLastUpdated(this.configFileName);
     reloadSubjectSourceIfApplicable();
   }
   
@@ -805,7 +805,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
           }
         });
     
-    updateLastUpdated();
+    updateLastUpdated(this.configFileName);
     reloadSubjectSourceIfApplicable();
   }
 
@@ -819,6 +819,19 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     if (!databaseCacheRegistered) {
       
       GrouperCacheDatabase.customRegisterDatabaseClearable(ConfigDatabaseLogic.DATABASE_CACHE_KEY, new GrouperConfigHibernate());
+
+      // GRP-7346: also register a cache name scoped to each config file, so a change to one file
+      // notifies under its own name and the other nodes can drop just that file's config. Note
+      // these have to be registered individually and not left to the prefix lookup in
+      // GrouperCacheDatabase: that fallback is on the receiving side, while the sending side
+      // (customNotifyDatabaseOfChanges) checks for an EXACT registered name and silently does
+      // nothing if it is missing. SourceManager registers each of its scoped names for the same
+      // reason. The base name above stays registered so an unscoped notification still works.
+      for (ConfigFileName configFileName : ConfigFileName.values()) {
+        GrouperCacheDatabase.customRegisterDatabaseClearable(
+            ConfigDatabaseLogic.DATABASE_CACHE_KEY + CONFIG_FILE_CACHE_NAME_SEPARATOR + configFileName.getConfigFileName(),
+            new GrouperConfigHibernate());
+      }
       
       databaseCacheRegistered = true;
     }
@@ -829,9 +842,31 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * update last updated if something changed
    */
   public static void updateLastUpdated() {
-    GrouperCacheDatabase.customNotifyDatabaseOfChanges(ConfigDatabaseLogic.DATABASE_CACHE_KEY);
-    clearConfigsInMemory();
+    updateLastUpdated(null);
   }
+
+  /**
+   * GRP-7346: tell the other nodes, and this one, that config changed. When the caller knows which
+   * config file it was, the notification is scoped to that file by appending it to the cache name.
+   * GrouperCacheDatabase looks a clearable up by prefix when the cache name contains the separator
+   * (see its cacheNameWithPrefix handling), which is the same convention SourceManager uses to
+   * scope a notification to one subject source, so the registration below does not change.
+   * @param configFileName e.g. grouper.properties, or null to mean all config changed
+   */
+  public static void updateLastUpdated(String configFileName) {
+    String cacheName = ConfigDatabaseLogic.DATABASE_CACHE_KEY;
+    if (!StringUtils.isBlank(configFileName)) {
+      cacheName += CONFIG_FILE_CACHE_NAME_SEPARATOR + configFileName;
+    }
+    GrouperCacheDatabase.customNotifyDatabaseOfChanges(cacheName);
+    clearConfigsInMemory(configFileName);
+  }
+
+  /**
+   * GRP-7346: separates the config cache name from the config file name it is scoped to. Matches
+   * the separator GrouperCacheDatabase and SourceManager already use.
+   */
+  private static final String CONFIG_FILE_CACHE_NAME_SEPARATOR = "____";
   
   /**
    * make sure this object will fit in the DB
@@ -970,21 +1005,38 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    */
   @Override
   public void clear(GrouperCacheDatabaseClearInput grouperCacheDatabaseClearInput) {
-    clearConfigsInMemory();
+    // GRP-7346: the cache name tells us which config file changed on the other node, when the node
+    // that changed it was new enough to scope the notification. An unscoped name means all config.
+    String cacheName = grouperCacheDatabaseClearInput == null ? null : grouperCacheDatabaseClearInput.getCacheName();
+    String configFileName = cacheName != null && cacheName.contains(CONFIG_FILE_CACHE_NAME_SEPARATOR)
+        ? StringUtils.substringAfterLast(cacheName, CONFIG_FILE_CACHE_NAME_SEPARATOR) : null;
+    clearConfigsInMemory(configFileName);
   }
 
   /**
    * clear the cache when the database tells us to
    */
   public static void clearConfigsInMemory() {
+    clearConfigsInMemory(null);
+  }
+
+  /**
+   * GRP-7346: drop the in memory config, for one config file when we know which one changed, or
+   * for all of it when we do not.
+   * @param configFileName e.g. grouper.properties, or null for all
+   */
+  public static void clearConfigsInMemory(String configFileName) {
+    // the database config cache is still cleared as a whole: it is keyed per file but is populated
+    // wholesale by one query with a single last retrieved timestamp, so it has no per file notion
+    // of freshness. See GRP-7346 for why that was left alone for now.
     ConfigDatabaseLogic.clearCache(false);
-    ConfigPropertiesCascadeBase.clearCacheThisOnly();
+    ConfigPropertiesCascadeBase.clearCacheThisOnly(configFileName);
     // GRP-7353: GrouperUiApiTextConfig keeps its own cache of config objects, keyed by language
     // and country, which none of the clears above touch. Without this, a change to one of the
     // grouper.text.*.properties configs left the old text in memory: on this JVM until something
     // else happened to clear it, and on every OTHER JVM indefinitely, since the cross JVM path
     // (GrouperCacheDatabase -> clear -> here) had no way to reach that cache at all.
-    GrouperUiApiTextConfig.clearCache();
+    GrouperUiApiTextConfig.clearCache(configFileName);
   }
   
   private void reloadSubjectSourceIfApplicable() {

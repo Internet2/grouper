@@ -44,17 +44,40 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
 
   public static void clearCache() {
-    // GRP-7353: honor the batch suppression the same way ConfigPropertiesCascadeBase
-    // .clearCacheThisOnly does. This cache is cleared from clearConfigsInMemory, which runs on
-    // every config row save, so without this a config import clears and rebuilds the text config
-    // once per property instead of once for the whole import (measured at 805 rebuilds and 20 GB
-    // for a 400 property import, against 3 rebuilds and 208 MB with this guard in place).
+    clearCache(null);
+  }
+
+  /**
+   * GRP-7353: honor the batch suppression the same way ConfigPropertiesCascadeBase
+   * .clearCacheThisOnly does. This cache is cleared from clearConfigsInMemory, which runs on
+   * every config row save, so without this a config import clears and rebuilds the text config
+   * once per property instead of once for the whole import (measured at 805 rebuilds and 20 GB
+   * for a 400 property import, against 3 rebuilds and 208 MB with this guard in place).
+   *
+   * GRP-7346: this cache holds one config object per language and country, so when the caller
+   * knows which text config file changed, only that locale is dropped rather than all of them.
+   *
+   * @param mainConfigFileName e.g. grouper.text.en.us.properties, or null/blank for all locales
+   */
+  public static void clearCache(String mainConfigFileName) {
     if (isClearCacheSuppressed()) {
       return;
     }
     Map<String, ConfigPropertiesCascadeBase> theConfigFileCache = configFileCache;
-    if (theConfigFileCache != null) {
+    if (theConfigFileCache == null) {
+      return;
+    }
+    if (GrouperClientUtils.isBlank(mainConfigFileName)) {
       theConfigFileCache.clear();
+      return;
+    }
+    // as in ConfigPropertiesCascadeBase, match on the objects already cached so that invalidating
+    // one locale does not build any
+    for (String languageCountry : new java.util.ArrayList<String>(theConfigFileCache.keySet())) {
+      ConfigPropertiesCascadeBase configObject = theConfigFileCache.get(languageCountry);
+      if (configObject != null && mainConfigFileName.equals(configObject.getMainConfigFileName())) {
+        theConfigFileCache.remove(languageCountry);
+      }
     }
   }
   /**
