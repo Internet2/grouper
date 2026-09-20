@@ -75,6 +75,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.subject.Subject;
 
@@ -1133,6 +1134,64 @@ public class UiV2Configure {
     }              
   }
   
+  /**
+   * GRP-7354: clear the config caches on EVERY node, not just this one. Notifies under the base
+   * config cache name with no config file suffix, which GrouperConfigHibernate.clear treats as
+   * meaning all config (see GRP-7346, which scoped the notification per file and kept the
+   * unscoped name meaning everything). The other nodes pick that up on their next poll, which is
+   * grouper.cache.database.checkIncrementalAfterSeconds, 5 seconds by default. This node is
+   * cleared directly here rather than waiting for its own poll.
+   *
+   * This only clears CONFIG. It is not GrouperCacheUtils.clearAllCaches, which would also flush
+   * ehcache, subject sources and the rest across the whole environment.
+   * @param request
+   * @param response
+   */
+  public void clearConfigCacheAllNodes(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+
+      // tell the other nodes: no file suffix means all config
+      GrouperCacheDatabase.customNotifyDatabaseOfChanges(ConfigDatabaseLogic.DATABASE_CACHE_KEY);
+
+      // and clear this node now, rather than waiting for it to notice its own notification
+      GrouperConfigHibernate.clearConfigsInMemory();
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+
+      if (!StringUtils.isBlank(configFileString)) {
+
+        buildConfigFileAndMetadata(null, null);
+
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("configurationFilesClearCacheAllNodesSuccess")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
   /**
    * GRP-7352: clear the config caches in this UI and redisplay. Showing a config screen no longer
    * clears these caches, since config changed in this JVM already invalidates itself, config
