@@ -176,6 +176,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.JsonIndenter;
 import edu.internet2.middleware.grouperClient.util.XmlIndenter;
@@ -192,6 +193,18 @@ import javassist.util.proxy.ProxyObject;
  *
  */
 public class GrouperUtil {
+
+  /**
+   * Compile a regex, reusing the compiled Pattern if this regex has been compiled recently. Use
+   * this instead of Pattern.compile when the regex is not a static final constant, for example
+   * when it comes from config or metadata, and especially inside a loop. Delegates to
+   * GrouperClientCommonUtils so that grouperClient code shares the same cache.
+   * @param regex to compile, null returns null
+   * @return the compiled pattern
+   */
+  public static Pattern patternCompile(String regex) {
+    return GrouperClientCommonUtils.patternCompile(regex);
+  }
 
   public static void main(String[] args) throws Exception {
 

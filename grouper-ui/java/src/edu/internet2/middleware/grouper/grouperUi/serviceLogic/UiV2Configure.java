@@ -89,6 +89,14 @@ public class UiV2Configure {
   protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Configure.class);
 
   /**
+   * GRP-7347: a config import used to emit one success line per property, so the response, and the
+   * memory needed to build it, grew with the size of the import. An import of more than this many
+   * properties reports the summary line only. Anything that went wrong is still listed in full, and
+   * an import of this size or smaller is unchanged.
+   */
+  private static final int IMPORT_SUMMARY_ONLY_THRESHOLD = 50;
+
+  /**
    * if allowed to view the configuration landing screen (the list of links) and other read-only
    * configuration screens.  This is the lighter check: the registry config UI must be enabled and
    * the user must be a sysadmin (wheel/root).  It intentionally does NOT enforce the source IP
@@ -1693,7 +1701,14 @@ public class UiV2Configure {
       }
     }
 
-    buildConfigFileAndMetadata(null, null);
+    // GRP-7347: this used to call buildConfigFileAndMetadata, which builds a gui object for every
+    // property in the file and renders the whole listing. The import response only reports counts,
+    // and the guiV2link below sends the browser straight to the config screen, which builds that
+    // listing itself on the next request. So the listing was rendered into a response nobody reads,
+    // and the cost grew with the size of the config file. Keep the two cache clears it did up front
+    // so the screen that follows still sees the imported values.
+    ConfigPropertiesCascadeBase.clearCache();
+    GrouperUiApiTextConfig.clearCache();
 
     guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
 
@@ -1756,6 +1771,10 @@ public class UiV2Configure {
       // GRP-7298: import writes many properties; without this each write cleared the whole
       // config cache and the next read rebuilt every config class. Batch the clears into one.
       ConfigPropertiesCascadeBase.suppressClearCacheStart();
+
+      // GRP-7347: see IMPORT_SUMMARY_ONLY_THRESHOLD
+      boolean summarizeSuccesses = propertiesToImport.size() > IMPORT_SUMMARY_ONLY_THRESHOLD;
+
       try {
       for (Object keyObject : propertiesToImport.keySet()) {
         try {
@@ -1771,8 +1790,16 @@ public class UiV2Configure {
           String propertyNameStringEl = propertyNameString + ".elConfig";
           Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
 
+          // GRP-7347: collect this property's message on its own so it can be dropped when only the
+          // summary is wanted. A property that errored or warned is always kept, however big the import.
+          StringBuilder propertyMessage = new StringBuilder();
+
           configurationFileAddEditHelper2(configFileName, configFileName.name(), configFileMetadata, key, 
-              Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error, fromUi, null, grouperConfigHibernates, grouperConfigHibernatesEl);
+              Boolean.toString(key.endsWith(".elConfig")), value, null, propertyMessage, added, error, fromUi, null, grouperConfigHibernates, grouperConfigHibernatesEl);
+
+          if (!summarizeSuccesses || error[0] != null) {
+            message.append(propertyMessage);
+          }
           
           // added (first index) will be true if added, false if updated, and null if no change
           if (added[0] == null) {
@@ -2028,7 +2055,11 @@ public class UiV2Configure {
       OUTER: for (ConfigSectionMetadata configSectionMetadata : configSectionMetadatas) {
         for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
           if (!StringUtils.isBlank(configItemMetadata.getRegex())) {
-            Pattern pattern = Pattern.compile(configItemMetadata.getRegex());
+            // GRP-7347: this sits in a triple nested loop over every ad hoc property, every
+            // section and every documented item, and these regexes come from static metadata, so
+            // compiling them here recompiled the same handful of patterns hundreds of thousands
+            // of times. GrouperUtil.patternCompile hands back a cached compiled Pattern.
+            Pattern pattern = GrouperUtil.patternCompile(configItemMetadata.getRegex());
             Matcher matcher = pattern.matcher(propertyName);
             if (matcher.matches()) {
               GuiConfigSection guiConfigSection = sectionMetadataToSection.get(configSectionMetadata);

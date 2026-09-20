@@ -103,6 +103,42 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 public class GrouperClientCommonUtils  {
 
   /**
+   * GRP-7347: compiled regexes, so a regex used in a loop is compiled once instead of once per
+   * iteration. Pattern.compile builds a whole compiled node tree each call, which is expensive in
+   * both time and memory, while the resulting Pattern is immutable and safe to share between
+   * threads. This is an expirable cache rather than a plain map so a caller that builds regexes
+   * dynamically cannot grow it without bound. Regexes come from config and metadata that rarely
+   * change, so the entries are held for a day (ExpirableCache only offers MINUTE and SECOND).
+   */
+  private static ExpirableCache<String, Pattern> patternCache = new ExpirableCache<String, Pattern>(60 * 24);
+
+  /**
+   * Compile a regex, reusing the compiled Pattern if this regex has been compiled recently. Use
+   * this instead of Pattern.compile when the regex is not a static final constant, for example
+   * when it comes from config or metadata, and especially inside a loop. Note the cache is keyed
+   * on the regex text alone, so if you need flags, call Pattern.compile directly.
+   * @param regex to compile, null returns null
+   * @return the compiled pattern
+   */
+  public static Pattern patternCompile(String regex) {
+
+    if (regex == null) {
+      return null;
+    }
+
+    Pattern pattern = patternCache.get(regex);
+
+    if (pattern == null) {
+      // if two threads race here they just compile the same regex twice and one wins the put,
+      // which is harmless, so this does not need a lock
+      pattern = Pattern.compile(regex);
+      patternCache.put(regex, pattern);
+    }
+
+    return pattern;
+  }
+
+  /**
    * add a value to a log entry
    * @param debugMap
    * @param key
