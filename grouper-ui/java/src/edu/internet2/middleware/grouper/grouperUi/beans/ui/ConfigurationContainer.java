@@ -220,6 +220,28 @@ public class ConfigurationContainer {
   }
 
   /**
+   * GRP-7351: index of the row being edited, so a single row can be re-rendered in place after an
+   * edit instead of redrawing the whole listing. Matches the id of the tr in configure.jsp (row_N).
+   */
+  private Integer currentIndex;
+
+  /**
+   * index of the row being edited, see currentIndex
+   * @return the index
+   */
+  public Integer getCurrentIndex() {
+    return this.currentIndex;
+  }
+
+  /**
+   * index of the row being edited, see currentIndex
+   * @param currentIndex1 the index
+   */
+  public void setCurrentIndex(Integer currentIndex1) {
+    this.currentIndex = currentIndex1;
+  }
+
+  /**
    * config file name
    */
   private String currentConfigFileName;

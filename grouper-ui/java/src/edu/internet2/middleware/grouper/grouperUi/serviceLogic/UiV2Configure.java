@@ -626,10 +626,37 @@ public class UiV2Configure {
     boolean success = configurationFileAddEditHelper(request, response);
         
     if (success) {
+
+      // the model is still needed to find the property that changed, but it is the rendering of
+      // every section that was expensive, not this
       buildConfigFileAndMetadata(null, null);
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
+      String propertyName = request.getParameter("propertyNameName");
+
+      GuiConfigProperty guiConfigProperty = index == null || StringUtils.isBlank(propertyName) ? null
+          : configurationContainer.getGuiConfigFile().findGuiConfigProperty(propertyName, false);
+
+      if (guiConfigProperty != null) {
+
+        // GRP-7351: re-render only the row that changed, instead of redrawing the whole listing.
+        // The edit form row is removed first, then the row itself is replaced in place.
+        configurationContainer.setCurrentGuiConfigProperty(guiConfigProperty);
+        configurationContainer.setCurrentIndex(index);
+
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.configFormRow').remove();"));
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#row_" + index,
+            "/WEB-INF/grouperUi2/configure/configurationFileRowSingle.jsp"));
+
+      } else {
+
+        // could not identify the row, so fall back to redrawing the listing
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      }
 
     }
 
@@ -1001,9 +1028,11 @@ public class UiV2Configure {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessageBuilder.toString()));
       }
       
-      buildConfigFileAndMetadata(null, null);
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      // GRP-7351: the rows that were just removed are the checked ones, so drop them from the
+      // table instead of rebuilding the model and redrawing the whole listing. The user gets the
+      // success message above and the rows disappear, with no round trip to re-render the screen.
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "$('.configCheckbox:checked').closest('tr').remove();"));
     
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1064,9 +1093,17 @@ public class UiV2Configure {
               result));
         }
       }
-      buildConfigFileAndMetadata(null, null);
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      // GRP-7351: just take the deleted row out of the table rather than rebuilding the model and
+      // redrawing the whole listing. The index comes from the delete link in configure.jsp.
+      Integer deletedIndex = GrouperUtil.intObjectValue(request.getParameter("index"), true);
+      if (deletedIndex != null) {
+        guiResponseJs.addAction(GuiScreenAction.newScript(
+            "$('#row_" + deletedIndex + "').remove();"));
+      } else {
+        // no index (e.g. an older link), fall back to redrawing the listing
+        buildConfigFileAndMetadata(null, null);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      }
     
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1392,6 +1429,8 @@ public class UiV2Configure {
       if (StringUtils.isBlank(propertyNameString)) {
         throw new RuntimeException("Index does not exist");
       }
+      // GRP-7351: remember which row this is, so the submit can re-render just that row
+      configurationContainer.setCurrentIndex(index);
       // hide existing edit forms
       guiResponseJs.addAction(GuiScreenAction.newScript("$('.configFormRow').hide('slow');$('.configFormRow').remove()"));
       
@@ -1754,14 +1793,14 @@ public class UiV2Configure {
 
     // GRP-7347: this used to call buildConfigFileAndMetadata, which builds a gui object for every
     // property in the file and renders the whole listing. The import response only reports counts,
-    // and the guiV2link below sends the browser straight to the config screen, which builds that
-    // listing itself on the next request. So the listing was rendered into a response nobody reads,
-    // and the cost grew with the size of the config file. Keep the two cache clears it did up front
-    // so the screen that follows still sees the imported values.
+    // GRP-7351: an import reports counts, so it stays on the import screen and shows the summary
+    // rather than sending the browser on to the config listing. That listing is every documented
+    // property of the file, thousands of rows for a typical config file, which is a slow and not
+    // very useful confirmation that an import worked. Use the config files menu to go and look at
+    // the file if you want to. Keep the two cache clears that buildConfigFileAndMetadata used to
+    // do up front, so whatever is viewed next sees the imported values.
     ConfigPropertiesCascadeBase.clearCache();
     GrouperUiApiTextConfig.clearCache();
-
-    guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
 
     boolean success = configurationContainer.getCountSuccess() > 0 && configurationContainer.getCountWarning() == 0 && configurationContainer.getCountError() == 0;
     boolean error = configurationContainer.getCountWarning() > 0 || configurationContainer.getCountError() > 0;

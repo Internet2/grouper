@@ -7,6 +7,8 @@
                <form id="configurationEditForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
                  <input type="hidden" name="configFile" value="${grouperRequestContainer.configurationContainer.configFileName}" />
                  <input type="hidden" name="propertyNameName" value="${grouperRequestContainer.configurationContainer.currentConfigPropertyName}" />
+                 <%-- GRP-7351: carry the row index back so the submit can re-render just that row --%>
+                 <input type="hidden" name="index" value="${grouperRequestContainer.configurationContainer.currentIndex}" />
 
                  <div class="control-group">
                    <label for="expressionLanguageId" class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
