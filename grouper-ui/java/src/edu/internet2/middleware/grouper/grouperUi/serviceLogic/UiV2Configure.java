@@ -1097,6 +1097,57 @@ public class UiV2Configure {
   }
   
   /**
+   * GRP-7352: clear the config caches in this UI and redisplay. Showing a config screen no longer
+   * clears these caches, since config changed in this JVM already invalidates itself, config
+   * changed in another JVM arrives through GrouperCacheDatabase, and there is a periodic recheck
+   * besides. This is here for the case where someone knows config changed elsewhere and does not
+   * want to wait for that. Note it clears the cache in THIS ui only, other JVMs have their own.
+   * @param request
+   * @param response
+   */
+  public void clearConfigCache(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+
+      ConfigPropertiesCascadeBase.clearCache();
+      GrouperUiApiTextConfig.clearCache();
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      String configFileString = request.getParameter("configFile");
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+      configurationContainer.setConfigFileName(configFileName);
+
+      if (!StringUtils.isBlank(configFileString)) {
+
+        buildConfigFileAndMetadata(null, null);
+
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("configurationFilesClearCacheSuccess")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
    * configure
    * @param request
    * @param response
@@ -1958,9 +2009,12 @@ public class UiV2Configure {
    */
   private static void buildConfigFileAndMetadata(String filter, String configSource) {
     
-    // get the latest and greatest
-    ConfigPropertiesCascadeBase.clearCache();
-    GrouperUiApiTextConfig.clearCache();
+    // GRP-7352: this used to clear the config caches first, to "get the latest and greatest".
+    // Those are JVM wide caches, so merely viewing a config screen threw away the configuration
+    // for every thread in this JVM and they all rebuilt it. It was also close to redundant: a
+    // config change here clears the caches itself, a change in another JVM arrives through
+    // GrouperCacheDatabase, and there is a periodic recheck besides. Anyone who knows config
+    // changed elsewhere and does not want to wait can use the Clear config cache action.
     
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
     

@@ -16,6 +16,11 @@
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
                             </li>
                              <li>
+                            <a href="?operation=UiV2Configure.clearConfigCache"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.clearConfigCache', {optionalFormElementNamesToSend: 'configFile'}); return false;"
+                            >${textContainer.text['configurationFilesMenuClearCache'] }</a>
+                            </li>
+                             <li>
                             <a href="?operation=UiV2Configure.history"
                             onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.history'); return false;"
                             >${textContainer.text['configurationFilesMenuHistory'] }</a>

@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.config.SubjectConfig;
@@ -978,6 +979,12 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
   public static void clearConfigsInMemory() {
     ConfigDatabaseLogic.clearCache(false);
     ConfigPropertiesCascadeBase.clearCacheThisOnly();
+    // GRP-7353: GrouperUiApiTextConfig keeps its own cache of config objects, keyed by language
+    // and country, which none of the clears above touch. Without this, a change to one of the
+    // grouper.text.*.properties configs left the old text in memory: on this JVM until something
+    // else happened to clear it, and on every OTHER JVM indefinitely, since the cross JVM path
+    // (GrouperCacheDatabase -> clear -> here) had no way to reach that cache at all.
+    GrouperUiApiTextConfig.clearCache();
   }
   
   private void reloadSubjectSourceIfApplicable() {
