@@ -44,6 +44,14 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
 
   public static void clearCache() {
+    // GRP-7353: honor the batch suppression the same way ConfigPropertiesCascadeBase
+    // .clearCacheThisOnly does. This cache is cleared from clearConfigsInMemory, which runs on
+    // every config row save, so without this a config import clears and rebuilds the text config
+    // once per property instead of once for the whole import (measured at 805 rebuilds and 20 GB
+    // for a 400 property import, against 3 rebuilds and 208 MB with this guard in place).
+    if (isClearCacheSuppressed()) {
+      return;
+    }
     Map<String, ConfigPropertiesCascadeBase> theConfigFileCache = configFileCache;
     if (theConfigFileCache != null) {
       theConfigFileCache.clear();

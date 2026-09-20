@@ -117,7 +117,7 @@ ${grouper:title('miscellaneousConfigurationFilesBreadcrumb')}
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.configurationContainer.guiConfigFile.guiConfigSections}" var="guiConfigSection">
                         
-                        <c:if test="${guiConfigSection.guiConfigProperties.size() > 0}">
+                        <c:if test="${!empty guiConfigSection.guiConfigProperties}">
                         	<tbody class="config_tbody">
 		                        <tr>
 		                          <th colspan="5">
@@ -211,7 +211,7 @@ ${grouper:title('miscellaneousConfigurationFilesBreadcrumb')}
 		                            <b>
                                 <c:choose>
                                   <%-- newlines means code so pre-format --%>
-                                  <c:when test="${grouperUtil.containsNewline(guiConfigProperty.propertyValue)}">
+                                  <c:when test="${guiConfigProperty.propertyValueContainsNewline}">
                                      <pre><grouper:abbreviateTextarea text="${guiConfigProperty.propertyValue}"  showCharCount="50" cols="20" rows="3"/></pre>
                                   </c:when>
                                   <c:otherwise>

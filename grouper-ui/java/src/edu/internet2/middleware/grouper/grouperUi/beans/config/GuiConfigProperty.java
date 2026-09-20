@@ -117,6 +117,18 @@ public class GuiConfigProperty {
     }
     return TextContainer.retrieveFromRequest().getText().get("configurationColumnValueNotSet");
   }
+
+  /**
+   * GRP-7347: the jsp used to ask ${grouperUtil.containsNewline(guiConfigProperty.propertyValue)}
+   * for every row. An EL METHOD invocation is not cached the way an EL property is: it goes
+   * through javax.el.Util.findMethod to Class.getMethods(), which defensively copies every Method
+   * on the receiving class. GrouperUtil has about 600 of them, so each row copied 600 Method
+   * objects. Exposing this as a property instead means the reflection is resolved and cached once.
+   * @return true if the property value has a newline in it, so the jsp can pre-format it
+   */
+  public boolean isPropertyValueContainsNewline() {
+    return GrouperUtil.containsNewline(this.getPropertyValue());
+  }
   
 
   /**
