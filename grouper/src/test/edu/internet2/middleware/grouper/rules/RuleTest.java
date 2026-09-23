@@ -98,7 +98,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleMinGroupMembers"));
+    TestRunner.run(new RuleTest("testRuleLonghandDaemon"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -1690,8 +1690,32 @@ public class RuleTest extends GrouperTest {
     attributeAssignValueContainers 
       = RuleEngine.allRulesAttributeAssignValueContainers(new QueryOptions().secondLevelCache(false));
 
-    //rule should not be there
-    assertEquals(0, attributeAssignValueContainers.size());
+    //the attribute assignment is still there, the rules UI lists invalid rules so they can be fixed,
+    //but the daemon marked it invalid
+    assertEquals(1, attributeAssignValueContainers.size());
+    
+    String ruleValid = AttributeAssignValueContainer.attributeValueString(
+        attributeAssignValueContainers.get(attributeAssign), RuleUtils.ruleValidName());
+    
+    assertTrue(ruleValid, StringUtils.startsWith(ruleValid, "INVALID: "));
+
+    RuleEngine.ruleEngineCache.clear();
+
+    //rule should not be in the valid rules anymore
+    assertEquals(0, RuleEngine.ruleEngine().getRuleDefinitions(true).size());
+    
+    //and an invalid rule should not fire
+    initialFirings = RuleEngine.ruleFirings;
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    //should not come out of groupA since the rule is invalid
+    assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ0));
+
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
 
     // GrouperSession.startRootSession();
     // addMember("stem:a", "test.subject.0");

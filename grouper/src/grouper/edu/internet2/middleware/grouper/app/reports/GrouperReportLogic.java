@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -196,6 +197,13 @@ public class GrouperReportLogic {
       LOG.info("Config send email is set to false. not going to send any emails");
       return;
     }
+
+    // group members export is a self-service export; the link goes to the requesting user and
+    // points at a group-READ gated download action rather than the report instance screen
+    if (configBean.getReportConfigType() == ReportConfigType.GROUP_MEMBERS_EXPORT) {
+      sendGroupMembersExportLinkViaEmail(reportInstance, configBean);
+      return;
+    }
     
     if ((reportInstance.getReportInstanceRows() == null || reportInstance.getReportInstanceRows().intValue() == 0) && !configBean.isReportConfigSendEmailWithNoData()) {
       LOG.info("Config dont send email on empty report, and there is an empty report, not sending emails");
@@ -281,6 +289,95 @@ public class GrouperReportLogic {
     
   }
   
+  /**
+   * send the group members export download link to the requesting subject
+   * @param reportInstance
+   * @param configBean
+   */
+  private static void sendGroupMembersExportLinkViaEmail(GrouperReportInstance reportInstance, GrouperReportConfigurationBean configBean) {
+
+    if ((reportInstance.getReportInstanceSizeBytes() == null || reportInstance.getReportInstanceSizeBytes().intValue() == 0)
+        && !configBean.isReportConfigSendEmailWithNoData()) {
+      LOG.info("Group members export is empty and sendEmailWithNoData is false, not sending email");
+      return;
+    }
+
+    String uiUrl = GrouperConfig.getGrouperUiUrl(false);
+    if (StringUtils.isBlank(uiUrl)) {
+      LOG.error("grouper.properties grouper.ui.url is blank/null. Please fix that first. No group members export email has been sent.");
+      return;
+    }
+
+    // requester is stored on the config as sourceId::subjectId
+    String requester = configBean.getSqlConfig();
+    if (StringUtils.isBlank(requester) || !requester.contains("::")) {
+      LOG.error("Group members export config is missing the requesting subject. No email sent.");
+      return;
+    }
+    String sourceId = StringUtils.substringBefore(requester, "::");
+    String subjectId = StringUtils.substringAfter(requester, "::");
+
+    Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+    if (subject == null) {
+      LOG.error("Could not find requesting subject for group members export: " + requester);
+      return;
+    }
+
+    String emailAddress = GrouperEmailUtils.getEmail(subject);
+    if (StringUtils.isBlank(emailAddress)) {
+      LOG.info("For subject: " + subjectId + " no email address found. Not sending group members export email.");
+      return;
+    }
+
+    Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttributeAssign attributeAssign = AttributeAssignFinder.findById(configBean.getAttributeAssignmentMarkerId(), true);
+        return attributeAssign.getOwnerGroup();
+      }
+    });
+
+    if (group == null) {
+      LOG.error("Group members export config is not assigned to a group. No email sent.");
+      return;
+    }
+
+    // direct app URL (not UiV2Main.index) so the servlet streams the file instead of expecting an ajax/json response
+    String link = uiUrl + "grouperUi/app/UiV2GroupImport.groupExportDownload"
+        + "?attributeAssignId=" + reportInstance.getAttributeAssignId()
+        + "&groupId=" + group.getId();
+
+    String templateSubject = GrouperConfig.retrieveConfig().propertyValueString("groupMembersExport.email.subject");
+    if (StringUtils.isBlank(templateSubject)) {
+      templateSubject = "Group members export ready for $$groupDisplayName$$";
+    }
+
+    String templateBody = GrouperConfig.retrieveConfig().propertyValueString("groupMembersExport.email.body");
+    if (StringUtils.isBlank(templateBody)) {
+      templateBody = "Hello $$subjectName$$, \n\n Your export of members for group $$groupName$$ is ready. Download it here: $$exportLink$$ \n\n This link requires you to be signed in with read access to the group. \n\n Thanks";
+    }
+
+    String subjectLine = templateSubject;
+    subjectLine = StringUtils.replace(subjectLine, "$$subjectName$$", subject.getName());
+    subjectLine = StringUtils.replace(subjectLine, "$$groupName$$", group.getName());
+    subjectLine = StringUtils.replace(subjectLine, "$$groupDisplayName$$", group.getDisplayName());
+    subjectLine = StringUtils.replace(subjectLine, "$$exportLink$$", link);
+
+    String body = templateBody;
+    body = StringUtils.replace(body, "$$subjectName$$", subject.getName());
+    body = StringUtils.replace(body, "$$groupName$$", group.getName());
+    body = StringUtils.replace(body, "$$groupDisplayName$$", group.getDisplayName());
+    body = StringUtils.replace(body, "$$exportLink$$", link);
+
+    try {
+      new GrouperEmail().setBody(body).setSubject(subjectLine).setTo(emailAddress).send();
+      reportInstance.setReportInstanceEmailToSubjects(subject.getSourceId() + "::::" + subject.getId());
+    } catch (Exception e) {
+      reportInstance.setReportInstanceEmailToSubjectsError(subject.getSourceId() + "::::" + subject.getId());
+      LOG.error("Error sending group members export email to " + emailAddress, e);
+    }
+  }
+
   /**
    * build personalized email content for recipient
    * @param recipient
@@ -524,6 +621,25 @@ public class GrouperReportLogic {
     }
   }
   
+  /**
+   * delete the database-stored file (grouper_file row) for a given report instance.  The standard
+   * instance cleanup only handles S3 and filesystem storage, so for database storage the content
+   * row is otherwise orphaned.  No-op if the instance is not stored in the database.
+   * @param reportInstance
+   */
+  public static void deleteFileFromDatabase(GrouperReportInstance reportInstance) {
+
+    String filePointer = reportInstance.getReportInstanceFilePointer();
+    if (StringUtils.isBlank(filePointer)) {
+      return;
+    }
+
+    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(filePointer, false);
+    if (grouperFile != null) {
+      Hib3DAOFactory.getFactory().getGrouperFile().delete(grouperFile);
+    }
+  }
+
   /**
    * delete file from S3 for a given report instance
    * @param reportInstance

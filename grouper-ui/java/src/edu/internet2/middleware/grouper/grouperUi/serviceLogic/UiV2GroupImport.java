@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,6 +36,11 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -44,7 +50,19 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportJob;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
+import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -87,6 +105,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -205,47 +224,48 @@ public class UiV2GroupImport {
   
 
   /**
-   * export a group
+   * export a group synchronously, streaming the CSV directly to the browser (original behavior).
+   * Best for small/medium groups; large groups should use the emailed async export instead.
    * @param request
    * @param response
    */
   public void groupExportSubmit(HttpServletRequest request, HttpServletResponse response) {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
+
     GrouperSession grouperSession = null;
-  
+
     Group group = null;
-  
+
     try {
-  
+
       grouperSession = GrouperSession.start(loggedInSubject);
 
       List<String> urlStrings = GrouperUiRestServlet.extractUrlStrings(request);
-      
+
       //groupId=721e4e8ae6e54c4087db092f0a6372f7
       String groupIdString = urlStrings.get(2);
-      
+
       String groupId = GrouperUtil.prefixOrSuffix(groupIdString, "=", false);
-      
+
       group = GroupFinder.findByUuid(grouperSession, groupId, false);
 
       if (group == null) {
         throw new RuntimeException("Cant find group by id: " + groupId);
       }
-      
+
       GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
       GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
-      
+
       groupContainer.setGuiGroup(new GuiGroup(group));
-      
+
       if (!groupContainer.isCanRead()) {
         throw new RuntimeException("Cant read group: " + group.getName());
       }
-      
+
       //ids
       String groupExportOptions = urlStrings.get(3);
-      
+
       boolean exportAll = false;
       if (StringUtils.equals("all", groupExportOptions)) {
         groupImportContainer.setExportAll(true);
@@ -256,27 +276,250 @@ public class UiV2GroupImport {
         throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
       }
 
-      
+
       //groupExportSubjectIds_removeAllMembers.csv
       @SuppressWarnings("unused")
       String fileName = urlStrings.get(4);
-      
+
       if (exportAll) {
         String headersCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(
             "uiV2.group.exportAllSubjectFields");
-        
+
         String exportAllSortField = GrouperUiConfig.retrieveConfig().propertyValueString(
             "uiV2.group.exportAllSortField");
-  
+
         SimpleMembershipUpdateImportExport.exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField, false);
       } else {
-        
+
         SimpleMembershipUpdateImportExport.exportGroupSubjectIdsCsv(group, false);
-        
+
       }
-      
-      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(),
           loggedInSubject, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * report config name prefix for the system-managed, per-request group members export config.
+   * A unique suffix is appended per export so each run has its own config/instance that is fully
+   * deleted after download.
+   */
+  private static final String GROUP_MEMBERS_EXPORT_CONFIG_NAME = "groupMembersExport";
+
+  /**
+   * export a group's members asynchronously via the reporting engine and email the requesting
+   * user a secure download link when it is ready.  Available to anyone with group READ.
+   * @param request
+   * @param response
+   */
+  public void groupExportEmailSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      if (!GrouperReportSettings.grouperReportsEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("groupExportReportsNotEnabled")));
+        return;
+      }
+
+      String groupExportOptions = request.getParameter("group-export-options");
+
+      final boolean exportAll;
+      if (StringUtils.equals("all", groupExportOptions)) {
+        exportAll = true;
+      } else if (StringUtils.equals("ids", groupExportOptions)) {
+        exportAll = false;
+      } else {
+        throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
+      }
+
+      final String headersCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(
+          "uiV2.group.exportAllSubjectFields");
+      final String exportAllSortField = GrouperUiConfig.retrieveConfig().propertyValueString(
+          "uiV2.group.exportAllSortField");
+      final String requester = loggedInSubject.getSourceId() + "::" + loggedInSubject.getId();
+
+      // unique per-request config name so concurrent exports don't clobber each other and each
+      // run can be fully deleted after download
+      final String configName = GROUP_MEMBERS_EXPORT_CONFIG_NAME + "_" + GrouperUuid.getUuid();
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        @Override
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+          try {
+            GrouperReportConfigurationBean configBean = new GrouperReportConfigurationBean();
+            configBean.setReportConfigName(configName);
+            configBean.setReportConfigDescription("System managed configuration for the group members export feature");
+            configBean.setReportConfigType(ReportConfigType.GROUP_MEMBERS_EXPORT);
+            configBean.setReportConfigFormat(ReportConfigFormat.CSV);
+            configBean.setReportConfigFilename("groupMembersExport_" + group.getExtension() + "_$$timestamp$$.csv");
+            configBean.setReportConfigEnabled(true);
+            configBean.setReportConfigSendEmail(true);
+            configBean.setReportConfigSendEmailWithNoData(true);
+            configBean.setReportConfigStoreWithNoData(true);
+            configBean.setReportConfigSendEmailToViewers(false);
+            // export parameters are carried on existing config fields (see ReportConfigType.GROUP_MEMBERS_EXPORT)
+            configBean.setReportConfigQuery(exportAll ? "all" : "ids");
+            configBean.setReportConfigScript(exportAll
+                ? (StringUtils.defaultString(exportAllSortField) + "\n" + StringUtils.defaultString(headersCommaSeparated))
+                : null);
+            configBean.setSqlConfig(requester);
+
+            GrouperReportConfigService.saveOrUpdateReportConfigAttributes(configBean, group);
+
+            // reload to pick up the attribute assignment marker id
+            GrouperReportConfigurationBean savedBean = GrouperReportConfigService.getGrouperReportConfigBean(group, configName);
+
+            // register a durable, UNSCHEDULED job and trigger it once.  This is intentionally not a
+            // recurring/CRON schedule (via GrouperReportConfigService.scheduleJob) so it will never be
+            // rescheduled or run again on its own - it is a one-time export.
+            String jobName = "grouper_report_" + group.getId() + "_" + savedBean.getAttributeAssignmentMarkerId();
+            JobDetail jobDetail = JobBuilder.newJob(GrouperReportJob.class)
+                .withIdentity(jobName)
+                .storeDurably()
+                .build();
+            Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+            scheduler.addJob(jobDetail, true);
+            scheduler.triggerJob(new JobKey(jobName));
+
+          } catch (SchedulerException se) {
+            throw new RuntimeException("Error running group members export for group: " + group.getName(), se);
+          }
+          return null;
+        }
+      });
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(),
+          loggedInSubject, group);
+
+      String email = GrouperEmailUtils.getEmail(loggedInSubject);
+      String confirmationText = StringUtils.isBlank(email)
+          ? TextContainer.retrieveFromRequest().getText().get("groupExportEmailQueuedNoEmail")
+          : TextContainer.retrieveFromRequest().getText().get("groupExportEmailQueued");
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, confirmationText));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * download a completed group members export.  Gated on group READ; verifies the report instance
+   * is a group members export for this group before streaming the decrypted content.
+   * @param request
+   * @param response
+   */
+  public void groupExportDownload(final HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      final String attributeAssignId = request.getParameter("attributeAssignId");
+      if (StringUtils.isBlank(attributeAssignId)) {
+        throw new RuntimeException("attributeAssignId is required");
+      }
+
+      GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        @Override
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+
+          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          if (recentReportInstance == null) {
+            return null;
+          }
+
+          GrouperReportConfigurationBean configBean = recentReportInstance.getGrouperReportConfigurationBean();
+          if (configBean == null || configBean.getReportConfigType() != ReportConfigType.GROUP_MEMBERS_EXPORT) {
+            return null;
+          }
+
+          // make sure the export belongs to the group the user has read access to
+          AttributeAssign configAttributeAssign = AttributeAssignFinder.findById(configBean.getAttributeAssignmentMarkerId(), false);
+          if (configAttributeAssign == null || configAttributeAssign.getOwnerGroup() == null
+              || !StringUtils.equals(configAttributeAssign.getOwnerGroup().getId(), group.getId())) {
+            return null;
+          }
+
+          return recentReportInstance;
+        }
+      });
+
+      if (reportInstance == null) {
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("groupExportDownloadNotFound")));
+        return;
+      }
+
+      final GrouperReportInstance REPORT_INSTANCE = reportInstance;
+
+      try {
+        String reportContent = GrouperReportLogic.getReportContent(reportInstance);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + reportInstance.getReportInstanceFileName() + "\"");
+
+        PrintWriter out = response.getWriter();
+        out.write(reportContent);
+        out.close();
+
+        // one-time export: after delivering the file, delete everything left behind - the stored
+        // file (including the grouper_file row for database storage, which the report cleanup does
+        // not remove), the report instance, the report config, and its durable quartz job.
+        final GrouperReportConfigurationBean configBean = REPORT_INSTANCE.getGrouperReportConfigurationBean();
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          @Override
+          public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+            try {
+              // delete the database-stored file row (not handled by the report instance delete)
+              GrouperReportLogic.deleteFileFromDatabase(REPORT_INSTANCE);
+              // deletes the instance(s) (+ S3/filesystem file), the config, and the quartz job
+              GrouperReportConfigService.deleteGrouperReportConfig(group, configBean);
+            } catch (Exception cleanupException) {
+              // the file was already delivered; log and move on rather than failing the download
+              LOG.error("Error cleaning up group members export after download for group: " + group.getName(), cleanupException);
+            }
+            return null;
+          }
+        });
+
+      } catch (java.io.IOException e) {
+        throw new RuntimeException("Error occurred while downloading the group members export", e);
+      }
+
+      throw new ControllerDone();
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -112,6 +112,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
       UiV2Group.class.getSimpleName() + ".groupRoleAssignPermissionFilter",
       UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit",
+      UiV2GroupImport.class.getSimpleName() + ".groupExportDownload",
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".stemViewFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
