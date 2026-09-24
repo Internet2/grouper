@@ -2320,10 +2320,13 @@ public class UiV2Attestation {
       GrouperRequestContainer.retrieveFromRequestOrCreate().getAttestationContainer().setGuiAttestations(guiAttestations);
   
       {
-        //does this stem have settings?
-        GuiAttestation guiAttestation = retrieveGuiAttestation(stem);
-        if (guiAttestation != null) {
-          guiAttestations.add(guiAttestation);
+        //does this stem have settings?  only show the requested folder's own settings to a folder admin,
+        //otherwise this discloses attestation configuration to users with no privileges on the folder
+        if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+          GuiAttestation guiAttestation = retrieveGuiAttestation(stem);
+          if (guiAttestation != null) {
+            guiAttestations.add(guiAttestation);
+          }
         }
       }
       
