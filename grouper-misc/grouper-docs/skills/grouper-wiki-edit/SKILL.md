@@ -16,9 +16,9 @@ description: Edit pages on grouper.atlassian.net Confluence via the REST API wit
 - Edit ONE page at a time. No bulk edits without explicit, recent team approval.
 - Be complete but concise. Cover the information fully, but do not pad -- AI
   tends to over-write. Prefer tight prose and lists over long paragraphs.
-- Diagrams: Confluence Cloud does not render SVG inline. Author/edit the diagram
-  as SVG, convert to PNG or JPG, embed the raster, and attach BOTH the .svg
-  source and the .png/.jpg (matching names) so a future AI can re-edit the SVG.
+- Diagrams: Confluence Cloud does not render SVG inline. You may author the
+  diagram as SVG locally, but convert it to PNG or JPG and attach and embed only
+  the raster. Do not attach the .svg or mention an SVG source on the page.
   Or use the draw.io / diagrams.net app -- and if you do, also attach its
   .drawio/.xml source so a future AI can re-edit it.
 - Follow the Grouper style guide, and read it fresh each time (it changes):
