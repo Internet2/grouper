@@ -155,8 +155,8 @@ public class GrouperMcpFindGroups {
     scopeEnum.add("ALL_IN_SUBTREE");
     stemNameScopeProp.set("enum", scopeEnum);
     stemNameScopeProp.put("description",
-        "Scope when searching in a stem. ONE_LEVEL = direct children only, "
-        + "ALL_IN_SUBTREE = all descendants (default).");
+        "Scope when searching in a stem. Only valid with FIND_BY_STEM_NAME. "
+        + "ONE_LEVEL = direct children only, ALL_IN_SUBTREE = all descendants (default).");
     properties.set("stemNameScope", stemNameScopeProp);
 
     ObjectNode groupAttributeValueProp = objectMapper.createObjectNode();
