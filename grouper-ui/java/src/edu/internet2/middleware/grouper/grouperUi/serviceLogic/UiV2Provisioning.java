@@ -4132,6 +4132,9 @@ public class UiV2Provisioning {
           
           ProvisioningMessage provisioningMessage = new ProvisioningMessage();
           provisioningMessage.setMemberIdsForSync(new String[] {member.getId()});
+          // also fix this entity's memberships in the target.  The provisioner picks the most surgical
+          // route its target supports (by entity, by membership, or by group).
+          provisioningMessage.setMemberIdsForMembershipSync(new String[] {member.getId()});
           provisioningMessage.setBlocking(true);
           provisioningMessage.send(targetName);
           
@@ -4142,88 +4145,6 @@ public class UiV2Provisioning {
           guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=" + subject.getId() + "')"));
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
               TextContainer.retrieveFromRequest().getText().get("provisioningMemberSyncSuccess")));
-          
-          return null;
-        }
-      });
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
-  
-  /**
-   * run sync job for all the groups a subject belongs to
-   * @param request
-   * @param response
-   */
-  public void runSubjectGroupsSync(final HttpServletRequest request, final HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-        
-    try {
-      
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      final Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
-      
-      if (subject == null) {
-        return;
-      }
-      
-      final String targetName = request.getParameter("provisioningTargetName");
-      
-      if (StringUtils.isBlank(targetName)) {
-        throw new RuntimeException("provisioningTargetName cannot be blank");
-      }
-      
-      //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
-          if (!checkProvisioning()) {
-            return null;
-          }
-          
-          Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
-
-          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
-          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
-
-          if (grouperProvisioningTarget == null) {
-            throw new RuntimeException("Invalid targetName");
-          }
-          
-          boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, null);
-          if (!canAssignProvisioning) {
-            throw new RuntimeException("Cannot access provisioning.");
-          }
-          
-          Set<Group> groups = member.getGroups();
-          List<String> groupIds = new ArrayList<String>();
-          for (Group group : GrouperUtil.nonNull(groups)) {
-            groupIds.add(group.getId());
-          }
-          
-          if (groupIds.size() > 0) {
-            ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-            provisioningMessage.setGroupIdsForSync(groupIds.toArray(new String[0]));
-            provisioningMessage.setBlocking(true);
-            provisioningMessage.send(targetName);
-          }
-          
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBER, "memberId", member.getId(), "provisionerName", targetName);
-          auditEntry.setDescription("Ran provisioner sync for "+targetName+" on the groups of " + GrouperUtil.subjectToString(subject));
-          provisionerSaveAudit(auditEntry);
-                    
-          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=" + subject.getId() + "')"));
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-              TextContainer.retrieveFromRequest().getText().get("provisioningMemberGroupsSyncSuccess")));
           
           return null;
         }
