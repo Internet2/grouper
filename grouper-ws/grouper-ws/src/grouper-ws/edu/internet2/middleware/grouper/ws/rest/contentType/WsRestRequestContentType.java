@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.json.DefaultJsonConverter;
 import edu.internet2.middleware.grouper.ws.rest.json.JsonConverter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsHttpUtils;
 
 /**
  * possible content types by grouper ws rest
@@ -70,7 +71,7 @@ public enum WsRestRequestContentType {
         //dont worry about params in request anymore
         httpServletRequest = null;
       }
-      Object object = GrouperServiceUtils.marshalHttpParamsToObject(
+      Object object = GrouperWsHttpUtils.marshalHttpParamsToObject(
           params, httpServletRequest, warnings);
       return object;
     }

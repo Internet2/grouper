@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -39,8 +38,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -48,10 +45,13 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
-import edu.internet2.middleware.grouper.mcp.GrouperMcpDocSearchIndex;
-import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpGroupMembership;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolNames;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.mcp.GrouperTool;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
+import edu.internet2.middleware.grouper.mcp.GrouperToolException;
+import edu.internet2.middleware.grouper.mcp.GrouperToolExecutor;
+import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
@@ -60,7 +60,6 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -214,16 +213,6 @@ public class GrouperMcpServlet extends HttpServlet {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  /**
-   * cache for isSubjectInGroup results.
-   * key is MultiKey(subjectId, subjectSourceId, groupPropertyName), value is Boolean.
-   * caches for 60 seconds so that group membership changes take effect quickly
-   * but we avoid hitting the database on every MCP request.
-   */
-  private static GrouperCache<MultiKey, Boolean> subjectInGroupCache =
-      new GrouperCache<MultiKey, Boolean>(
-          GrouperMcpServlet.class.getName() + ".subjectInGroupCache",
-          2000, false, 60, 60, false);
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -625,7 +614,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
           GrouperMcpAuthUser authUser = resolveAuthUser(userName);
           if (authUser != null) {
-            if (!isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
+            if (!GrouperMcpGroupMembership.isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
               LOG.warn("MCP access denied for WS-authenticated user (not in wsAuthnAllowed group): " + userName);
               response.setStatus(HttpServletResponse.SC_FORBIDDEN);
               return null;
@@ -649,7 +638,7 @@ public class GrouperMcpServlet extends HttpServlet {
         request.setAttribute("REMOTE_USER", remoteUser);
         GrouperMcpAuthUser authUser = resolveAuthUser(remoteUser);
         if (authUser != null) {
-          if (!isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
+          if (!GrouperMcpGroupMembership.isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
             LOG.warn("MCP access denied for WS-authenticated user (not in wsAuthnAllowed group): " + remoteUser);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return null;
@@ -675,7 +664,7 @@ public class GrouperMcpServlet extends HttpServlet {
             request.setAttribute("REMOTE_USER", userIdLoggedIn);
             GrouperMcpAuthUser authUser = resolveAuthUser(userIdLoggedIn);
             if (authUser != null) {
-              if (!isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
+              if (!GrouperMcpGroupMembership.isSubjectInGroup(authUser, "grouper.mcp.users.wsAuthnAllowed")) {
                 LOG.warn("MCP access denied for WS-authenticated user (not in wsAuthnAllowed group): " + userIdLoggedIn);
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return null;
@@ -1460,73 +1449,24 @@ public class GrouperMcpServlet extends HttpServlet {
 
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 
-          // readonly tools (readwrite implies readonly)
-          if (hasReadonlyAccess(authUser)) {
-            // only advertise doc_search if at least one source is available for this user
-            if (GrouperMcpDocSearchIndex.hasAnySourcesForSubject(authUser.getSubject())) {
-              addToolIfAllowed(toolsArray, GrouperMcpDocSearch.toolDefinition());
-            }
-            addToolIfAllowed(toolsArray, GrouperMcpFindAttributeDefNames.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpFindGroups.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpFindStems.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetAttributeAssignmentsLite.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetAuditEntries.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetGroups.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetMembersLite.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
-            {
-              ObjectNode institutionalToolDef = GrouperMcpInstitutionalTools.toolDefinition(authUser, hasReadwriteAccess(authUser));
-              if (institutionalToolDef != null) {
-                addToolIfAllowed(toolsArray, institutionalToolDef);
-              }
+          // the registry is the one list of what Grouper can be asked to do, in the order it
+          // has always been advertised in.  a tool is offered when the caller is allowed to use
+          // it and when there is any point offering it, both of which the tool answers for
+          // itself
+          for (GrouperTool grouperTool : GrouperToolRegistry.advertisedTools()) {
+
+            if (!GrouperToolAccess.isAllowed(grouperTool.category(null), authUser)) {
+              continue;
             }
 
-            {
-              ObjectNode recipeToolDef = GrouperMcpRecipeTool.toolDefinition(authUser,
-                  hasReadwriteAccess(authUser));
-              if (recipeToolDef != null) {
-                addToolIfAllowed(toolsArray, recipeToolDef);
-              }
+            if (!grouperTool.availableFor(authUser)) {
+              continue;
             }
-          }
 
-          // readwrite tools
-          if (hasReadwriteAccess(authUser)) {
-            addToolIfAllowed(toolsArray, GrouperMcpAddMember.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
-            // group/folder-only tools require group or folder scope
-            if (authUser.hasGroupOrFolderReadwriteScope()) {
-              addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
-              addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
-              addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
+            ObjectNode toolDef = grouperTool.toolDefinition(authUser);
+            if (toolDef != null) {
+              addToolIfAllowed(toolsArray, toolDef);
             }
-          }
-
-          // SQL readonly tools.  only advertise them if the administrator made at least
-          // one database available, otherwise there is nothing they can query
-          if (hasSqlReadonlyAccess(authUser) && GrouperMcpSqlSelect.anyConfigured()) {
-            addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
-          }
-
-          // admin readonly tools
-          if (hasAdminReadonlyAccess(authUser)) {
-            addToolIfAllowed(toolsArray, GrouperMcpAdminExternalSystemGet.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpAdminSearchDaemons.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpLdapSearch.toolDefinition());
-          }
-
-          // admin readwrite tools
-          if (hasAdminReadwriteAccess(authUser)) {
-            addToolIfAllowed(toolsArray, GrouperMcpAdminRunDaemonJob.toolDefinition());
           }
 
           return null;
@@ -1588,35 +1528,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return true if the tool is allowed
    */
   static boolean isToolAllowedByConfig(String toolName) {
-    String allowList = StringUtils.trimToNull(
-        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.allow"));
-    String denyList = StringUtils.trimToNull(
-        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.deny"));
-
-    // check allow list (null/blank means all allowed)
-    if (allowList != null) {
-      boolean found = false;
-      for (String allowed : GrouperUtil.splitTrim(allowList, ",")) {
-        if (StringUtils.equals(allowed, toolName)) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        return false;
-      }
-    }
-
-    // check deny list (null/blank means none denied)
-    if (denyList != null) {
-      for (String denied : GrouperUtil.splitTrim(denyList, ",")) {
-        if (StringUtils.equals(denied, toolName)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+    return GrouperMcpToolNames.isToolAllowedByConfig(toolName);
   }
 
   /**
@@ -1669,534 +1581,19 @@ public class GrouperMcpServlet extends HttpServlet {
 
     String toolName = params.get("name").asText();
     JsonNode arguments = params.get("arguments");
-    // the action is passed as well because one tool can cover both reads and writes, and those
-    // do not belong on the same rate limit
-    String toolAction = arguments != null && arguments.has("action")
-        && !arguments.get("action").isNull() ? arguments.get("action").asText() : null;
-    String toolCategory = GrouperMcpToolLog.getToolCategory(toolName, toolAction);
 
-    // --- throttle check ---
-    String throttleError = GrouperMcpToolLogUtil.checkThrottle(authUser, toolCategory);
-    if (throttleError != null) {
-      String requestJson = arguments != null ? arguments.toString() : null;
-      GrouperMcpToolLogUtil.logToolCall(authUser, toolName, toolCategory,
-          requestJson, throttleError, true,
-          System.currentTimeMillis() * 1000L, null);
-      return buildMcpErrorResult(throttleError);
-    }
-
-    // --- execute and audit ---
-    final long startedMicros = System.currentTimeMillis() * 1000L;
-    final long startNanos = System.nanoTime();
-    final String requestJson = arguments != null ? arguments.toString() : null;
-
-    // Use callbackGrouperSession to put the authenticated MCP user's session
-    // on the thread-local. This lets GrouperServiceUtils.retrieveGrouperSession()
-    // find the session without going through the WS auth check (etc:wsGroup),
-    // while still running as the authenticated user for object-level security.
-    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
-    final ObjectNode[] resultHolder = new ObjectNode[1];
-    final boolean[] isErrorHolder = new boolean[] { false };
-    final String[] responseTextHolder = new String[] { null };
-    final GrouperMcpProtocolException[] protocolExceptionHolder =
-        new GrouperMcpProtocolException[1];
-
+    // everything below here -- the allow list, the authorization check, running the tool, and
+    // the audit row -- now lives in core so that the UI runs tools the same way.  all this
+    // servlet still does is turn a failure which is not a tool result into the JSON-RPC error
+    // this protocol expects
     try {
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      return GrouperToolExecutor.executeTool(toolName, arguments, authUser);
 
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-
-          try {
-            resultHolder[0] = dispatchToolCall(toolName, arguments, authUser);
-
-            // extract response text and error flag from the MCP result
-            isErrorHolder[0] = resultHolder[0].has("isError")
-                && resultHolder[0].get("isError").asBoolean(false);
-            if (resultHolder[0].has("content") && resultHolder[0].get("content").isArray()
-                && resultHolder[0].get("content").size() > 0) {
-              JsonNode firstContent = resultHolder[0].get("content").get(0);
-              if (firstContent.has("text")) {
-                responseTextHolder[0] = firstContent.get("text").asText();
-              }
-            }
-
-            // a failed call is the one moment a model is certainly reading, since it is looking
-            // at the response to its own request rather than deciding whether to go and look
-            // something up.  so if this institution has a recipe for this tool, the failure
-            // carries it, rather than leaving the model to report a dead end.  this is done
-            // after the response text is captured above, so the audit log keeps the tool's own
-            // message and does not grow by the length of a recipe on every failure
-            if (isErrorHolder[0]) {
-              GrouperMcpRecipeTool.appendRecipesToError(resultHolder[0], toolName, authUser);
-            }
-
-          } catch (GrouperMcpProtocolException gmpe) {
-            // this is answered as a JSON-RPC error rather than as a result, but it is held
-            // rather than thrown from here so that the audit log below still records the
-            // attempt.  a call naming a tool which does not exist is worth having a row for
-            protocolExceptionHolder[0] = gmpe;
-            isErrorHolder[0] = true;
-            responseTextHolder[0] = gmpe.getMessage();
-
-          } catch (Exception e) {
-            // Nothing in the tool reported this, it escaped, so it is a fault in this server
-            // rather than something the tool decided.  The spec puts a server error on the
-            // JSON-RPC error channel and not in a tool result, since a model cannot correct
-            // its input to get past it.  Logged here because it was not logged anywhere else,
-            // and held the same way so the audit log still records the call.
-            LOG.error("Error in MCP tool call: " + toolName, e);
-            protocolExceptionHolder[0] = new GrouperMcpProtocolException(ERROR_INTERNAL_ERROR,
-                "Internal error: " + e.getMessage());
-            isErrorHolder[0] = true;
-            responseTextHolder[0] = "Internal error: " + e.getMessage();
-          }
-          return null;
-        }
-      });
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
+    } catch (GrouperToolException grouperToolException) {
+      int errorCode = grouperToolException.getKind() == GrouperToolException.Kind.notFound
+          ? ERROR_INVALID_PARAMS : ERROR_INTERNAL_ERROR;
+      throw new GrouperMcpProtocolException(errorCode, grouperToolException.getMessage());
     }
-
-    long durationMicros = (System.nanoTime() - startNanos) / 1000;
-
-    // log to audit table (errors in logging do not affect the response)
-    GrouperMcpToolLogUtil.logToolCall(authUser, toolName, toolCategory,
-        requestJson, responseTextHolder[0], isErrorHolder[0], startedMicros, durationMicros);
-
-    // now that the attempt is logged and the throttle has counted it, this can be answered as
-    // the JSON-RPC error it is
-    if (protocolExceptionHolder[0] != null) {
-      throw protocolExceptionHolder[0];
-    }
-
-    return resultHolder[0];
-  }
-
-  /**
-   * dispatch a tool call to the appropriate handler, checking authorization
-   * and the deployer's allow/deny configuration.
-   * @param toolName the tool name
-   * @param arguments the tool arguments
-   * @param authUser the authenticated user
-   * @return the MCP tool result
-   */
-  private ObjectNode dispatchToolCall(String toolName, JsonNode arguments,
-      GrouperMcpAuthUser authUser) {
-
-    // check deployer allow/deny configuration
-    if (!isToolAllowedByConfig(toolName)) {
-      return buildMcpErrorResult("Access denied: tool '" + toolName
-          + "' is not allowed by server configuration.");
-    }
-
-    switch (toolName) {
-      // readonly tools (alphabetical)
-      case "attribute_def_name_find":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for attribute_def_name_find. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpFindAttributeDefNames.execute(arguments, authUser);
-      case "doc_search":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for doc_search. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpDocSearch.execute(arguments, authUser);
-      case "attribute_assignment_get":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for attribute_assignment_get. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetAttributeAssignmentsLite.execute(arguments, authUser);
-      case "audit_get":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for audit_get. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetAuditEntries.execute(arguments, authUser);
-      case "entity_get":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for entity_get. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetSubjects.execute(arguments, authUser);
-      case "entity_get_groups":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for entity_get_groups. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetGroups.execute(arguments, authUser);
-      case "folder_find":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for folder_find. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpFindStems.execute(arguments, authUser);
-      case "group_find":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_find. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpFindGroups.execute(arguments, authUser);
-      case "group_get_members":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_get_members. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetMembersLite.execute(arguments, authUser);
-      case "memberships_get":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for memberships_get. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetMemberships.execute(arguments, authUser);
-      case "group_has_member":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_has_member. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpHasMember.execute(arguments, authUser);
-      case "privilege_get":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for privilege_get. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpGetGrouperPrivilegesLite.execute(arguments, authUser);
-      // readwrite tools (alphabetical)
-      case "attribute_assignment_save":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for attribute_assignment_save. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        return GrouperMcpAssignAttributes.execute(arguments, authUser);
-      case "group_add_member":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_add_member. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        return GrouperMcpAddMember.execute(arguments, authUser);
-      case "folder_delete":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for folder_delete. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        if (!authUser.hasGroupOrFolderReadwriteScope()) {
-          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-        }
-        return GrouperMcpFolderDelete.execute(arguments, authUser);
-      case "group_delete":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_delete. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        if (!authUser.hasGroupOrFolderReadwriteScope()) {
-          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-        }
-        return GrouperMcpGroupDelete.execute(arguments, authUser);
-      case "group_remove_member":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_remove_member. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        return GrouperMcpDeleteMember.execute(arguments, authUser);
-      case "group_save":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for group_save. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        if (!authUser.hasGroupOrFolderReadwriteScope()) {
-          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-        }
-        return GrouperMcpGroupSave.execute(arguments, authUser);
-      case "privilege_assign":
-        if (!hasReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for privilege_assign. "
-              + "Membership in the MCP readwrite group is required.");
-        }
-        return GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
-      case "institutional_tools":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for institutional_tools. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpInstitutionalTools.execute(arguments, authUser, hasReadwriteAccess(authUser));
-      case "recipe":
-        if (!hasReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for recipe. "
-              + "Membership in the MCP readonly or readwrite group is required.");
-        }
-        return GrouperMcpRecipeTool.execute(arguments, authUser, hasReadwriteAccess(authUser));
-      // SQL readonly tools (alphabetical)
-      case "sql_get_schema":
-        if (!hasSqlReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for sql_get_schema. "
-              + "Membership in the MCP SQL readonly group is required.");
-        }
-        return GrouperMcpSqlGetSchema.execute(arguments, authUser);
-      case "sql_select":
-        if (!hasSqlReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for sql_select. "
-              + "Membership in the MCP SQL readonly group is required.");
-        }
-        return GrouperMcpSqlSelect.execute(arguments, authUser);
-      case "sql_select_count":
-        // backward compatibility: route to sql_select with countOnly=true
-        if (!hasSqlReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for sql_select_count. "
-              + "Membership in the MCP SQL readonly group is required.");
-        }
-        if (arguments != null && arguments.isObject()) {
-          ((ObjectNode) arguments).put("countOnly", true);
-        }
-        return GrouperMcpSqlSelect.execute(arguments, authUser);
-      // admin readonly tools (alphabetical)
-      case "admin_config_search":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_config_search. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
-      case "admin_external_system_get":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_external_system_get. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
-      case "admin_daemon_job_message":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_daemon_job_message. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpAdminGetDaemonJobMessage.execute(arguments, authUser);
-      case "admin_daemon_logs":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_daemon_logs. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpAdminGetDaemonJobs.execute(arguments, authUser);
-      case "admin_daemon_names":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_daemon_names. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpAdminSearchDaemons.execute(arguments, authUser);
-      case "ldap":
-        if (!hasAdminReadonlyAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for ldap. "
-              + "Membership in the MCP admin readonly group is required.");
-        }
-        return GrouperMcpLdapSearch.execute(arguments, authUser);
-      // admin readwrite tools (alphabetical)
-      case "admin_daemon_job_run":
-        if (!hasAdminReadwriteAccess(authUser)) {
-          return buildMcpErrorResult("Access denied: user is not authorized for admin_daemon_job_run. "
-              + "Membership in the MCP admin readwrite group is required.");
-        }
-        return GrouperMcpAdminRunDaemonJob.execute(arguments, authUser);
-      default:
-        // no tool ran, so there is no tool result this could be reported in
-        throw new GrouperMcpProtocolException(ERROR_INVALID_PARAMS, "Unknown tool: " + toolName);
-    }
-  }
-
-  /**
-   * check if the authenticated user has readonly access.
-   * readwrite group membership also grants readonly access.
-   * checks actual group membership so removal from the
-   * group takes effect immediately even with an unexpired token.
-   * wheel group membership does NOT grant access.
-   * <p>For OAuth-authenticated users, the user must also have consented
-   * to the readonly (or readwrite) scope on the consent page.  This
-   * means the JWT must contain the corresponding scope claim.</p>
-   * @param authUser the authenticated user
-   * @return true if the user is authorized for readonly operations
-   */
-  private boolean hasReadonlyAccess(GrouperMcpAuthUser authUser) {
-
-    // check group membership (readwrite group also grants readonly access)
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.readonly")
-        && !isSubjectInGroup(authUser, "grouper.mcp.users.readwrite")) {
-      return false;
-    }
-
-    // for OAuth users, require the readonly or readwrite consent scope
-    if (authUser.isOAuthAuthenticated()
-        && !authUser.isConsentScopeReadonly() && !authUser.isConsentScopeReadwrite()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * check if the authenticated user is a member of the MCP readwrite group.
-   * checks actual group membership so removal from the
-   * group takes effect immediately even with an unexpired token.
-   * wheel group membership does NOT grant access.
-   * <p>For OAuth-authenticated users, the user must also have consented
-   * to the readwrite scope on the consent page.  This means the JWT must
-   * contain the grouper_readwrite claim.</p>
-   * @param authUser the authenticated user
-   * @return true if the user is authorized for readwrite operations
-   */
-  private boolean hasReadwriteAccess(GrouperMcpAuthUser authUser) {
-
-    // check group membership
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.readwrite")) {
-      return false;
-    }
-
-    // for OAuth users, also require the readwrite consent scope
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeReadwrite()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * check if the authenticated user is a member of the MCP admin readonly group.
-   * checks actual group membership so removal from the
-   * group takes effect immediately even with an unexpired token.
-   * wheel group membership does NOT grant access.
-   * <p>Admin readwrite access implies admin readonly access.</p>
-   * <p>For OAuth-authenticated users, the user must also have consented
-   * to the admin readonly (or admin readwrite) scope on the consent page.
-   * This means the JWT must contain the corresponding scope claim.</p>
-   * <p>The user must also be a Grouper sysadmin or readonly sysadmin.</p>
-   * @param authUser the authenticated user
-   * @return true if the user is authorized for admin readonly operations
-   */
-  private boolean hasAdminReadonlyAccess(GrouperMcpAuthUser authUser) {
-
-    // check group membership (admin readwrite group also grants admin readonly access)
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.adminReadonly")
-        && !isSubjectInGroup(authUser, "grouper.mcp.users.adminReadWrite")) {
-      return false;
-    }
-
-    // for OAuth users, require the admin readonly or admin readwrite consent scope
-    if (authUser.isOAuthAuthenticated()
-        && !authUser.isConsentScopeAdminReadonly() && !authUser.isConsentScopeAdminReadwrite()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * check if the authenticated user is a member of the MCP admin readwrite group.
-   * checks actual group membership so removal from the
-   * group takes effect immediately even with an unexpired token.
-   * wheel group membership does NOT grant access.
-   * <p>For OAuth-authenticated users, the user must also have consented
-   * to the admin readwrite scope on the consent page.  This means the JWT must
-   * contain the grouper_admin_readwrite claim.</p>
-   * <p>The user must also be a Grouper sysadmin.</p>
-   * @param authUser the authenticated user
-   * @return true if the user is authorized for admin readwrite operations
-   */
-  private boolean hasAdminReadwriteAccess(GrouperMcpAuthUser authUser) {
-
-    // check group membership
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.adminReadWrite")) {
-      return false;
-    }
-
-    // for OAuth users, also require the admin readwrite consent scope
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeAdminReadwrite()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * check if the authenticated user is a member of the MCP SQL readonly group.
-   * checks actual group membership so removal from the
-   * group takes effect immediately even with an unexpired token.
-   * wheel group membership does NOT grant access.
-   * <p>For OAuth-authenticated users, the user must also have consented
-   * to the SQL readonly scope on the consent page.  This means the JWT must
-   * contain the grouper_sql_readonly claim.</p>
-   * @param authUser the authenticated user
-   * @return true if the user is authorized for SQL readonly operations
-   */
-  private boolean hasSqlReadonlyAccess(GrouperMcpAuthUser authUser) {
-
-    // check group membership
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.canRunSqlReadonly")) {
-      return false;
-    }
-
-    // for OAuth users, also require the SQL readonly consent scope
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeSqlReadonly()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // ----------------------------------------------------------------
-  /**
-   * check if the authenticated user is a member of a configured group.
-   * results are cached for 60 seconds (see subjectInGroupCache).
-   * @param authUser the authenticated user
-   * @param groupPropertyName the grouper.properties key for the group name
-   * @return true if the user is in the group
-   */
-  private boolean isSubjectInGroup(GrouperMcpAuthUser authUser, String groupPropertyName) {
-    String groupName = GrouperConfig.retrieveConfig().propertyValueString(groupPropertyName);
-    if (StringUtils.isBlank(groupName)) {
-      return false;
-    }
-
-    Subject subject = authUser.getSubject();
-
-    // check cache first
-    MultiKey cacheKey = new MultiKey(subject.getId(),
-        StringUtils.defaultString(subject.getSourceId()), groupPropertyName);
-    Boolean cachedResult = subjectInGroupCache.get(cacheKey);
-    if (cachedResult != null) {
-      return cachedResult;
-    }
-
-    // cache miss - check group membership
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
-      Group group = GroupFinder.findByName(grouperSession, groupName, false);
-      if (group == null) {
-        subjectInGroupCache.put(cacheKey, false);
-        return false;
-      }
-      boolean isMember = group.hasMember(subject);
-      subjectInGroupCache.put(cacheKey, isMember);
-      return isMember;
-    } catch (Exception e) {
-      LOG.error("Error checking group membership for MCP access: " + groupPropertyName, e);
-      return false;
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
-
-  /**
-   * build an MCP tool error result
-   * @param errorMessage the error message
-   * @return the error result
-   */
-  private static ObjectNode buildMcpErrorResult(String errorMessage) {
-    ObjectNode errorResult = objectMapper.createObjectNode();
-    ArrayNode content = objectMapper.createArrayNode();
-    ObjectNode textContent = objectMapper.createObjectNode();
-    textContent.put("type", "text");
-    textContent.put("text", errorMessage);
-    content.add(textContent);
-    errorResult.set("content", content);
-    errorResult.put("isError", true);
-    return errorResult;
   }
 
   /**

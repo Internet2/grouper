@@ -19,6 +19,11 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * The names of the MCP tools Grouper advertises.
  *
@@ -103,6 +108,45 @@ public class GrouperMcpToolNames {
    */
   public static boolean isToolName(String toolName) {
     return toolName != null && TOOL_NAMES.contains(toolName);
+  }
+
+  /**
+   * whether an institution has turned this tool on.  effective tools = allow minus deny, where a
+   * blank allow list means all are allowed and a blank deny list means none are denied
+   * @param toolName the tool name
+   * @return true if the tool is allowed
+   */
+  public static boolean isToolAllowedByConfig(String toolName) {
+
+    String allowList = StringUtils.trimToNull(
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.allow"));
+    String denyList = StringUtils.trimToNull(
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.deny"));
+
+    // check allow list (null/blank means all allowed)
+    if (allowList != null) {
+      boolean found = false;
+      for (String allowed : GrouperUtil.splitTrim(allowList, ",")) {
+        if (StringUtils.equals(allowed, toolName)) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+
+    // check deny list (null/blank means none denied)
+    if (denyList != null) {
+      for (String denied : GrouperUtil.splitTrim(denyList, ",")) {
+        if (StringUtils.equals(denied, toolName)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
 }

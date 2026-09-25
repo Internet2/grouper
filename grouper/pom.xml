@@ -104,6 +104,13 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!-- the web service request and response beans carry swagger annotations, and those
+             beans live here now -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.6.16</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark -->
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>

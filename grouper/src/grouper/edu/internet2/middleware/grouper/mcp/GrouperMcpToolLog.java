@@ -17,7 +17,6 @@ package edu.internet2.middleware.grouper.mcp;
 
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
@@ -109,79 +108,6 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
     }
     this.internalId = TableIndex.reserveId(TableIndexType.mcpToolLog);
     return true;
-  }
-
-  // -------- tool category mapping --------
-
-  /**
-   * return the tool category for the given tool name.
-   * @param toolName the tool name
-   * @return the tool category string
-   */
-  public static String getToolCategory(String toolName) {
-    return getToolCategory(toolName, null);
-  }
-
-  /**
-   * category of a tool call, taking the action into account for tools where one name covers
-   * both reads and writes.  the recipe tool is the case: list and get are ordinary reads which
-   * happen whenever a client consults guidance, while update writes standing guidance for a
-   * whole population and belongs on a tighter limit
-   * @param toolName the tool name
-   * @param action the action argument, may be null
-   * @return the category
-   */
-  public static String getToolCategory(String toolName, String action) {
-
-    if ("recipe".equals(toolName)) {
-      // an unrecognised or missing action is going to be refused by the tool anyway, so it
-      // counts against the reads rather than being given the more generous write budget
-      return "update".equals(action) ? CATEGORY_READWRITE : CATEGORY_READONLY;
-    }
-
-    if (toolName == null) {
-      return CATEGORY_READONLY;
-    }
-    switch (toolName) {
-      case "attribute_assignment_get":
-      case "attribute_def_name_find":
-      case "audit_get":
-      case "doc_search":
-      case "entity_get":
-      case "entity_get_groups":
-      case "folder_find":
-      case "group_find":
-      case "group_get_members":
-      case "group_has_member":
-      case "memberships_get":
-      case "privilege_get":
-        // recipe is not here: its category depends on the action, and is worked out above.  a
-        // case for it here would be unreachable and would tell a reader the wrong thing
-        return CATEGORY_READONLY;
-      case "attribute_assignment_save":
-      case "folder_delete":
-      case "group_add_member":
-      case "group_delete":
-      case "group_remove_member":
-      case "group_save":
-      case "privilege_assign":
-        return CATEGORY_READWRITE;
-      case "sql_get_schema":
-      case "sql_select":
-      case "sql_select_count":
-        return CATEGORY_SQL;
-      case "admin_config_search":
-      case "admin_daemon_job_message":
-      case "admin_daemon_logs":
-      case "admin_daemon_names":
-      case "admin_external_system_get":
-      case "ldap":
-        return CATEGORY_ADMIN_READONLY;
-      case "admin_daemon_job_run":
-        return CATEGORY_ADMIN_READWRITE;
-      default:
-        return CATEGORY_READONLY;
-    }
   }
 
   // -------- getters and setters --------

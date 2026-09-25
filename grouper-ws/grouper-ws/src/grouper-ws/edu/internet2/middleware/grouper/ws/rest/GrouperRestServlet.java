@@ -42,12 +42,14 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
+import edu.internet2.middleware.grouper.ws.GrouperWsRequestContext;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
 import edu.internet2.middleware.grouper.ws.rest.json.DefaultJsonConverter;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsHttpUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
@@ -59,16 +61,12 @@ public class GrouperRestServlet extends HttpServlet {
     GrouperStatusServlet.registerStartup();
   }
 
-  /** keep track of if this is a rest request vs soap */
-  private static ThreadLocal<Boolean> restRequest = new ThreadLocal<Boolean>();
-
   /**
    * return if this is a rest request
    * @return true if rest request
    */
   public static boolean isRestRequest() {
-    Boolean isRestRequest = restRequest.get();
-    return isRestRequest != null && isRestRequest;
+    return GrouperWsRequestContext.isRestRequest();
   }
   
   /**
@@ -108,7 +106,7 @@ public class GrouperRestServlet extends HttpServlet {
     InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.WS_REQUESTS.name());
 
     GrouperServiceJ2ee.assignHttpServlet(this);
-    restRequest.set(true);
+    GrouperWsRequestContext.assignRestRequest(true);
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
     WsResponseBean wsResponseBean = null;
@@ -201,7 +199,7 @@ public class GrouperRestServlet extends HttpServlet {
       //might be in params (which might not be in body
       if (requestObject == null) {
         //might be in http params...
-        requestObject = (WsRequestBean) GrouperServiceUtils.marshalHttpParamsToObject(
+        requestObject = (WsRequestBean) GrouperWsHttpUtils.marshalHttpParamsToObject(
             parameterMap, request, warnings);
 
       }
@@ -246,7 +244,7 @@ public class GrouperRestServlet extends HttpServlet {
     }
 
     //set response headers (they should be set at this point, but make sure)
-    GrouperServiceUtils.addResponseHeaders(wsResponseBean.getResultMetadata(), false);
+    GrouperWsHttpUtils.addResponseHeaders(wsResponseBean.getResultMetadata(), false);
     
     //set http status code, content type, and write the response
     try {
@@ -305,7 +303,7 @@ public class GrouperRestServlet extends HttpServlet {
       }
       IOUtils.closeQuietly(response.getWriter());
       GrouperWsVersionUtils.removeCurrentClientVersion();
-      restRequest.set(null);
+      GrouperWsRequestContext.assignRestRequest(null);
     }
     
     HttpSession httpSession = request.getSession(false);

@@ -104,7 +104,7 @@ public class GrouperServiceUtilsTest extends TestCase {
         queryString);
     
     wsLiteGetMembersSimpleRequest = (WsRestGetMembersLiteRequest)
-      GrouperServiceUtils.marshalHttpParamsToObject(paramMap, null, null);
+      GrouperWsHttpUtils.marshalHttpParamsToObject(paramMap, null, null);
     
     assertEquals("abc", wsLiteGetMembersSimpleRequest.getActAsSubjectId());
     

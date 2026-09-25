@@ -162,6 +162,7 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsHttpUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -3120,7 +3121,7 @@ public class GrouperServiceRest {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGshTemplateExecResult.getResultMetadata(), false);
+    GrouperWsHttpUtils.addResponseHeaders(wsGshTemplateExecResult.getResultMetadata(), false);
     
     return wsGshTemplateExecResult;
   
@@ -3153,7 +3154,7 @@ public class GrouperServiceRest {
         wsRestDataProviderSubjectListSyncRequest.getSubjectLookups(), wsRestDataProviderSubjectListSyncRequest.getActAsSubjectLookup());
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsDataProviderSubjectListSyncResult.getResultMetadata(), false);
+    GrouperWsHttpUtils.addResponseHeaders(wsDataProviderSubjectListSyncResult.getResultMetadata(), false);
     
     return wsDataProviderSubjectListSyncResult;
   }
