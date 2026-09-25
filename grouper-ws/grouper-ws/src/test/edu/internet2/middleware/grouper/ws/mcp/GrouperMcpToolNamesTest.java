@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolNames;
+import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -77,10 +78,6 @@ public class GrouperMcpToolNamesTest extends TestCase {
    */
   private static final Pattern TOOL_NAME_CONSTANT_PATTERN =
       Pattern.compile("\\.put\\(\"name\", ([A-Z][A-Z0-9_]*_TOOL_NAME)\\)");
-
-  /** finds the tool names the servlet dispatches */
-  private static final Pattern DISPATCH_PATTERN =
-      Pattern.compile("case \"([a-z_]+)\":");
 
   /**
    * every advertised tool name is registered, and every registered name is a tool which exists
@@ -156,46 +153,35 @@ public class GrouperMcpToolNamesTest extends TestCase {
   }
 
   /**
-   * every registered tool name is answered by the servlet.  a tool which is advertised and then
-   * refused as unknown when it is called is worse than one which was never advertised
+   * every registered tool name can be run.  a tool which is advertised and then refused as
+   * unknown when it is called is worse than one which was never advertised.  this asks the
+   * registry the executor dispatches through, rather than reading source
    */
   public void testEveryToolNameIsDispatched() {
 
-    File servletFile = new File(mcpSourceDirectory(), "GrouperMcpServlet.java");
-
-    assertTrue("Cannot find " + servletFile.getAbsolutePath(), servletFile.exists());
-
-    Set<String> dispatchedToolNames = new LinkedHashSet<String>();
-
-    Matcher matcher = DISPATCH_PATTERN.matcher(GrouperUtil.readFileIntoString(servletFile));
-
-    while (matcher.find()) {
-      dispatchedToolNames.add(matcher.group(1));
-    }
-
     List<String> notDispatched = new ArrayList<String>();
     for (String registeredToolName : GrouperMcpToolNames.toolNames()) {
-      if (!dispatchedToolNames.contains(registeredToolName)) {
+      if (GrouperToolRegistry.find(registeredToolName) == null) {
         notDispatched.add(registeredToolName);
       }
     }
 
-    // the other direction is not checked: the dispatch is deliberately a superset, since
+    // the other direction is not checked: the registry is deliberately a superset, since
     // sql_select_count is still answered for older clients without being advertised
-    assertEquals("These names are in GrouperMcpToolNames but the servlet does not dispatch them: "
+    assertEquals("These names are in GrouperMcpToolNames but no tool is registered for them: "
         + notDispatched, 0, notDispatched.size());
   }
 
   /**
-   * find the MCP source, wherever the test was launched from.  the working directory is the
-   * grouper-ws module under some runners and the repository root under others, so this walks up
-   * from wherever it started looking for either shape rather than assuming one of them
+   * find the MCP tool source, wherever the test was launched from.  the tools live in grouper
+   * core, and the working directory is a module under some runners and the repository root
+   * under others, so this walks up from wherever it started looking for either shape
    * @return the directory holding the MCP source
    */
   private static File mcpSourceDirectory() {
 
-    String moduleRelativePath = "src/grouper-ws/edu/internet2/middleware/grouper/ws/mcp";
-    String repositoryRelativePath = "grouper-ws/grouper-ws/" + moduleRelativePath;
+    String moduleRelativePath = "src/grouper/edu/internet2/middleware/grouper/ws/mcp";
+    String repositoryRelativePath = "grouper/" + moduleRelativePath;
 
     File directory = new File(".").getAbsoluteFile();
 
