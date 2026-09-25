@@ -1229,7 +1229,9 @@ public class UiV2Template {
         
         String property = entry.getKey();
         String implementationClass = entry.getValue();
-        
+        if(StringUtils.isBlank(implementationClass)) {
+          continue;
+        }
         Matcher matcher = grouperTemplateServiceClassPattern.matcher(property);
         
         if (matcher.matches()) {          
