@@ -122,8 +122,17 @@ per version, and the same split applies there.
 
 ## 3. Container prep (Dockerfile)
 
-The container Dockerfile pins `ARG TOMCAT_VERSION`, `ARG GROUPER_VERSION`, and
-the OS/Java base. For a version/security bump:
+The container repo has one branch per release, named for the version (`7.4.0`,
+`7.5.0`, `7.5.1`), each cut from the previous release's branch. **The user
+creates the new release branch themselves** -- do not create or switch branches
+in the container repo. Check `git branch --show-current` shows the new version,
+then edit the files on it; the user commits and pushes.
+
+The container Dockerfile pins `ARG GROUPER_CONTAINER_VERSION`,
+`ARG GROUPER_VERSION`, `ARG TOMCAT_VERSION`, and the OS/Java base. Bump both
+version ARGs to the new release (the Dockerfile is the only file that carries the
+version -- confirm with `git grep -n <previous version>`). For a Tomcat/security
+bump:
 
 - **Bump `TOMCAT_VERSION`** to the target (check https://tomcat.apache.org/security-9.html
   for open CVEs against the current pin; pick the lowest release that clears them).
