@@ -17,8 +17,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttrAssignDelegate;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Subject;
 
 public class RuleService {
@@ -31,8 +33,110 @@ public class RuleService {
    * @return error messages if any
    */
   public static Map<String, List<String>> saveOrUpdateRuleAttributes(RuleConfig ruleConfig, GrouperObject grouperObject, String attributeAssignId) {
-    
+
     Map<String, List<String>> result = new HashMap<>();
+
+    // SECURITY (GRP-7359): a rule that uses expression language (EL) in its if-condition or its
+    // then runs that arbitrary expression as GrouperSystem when the rule fires.  There is no way
+    // to constrain what arbitrary EL does, so only Grouper sysadmins (wheel/root) may add or edit
+    // an EL rule.  The rules UI only hides the EL option from non-admins (a display-only control),
+    // and this method is invoked inside a root session, so without this server-side check a crafted
+    // request could create an EL rule and run arbitrary logic as root (privilege escalation).
+    // Enforce it here, before any attribute is created or assigned, so a rejected attempt persists
+    // nothing.  The subject configuring the rule is carried on the RuleConfig (the logged in user),
+    // not the current (root) session.
+    // Fail closed: if there is no configuring subject we cannot establish that the caller is a
+    // sysadmin, so treat a null subject the same as a non-wheel user and apply the restrictions
+    // below.  Every real caller (the rules UI) sets RuleConfig.subject to the logged in user, so
+    // this only blocks a caller that omitted the acting subject -- it never blocks wheel/root, who
+    // always have their own subject on the RuleConfig.
+    Subject configuringSubject = ruleConfig == null ? null : ruleConfig.getSubject();
+    if (configuringSubject == null || !PrivilegeHelper.isWheelOrRoot(configuringSubject)) {
+
+      // SECURITY (GRP-7359): if editing an existing rule, a non-wheel caller may not modify a custom
+      // or EL rule (one that matches no predefined pattern) -- the same restriction as delete.  This
+      // is checked before the new content below, so a non-admin cannot overwrite a sysadmin-authored
+      // custom/EL rule (e.g. downgrade it to a pattern).  attributeAssignId is blank on an add.
+      if (StringUtils.isNotBlank(attributeAssignId)) {
+        RuleDefinition existingRuleDefinition = null;
+        for (RuleDefinition existingCandidate : RuleFinder.retrieveRuleDefinitionsForGrouperObject(grouperObject)) {
+          if (existingCandidate.getAttributeAssignType() != null
+              && StringUtils.equals(existingCandidate.getAttributeAssignType().getId(), attributeAssignId)) {
+            existingRuleDefinition = existingCandidate;
+            break;
+          }
+        }
+        if (existingRuleDefinition != null && !allowedToManageRule(configuringSubject, existingRuleDefinition)) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCustomRequiresWheel");
+          if (StringUtils.isBlank(error)) {
+            error = "Only a Grouper administrator can add or edit a custom rule.  "
+                + "Non-administrators must use one of the predefined rule patterns.";
+          }
+          result.put("ERROR", Arrays.asList(error));
+          return result;
+        }
+      }
+
+      // an EL rule runs an arbitrary expression as GrouperSystem; there is no way to constrain what
+      // it does, so it is wheel/root only.  Checked on content so it holds regardless of how the
+      // request claims the rule was built.
+      boolean ruleUsesEl = StringUtils.equals("EL", ruleConfig.getIfConditionOption())
+          || StringUtils.isNotBlank(ruleConfig.getIfConditionEl())
+          || StringUtils.equals("EL", ruleConfig.getThenOption())
+          || StringUtils.isNotBlank(ruleConfig.getThenEl());
+      if (ruleUsesEl) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditElRequiresWheel");
+        if (StringUtils.isBlank(error)) {
+          error = "Only a Grouper administrator can add or edit a rule that uses expression language (EL).";
+        }
+        result.put("ERROR", Arrays.asList(error));
+        return result;
+      }
+
+      // a "custom" rule is a hand-authored check/if/then rather than one of the predefined,
+      // constrained rule patterns, so it can specify an arbitrary check, if-condition, and then that
+      // run as GrouperSystem.  Only wheel/root may add or edit a custom rule; non-admins are limited
+      // to the predefined patterns (which fix the check/then and validate the caller's privilege on
+      // the objects they reference).  ruleConfig.getPattern() is blank or "custom" for the custom
+      // path, and is the pattern name when a pattern's save() calls through here.
+      boolean isCustomRule = StringUtils.isBlank(ruleConfig.getPattern())
+          || StringUtils.equals("custom", ruleConfig.getPattern());
+      if (isCustomRule) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCustomRequiresWheel");
+        if (StringUtils.isBlank(error)) {
+          error = "Only a Grouper administrator can add or edit a custom rule.  "
+              + "Non-administrators must use one of the predefined rule patterns.";
+        }
+        result.put("ERROR", Arrays.asList(error));
+        return result;
+      }
+
+      // at this point the (non-wheel) caller named a non-blank, non-custom pattern, so it must be a
+      // recognized pattern, and the caller must pass that pattern's own validate() -- which enforces
+      // their privilege on the objects the rule references (e.g. the group named in the rule) plus the
+      // pattern's other input constraints.  That validation historically ran only in the UI submit;
+      // enforce it here so it cannot be skipped by a caller that reaches the service another way.
+      RulePattern claimedRulePattern = null;
+      try {
+        claimedRulePattern = ruleConfig.getRulePattern();
+      } catch (RuntimeException re) {
+        claimedRulePattern = null;
+      }
+      if (claimedRulePattern == null) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditUnknownPattern");
+        if (StringUtils.isBlank(error)) {
+          error = "Unknown rule pattern.";
+        }
+        result.put("ERROR", Arrays.asList(error));
+        return result;
+      }
+      List<String> patternValidationErrors = claimedRulePattern.validate(ruleConfig, configuringSubject);
+      if (patternValidationErrors != null && !patternValidationErrors.isEmpty()) {
+        result.put("ERROR", patternValidationErrors);
+        return result;
+      }
+    }
+
     AttributeAssign attributeAssign = null;
     
     String checkOwnerName = null;
@@ -419,7 +523,16 @@ public class RuleService {
     ruleDefinition.setCheck(ruleCheck);
     ruleDefinition.setIfCondition(ruleIfCondition);
     ruleDefinition.setThen(ruleThen);
-    
+
+    // DESIGN (GRP-7359): rules created through the UI always run as GrouperSystem so they keep working
+    // regardless of who created them or whether that person later loses privileges.  Because this runs
+    // in a root session, RuleSubjectActAs.allowedToActAs (evaluated during validate() below) always
+    // sees the current subject as GrouperSystem and passes -- it is NOT the authorization gate for the
+    // UI path.  Authorization for the UI path is enforced above: EL and custom (hand-authored) rules
+    // are wheel/root only, and a non-wheel caller is limited to the predefined patterns and must pass
+    // the selected pattern's validate() (which checks their privilege on the objects the rule
+    // references).  allowedToActAs remains the meaningful gate on the WS/GSH/RuleApi paths, which run
+    // under the caller's own session and can specify a non-root actAs.
     RuleSubjectActAs actAs = new RuleSubjectActAs();
     actAs.setSourceId("g:isa");
     actAs.setSubjectId(SubjectFinder.findRootSubject().getId());
@@ -442,9 +555,25 @@ public class RuleService {
       result.put("ERROR", Arrays.asList(error));
       return result;
     }
-    
+
+    // SECURITY (GRP-7359): a non-wheel user is limited to the predefined patterns.  The rule is now
+    // fully built, so verify it actually matches the pattern the request claimed -- a manipulated
+    // request could otherwise set fields that make the persisted rule differ from its pattern.  A
+    // blank/"custom" pattern was already rejected for non-wheel at the top.  On a mismatch, remove
+    // whatever was assigned and reject so nothing durable remains.
+    if (configuringSubject != null && !PrivilegeHelper.isWheelOrRoot(configuringSubject)
+        && !ruleMatchesClaimedPattern(ruleDefinition, ruleConfig.getPattern())) {
+      attributeAssign.delete();
+      String patternError = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditPatternMismatch");
+      if (StringUtils.isBlank(patternError)) {
+        patternError = "This rule does not match the selected pattern.";
+      }
+      result.put("ERROR", Arrays.asList(patternError));
+      return result;
+    }
+
     attributeAssign.saveOrUpdate();
-    
+
     String validValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
     if (!StringUtils.equals(validValue, "T")) {
@@ -581,7 +710,99 @@ public class RuleService {
     return ruleConfig;
   }
 
-  
+  /**
+   * SECURITY (GRP-7359): whether the given (real, logged in) subject may edit or delete an existing
+   * rule.  A rule runs as GrouperSystem, so managing a "custom" rule -- one that does not match any
+   * predefined pattern (this includes every EL rule, since patterns use fixed enums) -- is wheel/root
+   * only.  A rule that matches a recognized pattern may be edited/deleted by a non-admin who otherwise
+   * has rights on the object (that object-level check is enforced by the caller).  Evaluated on the
+   * passed subject, not the current session, because these operations run inside a root session.
+   * @param subject the real user requesting the edit or delete
+   * @param ruleDefinition the existing rule being edited or deleted
+   * @return true if the subject may edit or delete this rule
+   */
+  public static boolean allowedToManageRule(Subject subject, RuleDefinition ruleDefinition) {
+    if (subject == null || ruleDefinition == null) {
+      return false;
+    }
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+    // non-admins may only edit or delete rules that match a recognized (constrained) pattern
+    return ruleDefinition.getPattern() != null;
+  }
+
+  /**
+   * SECURITY (GRP-7381): whether the given (real, logged in) subject may create a sendEmail rule.
+   * A sendEmail rule sends email to arbitrary recipients with an arbitrary subject/body that is
+   * evaluated as expression language (ruleElUtils) at fire time as GrouperSystem, so this is a
+   * default-closed, layered gate rather than the old default-open check:
+   * <ul>
+   * <li>wheel/root: always allowed;</li>
+   * <li>else if rules.restrictRulesEmailSendersToMembersOfThisGroupName is set: only members of it;</li>
+   * <li>else if rules.restrictRulesUiToMembersOfThisGroupName is set: only members of it (the vetted
+   *     rule-editor group -- a subject who reached the rules UI is already a member);</li>
+   * <li>else (both blank): only wheel/root (returned above), so deny.</li>
+   * </ul>
+   * A configured-but-missing group fails closed.  Evaluated on the passed subject, not the current
+   * session, since the save runs inside a root session.
+   * @param subject the real user creating the sendEmail rule
+   * @return true if the subject may create a sendEmail rule
+   */
+  public static boolean allowedToCreateEmailRule(Subject subject) {
+    if (subject == null) {
+      return false;
+    }
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return true;
+    }
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    // the email-specific designation wins when it is set
+    String emailSenderGroupName = grouperConfig.propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
+    if (StringUtils.isNotBlank(emailSenderGroupName)) {
+      Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
+      return emailSenderGroup != null && emailSenderGroup.hasMember(subject);
+    }
+    // otherwise, if the rules UI itself is gated to a group, its members are vetted rule editors
+    String restrictRulesUiGroupName = grouperConfig.propertyValueString("rules.restrictRulesUiToMembersOfThisGroupName", "");
+    if (StringUtils.isNotBlank(restrictRulesUiGroupName)) {
+      Group restrictRulesUiGroup = GroupFinder.findByName(restrictRulesUiGroupName, false);
+      return restrictRulesUiGroup != null && restrictRulesUiGroup.hasMember(subject);
+    }
+    // both gates blank: default-closed (wheel/root only), unless a site has intentionally opted out of
+    // the check via rules.allowSendEmailRulesWhenNoGroupConfigured=true (which restores the previous open behavior)
+    if (grouperConfig.propertyValueBoolean("rules.allowSendEmailRulesWhenNoGroupConfigured", false)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * SECURITY (GRP-7359): whether a built rule actually matches the pattern the request claims it is.
+   * Non-admins may only create/edit rules through the predefined patterns, so after building the rule
+   * we verify it matches the claimed pattern -- a manipulated request cannot persist a rule that
+   * differs from the pattern it names.  A blank or "custom" claimed pattern is handled by the separate
+   * custom-rule gate, so it is treated as a match here.
+   * @param ruleDefinition the rule that was built
+   * @param claimedPatternName the pattern the request claims (RuleConfig.getPattern())
+   * @return true if the rule matches the claimed pattern (or no pattern was claimed)
+   */
+  public static boolean ruleMatchesClaimedPattern(RuleDefinition ruleDefinition, String claimedPatternName) {
+    if (StringUtils.isBlank(claimedPatternName) || StringUtils.equals("custom", claimedPatternName)) {
+      return true;
+    }
+    RulePattern claimedPattern = null;
+    try {
+      claimedPattern = RulePattern.valueOf(claimedPatternName);
+    } catch (Exception e) {
+      // an unknown pattern name is never a match
+      return false;
+    }
+    RulePattern actualPattern = ruleDefinition == null ? null : ruleDefinition.getPattern();
+    return actualPattern == claimedPattern;
+  }
+
+
   public static void deleteRuleAttributes(String attributeAssignId) {
     // The rule marker attribute assign may already have been deleted before we get here.
     // When a folder/group/attributeDef is deleted, the delete logic first sweeps every
