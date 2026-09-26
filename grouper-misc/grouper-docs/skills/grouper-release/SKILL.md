@@ -27,8 +27,31 @@ Work a new release newest-first: the new row goes ABOVE the current top row.
 - Container base versions for the `Versions` cell: OS (e.g. Rocky 9.8), Tomcat
   (e.g. 9.0.120), Java Corretto (e.g. 17.0.19.10.1).
 - The built image `sha256:` digest (from the container build/push pipeline).
+  Not needed up front -- the row goes in with it blank (step 0).
 - Release date (YYYY/MM/DD).
 - Status for the new row (see Status values).
+
+## 0. Jira and wiki edits BEFORE the mirror
+
+The mirror refresh (step 1) is committed and then tagged, so anything written to
+the wiki or Jira after that is not in this release's mirror. Do ALL the Jira and
+Confluence work that does not need the built image FIRST, then mirror, then tag:
+
+1. DDL / upgrade tasks check (step 4).
+2. Resolve the shipped GRP issues and set their fixVersion (steps 5, 6).
+3. Feature/config doc pages the shipped changes affect (e.g. a config reference
+   page, a feature page, a security-issue page). Ask the user which pages; grep
+   the wikiMirror for the config keys and features the commits touch.
+4. **v7 Upgrade instructions from v7** rows for anything operators must do or be
+   aware of (this sets the `Upgrade instructions` count in the row).
+5. A security-issue page for a fix in this release: mark the release as released
+   on the release date (timeline, affected-versions table, remediation text).
+6. The **release-notes row** (step 8) with the `sha256:` left BLANK
+   (`<p><span ...>sha256:</span></p>`), and Rocky/Corretto taken from the
+   registries (see "Rocky and Corretto without the image" in step 7).
+
+After the image publishes, the only wiki edit left is pasting the digest into the
+row. That one edit is not mirrored until the next release, which is fine.
 
 ## 1. Refresh the grouper-docs mirrors FIRST
 
@@ -66,11 +89,11 @@ python3 -m venv /tmp/wikivenv && /tmp/wikivenv/bin/pip install -q beautifulsoup4
 - Review both diffs and commit separately (`wiki: sync`, `issues: sync`);
   a human pushes.
 
-**What this run will NOT capture:** the new release-notes row, because it does not
-exist yet -- that row needs the published container digest, which needs the image,
-which needs the tag. That is unavoidable, and it is fine: the row gets mirrored by
-the NEXT release's run. Do not re-run the mirror after writing the row just to pick
-it up, or you reintroduce the post-tag commit this ordering exists to avoid.
+**What this run will NOT capture:** only the sha256 digest in the release-notes
+row, since that needs the image, which needs the tag. Everything else was written
+in step 0 and IS captured. The digest gets mirrored by the NEXT release's run. Do
+not re-run the mirror after the tag just to pick it up, or you reintroduce the
+post-tag commit this ordering exists to avoid.
 
 ## 2. Push everything, THEN tag
 
@@ -119,6 +142,43 @@ head is an ancestor of the tagged commit. Never force-push or move the tag to
 
 Remember the OTHER repos too. The container lives in a separate repo with a branch
 per version, and the same split applies there.
+
+## 2a. Build the jars (grouper-build Jenkinsfile)
+
+The jars are built and deployed to Maven Central by a separate repo,
+`grouperContainer/grouper-build_v7` (v6: `grouper-build_v6`), with one branch per
+release like the container repo. **The user creates the release branch and
+commits/pushes; the AI edits the Jenkinsfile on it.** Check
+`git branch --show-current` shows the new version first.
+
+Edit two things in `Jenkinsfile`:
+
+- **Version:** `def git_tag = '<version>'` (e.g. `'7.5.1'`). It builds the
+  `GROUPER_RELEASE_<version>` tag, so the tag must already be pushed (step 2).
+- **Java:** the `JAVA_HOME='.../amazon-corretto-<ver>-linux-x64'` line inside
+  `environment {}` -- set it to the current latest Corretto 17. Get it from the
+  redirect the Jenkins JDK tool itself downloads:
+
+  ```bash
+  curl -sI https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz | grep -i '^location'
+  ```
+
+  (`.../resources/17.0.20.12.1/...` -> `17.0.20.12.1`). That line is
+  informational; the mvn steps do not depend on it.
+
+**How the mvn steps get JAVA_HOME, and why it must not be resolved up front.**
+The `Corretto-JDK17` tool installs from the corretto "latest" URL, so
+`withMaven(jdk: ...)` re-unpacks it whenever Corretto releases, deleting the old
+nested `amazon-corretto-*` directory. On 7.5.1 the Jenkinsfile ran a `find` at
+node start, got `17.0.20.10.1`, then the tool unpacked `17.0.20.12.1` over it and
+maven failed with `The JAVA_HOME environment variable is not defined correctly`.
+The fix (in the Jenkinsfile since 7.5.1): `java_home` is a single-quoted
+`$(find ... -name "amazon-corretto-*" | sort -V | tail -1)` string that each `sh`
+step expands AFTER the tool is installed. If you see that error again, check that
+nothing reintroduced an up-front `sh(returnStdout: true)` lookup.
+
+Note: this Corretto is only the BUILD JDK. The Corretto in the release notes
+`Versions` cell is the container's, read from the running image (step 7).
 
 ## 3. Container prep (Dockerfile)
 
@@ -279,11 +339,42 @@ FROM the database, so a refused connection surfaces as `Problem reading config:
 `CommonServletContainerInitializer` and then the whole context. Read to the LAST
 `Caused by` -- that one names the actual port or database problem.
 
-### Read the two image-derived values for the notes
+### Rocky and Corretto without the image (for step 0)
 
-The Rocky minor can no longer be read off the Dockerfile or the image labels: the
-base is pinned to a **floating major** (`ARG ROCKY_VERSION=9`), and the label
-reports only `version: 9`. Both values have to come from the running image:
+The Rocky minor can not be read off the Dockerfile or the image labels: the base
+is pinned to a **floating major** (`ARG ROCKY_VERSION=9`), and the label reports
+only `version: 9`. But both values are whatever is newest when Jenkins builds, so
+read them from the same sources the build pulls from:
+
+- **Rocky:** the minor tag whose digest equals the floating `9` tag (the newest
+  `9.N` tag).
+
+  ```bash
+  TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:rockylinux/rockylinux:pull" \
+    | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
+  for t in 9 9.8; do curl -s -o /dev/null -w "$t %header{docker-content-digest}\n" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+    -I https://registry-1.docker.io/v2/rockylinux/rockylinux/manifests/$t; done
+  ```
+
+- **Corretto:** the container installs `java-17-amazon-corretto-devel` with dnf
+  from `yum.corretto.aws`, so take the newest version in that repo
+  (`17.0.20.12-1` -> `17.0.20.12.1`):
+
+  ```bash
+  B=https://yum.corretto.aws/x86_64
+  P=$(curl -s $B/repodata/repomd.xml | grep -o 'href="[^"]*primary.xml.gz"' | cut -d'"' -f2)
+  curl -s $B/$P | gunzip | grep -o 'java-17-amazon-corretto-devel-[0-9][^"<]*x86_64\.rpm' | sort -uV | tail -1
+  ```
+
+  This is the container's Java. It is not the same thing as the build JDK in
+  step 2a, although both are usually the latest Corretto 17.
+
+### Confirm them from the running image
+
+The smoke test confirms both. If either differs from the row (a release landed
+between step 0 and the Jenkins build), fix the row when you add the digest:
 
 ```bash
 docker compose exec grouper cat /etc/rocky-release
