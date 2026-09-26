@@ -4132,9 +4132,6 @@ public class UiV2Provisioning {
           
           ProvisioningMessage provisioningMessage = new ProvisioningMessage();
           provisioningMessage.setMemberIdsForSync(new String[] {member.getId()});
-          // also fix this entity's memberships in the target.  The provisioner picks the most surgical
-          // route its target supports (by entity, by membership, or by group).
-          provisioningMessage.setMemberIdsForMembershipSync(new String[] {member.getId()});
           provisioningMessage.setBlocking(true);
           provisioningMessage.send(targetName);
           
@@ -4146,11 +4143,38 @@ public class UiV2Provisioning {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
               TextContainer.retrieveFromRequest().getText().get("provisioningMemberSyncSuccess")));
           
+          // fixing the entity only reconciles its memberships when the target can retrieve memberships
+          // by entity.  Otherwise (e.g. memberships stored on the group in the target) recommend a full sync.
+          if (!provisionerCanFixMembershipsViaEntity(targetName)) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+                TextContainer.retrieveFromRequest().getText().get("provisioningMemberSyncMembershipsFullSyncRecommended")));
+          }
+          
           return null;
         }
       });
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * whether the provisioner can fix an entity's memberships by fixing the entity, i.e. it can retrieve
+   * memberships by entity.  If false, fixing the entity in the target does not fix its memberships and a
+   * full sync is needed.  Defaults to true on error so we do not show a misleading recommendation.
+   * @param configId provisioner config id (the provisioning target name)
+   * @return true if memberships can be fixed via the entity
+   */
+  private static boolean provisionerCanFixMembershipsViaEntity(String configId) {
+    try {
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(configId);
+      grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
+      return grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity();
+    } catch (RuntimeException e) {
+      LOG.error("Error determining provisioner membership capability for '" + configId + "'", e);
+      return true;
+    } finally {
+      GrouperProvisioner.removeCurrentGrouperProvisioner();
     }
   }
   

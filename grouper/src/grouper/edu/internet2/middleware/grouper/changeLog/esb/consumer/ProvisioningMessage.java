@@ -203,31 +203,6 @@ public class ProvisioningMessage {
   }
 
   /**
-   * member ids whose memberships should be reconciled in the target regardless of where the target
-   * stores memberships (on the entity or on the group).  The provisioner picks the most surgical
-   * route its target supports.
-   */
-  private String[] memberIdsForMembershipSync;
-
-  /**
-   * member ids whose memberships should be reconciled in the target regardless of where the target
-   * stores memberships (on the entity or on the group)
-   * @return member ids
-   */
-  public String[] getMemberIdsForMembershipSync() {
-    return this.memberIdsForMembershipSync;
-  }
-
-  /**
-   * member ids whose memberships should be reconciled in the target regardless of where the target
-   * stores memberships (on the entity or on the group)
-   * @param memberIdsForMembershipSync1
-   */
-  public void setMemberIdsForMembershipSync(String[] memberIdsForMembershipSync1) {
-    this.memberIdsForMembershipSync = memberIdsForMembershipSync1;
-  }
-
-  /**
    * memberships to analyze for sync
    */
   private ProvisioningMembershipMessage[] membershipsForSync;

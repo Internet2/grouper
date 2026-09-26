@@ -16,11 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -673,12 +668,6 @@ public class GrouperProvisioningLogicIncremental {
             
           }
           
-          if (GrouperUtil.length(provisioningMessage.getMemberIdsForMembershipSync()) > 0) {
-            for (String memberId : provisioningMessage.getMemberIdsForMembershipSync()) {
-              messageCountForProvisioner += this.addIncrementalMemberMembershipsForSync(memberId, provisioningMessage.getMillisSince1970());
-            }
-          }
-          
         }
         
       }
@@ -694,77 +683,6 @@ public class GrouperProvisioningLogicIncremental {
       this.getGrouperProvisioner().getDebugMap().put("messagesSkippedDueToBeforeLastFullSync", messagesSkippedDueToBeforeLastFullSync);
     }
     
-  }
-
-  /**
-   * fix an entity's memberships in the target, picking the most surgical route the target supports.
-   * If the target can select memberships by entity, one entity recalc reconciles all the entity's
-   * memberships in a single read.  Otherwise it works on the group side: if the target can only
-   * select all memberships by group (e.g. Okta), each of the entity's groups is recalculated in full;
-   * if the target supports finer-grained membership retrieval (some/one by group, or membership
-   * objects), only this entity's membership in each group is reconciled.
-   * @param memberId
-   * @param millisSince1970
-   * @return number of provisioning objects queued (for the message count)
-   */
-  private int addIncrementalMemberMembershipsForSync(final String memberId, final Long millisSince1970) {
-
-    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
-
-    // target stores memberships on the entity -> one entity read reconciles all its memberships
-    if (behavior.isSelectMembershipsAllForEntity()) {
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(memberId,
-          behavior.isSelectEntitiesForRecalc(), true, millisSince1970, null);
-      return 1;
-    }
-
-    // otherwise work on the group side, so we need the groups this entity belongs to
-    Set<String> groupIds = this.retrieveGroupIdsForMember(memberId);
-    if (GrouperUtil.length(groupIds) == 0) {
-      return 0;
-    }
-
-    // the target can only pull the whole roster by group (no finer-grained membership retrieval), so
-    // reconcile each group's memberships in full
-    boolean allByGroupOnly = behavior.isSelectMembershipsAllForGroup()
-        && !behavior.isSelectMembershipsSomeForGroup()
-        && !behavior.isSelectMembershipsForMembership();
-
-    int count = 0;
-    for (String groupId : groupIds) {
-      if (allByGroupOnly) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(groupId,
-            behavior.isSelectGroupsForRecalc(), true, millisSince1970, null);
-      } else {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(groupId, memberId,
-            behavior.isSelectMembershipsForRecalc(), millisSince1970, null);
-      }
-      count++;
-    }
-    return count;
-  }
-
-  /**
-   * group ids that a member belongs to (default members list), looked up as root
-   * @param memberId
-   * @return set of group ids
-   */
-  private Set<String> retrieveGroupIdsForMember(final String memberId) {
-    final Set<String> groupIds = new HashSet<String>();
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      @Override
-      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-        Member member = MemberFinder.findByUuid(theGrouperSession, memberId, false);
-        if (member == null) {
-          return null;
-        }
-        for (Group group : GrouperUtil.nonNull(member.getGroups())) {
-          groupIds.add(group.getId());
-        }
-        return null;
-      }
-    });
-    return groupIds;
   }
 
 
