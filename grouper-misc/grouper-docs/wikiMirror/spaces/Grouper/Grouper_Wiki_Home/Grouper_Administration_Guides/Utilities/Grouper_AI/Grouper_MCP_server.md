@@ -2,8 +2,8 @@
 title: "Grouper MCP server"
 space: Grouper
 pageId: 28547487
-version: 24
-lastUpdated: 2026-07-12T15:26:46.316Z
+version: 26
+lastUpdated: 2026-09-04T12:23:16.477Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487/Grouper+MCP+server
 ---
 
@@ -20,6 +20,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487/Grouper+MC
 - [Grouper MCP server - user guide](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide) – Client setup, UI info page, and full tool documentation
 - [Grouper MCP server - administrator guide](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide) – Enabling MCP, configuration, authorization groups, and multi-container deployments
 - [Grouper MCP server - technical reference](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554339/Grouper+MCP+server+-+technical+reference) – Architecture, endpoints, OAuth 2.1 flow, security model, and database tables
+- [Grouper MCP server - recipes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes)
 
 ## Overview
 
