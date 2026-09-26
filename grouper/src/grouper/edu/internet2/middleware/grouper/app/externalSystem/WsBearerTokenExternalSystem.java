@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientSetupAuthorization;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -427,6 +428,21 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     grouperHttpClient.assignProxyUrl(proxyUrl);
     grouperHttpClient.assignProxyType(proxyType);
     grouperHttpClient.assignWebServiceExternalSystemConfigId(externalSystemConfigId);
+
+    // if a throttling/network-issue retry sleeps long enough for the attached credentials
+    // (e.g. an oauthClientCredentials bearer token) to expire, re-attach fresh authentication
+    // before each attempt (including retries) rather than resending the header attached before
+    // the first attempt.  this callback fires in GrouperHttpClient.executeRequestHelper() on every
+    // attempt and re-reads the TTL-aware token cache, so a still-valid token is reused with no extra
+    // token-endpoint calls and an expired one is refreshed before the retried request goes out
+    final GrouperLoaderConfig finalGrouperLoaderConfig = grouperLoaderConfig;
+    grouperHttpClient.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
+
+      @Override
+      public void setupAuthorization(GrouperHttpClient httpClient) {
+        attachAuthenticationToHttpClient(httpClient, externalSystemConfigId, finalGrouperLoaderConfig, debugMap);
+      }
+    });
 
   }
   

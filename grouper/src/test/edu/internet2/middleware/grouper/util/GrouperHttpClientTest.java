@@ -220,4 +220,52 @@ public class GrouperHttpClientTest extends GrouperTest {
     assertEquals(2, grouperHttpClient.getRetryForThrottlingTimesItWasRetried());
   }
 
+  /**
+   * if a caller (e.g. WsBearerTokenExternalSystem) registers a setupAuthorization callback, it
+   * should be invoked on every attempt including retries, so a bearer token which expired during
+   * a throttling/network retry backoff sleep gets refreshed before the retried request is sent
+   * (GRP-7357).
+   */
+  public void testSetupAuthorizationInvokedOnEachAttemptIncludingRetries() {
+
+    int port = -1;
+    try {
+      // get a port which nothing is listening on so the connect is refused
+      ServerSocket serverSocket = new ServerSocket(0);
+      port = serverSocket.getLocalPort();
+      serverSocket.close();
+    } catch (IOException ioe) {
+      throw new RuntimeException("Cannot find a free port", ioe);
+    }
+
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+    grouperHttpClient.assignUrl("http://127.0.0.1:" + port + "/somePath");
+    grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+    grouperHttpClient.assignTimeoutMillies(5000);
+    grouperHttpClient.setRetryForThrottlingOrNetworkIssues(2);
+    grouperHttpClient.setRetryForThrottlingOrNetworkIssuesSleepMillis(0);
+    grouperHttpClient.setRetryForThrottlingOrNetworkIssuesBackOffMillis(0);
+
+    final int[] setupAuthorizationCallCount = new int[] {0};
+
+    grouperHttpClient.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
+      @Override
+      public void setupAuthorization(GrouperHttpClient httpClient) {
+        setupAuthorizationCallCount[0]++;
+      }
+    });
+
+    try {
+      grouperHttpClient.executeRequest();
+      fail("Should have thrown, the connection is refused every time");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("Error connecting to"));
+    }
+
+    // 2 retries means 3 attempts total (initial + 2 retries), and the callback re-attaches
+    // authentication before each attempt is sent
+    assertEquals(2, grouperHttpClient.getRetryForThrottlingTimesItWasRetried());
+    assertEquals(3, setupAuthorizationCallCount[0]);
+  }
+
 }
