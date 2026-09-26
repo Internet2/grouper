@@ -81,7 +81,21 @@ python3 -m venv /tmp/wikivenv && /tmp/wikivenv/bin/pip install -q beautifulsoup4
 
 - The wiki run also regenerates `wikiMirror/sitemap.xml` (v7 only); copy it to
   `i2midev6:/var/www/html/sitemap.xml` (see the sitemap section of
-  `wikiMirror/convertToMarkdownAiInstructions.md`).
+  `wikiMirror/convertToMarkdownAiInstructions.md`). Give the user the commands;
+  they run them. i2midev6 serves grouperdemo.internet2.edu and is reached via
+  login.internet2.edu (the maintainer's ssh alias is `internet2_demo`):
+
+  ```bash
+  scp grouper-misc/grouper-docs/wikiMirror/sitemap.xml internet2_demo:/var/www/html/sitemap.xml
+  curl -sI https://grouperdemo.internet2.edu/sitemap.xml   # expect 200, xml content-type
+  ```
+
+  The server file is owned by the maintainer's account (chowned once, mode 644),
+  so plain scp overwrites it in place without sudo. If scp says permission
+  denied, the file was deleted or re-owned: re-chown it
+  (`sudo chown <user> /var/www/html/sitemap.xml && sudo chmod 644 ...`). Never
+  `mv` a copy in from a home directory -- it keeps its home SELinux label and
+  Apache returns 403; use `sudo cp` if a copy step is needed.
 - `jiraToMarkdown.py` deliberately skips `GRP-1 .. GRP-7143` -- the cloud
   metadata for many of those is misaligned by the CSV import, so the existing
   files are the accurate record. See
