@@ -2143,38 +2143,12 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      boolean skipEmailSenderCheck = false;
-      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        skipEmailSenderCheck = true;
-      }
-      
-      if (!skipEmailSenderCheck) {
-        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-        if (subjectInCache != null) {
-          if (subjectInCache == false) {
-            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-            errorMessages.add(error);
-            return errorMessages;
-          }
-        } else {
-          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
-          if (StringUtils.isNotBlank(emailSenderGroupName)) {
-            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
-            if (emailSenderGroup != null) {
-              if (emailSenderGroup.hasMember(loggedInSubject)) {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-              } else {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-                errorMessages.add(error);
-                return errorMessages;
-              }
-              
-            } else {
-              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
-            }
-          }
-        }
+      // SECURITY (GRP-7381): who may create a sendEmail rule (default-closed, layered gate:
+      // wheel/root, else members of rules.restrictRulesEmailSendersToMembersOfThisGroupName if set,
+      // else members of rules.restrictRulesUiToMembersOfThisGroupName if set, else wheel/root only).
+      if (!RuleService.allowedToCreateEmailRule(loggedInSubject)) {
+        errorMessages.add(GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup"));
+        return errorMessages;
       }
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
@@ -2395,38 +2369,12 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      boolean skipEmailSenderCheck = false;
-      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        skipEmailSenderCheck = true;
-      }
-      
-      if (!skipEmailSenderCheck) {
-        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-        if (subjectInCache != null) {
-          if (subjectInCache == false) {
-            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-            errorMessages.add(error);
-            return errorMessages;
-          }
-        } else {
-          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
-          if (StringUtils.isNotBlank(emailSenderGroupName)) {
-            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
-            if (emailSenderGroup != null) {
-              if (emailSenderGroup.hasMember(loggedInSubject)) {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-              } else {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-                errorMessages.add(error);
-                return errorMessages;
-              }
-              
-            } else {
-              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
-            }
-          }
-        }
+      // SECURITY (GRP-7381): who may create a sendEmail rule (default-closed, layered gate:
+      // wheel/root, else members of rules.restrictRulesEmailSendersToMembersOfThisGroupName if set,
+      // else members of rules.restrictRulesUiToMembersOfThisGroupName if set, else wheel/root only).
+      if (!RuleService.allowedToCreateEmailRule(loggedInSubject)) {
+        errorMessages.add(GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup"));
+        return errorMessages;
       }
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
@@ -2596,38 +2544,12 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      boolean skipEmailSenderCheck = false;
-      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        skipEmailSenderCheck = true;
-      }
-      
-      if (!skipEmailSenderCheck) {
-        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-        if (subjectInCache != null) {
-          if (subjectInCache == false) {
-            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-            errorMessages.add(error);
-            return errorMessages;
-          }
-        } else {
-          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
-          if (StringUtils.isNotBlank(emailSenderGroupName)) {
-            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
-            if (emailSenderGroup != null) {
-              if (emailSenderGroup.hasMember(loggedInSubject)) {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-              } else {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-                errorMessages.add(error);
-                return errorMessages;
-              }
-              
-            } else {
-              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
-            }
-          }
-        }
+      // SECURITY (GRP-7381): who may create a sendEmail rule (default-closed, layered gate:
+      // wheel/root, else members of rules.restrictRulesEmailSendersToMembersOfThisGroupName if set,
+      // else members of rules.restrictRulesUiToMembersOfThisGroupName if set, else wheel/root only).
+      if (!RuleService.allowedToCreateEmailRule(loggedInSubject)) {
+        errorMessages.add(GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup"));
+        return errorMessages;
       }
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
@@ -3536,38 +3458,12 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      boolean skipEmailSenderCheck = false;
-      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        skipEmailSenderCheck = true;
-      }
-      
-      if (!skipEmailSenderCheck) {
-        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-        if (subjectInCache != null) {
-          if (subjectInCache == false) {
-            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-            errorMessages.add(error);
-            return errorMessages;
-          }
-        } else {
-          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
-          if (StringUtils.isNotBlank(emailSenderGroupName)) {
-            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
-            if (emailSenderGroup != null) {
-              if (emailSenderGroup.hasMember(loggedInSubject)) {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-              } else {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-                errorMessages.add(error);
-                return errorMessages;
-              }
-              
-            } else {
-              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
-            }
-          }
-        }
+      // SECURITY (GRP-7381): who may create a sendEmail rule (default-closed, layered gate:
+      // wheel/root, else members of rules.restrictRulesEmailSendersToMembersOfThisGroupName if set,
+      // else members of rules.restrictRulesUiToMembersOfThisGroupName if set, else wheel/root only).
+      if (!RuleService.allowedToCreateEmailRule(loggedInSubject)) {
+        errorMessages.add(GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup"));
+        return errorMessages;
       }
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
@@ -3712,38 +3608,12 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      boolean skipEmailSenderCheck = false;
-      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        skipEmailSenderCheck = true;
-      }
-      
-      if (!skipEmailSenderCheck) {
-        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-        if (subjectInCache != null) {
-          if (subjectInCache == false) {
-            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-            errorMessages.add(error);
-            return errorMessages;
-          }
-        } else {
-          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
-          if (StringUtils.isNotBlank(emailSenderGroupName)) {
-            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
-            if (emailSenderGroup != null) {
-              if (emailSenderGroup.hasMember(loggedInSubject)) {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-              } else {
-                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
-                errorMessages.add(error);
-                return errorMessages;
-              }
-              
-            } else {
-              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
-            }
-          }
-        }
+      // SECURITY (GRP-7381): who may create a sendEmail rule (default-closed, layered gate:
+      // wheel/root, else members of rules.restrictRulesEmailSendersToMembersOfThisGroupName if set,
+      // else members of rules.restrictRulesUiToMembersOfThisGroupName if set, else wheel/root only).
+      if (!RuleService.allowedToCreateEmailRule(loggedInSubject)) {
+        errorMessages.add(GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup"));
+        return errorMessages;
       }
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
@@ -4164,9 +4034,7 @@ public enum RulePattern {
   public boolean isDaemonAssignableByNonAdmin() {
     return false;
   }
-  
-  private static final ExpirableCache<MultiKey, Boolean> emailSenders = new ExpirableCache<MultiKey, Boolean>(5);
-  
+
   /** logger */
   protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(RulePattern.class);
 

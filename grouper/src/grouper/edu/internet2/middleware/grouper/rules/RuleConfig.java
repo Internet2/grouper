@@ -72,11 +72,23 @@ public class RuleConfig {
   }
   
   private Subject subject;
-  
-  
+
+  /**
+   * the subject who is adding or editing this rule (the logged in user in the UI).
+   * used for security checks (GRP-7359): only wheel/root may add or edit an EL or custom rule.
+   * Callers that save rules through RuleService.saveOrUpdateRuleAttributes MUST set this to the
+   * acting user; a null subject is treated as unprivileged (fail closed), so EL/custom saves with
+   * no subject are rejected.
+   * @return the subject configuring the rule, or null if not set
+   */
+  public Subject getSubject() {
+    return this.subject;
+  }
+
+
   /**
    * if the logged in user can set daemon
-   * @return 
+   * @return
    */
   public boolean isCanSetDaemon() {
     
