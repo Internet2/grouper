@@ -46,6 +46,7 @@ public class AllRulesTests {
     suite.addTestSuite(RuleTest.class);
     suite.addTestSuite(RuleHookTest.class);
     suite.addTestSuite(RuleNameChangeTest.class);
+    suite.addTestSuite(RuleSecurityTest.class);
     //$JUnit-END$
     return suite;
   }

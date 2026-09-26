@@ -6334,19 +6334,24 @@ public class UiV2Group {
   }
   
   private void populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
-    
-    String ruleCheckType = request.getParameter("grouperRuleCheckType");
-    ruleConfig.setCheckType(ruleCheckType);
-    
+
     String grouperRulePattern = request.getParameter("grouperRulePattern");
     ruleConfig.setPattern(grouperRulePattern);
-    
-    if (StringUtils.isNotBlank(grouperRulePattern) && !StringUtils.equals(grouperRulePattern, "custom")) {
+
+    boolean isCustom = StringUtils.isBlank(grouperRulePattern) || StringUtils.equals(grouperRulePattern, "custom");
+
+    if (!isCustom) {
+
+      // SECURITY (GRP-7359): a pattern only displays its own declared form elements, so read ONLY
+      // those.  Do NOT read the raw check/if/then/arg/EL parameters for a pattern submit -- those
+      // belong to the custom builder (which is wheel/root only), and reading them here would let a
+      // crafted request smuggle extra rule attributes in under a pattern.  RuleService double-checks
+      // that the built rule matches the claimed pattern (ruleMatchesClaimedPattern).
       List<GrouperConfigurationModuleAttribute> elementsToShow = RulePattern.valueOf(grouperRulePattern).getElementsToShow(ruleConfig.getGrouperObject(), ruleConfig.getRuleDefinition());
-      
+
       for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
         String htmlElementName = "config_"+attribute.getConfigSuffix();
-        
+
         if (attribute.getFormElement() == ConfigItemFormElement.CHECKBOX) {
           String[] parameterValues = request.getParameterValues(htmlElementName+"[]");
           if (parameterValues != null) {
@@ -6365,77 +6370,85 @@ public class UiV2Group {
           String value = request.getParameter(htmlElementName);
           ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
         }
-        
+
       }
-      
-    }
-    
-    String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
-    ruleConfig.setCheckOwner(grouperRuleCheckOwner);
-    
-    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboName");
-    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
-      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboNameDisplay");
-    }
-    if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
-      grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
-    }
-    ruleConfig.setCheckOwnerUuidOrName(grouperRuleCheckOwnerUuidOrName);
-    
-    String grouperRuleCheckOwnerStemScope = request.getParameter("grouperRuleCheckOwnerStemScope");
-    ruleConfig.setCheckOwnerStemScope(grouperRuleCheckOwnerStemScope);
-    
-    String grouperRuleIfConditionOption = request.getParameter("grouperRuleIfConditionOption");
-    ruleConfig.setIfConditionOption(grouperRuleIfConditionOption);
-    
-    String grouperRuleIfConditionOwner = request.getParameter("grouperRuleIfConditionOwner");
-    ruleConfig.setIfConditionOwner(grouperRuleIfConditionOwner);
-    
-    String grouperRuleIfConditionEL = request.getParameter("grouperRuleIfConditionEL");
-    ruleConfig.setIfConditionEl(grouperRuleIfConditionEL);
-    
-    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboName");
-    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
-      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboNameDisplay");
-    }
-    if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
-      grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
-    }
-    ruleConfig.setIfConditionOwnerUuidOrName(grouperRuleIfConditionOwnerUuidOrName);
 
-    String grouperRuleIfConditionOwnerStemScope = request.getParameter("grouperRuleIfConditionOwnerStemScope");
-    ruleConfig.setIfConditionOwnerStemScope(grouperRuleIfConditionOwnerStemScope);
-    
-    String grouperRuleThenOption = request.getParameter("grouperRuleThenOption");
-    ruleConfig.setThenOption(grouperRuleThenOption);
-    
-    String grouperRuleThenEL = request.getParameter("grouperRuleThenEL");
-    ruleConfig.setThenEl(grouperRuleThenEL);
+    } else {
 
-    String grouperRuleCheckArg0 = request.getParameter("grouperRuleCheckArg0");
-    ruleConfig.setCheckArg0(grouperRuleCheckArg0);
-    
-    String grouperRuleCheckArg1 = request.getParameter("grouperRuleCheckArg1");
-    ruleConfig.setCheckArg1(grouperRuleCheckArg1);
-    
-    String grouperRuleIfConditionArg0 = request.getParameter("grouperRuleIfConditionArg0");
-    ruleConfig.setIfConditionArg0(grouperRuleIfConditionArg0);
-    
-    String grouperRuleIfConditionArg1 = request.getParameter("grouperRuleIfConditionArg1");
-    ruleConfig.setIfConditionArg1(grouperRuleIfConditionArg1);
-    
-    String grouperRuleThenArg0 = request.getParameter("grouperRuleThenArg0");
-    ruleConfig.setThenArg0(grouperRuleThenArg0);
-    
-    String grouperRuleThenArg1 = request.getParameter("grouperRuleThenArg1");
-    ruleConfig.setThenArg1(grouperRuleThenArg1);
-    
-    String grouperRuleThenArg2 = request.getParameter("grouperRuleThenArg2");
-    ruleConfig.setThenArg2(grouperRuleThenArg2);
-    
+      // custom rule (wheel/root only): the custom builder shows the raw check/if/then/arg/EL fields,
+      // so read them here
+      String ruleCheckType = request.getParameter("grouperRuleCheckType");
+      ruleConfig.setCheckType(ruleCheckType);
+
+      String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
+      ruleConfig.setCheckOwner(grouperRuleCheckOwner);
+
+      String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboName");
+      if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+        grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrNameComboNameDisplay");
+      }
+      if (StringUtils.isBlank(grouperRuleCheckOwnerUuidOrName)) {
+        grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+      }
+      ruleConfig.setCheckOwnerUuidOrName(grouperRuleCheckOwnerUuidOrName);
+
+      String grouperRuleCheckOwnerStemScope = request.getParameter("grouperRuleCheckOwnerStemScope");
+      ruleConfig.setCheckOwnerStemScope(grouperRuleCheckOwnerStemScope);
+
+      String grouperRuleIfConditionOption = request.getParameter("grouperRuleIfConditionOption");
+      ruleConfig.setIfConditionOption(grouperRuleIfConditionOption);
+
+      String grouperRuleIfConditionOwner = request.getParameter("grouperRuleIfConditionOwner");
+      ruleConfig.setIfConditionOwner(grouperRuleIfConditionOwner);
+
+      String grouperRuleIfConditionEL = request.getParameter("grouperRuleIfConditionEL");
+      ruleConfig.setIfConditionEl(grouperRuleIfConditionEL);
+
+      String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboName");
+      if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+        grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrNameComboNameDisplay");
+      }
+      if (StringUtils.isBlank(grouperRuleIfConditionOwnerUuidOrName)) {
+        grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+      }
+      ruleConfig.setIfConditionOwnerUuidOrName(grouperRuleIfConditionOwnerUuidOrName);
+
+      String grouperRuleIfConditionOwnerStemScope = request.getParameter("grouperRuleIfConditionOwnerStemScope");
+      ruleConfig.setIfConditionOwnerStemScope(grouperRuleIfConditionOwnerStemScope);
+
+      String grouperRuleThenOption = request.getParameter("grouperRuleThenOption");
+      ruleConfig.setThenOption(grouperRuleThenOption);
+
+      String grouperRuleThenEL = request.getParameter("grouperRuleThenEL");
+      ruleConfig.setThenEl(grouperRuleThenEL);
+
+      String grouperRuleCheckArg0 = request.getParameter("grouperRuleCheckArg0");
+      ruleConfig.setCheckArg0(grouperRuleCheckArg0);
+
+      String grouperRuleCheckArg1 = request.getParameter("grouperRuleCheckArg1");
+      ruleConfig.setCheckArg1(grouperRuleCheckArg1);
+
+      String grouperRuleIfConditionArg0 = request.getParameter("grouperRuleIfConditionArg0");
+      ruleConfig.setIfConditionArg0(grouperRuleIfConditionArg0);
+
+      String grouperRuleIfConditionArg1 = request.getParameter("grouperRuleIfConditionArg1");
+      ruleConfig.setIfConditionArg1(grouperRuleIfConditionArg1);
+
+      String grouperRuleThenArg0 = request.getParameter("grouperRuleThenArg0");
+      ruleConfig.setThenArg0(grouperRuleThenArg0);
+
+      String grouperRuleThenArg1 = request.getParameter("grouperRuleThenArg1");
+      ruleConfig.setThenArg1(grouperRuleThenArg1);
+
+      String grouperRuleThenArg2 = request.getParameter("grouperRuleThenArg2");
+      ruleConfig.setThenArg2(grouperRuleThenArg2);
+
+    }
+
+    // the run-daemon checkbox is a separate control shown for both patterns and custom rules
     String grouperRuleRunDaemon = request.getParameter("grouperRuleRunDaemon");
     ruleConfig.setRunDaemon(GrouperUtil.booleanObjectValue(grouperRuleRunDaemon));
-    
+
   }
   
   /**
@@ -6485,12 +6498,19 @@ public class UiV2Group {
       if (!guiRuleDefinition.isCanEditRule()) {
         throw new RuntimeException("Cannot edit rule");
       }
-      
+
+      // SECURITY (GRP-7359): a custom rule (one that matches no predefined pattern, including every
+      // EL rule) runs arbitrary logic as GrouperSystem, so only wheel/root may delete one.  The
+      // delete below runs in a root session, so enforce this against the real logged in user here.
+      if (!RuleService.allowedToManageRule(loggedInSubject, ruleDef)) {
+        throw new RuntimeException("Only a Grouper administrator can delete a custom rule.");
+      }
+
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
+
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          
+
           RuleService.deleteRuleAttributes(attributeAssignId);
           return null;
         }
