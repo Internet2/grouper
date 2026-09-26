@@ -2,8 +2,8 @@
 title: "v7 Upgrade instructions from v7"
 space: Grouper
 pageId: 28549096
-version: 24
-lastUpdated: 2026-08-14T01:02:00.405Z
+version: 26
+lastUpdated: 2026-08-31T07:09:39.965Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper developers coding standards"
 space: GrIntDev
 pageId: 48792568
-version: 62
-lastUpdated: 2026-08-17T16:57:09.970Z
+version: 63
+lastUpdated: 2026-09-20T17:33:09.348Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards
 ---
 
@@ -160,9 +160,12 @@ Intellij
 - For new code don't commit if there are warnings in eclipse
 - Generally we use unchecked exceptions
 - Keep things backwards compatible generally, deprecate if needed
+- Do not compile a regex inside a loop. Prefer `GrouperUtil.patternCompile(regex)` in general rather than calling `Pattern.compile` and doing your own local caching: it keeps a cache of compiled patterns, and `Pattern.compile` builds a whole compiled node tree on every call.
 
 ### UI
 
+- Never call a method in EL, meaning anything with parentheses, for example `${guiConfigProperty.containsNewline(x)}` or `${list.size()}`. Property access such as `${guiConfigProperty.propertyValue}` is fine and is cached by the EL resolver. The method call form is not: it re-resolves through `Class.getMethods()` on every evaluation, which copies every method on the class, and `GrouperUtil` has about 600 of them. Add a getter and use the property form. This is worst in a loop, and a JSP fragment can be rendered in a loop without that being visible in the file you are editing. Taglib functions like `${grouper:escapeHtml(x)}` use a different mechanism and are fine.
+- Use `${!empty someList}` rather than `${someList.size() > 0}`. The `empty` operator is part of EL and does no reflection, while `size()` is a method call per the point above.
 - Try not to use javascript, use the ajax API to write logic in Java and views in JSP
 - Externalize all text (even text in placeholders, from java, error messages, text from javascript if applicable)
   
