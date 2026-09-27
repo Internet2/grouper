@@ -97,7 +97,7 @@ public class GrouperInstaller {
    * the container to a new Tomcat.  Keep it on a release that is actually published to
    * https://software.internet2.edu/grouper/downloads/tools/
    */
-  public static final String TOMCAT_VERSION = "9.0.121";
+  public static final String TOMCAT_VERSION = "9.0.122";
 
   /**
    * tomcat version
