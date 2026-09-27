@@ -2,8 +2,8 @@
 title: "Grouper rules UI"
 space: Grouper
 pageId: 28549263
-version: 29
-lastUpdated: 2026-07-01T05:42:24.461Z
+version: 30
+lastUpdated: 2026-09-26T22:31:30.572Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549263/Grouper+rules+UI
 ---
 
@@ -19,8 +19,9 @@ This is in Grouper v5+. This UI shows rules, allows adding, editing, deleting ru
 | --- | --- |
 | All actions | Sysadmin user |
 | See all rules | Readonly sysadmin |
-| Perform add / edit / delete actions on rules in general | If there is a grouper.properties   ``` rules.restrictRulesUiToMembersOfThisGroupName = etc:rulesEditors ```  If the user using the UI is in the etc:rulesEditors group.  This does not apply to sysadmin or readonly sysadmin.  If this is not configured then there is no global rules group.  Whether this configuration is set or not, the following object privileges apply. |
-| Use email in the result clause | If there is a grouper.properties   ``` rules.restrictRulesEmailSendersToMembersOfThisGroupName = etc:rulesEmailResultAllowed ```  If the user using the UI is in the etc:rulesEmailResultAllowed group.  This does not apply to sysadmin or readonly sysadmin.  If this is not configured then there is no global rules group.  Whether this configuration is set or not, the following object privileges apply. |
+| Perform add / edit / delete actions on rules in general | If there is a grouper.properties   ``` rules.restrictRulesUiToMembersOfThisGroupName = etc:rulesEditors ```  If the user using the UI is in the etc:rulesEditors group.  This does not apply to sysadmin or readonly sysadmin.  If this is not configured then there is no global rules group, and any user with ADMIN on a group or folder can author rules there. We strongly recommend setting this to a group of trusted power users (or your wheel group).  Whether this configuration is set or not, the following object privileges apply. |
+| Add / edit custom rules, or rules that use expression language (EL) | Sysadmin only (v6.4.1+ / v7.5.1+).  Non-sysadmins must use one of the predefined patterns, and the rule must match the selected pattern. |
+| Use email in the result clause | If there is a grouper.properties   ``` rules.restrictRulesEmailSendersToMembersOfThisGroupName = etc:rulesEmailResultAllowed ```  If the user using the UI is in the etc:rulesEmailResultAllowed group.  This does not apply to sysadmin or readonly sysadmin.  If this is not configured (v6.4.1+ / v7.5.1+):    - if rules.restrictRulesUiToMembersOfThisGroupName is configured, members of that group can use email in rules - if neither is configured, only sysadmins can use email in rules. To restore the previous behavior (any rule editor), set:   ``` rules.allowSendEmailRulesWhenNoGroupConfigured = true ```  Whether this configuration is set or not, the following object privileges apply. |
 | Edit rules on a group | Group ADMIN privilege on the assignment owner |
 | View rules on a group | Group READ privilege on the group |
 | Edit rules on a folder | Folder ADMIN privilege on the assignment owner |

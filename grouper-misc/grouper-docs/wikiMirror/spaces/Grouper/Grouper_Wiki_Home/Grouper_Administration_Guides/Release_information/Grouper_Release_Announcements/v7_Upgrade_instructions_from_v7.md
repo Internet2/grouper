@@ -2,8 +2,8 @@
 title: "v7 Upgrade instructions from v7"
 space: Grouper
 pageId: 28549096
-version: 24
-lastUpdated: 2026-08-14T01:02:00.405Z
+version: 27
+lastUpdated: 2026-09-26T22:51:02.420Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7
 ---
 
@@ -17,6 +17,8 @@ Note, these are in reverse order, so go from bottom to top
 
 | Date | Upgrading from version | Upgrading to Version | Note for version | Importance | Jira | Step needed if... | Description |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026/09/26 | ALL | ALL | 7.5.1 | Important | [GRP-7359](https://grouper.atlassian.net/browse/GRP-7359) | Users who are not sysadmins create or edit rules in the UI | Security fix. Non-sysadmins can now only add or edit rules from the predefined patterns, and the rule must match the selected pattern. Custom rules and rules that use expression language (EL) are sysadmin-only.  Set `rules.restrictRulesUiToMembersOfThisGroupName` (grouper.properties) to a group of trusted power users, and audit existing rules. See [GRP-7359](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation). |
+| 2026/09/26 | ALL | ALL | 7.5.1 | Medium important | [GRP-7381](https://grouper.atlassian.net/browse/GRP-7381) | Users who are not sysadmins create rules that send email | If neither `rules.restrictRulesEmailSendersToMembersOfThisGroupName` nor `rules.restrictRulesUiToMembersOfThisGroupName` is set, only sysadmins can now create rules that send email. Set the rules UI group to your rule authors, or set `rules.allowSendEmailRulesWhenNoGroupConfigured = true` to restore the previous behavior. |
 | 2026/07/05 | ALL | ALL | 7.3.0 | Medium important | [GRP-7076](https://grouper.atlassian.net/browse/GRP-7076) | If you use Postgres | Follow the steps in the Jira to widen    grouper_members.subject_identifierX |
 | 2026/07/05 | ALL | ALL | 7.3.0 | Not important | [GRP-7076](https://grouper.atlassian.net/browse/GRP-7076) | You use Grouper | DDL upgrade tasks ([43](https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)) |
 | 2026/07/05 | ALL | ALL | 7.3.0 | Important | [GRP-7012](https://grouper.atlassian.net/browse/GRP-7012) | You have provisioning failsafes configured | Follow the steps in the Jira to review your configs |
