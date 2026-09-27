@@ -637,6 +637,34 @@ git merge-base --is-ancestor GROUPER_RELEASE_<version>^{commit} origin/<BRANCH> 
 Two things close out a release: the demo server is upgraded to the new container
 tag, and the release is announced on Slack.
 
+### Upgrade the demo server
+
+The user does this; give them the commands. The demo server is **i2midev6**
+(grouperdemo.internet2.edu, the maintainer's ssh alias `internet2_demo`, via
+login.internet2.edu). Each major version has its own container directory and
+build/run scripts; for v7:
+
+```bash
+cd /opt/grouper/7/container/
+emacs Dockerfile                  # set the FROM to i2incommon/grouper:<version>
+./grouperBuildContainer_v7.sh
+docker rm -f grouper_v7
+./grouperRunContainer_v7.sh
+```
+
+Other versions follow the same build / rm / run pattern, but the directory
+under `/opt/grouper/` is NOT the release major -- it is a historical name:
+
+| Release line | Directory |
+|---|---|
+| v7 | `/opt/grouper/7/` |
+| v6 | `/opt/grouper/5/` |
+| v4 | `/opt/grouper/2.6/` |
+
+The script and container names inside those directories are not recorded here;
+ask the user to `ls` the container directory (and `docker ps`) before giving the
+commands for a v6 or v4 release, rather than guessing `_v6` / `_v4`.
+
 The release is not finished until the user has something to paste into Slack.
 Once the demo server is up, ALWAYS produce the announcement without being asked --
 it is the last deliverable of every release.
