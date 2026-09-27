@@ -59,15 +59,16 @@ Do this BEFORE tagging, so the mirror refresh is part of the release commit rath
 than a commit that lands after the tag and leaves the branch ahead of it.
 
 Run them in the checkout for the branch being released -- a v6 release refreshes
-v6's mirror. Note that `issueMirror` and `sitemap.xml` exist only on v7; older
-branches carry `wikiMirror` alone, so there is just one script to run there.
+v6's mirror. v7, v6 and v4 all carry both `wikiMirror` and `issueMirror`, so run
+both scripts on every branch; only `sitemap.xml` is v7-only (the v6/v4 wiki run
+does not produce one, and there is nothing to copy to i2midev6 for them).
 
 Both mirrors are incremental, so this is cheap.
 
 ```bash
 set -a && . ~/.secrets/grouper_confluence.env && set +a
 cd grouper-misc/grouper-docs/wikiMirror  && python3 wikiToMarkdown.py
-cd ../issueMirror                        && python3 jiraToMarkdown.py   # v7 only
+cd ../issueMirror                        && python3 jiraToMarkdown.py
 ```
 
 **Dependency:** the scripts need `beautifulsoup4`, and it is often not installed
@@ -453,13 +454,29 @@ read them from the same sources the build pulls from:
 
 ### Confirm them from the running image
 
-The smoke test confirms both. If either differs from the row (a release landed
-between step 0 and the Jenkins build), fix the row when you add the digest:
+Confirm the whole Versions cell (Java, Tomcat, OS) with one throwaway container
+-- no database or compose file needed. This is the command from the internal
+"Release steps for new container build" wiki page (GrIntDev), and it differs by
+release line because v4 still ships Apache httpd and Shibboleth SP:
+
+v6+ (v7):
 
 ```bash
-docker compose exec grouper cat /etc/rocky-release
-docker compose exec grouper java -version
+docker run --rm i2incommon/grouper:<version> bash -c "java -version && grep 'Apache Tomcat Version' /opt/tomcat/RELEASE-NOTES && grep PRETTY_NAME /etc/os-release"
 ```
+
+v4:
+
+```bash
+docker run --rm i2incommon/grouper:<version> bash -c "java -version && httpd -v && /usr/sbin/shibd -v && grep 'Apache Tomcat Version' /opt/tomcat/RELEASE-NOTES && grep PRETTY_NAME /etc/os-release"
+```
+
+The `Status:` / `Digest:` lines of the pull also give the sha256 for the row.
+Read Corretto from the `Corretto-17.0.20.12.1` token, not the `openjdk version`
+line (that reads `17.0.20.1`). If any value differs from the row (a release
+landed between step 0 and the Jenkins build), fix the row. The user may run this
+on the demo server right after upgrading it -- that counts; the quickstart above
+remains the functional test.
 
 Ignore any `ImageOS: centos7` label -- stale metadata inherited from the TIER base,
 wrong for years.
@@ -641,29 +658,34 @@ tag, and the release is announced on Slack.
 
 The user does this; give them the commands. The demo server is **i2midev6**
 (grouperdemo.internet2.edu, the maintainer's ssh alias `internet2_demo`, via
-login.internet2.edu). Each major version has its own container directory and
-build/run scripts; for v7:
+login.internet2.edu). The work is done as root. Each release line has its own
+container directory, and that directory is NOT always the release major -- it is
+a historical name:
+
+| Release line | Directory | Scripts / container |
+|---|---|---|
+| v7 | `/opt/grouper/7/container/` | `grouperBuildContainer_v7.sh`, `grouperRunContainer_v7.sh`, `grouper_v7` |
+| v6 | `/opt/grouper/5/container/` | `grouperBuildContainer_v6.sh`, `grouperRunContainer_v6.sh`, `grouper_v6` |
+| v4 | `/opt/grouper/2.6/` | not recorded yet -- ask the user to `ls` it (and `docker ps`) rather than guessing `_v4` |
+
+Give exactly these commands, substituting the release line's directory, suffix
+and version (v6 shown):
 
 ```bash
-cd /opt/grouper/7/container/
-emacs Dockerfile                  # set the FROM to i2incommon/grouper:<version>
-./grouperBuildContainer_v7.sh
-docker rm -f grouper_v7
-./grouperRunContainer_v7.sh
+ssh internet2_demo
+sudo su -
+cd /opt/grouper/5/container/
+docker rm -f grouper_v6
+emacs Dockerfile                  # change the version to <version>, e.g. 6.4.1
+./grouperBuildContainer_v6.sh
+./grouperRunContainer_v6.sh
 ```
 
-Other versions follow the same build / rm / run pattern, but the directory
-under `/opt/grouper/` is NOT the release major -- it is a historical name:
+For v7 the same sequence is `cd /opt/grouper/7/container/`, `docker rm -f
+grouper_v7`, `grouperBuildContainer_v7.sh`, `grouperRunContainer_v7.sh`.
 
-| Release line | Directory |
-|---|---|
-| v7 | `/opt/grouper/7/` |
-| v6 | `/opt/grouper/5/` |
-| v4 | `/opt/grouper/2.6/` |
-
-The script and container names inside those directories are not recorded here;
-ask the user to `ls` the container directory (and `docker ps`) before giving the
-commands for a v6 or v4 release, rather than guessing `_v6` / `_v4`.
+Then have the user run the version check from step 7 ("Confirm them from the
+running image") there, and fix the row if anything differs.
 
 The release is not finished until the user has something to paste into Slack.
 Once the demo server is up, ALWAYS produce the announcement without being asked --
