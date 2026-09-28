@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -348,6 +349,42 @@ public class PrivilegeHelper {
         || resolver.hasPrivilege(stem, subj, NamingPrivilege.CREATE)
         || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_VIEW);
   } 
+  
+  /**
+   * whether a subject can see a folder, the way the UI decides it: a naming privilege on the
+   * folder itself (stemAdmin, create, stemView, stemAttrRead, stemAttrUpdate, direct or through a
+   * group), or else something inside the folder that the subject can see.  the second part uses
+   * the stem view privilege cache table (grouper_stem_view_privilege) through the secure
+   * StemFinder, which also honors security.folders.are.viewable.by.all and wheel / view only root.
+   * 
+   * <p>Use this where a folder is looked up by id or name from a request and then shown to the
+   * user.  StemFinder.findByUuid and the other static finders do not check this: they are
+   * lookups, not authorization (see GRP-7336 and GRP-7387).</p>
+   * 
+   * @param subject the subject, null means no
+   * @param stem the folder, null means no
+   * @return true if the subject can see the folder
+   */
+  public static boolean canViewStemOrObjectInside(final Subject subject, final Stem stem) {
+    
+    if (subject == null || stem == null) {
+      return false;
+    }
+    
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        // cheap check first: a privilege on the folder itself
+        if (stem.canHavePrivilege(subject, NamingPrivilege.STEM_VIEW.getName(), false)) {
+          return true;
+        }
+        
+        // otherwise something inside it, from the stem view privilege table
+        return new StemFinder().addStemId(stem.getId()).assignSubject(subject).findStem() != null;
+      }
+    });
+  }
   
   /**
    * @param s 
