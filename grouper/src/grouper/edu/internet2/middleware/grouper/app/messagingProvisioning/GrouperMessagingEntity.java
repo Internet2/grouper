@@ -14,6 +14,11 @@ public class GrouperMessagingEntity {
 
   private String subjectIdentifier0;
   
+  /**
+   * the provisioning entity this was created from, for format scripts
+   */
+  private ProvisioningEntity provisioningEntity;
+  
   
   public String getId() {
     return id;
@@ -53,9 +58,18 @@ public class GrouperMessagingEntity {
     this.subjectIdentifier0 = subjectIdentifier0;
   }
 
+  public ProvisioningEntity getProvisioningEntity() {
+    return provisioningEntity;
+  }
+
+  public void setProvisioningEntity(ProvisioningEntity provisioningEntity) {
+    this.provisioningEntity = provisioningEntity;
+  }
+
   public static GrouperMessagingEntity fromProvisioningEntity(ProvisioningEntity targetEntity) {
    
     GrouperMessagingEntity grouperMessagingEntity = new GrouperMessagingEntity();
+    grouperMessagingEntity.setProvisioningEntity(targetEntity);
     grouperMessagingEntity.setId(targetEntity.getId());
     grouperMessagingEntity.setSubjectId(targetEntity.getSubjectId());
     grouperMessagingEntity.setSubjectSourceId(targetEntity.retrieveAttributeValueString("subjectSourceId"));
@@ -65,8 +79,13 @@ public class GrouperMessagingEntity {
     
   }
   
-  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration) {
-    return grouperMessagingConfiguration.getMessagingFormatType().toEntityJson(this);
+  /**
+   * @param grouperMessagingConfiguration
+   * @param eventType the event type being sent, e.g. GROUP_ADD, available to format scripts
+   * @return the message body
+   */
+  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration, String eventType) {
+    return grouperMessagingConfiguration.getMessagingFormatType().toEntityJson(grouperMessagingConfiguration, this, eventType);
   }
 
 }

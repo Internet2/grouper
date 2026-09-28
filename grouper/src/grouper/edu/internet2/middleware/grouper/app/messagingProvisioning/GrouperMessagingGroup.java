@@ -42,6 +42,11 @@ public class GrouperMessagingGroup {
   
   private String parentStemId;
   
+  /**
+   * the provisioning group this was created from, for format scripts
+   */
+  private ProvisioningGroup provisioningGroup;
+  
 
   
   public String getDisplayName() {
@@ -134,9 +139,20 @@ public class GrouperMessagingGroup {
   }
 
 
+  public ProvisioningGroup getProvisioningGroup() {
+    return provisioningGroup;
+  }
+
+
+  public void setProvisioningGroup(ProvisioningGroup provisioningGroup) {
+    this.provisioningGroup = provisioningGroup;
+  }
+
+
   public static GrouperMessagingGroup fromProvisioningGroup(ProvisioningGroup targetGroup) {
     
     GrouperMessagingGroup grouperMessagingGroup = new GrouperMessagingGroup();
+    grouperMessagingGroup.setProvisioningGroup(targetGroup);
     grouperMessagingGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
     grouperMessagingGroup.setDisplayExtension(GrouperUtil.extensionFromName(targetGroup.getDisplayName()));
     grouperMessagingGroup.setDisplayName(targetGroup.getDisplayName());
@@ -150,8 +166,13 @@ public class GrouperMessagingGroup {
     
   }
   
-  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration) {
-    return grouperMessagingConfiguration.getMessagingFormatType().toGroupJson(this);
+  /**
+   * @param grouperMessagingConfiguration
+   * @param eventType the event type being sent, e.g. GROUP_ADD, available to format scripts
+   * @return the message body
+   */
+  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration, String eventType) {
+    return grouperMessagingConfiguration.getMessagingFormatType().toGroupJson(grouperMessagingConfiguration, this, eventType);
   }
 
 

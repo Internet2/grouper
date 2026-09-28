@@ -47,7 +47,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration, "MEMBER_ADD");
       
       messageObjectNode.put("eventType", "MEMBER_ADD");
       
@@ -74,7 +74,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration, "MEMBER_DELETE");
       
       messageObjectNode.put("eventType", "MEMBER_DELETE");
       
@@ -100,7 +100,7 @@ public class GrouperMessagingApiCommands {
     
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingEntity.toJson(grouperMessagingConfiguration, "MEMBER_UPDATE");
       
       messageObjectNode.put("eventType", "MEMBER_UPDATE");
       
@@ -128,7 +128,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration, "GROUP_ADD");
       
       messageObjectNode.put("eventType", "GROUP_ADD");
       
@@ -156,7 +156,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration, "GROUP_UPDATE");
       
       messageObjectNode.put("eventType", "GROUP_UPDATE");
       
@@ -184,7 +184,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingGroup.toJson(grouperMessagingConfiguration, "GROUP_DELETE");
       
       messageObjectNode.put("eventType", "GROUP_DELETE");
       
@@ -211,7 +211,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration, "MEMBERSHIP_ADD");
       
       messageObjectNode.put("eventType", "MEMBERSHIP_ADD");
       
@@ -239,7 +239,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration, "MEMBERSHIP_DELETE");
       
       messageObjectNode.put("eventType", "MEMBERSHIP_DELETE"); 
       
@@ -266,7 +266,7 @@ public class GrouperMessagingApiCommands {
 
     try {
       
-      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration);
+      ObjectNode messageObjectNode = grouperMessagingMembership.toJson(grouperMessagingConfiguration, "MEMBERSHIP_UPDATE");
       
       messageObjectNode.put("eventType", "MEMBERSHIP_UPDATE"); 
       

@@ -13,6 +13,7 @@ public class AllMessagingProvisioningTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.messagingProvisioning");
     //$JUnit-BEGIN$
+    suite.addTestSuite(GrouperMessagingFormatTypeTest.class);
     suite.addTestSuite(GrouperMessagingProvisionerTest.class);
     //$JUnit-END$
     return suite;

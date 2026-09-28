@@ -48,6 +48,11 @@ public class GrouperMessagingMembership {
 
   private String memberId;
   
+  /**
+   * the provisioning membership this was created from, for format scripts
+   */
+  private ProvisioningMembership provisioningMembership;
+  
   
   public String getFieldName() {
     return fieldName;
@@ -143,6 +148,15 @@ public class GrouperMessagingMembership {
     this.memberId = memberId;
   }
   
+  public ProvisioningMembership getProvisioningMembership() {
+    return provisioningMembership;
+  }
+
+
+  public void setProvisioningMembership(ProvisioningMembership provisioningMembership) {
+    this.provisioningMembership = provisioningMembership;
+  }
+  
   public static GrouperMessagingMembership fromProvisioningMembership(ProvisioningMembership targetMembership) {
     
     GrouperProvisioningConfiguration messagingConfiguration = targetMembership.getProvisioningMembershipWrapper()
@@ -151,6 +165,7 @@ public class GrouperMessagingMembership {
     GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = messagingConfiguration.getGrouperProvisioningMembershipFieldType();
     
     GrouperMessagingMembership grouperMessagingMembership = new GrouperMessagingMembership();
+    grouperMessagingMembership.setProvisioningMembership(targetMembership);
     grouperMessagingMembership.setFieldId(grouperProvisioningMembershipFieldType.getFieldId());
     grouperMessagingMembership.setFieldName(grouperProvisioningMembershipFieldType.getFieldName());
     grouperMessagingMembership.setGroupId(targetMembership.getProvisioningGroupId());
@@ -165,8 +180,13 @@ public class GrouperMessagingMembership {
   
   }
   
-  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration) {
-    return grouperMessagingConfiguration.getMessagingFormatType().toMembershipJson(this);
+  /**
+   * @param grouperMessagingConfiguration
+   * @param eventType the event type being sent, e.g. GROUP_ADD, available to format scripts
+   * @return the message body
+   */
+  public ObjectNode toJson(GrouperMessagingConfiguration grouperMessagingConfiguration, String eventType) {
+    return grouperMessagingConfiguration.getMessagingFormatType().toMembershipJson(grouperMessagingConfiguration, this, eventType);
   }
   
 }

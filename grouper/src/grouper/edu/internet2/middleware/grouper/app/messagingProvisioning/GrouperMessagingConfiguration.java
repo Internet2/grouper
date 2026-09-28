@@ -24,6 +24,12 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
   
   private GrouperMessagingFormatType messagingFormatType;
   
+  private String groupFormatTranslationScript;
+  
+  private String entityFormatTranslationScript;
+  
+  private String membershipFormatTranslationScript;
+  
   private Map<String, Object> queueArguments = new HashMap<String, Object>();
 
   private String messagingExternalSystemConfigId;
@@ -54,6 +60,12 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
     
     this.exchangeType = GrouperMessagingExchangeType.valueOfIgnoreCase(this.retrieveConfigString("exchangeType", false), false);
     this.messagingFormatType = GrouperMessagingFormatType.valueOfIgnoreCase(this.retrieveConfigString("messagingFormatType", true), true);
+    
+    if (this.messagingFormatType == GrouperMessagingFormatType.TranslationScript) {
+      this.groupFormatTranslationScript = this.retrieveConfigString("groupFormatTranslationScript", false);
+      this.entityFormatTranslationScript = this.retrieveConfigString("entityFormatTranslationScript", false);
+      this.membershipFormatTranslationScript = this.retrieveConfigString("membershipFormatTranslationScript", false);
+    }
     
     this.numberOfQueueArguments = GrouperUtil.intValue(this.retrieveConfigInt("numberOfQueueArguments", false), 0);
     
@@ -133,6 +145,36 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
   
   public void setMessagingFormatType(GrouperMessagingFormatType messagingFormatType) {
     this.messagingFormatType = messagingFormatType;
+  }
+
+  
+  public String getGroupFormatTranslationScript() {
+    return groupFormatTranslationScript;
+  }
+
+  
+  public void setGroupFormatTranslationScript(String groupFormatTranslationScript) {
+    this.groupFormatTranslationScript = groupFormatTranslationScript;
+  }
+
+  
+  public String getEntityFormatTranslationScript() {
+    return entityFormatTranslationScript;
+  }
+
+  
+  public void setEntityFormatTranslationScript(String entityFormatTranslationScript) {
+    this.entityFormatTranslationScript = entityFormatTranslationScript;
+  }
+
+  
+  public String getMembershipFormatTranslationScript() {
+    return membershipFormatTranslationScript;
+  }
+
+  
+  public void setMembershipFormatTranslationScript(String membershipFormatTranslationScript) {
+    this.membershipFormatTranslationScript = membershipFormatTranslationScript;
   }
 
   
