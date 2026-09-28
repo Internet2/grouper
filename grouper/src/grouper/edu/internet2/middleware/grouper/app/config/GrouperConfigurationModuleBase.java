@@ -24,6 +24,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
@@ -38,9 +39,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.subject.Subject;
 
 public abstract class GrouperConfigurationModuleBase {
   
@@ -542,9 +545,39 @@ public abstract class GrouperConfigurationModuleBase {
     return true;
   }
 
+  /**
+   * whether a subject may enter expression language in a configuration form.  it is evaluated
+   * server side with static class access, so only wheel or root.  this is the one rule shared by
+   * the server (populateConfigurationValuesFromUi) and the UI (the configFormElement tag and the
+   * screens which decide whether to show the expression language checkbox)
+   * @param subject the subject, null means no
+   * @return true if the subject is wheel or root
+   */
+  public static boolean isSubjectAllowedToUseExpressionLanguage(Subject subject) {
+    return subject != null && PrivilegeHelper.isWheelOrRoot(subject);
+  }
+
+  /**
+   * whether expression language posted from a form is honored right now: this module allows it and
+   * the subject of the current grouper session is wheel or root.  decided on the server from the
+   * session, never from what the request says, so a crafted request cannot turn it on.  no
+   * session means no
+   * @return true if expression language from the form is honored
+   */
+  public boolean isExpressionLanguageAllowedForCurrentSession() {
+    if (!this.isExpressionLanguageAllowed()) {
+      return false;
+    }
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    return grouperSession != null && isSubjectAllowedToUseExpressionLanguage(grouperSession.getSubject());
+  }
+
   public void populateConfigurationValuesFromUi(final HttpServletRequest request) {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    // decided once, from the session, not from the request
+    boolean expressionLanguageAllowed = this.isExpressionLanguageAllowedForCurrentSession();
     
 //    Map<String, Object> objectValueSubstituteMap = this.retrieveObjectValueSubstituteMap();
 //    
@@ -587,6 +620,13 @@ public abstract class GrouperConfigurationModuleBase {
         continue;
       }
       
+      // somebody who cannot use expression language cannot change a field which already is
+      // expression language in config either.  keep it as is: taking the posted text literally
+      // would overwrite a sysadmin's expression with its own script text
+      if (!expressionLanguageAllowed && attribute.isExpressionLanguage()) {
+        continue;
+      }
+      
       String name = "config_"+attribute.getConfigSuffix();
       String elCheckboxName = "config_el_"+attribute.getConfigSuffix();
       
@@ -602,9 +642,10 @@ public abstract class GrouperConfigurationModuleBase {
         value = request.getParameter(name);
       }
       
-      // a module which does not allow expression language takes the posted text literally, even
-      // if the request says it is expression language.  do not evaluate it, not even to show it
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on") && this.isExpressionLanguageAllowed()) {
+      // if this module or this person cannot use expression language, the posted text is taken
+      // literally even if the request says it is expression language.  do not evaluate it, not
+      // even to show it
+      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on") && expressionLanguageAllowed) {
         attribute.setExpressionLanguage(true);
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setExpressionLanguageScript(value);

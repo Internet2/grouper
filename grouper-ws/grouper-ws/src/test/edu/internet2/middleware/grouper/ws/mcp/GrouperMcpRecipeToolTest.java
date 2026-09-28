@@ -105,6 +105,11 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
     Group adminGroup = createGroup("test:recipeMcpAdmins");
     adminGroup.addMember(this.subjectAdmin, false);
 
+    // recipeTwo's audience.  nobody in this test is in it, but it has to exist: a recipe whose
+    // group cannot be found is reported as a problem (logged at ERROR), which is not what these
+    // tests are about
+    createGroup("test:recipeOtherAudience");
+
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         GrouperMcpRecipe.CONFIG_GROUP_CAN_ADMIN_IN_MCP, "test:recipeMcpAdmins");
 
