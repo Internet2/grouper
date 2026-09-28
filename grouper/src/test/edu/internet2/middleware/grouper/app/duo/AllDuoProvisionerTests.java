@@ -10,6 +10,7 @@ public class AllDuoProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllDuoProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperDuoProvisionerTest.class);
+    suite.addTestSuite(GrouperDuoProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

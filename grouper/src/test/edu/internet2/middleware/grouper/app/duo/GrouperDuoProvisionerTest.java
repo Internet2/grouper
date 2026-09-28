@@ -1489,4 +1489,159 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
         orphanUserNameInReporting);
   }
 
+  /**
+   * GRP-7384: end to end through the Duo mock. With nativeAttributesEntitiesIncludeAuthMethods on,
+   * a full sync captures the new lastLogin / isEnrolled defaults plus the derived auth method counts
+   * into grouper_prov_user_attr, from the real Duo phones / tokens / webauthncredentials / u2ftokens
+   * shapes the mock returns (seeded via mock_duo_user.auth_methods_json). SUBJ0 has safe methods
+   * (Duo Mobile, D-100, WebAuthn); SUBJ1 is "stuck" with only SMS / voice and a legacy HOTP token.
+   */
+  public void testDuoFullSyncCapturesAuthMethods() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myDuoProvisioner";
+    Map<String, String> includeAuthMethods = new HashMap<String, String>();
+    includeAuthMethods.put("nativeAttributesEntitiesIncludeAuthMethods", "true");
+    setupDuoSyncBack(configId, includeAuthMethods);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // pass 1 creates the Duo users in the mock
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // seed the auth methods Duo would report (the user_name is the subject id, see loginId)
+    seedMockDuoAuthMethods(SubjectTestHelper.SUBJ0.getId(), 1727537850L, "{"
+        + "\"phones\":[{\"activated\":true,\"capabilities\":[\"auto\",\"push\",\"sms\",\"phone\",\"mobile_otp\"],"
+        + "\"last_seen\":\"2025-01-02T03:04:05\",\"number\":\"+12155550001\",\"type\":\"Mobile\"}],"
+        + "\"tokens\":[{\"serial\":\"D100-1\",\"token_id\":\"t1\",\"type\":\"d1\"}],"
+        + "\"webauthncredentials\":[{\"credential_name\":\"Touch ID\",\"date_added\":1699543237,\"label\":\"Mac\",\"webauthnkey\":\"w1\"}],"
+        + "\"u2ftokens\":[]}");
+    seedMockDuoAuthMethods(SubjectTestHelper.SUBJ1.getId(), 1600000000L, "{"
+        + "\"phones\":[{\"activated\":false,\"capabilities\":[\"auto\",\"sms\",\"phone\"],"
+        + "\"last_seen\":\"\",\"number\":\"+12155550002\",\"type\":\"Mobile\"}],"
+        + "\"tokens\":[{\"serial\":\"legacy__hotp__0\",\"token_id\":\"t2\",\"type\":\"h6\"}],"
+        + "\"webauthncredentials\":[],\"u2ftokens\":[]}");
+
+    // pass 2 re-reads the users from the mock and flushes the sync-back tables
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    String subj0 = SubjectTestHelper.SUBJ0.getId();
+    assertEquals(Long.valueOf(1727537850L), authMethodInteger(configId, subj0, "lastLogin"));
+    assertEquals("boolean stored as 1", Long.valueOf(1), authMethodInteger(configId, subj0, "isEnrolled"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "pushPhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "mobileOtpPhoneCount"));
+    assertEquals("2025-01-02T03:04:05", authMethodString(configId, subj0, "pushPhoneLastSeen"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "smsPhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "voicePhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "duoHardwareTokenCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj0, "hotpTokenCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "webauthnCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj0, "u2fCount"));
+
+    // the stuck user: only sms / voice and a legacy hotp, every safe method is 0
+    String subj1 = SubjectTestHelper.SUBJ1.getId();
+    assertEquals(Long.valueOf(1600000000L), authMethodInteger(configId, subj1, "lastLogin"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj1, "smsPhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj1, "voicePhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj1, "hotpTokenCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj1, "pushPhoneCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj1, "mobileOtpPhoneCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj1, "duoHardwareTokenCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj1, "webauthnCount"));
+    assertEquals(Long.valueOf(0), authMethodInteger(configId, subj1, "u2fCount"));
+    assertNull("no activated push phone, no last seen", authMethodString(configId, subj1, "pushPhoneLastSeen"));
+
+    // phone numbers never land in the sync-back tables
+    int phoneNumberRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user_attr_v where provisioner_name = ? and value_string like '%2155550%'")
+        .addBindVar(configId).select(int.class);
+    assertEquals(0, phoneNumberRows);
+  }
+
+  /**
+   * GRP-7384: with nativeAttributesEntitiesIncludeAuthMethods at its default (off), the new
+   * lastLogin / isEnrolled defaults are captured but no auth method attributes are.
+   */
+  public void testDuoFullSyncAuthMethodsOffByDefault() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myDuoProvisioner";
+    setupDuoSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    seedMockDuoAuthMethods(SubjectTestHelper.SUBJ0.getId(), 1727537850L,
+        "{\"phones\":[{\"activated\":true,\"capabilities\":[\"push\",\"sms\"],\"last_seen\":\"2025-01-02T03:04:05\"}]}");
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    String subj0 = SubjectTestHelper.SUBJ0.getId();
+    assertEquals(Long.valueOf(1727537850L), authMethodInteger(configId, subj0, "lastLogin"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj0, "isEnrolled"));
+
+    int authMethodRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user_attr_v where provisioner_name = ? "
+            + "and attribute_name in ('pushPhoneCount', 'smsPhoneCount', 'webauthnCount', 'pushPhoneLastSeen')")
+        .addBindVar(configId).select(int.class);
+    assertEquals("auth method attributes are opt-in", 0, authMethodRows);
+  }
+
+  /**
+   * GRP-7384: seed what the Duo mock reports for a user: last login, enrolled, and the raw
+   * phones / tokens / webauthncredentials / u2ftokens arrays (which the mock returns verbatim).
+   */
+  private static void seedMockDuoAuthMethods(String userName, long lastLogin, String authMethodsJson) {
+    // adds mock_duo_user.auth_methods_json if the mock table predates it
+    DuoMockServiceHandler.ensureDuoMockTables();
+    int rows = new GcDbAccess().connectionName("grouper")
+        .sql("update mock_duo_user set auth_methods_json = ?, last_login = ?, enrolled = 'T' where user_name = ?")
+        .addBindVar(authMethodsJson).addBindVar(lastLogin).addBindVar(userName).executeSql();
+    assertEquals("mock duo user should exist for " + userName, 1, rows);
+  }
+
+  /** GRP-7384: integer (or boolean 1/0) sync-back value for a subject's attribute, or null */
+  private static Long authMethodInteger(String configId, String subjectId, String attributeName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select value_integer from grouper_prov_user_attr_v "
+            + "where provisioner_name = ? and subject_id = ? and attribute_name = ?")
+        .addBindVar(configId).addBindVar(subjectId).addBindVar(attributeName).select(Long.class);
+  }
+
+  /** GRP-7384: string sync-back value for a subject's attribute, or null */
+  private static String authMethodString(String configId, String subjectId, String attributeName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_user_attr_v "
+            + "where provisioner_name = ? and subject_id = ? and attribute_name = ?")
+        .addBindVar(configId).addBindVar(subjectId).addBindVar(attributeName).select(String.class);
+  }
+
 }

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.duo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -59,6 +60,7 @@ public class GrouperDuoProvisioningTargetNativeSyncTest extends GrouperTest {
       + "\"realname\":\"Dave Smith\","
       + "\"enable_auto_prompt\":true,"
       + "\"last_login\":1727537850,"
+      + "\"is_enrolled\":true,"
       + "\"notes\":\"some notes\""
       + "}";
 
@@ -100,6 +102,12 @@ public class GrouperDuoProvisioningTargetNativeSyncTest extends GrouperTest {
     assertEquals("mchyzer", bean.getAttributes().get("userName"));         // from /username
     assertEquals("abc@school.edu", bean.getAttributes().get("email"));
     assertEquals("active", bean.getAttributes().get("status"));
+    assertEquals("GRP-7384: lastLogin default from /last_login",
+        Long.valueOf(1727537850L), bean.getAttributes().get("lastLogin"));
+    assertEquals("GRP-7384: isEnrolled default from /is_enrolled",
+        Boolean.TRUE, bean.getAttributes().get("isEnrolled"));
+    assertFalse("GRP-7384: auth method attributes are off by default",
+        bean.getAttributes().containsKey("pushPhoneCount"));
     assertFalse("user_id is the target_user_id column, not an attribute",
         bean.getAttributes().containsKey("user_id"));
     assertFalse("username is captured under userName, not username",
@@ -118,6 +126,8 @@ public class GrouperDuoProvisioningTargetNativeSyncTest extends GrouperTest {
     assertEquals("x@y.edu", bean.getAttributes().get("email"));
     assertFalse(bean.getAttributes().containsKey("userName"));
     assertFalse(bean.getAttributes().containsKey("status"));
+    assertFalse(bean.getAttributes().containsKey("lastLogin"));
+    assertFalse(bean.getAttributes().containsKey("isEnrolled"));
   }
 
   /**
@@ -137,6 +147,163 @@ public class GrouperDuoProvisioningTargetNativeSyncTest extends GrouperTest {
     assertEquals("Dave", bean.getAttributes().get("firstname"));
     assertEquals(Boolean.TRUE, bean.getAttributes().get("enable_auto_prompt"));
     assertEquals(Long.valueOf(1727537850L), bean.getAttributes().get("last_login"));
+  }
+
+  // ===================== GRP-7384: auth method attributes =====================
+
+  /**
+   * A Duo user in the real Admin API shape with one of everything: an activated smartphone
+   * (push, sms, voice, mobile passcode), an unactivated smartphone that also advertises push and
+   * mobile passcode (must NOT count for those), a landline (voice only), and an sms-only phone; a
+   * D-100, two HOTP (one 8 digit), a TOTP, a YubiKey OTP, and an unknown token type; two WebAuthn
+   * credentials and one U2F key.
+   */
+  private static final String AUTH_METHODS_USER_JSON = "{"
+      + "\"user_id\":\"u-auth\","
+      + "\"username\":\"jsmith\","
+      + "\"status\":\"active\","
+      + "\"is_enrolled\":true,"
+      + "\"last_login\":1727537850,"
+      + "\"phones\":["
+      + "{\"activated\":true,\"capabilities\":[\"auto\",\"push\",\"sms\",\"phone\",\"mobile_otp\"],"
+      +   "\"last_seen\":\"2024-09-28T21:28:48\",\"number\":\"+12155550001\",\"type\":\"Mobile\"},"
+      + "{\"activated\":true,\"capabilities\":[\"auto\",\"push\",\"sms\",\"mobile_otp\"],"
+      +   "\"last_seen\":\"2025-01-02T03:04:05\",\"number\":\"+12155550002\",\"type\":\"Mobile\"},"
+      + "{\"activated\":false,\"capabilities\":[\"auto\",\"push\",\"sms\",\"mobile_otp\"],"
+      +   "\"last_seen\":\"2026-01-01T00:00:00\",\"number\":\"+12155550003\",\"type\":\"Mobile\"},"
+      + "{\"activated\":false,\"capabilities\":[\"auto\",\"phone\"],"
+      +   "\"last_seen\":\"\",\"number\":\"+12155550004\",\"type\":\"Landline\"},"
+      + "{\"activated\":false,\"capabilities\":[\"sms\"],"
+      +   "\"last_seen\":\"\",\"number\":\"+12155550005\",\"type\":\"Mobile\"}"
+      + "],"
+      + "\"tokens\":["
+      + "{\"serial\":\"D100-1\",\"token_id\":\"t1\",\"type\":\"d1\"},"
+      + "{\"serial\":\"legacy__hotp__0\",\"token_id\":\"t2\",\"totp_step\":null,\"type\":\"h6\"},"
+      + "{\"serial\":\"hotp8\",\"token_id\":\"t3\",\"totp_step\":null,\"type\":\"h8\"},"
+      + "{\"serial\":\"legacy__totp__30\",\"token_id\":\"t4\",\"totp_step\":30,\"type\":\"t6\"},"
+      + "{\"serial\":\"yk1\",\"token_id\":\"t5\",\"type\":\"yk\"},"
+      + "{\"serial\":\"x1\",\"token_id\":\"t6\",\"type\":\"zz\"}"
+      + "],"
+      + "\"webauthncredentials\":["
+      + "{\"credential_name\":\"Touch ID\",\"date_added\":1699543237,\"label\":\"Chrome on Mac\",\"webauthnkey\":\"w1\"},"
+      + "{\"credential_name\":\"Security Key\",\"date_added\":1712852003,\"label\":\"YubiKey\",\"webauthnkey\":\"w2\"}"
+      + "],"
+      + "\"u2ftokens\":[{\"date_added\":1600000000,\"registration_id\":\"r1\"}]"
+      + "}";
+
+  /**
+   * Every derived count, with push and mobile passcode only counting activated phones, sms and
+   * voice counting every phone, tokens bucketed by Duo type (unknown types ignored), and the push
+   * last seen being the latest across ACTIVATED push phones only.
+   */
+  public void testComputeAuthMethodAttributes() {
+    Map<String, Object> attrs = GrouperDuoProvisioningTargetNativeSync.computeAuthMethodAttributes(
+        GrouperUtil.jsonJacksonNode(AUTH_METHODS_USER_JSON));
+
+    assertEquals(Long.valueOf(2), attrs.get("pushPhoneCount"));
+    assertEquals(Long.valueOf(2), attrs.get("mobileOtpPhoneCount"));
+    assertEquals("latest last_seen among activated push phones (the unactivated 2026 one is ignored)",
+        "2025-01-02T03:04:05", attrs.get("pushPhoneLastSeen"));
+    assertEquals(Long.valueOf(4), attrs.get("smsPhoneCount"));
+    assertEquals(Long.valueOf(2), attrs.get("voicePhoneCount"));
+    assertEquals(Long.valueOf(1), attrs.get("duoHardwareTokenCount"));
+    assertEquals(Long.valueOf(2), attrs.get("hotpTokenCount"));
+    assertEquals(Long.valueOf(1), attrs.get("totpTokenCount"));
+    assertEquals(Long.valueOf(1), attrs.get("yubikeyOtpTokenCount"));
+    assertEquals(Long.valueOf(2), attrs.get("webauthnCount"));
+    assertEquals(Long.valueOf(1), attrs.get("u2fCount"));
+    assertEquals("exactly the 11 documented attributes", 11, attrs.size());
+
+    // nothing identifying leaks into the attributes
+    for (Object value : attrs.values()) {
+      assertFalse("phone number leaked: " + value, String.valueOf(value).contains("+1215"));
+    }
+  }
+
+  /**
+   * A stuck user: only SMS / voice phones and legacy HOTP / TOTP tokens. All the "safe" counts are
+   * 0 (not missing), and there is no push last seen.
+   */
+  public void testComputeAuthMethodAttributesSmsVoiceOnly() {
+    String json = "{\"user_id\":\"u-stuck\","
+        + "\"phones\":[{\"activated\":false,\"capabilities\":[\"auto\",\"sms\",\"phone\"],\"last_seen\":\"\"}],"
+        + "\"tokens\":[{\"type\":\"h6\"},{\"type\":\"t6\"}],"
+        + "\"webauthncredentials\":[],\"u2ftokens\":[]}";
+    Map<String, Object> attrs = GrouperDuoProvisioningTargetNativeSync.computeAuthMethodAttributes(
+        GrouperUtil.jsonJacksonNode(json));
+
+    assertEquals(Long.valueOf(1), attrs.get("smsPhoneCount"));
+    assertEquals(Long.valueOf(1), attrs.get("voicePhoneCount"));
+    assertEquals(Long.valueOf(1), attrs.get("hotpTokenCount"));
+    assertEquals(Long.valueOf(1), attrs.get("totpTokenCount"));
+    assertEquals(Long.valueOf(0), attrs.get("pushPhoneCount"));
+    assertEquals(Long.valueOf(0), attrs.get("mobileOtpPhoneCount"));
+    assertEquals(Long.valueOf(0), attrs.get("duoHardwareTokenCount"));
+    assertEquals(Long.valueOf(0), attrs.get("yubikeyOtpTokenCount"));
+    assertEquals(Long.valueOf(0), attrs.get("webauthnCount"));
+    assertEquals(Long.valueOf(0), attrs.get("u2fCount"));
+    assertFalse(attrs.containsKey("pushPhoneLastSeen"));
+  }
+
+  /** Missing arrays (not just empty) all count 0 and do not throw. */
+  public void testComputeAuthMethodAttributesNoArrays() {
+    Map<String, Object> attrs = GrouperDuoProvisioningTargetNativeSync.computeAuthMethodAttributes(
+        GrouperUtil.jsonJacksonNode("{\"user_id\":\"u-none\"}"));
+    assertEquals(10, attrs.size());
+    for (Map.Entry<String, Object> entry : attrs.entrySet()) {
+      assertEquals(entry.getKey(), Long.valueOf(0), entry.getValue());
+    }
+    assertEquals(10, GrouperDuoProvisioningTargetNativeSync.computeAuthMethodAttributes(null).size());
+  }
+
+  /** With the flag on, auth method attributes are ADDED to the defaults (not replacing them). */
+  public void testBuildNativeUserIncludeAuthMethodsAddsToDefaults() {
+    GrouperDuoProvisioningTargetNativeSync sync = new GrouperDuoProvisioningTargetNativeSync() {
+      @Override
+      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
+        return getDefaultNativeAttributeConfigsEntities();
+      }
+      @Override
+      protected boolean isIncludeAuthMethods() {
+        return true;
+      }
+    };
+    GrouperProvisioningTargetNativeUser bean =
+        sync.buildNativeUserFromJson(GrouperUtil.jsonJacksonNode(AUTH_METHODS_USER_JSON));
+
+    assertEquals("jsmith", bean.getAttributes().get("userName"));
+    assertEquals("active", bean.getAttributes().get("status"));
+    assertEquals(Long.valueOf(1727537850L), bean.getAttributes().get("lastLogin"));
+    assertEquals(Boolean.TRUE, bean.getAttributes().get("isEnrolled"));
+    assertEquals(Long.valueOf(2), bean.getAttributes().get("pushPhoneCount"));
+    assertEquals(Long.valueOf(1), bean.getAttributes().get("duoHardwareTokenCount"));
+    assertFalse("raw phones array is never captured", bean.getAttributes().containsKey("phones"));
+  }
+
+  /** With the flag on, auth method attributes are ADDED to an operator-configured list too. */
+  public void testBuildNativeUserIncludeAuthMethodsAddsToConfigured() {
+    GrouperDuoProvisioningTargetNativeSync sync = new GrouperDuoProvisioningTargetNativeSync() {
+      @Override
+      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
+        return Arrays.asList(attr("userName", "/username", null));
+      }
+      @Override
+      protected boolean isIncludeAuthMethods() {
+        return true;
+      }
+    };
+    GrouperProvisioningTargetNativeUser bean =
+        sync.buildNativeUserFromJson(GrouperUtil.jsonJacksonNode(AUTH_METHODS_USER_JSON));
+
+    assertEquals("jsmith", bean.getAttributes().get("userName"));
+    assertFalse("configured list replaced the defaults", bean.getAttributes().containsKey("status"));
+    assertEquals(Long.valueOf(4), bean.getAttributes().get("smsPhoneCount"));
+    assertEquals(Long.valueOf(2), bean.getAttributes().get("webauthnCount"));
+  }
+
+  /** No provisioner attached means the flag reads as off (no NPE). */
+  public void testIsIncludeAuthMethodsFalseWithoutProvisioner() {
+    assertFalse(new GrouperDuoProvisioningTargetNativeSync().isIncludeAuthMethods());
   }
 
   // ===================== group build (JSON -> native bean) =====================

@@ -18,10 +18,15 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import edu.internet2.middleware.grouper.app.adobe.GrouperAdobeProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.ccure.CCureProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.datadog.DatadogProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.dropbox.DropboxProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.github.GithubProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.interfolio.InterfolioProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.jamf.JamfProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.scim.GrouperScim2ProvisioningTargetNativeSyncTest;
@@ -80,6 +85,11 @@ public class AllProvisioningTargetNativeSyncTests {
     suite.addTestSuite(GrouperScim2ProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(TeamDynamixProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(TrueFoundryProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(CCureProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(DropboxProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(GithubProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(InterfolioProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(JamfProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

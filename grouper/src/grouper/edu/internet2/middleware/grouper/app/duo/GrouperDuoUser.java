@@ -94,6 +94,30 @@ public class GrouperDuoUser {
    * An integer indicating the last time this user logged in, as a Unix timestamp, or null if the user has not logged in.
    */
   private Long lastLogin;
+
+  /**
+   * GRP-7384: mock only. JSON object with any of the Duo user arrays phones, tokens,
+   * webauthncredentials, u2ftokens (in the real Duo API shape). When set, the Duo mock returns
+   * these arrays verbatim instead of synthesizing phones from the phones column, so tests can
+   * exercise auth method sync-back
+   */
+  private String authMethodsJson;
+
+  /**
+   * GRP-7384: mock only, see field javadoc
+   * @return the auth methods json
+   */
+  public String getAuthMethodsJson() {
+    return this.authMethodsJson;
+  }
+
+  /**
+   * GRP-7384: mock only, see field javadoc
+   * @param authMethodsJson1
+   */
+  public void setAuthMethodsJson(String authMethodsJson1) {
+    this.authMethodsJson = authMethodsJson1;
+  }
   
   
   public String getPushEnabledDb() {
@@ -528,8 +552,18 @@ public class GrouperDuoUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "25", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "created_at", Types.BIGINT, "15", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_login", Types.BIGINT, "15", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "auth_methods_json", Types.VARCHAR, "4000", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_duo_user_unique_user_name", true, "user_name");
       
+      return;
+    }
+
+    // GRP-7384: mock tables created before auth_methods_json existed need the column added
+    try {
+      new GcDbAccess().sql("select count(auth_methods_json) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "auth_methods_json", Types.VARCHAR, "4000", false, false);
     }
     
   }

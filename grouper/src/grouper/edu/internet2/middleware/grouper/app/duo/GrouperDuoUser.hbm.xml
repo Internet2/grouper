@@ -61,6 +61,7 @@
     <property name="lastDirectorySync" column="last_directory_sync" />
     <property name="createdAt" column="created_at" />
     <property name="lastLogin" column="last_login" />
+    <property name="authMethodsJson" column="auth_methods_json" />
 
   </class>
 </hibernate-mapping>

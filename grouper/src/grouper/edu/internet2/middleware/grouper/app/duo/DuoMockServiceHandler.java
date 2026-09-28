@@ -15,6 +15,7 @@ import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -80,6 +81,8 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {
       new GcDbAccess().sql("select count(*) from mock_duo_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_duo_user").select(int.class);
+      // GRP-7384: column added later, so an older mock table gets altered below
+      new GcDbAccess().sql("select count(auth_methods_json) from mock_duo_user").select(int.class);
 //      new GcDbAccess().sql("select count(*) from mock_duo_auth").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_duo_membership").select(int.class);
     } catch (Exception e) {
@@ -1326,6 +1329,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     }
     
     result.set("phones", phonesNode);
+
+    // GRP-7384: a test can seed the real Duo shapes for phones / tokens / webauthncredentials /
+    // u2ftokens (capabilities, activated, token type, ...) which override the synthesized arrays
+    JsonNode authMethodsNode = StringUtils.isBlank(grouperDuoUser.getAuthMethodsJson()) ? null
+        : GrouperUtil.jsonJacksonNode(grouperDuoUser.getAuthMethodsJson());
     
     GrouperUtil.jsonJacksonAssignString(result, "lastname", grouperDuoUser.getLastName());
     GrouperUtil.jsonJacksonAssignString(result, "notes", grouperDuoUser.getNotes());
@@ -1337,6 +1345,15 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     GrouperUtil.jsonJacksonAssignString(result, "user_id", grouperDuoUser.getId());
     GrouperUtil.jsonJacksonAssignString(result, "username", grouperDuoUser.getUserName());
     GrouperUtil.jsonJacksonAssignStringArray(result, "webauthncredentials", new ArrayList<String>());
+
+    if (authMethodsNode != null) {
+      for (String arrayField : new String[] {"phones", "tokens", "webauthncredentials", "u2ftokens"}) {
+        JsonNode arrayNode = authMethodsNode.get(arrayField);
+        if (arrayNode != null && arrayNode.isArray()) {
+          result.set(arrayField, arrayNode);
+        }
+      }
+    }
     
     return result;
   }
