@@ -1132,6 +1132,14 @@ public class GrouperMcpRecipe {
       return null;
     }
 
+    // length is not something the metadata can declare, see fieldTooLongError()
+    for (Map.Entry<String, String> fieldValue : fieldValues.entrySet()) {
+      String tooLongError = fieldTooLongError(fieldValue.getKey(), fieldValue.getValue());
+      if (tooLongError != null) {
+        return tooLongError;
+      }
+    }
+
     // a recipe kept in a config file is managed there, and a built in one keeps its wording.
     // checked here since MCP and updateRecipeFields both come through here
     for (String field : fieldValues.keySet()) {
@@ -1212,6 +1220,47 @@ public class GrouperMcpRecipe {
     }
 
     return null;
+  }
+
+  /** most characters in a recipe name, which is what an AI client asks for a recipe by */
+  public static final int MAX_LENGTH_NAME = 100;
+
+  /**
+   * most characters in a recipe summary.  the summary goes into tool descriptions, and so into
+   * every tools/list for everyone the recipe reaches, so it has to stay a one liner
+   */
+  public static final int MAX_LENGTH_SUMMARY = 300;
+
+  /** most characters in a recipe body, which is only returned by get and appended to errors */
+  public static final int MAX_LENGTH_BODY = 20000;
+
+  /**
+   * the one place recipe field lengths are checked, used by both the MCP update path
+   * (validateFieldValues) and the recipe screens (GrouperMcpRecipeConfiguration.validatePreSave),
+   * so they cannot disagree.  the configuration metadata has no way to declare a length
+   * @param field the config suffix
+   * @param value the new value
+   * @return an error to show, or null if the length is fine or the field has no limit
+   */
+  public static String fieldTooLongError(String field, String value) {
+
+    int maxLength;
+
+    if (Strings.CS.equals("name", field)) {
+      maxLength = MAX_LENGTH_NAME;
+    } else if (Strings.CS.equals("summary", field)) {
+      maxLength = MAX_LENGTH_SUMMARY;
+    } else if (Strings.CS.equals("body", field)) {
+      maxLength = MAX_LENGTH_BODY;
+    } else {
+      return null;
+    }
+
+    if (StringUtils.length(value) <= maxLength) {
+      return null;
+    }
+
+    return "'" + field + "' can be at most " + maxLength + " characters, it is " + value.length() + ".";
   }
 
   /**

@@ -308,6 +308,21 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
       return;
     }
 
+    // the same length limits as the MCP update path, from the one place they are defined
+    for (String field : new String[] {"name", "summary", "body"}) {
+      GrouperConfigurationModuleAttribute attribute = this.retrieveAttributes().get(field);
+      if (attribute == null || attribute.isReadOnly()) {
+        continue;
+      }
+      String tooLongError = GrouperMcpRecipe.fieldTooLongError(field, attribute.getValueOrExpressionEvaluation());
+      if (tooLongError != null) {
+        validationErrorsToDisplay.put(attribute.getHtmlForElementIdHandle(), GrouperUtil.xmlEscape(tooLongError));
+      }
+    }
+    if (validationErrorsToDisplay.size() > 0) {
+      return;
+    }
+
     // the name is what an AI client asks for a recipe by, so two recipes cannot share one
     GrouperConfigurationModuleAttribute nameAttribute = this.retrieveAttributes().get("name");
 

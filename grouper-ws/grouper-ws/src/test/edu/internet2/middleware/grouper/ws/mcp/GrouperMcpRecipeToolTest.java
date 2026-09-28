@@ -568,6 +568,76 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
   }
 
   /**
+   * @param length how many characters
+   * @return a string of that many x characters
+   */
+  private static String stringOfLength(int length) {
+    return new String(new char[length]).replace('\0', 'x');
+  }
+
+  /**
+   * the one rule both save paths use: each limited field is fine at its limit and refused one past
+   * it, and fields without a limit are not checked
+   */
+  public void testFieldTooLongError() {
+
+    assertNull(GrouperMcpRecipe.fieldTooLongError("name", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_NAME)));
+    assertNotNull(GrouperMcpRecipe.fieldTooLongError("name", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_NAME + 1)));
+
+    assertNull(GrouperMcpRecipe.fieldTooLongError("summary", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_SUMMARY)));
+    assertNotNull(GrouperMcpRecipe.fieldTooLongError("summary", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_SUMMARY + 1)));
+
+    assertNull(GrouperMcpRecipe.fieldTooLongError("body", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_BODY)));
+    assertNotNull(GrouperMcpRecipe.fieldTooLongError("body", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_BODY + 1)));
+
+    assertNull("null is not too long", GrouperMcpRecipe.fieldTooLongError("summary", null));
+    assertNull("no limit on other fields", GrouperMcpRecipe.fieldTooLongError("toolNames", stringOfLength(100000)));
+  }
+
+  /**
+   * a summary longer than the limit is refused over MCP, and one at the limit is accepted.  the
+   * summary goes into tool descriptions for everyone the recipe reaches, so it has to stay short
+   */
+  public void testSummaryTooLongRefusedOverMcp() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        GrouperMcpRecipe.CONFIG_ALLOW_EDIT_IN_MCP, "true");
+    GrouperMcpRecipe.clearCache();
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectEditor);
+
+    ObjectNode updateArguments = arguments("update");
+    updateArguments.put("name", "recipe-one");
+    updateArguments.put("summary", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_SUMMARY + 1));
+
+    String error = errorMessage(executeAsAuthUser(updateArguments, authUser, true));
+    assertTrue(error, error.contains("at most " + GrouperMcpRecipe.MAX_LENGTH_SUMMARY));
+
+    updateArguments.put("summary", stringOfLength(GrouperMcpRecipe.MAX_LENGTH_SUMMARY));
+    payload(executeAsAuthUser(updateArguments, authUser, true));
+  }
+
+  /**
+   * the recipe screens refuse a summary longer than the limit too, with the error on that field
+   */
+  public void testSummaryTooLongRefusedOnRecipeScreen() {
+
+    GrouperMcpRecipeConfiguration configuration = new GrouperMcpRecipeConfiguration();
+    configuration.setConfigId("recipeOne");
+
+    GrouperConfigurationModuleAttribute summaryAttribute = configuration.retrieveAttributes().get("summary");
+    summaryAttribute.setValue(stringOfLength(GrouperMcpRecipe.MAX_LENGTH_SUMMARY + 1));
+
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    configuration.validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+
+    assertEquals(validationErrorsToDisplay.toString(), 1, validationErrorsToDisplay.size());
+    assertTrue(validationErrorsToDisplay.toString(),
+        validationErrorsToDisplay.containsKey(summaryAttribute.getHtmlForElementIdHandle()));
+  }
+
+  /**
    * a delegated editor is refused the fields which decide who a recipe reaches, rather than
    * having them quietly ignored
    */
