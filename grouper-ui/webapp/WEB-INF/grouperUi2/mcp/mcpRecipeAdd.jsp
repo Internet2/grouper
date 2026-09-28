@@ -74,6 +74,7 @@ ${grouper:title('miscellaneousMcpRecipeAddBreadcrumb')}
                 shouldShow="${attribute.show}"
                 value="${attribute.valueOrExpressionEvaluation}"
                 hasExpressionLanguage="${attribute.expressionLanguage}"
+                shouldShowElCheckbox="false"
                 ajaxCallback="ajax('../app/UiV2Mcp.addMcpRecipe', {formIds: 'mcpRecipeDetails'}); return false;"
                 valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                 checkboxAttributes="${attribute.checkboxAttributes}"

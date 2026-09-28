@@ -15,10 +15,15 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -777,6 +782,155 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
     assertEquals("its name was not written, so it stays built in", 0, GrouperUtil.length(GrouperDAOFactory
         .getFactory().getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null,
             GrouperMcpRecipe.CONFIG_PREFIX + "recipeBuiltIn.name")));
+  }
+
+  /**
+   * set by {@link #markExpressionLanguageEvaluated()}, which the expression language in the tests
+   * below calls, so a test can tell whether a posted script was evaluated at all
+   */
+  private static boolean expressionLanguageEvaluated = false;
+
+  /**
+   * called from expression language in the tests below.  public and static so a script can reach
+   * it through static class access, the same way an attacker's script would reach any class
+   * @return a marker value
+   */
+  public static String markExpressionLanguageEvaluated() {
+    expressionLanguageEvaluated = true;
+    return "evaluated";
+  }
+
+  /** a script which, if evaluated, flips expressionLanguageEvaluated */
+  private static final String MARKER_SCRIPT = "${" + GrouperMcpRecipeToolTest.class.getName()
+      + ".markExpressionLanguageEvaluated()}";
+
+  /**
+   * a request carrying the given form parameters and nothing else
+   * @param parameters parameter name to value
+   * @return the request
+   */
+  private static HttpServletRequest formRequest(final Map<String, String> parameters) {
+
+    InvocationHandler handler = new InvocationHandler() {
+
+      public Object invoke(Object proxy, Method method, Object[] args) {
+        if ("getParameter".equals(method.getName())) {
+          return parameters.get((String) args[0]);
+        }
+        if ("getParameterValues".equals(method.getName())) {
+          String value = parameters.get((String) args[0]);
+          return value == null ? null : new String[] { value };
+        }
+        return null;
+      }
+    };
+
+    return (HttpServletRequest) Proxy.newProxyInstance(
+        GrouperMcpRecipeToolTest.class.getClassLoader(),
+        new Class<?>[] { HttpServletRequest.class }, handler);
+  }
+
+  /**
+   * the control for the two tests below: the marker script really is evaluated when expression
+   * language runs the way the configuration forms run it.  without this, a test that shows the
+   * script was not evaluated could pass because the script was broken
+   */
+  public void testMarkerScriptEvaluatesWhenExpressionLanguageRuns() {
+
+    expressionLanguageEvaluated = false;
+
+    String result = GrouperUtil.substituteExpressionLanguage(MARKER_SCRIPT,
+        new HashMap<String, Object>(), true, true, true);
+
+    assertEquals("evaluated", result);
+    assertTrue(expressionLanguageEvaluated);
+    expressionLanguageEvaluated = false;
+  }
+
+  /**
+   * GRP-7385: a recipe content owner, who is not a sysadmin, posts a recipe field with the
+   * expression language checkbox on.  the recipe form must take the text literally and never
+   * evaluate it, not even to display it
+   */
+  public void testRecipeFormIgnoresExpressionLanguage() {
+
+    expressionLanguageEvaluated = false;
+
+    final GrouperMcpRecipeConfiguration configuration = new GrouperMcpRecipeConfiguration();
+    configuration.setConfigId("recipeOne");
+    assertFalse(configuration.isExpressionLanguageAllowed());
+
+    final Map<String, String> parameters = new HashMap<String, String>();
+    parameters.put("config_name", "recipe-one");
+    parameters.put("config_summary", "Use the policy template, not group_save");
+    parameters.put("config_body", MARKER_SCRIPT);
+    parameters.put("config_el_body", "on");
+
+    final List<String> errorsToDisplay = new ArrayList<String>();
+    final Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+
+    // run as the content owner, inside their own session, the way the edit screen does.  the save
+    // writes an audit entry, which needs an open session (see executeAsAuthUser)
+    GrouperSession editorSession = GrouperSession.start(this.subjectEditor, false);
+
+    try {
+      GrouperSession.callbackGrouperSession(editorSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession theGrouperSession) {
+
+          // the same order the edit screen uses: lock the fields this person may not change, then populate
+          configuration.markAdminOnlyFieldsReadOnly(GrouperMcpRecipeToolTest.this.subjectEditor);
+          assertFalse("the content owner can change the body",
+              configuration.retrieveAttributes().get("body").isReadOnly());
+
+          configuration.populateConfigurationValuesFromUi(formRequest(parameters));
+
+          GrouperConfigurationModuleAttribute bodyAttribute = configuration.retrieveAttributes().get("body");
+
+          assertFalse("the script was not evaluated", expressionLanguageEvaluated);
+          assertFalse("the body is not in expression language mode", bodyAttribute.isExpressionLanguage());
+          assertEquals("the body is the posted text, literally", MARKER_SCRIPT, bodyAttribute.getValue());
+          assertNull(bodyAttribute.getExpressionLanguageValue());
+
+          // and it saves as plain text, never as a .elConfig key
+          configuration.editConfig(true, new StringBuilder(), errorsToDisplay, validationErrorsToDisplay,
+              new ArrayList<String>());
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(editorSession);
+    }
+
+    assertEquals(errorsToDisplay.toString(), 0, errorsToDisplay.size());
+    assertEquals(validationErrorsToDisplay.toString(), 0, validationErrorsToDisplay.size());
+
+    String prefix = GrouperMcpRecipe.CONFIG_PREFIX + "recipeOne.";
+    assertEquals("no expression language key was written", 0, GrouperUtil.length(GrouperDAOFactory.getFactory()
+        .getConfig().findAll(ConfigFileName.GROUPER_PROPERTIES, null, prefix + "body.elConfig")));
+    assertFalse("saving did not evaluate it either", expressionLanguageEvaluated);
+  }
+
+  /**
+   * GRP-7385: a recipe field which is already in expression language form, e.g. a .elConfig key
+   * put in the database, is refused on save rather than written back
+   */
+  public void testRecipeSaveRefusesExpressionLanguage() {
+
+    GrouperMcpRecipeConfiguration configuration = new GrouperMcpRecipeConfiguration();
+    configuration.setConfigId("recipeOne");
+
+    GrouperConfigurationModuleAttribute bodyAttribute = configuration.retrieveAttributes().get("body");
+    bodyAttribute.setExpressionLanguage(true);
+    bodyAttribute.setExpressionLanguageScript(MARKER_SCRIPT);
+
+    List<String> errorsToDisplay = new ArrayList<String>();
+    Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+    configuration.validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+
+    assertEquals(validationErrorsToDisplay.toString(), 1, validationErrorsToDisplay.size());
+    assertTrue(validationErrorsToDisplay.toString(),
+        validationErrorsToDisplay.containsKey(bodyAttribute.getHtmlForElementIdHandle()));
   }
 
   /**

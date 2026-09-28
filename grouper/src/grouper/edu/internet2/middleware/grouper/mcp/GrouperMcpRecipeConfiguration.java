@@ -252,6 +252,18 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
   }
 
   /**
+   * recipe screens are open to people who are not sysadmins: content owners (groupNameCanEdit)
+   * and the members of grouper.mcp.recipe.groupNameCanAdminInUi.  expression language is
+   * evaluated server side with static class access, so it would let them run code on the
+   * server.  recipe fields are plain text only
+   * @return false
+   */
+  @Override
+  public boolean isExpressionLanguageAllowed() {
+    return false;
+  }
+
+  /**
    * the three last edited fields are written by Grouper and cannot be typed into, so there is
    * nothing to show until Grouper has written them.  on the add screen that is always, which is
    * where three empty read only rows were most obviously wrong, and it is also true of a recipe
@@ -276,6 +288,21 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
   public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,
       Map<String, String> validationErrorsToDisplay) {
 
+    // populateConfigurationValuesFromUi does not honor the expression language checkbox for
+    // recipes, but a value can also arrive already in expression language form from config
+    // (a .elConfig key).  refuse to save it rather than write it back, see isExpressionLanguageAllowed().
+    // checked before the generic validation so nothing downstream looks at the script
+    for (GrouperConfigurationModuleAttribute attribute : this.retrieveAttributes().values()) {
+      if (attribute.isExpressionLanguage()) {
+        validationErrorsToDisplay.put(attribute.getHtmlForElementIdHandle(),
+            GrouperTextContainer.retrieveFromRequest().getText()
+              .get("mcpRecipeExpressionLanguageNotAllowedError"));
+      }
+    }
+    if (validationErrorsToDisplay.size() > 0) {
+      return;
+    }
+
     super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
     if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
       return;
@@ -298,7 +325,7 @@ public class GrouperMcpRecipeConfiguration extends GrouperConfigurationModuleBas
       if (existingRecipe != null && !Strings.CS.equals(this.getConfigId(), existingRecipe.getConfigId())) {
         String errorMessage = GrouperTextContainer.retrieveFromRequest().getText()
             .get("mcpRecipeNameAlreadyUsedError");
-        errorMessage = Strings.CS.replace(errorMessage, "##recipeName##", name);
+        errorMessage = Strings.CS.replace(errorMessage, "##recipeName##", GrouperUtil.xmlEscape(name));
         errorsToDisplay.add(errorMessage);
       }
     }

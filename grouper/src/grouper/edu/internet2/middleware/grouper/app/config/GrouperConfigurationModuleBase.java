@@ -528,6 +528,20 @@ public abstract class GrouperConfigurationModuleBase {
   
   private static final Pattern otherSuffixPattern = Pattern.compile("^(.*)<otherSuffix_([^>]+)>(.*)$");
   
+  /**
+   * whether a field of this module can be entered as expression language.  expression language
+   * is evaluated server side with static class access, both when the form posts and whenever the
+   * saved config is loaded, so it is only safe for modules whose screens are limited to
+   * sysadmins.  a module whose screens are open to other people (e.g. delegated editors) must
+   * return false: then populateConfigurationValuesFromUi ignores the expression language
+   * checkbox and never evaluates what was posted.  the module should also reject expression
+   * language in validatePreSave, for a value which was already in config
+   * @return true if expression language is allowed (the default)
+   */
+  public boolean isExpressionLanguageAllowed() {
+    return true;
+  }
+
   public void populateConfigurationValuesFromUi(final HttpServletRequest request) {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
@@ -588,7 +602,9 @@ public abstract class GrouperConfigurationModuleBase {
         value = request.getParameter(name);
       }
       
-      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on")) {
+      // a module which does not allow expression language takes the posted text literally, even
+      // if the request says it is expression language.  do not evaluate it, not even to show it
+      if (StringUtils.isNotBlank(elValue) && elValue.equalsIgnoreCase("on") && this.isExpressionLanguageAllowed()) {
         attribute.setExpressionLanguage(true);
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setExpressionLanguageScript(value);
