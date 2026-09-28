@@ -2,8 +2,8 @@
 title: "v4 Release Notes"
 space: Grouper
 pageId: 28549344
-version: 244
-lastUpdated: 2026-09-23T17:09:12.592Z
+version: 246
+lastUpdated: 2026-09-27T07:06:11.934Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes
 ---
 
