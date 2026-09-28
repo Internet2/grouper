@@ -9,9 +9,11 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Visualization.VisualizationGraph;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -385,7 +387,14 @@ public class VisualizationContainer {
       if ("group".equals(getObjectType())) {
         grouperObject = GroupFinder.findByUuid(grouperSession, getObjectId(), true);
       } else if ("stem".equals(getObjectType())) {
-        grouperObject = StemFinder.findByUuid(grouperSession, getObjectId(), true);
+        // StemFinder.findByUuid is a lookup, not authorization.  check the logged in user can see the
+        // folder the same way the folder screen does, and answer not found either way so a folder id
+        // the user cannot see does not leak its name, id or creator (GRP-7336, GRP-7387)
+        Stem stem = StemFinder.findByUuid(grouperSession, getObjectId(), false);
+        if (stem == null || !PrivilegeHelper.canViewStemOrObjectInside(loggedInSubject, stem)) {
+          throw new StemNotFoundException("Cant find stem by uuid: '" + getObjectId() + "'");
+        }
+        grouperObject = stem;
       } else if ("subject".equals(getObjectType())) {
         // More actions->Visualization sets object id as the subject Id, but
         // GrouperObjectSubjectWrapper returns sourceId||||subjectId. Do the
