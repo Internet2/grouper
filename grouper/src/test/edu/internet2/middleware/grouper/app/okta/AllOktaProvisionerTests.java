@@ -10,6 +10,7 @@ public class AllOktaProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllOktaProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperOktaProvisionerTest.class);
+    suite.addTestSuite(GrouperOktaProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

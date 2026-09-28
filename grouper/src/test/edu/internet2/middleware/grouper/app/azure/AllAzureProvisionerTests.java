@@ -11,6 +11,7 @@ public class AllAzureProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllAzureProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperAzureProvisionerTest.class);
+    suite.addTestSuite(GrouperAzureProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

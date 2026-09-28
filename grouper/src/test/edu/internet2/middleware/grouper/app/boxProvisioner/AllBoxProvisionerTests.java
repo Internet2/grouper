@@ -9,6 +9,7 @@ public class AllBoxProvisionerTests {
     TestSuite suite = new TestSuite(AllBoxProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperBoxProvisionerTest.class);
+    suite.addTestSuite(GrouperBoxProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

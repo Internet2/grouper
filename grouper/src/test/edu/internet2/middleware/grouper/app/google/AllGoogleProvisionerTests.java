@@ -10,6 +10,7 @@ public class AllGoogleProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllGoogleProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperGoogleProvisionerTest.class);
+    suite.addTestSuite(GrouperGoogleProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

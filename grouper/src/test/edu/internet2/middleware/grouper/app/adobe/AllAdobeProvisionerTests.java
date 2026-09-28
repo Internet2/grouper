@@ -10,6 +10,7 @@ public class AllAdobeProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllAdobeProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperAdobeProvisionerTest.class);
+    suite.addTestSuite(GrouperAdobeProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

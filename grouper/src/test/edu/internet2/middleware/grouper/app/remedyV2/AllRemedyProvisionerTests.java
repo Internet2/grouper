@@ -11,6 +11,7 @@ public class AllRemedyProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllRemedyProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(RemedyProvisionerTest.class);
+    suite.addTestSuite(GrouperRemedyProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

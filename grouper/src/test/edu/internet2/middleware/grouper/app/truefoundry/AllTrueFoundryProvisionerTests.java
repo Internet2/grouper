@@ -10,6 +10,7 @@ public class AllTrueFoundryProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllTrueFoundryProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(TrueFoundryProvisionerTest.class);
+    suite.addTestSuite(TrueFoundryProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }
