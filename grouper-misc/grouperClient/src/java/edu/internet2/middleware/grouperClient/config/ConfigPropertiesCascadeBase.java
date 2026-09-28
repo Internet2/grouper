@@ -224,7 +224,8 @@ public abstract class ConfigPropertiesCascadeBase {
    * is a compile time constant, so javac drops the guarded blocks entirely and there is no cost
    * when it is off. Flip it to true locally and rebuild when measuring how often config is
    * cleared and rebuilt, for example when changing how config is cached or invalidated. Read the
-   * counters below from wherever is convenient (GRP-7298 read them per request in GrouperUiFilter).
+   * counters below from wherever is convenient, e.g. a temporary per request hook in GrouperUiFilter
+   * (GRP-7298 measured that way; the hook is not kept in released code).
    */
   public static final boolean CONFIG_CACHE_INSTRUMENTATION = false;
 
