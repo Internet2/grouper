@@ -1,0 +1,19 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.github" default-lazy="false">
+  <class name="GithubUser" table="mock_github_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="login" column="login">
+      <generator class="assigned" />
+    </id>
+
+    <property name="id" column="id" />
+    <property name="samlNameId" column="saml_name_id" />
+    <property name="email" column="email" />
+    <property name="orgState" column="org_state" />
+    <property name="role" column="role" />
+    <property name="invitationId" column="invitation_id" />
+
+  </class>
+</hibernate-mapping>
