@@ -160,10 +160,10 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
                     <div class="span3"></div>
                     <div class="span6" style="white-space: nowrap"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" 
                       value="${textContainer.text['grouperLoaderButtonApplyFilter'] }" 
-                      onclick="ajax('../app/UiV2Admin.viewLogsFilter?jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}', {formIds: 'logFilterFormId'}); return false;"> 
+                      onclick="ajax('../app/UiV2Admin.viewLogsFilter?jobName=${grouper:escapeUrl(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}', {formIds: 'logFilterFormId'}); return false;"> 
                       &nbsp; 
                       <a class="btn" role="button" 
-                        onclick="ajax('../app/UiV2Admin.viewLogs?jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;"
+                        onclick="ajax('../app/UiV2Admin.viewLogs?jobName=${grouper:escapeUrl(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}'); return false;"
                         >${textContainer.text['grouperLoaderButtonReset'] }</a>                                                                          
                     </div>
                   </div>
