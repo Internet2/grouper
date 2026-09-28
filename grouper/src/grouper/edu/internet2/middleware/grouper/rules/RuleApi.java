@@ -650,7 +650,8 @@ public class RuleApi {
           //if consider
           if (considerInGroup) {
             if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), ruleSubject.getSourceId())) {
-              subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembershipsMembers().size() > 0;
+              // only an enabled membership counts, like the other inherited privilege lookups (GRP-7325)
+              subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).assignEnabled(true).addSubject(subjectToAssign).findMembershipsMembers().size() > 0;
             }
           }
 
