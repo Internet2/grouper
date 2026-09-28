@@ -59,7 +59,7 @@
                     </label>
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThis}" var="roleThatImply">
-                        ${roleThatImply.displayExtension}
+                        ${grouper:escapeHtml(roleThatImply.displayExtension)}
                         <br/>
                       </c:forEach>
                     </div>
@@ -73,7 +73,7 @@
                     </label>
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThisImmediate}" var="roleThatImmediatelyImply">
-                        ${roleThatImmediatelyImply.extension}
+                        ${grouper:escapeHtml(roleThatImmediatelyImply.extension)}
                         <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImplies?roleId=${roleThatImmediatelyImply.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
                          <br />
                       </c:forEach>
@@ -88,7 +88,7 @@
                     </label>
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThis}" var="roleImpliedBy">
-                        ${roleImpliedBy.extension}
+                        ${grouper:escapeHtml(roleImpliedBy.extension)}
                         <br/>
                       </c:forEach>
                     </div>
@@ -102,7 +102,7 @@
                     </label>
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThisImmediate}" var="roleImpliedByImmediate">
-                        ${roleImpliedByImmediate.extension} 
+                        ${grouper:escapeHtml(roleImpliedByImmediate.extension)}
                         <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImpliedBy?roleId=${roleImpliedByImmediate.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
                          <br />
                       </c:forEach>

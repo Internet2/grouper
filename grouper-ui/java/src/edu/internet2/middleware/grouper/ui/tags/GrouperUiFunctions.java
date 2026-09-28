@@ -95,6 +95,38 @@ public class GrouperUiFunctions {
   }
   
   /**
+   * escape text to go inside a double or single quoted javascript string in a script block, so it
+   * displays as is.  unlike escapeJavascript() this does not turn characters into html entities,
+   * which a script block does not decode.  less than, greater than and ampersand become unicode
+   * escapes so the text cannot close the script tag or start an html comment
+   * @param input the text
+   * @return the escaped text, empty string if null
+   */
+  public static String escapeForJavascriptStringInScriptBlock(String input) {
+    if (input == null) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder(input.length() + 16);
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      switch (c) {
+        case '\\': result.append("\\\\"); break;
+        case '"': result.append("\\\""); break;
+        case '\'': result.append("\\'"); break;
+        case '\n': result.append("\\n"); break;
+        case '\r': result.append("\\r"); break;
+        case '<': result.append("\\u003c"); break;
+        case '>': result.append("\\u003e"); break;
+        case '&': result.append("\\u0026"); break;
+        case '\u2028': result.append("\\u2028"); break;
+        case '\u2029': result.append("\\u2029"); break;
+        default: result.append(c);
+      }
+    }
+    return result.toString();
+  }
+
+  /**
    * Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
    * @param input 
    * @return the escaped string
@@ -138,12 +170,12 @@ public class GrouperUiFunctions {
     
     GrouperUiApiTextConfig grouperUiApiTextConfig = GrouperUiApiTextConfig.retrieveTextConfig();
     String browserTitlePrefix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString("browserTitlePrefix")) ? 
-        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitlePrefix")) : "";
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getText().get("browserTitlePrefix")) : "";
     String browserTitleSuffix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString("browserTitleSuffix")) ? 
-        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitleSuffix")) : "";
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getText().get("browserTitleSuffix")) : "";
     
     externalizedPageTitleSuffix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString(externalizedPageTitleSuffix)) ? 
-        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get(externalizedPageTitleSuffix)) : "";
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getText().get(externalizedPageTitleSuffix)) : "";
 
     StringBuilder title = new StringBuilder();
 
@@ -164,8 +196,6 @@ public class GrouperUiFunctions {
     }
 
     if (hasTextToShowAsSuffix) {
-      textToShowAsSuffix = GrouperUtil.escapeHtml(textToShowAsSuffix, true);
-      
       if (StringUtils.countMatches(textToShowAsSuffix, ':') > 2 && textToShowAsSuffix.length() > 30) {
         List<String> findParentStemNames = new ArrayList<String>(GrouperUtil.findParentStemNames(textToShowAsSuffix));
         findParentStemNames.add(GrouperUtil.extensionFromName(textToShowAsSuffix));
@@ -201,8 +231,10 @@ public class GrouperUiFunctions {
     }
     String theTitle = title.toString().trim();
     
+    // the title is set from javascript, so escape it for a javascript string, not for html: html
+    // entities are not decoded inside a script block and would show in the browser tab as &lt; etc
     return "<script language=\"javascript\"> $(document).attr(\"title\", \""
-        + theTitle +"\"); </script>";
+        + escapeForJavascriptStringInScriptBlock(theTitle) +"\"); </script>";
     
   }
 

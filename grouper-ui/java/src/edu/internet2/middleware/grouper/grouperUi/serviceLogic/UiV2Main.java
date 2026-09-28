@@ -350,9 +350,11 @@ public class UiV2Main extends UiServiceLogicBase {
         
         PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetAttributeDefNames_" + GrouperUtil.length(childrenStems));
 
+        //the root label comes from the text config, but a folder name (e.g. a configured default.browse.stem)
+        //is user data and jstree renders the text as html, so escape it like the child nodes below
         String displayExtension = stem.isRootStem() ? 
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
-            : stem.getDisplayExtension();
+            : GrouperUtil.escapeHtml(stem.getDisplayExtension(), true);
 
         //the id has to be root or it will make another request
         String id = stem.isRootStem() ? "root" : stem.getUuid();
