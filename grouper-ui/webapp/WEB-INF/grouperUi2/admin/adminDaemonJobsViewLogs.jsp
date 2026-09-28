@@ -20,6 +20,45 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
                 
                 <form class="form-inline form-filter" id="logFilterFormId">
                 
+                  <%-- which job these logs are for (restored after GRP-7310 removed it by accident).  a span, not a
+                       label: there is no input to label --%>
+                  <div class="row-fluid">
+                    <div class="span2">
+                      <span class="control-label" style="white-space: nowrap; font-weight: bold;">${textContainer.text['grouperLoaderLogsFilterFor'] }</span>
+                    </div>
+                    <div class="span9" style="white-space: nowrap;">
+                      ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}
+                    </div>
+                  </div>
+
+                  <%-- GRP-6905: for a report job, the report and the group or folder it runs on --%>
+                  <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportJob && not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}">
+                    <c:set var="daemonReportOwnerId" value="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}" />
+                    <div class="row-fluid">
+                      <div class="span2">
+                        <span class="control-label" style="white-space: nowrap; font-weight: bold;">${textContainer.text['daemonJobsViewLogsReportLabel'] }</span>
+                      </div>
+                      <div class="span9">
+                        <c:if test="${not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName}">
+                          ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName)}
+                          ${textContainer.text['daemonJobsViewLogsReportOnLabel'] }
+                        </c:if>
+                        <c:choose>
+                          <c:when test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerStem}">
+                            <a href="?operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
+                            &nbsp;
+                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
+                          </c:when>
+                          <c:otherwise>
+                            <a href="?operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
+                            &nbsp;
+                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
+                          </c:otherwise>
+                        </c:choose>
+                      </div>
+                    </div>
+                  </c:if>
+
                                     <div class="row-fluid" role="group" aria-labelledby="startTimeGroupLabel">
                     <div class="span2">
                       <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsStartedTooltip']}">
