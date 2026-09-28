@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoader
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiInstrumentationDataInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiOption;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -140,6 +141,18 @@ public class AdminContainer {
     return false;
   }
   
+  /**
+   * whether the logged in user may enter expression language in the daemon job forms.  those
+   * screens are open to uiV2.admin.daemonJobs.must.be.in.group, not only to sysadmins, so they
+   * pass this as shouldShowElCheckbox.  the server enforces the same rule regardless, see
+   * GrouperConfigurationModuleBase.isSubjectAllowedToUseExpressionLanguage()
+   * @return true if the expression language checkbox should show
+   */
+  public boolean isCanUseExpressionLanguage() {
+    return GrouperConfigurationModuleBase.isSubjectAllowedToUseExpressionLanguage(
+        GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
   /**
    * if show daemon jobs
    * @return if show daemon jobs

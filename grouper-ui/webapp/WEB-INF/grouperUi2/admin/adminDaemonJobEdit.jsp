@@ -102,6 +102,7 @@ ${grouper:title('daemonJobsEditDaemon')}
                                 shouldShow="${attribute.show}"
                                 value="${attribute.valueOrExpressionEvaluation}"
                                 hasExpressionLanguage="${attribute.expressionLanguage}"
+                                shouldShowElCheckbox="${grouperRequestContainer.adminContainer.canUseExpressionLanguage}"
                                 ajaxCallback="ajax('../app/UiV2Admin.editDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'editDaemonFormId'}); return false;"
                                 valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                                 checkboxAttributes="${attribute.checkboxAttributes}"
