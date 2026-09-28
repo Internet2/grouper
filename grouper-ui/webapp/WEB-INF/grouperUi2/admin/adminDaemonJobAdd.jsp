@@ -133,6 +133,7 @@
                                 shouldShow="${attribute.show}"
                                 value="${attribute.valueOrExpressionEvaluation}"
                                 hasExpressionLanguage="${attribute.expressionLanguage}"
+                                shouldShowElCheckbox="${grouperRequestContainer.adminContainer.canUseExpressionLanguage}"
                                 ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
                                 valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                                 checkboxAttributes="${attribute.checkboxAttributes}"

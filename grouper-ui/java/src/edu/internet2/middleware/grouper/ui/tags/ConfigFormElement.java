@@ -9,8 +9,10 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -348,6 +350,17 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (!shouldShow) {
       this.getJspContext().getOut().print(field.toString());
       return;
+    }
+
+    // expression language is evaluated server side, so only wheel or root may enter it.  the server
+    // enforces that regardless (GrouperConfigurationModuleBase.populateConfigurationValuesFromUi),
+    // but a screen which offers the checkbox to somebody else is a bug in that screen: fail loudly
+    // so it is found, rather than show a control which does nothing.  such a screen should pass
+    // shouldShowElCheckbox based on the viewer
+    if (shouldShowElCheckbox && !GrouperConfigurationModuleBase.isSubjectAllowedToUseExpressionLanguage(
+        GrouperUiFilter.retrieveSubjectLoggedIn())) {
+      throw new RuntimeException("The expression language checkbox cannot be shown to a subject who is not "
+          + "wheel or root, set shouldShowElCheckbox based on the viewer.  config item: '" + configId + "'");
     }
     
     field.append("<tr id='configRow_"+configId+"_id' " + (shouldShow ? "" : " style='display:none' ") + ">");
