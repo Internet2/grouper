@@ -560,6 +560,108 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
+   * GRP-7052 follow up: when one user's target id changes, the incremental marks every group that user
+   * is in for a full membership recalc (Okta retrieves memberships by group, so it bridges the entity
+   * recalc to the groups).  Those groups also have OTHER members whose memberships are correct in the
+   * target.  The incremental must not remove them: their memberships have to stay in the target.
+   *
+   * <p>Same scenario as testEntityTargetIdChangeReSendsAllMembershipsIncremental (SUBJ0's target user is
+   * recreated with a new id and one of its memberships carries an error), but SUBJ1 is also a member of
+   * both groups and nothing changes for SUBJ1.</p>
+   */
+  public void testEntityTargetIdChangeDoesNotRemoveOtherMembersIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    // this creates the mock tables
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    // SUBJ0 is the user whose target id will change, SUBJ1 is a bystander in both groups
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    // full sync: both groups, both users, and all four memberships are in the target
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    String staleUser0Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2();
+    String user1Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2();
+    assertNotNull(staleUser0Id);
+    assertNotNull(user1Id);
+
+    String group0TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).getGroupAttributeValueCache2();
+    String group1TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).getGroupAttributeValueCache2();
+    assertNotNull(group0TargetId);
+    assertNotNull(group1TargetId);
+
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(user1Id));
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId).contains(user1Id));
+
+    // ---- out-of-band target recreate of SUBJ0 only: drop SUBJ0's membership rows and give SUBJ0's target
+    //      user a NEW id (same login).  SUBJ1 is untouched ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUser0Id).executeSql();
+    String freshUser0Id = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUser0Id).addBindVar(staleUser0Id).executeSql();
+
+    // ---- the test:testGroup membership of SUBJ0 failed on a previous incremental, which is what makes this
+    //      incremental recalc SUBJ0 and notice its target id changed ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member0.getId());
+    assertNotNull(provisioningEntityWrapper);
+    // precondition: the id change was detected, so the recalc bridged to SUBJ0's groups
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+
+    Set<String> group0Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId);
+    Set<String> group1Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId);
+
+    // SUBJ0 is back in both groups under the new id (what GRP-7052 is for)
+    assertTrue(group0Members.contains(freshUser0Id));
+    assertTrue(group1Members.contains(freshUser0Id));
+
+    // KEY: the bystander SUBJ1 was not removed from either group by the group recalc
+    assertTrue("other member must stay in test:testGroup: " + group0Members, group0Members.contains(user1Id));
+    assertTrue("other member must stay in test:testGroup2: " + group1Members, group1Members.contains(user1Id));
+
+    // and its sync memberships are still in target
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertTrue(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId()).isInTarget());
+    assertTrue(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member1.getId()).isInTarget());
+  }
+
+  /**
    * GRP-7052 (group side): when a group's target id changes (the target group is recreated out of
    * band with a new id), incremental must re-send ALL of that group's memberships to the recreated
    * target group.  The group has two members; only one member's membership carries an error.  The

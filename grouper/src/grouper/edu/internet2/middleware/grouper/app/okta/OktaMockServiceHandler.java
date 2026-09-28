@@ -851,7 +851,11 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     Algorithm.RSA256(oktaMockRsaKeyProvider).verify(decodedJwt);
     
-    String configId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.configId");
+    // the test stores this in the database config right before its first call, and this mock runs in
+    // another JVM (tomcat) which only sees database config changes on its next cache check (a few
+    // seconds).  default to the config id the test utils store, like the public key below does, so the
+    // first token request of a test does not fail on the not null config_id column
+    String configId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.configId", "myOkta");
 
     mockServiceResponse.setResponseCode(200);
 
