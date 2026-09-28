@@ -2,8 +2,8 @@
 title: "Grouper Duo provisioning"
 space: Grouper
 pageId: 28554905
-version: 20
-lastUpdated: 2026-07-01T05:39:22.557Z
+version: 23
+lastUpdated: 2026-09-28T02:54:20.503Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554905/Grouper+Duo+provisioning
 ---
 
@@ -32,7 +32,7 @@ Advice
 
 #### Group attributes. [API](https://duo.com/docs/adminapi#groups)
 
-| Grouper name | Type | Required? | Duo API | Duo UI | Description |
+| **Grouper name** | **Type** | **Required?** | **Duo API** | **Duo UI** | **Description** |
 | --- | --- | --- | --- | --- | --- |
 | id | String | required | group_id | (in URL) | This is the UUID read from Duo. Select only. This should not be translated from Grouper and the target attribute should be cached. |
 | name | String | required | name | Group Name | This is the name of the group on the Duo side. |
@@ -40,7 +40,7 @@ Advice
 
 #### Entity attributes. [API](https://duo.com/docs/adminapi#users)
 
-| Grouper name | Type | Required? | Duo API | Duo UI | Description |
+| **Grouper name** | **Type** | **Required?** | **Duo API** | **Duo UI** | **Description** |
 | --- | --- | --- | --- | --- | --- |
 | id | String | required | user_id | (in URL) | This is the UUID read from Duo. Select only. This should not be translated from Grouper and the target attribute should be cached. |
 | loginId | String | required | username | Username | This is the username in Duo. Note if you have upper case letters in this, you need to set the loginId attribute: advanced → value settings → case sensitive compare: false |
@@ -111,3 +111,47 @@ HTTP response header: Content-Type: application/json
 You can load duo users into grouper database into grouper_prov_duo_user table as shown below.
 
 grouper_prov_duo_user table is shown below
+
+## Sync back auth methods
+
+*Available in Grouper 7.6.0+, 6.6.0+, and 4.27.0+ (GRP-7384).*
+
+When entity [sync back](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back) is on (`loadEntitiesToGenericGrouperTable`), the Duo provisioner captures `userName`, `email`, `status`, `lastLogin` (epoch seconds), and `isEnrolled` for each Duo user by default. `isEnrolled` is separate from `status`: an active user might not have any auth method registered yet.
+
+Turn on *Sync back auth methods* to also capture a summary of each user's authentication methods. This is useful for finding users who can only authenticate with a method that is being retired, such as SMS or phone callback. These attributes are added to the default or configured native entity attributes; they do not replace them.
+
+```
+provisioner.myDuoProvisioner.loadEntitiesToGenericGrouperTable = true
+provisioner.myDuoProvisioner.nativeAttributesEntitiesIncludeAuthMethods = true
+```
+
+| **Attribute** | **Description** |
+| --- | --- |
+| `pushPhoneCount` | Activated phones with Duo Mobile push |
+| `mobileOtpPhoneCount` | Activated phones with Duo Mobile passcodes |
+| `pushPhoneLastSeen` | Latest Duo `last_seen` across activated push phones, as Duo returns it (ISO 8601 string). Not set if there are none. |
+| `smsPhoneCount` | Phones that can receive SMS passcodes |
+| `voicePhoneCount` | Phones that can receive a phone callback |
+| `duoHardwareTokenCount` | Duo D-100 hardware tokens (Duo token type `d1`) |
+| `hotpTokenCount` | HOTP tokens (`h6`, `h8`) |
+| `totpTokenCount` | TOTP tokens (`t6`, `t8`) |
+| `yubikeyOtpTokenCount` | YubiKey OTP tokens (`yk`) |
+| `webauthnCount` | WebAuthn credentials. Duo does not say whether each one is a platform or roaming authenticator. |
+| `u2fCount` | Legacy U2F security keys |
+
+Every count is written, including 0. Phone numbers, token serials, and credential names are not stored.
+
+Query the values from `grouper_prov_user_attr_v` (counts are in `value_integer`, strings in `value_string`). For example, Duo users who only have SMS or phone callback:
+
+```sql
+select target_user_id,
+  max(case when attribute_name = 'userName' then value_string end) as user_name,
+  max(case when attribute_name = 'lastLogin' then value_integer end) as last_login
+from grouper_prov_user_attr_v
+where provisioner_name = 'myDuoProvisioner'
+group by target_user_id
+having max(case when attribute_name = 'status' then value_string end) = 'active'
+  and sum(case when attribute_name in ('pushPhoneCount', 'mobileOtpPhoneCount', 'duoHardwareTokenCount',
+      'webauthnCount', 'u2fCount') then value_integer else 0 end) = 0
+  and sum(case when attribute_name in ('smsPhoneCount', 'voicePhoneCount') then value_integer else 0 end) > 0
+```

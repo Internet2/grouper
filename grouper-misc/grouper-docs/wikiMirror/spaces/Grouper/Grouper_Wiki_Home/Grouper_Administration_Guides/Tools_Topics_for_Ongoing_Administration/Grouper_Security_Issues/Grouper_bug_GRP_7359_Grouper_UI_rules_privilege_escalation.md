@@ -2,14 +2,14 @@
 title: "Grouper bug GRP-7359 - Grouper UI rules privilege escalation"
 space: Grouper
 pageId: 240549893
-version: 3
-lastUpdated: 2026-09-26T22:31:31.209Z
+version: 5
+lastUpdated: 2026-09-27T06:03:59.570Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation
 ---
 
 # Grouper security vulnerability: privilege escalation via the rules UI
 
- *Publicly disclosed 2026/09/23. Fixed containers (v6.4.1 / v7.5.1) coming shortly (no firm date yet) - apply the mitigation below now.*
+ *Publicly disclosed 2026/09/23. Fixed containers v7.5.1 (2026/09/26) and v6.4.1 (2026/09/27) are released. Until you upgrade, apply the mitigation below now.*
 
  > **Short version:** In affected versions, a user who is allowed to create or edit rules in the User Interface can escalate privileges. **Assume this vulnerability is already known and could be exploited, and remediate as soon as possible** - do not wait for the fixed containers or an upgrade window. **Required action now: restrict rule creation in the UI to system administrators (the wheel group) with one configuration change, then audit and clean up existing rules.** See "What you should do now" below.
 
@@ -30,7 +30,9 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+b
  
 
 - 2026/09/23 public disclosure of the vulnerability and the configuration mitigation (exploit details / commit withheld until the fixed containers ship)
-- Shortly (no firm date yet): fixed containers v6.4.1 and v7.5.1 (patch releases containing only this fix), plus the fix commit and CVE registration request
+- 2026/09/26 fixed container v7.5.1 released (see [v7 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes))
+- 2026/09/27 fixed container v6.4.1 released (see [v6 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547614/v6+Release+Notes))
+- Shortly: CVE registration request
 
  
 
@@ -46,7 +48,9 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+b
 | v5.0.0 - v5.8.2 | No (before the rules UI) |
 | v5.8.3 - v5.22.x | Yes (v5 is out of support; no v5 fix - upgrade) |
 | v6.0.0 - v6.4.0 | Yes |
+| v6.4.1+ | No (fixed) |
 | v7.0.0 - v7.5.0 | Yes |
+| v7.5.1+ | No (fixed) |
 
  
 
@@ -95,7 +99,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+b
 
 ### Remediation method 2: upgrade Grouper
 
- Grouper v6.4.1+ and v7.5.1+ (patch releases containing only this fix; available shortly, no firm date yet) fix this vulnerability. There is no v5 fixed release: v5 evolved into v6 and no v5 version is supported any longer, so affected v5 deployments should apply the configuration restriction (method 1) and upgrade to a supported release. After upgrading you can widen `rules.restrictRulesUiToMembersOfThisGroupName` (in grouper.properties) back to your intended (non-sysadmin) rule authors.
+ Grouper v7.5.1+ (released 2026/09/26) and v6.4.1+ (released 2026/09/27) fix this vulnerability. These are patch releases that also carry a Tomcat security upgrade (v7.5.1 also has two small container fixes; see [v7 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes)), and its behavior changes are in the [v7 upgrade instructions](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7); for v6 see the [v6 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547614/v6+Release+Notes) and [v6 upgrade instructions](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549643/v6+Upgrade+instructions+from+v6). There is no v5 fixed release: v5 evolved into v6 and no v5 version is supported any longer, so affected v5 deployments should apply the configuration restriction (method 1) and upgrade to a supported release. After upgrading you can widen `rules.restrictRulesUiToMembersOfThisGroupName` (in grouper.properties) back to your intended (non-sysadmin) rule authors.
 
  Behavior changes in the fixed versions:
 
@@ -158,4 +162,4 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+b
 
  It ends with a summary (total / skipped / evaluated / OK / flagged-other / flagged-inherited). **Treat verdicts as guidance, not proof:** OK is not proof of safe and FLAG is not proof of malicious. This report relies on the audit log and point-in-time (PIT) data, and **neither is authoritative** - both are cleaned up / purged on a retention schedule and can be altered, so history may be missing or changed. On top of that the "who" is best effort: audit can be suppressed for some attribute defs, purged by retention (such rules show "authorship unknown"), or - for non-UI changes - attributed to GrouperSystem. Corroborate by reviewing your sysadmin (wheel) group membership including its point-in-time history (who was ever a member, and when); the report prints a ready-to-run query for that. Send feedback and we will tune the report.
 
-  *Prepared for Grouper administrators. Questions: Chris Hyzer (Internet2 Slack). Publicly disclosed 2026/09/23; fixed containers coming shortly.*
+  *Prepared for Grouper administrators. Questions: Chris Hyzer (Internet2 Slack). Publicly disclosed 2026/09/23; v7.5.1 released 2026/09/26; v6.4.1 released 2026/09/27.*

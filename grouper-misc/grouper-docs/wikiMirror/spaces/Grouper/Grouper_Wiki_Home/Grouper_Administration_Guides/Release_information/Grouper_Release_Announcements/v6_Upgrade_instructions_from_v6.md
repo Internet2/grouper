@@ -2,14 +2,14 @@
 title: "v6 Upgrade instructions from v6"
 space: Grouper
 pageId: 28549643
-version: 23
-lastUpdated: 2026-07-19T00:32:40.916Z
+version: 24
+lastUpdated: 2026-09-27T06:03:21.472Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549643/v6+Upgrade+instructions+from+v6
 ---
 
 When upgrading from Grouper v6 to another v6 container, this wiki will consolidate all the steps needed to perform that upgrade.
 
-When upgrading from Grouper v4 to v6, also see [v6 Upgrade Instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4) for additional instructions which must be applied first. Also see the [v5 to v5 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5).
+When upgrading from Grouper v4 to v6, also see [v6 Upgrade Instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4+v5) for additional instructions which must be applied first. Also see the [v5 to v5 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5).
 
 [v6 release notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547614/v6+Release+Notes)
 
@@ -19,6 +19,8 @@ Note, these are in reverse order, so go from bottom to top
 
 | **Date** | **Upgrading from version** | **Upgrading to Version** | **Note for version** | **Importance** | **Jira** | **Step needed if...** | **Description** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026/09/27 | ALL | ALL | 6.4.1 | Important | [GRP-7359](https://grouper.atlassian.net/browse/GRP-7359) | Users who are not sysadmins create or edit rules in the UI | Security fix. Non-sysadmins can now only add or edit rules from the predefined patterns, and the rule must match the selected pattern. Custom rules and rules that use expression language (EL) are sysadmin-only.  Set `rules.restrictRulesUiToMembersOfThisGroupName` (grouper.properties) to a group of trusted power users, and audit existing rules. See [GRP-7359](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation). |
+| 2026/09/27 | ALL | ALL | 6.4.1 | Medium important | [GRP-7381](https://grouper.atlassian.net/browse/GRP-7381) | Users who are not sysadmins create rules that send email | If neither `rules.restrictRulesEmailSendersToMembersOfThisGroupName` nor `rules.restrictRulesUiToMembersOfThisGroupName` is set, only sysadmins can now create rules that send email. Set the rules UI group to your rule authors, or set `rules.allowSendEmailRulesWhenNoGroupConfigured = true` to restore the previous behavior. |
 | 2026/07/05 | ALL | ALL | 6.3.0 | Important | [GRP-7012](https://grouper.atlassian.net/browse/GRP-7012) | You have provisioning failsafes configured | Follow the steps in the Jira to review your configs |
 | 2026/05/24 | ALL | ALL | 6.2.0 | Medium important | [GRP-6902](https://grouper.atlassian.net/browse/GRP-6902) | If you have encrypted configs which shouldn't be labeled as such | Follow the steps in the Jira to review your configs |
 | 2026/05/18 | ALL | ALL | 6.2.0 | Important | [GRP-6964](https://grouper.atlassian.net/browse/GRP-6964) | If you have ".serviceUrl" in grouper-loader.properties | This config was renamed since it was causing issues.   You must refactor your configs. See the Jira. |
