@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.ccure.CCureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
+import edu.internet2.middleware.grouper.app.github.GithubMockServiceHandler;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
@@ -74,7 +75,8 @@ public class MockServiceServlet extends HttpServlet {
       "jamf", JamfMockServiceHandler.class.getName(),
       "dropbox", DropboxMockServiceHandler.class.getName(),
       "interfolio", InterfolioMockServiceHandler.class.getName(),
-      "ccure", CCureMockServiceHandler.class.getName()
+      "ccure", CCureMockServiceHandler.class.getName(),
+      "github", GithubMockServiceHandler.class.getName()
       );
   
   static {
