@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFi
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -410,26 +411,10 @@ public class StemContainer {
   public boolean isCanViewPrivileges() {
     
     if (this.canViewPrivileges == null) {
-      
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      
-      this.canViewPrivileges = (Boolean)GrouperSession.callbackGrouperSession(
-          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              boolean canView = StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_VIEW.getName(), false);
-              if (!canView) {
-                //this will use the gui StemViewPrivilege table
-                Stem stemToFind = new StemFinder().addStemId(StemContainer.this.getGuiStem().getStem().getId()).assignSubject(loggedInSubject).findStem();
-                canView = stemToFind != null;
-              }
-              return canView;
-            }
-          });
-      
+      // same rule the visualization screen uses, see PrivilegeHelper.canViewStemOrObjectInside()
+      this.canViewPrivileges = PrivilegeHelper.canViewStemOrObjectInside(loggedInSubject, this.getGuiStem().getStem());
     }
-    
     return this.canViewPrivileges;
   }
   

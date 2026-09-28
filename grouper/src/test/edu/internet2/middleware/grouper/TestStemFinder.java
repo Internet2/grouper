@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -56,7 +57,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
@@ -85,15 +86,21 @@ public class TestStemFinder extends GrouperTest {
     super(name);
   }
 
+  /**
+   * the standard GrouperTest setup, which resets the registry and inits groups and attributes (what
+   * this class used to do itself) and also clears caches, sessions and config overrides, so a test
+   * which sets an override does not leak it into the tests after it
+   */
+  @Override
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    GrouperTest.initGroupsAndAttributes();
-
+    super.setUp();
   }
 
+  @Override
   protected void tearDown () {
     LOG.debug("tearDown");
+    super.tearDown();
   }
 
   /**
@@ -278,37 +285,61 @@ public class TestStemFinder extends GrouperTest {
   }
 
   /**
-   * findByUuid should honor security so it doesn't leak stem information to subjects who cannot view the stem
+   * findByUuid is a lookup, not authorization, like the other static StemFinder finders: a subject
+   * with no privilege on the folder still gets it back.  internal callers depend on that, e.g.
+   * AttributeDefName.getStem().  screens which show a folder looked up from a request check
+   * PrivilegeHelper.canViewStemOrObjectInside() (GRP-7387, which restored this after GRP-7336)
    */
-  public void testFindByUuidSecure() {
+  public void testFindByUuidIsNotAuthorization() {
     GrouperSession rootSession = GrouperSession.startRootSession();
 
-    Stem stem = new StemSave(rootSession).assignName("test:secureStem").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem = new StemSave(rootSession).assignName("test:lookupStem").assignCreateParentStemsIfNotExist(true).save();
     String stemId = stem.getId();
-
-    //SUBJ0 can view, SUBJ1 cannot
-    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_VIEW);
-
-    //root can find it
-    assertNotNull(StemFinder.findByUuid(rootSession, stemId, true));
     GrouperSession.stopQuietly(rootSession);
 
-    //subject with STEM_VIEW can find it
-    GrouperSession sessionSubj0 = GrouperSession.start(SubjectTestHelper.SUBJ0);
-    assertNotNull(StemFinder.findByUuid(sessionSubj0, stemId, true));
-    GrouperSession.stopQuietly(sessionSubj0);
-
-    //subject without any privilege cannot find it (no information leak)
+    //subject without any privilege still finds it by uuid
     GrouperSession sessionSubj1 = GrouperSession.start(SubjectTestHelper.SUBJ1);
-    assertNull(StemFinder.findByUuid(sessionSubj1, stemId, false));
-
     try {
-      StemFinder.findByUuid(sessionSubj1, stemId, true);
-      fail("shouldnt get here, subject cannot view stem");
-    } catch (StemNotFoundException snfe) {
-      //good
+      assertNotNull(StemFinder.findByUuid(sessionSubj1, stemId, true));
+    } finally {
+      GrouperSession.stopQuietly(sessionSubj1);
     }
-    GrouperSession.stopQuietly(sessionSubj1);
+  }
+
+  /**
+   * the folder visibility rule the UI uses (folder screen and visualization, GRP-7387): a naming
+   * privilege on the folder, or something inside it the subject can see (stem view privilege table)
+   */
+  public void testCanViewStemOrObjectInside() {
+    GrouperSession rootSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(rootSession).assignName("test:viewStem").assignCreateParentStemsIfNotExist(true).save();
+    Group groupInside = new GroupSave(rootSession).assignName("test:viewStem:sub:groupInside")
+        .assignCreateParentStemsIfNotExist(true).save();
+
+    //SUBJ0: stemView on the folder itself
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_VIEW);
+
+    //SUBJ3: stemAttrRead on the folder, which implies stemView
+    stem.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.STEM_ATTR_READ);
+
+    //SUBJ2: nothing on the folder, but can read a group a level below it
+    groupInside.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+
+    //SUBJ1: nothing at all
+
+    assertTrue("privilege on the folder", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ0, stem));
+    assertTrue("implied privilege on the folder", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ3, stem));
+    assertTrue("something inside the folder", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ2, stem));
+    assertFalse("nothing", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ1, stem));
+    assertFalse("null subject", PrivilegeHelper.canViewStemOrObjectInside(null, stem));
+    assertFalse("null folder", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ0, null));
+
+    //with folders viewable by all, anybody can see it
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.folders.are.viewable.by.all", "true");
+    assertTrue("folders viewable by all", PrivilegeHelper.canViewStemOrObjectInside(SubjectTestHelper.SUBJ1, stem));
+
+    GrouperSession.stopQuietly(rootSession);
   }
 
   
