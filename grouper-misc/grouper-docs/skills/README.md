@@ -21,6 +21,16 @@ Claude Code / Claude desktop that is `~/.claude/skills/`, e.g.:
 
     ln -s "$PWD/grouper-wiki-edit" ~/.claude/skills/grouper-wiki-edit
 
+Or symlink all of them at once (run from this directory; skips any name that
+already exists in `~/.claude/skills/`):
+
+    mkdir -p ~/.claude/skills
+    for d in */; do d="${d%/}"; [ -e ~/.claude/skills/"$d" ] || ln -s "$PWD/$d" ~/.claude/skills/"$d"; done
+
+Prefer symlinks over copies: a copy silently drifts from the repo as skills are
+improved, and edits you make to it never get shared. Edit skills here in the repo
+(the symlink means your client picks up the change immediately) and commit them.
+
 Then the assistant can invoke it by name when a matching task comes up. Skills
 that need credentials (API tokens) read them from a file **outside** git -- see
 the individual skill for the expected path. Never commit tokens.

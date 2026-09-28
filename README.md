@@ -22,6 +22,14 @@ Grouper releases can be downloaded from [here](https://docs.grouper.internet2.ed
 * API documentation is available [here](https://software.internet2.edu/grouper/doc/).
 * Issue tracking system is available [here](https://bugs.internet2.edu/jira/browse/GRP).
 
+## AI assistant skills
+
+Shared AI skills for Grouper development (cherry-picking between branches, DDL changes,
+MCP tools, new provisioners, Jira/wiki edits, releases) are version-controlled in
+[grouper-misc/grouper-docs/skills](grouper-misc/grouper-docs/skills/README.md). Symlink
+them into `~/.claude/skills/` (rather than copying) so they stay current as you pull, and
+edit them in the repo so improvements are shared. See that README for setup.
+
 ## Build [![Build Status](https://api.travis-ci.org/Internet2/grouper.png)](http://travis-ci.org/Internet2/grouper)
 
 Clone the repository and execute the build via:

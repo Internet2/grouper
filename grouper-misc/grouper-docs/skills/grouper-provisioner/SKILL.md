@@ -172,6 +172,24 @@ for the UI to render configuration forms. Include:
 - `targetGroupAttribute.$i$.name` with dropdown of valid attribute names
 - `targetEntityAttribute.$i$.name` with dropdown of valid attribute names
 
+**The `optionValues` list on those two `.name` dropdowns MUST include every attribute name you
+expect to be configured -- and `id` in particular.** A `membershipObjects` provisioner keys
+memberships off the entity/group provisioning id, which is the attribute literally named `id`
+(`ProvisioningEntity.getId()` reads the `"id"` attribute), so the id attribute is configured as
+`targetEntityAttribute.0.name=id` / `targetGroupAttribute.0.name=id`. If `id` is missing from the
+`optionValues`, the config wizard renders that dropdown blank and errors with `attr N - name is
+required` (which then cascades to `Matching attribute N` / `attribute value cache N` errors on the
+dropdowns that reference it). Every shipping provisioner (Datadog, Jamf) lists `id` in these
+`optionValues` -- copy that. If an edit to the base properties seems to do nothing, the running
+app is probably still serving a stale copy from the deployed `WEB-INF/classes`; it takes effect
+once Tomcat reloads that copy.
+
+On the DAO/model side: for a membership-driven target whose id is not derivable from the
+subject, set the provisioning id via `targetEntity.setId(<login/slug>)` and configure the id
+attribute name as `id` with an `entityAttributeValueCache`/`groupAttributeValueCache` on `id` and a
+SEPARATE matching attribute (e.g. `samlNameId`/`login`) -- otherwise memberships resolve to a blank
+id and every one is dropped as `DNE`.
+
 ## 11. Externalized Text (i18n)
 
 `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` — add entries for:
