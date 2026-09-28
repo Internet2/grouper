@@ -45,7 +45,7 @@ Note the OLD on-prem tracker at bare `todos.internet2.edu` (no `.grouper.`) is
 a different, frozen thing -- do NOT touch that one. Mind the hostname.
 
 Related: the Confluence wiki has the same arrangement -- `displayUrlConfluence`
-is `docs.grouper.internet2.edu`. See the grouper-confluence-edit skill.
+is `docs.grouper.internet2.edu`. See the grouper-wiki-edit skill.
 
 ## Golden rules
 - WRITE (create / transition / comment) via the Jira Cloud REST API with an API
