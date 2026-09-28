@@ -79,7 +79,7 @@
                               </a>
                               <ul class="dropdown-menu dropdown-menu-right" id="daemon-jobs-more-actions">
                                 <c:if test="${guiDaemonJob.loader == false && guiDaemonJob.editable }">
-	                                <li><a href="?operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
+	                                <li><a href="?operation=UiV2Admin.editDaemon&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.editDaemon&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.loader == true}">
 	                                <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
@@ -90,12 +90,12 @@
                                 <c:if test="${guiDaemonJob.showMoreActionsRunNow}" >
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
                                 </c:if>
-                                <li><a href="?operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
-                                <li><a href="?operation=UiV2Admin.viewPerformanceChart&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewPerformanceChart&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsPerformance'] }</a></li>
+                                <li><a href="?operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
+                                <li><a href="?operation=UiV2Admin.viewPerformanceChart&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewPerformanceChart&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsPerformance'] }</a></li>
                                 <br />
                                 <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                                 <c:if test="${guiDaemonJob.multiple && guiDaemonJob.editable}">                        
-                                  <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${guiDaemonJob.jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.showMoreActionsDisable}" >
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
