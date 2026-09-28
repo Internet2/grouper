@@ -9,6 +9,7 @@
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
   <body class="full claro">
+    <%@ include file="../assetsJsp/skipLink.jsp"%>
     <noscript>
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
     </noscript>
@@ -29,10 +30,12 @@
         </div>
         <div class="row-fluid">
           <div class="span9 main-content offset2">
-            <!-- this is the main content div where the page content goes via ajax -->
-            <div id="grouperMainContentDivId">
-            </div>
-            <!-- end of the main content div where the page content goes -->
+            <!-- this is the main content element where the page content goes via ajax.
+                 main landmark (WCAG 1.3.1); see the comment in index/index.jsp for
+                 why it is safe for ajax to target this element. -->
+            <main id="grouperMainContentDivId" tabindex="-1">
+            </main>
+            <!-- end of the main content element where the page content goes -->
           </div>
         </div>
         <hr>

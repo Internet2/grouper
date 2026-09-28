@@ -17,6 +17,8 @@
   </style>
   </head>
   <body class="full claro">
+    <%-- the main landmark this points at arrives with the ajax loaded top container --%>
+    <%@ include file="../assetsJsp/skipLink.jsp"%>
     <grouper:browserPage jspName="ajax" />
     <noscript>
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
