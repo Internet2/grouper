@@ -15,13 +15,22 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -39,18 +48,25 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *       (wheel groups, MCP authorization groups, deprovisioning admin group,
  *       workflow editors group, WS client user group, etc.) &mdash; these
  *       are checked even if an admin has moved them outside the etc stem</li>
+ *   <li>Folders an admin lists in <code>grouper.mcp.protectedFolders</code>,
+ *       and everything under them.  MCP refuses every write to these for all
+ *       users, sysadmins included, so the change has to be made in the UI</li>
  * </ul>
  *
- * <p>The sets of protected names are computed lazily on first access and
+ * <p>The etc stem and system group names are computed lazily on first access and
  * cached for the lifetime of the JVM (until restart).  This is acceptable
  * because the config properties that determine these names do not change
- * at runtime.</p>
+ * at runtime.  The configured protected folders are read from config on each
+ * check (config is itself cached) so an admin can add a folder without a restart.</p>
  *
  * @author mchyzer
  */
 public class GrouperMcpProtectedResources {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperMcpProtectedResources.class);
+
+  /** config key listing folders (comma separated) that MCP must not write to */
+  public static final String PROTECTED_FOLDERS_CONFIG = "grouper.mcp.protectedFolders";
 
   /** maximum number of sub-objects (groups + stems) before a stem rename is blocked */
   static final int MAX_SUB_OBJECTS_FOR_RENAME = 5;
@@ -158,7 +174,170 @@ public class GrouperMcpProtectedResources {
     }
 
     // check explicitly configured protected groups
-    return protectedGroupNames.contains(groupName);
+    if (protectedGroupNames.contains(groupName)) {
+      return true;
+    }
+
+    // check folders the admin configured as protected from MCP
+    return protectedFolderForGroupName(groupName) != null;
+  }
+
+  /**
+   * the folders configured in grouper.mcp.protectedFolders.  read on each call so a
+   * config change takes effect without a restart (the config itself is cached)
+   * @return the folder names, trailing colons removed, or an empty list if none configured
+   */
+  public static List<String> protectedFolderNames() {
+    List<String> result = new ArrayList<String>();
+    String value = GrouperConfig.retrieveConfig().propertyValueString(PROTECTED_FOLDERS_CONFIG);
+    if (StringUtils.isBlank(value)) {
+      return result;
+    }
+    for (String folderName : GrouperUtil.splitTrim(value, ",")) {
+      // tolerate "app:payroll:" so it does not turn into a prefix that matches nothing
+      folderName = StringUtils.stripEnd(StringUtils.trimToEmpty(folderName), ":");
+      if (StringUtils.isNotBlank(folderName)) {
+        result.add(folderName);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * find the configured protected folder that a name is, or is under.  the match is
+   * on whole folder names, so app:payrollX is not under app:payroll
+   * @param folders the configured protected folders
+   * @param name a group or stem name
+   * @return the protected folder, or null if the name is not in one
+   */
+  private static String protectedFolderMatching(List<String> folders, String name) {
+    if (StringUtils.isBlank(name)) {
+      return null;
+    }
+    for (String folderName : folders) {
+      if (name.equals(folderName) || name.startsWith(folderName + ":")) {
+        return folderName;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * find the configured protected folder a group is in.  the name is checked as given,
+   * and if that does not match, the group is looked up so a name which is an alternate
+   * (old) name of a group that was moved into a protected folder is also caught.
+   * the lookup is only done when folders are configured, so there is no extra query otherwise
+   * @param groupName the group name as the MCP client sent it
+   * @return the protected folder, or null if the group is not in one
+   */
+  public static String protectedFolderForGroupName(final String groupName) {
+    List<String> folders = protectedFolderNames();
+    if (folders.isEmpty() || StringUtils.isBlank(groupName)) {
+      return null;
+    }
+    String folderName = protectedFolderMatching(folders, groupName);
+    if (folderName != null) {
+      return folderName;
+    }
+    // look up as root: whether the caller can see the group has nothing to do with
+    // whether it is protected.  findByName resolves alternate names too
+    Group group = (Group) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GroupFinder.findByName(groupName, false);
+      }
+    });
+    if (group == null || StringUtils.equals(group.getName(), groupName)) {
+      return null;
+    }
+    return protectedFolderMatching(folders, group.getName());
+  }
+
+  /**
+   * find the configured protected folder a stem is, or is in.  like
+   * {@link #protectedFolderForGroupName(String)} this also resolves an alternate (old) name
+   * @param stemName the stem name as the MCP client sent it
+   * @return the protected folder, or null if the stem is not in one
+   */
+  public static String protectedFolderForStemName(final String stemName) {
+    List<String> folders = protectedFolderNames();
+    if (folders.isEmpty() || StringUtils.isBlank(stemName)) {
+      return null;
+    }
+    String folderName = protectedFolderMatching(folders, stemName);
+    if (folderName != null) {
+      return folderName;
+    }
+    // look up as root, see protectedFolderForGroupName
+    Stem stem = (Stem) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return StemFinder.findByName(stemName, false);
+      }
+    });
+    if (stem == null || StringUtils.equals(stem.getName(), stemName)) {
+      return null;
+    }
+    return protectedFolderMatching(folders, stem.getName());
+  }
+
+  /**
+   * the first folder in a readwrite consent scope which MCP refuses to write to: the etc
+   * folder or a folder in grouper.mcp.protectedFolders, or anything under them.  used by the
+   * OAuth consent screen so a consent which could never be used is not granted.  a folder which
+   * only contains a protected folder is not returned, the tools block the protected part on their own
+   * @param folderNames the folder names picked for the consent
+   * @return the protected folder name, or null if none
+   */
+  public static String firstProtectedScopeFolderName(List<String> folderNames) {
+    for (String folderName : GrouperUtil.nonNull(folderNames)) {
+      if (isProtectedStemName(folderName)) {
+        return folderName;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * the first group in a readwrite consent scope which MCP refuses to write to: a system
+   * group, or a group under the etc folder or a folder in grouper.mcp.protectedFolders
+   * @param groupNames the group names picked for the consent
+   * @return the protected group name, or null if none
+   */
+  public static String firstProtectedScopeGroupName(List<String> groupNames) {
+    for (String groupName : GrouperUtil.nonNull(groupNames)) {
+      if (isProtectedGroupName(groupName)) {
+        return groupName;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * build the error for a write to a configured protected folder.  it names the folder
+   * and sends the person to the UI, where the change can still be made
+   * @param objectType "group" or "folder"
+   * @param objectName the name the MCP client sent
+   * @param protectedFolderName the configured protected folder it is in
+   * @return the error message
+   */
+  static String buildProtectedFolderError(String objectType, String objectName, String protectedFolderName) {
+    StringBuilder result = new StringBuilder();
+    result.append("Cannot modify ").append(objectType).append(" '").append(objectName)
+        .append("' via MCP: it is in the folder '").append(protectedFolderName)
+        .append("', which an administrator has protected from all changes made through MCP (")
+        .append(PROTECTED_FOLDERS_CONFIG).append("). Make this change in the Grouper UI instead");
+    String uiUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.ui.url");
+    if (StringUtils.isNotBlank(uiUrl)) {
+      result.append(": ").append(StringUtils.stripEnd(uiUrl, "/"))
+          .append("/grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemName=")
+          .append(GrouperUtil.escapeUrlEncode(protectedFolderName));
+    } else {
+      result.append(".");
+    }
+    return result.toString();
   }
 
   /**
@@ -180,7 +359,12 @@ public class GrouperMcpProtectedResources {
     }
     initializeIfNeeded();
 
-    return stemName.equals(etcStemName) || stemName.startsWith(etcStemName + ":");
+    if (stemName.equals(etcStemName) || stemName.startsWith(etcStemName + ":")) {
+      return true;
+    }
+
+    // check folders the admin configured as protected from MCP
+    return protectedFolderForStemName(stemName) != null;
   }
 
   /**
@@ -263,6 +447,11 @@ public class GrouperMcpProtectedResources {
    */
   public static String buildProtectedGroupError(String groupName) {
     initializeIfNeeded();
+    // a configured protected folder gets its own message which names the folder
+    String protectedFolderName = protectedFolderForGroupName(groupName);
+    if (protectedFolderName != null) {
+      return buildProtectedFolderError("group", groupName, protectedFolderName);
+    }
     return "Cannot modify protected system group: " + groupName
         + ". System groups and groups under the '" + etcStemName
         + "' stem are protected from modification via MCP.";
@@ -275,6 +464,11 @@ public class GrouperMcpProtectedResources {
    */
   public static String buildProtectedStemError(String stemName) {
     initializeIfNeeded();
+    // a configured protected folder gets its own message which names the folder
+    String protectedFolderName = protectedFolderForStemName(stemName);
+    if (protectedFolderName != null) {
+      return buildProtectedFolderError("folder", stemName, protectedFolderName);
+    }
     return "Cannot modify protected system stem: " + stemName
         + ". The '" + etcStemName
         + "' stem and stems under it are protected from modification via MCP.";

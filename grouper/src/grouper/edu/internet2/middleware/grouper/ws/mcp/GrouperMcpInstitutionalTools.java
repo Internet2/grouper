@@ -698,6 +698,21 @@ public class GrouperMcpInstitutionalTools {
           if (StringUtils.isBlank(value)) {
             continue;
           }
+          // a folder or group input in a folder the admin protected from MCP is refused for
+          // everyone.  only the configured folders are checked here, not the etc stem, since
+          // templates are written by admins and may legitimately take etc objects as inputs
+          String protectedFolderName = null;
+          if ("folders".equals(mcpScopeType)) {
+            protectedFolderName = GrouperMcpProtectedResources.protectedFolderForStemName(value);
+            if (protectedFolderName != null) {
+              return buildErrorResult(GrouperMcpProtectedResources.buildProtectedStemError(value));
+            }
+          } else if ("groups".equals(mcpScopeType)) {
+            protectedFolderName = GrouperMcpProtectedResources.protectedFolderForGroupName(value);
+            if (protectedFolderName != null) {
+              return buildErrorResult(GrouperMcpProtectedResources.buildProtectedGroupError(value));
+            }
+          }
           boolean inScope = true;
           if ("folders".equals(mcpScopeType)) {
             inScope = authUser.isStemInReadwriteScope(value);
