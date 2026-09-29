@@ -12,6 +12,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,7 +43,23 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (ConfigUtils.isGrouperUi() && FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
-            super.doFilter(request, response, chain);
+            final boolean[] chainInvoked = new boolean[] { false };
+            FilterChain trackingChain = new FilterChain() {
+                @Override
+                public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
+                    chainInvoked[0] = true;
+                    chain.doFilter(req, resp);
+                }
+            };
+            try {
+                super.doFilter(request, response, trackingChain);
+            } catch (Exception e) {
+                if (chainInvoked[0]) {
+                    // authentication succeeded, this is an application error and not a login failure
+                    throw e;
+                }
+                FilterDecoratorUtils.handleLoginFailure(e, (HttpServletResponse) response);
+            }
         } else {
             chain.doFilter(request, response);
         }

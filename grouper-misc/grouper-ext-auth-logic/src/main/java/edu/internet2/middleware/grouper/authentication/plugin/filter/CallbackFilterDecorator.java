@@ -59,6 +59,8 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
         try {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             super.internalFilter(request, response, chain);
+        } catch (Exception e) {
+            FilterDecoratorUtils.handleLoginFailure(e, response);
         } finally {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
