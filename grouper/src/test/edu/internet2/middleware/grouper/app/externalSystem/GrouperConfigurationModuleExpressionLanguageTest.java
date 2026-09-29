@@ -87,9 +87,14 @@ public class GrouperConfigurationModuleExpressionLanguageTest extends GrouperTes
   private static final String MARKER_SCRIPT = "${" + GrouperConfigurationModuleExpressionLanguageTest.class.getName()
       + ".markExpressionLanguageEvaluated()}";
 
+  /** root session for the test, v4 GrouperTest.setUp() does not leave one open like v6+ does */
+  private GrouperSession rootSessionForTest = null;
+
   @Override
   protected void setUp() {
     super.setUp();
+
+    this.rootSessionForTest = GrouperSession.startRootSession();
 
     expressionLanguageEvaluated = false;
 
@@ -103,6 +108,12 @@ public class GrouperConfigurationModuleExpressionLanguageTest extends GrouperTes
     loaderOverrides.put(prefix + "clientSecret", "someSecret");
     loaderOverrides.put(prefix + "resource", "someResource");
     loaderOverrides.put(prefix + "graphEndpoint", "someGraphEndpoint");
+  }
+
+  @Override
+  protected void tearDown() {
+    GrouperSession.stopQuietly(this.rootSessionForTest);
+    super.tearDown();
   }
 
   /**
