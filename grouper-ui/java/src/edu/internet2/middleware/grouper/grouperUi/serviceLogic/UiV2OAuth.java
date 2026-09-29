@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpProtectedResources;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
@@ -443,6 +444,19 @@ public class UiV2OAuth extends UiServiceLogicBase {
           throw new ControllerDone();
         }
 
+        // protected folders and groups again, see ajaxValidateReadwriteScope.  this is the
+        // endpoint which issues the code, and it is reachable without the validation
+        String protectedFolderPath = GrouperMcpProtectedResources.firstProtectedScopeFolderName(readwriteFolders);
+        String protectedGroupPath = GrouperMcpProtectedResources.firstProtectedScopeGroupName(readwriteGroups);
+        if (protectedFolderPath != null || protectedGroupPath != null) {
+          GrouperTextContainer.assignThreadLocalVariable("scopeName", GrouperUtil.xmlEscape(
+              protectedFolderPath != null ? protectedFolderPath : protectedGroupPath));
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+              GrouperTextContainer.textOrNull(protectedFolderPath != null
+                  ? "oauthConsentReadwriteFolderProtected" : "oauthConsentReadwriteGroupProtected"));
+          throw new ControllerDone();
+        }
+
         // validate at least one restriction is present (when config requires it)
         boolean requireReadwriteDataScope = GrouperConfig.retrieveConfig()
             .propertyValueBoolean("grouper.mcp.oauth.requireReadwriteDataScope", true);
@@ -613,6 +627,27 @@ public class UiV2OAuth extends UiServiceLogicBase {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#oauthReadwriteGroupComboErrorId",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteGroupNotFound")));
+        return;
+      }
+
+      // a folder or group which MCP refuses to write to (etc, system groups, grouper.mcp.protectedFolders)
+      // would be a readwrite consent that can never be used, so it is refused here instead of
+      // failing later in the AI client.  a folder which only contains a protected folder is fine
+      String protectedFolderPath = GrouperMcpProtectedResources.firstProtectedScopeFolderName(folderPaths);
+      if (protectedFolderPath != null) {
+        GrouperTextContainer.assignThreadLocalVariable("scopeName", GrouperUtil.xmlEscape(protectedFolderPath));
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteFolderComboErrorId",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteFolderProtected")));
+        return;
+      }
+
+      String protectedGroupPath = GrouperMcpProtectedResources.firstProtectedScopeGroupName(groupPaths);
+      if (protectedGroupPath != null) {
+        GrouperTextContainer.assignThreadLocalVariable("scopeName", GrouperUtil.xmlEscape(protectedGroupPath));
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteGroupComboErrorId",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteGroupProtected")));
         return;
       }
 
