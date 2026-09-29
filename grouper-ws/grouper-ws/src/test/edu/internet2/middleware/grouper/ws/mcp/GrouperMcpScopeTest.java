@@ -938,7 +938,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("attributeAssignType", "member");
       arguments.put("attributeAssignOperation", "assign_attr");
       arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
-      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("ownerSubjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
 
@@ -1489,7 +1489,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("attributeAssignType", "member");
       arguments.put("attributeAssignOperation", "assign_attr");
       arguments.put("attributeDefNameName", "test:subjectOnlyAttrDefName");
-      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("ownerSubjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
 
@@ -1531,7 +1531,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("attributeAssignType", "member");
       arguments.put("attributeAssignOperation", "assign_attr");
       arguments.put("attributeDefNameName", "test:noSubjectScopeAttrDefName");
-      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("ownerSubjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
 
