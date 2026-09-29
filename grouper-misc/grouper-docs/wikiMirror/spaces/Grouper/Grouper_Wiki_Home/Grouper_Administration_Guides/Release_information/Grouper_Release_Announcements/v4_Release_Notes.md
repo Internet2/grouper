@@ -2,8 +2,8 @@
 title: "v4 Release Notes"
 space: Grouper
 pageId: 28549344
-version: 246
-lastUpdated: 2026-09-27T07:06:11.934Z
+version: 247
+lastUpdated: 2026-09-28T08:21:18.191Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes
 ---
 
@@ -13,6 +13,7 @@ See below on this page for v4 release notes (v4 build info).
 
 ** Grouper v4 is the stable no-enhancement version of v2.6. **
 
+- [v7 release notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes)
 - [v6 release notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547614/v6+Release+Notes)
 - [v6 Upgrade Instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4+v5)
 

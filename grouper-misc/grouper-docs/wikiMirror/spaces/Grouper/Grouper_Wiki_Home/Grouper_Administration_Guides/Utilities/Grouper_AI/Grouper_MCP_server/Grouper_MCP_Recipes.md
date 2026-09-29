@@ -2,8 +2,8 @@
 title: "Grouper MCP Recipes"
 space: Grouper
 pageId: 188579841
-version: 2
-lastUpdated: 2026-09-04T16:28:03.716Z
+version: 3
+lastUpdated: 2026-09-28T07:37:16.615Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes
 ---
 
@@ -36,6 +36,16 @@ That layering is why the summary matters more than the body. The summary is sent
 Note the file — this one lives in `grouper.hibernate.properties`, not `grouper.properties`, which catches people out. With MCP off, the recipes screen is hidden entirely.
 
 Recipes are ordinary Grouper configuration, so they can ship as built-ins, be overridden by setting the same keys, and be turned off with `enabled = false` without losing them. Edit them in the UI under **Miscellaneous → MCP recipes** rather than by hand.
+
+## Where a recipe comes from
+
+Grouper decides how much of a recipe can be changed from where its keys are set. It shows on the recipes screen, and the server enforces it on both the screens and `update` over MCP.
+
+| **Source** | **Where the keys live** | **What can be changed in Grouper** |
+| --- | --- | --- |
+| Built-in | `grouper.base.properties`, shipped with Grouper | Only `enabled` and `groupNameCanUse`, so you can turn it on for your audience. The wording and tools stay Grouper's, so upgrades keep improving it. Cannot be deleted. |
+| Config file | Any other properties file, e.g. your `grouper.properties` | Nothing: it is read only in Grouper and managed in the file, so the file and Grouper never disagree. Cannot be deleted in Grouper. |
+| Database | Created on the recipes screen (database config) | Everything, subject to the permissions below. |
 
 ## Who can do what
 
@@ -102,6 +112,14 @@ Every key is prefixed `grouperMcpRecipe.<configId>.` — the config id is your h
 | `priority` | no (default `100`) | Lower comes first. Decides which recipes get their full summary rather than just their name when there are more than fit, and the order of pointers on a tool that several recipes apply to. The default sits mid-range so you can move one either way without renumbering. Ties break by name, so the same config always produces the same output. |
 | `lastEditedBy`, `lastEditedByName`, `lastEditedOn` | read only | Written by Grouper on every edit through the screens or over MCP, and sent to the client alongside the body so a recipe arrives as local advice with a name on it. `lastEditedBy` is a packed subject string, `sourceId::::subjectId`. Blank means the recipe has only ever been edited in a properties file or the database — so read it as who last edited it through Grouper, not as a claim about who wrote the text. |
 
+**Plain text only, and length limits (7.6.0).** Recipe fields cannot be expression language: the recipes screen has no expression language checkbox, and a field that arrives as expression language (e.g. a `.elConfig` key) is refused on save. Name, summary and body have maximum lengths, the same on the screens and over MCP:
+
+| **Field** | **Maximum characters** |
+| --- | --- |
+| `name` | 100 |
+| `summary` | 300 |
+| `body` | 20000 |
+
 ## Writing a summary that works
 
 Say what to do, not when the rule applies.
@@ -115,6 +133,16 @@ Say what to do, not when the rule applies.
 The first lets the client act immediately. The second only says that something applies, so it must open the full recipe first — and often it won't bother. The third gives it nothing to act on.
 
 Keep it to one line. Every client that can see the recipe receives this text on every connection.
+
+## Limits on what a client receives
+
+These keep recipes from crowding out everything else in a client's context. Recipes past a cap are chosen by `priority`.
+
+| **Property** | **Default** | **Notes** |
+| --- | --- | --- |
+| `grouper.mcp.recipe.maxSummariesInDescription` | `10` | How many recipes get their summary in the recipe tool's description. Recipes past the cap are still listed by name, so a client can ask for one it has seen mentioned. |
+| `grouper.mcp.recipe.maxPointersPerTool` | `3` | How many recipe pointers one tool's description gets. Past this the rest are summarised as a count. Also caps how many recipes are sent back when that tool fails. |
+| `grouper.mcp.recipe.maxBodyCharsOnError` | `4000` | When a tool fails, recipe bodies about it are sent back with the error. Past this many characters a body is cut off and the client is told to read the rest with the recipe tool. 0 or less means no limit. |
 
 ## Caching, and why your change hasn't appeared
 
@@ -153,7 +181,9 @@ The effect: members of `payrollStaff` see the recipe listed by their client, and
 
 ## Things worth knowing before you deploy
 
-- **There is no staging state.** Set a use group and the recipe is live to those clients. To hold one back, use `enabled = false` or leave the use group blank — both also hide it from the UI list.
+- **There is no staging state.** Set a use group and the recipe is live to those clients. To hold one back, use `enabled = false` or leave the use group blank. Both hide it from every client; recipe administrators still see it on the recipes screen, where Enabled shows No.
 - **Recipe text reaches AI clients verbatim.** Treat the body as published to everyone in the use group. Don't put anything there you wouldn't want pulled into a model's context.
+- **An edit group writes prompts for its audience.** Members of a recipe's `groupNameCanEdit` choose text that is put in front of every AI client in its use group, in tool descriptions and on errors. Pick that group as carefully as you would pick who can change the tools themselves.
+- **Denying the recipe tool does not turn recipes off.** With `recipe` in `grouper.mcp.tools.deny`, clients cannot list or get recipes and no pointers are added to tool descriptions, but when a tool named in a recipe fails, the recipe body is still sent back with the error. To stop a recipe, use `enabled = false`.
 - **The advertised schema is not the boundary.** A client can attempt actions and fields the tool description never offered it; the server-side checks are what actually refuse them.
 - **A recipe can point at nothing.** A tool renamed by an upgrade, or a deleted group, leaves a recipe that looks fine and does nothing. The recipes screen reports these under "Some recipes are not doing anything" — it's the only place they surface.

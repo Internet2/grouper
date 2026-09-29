@@ -9,8 +9,8 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/171835422/Grouper+GitHub+external+system</loc><lastmod>2026-08-30</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/171868186/Grouper+GitHub+provisioner</loc><lastmod>2026-08-30</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/172097588/v7+new+features</loc><lastmod>2026-08-30</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes</loc><lastmod>2026-09-04</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/206635009/Circular+Memberships</loc><lastmod>2026-09-11</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes</loc><lastmod>2026-09-28</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/206635009/Circular+Memberships</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/234323970/Penn+Atlassian+licensing+front+door</loc><lastmod>2026-09-21</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/236027906/Grouper+Messaging+provisioner</loc><lastmod>2026-09-23</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation</loc><lastmod>2026-09-27</lastmod></url>
@@ -576,9 +576,9 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549074/Using+the+Playwright+script+recorder</loc><lastmod>2024-06-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549083/Restoring+SOAP+Web+Services+in+Grouper+5</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549091/Unique+object+names+in+Grouper</loc><lastmod>2026-06-11</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7</loc><lastmod>2026-09-27</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549107/Specsheet</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes</loc><lastmod>2026-09-28</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549120/Grouper+database</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549126/Grouper+Entra+ID+Azure+External+System</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549137/Grouper+custom+template+via+GSH+impersonate+delete+example</loc><lastmod>2026-07-01</lastmod></url>
@@ -608,7 +608,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549324/Installation+by+maturity+level</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549331/Docker+database+setup+process</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549338/Grouper+rules+glossary</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes</loc><lastmod>2026-09-27</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549353/AWS+setup+process</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549360/Grouper+Built-in+Basic+Authentication+to+UI+and+Web+Services</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks</loc><lastmod>2026-08-14</lastmod></url>
@@ -701,7 +701,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554319/Grouper+MCP+example+troubleshooting+daemon+issues</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554333/Grouper+Loader+LDAP+simple+from+hasMember</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554339/Grouper+MCP+server+-+technical+reference</loc><lastmod>2026-07-12</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide</loc><lastmod>2026-07-24</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554381/Grouper+MCP+example+testing+provisioning</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554393/Syncing+objects+to+Grouper+from+SQL</loc><lastmod>2026-07-01</lastmod></url>
@@ -832,14 +832,14 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555332/Grouper+provisioning+incremental+workflow</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555339/Grouper+Loader+classlist+example+from+Penn</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555342/LDAP+to+SQL+sync+attribute+example</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555350/Grouper+Box+Provisioner</loc><lastmod>2026-07-12</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555350/Grouper+Box+Provisioner</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555359/Grouper+web+services+-+authentication+-+Apache+http+password</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555366/Grouper+web+services+-+authentication+-+custom+authn</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555374/Grouper+web+services+-+authentication+-+rampart</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555382/Grouper+TeamDynamix+Provisioner</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555391/Grouper+rules+pattern+-+Inherited+privileges+on+groups</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555398/Grouper+provisioning+framework+logging</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back</loc><lastmod>2026-07-07</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555413/Grouper+provisioning+translations</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM</loc><lastmod>2026-07-19</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555435/Grouper+Datadog+provisioner</loc><lastmod>2026-07-12</lastmod></url>
@@ -868,7 +868,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555618/Grouper+rules+pattern+-+Remove+invalid+membership+due+to+folder</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555625/Grouper+rules+pattern+-+Add+disabled+date+on+invalid+permissions</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555631/Grouper+Container+running+as+non-root</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555638/Grouper+configuration+in+the+database+and+UI</loc><lastmod>2026-07-01</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555638/Grouper+configuration+in+the+database+and+UI</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555646/Grouper+daily+email+notification+use+case+-+FERPA+notifications</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555651/Grouper+daily+email+notification+-+affiliation+expiration+report</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555658/Example+Nagios+monitoring</loc><lastmod>2026-07-12</lastmod></url>

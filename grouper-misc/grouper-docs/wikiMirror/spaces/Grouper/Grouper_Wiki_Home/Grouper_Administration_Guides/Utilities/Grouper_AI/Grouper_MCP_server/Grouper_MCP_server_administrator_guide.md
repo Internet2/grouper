@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 19
-lastUpdated: 2026-07-24T16:53:01.139Z
+version: 20
+lastUpdated: 2026-09-28T07:37:59.672Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -155,6 +155,12 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | privilege_get |  |  |  |  |  |
 
 An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
+
+## Recipes
+
+A recipe tells an AI client how your institution wants a task done, e.g. use a GSH template instead of `group_save` for certain groups. Grouper advertises a `recipe` tool, adds a one-line pointer to the description of each tool a recipe names, and sends the recipe back when one of those tools fails. Each recipe is only seen by its own use group.
+
+Recipes are managed in the UI under Miscellaneous, MCP recipes. Nobody can administer them until `grouper.mcp.recipe.groupNameCanAdminInUi` or `grouper.mcp.recipe.groupNameCanAdminInMcp` names a group; being a sysadmin is not enough. See [Grouper MCP Recipes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes) for every setting, who can change what, and the limits on what a client receives.
 
 ## SQL readonly tools
 

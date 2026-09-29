@@ -2,8 +2,8 @@
 title: "Grouper configuration in the database and UI"
 space: Grouper
 pageId: 28555638
-version: 45
-lastUpdated: 2026-07-01T05:37:44.850Z
+version: 46
+lastUpdated: 2026-09-28T08:12:12.123Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555638/Grouper+configuration+in+the+database+and+UI
 ---
 
@@ -53,6 +53,8 @@ Note: if you have configs you want to differ in different components (e.g. ws/ui
 [There is an editor in the UI](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28560375/Grouper+configuration+in+UI+readwrite+mode)
 
 > Editing configuration in the UI requires the logged-in user to be a Grouper sysadmin (in the wheel or root group), and `grouperUi.configuration.enabled` must be `true`. Access can be further restricted by source IP with `grouperUi.configurationEditor.sourceIpAddresses`.
+
+As of v7.6.0 and v6.5.0, only a sysadmin in the wheel group, or root, can enter expression language in a configuration form. Some configuration screens can be opened by other people, e.g. daemon jobs by members of `uiV2.admin.daemonJobs.must.be.in.group`. For them the expression language checkbox is not shown, text they post is taken literally, and a field that is already expression language is kept as it is when they save.
 
 - The source IP address will need to be configured or disabled in grouper-ui.properties:
   
@@ -216,6 +218,19 @@ grouper.tableIndex.groupWhoCanAssignIdIndex = $$grouper.rootStemForBuiltinObject
   # {regex: "configuration.autocreate.group.name.[0-9]+", valueType: "group", required: true}
   #configuration.autocreate.group.name.0 = $$grouper.rootStemForBuiltinObjects$$:uiUsers
   ```
+
+## Configuration caching
+
+Each Grouper server (UI, WS, daemon) caches configuration in memory. As of v7.6.0, v6.7.0 and v4.27.0:
+
+- A change to database configuration clears only the cache of that config file (e.g. `grouper-loader.properties`) on each server, not all configuration. Changes to text config (`grouper.text.*`) also reach the other servers.
+- Other servers pick up a database configuration change within about `grouper.cache.database.checkIncrementalAfterSeconds` (default 5 seconds).
+- Viewing a configuration screen no longer clears the cache, and importing configuration clears it once for the whole import rather than once per property.
+
+A sysadmin can also clear the cache by hand, from **Miscellaneous > Configuration files**, under the config actions menu:
+
+- **Clear config cache in this UI**: clears the configuration cache of the server you are on. Use it after changing a config file on disk, so you do not have to wait for `*.config.secondsBetweenUpdateChecks`.
+- **Clear config cache on all nodes**: clears the cache on the server you are on right away, and tells the other servers, which clear theirs within about `grouper.cache.database.checkIncrementalAfterSeconds`. Use it when servers seem to disagree about a setting.
 
 ## Technical design of retrieving the configuration from the database
 

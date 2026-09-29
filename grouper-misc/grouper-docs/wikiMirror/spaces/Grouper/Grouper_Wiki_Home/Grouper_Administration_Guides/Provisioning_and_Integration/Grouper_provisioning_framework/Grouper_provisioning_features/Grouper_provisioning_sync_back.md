@@ -2,8 +2,8 @@
 title: "Grouper provisioning sync back"
 space: Grouper
 pageId: 28555407
-version: 4
-lastUpdated: 2026-07-07T16:40:25.727Z
+version: 5
+lastUpdated: 2026-09-28T08:07:26.876Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back
 ---
 
@@ -125,7 +125,7 @@ When the provisioner is configured with `selectAllEntities=true` and `selectAllG
 
 ### Attribute coverage
 
-Each protocol has a curated default list of attributes it captures (typically the schema's core identity fields — id, name, login, status booleans, etc.). Defaults intentionally exclude human-name fields and free-text descriptions; override the per-provisioner attribute list if you need them.
+Each protocol has a curated default list of attributes it captures (typically the schema's core identity fields — id, name, login, status booleans, etc.). Defaults usually exclude human-name fields and free-text descriptions; override the per-provisioner attribute list if you need them. Box groups are an exception: since v7.6.0 they include `description` by default, see the Box provisioner page.
 
 ## Verifying it works
 

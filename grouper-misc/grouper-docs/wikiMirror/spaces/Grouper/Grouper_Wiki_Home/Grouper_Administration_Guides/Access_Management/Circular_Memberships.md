@@ -2,16 +2,16 @@
 title: "Circular Memberships"
 space: Grouper
 pageId: 206635009
-version: 1
-lastUpdated: 2026-09-11T12:46:30.235Z
+version: 2
+lastUpdated: 2026-09-28T07:39:09.941Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/206635009/Circular+Memberships
 ---
 
 ## Summary
 
-A group cannot be a member of itself, either directly or through other groups. As of Grouper v7.5.1 ([GRP-7291](https://grouper.atlassian.net/browse/GRP-7291)), Grouper blocks any membership that would create a loop, at any depth.
+A group cannot be a member of itself, either directly or through other groups. As of Grouper v7.6.0 ([GRP-7291](https://grouper.atlassian.net/browse/GRP-7291)), Grouper blocks any membership that would create a loop, at any depth.
 
-For example, if group A is a member of group B, you cannot add group B as a member of group A. If you try, Grouper shows an error and the member is not added.
+For example, if group A is a member of group B, you cannot add group B as a member of group A. If you try, Grouper shows an error and the member is not added. The error is: *The group can't be added because it would create a circular membership.*
 
 ## What is blocked
 
@@ -61,6 +61,18 @@ order by og.name, mg.name
 A membership with a future start date, or one that comes back when a disabled group is re-enabled, is checked when the enabled/disabled daemon activates it. If activating it would create a loop, the membership stays inactive. The daemon (`OTHER_JOB_enabledDisabled`) then ends in a warning status that names the groups involved. It warns on every run until that membership is removed or the loop is broken another way.
 
 See [Grouper enabled and disabled dates](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544574/Grouper+enabled+and+disabled+dates) for how start and end dates work.
+
+## Missing group sets for an existing loop
+
+The `OTHER_JOB_syncAllSetTables` daemon adds group set rows that are missing, e.g. after a failed or interrupted change. If a membership in an existing loop is missing its group set rows, adding them would create the loop, so the daemon skips those memberships, finishes everything else, and then ends in error with a message like:
+
+```
+2 immediate groupSets were not added since they would create a circular membership, remove one of the memberships in each loop:
+Not adding groupSet for ownerGroupId = <id>, memberGroupId = <id>: The group can't be added because it would create a circular membership.
+...
+```
+
+It fails this way on every run until the loop is broken. Remove one membership in each loop listed, using the query above to turn the group ids into names. Loops whose group set rows are all present do not cause this.
 
 ## Scope
 
