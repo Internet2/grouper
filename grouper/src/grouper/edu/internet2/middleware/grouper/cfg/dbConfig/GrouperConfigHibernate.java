@@ -765,8 +765,14 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
    * delete this object
    */
   public void delete() {
-    
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+
+    // GRP-7395: READ_WRITE_NEW (like saveOrUpdate) so the delete is committed before
+    // updateLastUpdated() below notifies the other JVMs. updateLastUpdated() writes the cache
+    // notification on its own connection, which commits immediately. With USE_EXISTING, a delete
+    // inside a caller's transaction (e.g. the UI delete in DbConfigEngine) was notified before it
+    // was committed, so a node that polled in that window reloaded the OLD value, marked the
+    // notification as seen, and stayed stale until the next notification or refresh.
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW,
         AuditControl.WILL_AUDIT, new HibernateHandler() {
           
           @Override
