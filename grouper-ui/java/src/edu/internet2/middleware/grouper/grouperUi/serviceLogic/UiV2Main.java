@@ -350,11 +350,9 @@ public class UiV2Main extends UiServiceLogicBase {
         
         PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetAttributeDefNames_" + GrouperUtil.length(childrenStems));
 
-        //the root label comes from the text config, but a folder name (e.g. a configured default.browse.stem)
-        //is user data and jstree renders the text as html, so escape it like the child nodes below
         String displayExtension = stem.isRootStem() ? 
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
-            : GrouperUtil.escapeHtml(stem.getDisplayExtension(), true);
+            : stem.getDisplayExtension();
 
         //the id has to be root or it will make another request
         String id = stem.isRootStem() ? "root" : stem.getUuid();
@@ -370,7 +368,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Stem childStem : childrenStems) {
           if (stemCt < numberOfStemsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              GrouperUtil.escapeHtml(childStem.getDisplayExtension(), true), childStem.getUuid(), DojoTreeItemType.stem, true);
+              childStem.getDisplayExtension(), childStem.getUuid(), DojoTreeItemType.stem, true);
             ++stemCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
@@ -383,7 +381,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Group childGroup : childrenGroups) {
           if (groupCt < numberOfGroupsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              GrouperUtil.escapeHtml(childGroup.getDisplayExtension(), true), childGroup.getUuid(),
+              childGroup.getDisplayExtension(), childGroup.getUuid(),
               childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group,
               null);
             ++groupCt;
@@ -398,7 +396,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {
           if (attrDefCt < numberOfAttrDefsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              GrouperUtil.escapeHtml(childAttributeDef.getExtension(), true), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+              childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
             ++attrDefCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
@@ -411,7 +409,7 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
           if (attrDefNameCt < numberOfAttrDefNamesInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              GrouperUtil.escapeHtml(childAttributeDefName.getDisplayExtension(), true), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
+              childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
             ++attrDefNameCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
