@@ -131,7 +131,11 @@ public class GrouperStatusServlet extends HttpServlet {
       return;
     }
     
-    boolean sendDetailsInResponse = GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendDetailsInResponse", true);
+    // if only the http code and a heading of success or error should be sent, this takes precedence over sendDetailsInResponse
+    boolean sendHttpCodeOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendHttpCodeOnly", false);
+    
+    boolean sendDetailsInResponse = !sendHttpCodeOnly
+        && GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendDetailsInResponse", true);
     
     requestThreadLocal.set(request);
     
@@ -246,7 +250,9 @@ public class GrouperStatusServlet extends HttpServlet {
               outerResult.append(result);
             } else {
               LOG.info("Status result: " + result.toString());
-              outerResult.append("See logs or 'All daemon jobs' for details.");
+              if (!sendHttpCodeOnly) {
+                outerResult.append("See logs or 'All daemon jobs' for details.");
+              }
             }
             outerResult.append("</pre></body></html>");
             writer.write(outerResult.toString());
@@ -306,6 +312,10 @@ public class GrouperStatusServlet extends HttpServlet {
       }
       
       lastDiagnosticsError = theLastDiagnosticsError;
+      
+      if (sendHttpCodeOnly) {
+        messageNoDetails = "";
+      }
       
       //dont throw exception since that will trigger the struts error handling, we need to print to commit the response
       writeToScreen(response, "<?xml version=\"1.0\" ?>\n"

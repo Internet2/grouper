@@ -2,8 +2,8 @@
 title: "Grouper health check endpoint (healthcheck, status, diagnostics)"
 space: Grouper
 pageId: 28548954
-version: 40
-lastUpdated: 2026-07-12T15:26:59.945Z
+version: 42
+lastUpdated: 2026-09-29T20:50:38.581Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548954/Grouper+health+check+endpoint+healthcheck+status+diagnostics
 ---
 
@@ -13,7 +13,7 @@ There is a health check endpoint in both the UI and WS, that can be used to moni
 
 There is general information displayed on success as well, the server name, number of WS requests (since server started), the last error (if recent), etc.
 
-There isn't any sensitive information in these calls, but if you want to lock them down, do that in your servlet container or web server (or don't map the servlet in the WS web.xml). You could restrict to your PC and nagios server source IP addresses for example.
+By default the response includes information such as the server name, Grouper version, uptime, and daemon job names. If you want to lock the endpoint down, restrict it by source IP address (`ws.diagnostic.sourceIpAddresses`), in your servlet container or web server (or don't map the servlet in the WS web.xml), or limit what the response discloses (see [Limiting what the response discloses](#Limiting-what-the-response-discloses)). You could restrict to your PC and nagios server source IP addresses for example.
 
 Each test is configurable to restrict it (without causing an error) in grouper.properties (grouper-ws.properties prior to 2.2). If you want to customize the number of minutes since a SUCCESS should be detected in loader jobs, you can do that as well. These settings are in grouper.properties (grouper-ws.properties prior to 2.2).
 
@@ -223,6 +223,19 @@ java.lang.RuntimeException: Cant find a success since: 2010/05/17 01:38:50.000, 
 note The full stack trace of the root cause is available in the Apache Tomcat/6.0.20 logs.
 ```
 
+## Limiting what the response discloses
+
+Security scans often flag the status endpoint as exposing information (see [CWE-200](https://cwe.mitre.org/data/definitions/200.html)). Two properties in grouper.properties control how much is returned. The HTTP code (200 or 500) is not affected by either, so health checks keep working. Details are always written to the Grouper logs.
+
+| Property | Default | Response |
+| --- | --- | --- |
+| `ws.diagnostic.sendDetailsInResponse` | true | If false, the server name, Grouper version, uptime, request count, per-test results, and stack traces are not returned. The response still has a heading of success or error, a pointer to the logs, and on error the number of failed diagnostic tests. |
+| `ws.diagnostic.sendHttpCodeOnly` | false | If true, the response has only a heading of success or error. The pointer to the logs and the number of failed tests are not returned. Takes precedence over `ws.diagnostic.sendDetailsInResponse`. |
+
+To limit who can call the endpoint, set `ws.diagnostic.sourceIpAddresses` to a comma-separated list of IP addresses or ranges (e.g. `1.2.3.4/32,2.3.4.5/24`). Other callers get an HTTP 401 and no content. Leave it blank to allow any source. Note that the check uses the remote address seen by the servlet container and does not read the `X-Forwarded-For` header. Behind a load balancer or reverse proxy, that is the proxy's address unless the container is configured to substitute the client address (e.g. the Tomcat RemoteIpValve). Without that, list the proxy's address, which allows everything that comes through the proxy, or restrict access in the proxy or a WAF instead.
+
+In both cases, a request that is missing the `diagnosticType` parameter still returns the list of diagnostic types. To also block that, restrict access by source IP address or at your web server.
+
 ## Sample configuration
 
 grouper.properties
@@ -259,7 +272,16 @@ ws.diagnostic.successIfChangeLogConsumerProgress = true
 # {valueType: "string", multiple: true}
 ws.diagnostic.sourceIpAddresses = 
 
-# if status details should be sent to the client or just logged
+# if status details should be sent to the client or just logged.  If false, the response still includes a heading
+# of success or error, a pointer to the logs, and on error the number of failed diagnostic tasks.  Also, a request with a
+# missing or invalid diagnosticType still returns the list of diagnostic types (e.g. all, db) and the includeOnly/exclude hint.
 # {valueType: "boolean", required: true}
 ws.diagnostic.sendDetailsInResponse = true
+
+# if the status endpoint should only return an HTTP code and a heading of success or error, and not disclose
+# the hostname, version, uptime, diagnostic details, or number of failed diagnostic tasks (details are still logged).
+# Useful for load balancer health checks and to address security scan findings (CWE-200).
+# Takes precedence over ws.diagnostic.sendDetailsInResponse
+# {valueType: "boolean", required: true}
+ws.diagnostic.sendHttpCodeOnly = false
 ```
