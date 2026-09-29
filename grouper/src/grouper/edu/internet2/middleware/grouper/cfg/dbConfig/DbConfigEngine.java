@@ -256,23 +256,31 @@ public class DbConfigEngine {
                 && StringUtils.equals(propertyNameString, current.getConfigKey())) {
               if (grouperConfigHibernate != null) {
                 // why are there two???
-                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb()
                   + ", " + current.getConfigKey() + ", " + current.retrieveValue());
-                current.delete();
+                // GRP-7401: delete the extra row exactly once and keep the first one, which is deleted
+                // below. This used to call current.delete() and then the helper (which deletes again),
+                // then keep the already deleted row, so the first row was never deleted. Since GRP-7395
+                // each delete commits on its own, so a second delete of the same row would fail.
                 configurationFileItemDeleteHelper(current, configFileName, fromUi, actionsPerformed);
+                continue;
               }
               grouperConfigHibernate = current;
             }
           }
-          
+
           for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
             if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())
                 && StringUtils.equals(propertyNameStringEl, current.getConfigKey())) {
-              if (grouperConfigHibernate != null) {
+              // GRP-7401: check for a duplicate EL row, not for the non EL row. This used to check
+              // grouperConfigHibernate, so a key with a value row and one EL row deleted the EL row here
+              // and then again below.
+              if (grouperConfigHibernateEl != null) {
                 // why are there two???
-                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+                LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb()
                   + ", " + current.getConfigKey() + ", " + current.retrieveValue());
                 current.delete();
+                continue;
               }
               grouperConfigHibernateEl = current;
             }
@@ -363,21 +371,29 @@ public class DbConfigEngine {
       if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
         if (grouperConfigHibernate != null) {
           // why are there two???
-          LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+          LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb()
             + ", " + current.getConfigKey() + ", " + current.retrieveValue());
+          // GRP-7401: delete the extra row and keep the first one to edit. This used to keep the row
+          // it just deleted, so the edit then saved a row that no longer existed.
           current.delete();
+          continue;
         }
         grouperConfigHibernate = current;
       }
     }
-    
+
     for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
       if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
-        if (grouperConfigHibernate != null) {
+        // GRP-7401: check for a duplicate EL row, not for the non EL row. This used to check
+        // grouperConfigHibernate, so a key with a value row and one EL row deleted the EL row here,
+        // kept it anyway, and then the block below deleted it again (not EL) or returned the deleted
+        // row to be edited (EL). The block below decides which of the two to keep.
+        if (grouperConfigHibernateEl != null) {
           // why are there two???
-          LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
+          LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb()
             + ", " + current.getConfigKey() + ", " + current.retrieveValue());
           current.delete();
+          continue;
         }
         grouperConfigHibernateEl = current;
       }
