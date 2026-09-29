@@ -1,5 +1,5 @@
 ---
-name: security-review
+name: grouper-security-review
 description: Review staged/uncommitted Grouper changes for privilege and access-control security issues before committing
 argument-hint: "[optional: path or area to focus on]"
 allowed-tools:
