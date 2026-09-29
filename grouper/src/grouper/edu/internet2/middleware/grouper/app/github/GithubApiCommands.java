@@ -216,13 +216,6 @@ public class GithubApiCommands {
         }
       }
 
-      // live progress: many slow WS calls with no total available, so report count-so-far and page
-      GrouperProvisioner currentProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-      if (currentProvisioner != null) {
-        currentProvisioner.assignProgressLabelTarget(
-            debugLabel + ": " + elements.size() + " so far (page " + pageNumber + ")");
-      }
-
       if (returnedCount < pageSize) {
         break;
       }
@@ -474,12 +467,6 @@ public class GithubApiCommands {
             githubUser.setSamlNameId(nameId);
             results.add(githubUser);
           }
-        }
-
-        // live progress across GraphQL cursor pages
-        GrouperProvisioner currentProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentProvisioner != null) {
-          currentProvisioner.assignProgressLabelTarget("retrieveExternalIdentities: " + results.size() + " so far");
         }
 
         JsonNode pageInfo = externalIdentitiesNode.get("pageInfo");
