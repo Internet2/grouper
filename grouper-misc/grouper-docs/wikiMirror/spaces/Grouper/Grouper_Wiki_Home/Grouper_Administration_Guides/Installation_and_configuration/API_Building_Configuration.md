@@ -2,8 +2,8 @@
 title: "API Building & Configuration"
 space: Grouper
 pageId: 28544006
-version: 62
-lastUpdated: 2026-07-12T15:26:11.131Z
+version: 63
+lastUpdated: 2026-09-26T22:31:29.647Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544006/API+Building+Configuration
 ---
 
@@ -288,6 +288,18 @@ security.types.grouperLoader.wheelOnly = true
 
 #security.types.typeName.allowOnlyGroup = etc:someAdminGroup
 
+```
+
+Rules run with elevated authority, so set this to a group of trusted power users who may create and edit rules in the UI (or to your wheel group). Sysadmins are always allowed. We strongly recommend configuring this: if it is blank, any user with ADMIN on a group or folder can author rules there. See [Grouper rules UI](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549263/Grouper+rules+UI) and [GRP-7359](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation).
+
+```
+rules.restrictRulesUiToMembersOfThisGroupName = etc:rulesPowerUsers
+```
+
+Optionally, limit rules that send email (these run as GrouperSystem) to a smaller group. If this is blank, members of the rules UI group above can create email rules. Custom and EL rules are always sysadmin-only (v6.4.1+ / v7.5.1+).
+
+```
+rules.restrictRulesEmailSendersToMembersOfThisGroupName = 
 ```
 
 If you don't want to be prompted for DDL changes in certain databases (e.g. dev), list them here:  

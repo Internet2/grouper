@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 19
-lastUpdated: 2026-07-24T16:53:01.139Z
+version: 21
+lastUpdated: 2026-09-29T15:21:49.830Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -56,6 +56,7 @@ To enable MCP with OAuth, set the following in your Grouper configuration or as 
 | `grouper.mcp.sqlGrouperExternalSystem` | grouper | The database connection name used when the AI queries the Grouper database (i.e. when `externalSystemId` is `"grouper"` or not specified). Defaults to `grouper` (the main Grouper database connection). Administrators can set this to a different external system that points to a read-only database user or a read replica for additional security. The external system must be configured under `grouperClient.jdbc.{name}.*` in `grouper.client.properties`. |
 | `grouper.mcp.tools.allow` | (empty) | Comma-separated list of MCP tool names to allow. If blank (the default), all tools are allowed (subject to the user's group membership and consent scopes). If set, only the listed tools are available. Deny list takes precedence over allow list (effective tools = allow minus deny). Example: `group_find, group_get_members, group_has_member, group_save` |
 | `grouper.mcp.tools.deny` | (empty) | Comma-separated list of MCP tool names to deny. If blank (the default), no tools are denied. Deny list takes precedence over allow list (effective tools = allow minus deny). Tools on the deny list will not appear in `tools/list` and will return an access-denied error if called directly. Example: `sql_select, sql_get_schema, admin_daemon_job_run` |
+| `grouper.mcp.protectedFolders` | (empty) | Comma-separated list of folders that MCP must not change, for any user. Everything under each folder is protected too. See "Protecting your own folders" below. Example: `app:payroll, ref:hr` |
 | `grouper.mcp.instructions` | Grouper is an enterprise access management system for managing groups, folders, memberships, privileges, and attributes. Use the doc_search tool to find institutional documentation before attempting operations you are unsure about. | Instructions sent to the AI client in the MCP `initialize` response. Customize this to give the AI client guidance specific to your institution — for example, highlighting that documentation should be consulted early and often, describing your folder naming conventions, or noting institutional policies. This text appears as the `instructions` field in the initialize response and is typically displayed as a system prompt by the AI client. Newlines can be embedded with `\n`. |
 
 ### OAuth settings (grouper.properties)
@@ -155,6 +156,12 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | privilege_get |  |  |  |  |  |
 
 An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
+
+## Recipes
+
+A recipe tells an AI client how your institution wants a task done, e.g. use a GSH template instead of `group_save` for certain groups. Grouper advertises a `recipe` tool, adds a one-line pointer to the description of each tool a recipe names, and sends the recipe back when one of those tools fails. Each recipe is only seen by its own use group.
+
+Recipes are managed in the UI under Miscellaneous, MCP recipes. Nobody can administer them until `grouper.mcp.recipe.groupNameCanAdminInUi` or `grouper.mcp.recipe.groupNameCanAdminInMcp` names a group; being a sysadmin is not enough. See [Grouper MCP Recipes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes) for every setting, who can change what, and the limits on what a client receives.
 
 ## SQL readonly tools
 
@@ -506,11 +513,29 @@ MCP write tools (`group_save`, `group_delete`, `folder_delete`, `group_add_membe
 - **privilege_assign**: Cannot assign or revoke privileges on any protected group or stem.
 - **attribute_assignment_save**: Cannot assign attributes on any protected group or stem. For assignment-on-assignment operations (e.g. `group_asgn`), the server resolves the underlying owner of the marker attribute assignment and validates protected resources and OAuth scope against that owner. For example, assigning a configuration attribute on a marker that is assigned to a protected group will be denied.
 
+### Protecting your own folders
+
+You can protect other sensitive folders, such as payroll or reference groups, the same way. List them in `grouper.mcp.protectedFolders`, separated by commas, e.g. `app:payroll, ref:hr`. For each folder listed, and everything under it, MCP refuses every change for all users, sysadmins included:
+
+- creating, editing, renaming or deleting groups and folders
+- adding or removing members, including replacing all members at once
+- changing composites, eligibility requirements or provisioners
+- assigning or revoking privileges
+- changing attributes on those groups, folders or their memberships (e.g. loader or eligibility settings which could remove members)
+- institutional tools whose folder or group inputs point into the protected folder
+
+Reading still works. The error the AI client gets names the protected folder and points to the Grouper UI (using `grouper.ui.url` if it is set), where the change can still be made.
+
+- Matching is on whole folder names: `app:payroll` does not protect `app:payrollX`.
+- A group or folder that was moved into a protected folder is also refused under its old (alternate) name.
+- This setting is read on each call, so no restart is needed after changing it.
+- On the OAuth consent screen, a read-write folder or group that is protected (a folder listed here, the `etc` folder, a system group, or anything under them) is refused, since that access could never be used. A folder that only contains a protected folder, e.g. `app` when `app:payroll` is protected, is allowed; writes to the protected part are still refused.
+
 ### Stem rename protection
 
 When a stem rename tool is available, stems with more than 5 child objects (groups + sub-stems, counted recursively) cannot be renamed via MCP. This prevents accidental renaming of large folder hierarchies.
 
-The protected resource list is computed from configuration at first access and cached for the lifetime of the JVM. If you change the configuration properties that define system groups, a restart is required for the MCP protection to reflect the new values.
+The system group list is computed from configuration at first access and cached for the lifetime of the JVM (`grouper.mcp.protectedFolders` is not, it is read on each call). If you change the configuration properties that define system groups, a restart is required for the MCP protection to reflect the new values.
 
 ## Audit logging
 

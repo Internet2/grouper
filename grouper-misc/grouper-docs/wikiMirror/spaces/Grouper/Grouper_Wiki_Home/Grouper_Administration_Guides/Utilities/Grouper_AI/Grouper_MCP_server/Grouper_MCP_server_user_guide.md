@@ -2,8 +2,8 @@
 title: "Grouper MCP server - user guide"
 space: Grouper
 pageId: 28554356
-version: 14
-lastUpdated: 2026-07-12T17:46:13.611Z
+version: 15
+lastUpdated: 2026-09-29T15:22:14.975Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide
 ---
 
@@ -237,7 +237,7 @@ Get attribute assignments for groups, stems, members, or other objects. Provides
 
 ### attribute_assignment_save
 
-Assigns, adds, removes, or replaces attribute assignments on groups, stems, members, or other objects. Delegates to the existing Grouper WS `attribute_assignment_save` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Assigns, adds, removes, or replaces attribute assignments on groups, stems, members, or other objects. Delegates to the existing Grouper WS `attribute_assignment_save` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -376,7 +376,7 @@ Find which groups a subject belongs to. Optionally filter by stem scope, members
 
 ### folder_delete
 
-Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be deleted via MCP.
+Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.
 
 **Security:** The calling user must have STEM_ADMIN privilege on the stem to delete it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
@@ -406,7 +406,7 @@ Search for Grouper stems (folders) by name, parent stem, or attribute. Supports 
 
 ### group_add_member
 
-Add one or more subjects as members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Supports setting membership enabled/disabled dates for time-limited or future-dated memberships. Delegates to the existing Grouper WS `group_add_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Add one or more subjects as members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Supports setting membership enabled/disabled dates for time-limited or future-dated memberships. Delegates to the existing Grouper WS `group_add_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -429,7 +429,7 @@ Add one or more subjects as members of a Grouper group. Each subject is identifi
 
 ### group_delete
 
-Delete a Grouper group. The group is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be deleted via MCP.
+Delete a Grouper group. The group is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.
 
 **Security:** The calling user must have ADMIN privilege on the group to delete it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
@@ -516,7 +516,7 @@ Check if one or more subjects are members of a Grouper group. Each subject is id
 
 ### group_remove_member
 
-Remove one or more subjects from a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Delegates to the existing Grouper WS `group_remove_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Remove one or more subjects from a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Delegates to the existing Grouper WS `group_remove_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -536,7 +536,7 @@ Remove one or more subjects from a Grouper group. Each subject is identified by 
 
 ### group_rename
 
-Rename a Grouper group by changing its extension (short name). The group stays in the same parent stem but gets a new extension, which changes its fully qualified name. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be renamed via MCP.
+Rename a Grouper group by changing its extension (short name). The group stays in the same parent stem but gets a new extension, which changes its fully qualified name. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be renamed via MCP.
 
 **Security:** The calling user must have ADMIN privilege on the group to rename it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
@@ -551,7 +551,7 @@ Rename a Grouper group by changing its extension (short name). The group stays i
 
 ### group_save
 
-Create, update, or manage a Grouper group. Uses an action-based approach where the `action` parameter determines which operation to perform. This design prevents accidental data loss by using partial updates instead of full replacements, and provides dedicated actions for managing group types, composites, eligibility requirements, and provisioners. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Create, update, or manage a Grouper group. Uses an action-based approach where the `action` parameter determines which operation to perform. This design prevents accidental data loss by using partial updates instead of full replacements, and provides dedicated actions for managing group types, composites, eligibility requirements, and provisioners. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 **Security:** All operations run as the calling user's Grouper session, so standard Grouper privileges are enforced. Each action has its own privilege requirements as noted below. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
@@ -721,7 +721,7 @@ Returns a JSON object with `totalMemberships` (count) and a `memberships` array.
 
 ### privilege_assign
 
-Assigns or revokes a privilege on a group or stem for a subject. Delegates to the existing Grouper WS `privilege_assign` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Assigns or revokes a privilege on a group or stem for a subject. Delegates to the existing Grouper WS `privilege_assign` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
