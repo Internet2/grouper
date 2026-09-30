@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.JobKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.check.GrouperConfigurationCheckEngine;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
@@ -301,6 +302,73 @@ public class UiV2Configure {
       // redraw the whole screen, now the results section will show since the result is populated
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/configure/configureDdlDeepCheck.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * draw the configuration review screen with the run button (no checks are run on this GET; the
+   * findings are computed when the user presses the button which posts to configurationReviewSubmit).
+   * @param request
+   * @param response
+   */
+  public void configurationReview(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // read-only review screen, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configureConfigurationReview.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * run the read-only configuration review checks against the current effective configuration and
+   * database, and show the findings.  No configuration is changed.
+   * @param request
+   * @param response
+   */
+  public void configurationReviewSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // read-only review, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      configurationContainer.setConfigurationCheckResults(GrouperConfigurationCheckEngine.checkConfiguration());
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      // redraw the whole screen, now the results section will show since the results are populated
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configureConfigurationReview.jsp"));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

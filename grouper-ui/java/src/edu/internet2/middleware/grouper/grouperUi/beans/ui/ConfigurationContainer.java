@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.app.config.check.ConfigurationCheckResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlCompareResult;
@@ -341,6 +342,27 @@ public class ConfigurationContainer {
    */
   public void setGuiUpgradeTasks(List<GuiUpgradeTask> guiUpgradeTasks1) {
     this.guiUpgradeTasks = guiUpgradeTasks1;
+  }
+
+  /**
+   * configuration review findings shown on the Configure -&gt; Configuration review screen, or null
+   * until the user presses the run button - the checks are not run on the GET, only when the button posts
+   */
+  private List<ConfigurationCheckResult> configurationCheckResults;
+
+  /**
+   * configuration review findings shown on the Configure -&gt; Configuration review screen
+   * @return the findings, or null if the checks have not been run yet
+   */
+  public List<ConfigurationCheckResult> getConfigurationCheckResults() {
+    return this.configurationCheckResults;
+  }
+
+  /**
+   * @param configurationCheckResults1 the configuration review findings to show
+   */
+  public void setConfigurationCheckResults(List<ConfigurationCheckResult> configurationCheckResults1) {
+    this.configurationCheckResults = configurationCheckResults1;
   }
 
   /**
