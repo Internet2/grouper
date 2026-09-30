@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRule
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import junit.textui.TestRunner;
 
 /**
@@ -177,10 +178,10 @@ public class GrouperConfigurationCheckTest extends GrouperTest {
   }
 
   /**
-   * a small accessToApiInEl.group (under the broad-group threshold) is fine
+   * an accessToApiInEl.group whose members are all sysadmins (wheel/root) is fine
    */
-  public void testAccessToApiInElSmallGroupNoFinding() {
-    Group group = createGroup("test:reviewApiSmallGroup");
+  public void testAccessToApiInElAllSysadminsNoFinding() {
+    Group group = createGroup("test:reviewApiSysadminGroup");
     group.addMember(SubjectFinder.findRootSubject());
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
@@ -189,7 +190,19 @@ public class GrouperConfigurationCheckTest extends GrouperTest {
   }
 
   /**
-   * an accessToApiInEl.group that contains EveryEntity effectively grants this to everyone -> warning
+   * an accessToApiInEl.group with a non-sysadmin member is a warning (only sysadmins should be in it)
+   */
+  public void testAccessToApiInElNonSysadminMemberWarning() {
+    Group group = createGroup("test:reviewApiNonSysadminGroup");
+    group.addMember(SubjectTestHelper.SUBJ0);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
+    List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
+    assertOneResultOfSeverity(results, ConfigurationCheckSeverity.WARNING);
+  }
+
+  /**
+   * an accessToApiInEl.group that contains EveryEntity is a warning (EveryEntity is not a sysadmin)
    */
   public void testAccessToApiInElEveryEntityWarning() {
     Group group = createGroup("test:reviewApiEveryEntityGroup");

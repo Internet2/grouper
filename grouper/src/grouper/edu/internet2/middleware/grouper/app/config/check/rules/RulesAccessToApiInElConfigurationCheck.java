@@ -7,20 +7,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.config.check.ConfigurationCheckResult;
 import edu.internet2.middleware.grouper.app.config.check.ConfigurationCheckSeverity;
 import edu.internet2.middleware.grouper.app.config.check.GrouperConfigurationCheck;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * SECURITY (GRP-7380): membership in rules.accessToApiInEl.group grants the full EL API
- * (grouperUtil/forName) in rule EL evaluated as the actAs subject.  Warn when the configured group is
- * "broad" -- it includes EveryEntity (all subjects) or has more members than
- * {@link #BROAD_GROUP_MEMBER_THRESHOLD} -- and flag as an error when it points at a group that does
- * not exist.
+ * (grouperUtil/forName) in rule EL evaluated as the actAs subject, so only Grouper sysadmins
+ * (wheel/root) should be members.  Warn when the configured group has any member who is not a
+ * sysadmin (this also covers a group that contains EveryEntity), and flag as an error when it points
+ * at a group that does not exist.
  */
 public class RulesAccessToApiInElConfigurationCheck extends GrouperConfigurationCheck {
 
@@ -30,9 +31,9 @@ public class RulesAccessToApiInElConfigurationCheck extends GrouperConfiguration
   public static final String PROPERTY_NAME = "rules.accessToApiInEl.group";
 
   /**
-   * a configured group with more than this many members is considered broad and is flagged
+   * cap on how many offending subject ids to list in the finding message
    */
-  public static final int BROAD_GROUP_MEMBER_THRESHOLD = 50;
+  private static final int MAX_SUBJECTS_LISTED = 20;
 
   @Override
   public String getName() {
@@ -60,28 +61,42 @@ public class RulesAccessToApiInElConfigurationCheck extends GrouperConfiguration
       return results;
     }
 
-    // a group that contains the EveryEntity subject effectively grants this to everyone
-    Subject allSubject = SubjectFinder.findAllSubject();
-    if (allSubject != null && group.hasMember(allSubject)) {
-      results.add(new ConfigurationCheckResult(ConfigurationCheckSeverity.WARNING, this.getName(),
-          ConfigFileName.GROUPER_PROPERTIES, PROPERTY_NAME, groupName,
-          "rules.accessToApiInEl.group is set to '" + groupName + "', which includes EveryEntity (all "
-              + "subjects).  Membership grants the full EL API (grouperUtil/forName) in rule EL evaluated "
-              + "as the actAs subject.",
-          "Restrict rules.accessToApiInEl.group to a small, trusted power-user group instead of a broad group."));
-      return results;
+    // only sysadmins (wheel/root) should be in this group.  Any member who is not wheel/root -- or
+    // whose subject cannot be resolved to verify -- is flagged.  This runs on demand (when an admin
+    // opens the review screen), so walking the effective members here is acceptable.
+    int nonSysadminCount = 0;
+    StringBuilder listedSubjects = new StringBuilder();
+    for (Member member : group.getMembers()) {
+      Subject subject = null;
+      try {
+        subject = member.getSubject();
+      } catch (Exception e) {
+        // unresolvable subject: cannot confirm it is a sysadmin, so treat it as non-sysadmin
+      }
+      if (subject != null && PrivilegeHelper.isWheelOrRoot(subject)) {
+        continue;
+      }
+      nonSysadminCount++;
+      if (nonSysadminCount <= MAX_SUBJECTS_LISTED) {
+        if (listedSubjects.length() > 0) {
+          listedSubjects.append(", ");
+        }
+        listedSubjects.append(member.getSubjectId());
+      }
     }
 
-    // otherwise flag if the membership is larger than the broad-group threshold.  This runs on demand
-    // (when an admin opens the review screen), so counting the effective members here is acceptable.
-    int memberCount = group.getMembers().size();
-    if (memberCount > BROAD_GROUP_MEMBER_THRESHOLD) {
+    if (nonSysadminCount > 0) {
+      String subjectsText = listedSubjects.toString();
+      if (nonSysadminCount > MAX_SUBJECTS_LISTED) {
+        subjectsText = subjectsText + ", and " + (nonSysadminCount - MAX_SUBJECTS_LISTED) + " more";
+      }
       results.add(new ConfigurationCheckResult(ConfigurationCheckSeverity.WARNING, this.getName(),
           ConfigFileName.GROUPER_PROPERTIES, PROPERTY_NAME, groupName,
-          "rules.accessToApiInEl.group is set to '" + groupName + "', which has " + memberCount
-              + " members (more than " + BROAD_GROUP_MEMBER_THRESHOLD + ").  Membership grants the full EL "
-              + "API (grouperUtil/forName) in rule EL evaluated as the actAs subject.",
-          "Restrict rules.accessToApiInEl.group to a small, trusted power-user group."));
+          "rules.accessToApiInEl.group is set to '" + groupName + "', which has " + nonSysadminCount
+              + " member(s) who are not Grouper sysadmins (wheel/root): " + subjectsText + ".  Membership "
+              + "grants the full EL API (grouperUtil/forName) in rule EL evaluated as the actAs subject.",
+          "Only Grouper sysadmins (members of the wheel/root group) should be in rules.accessToApiInEl.group.  "
+              + "Remove the non-sysadmin members, or clear the property."));
     }
 
     return results;
