@@ -38,8 +38,7 @@ ${grouper:title('configurationReviewPageTitle')}
                         <thead>
                           <tr>
                             <th style="white-space: nowrap;">${textContainer.text['configurationReviewColumnSeverity'] }</th>
-                            <th>${textContainer.text['configurationReviewColumnProblem'] }</th>
-                            <th>${textContainer.text['configurationReviewColumnRecommendation'] }</th>
+                            <th>${textContainer.text['configurationReviewColumnFinding'] }</th>
                             <th>${textContainer.text['configurationReviewColumnProperty'] }</th>
                             <th>${textContainer.text['configurationReviewColumnCurrentValue'] }</th>
                           </tr>
@@ -58,10 +57,14 @@ ${grouper:title('configurationReviewPageTitle')}
                                   </c:otherwise>
                                 </c:choose>
                               </td>
-                              <%-- description of the problem --%>
-                              <td style="vertical-align: top;">${grouper:escapeHtml(configurationCheckResult.message)}</td>
-                              <%-- recommended action --%>
-                              <td style="vertical-align: top;">${grouper:escapeHtml(configurationCheckResult.recommendation)}</td>
+                              <%-- problem and recommended action stacked in one column to keep the table narrow --%>
+                              <td style="vertical-align: top;">
+                                <strong>${textContainer.text['configurationReviewColumnProblem'] }:</strong><br />
+                                ${grouper:escapeHtml(configurationCheckResult.message)}
+                                <br /><br />
+                                <strong>${textContainer.text['configurationReviewColumnRecommendation'] }:</strong><br />
+                                ${grouper:escapeHtml(configurationCheckResult.recommendation)}
+                              </td>
                               <%-- offending property, deep-linked to the config editor when known --%>
                               <td style="vertical-align: top;">
                                 <c:choose>
