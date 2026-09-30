@@ -423,8 +423,10 @@ public class GrouperWorkflowInstanceService {
     
     List<GrouperWorkflowInstance> workflowInstances = getWorkflowInstances(group);
     
+    List<String> terminalStates = Arrays.asList(COMPLETE_STATE, REJECTED_STATE, EXCEPTION_STATE);
+    
     for (GrouperWorkflowInstance instance: workflowInstances) {
-      if (!instance.getWorkflowInstanceState().equals(COMPLETE_STATE)) {
+      if (!terminalStates.contains(instance.getWorkflowInstanceState())) {
         GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
         for (GrouperWorkflowInstanceLogEntry entry: logEntries.getLogEntries()) {
           if (entry.getAction().equals(INITIATE_ACTION) && entry.getSubjectId().equals(subject.getId())) {
@@ -1174,7 +1176,7 @@ public class GrouperWorkflowInstanceService {
     
     String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
     
-    auditLine = auditLine.replace("$$timestamp$$", timestamp);
+    auditLine = auditLine.replace("##timestamp##", timestamp);
     
     htmlFormWithAudit.append("<div>");
     htmlFormWithAudit.append(auditLine);
