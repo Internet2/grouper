@@ -91,12 +91,12 @@ limitations under the License.
     <!--<property name="multiLines" value="1"/>-->
   </module>
 
+  <module name="LineLength">
+    <property name="max" value="200"/>
+  </module>
+
   <module name="TreeWalker">
     <property name="tabWidth" value="2"/>
-
-    <module name="LineLength">
-      <property name="max" value="200"/>
-    </module>
 
     <!--<module name="AvoidStarImport"/>--><!-- want this? -->
     <module name="IllegalImport"/>
@@ -136,7 +136,7 @@ limitations under the License.
     -->
     <module name="MissingDeprecated"/>
     <module name="JavadocVariable">
-      <property name="scope" value="public"/>
+      <property name="accessModifiers" value="public"/>
     </module>
 
   </module>
