@@ -61,7 +61,9 @@ public class GrouperDataRowAssignDao {
       return grouperDataRowAssigns;
     }
 
-    int batchSize = 200;
+    // members per query: oracle allows at most 1000 items in an IN list, so do not go higher.
+    // larger batches mean fewer round trips during data provider full syncs (was 200)
+    int batchSize = 1000;
     List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
 
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberInternalIdsList.size(), batchSize, true);
