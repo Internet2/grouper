@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.adobe.AdobeMockServiceHandler;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarMockServiceHandler;
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.ccure.CCureMockServiceHandler;
@@ -58,6 +59,7 @@ public class MockServiceServlet extends HttpServlet {
    */
   private static final Map<String, String> urlToHandler = GrouperUtil.toMap(
       "adobe", AdobeMockServiceHandler.class.getName(),
+      "assetSonar", AssetSonarMockServiceHandler.class.getName(),
       "azure", AzureMockServiceHandler.class.getName(),
       "genericScim", GenericScim2MockServiceHandler.class.getName(),
       "box", BoxMockServiceHandler.class.getName(),

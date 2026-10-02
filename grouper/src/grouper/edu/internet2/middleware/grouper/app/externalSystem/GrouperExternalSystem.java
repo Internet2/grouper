@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarExternalSystem;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.ccure.CCureExternalSystem;
@@ -152,6 +153,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     List<String> externalTypeClassNamesList = new ArrayList<>();
     
     externalTypeClassNamesList.add(ActiveMqGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add(AssetSonarExternalSystem.class.getName());
     externalTypeClassNamesList.add(AzureGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(BoxGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(CCureExternalSystem.class.getName());

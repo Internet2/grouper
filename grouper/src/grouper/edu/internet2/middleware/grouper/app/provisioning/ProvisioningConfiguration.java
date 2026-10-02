@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.adobe.AdobeProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.ccure.CCureProvisioningConfiguration;
@@ -109,6 +110,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     
     configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
     configClassNamesList.add(AdobeProvisionerConfiguration.class.getName());
+    configClassNamesList.add(AssetSonarProvisioningConfiguration.class.getName());
     configClassNamesList.add(DatadogProvisioningConfiguration.class.getName());
     configClassNamesList.add(GithubProvisioningConfiguration.class.getName());
     configClassNamesList.add(CCureProvisioningConfiguration.class.getName());

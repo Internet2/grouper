@@ -48,6 +48,7 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -447,7 +448,7 @@ public class GrouperHttpClient {
 
   
   /**
-   * Add a parameter to the BODY for a POST body form.
+   * Add a parameter to the BODY for a form-encoded POST, PUT, or PATCH.
    * @param key is the name.
    * @param value is the value. 
    */
@@ -1231,7 +1232,8 @@ public class GrouperHttpClient {
           for (String key : this.bodyParameters.keySet()){
             postParams.add(new BasicNameValuePair(key, this.bodyParameters.get(key)));
           }
-          ((HttpPost)httpRequestBase).setEntity(new UrlEncodedFormEntity(postParams));
+          // POST, PUT, and PATCH all carry an entity; some APIs (e.g. AssetSonar) take form-encoded PUTs
+          ((HttpEntityEnclosingRequestBase)httpRequestBase).setEntity(new UrlEncodedFormEntity(postParams));
         }
       }
 

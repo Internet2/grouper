@@ -45,6 +45,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.app.adobe.GrouperAdobeAuth;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarMember;
 import edu.internet2.middleware.grouper.app.adobe.GrouperAdobeGroup;
 import edu.internet2.middleware.grouper.app.adobe.GrouperAdobeMembership;
 import edu.internet2.middleware.grouper.app.adobe.GrouperAdobeUser;
@@ -307,6 +308,8 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperDigitalMarketplaceUser.class);
         addClass(configuration, GrouperDigitalMarketplaceMembership.class);
         addClass(configuration, GrouperDigitalMarketplaceAuth.class);
+        
+        addClass(configuration, AssetSonarMember.class);
         
         addClass(configuration, TeamDynamixGroup.class);
         addClass(configuration, TeamDynamixUser.class);
