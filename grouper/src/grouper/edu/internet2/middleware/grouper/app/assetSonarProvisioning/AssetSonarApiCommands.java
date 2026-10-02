@@ -279,6 +279,14 @@ public class AssetSonarApiCommands {
           result.put(member.getId(), member);
         }
       }
+      // live progress: a full read is many 25-member pages (about 90s for 4,400 members). The API
+      // reports total_pages, so show page N of M. Uses the thread-scoped current provisioner; null off a run.
+      GrouperProvisioner currentProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+      if (currentProvisioner != null) {
+        currentProvisioner.assignProgressLabelTarget("retrieving " + (inactive ? "inactive" : "active")
+            + " members from target: page " + page + " of " + Math.max(totalPages, page)
+            + ", " + result.size() + " so far");
+      }
     }
   }
 
