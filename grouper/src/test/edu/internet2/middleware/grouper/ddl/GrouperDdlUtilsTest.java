@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.ddl;
 import java.io.File;
 import java.sql.Connection;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -1048,6 +1049,72 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     UpgradeTasks.V43.upgradeTask().updateVersionFromPrevious(null);
     assertTrue("re-running UpgradeTaskV43 must be idempotent and leave the primary key in place",
         GrouperDdlUtils.assertPrimaryKeyExists("grouper_stem_view_privilege", stemViewPrivPkColumns));
+  }
+
+  /**
+   * data type of grouper_file.file_contents_clob from postgres information_schema
+   * @return the data type e.g. text or character varying
+   */
+  private static String grp7417FileContentsClobDataType() {
+    return new GcDbAccess().sql("select data_type from information_schema.columns "
+        + "where table_schema = current_schema() and table_name = 'grouper_file' and column_name = 'file_contents_clob'")
+        .select(String.class);
+  }
+
+  /**
+   * GRP-7417: on postgres grouper_file.file_contents_clob was VARCHAR(10000000), which capped file contents at
+   * about 10MB.  Validate that a fresh install creates it as TEXT, that the deep DDL compare is clean (the
+   * ddlutils model is LONGVARCHAR with no size), that a value over 10MB can be stored, and that
+   * UpgradeTaskV45 converts an old varchar column to text and is idempotent.  Postgres only (oracle is CLOB,
+   * mysql is MEDIUMTEXT, neither changed).
+   */
+  public void testGrp7417FileContentsClobText() {
+
+    if (!GrouperDdlUtils.isPostgres()) {
+      return;
+    }
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the install SQL must create the column as text
+    assertEquals("text", grp7417FileContentsClobDataType());
+
+    // the deep compare must agree with the install (no size mismatch between the model and TEXT)
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    // simulate a pre-GRP-7417 database
+    new GcDbAccess().sql("ALTER TABLE grouper_file ALTER COLUMN file_contents_clob TYPE VARCHAR(10000000)").executeSql();
+    assertEquals("character varying", grp7417FileContentsClobDataType());
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task converts it, and a second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals("text", grp7417FileContentsClobDataType());
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals("text", grp7417FileContentsClobDataType());
+
+    // a value larger than the old varchar limit (and postgres' 10485760 varchar max) must now fit
+    String bigContents = StringUtils.repeat("a", 11000000);
+    new GcDbAccess().sql("insert into grouper_file (id, system_name, file_name, file_path, hibernate_version_number, file_contents_clob) "
+        + "values (?, ?, ?, ?, ?, ?)")
+      .addBindVar(GrouperUuid.getUuid()).addBindVar("test").addBindVar("grp7417.txt").addBindVar("test/grp7417.txt")
+      .addBindVar(0L).addBindVar(bigContents).executeSql();
+    assertEquals(Integer.valueOf(11000000), new GcDbAccess().sql(
+        "select length(file_contents_clob) from grouper_file where file_path = 'test/grp7417.txt'").select(Integer.class));
   }
 
   /**

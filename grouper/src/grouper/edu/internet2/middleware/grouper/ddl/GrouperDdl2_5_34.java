@@ -243,7 +243,10 @@ public class GrouperDdl2_5_34 {
     
     
     if (GrouperDdlUtils.isPostgres()) {
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_CLOB, Types.VARCHAR, "10000000", false, false, null);
+      // GRP-7417: TEXT (unbounded) instead of VARCHAR(10000000), which capped file contents at ~10MB.
+      // ddlutils maps LONGVARCHAR to TEXT on postgres and reads a TEXT column back as LONGVARCHAR with
+      // no size, so the database compare matches.  Existing installs are altered by UpgradeTaskV45.
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, GrouperFile.COLUMN_FILE_CONTENTS_CLOB, Types.LONGVARCHAR, null, false, false, null);
     }
     
     if (GrouperDdlUtils.isMysql()) {

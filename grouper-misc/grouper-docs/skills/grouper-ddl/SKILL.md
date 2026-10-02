@@ -3,7 +3,8 @@ name: grouper-ddl
 description: |
   Guide for adding DDL changes (indexes, tables, columns, comments, foreign keys) to the Grouper
   codebase. Use this skill whenever the user asks to add a database index, create a new table,
-  add a column, add database comments, or make any DDL schema change in Grouper. Also trigger
+  add a column, change or widen a column type (e.g. varchar to text), add database comments, or
+  make any DDL schema change in Grouper. Also trigger
   when the user mentions upgrade tasks that involve DDL, database compares, install SQL files,
   GrouperDdl version classes, or ddlutils. This skill covers the full checklist: install SQL files
   (postgres/oracle/mysql), DDL version classes for database compares, upgrade tasks, and the AI
@@ -25,6 +26,28 @@ files alone is not enough. Follow this checklist so nothing gets missed.
    (prefer reusing the current release's existing task; one task accumulates a release's changes)
 5. **Register upgrade task** in UpgradeTasks.java enum (only when creating a new task for a new release)
 6. **AI DDL reference** (aiGshDdl.txt) - keep the AI reference in sync
+7. **Upgrade task UI description** - every task needs
+   `upgradeTaskDescription_UpgradeTaskVNN = <what it does> (GRP-####)` in
+   `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` (after the previous VNN line; shown
+   on the upgrade tasks UI page). When adding to an existing task, append to its description and
+   GRP list. That file is CRLF - keep CRLF on the new line.
+8. **Unit test** in `grouper/src/test/edu/internet2/middleware/grouper/ddl/GrouperDdlUtilsTest.java`:
+   fresh install -> assert the new schema, deep-check compare has 0 errors/warnings, then simulate
+   the old schema, run `UpgradeTasks.VNN.upgradeTask().updateVersionFromPrevious(null)`, assert the
+   fix, and run it again to prove idempotency. See `testGrp7076InstallColumnWidths`,
+   `testGrp7417FileContentsClobText`. Also CRLF.
+9. **Upgrade tasks wiki page** - when a new upgrade task is added, the comment in UpgradeTasks.java
+   says to update https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks
+   (tell the user; do not edit it unprompted)
+
+## Release version: DDL ALWAYS bumps the minor version
+
+Any DDL change ships in the NEXT MINOR release, never a patch release. If the latest release is
+7.6.1, a DDL change is 7.7.0 (not 7.6.2). Use that version for `versionIntroduced()` in the upgrade
+task and for the `GrouperDdlX_Y_Z` class name when a new one is needed. Find the latest release from
+the git tags (`git tag --sort=-creatordate | head`, e.g. `GROUPER_RELEASE_7.6.1`) or the container
+Dockerfile `ARG GROUPER_VERSION`. If the next minor release is already in progress (an upgrade task
+with that minor's `versionIntroduced()` exists and is unreleased), reuse it.
 
 ## File Locations
 
@@ -105,6 +128,47 @@ If the widened column is indexed and the new size exceeds mysql's InnoDB key lim
 above), the upgrade task must, on mysql: `DROP INDEX`, `MODIFY` the column (re-specifying NOT NULL/NULL),
 then recreate the index as a `(255)` prefix. Oracle/postgres keep the full-column index.
 
+### 4. Changing an existing column's type/size: edit the ORIGINAL version class in place
+`ddlutilsFindOrCreateColumn` only sets type/size when it CREATES the column; it never changes an
+existing one. So for a type or size change, do NOT add a new `GrouperDdlX_Y_Z` method - edit the
+column definition where it was originally declared (find it with grep on the column name across
+`ddl/GrouperDdl*.java` and `GrouperDdl.java`), and let the upgrade task alter existing databases.
+Precedent: GRP-7076 edited `GrouperDdl2_3`/`2_4`/`2_6_6` in place; GRP-7417 edited `GrouperDdl2_5_34`.
+Existing installs are already at V47, so the edited model is used for fresh installs and the
+database compare only; it does not regenerate DDL against existing tables.
+
+### 5. postgres TEXT in the ddlutils model = LONGVARCHAR with null size
+Grouper's postgres "clob" columns are historically `VARCHAR(10000000)` (modeled as
+`Types.VARCHAR, "10000000"`). For an unbounded postgres `TEXT` column, model it as
+`Types.LONGVARCHAR` with a `null` size:
+
+```java
+if (GrouperDdlUtils.isPostgres()) {
+  GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "my_clob", Types.LONGVARCHAR, null, false, false, null);
+}
+```
+
+Why: ddlutils maps LONGVARCHAR (and CLOB) to native `TEXT` on postgres, and `PostgreSqlModelReader`
+reads a TEXT column back as LONGVARCHAR with size null. `GrouperDdlCompare` warns when the sizes
+differ, so keeping `"10000000"` against a TEXT column would report a false size mismatch. Note
+postgres caps varchar at 10485760, so anything that must hold more than ~10MB has to be TEXT.
+Oracle stays `Types.CLOB` and mysql `mediumtext` (via additional script) - check the existing
+branches of the column definition and only change the postgres one.
+
+### 6. Checking the current type in an upgrade task (idempotency)
+JDBC metadata is unreliable for postgres TEXT (the driver reports it as VARCHAR with a
+driver-dependent precision). Ask `information_schema` instead:
+
+```java
+String dataType = new GcDbAccess().sql("select data_type from information_schema.columns "
+    + "where table_schema = current_schema() and table_name = ? and column_name = ?")
+    .addBindVar("grouper_file").addBindVar("file_contents_clob").select(String.class);
+boolean alreadyText = StringUtils.equalsIgnoreCase("text", dataType);
+```
+
+Postgres `ALTER COLUMN ... TYPE text` from varchar is binary-compatible (no data rewrite), but it is
+still blocked by dependent views (see 1.) - check `pg_depend` first. See `UpgradeTaskV45` (GRP-7417).
+
 ## Step 2: DDL Version Class (for Database Compares)
 
 Create or update a `GrouperDdlX_Y_Z.java` class. This is what the database compare system
@@ -112,7 +176,8 @@ uses to know the expected schema. Without this, Grouper will report schema misma
 
 ### Creating a new version class
 
-Use the Grouper version the change ships in (e.g., `6_2_0` for version 6.2.0). If the
+Use the Grouper version the change ships in, which is always the next minor release (e.g. `7_7_0`
+after 7.6.1 - see "Release version" above). If the
 class already exists, add your method to it.
 
 ```java
@@ -250,6 +315,13 @@ To find the current release's task, look at the highest `UpgradeTaskVNN` and che
 create a new task when starting a genuinely new release (the existing top task ships in an
 older version). When you do reuse a task, you skip Step 5 (no new enum entry) entirely.
 
+Do NOT reuse a task that has already shipped in a release (its `versionIntroduced()` is at or below
+the latest `GROUPER_RELEASE_*` tag): installs that already ran it will never run it again, so DDL
+added to it is silently skipped. Also do not bolt DDL onto a non-DDL task (`upgradeTaskIsDdl()`
+false / no `doesUpgradeTaskHaveDdlWorkToDo()`). In either case create a new task for the next
+minor version (see "Release version" above). Example: V44 shipped in 7.6.1 and is non-DDL, so
+GRP-7417 created `UpgradeTaskV45` with `versionIntroduced()` 7.7.0.
+
 ### Adding to an existing upgrade task
 
 If there's an existing task for the same release, add your DDL there (this is the common case).
@@ -287,7 +359,7 @@ public class UpgradeTaskVNN implements UpgradeTasksInterface {
 
   @Override
   public GrouperVersion versionIntroduced() {
-    // Use the Grouper version this ships in (check all maintained branches)
+    // Use the next MINOR Grouper version (DDL always bumps minor, e.g. 7.6.1 -> 7.7.0)
     return GrouperVersion.valueOfIgnoreCase("X.Y.Z");
   }
 

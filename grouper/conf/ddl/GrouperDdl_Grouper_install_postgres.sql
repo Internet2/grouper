@@ -1945,7 +1945,7 @@ CREATE TABLE grouper_file
     context_id VARCHAR(40),
     file_contents_varchar VARCHAR(4000),
     file_contents_bytes BIGINT,
-    file_contents_clob VARCHAR(10000000),
+    file_contents_clob TEXT,
     PRIMARY KEY (id)
 );
 
