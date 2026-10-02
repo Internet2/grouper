@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -174,7 +176,7 @@ public class GrouperMcpSqlSelect {
     }
 
     // validate the external system is configured, there is no default
-    String externalSystemError = validateExternalSystemAllowed(externalSystemId);
+    String externalSystemError = validateExternalSystemAllowed(externalSystemId, authUser);
     if (externalSystemError != null) {
       return buildErrorResult(externalSystemError);
     }
@@ -356,6 +358,34 @@ public class GrouperMcpSqlSelect {
   }
 
   /**
+   * the external system IDs this caller may query.  a caller on the all tier of sql gets every
+   * configured database.  a caller on the limited tier only gets those whose
+   * grouper.mcp.sql.&lt;id&gt;.limitedAccessGroup they are in (GRP-7415).  anybody else gets none
+   * @param authUser the caller
+   * @return the IDs, empty if none
+   */
+  static Set<String> externalSystemIdsFor(GrouperMcpAuthUser authUser) {
+    Set<String> result = new LinkedHashSet<String>();
+    for (String id : externalSystemIds()) {
+      if (GrouperToolAccess.isExternalSystemAllowed(GrouperToolCategory.sql,
+          GrouperToolAccess.SQL_CONFIG_PREFIX, id, authUser)) {
+        result.add(id);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * if any database is available to this caller.  when none is, the SQL tools are not
+   * advertised to them
+   * @param authUser the caller
+   * @return true if at least one external system is available to the caller
+   */
+  public static boolean anyAvailableFor(GrouperMcpAuthUser authUser) {
+    return !externalSystemIdsFor(authUser).isEmpty();
+  }
+
+  /**
    * the message sent to the AI client when the administrator has made no database
    * available at all, which is how MCP ships
    * @return the message
@@ -368,17 +398,23 @@ public class GrouperMcpSqlSelect {
   }
 
   /**
-   * validate that the external system in the request is available.  there is no default,
-   * so a blank external system ID is an error.
+   * validate that the external system in the request is available to this caller.  there is
+   * no default, so a blank external system ID is an error.
    * @param externalSystemId the external system ID from the request
+   * @param authUser the caller.  a caller who is not on the all tier only gets the databases
+   * opened to them on the limited tier, and is not told about any others
    * @return null if allowed, the error message to send to the AI client if not
    */
-  static String validateExternalSystemAllowed(String externalSystemId) {
+  static String validateExternalSystemAllowed(String externalSystemId,
+      GrouperMcpAuthUser authUser) {
 
-    Set<String> externalSystemIds = externalSystemIds();
+    boolean allTier = isAllTier(authUser);
+
+    // the databases this caller may query.  for the all tier that is every configured database
+    Set<String> externalSystemIds = externalSystemIdsFor(authUser);
 
     if (externalSystemIds.isEmpty()) {
-      return noDatabasesConfiguredMessage();
+      return allTier ? noDatabasesConfiguredMessage() : NONE_AVAILABLE_MESSAGE;
     }
 
     if (StringUtils.isBlank(externalSystemId)) {
@@ -393,11 +429,32 @@ public class GrouperMcpSqlSelect {
       return null;
     }
 
+    // a caller who is not on the all tier gets the same answer whether or not a database by that
+    // name is configured, so they cannot find out which are, and only hears about their own
+    if (!allTier) {
+      return "External system '" + id + "' is not available to you for MCP SQL queries. "
+          + "Available external systems: " + StringUtils.join(externalSystemIds, ", ") + ".";
+    }
+
     return "External system '" + id + "' is not configured for MCP SQL queries. "
         + "Available external systems: " + StringUtils.join(externalSystemIds, ", ") + ". "
         + "The administrator makes another one available with grouper.mcp.sql." + id
         + ".sqlTablesViews or .sqlTablesViewsQuery, or .grouperDatabase = true for a "
         + "Grouper database.";
+  }
+
+  /** what a caller who is not on the all tier is told when no database is opened to them */
+  static final String NONE_AVAILABLE_MESSAGE = "No databases are available to you for MCP SQL "
+      + "queries. Your Grouper administrator can make a database available to you.";
+
+  /**
+   * whether the caller is on the all tier of sql, so may query every configured database
+   * @param authUser the caller
+   * @return true if on the all tier
+   */
+  static boolean isAllTier(GrouperMcpAuthUser authUser) {
+    return GrouperToolAccess.isAllTier(GrouperToolCategory.sql,
+        authUser == null ? null : authUser.getSubject());
   }
 
   /**

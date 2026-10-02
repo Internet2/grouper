@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
@@ -91,6 +92,10 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
+
+    // the tools only let a caller who is on a tier use them, so SUBJ0, who these tests call the
+    // tools as, is put on the all tier (GRP-7415)
+    GrouperMcpTestUtils.assignAllTier(SubjectTestHelper.SUBJ0, GrouperToolCategory.sql);
   }
 
   /**
@@ -857,19 +862,19 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
     // the grouper database is allowed since setUp configured it
     assertNull("'grouper' should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0)));
 
     // there is no default, so null and blank are errors
-    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed(null);
+    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed(null, new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull("null should not be allowed", error);
     assertTrue(error.contains("externalSystemId is required"));
 
-    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("");
+    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull("blank should not be allowed", error);
     assertTrue(error.contains("externalSystemId is required"));
 
     // unconfigured system should be denied
-    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("unconfiguredDb12345");
+    error = GrouperMcpSqlSelect.validateExternalSystemAllowed("unconfiguredDb12345", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull("Unconfigured system should be denied", error);
     assertTrue(error.contains("not configured"));
 
@@ -877,20 +882,20 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouper.mcp.sql.allowedDb.grouperDatabase", "true");
     assertNull("System with grouperDatabase should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0)));
 
     // system with sqlTablesViews configured should be allowed
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouper.mcp.sql.allowedDb2.sqlTablesViews", "some_table");
     assertNull("System with sqlTablesViews should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb2"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb2", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0)));
 
     // system with sqlTablesViewsQuery configured should be allowed
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouper.mcp.sql.allowedDb3.sqlTablesViewsQuery",
         "SELECT table_name FROM information_schema.tables");
     assertNull("System with sqlTablesViewsQuery should be allowed",
-        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb3"));
+        GrouperMcpSqlSelect.validateExternalSystemAllowed("allowedDb3", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0)));
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(
         "grouper.mcp.sql.allowedDb.grouperDatabase");
@@ -911,7 +916,7 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
         GrouperMcpSqlSelect.externalSystemIds().isEmpty());
     assertFalse("anyConfigured should be false", GrouperMcpSqlSelect.anyConfigured());
 
-    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper");
+    String error = GrouperMcpSqlSelect.validateExternalSystemAllowed("grouper", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull("The grouper database should not be available by default", error);
     assertTrue(error.contains("No databases are configured"));
   }

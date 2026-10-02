@@ -346,8 +346,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("sql_get_schema",
         GrouperToolCategory.sql) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per database, which the tool checks (GRP-7415)
+        return true;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
-        return GrouperMcpSqlSelect.anyConfigured();
+        return GrouperMcpSqlSelect.anyAvailableFor(authUser);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlGetSchema.toolDefinition();
@@ -359,8 +363,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("sql_select",
         GrouperToolCategory.sql) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per database, which the tool checks (GRP-7415)
+        return true;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
-        return GrouperMcpSqlSelect.anyConfigured();
+        return GrouperMcpSqlSelect.anyAvailableFor(authUser);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.toolDefinition();
@@ -373,6 +381,10 @@ public class GrouperToolRegistration {
     // kept working for clients which still call it by this name, but not offered in a tool list
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("sql_select_count",
         GrouperToolCategory.sql, false) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per database, which the tool checks (GRP-7415)
+        return true;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.toolDefinition();
       }
@@ -392,6 +404,14 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_external_system_get",
         GrouperToolCategory.admin_readonly) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per external system, which the tool checks (GRP-7415)
+        return true;
+      }
+      public boolean availableFor(GrouperMcpAuthUser authUser) {
+        // a caller on the limited tier is only offered this if a system is opened to them
+        return GrouperMcpAdminExternalSystemGet.anyAvailableFor(authUser);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminExternalSystemGet.toolDefinition();
       }
@@ -442,6 +462,14 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("ldap",
         GrouperToolCategory.admin_readonly) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per LDAP system, which the tool checks (GRP-7415)
+        return true;
+      }
+      public boolean availableFor(GrouperMcpAuthUser authUser) {
+        // a caller on the limited tier is only offered this if an LDAP system is opened to them
+        return GrouperMcpLdapSearch.anyAvailableFor(authUser);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpLdapSearch.toolDefinition();
       }
@@ -452,6 +480,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_daemon_job_run",
         GrouperToolCategory.admin_readwrite) {
+      public boolean limitedAccessCheckedByTool() {
+        // opened to the limited tier per job: loader jobs the caller could refresh in the UI, which the tool checks (GRP-7415)
+        return true;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminRunDaemonJob.toolDefinition();
       }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -23,8 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -32,6 +40,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Takes a job name (from the Quartz scheduler) and triggers it asynchronously
  * on the daemon. The job must be enabled (not paused) to be triggered.
  * Use admin_daemon_names to find job names first.
+ *
+ * <p>A sysadmin in the admin readwrite group can run any job.  A caller on the limited admin
+ * readwrite tier (GRP-7415) can only run the loader job of a group they could refresh in the UI,
+ * see {@link PrivilegeHelper#canRunLoaderJobOutsideUi}; provisioning and every other job are
+ * refused, and so is everything if grouper-ui.properties is not on this server's classpath.</p>
  *
  * @author mchyzer
  */
@@ -96,7 +109,17 @@ public class GrouperMcpAdminRunDaemonJob {
     jobName = jobName.trim();
 
     try {
-      // use the session from the MCP servlet (user is already verified as admin)
+      // only a sysadmin on the all tier can run any job.  anybody else may at most run a loader
+      // job they could refresh in the UI, and only if they are on the limited tier
+      if (!GrouperToolAccess.isAllTier(GrouperToolCategory.admin_readwrite,
+          authUser.getSubject())) {
+        String limitedError = validateLimitedTierJob(jobName, authUser);
+        if (limitedError != null) {
+          return buildErrorResult(limitedError);
+        }
+      }
+
+      // use the session from the MCP servlet (user is already verified for this job)
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
 
       // run on daemon (asynchronous trigger via Quartz scheduler)
@@ -119,6 +142,70 @@ public class GrouperMcpAdminRunDaemonJob {
       }
       return buildErrorResult("Error triggering daemon job '" + jobName + "': " + errorMessage);
     }
+  }
+
+  /** the loader types whose job is the loader job of a single group, named
+   * TYPE__groupName__groupUuid */
+  private static final Set<GrouperLoaderType> GROUP_LOADER_TYPES = GrouperUtil.toSet(
+      GrouperLoaderType.SQL_SIMPLE, GrouperLoaderType.SQL_GROUP_LIST,
+      GrouperLoaderType.LDAP_SIMPLE, GrouperLoaderType.LDAP_GROUP_LIST,
+      GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES);
+
+  /**
+   * for a caller who is not on the all tier: they must be on the limited admin readwrite tier, the
+   * job must be the loader job of a group, and the caller must be allowed to refresh that group's
+   * loader job in the UI (see {@link PrivilegeHelper#canRunLoaderJobOutsideUi}).
+   * @param jobName the job name, trimmed
+   * @param authUser the caller
+   * @return null if allowed, else the error to send to the AI client
+   */
+  static String validateLimitedTierJob(String jobName, GrouperMcpAuthUser authUser) {
+
+    String notAllowed = "Access denied: with limited MCP admin access you can only run the "
+        + "loader job of a group you could refresh in the Grouper UI (e.g. you have ADMIN on the "
+        + "group). Job '" + jobName + "' is not one of those. Provisioning and other daemon jobs "
+        + "require a Grouper sysadmin.";
+
+    // fails closed: a caller on neither tier, or whose membership could not be looked up, can
+    // run nothing
+    if (!GrouperToolAccess.isLimitedTier(GrouperToolCategory.admin_readwrite,
+        authUser.getSubject())) {
+      return notAllowed;
+    }
+
+    GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisNameOrNull(jobName);
+    if (grouperLoaderType == null || !GROUP_LOADER_TYPES.contains(grouperLoaderType)) {
+      return notAllowed;
+    }
+
+    // the group uuid is after the last double underscore
+    int uuidIndexStart = jobName.lastIndexOf("__");
+    if (uuidIndexStart < 0) {
+      return notAllowed;
+    }
+    String groupUuid = jobName.substring(uuidIndexStart + 2);
+
+    // look the group up as root so a group the caller cannot see gives the same answer as one
+    // which does not exist, rather than an error which says which
+    Group group = GroupFinder.findByUuid(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), groupUuid, false);
+    if (group == null) {
+      return notAllowed;
+    }
+
+    // the whole name must be this group's loader job, so a made up name with somebody else's
+    // uuid on the end is not accepted
+    if (!StringUtils.equals(jobName,
+        grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid())) {
+      return notAllowed;
+    }
+
+    // the UI rule, but denied for everybody but wheel if this server cannot see the UI config
+    if (!PrivilegeHelper.canRunLoaderJobOutsideUi(authUser.getSubject(), group)) {
+      return notAllowed;
+    }
+
+    return null;
   }
 
   /**

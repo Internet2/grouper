@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -205,9 +207,9 @@ public class GrouperMcpLdapSearch {
 
     try {
       if ("listExternalSystems".equals(action)) {
-        return listExternalSystems();
+        return listExternalSystems(authUser);
       } else if ("filter".equals(action)) {
-        return executeFilter(arguments);
+        return executeFilter(arguments, authUser);
       } else {
         return buildErrorResult("Unknown action '" + action
             + "'. Use 'listExternalSystems' or 'filter'.");
@@ -221,25 +223,22 @@ public class GrouperMcpLdapSearch {
 
   /**
    * list all available LDAP external system IDs by scanning config properties.
-   * discovers systems from grouper.mcp.ldap.&lt;id&gt;.* config keys.
+   * discovers systems from grouper.mcp.ldap.&lt;id&gt;.* config keys.  a caller who is not on the
+   * all tier only sees the systems opened to them, and is not told whether others exist
+   * @param authUser the caller
    * @return the MCP tool result with the list of external systems
    */
-  private static ObjectNode listExternalSystems() throws Exception {
-    Set<String> externalSystemIds = new LinkedHashSet<String>();
+  private static ObjectNode listExternalSystems(GrouperMcpAuthUser authUser) throws Exception {
 
-    // scan config for grouper.mcp.ldap.<id>.*
-    Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();
-    for (String key : propertyNames) {
-      Matcher matcher = LDAP_CONFIG_PATTERN.matcher(key);
-      if (matcher.matches()) {
-        externalSystemIds.add(matcher.group(1));
-      }
-    }
+    Set<String> externalSystemIds = externalSystemIdsFor(authUser);
 
     if (externalSystemIds.isEmpty()) {
-      return buildSuccessResult("No LDAP external systems are configured for MCP. "
-          + "The administrator must add grouper.mcp.ldap.<id>.baseDn configuration "
-          + "for each LDAP connection to make available.");
+      if (isAllTier(authUser)) {
+        return buildSuccessResult("No LDAP external systems are configured for MCP. "
+            + "The administrator must add grouper.mcp.ldap.<id>.baseDn configuration "
+            + "for each LDAP connection to make available.");
+      }
+      return buildSuccessResult(NONE_AVAILABLE_MESSAGE);
     }
 
     ArrayNode systemsArray = objectMapper.createArrayNode();
@@ -271,17 +270,93 @@ public class GrouperMcpLdapSearch {
   }
 
   /**
-   * validate that an LDAP external system is allowed for MCP queries.
-   * the system must have at least one grouper.mcp.ldap.&lt;id&gt;.* config property.
+   * the LDAP external system IDs configured for MCP, from grouper.mcp.ldap.&lt;id&gt;.* keys
+   * @return the IDs, empty if none
+   */
+  static Set<String> externalSystemIds() {
+    Set<String> externalSystemIds = new LinkedHashSet<String>();
+    Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();
+    for (String key : propertyNames) {
+      Matcher matcher = LDAP_CONFIG_PATTERN.matcher(key);
+      if (matcher.matches()) {
+        externalSystemIds.add(matcher.group(1));
+      }
+    }
+    return externalSystemIds;
+  }
+
+  /**
+   * the LDAP external system IDs this caller may search.  a caller on the all tier of admin
+   * readonly gets every configured system.  a caller on the limited tier only gets those whose
+   * grouper.mcp.ldap.&lt;id&gt;.limitedAccessGroup they are in (GRP-7415)
+   * @param authUser the caller
+   * @return the IDs, empty if none
+   */
+  static Set<String> externalSystemIdsFor(GrouperMcpAuthUser authUser) {
+    Set<String> result = new LinkedHashSet<String>();
+    for (String id : externalSystemIds()) {
+      if (GrouperToolAccess.isExternalSystemAllowed(GrouperToolCategory.admin_readonly,
+          GrouperToolAccess.LDAP_CONFIG_PREFIX, id, authUser)) {
+        result.add(id);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * if this tool is worth offering this caller.  a caller on the all tier is always offered it,
+   * as before, so they can be told what to configure.  a caller on the limited tier only if an
+   * LDAP system is opened to them
+   * @param authUser the caller
+   * @return true if the tool is worth offering
+   */
+  public static boolean anyAvailableFor(GrouperMcpAuthUser authUser) {
+    if (isAllTier(authUser)) {
+      return true;
+    }
+    return !externalSystemIdsFor(authUser).isEmpty();
+  }
+
+  /** what a caller who is not on the all tier is told when no LDAP system is opened to them */
+  private static final String NONE_AVAILABLE_MESSAGE = "No LDAP external systems are available "
+      + "to you. Your Grouper administrator can make one available to you.";
+
+  /**
+   * whether the caller is on the all tier of admin readonly, so may use every LDAP system
+   * @param authUser the caller
+   * @return true if on the all tier
+   */
+  private static boolean isAllTier(GrouperMcpAuthUser authUser) {
+    return GrouperToolAccess.isAllTier(GrouperToolCategory.admin_readonly,
+        authUser == null ? null : authUser.getSubject());
+  }
+
+  /**
+   * validate that an LDAP external system is allowed for MCP queries by this caller.
+   * the system must have at least one grouper.mcp.ldap.&lt;id&gt;.* config property, and a
+   * caller who is not on the all tier must be on the limited tier and in its limitedAccessGroup.
    * @param externalSystemId the external system ID to validate
+   * @param authUser the caller
    * @return an error message if the system is not allowed, or null if allowed
    */
-  static String validateExternalSystemAllowed(String externalSystemId) {
+  static String validateExternalSystemAllowed(String externalSystemId,
+      GrouperMcpAuthUser authUser) {
     if (StringUtils.isBlank(externalSystemId)) {
       return "externalSystemId is required for the 'filter' action.";
     }
 
     String trimmed = externalSystemId.trim();
+
+    // a caller who is not on the all tier may only use a system opened to them, which is always
+    // a configured one.  they get the same answer whether or not a system by that name exists,
+    // so they cannot find out which do
+    if (!isAllTier(authUser)) {
+      if (externalSystemIdsFor(authUser).contains(trimmed)) {
+        return null;
+      }
+      return "LDAP external system '" + trimmed + "' is not available to you. "
+          + "Use the 'listExternalSystems' action to see the LDAP connections available to you.";
+    }
 
     // check if any grouper.mcp.ldap.<id>.* config exists
     Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();
@@ -301,9 +376,11 @@ public class GrouperMcpLdapSearch {
   /**
    * execute an LDAP filter search
    * @param arguments the tool arguments
+   * @param authUser the caller
    * @return the MCP tool result with matching entries
    */
-  private static ObjectNode executeFilter(JsonNode arguments) throws Exception {
+  private static ObjectNode executeFilter(JsonNode arguments, GrouperMcpAuthUser authUser)
+      throws Exception {
 
     String externalSystemId = arguments.has("externalSystemId")
         ? arguments.get("externalSystemId").asText() : null;
@@ -315,7 +392,7 @@ public class GrouperMcpLdapSearch {
         ? arguments.get("filter").asText() : null;
 
     // validate externalSystemId
-    String validationError = validateExternalSystemAllowed(externalSystemId);
+    String validationError = validateExternalSystemAllowed(externalSystemId, authUser);
     if (validationError != null) {
       return buildErrorResult(validationError);
     }

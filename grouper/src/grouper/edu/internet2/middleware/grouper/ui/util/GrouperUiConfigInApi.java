@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.ui.util;
 
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * hierarchical config class for grouper-ui.properties
@@ -37,6 +38,33 @@ public class GrouperUiConfigInApi extends ConfigPropertiesCascadeBase {
    */
   public static GrouperUiConfigInApi retrieveConfig() {
     return retrieveConfig(GrouperUiConfigInApi.class);
+  }
+
+  /** tests can say whether grouper-ui.properties is on the classpath, null means look */
+  private static Boolean mainConfigFileOnClasspathForTesting = null;
+
+  /**
+   * for tests: pretend grouper-ui.properties is (true) or is not (false) on the classpath, or
+   * null to look again
+   * @param theMainConfigFileOnClasspath
+   */
+  public static void assignMainConfigFileOnClasspathForTesting(
+      Boolean theMainConfigFileOnClasspath) {
+    mainConfigFileOnClasspathForTesting = theMainConfigFileOnClasspath;
+  }
+
+  /**
+   * whether the institution's grouper-ui.properties is on the classpath of this server.  without
+   * it the UI config read here is only the base defaults and the database (a missing classpath
+   * file is read as blank), so a value set in that file is not seen.  the UI has it; another
+   * component, e.g. web services serving MCP, might not
+   * @return true if it is on the classpath
+   */
+  public static boolean isMainConfigFileOnClasspath() {
+    if (mainConfigFileOnClasspathForTesting != null) {
+      return mainConfigFileOnClasspathForTesting;
+    }
+    return GrouperClientUtils.computeUrl(retrieveConfig().getMainConfigClasspath(), true) != null;
   }
   
   /**

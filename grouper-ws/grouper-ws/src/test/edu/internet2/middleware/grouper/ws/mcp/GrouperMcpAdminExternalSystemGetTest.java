@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
@@ -99,6 +100,10 @@ public class GrouperMcpAdminExternalSystemGetTest extends GrouperTest {
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
+
+    // the tools only let a caller who is on a tier use them, so SUBJ0, who these tests call the
+    // tools as, is put on the all tier (GRP-7415)
+    GrouperMcpTestUtils.assignAllTier(SubjectTestHelper.SUBJ0, GrouperToolCategory.admin_readonly);
   }
 
   /**

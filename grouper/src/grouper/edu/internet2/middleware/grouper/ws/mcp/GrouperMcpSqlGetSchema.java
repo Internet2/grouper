@@ -170,12 +170,12 @@ public class GrouperMcpSqlGetSchema {
 
     try {
       if ("listExternalSystems".equals(action)) {
-        return listExternalSystems();
+        return listExternalSystems(authUser);
       }
 
       // listTables and tableInfo require an external system which is configured for MCP
       String externalSystemError =
-          GrouperMcpSqlSelect.validateExternalSystemAllowed(externalSystemId);
+          GrouperMcpSqlSelect.validateExternalSystemAllowed(externalSystemId, authUser);
       if (externalSystemError != null) {
         return buildErrorResult(externalSystemError);
       }
@@ -227,15 +227,20 @@ public class GrouperMcpSqlGetSchema {
 
   /**
    * list the external system IDs the administrator has made available to the MCP SQL
-   * tools.  no database is available by default, including the Grouper database.
+   * tools.  no database is available by default, including the Grouper database.  a caller who
+   * is not on the all tier only sees the databases opened to them
+   * @param authUser the caller
    * @return the MCP tool result with the list of external systems
    */
-  private static ObjectNode listExternalSystems() throws Exception {
+  private static ObjectNode listExternalSystems(GrouperMcpAuthUser authUser) throws Exception {
 
-    Set<String> externalSystemIds = GrouperMcpSqlSelect.externalSystemIds();
+    Set<String> externalSystemIds = GrouperMcpSqlSelect.externalSystemIdsFor(authUser);
 
+    // a caller who is not on the all tier is not told whether any database is configured
     if (externalSystemIds.isEmpty()) {
-      return buildSuccessResult(GrouperMcpSqlSelect.noDatabasesConfiguredMessage());
+      return buildSuccessResult(GrouperMcpSqlSelect.isAllTier(authUser)
+          ? GrouperMcpSqlSelect.noDatabasesConfiguredMessage()
+          : GrouperMcpSqlSelect.NONE_AVAILABLE_MESSAGE);
     }
 
     ArrayNode systemsArray = objectMapper.createArrayNode();

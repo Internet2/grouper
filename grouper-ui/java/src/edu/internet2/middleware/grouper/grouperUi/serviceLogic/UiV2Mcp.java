@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -130,35 +131,17 @@ public class UiV2Mcp extends UiServiceLogicBase {
           }
         }
 
-        // SQL readonly group
-        String sqlReadonlyGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.canRunSqlReadonly");
-        if (StringUtils.isNotBlank(sqlReadonlyGroupName)) {
-          Group sqlReadonlyGroup = GroupFinder.findByName(rootSession, sqlReadonlyGroupName, false);
-          if (sqlReadonlyGroup != null && sqlReadonlyGroup.hasMember(loggedInSubject)) {
-            mcpContainer.setAllowedSqlReadonly(true);
-          }
-        }
-
-        // admin readonly group
-        String adminReadonlyGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.adminReadonly");
-        if (StringUtils.isNotBlank(adminReadonlyGroupName)) {
-          Group adminReadonlyGroup = GroupFinder.findByName(rootSession, adminReadonlyGroupName, false);
-          if (adminReadonlyGroup != null && adminReadonlyGroup.hasMember(loggedInSubject)) {
-            mcpContainer.setAllowedAdminReadonly(true);
-          }
-        }
-
-        // admin readwrite group
-        String adminReadWriteGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.adminReadWrite");
-        if (StringUtils.isNotBlank(adminReadWriteGroupName)) {
-          Group adminReadWriteGroup = GroupFinder.findByName(rootSession, adminReadWriteGroupName, false);
-          if (adminReadWriteGroup != null && adminReadWriteGroup.hasMember(loggedInSubject)) {
-            mcpContainer.setAllowedAdminReadwrite(true);
-          }
-        }
+        // sql, admin readonly and admin readwrite: either tier, decided in one place for MCP and
+        // the UI.  the all tier also requires a Grouper sysadmin (GRP-7415)
+        mcpContainer.setAllowedSqlReadonly(
+            GrouperToolAccess.isSqlReadonlyAllTier(loggedInSubject)
+            || GrouperToolAccess.isSqlReadonlyLimitedTier(loggedInSubject));
+        mcpContainer.setAllowedAdminReadonly(
+            GrouperToolAccess.isAdminReadonlyAllTier(loggedInSubject)
+            || GrouperToolAccess.isAdminReadonlyLimitedTier(loggedInSubject));
+        mcpContainer.setAllowedAdminReadwrite(
+            GrouperToolAccess.isAdminReadwriteAllTier(loggedInSubject)
+            || GrouperToolAccess.isAdminReadwriteLimitedTier(loggedInSubject));
 
         // WS authn allowed group
         String wsAuthnGroupName = GrouperConfig.retrieveConfig()
@@ -170,12 +153,10 @@ public class UiV2Mcp extends UiServiceLogicBase {
           }
         }
 
-        // readwrite implies readonly, admin readwrite implies admin readonly
+        // readwrite implies readonly.  admin readwrite implying admin readonly is in
+        // GrouperToolAccess, and only on the all tier
         if (mcpContainer.isAllowedReadwrite()) {
           mcpContainer.setAllowedReadonly(true);
-        }
-        if (mcpContainer.isAllowedAdminReadwrite()) {
-          mcpContainer.setAllowedAdminReadonly(true);
         }
 
         // confidential OAuth client registration: allowed for sysadmins or group members

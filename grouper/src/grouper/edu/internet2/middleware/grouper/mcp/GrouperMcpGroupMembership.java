@@ -31,12 +31,19 @@ public class GrouperMcpGroupMembership {
   private static final Log LOG = GrouperUtil.getLog(GrouperMcpGroupMembership.class);
 
   /**
-   * key is MultiKey(subjectId, subjectSourceId, groupPropertyName)
+   * key is MultiKey(subjectId, subjectSourceId, groupPropertyName, requiredFolderName)
    */
   private static GrouperCache<MultiKey, Boolean> subjectInGroupCache =
       new GrouperCache<MultiKey, Boolean>(
           GrouperMcpGroupMembership.class.getName() + ".subjectInGroupCache",
           2000, false, 60, 60, false);
+
+  /**
+   * clear the membership cache on this node, e.g. in tests after changing who is in a group
+   */
+  public static void clearCache() {
+    subjectInGroupCache.clear();
+  }
 
   /**
    * @param authUser the caller
@@ -45,16 +52,44 @@ public class GrouperMcpGroupMembership {
    * institution which has not configured a group has not thereby allowed everybody
    */
   public static boolean isSubjectInGroup(GrouperMcpAuthUser authUser, String groupPropertyName) {
+    return isSubjectInGroup(authUser == null ? null : authUser.getSubject(), groupPropertyName);
+  }
+
+  /**
+   * @param subject the caller.  the UI has a subject rather than an MCP caller
+   * @param groupPropertyName the grouper.properties key holding the group name
+   * @return true if the subject is in that group.  false if the property is not set, so an
+   * institution which has not configured a group has not thereby allowed everybody
+   */
+  public static boolean isSubjectInGroup(Subject subject, String groupPropertyName) {
+    return isSubjectInGroup(subject, groupPropertyName, null);
+  }
+
+  /**
+   * @param subject the caller.  the UI has a subject rather than an MCP caller
+   * @param groupPropertyName the grouper.properties key holding the group name
+   * @param requiredFolderName if not null, the group has to be in this folder or below it.  this is
+   * checked on the group's current name, so a group moved out of the folder does not still count
+   * because it can be found by its old name.  a group anywhere else is ignored, with an error in
+   * the log, so a misconfiguration denies rather than allows
+   * @return true if the subject is in that group.  false if the property is not set, so an
+   * institution which has not configured a group has not thereby allowed everybody
+   */
+  public static boolean isSubjectInGroup(Subject subject, String groupPropertyName,
+      String requiredFolderName) {
+
+    if (subject == null) {
+      return false;
+    }
 
     String groupName = GrouperConfig.retrieveConfig().propertyValueString(groupPropertyName);
     if (StringUtils.isBlank(groupName)) {
       return false;
     }
 
-    Subject subject = authUser.getSubject();
-
     MultiKey cacheKey = new MultiKey(subject.getId(),
-        StringUtils.defaultString(subject.getSourceId()), groupPropertyName);
+        StringUtils.defaultString(subject.getSourceId()), groupPropertyName,
+        StringUtils.defaultString(requiredFolderName));
     Boolean cachedResult = subjectInGroupCache.get(cacheKey);
     if (cachedResult != null) {
       return cachedResult;
@@ -65,6 +100,13 @@ public class GrouperMcpGroupMembership {
       grouperSession = GrouperSession.startRootSession();
       Group group = GroupFinder.findByName(grouperSession, groupName, false);
       if (group == null) {
+        subjectInGroupCache.put(cacheKey, false);
+        return false;
+      }
+      if (requiredFolderName != null && !group.getName().startsWith(requiredFolderName + ":")) {
+        LOG.error("MCP access group in " + groupPropertyName + " is '" + group.getName()
+            + "', which is not in folder " + requiredFolderName + ", so it is ignored and grants "
+            + "nothing.  Move the group into " + requiredFolderName + ", where MCP cannot change it.");
         subjectInGroupCache.put(cacheKey, false);
         return false;
       }

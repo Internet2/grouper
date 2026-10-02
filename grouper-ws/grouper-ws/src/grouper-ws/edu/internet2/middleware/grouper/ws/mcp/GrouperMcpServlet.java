@@ -1455,7 +1455,9 @@ public class GrouperMcpServlet extends HttpServlet {
           // itself
           for (GrouperTool grouperTool : GrouperToolRegistry.advertisedTools()) {
 
-            if (!GrouperToolAccess.isAllowed(grouperTool.category(null), authUser)) {
+            // includes, for a caller on the limited tier of a category, whether this tool has
+            // been opened to them (GRP-7415)
+            if (!GrouperToolAccess.isAllowed(grouperTool, grouperTool.category(null), authUser)) {
               continue;
             }
 

@@ -22,13 +22,16 @@ public enum GrouperToolCategory {
   readwrite(true, "Membership in the MCP readwrite group is required."),
 
   /** reads the database directly */
-  sql(false, "Membership in the MCP SQL readonly group is required."),
+  sql(false, "Membership in the MCP SQL readonly group as a Grouper sysadmin, or in the "
+      + "limited MCP SQL readonly group, is required."),
 
   /** reads configuration, daemons and external systems */
-  admin_readonly(false, "Membership in the MCP admin readonly group is required."),
+  admin_readonly(false, "Membership in the MCP admin readonly group as a Grouper sysadmin or "
+      + "readonly sysadmin, or in the limited MCP admin readonly group, is required."),
 
   /** runs daemon jobs */
-  admin_readwrite(true, "Membership in the MCP admin readwrite group is required.");
+  admin_readwrite(true, "Membership in the MCP admin readwrite group as a Grouper sysadmin, or "
+      + "in the limited MCP admin readwrite group, is required.");
 
   /** true if running a tool in this category changes something */
   private final boolean write;

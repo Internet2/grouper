@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
@@ -132,6 +133,10 @@ public class GrouperMcpLdapSearchTest extends GrouperTest {
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
+
+    // the tools only let a caller who is on a tier use them, so SUBJ0, who these tests call the
+    // tools as, is put on the all tier (GRP-7415)
+    GrouperMcpTestUtils.assignAllTier(SubjectTestHelper.SUBJ0, GrouperToolCategory.admin_readonly);
 
     try {
       this.grouperSession = GrouperSession.startRootSession();
@@ -702,20 +707,20 @@ public class GrouperMcpLdapSearchTest extends GrouperTest {
   public void testValidateExternalSystemAllowed() {
 
     // blank should be error
-    String error = GrouperMcpLdapSearch.validateExternalSystemAllowed(null);
+    String error = GrouperMcpLdapSearch.validateExternalSystemAllowed(null, new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull(error);
     assertTrue(error.contains("externalSystemId is required"));
 
-    error = GrouperMcpLdapSearch.validateExternalSystemAllowed("");
+    error = GrouperMcpLdapSearch.validateExternalSystemAllowed("", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull(error);
     assertTrue(error.contains("externalSystemId is required"));
 
     // configured system should be allowed
     assertNull("personLdap should be allowed",
-        GrouperMcpLdapSearch.validateExternalSystemAllowed("personLdap"));
+        GrouperMcpLdapSearch.validateExternalSystemAllowed("personLdap", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0)));
 
     // unconfigured system should be denied
-    error = GrouperMcpLdapSearch.validateExternalSystemAllowed("bogusLdap99999");
+    error = GrouperMcpLdapSearch.validateExternalSystemAllowed("bogusLdap99999", new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
     assertNotNull(error);
     assertTrue(error.contains("not configured"));
   }

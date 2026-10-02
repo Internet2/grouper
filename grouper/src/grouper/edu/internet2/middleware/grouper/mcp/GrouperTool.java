@@ -75,6 +75,18 @@ public interface GrouperTool {
   }
 
   /**
+   * whether this tool decides for itself what a caller on the limited tier of its category may
+   * reach (GRP-7415).  a tool which reaches external systems opens them per system, and running a
+   * daemon job is decided per job, so for those the limited tier is let through to the tool, which
+   * then lists and acts on only what has been opened to the caller.  every other tool is opened to
+   * the limited tier as a whole with grouper.mcp.tool.&lt;toolName&gt;.limitedAccessGroup
+   * @return true if the tool checks the limited tier itself
+   */
+  public default boolean limitedAccessCheckedByTool() {
+    return false;
+  }
+
+  /**
    * whether there is any point offering this tool to this caller right now, beyond whether they
    * are allowed to use it.  a few tools have nothing to work on unless an institution has set
    * something up, or unless the caller's scope reaches the kind of thing they act on, and

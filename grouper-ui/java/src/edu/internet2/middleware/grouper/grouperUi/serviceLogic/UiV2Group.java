@@ -5652,12 +5652,8 @@ public class UiV2Group {
         return;
       }
 
-      boolean adminCanRefreshGroup = group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.toString(), false) 
-          && GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true);
-
-      boolean canEditLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanEditLoader();
-
-      if (!adminCanRefreshGroup && !canEditLoader) {
+      // same rule MCP uses for running a loader job (GRP-7415)
+      if (!PrivilegeHelper.canRunLoaderJob(loggedInSubject, group)) {
         return;
       }
 

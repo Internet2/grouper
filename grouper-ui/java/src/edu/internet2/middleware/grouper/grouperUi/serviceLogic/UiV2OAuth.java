@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -249,12 +250,6 @@ public class UiV2OAuth extends UiServiceLogicBase {
             .propertyValueString("grouper.mcp.users.readonly");
         String readwriteGroupName = GrouperConfig.retrieveConfig()
             .propertyValueString("grouper.mcp.users.readwrite");
-        String sqlReadonlyGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.canRunSqlReadonly");
-        String adminReadonlyGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.adminReadonly");
-        String adminReadWriteGroupName = GrouperConfig.retrieveConfig()
-            .propertyValueString("grouper.mcp.users.adminReadWrite");
 
         if (StringUtils.isNotBlank(readonlyGroupName)) {
           Group readonlyGroup = GroupFinder.findByName(grouperSession, readonlyGroupName, false);
@@ -269,24 +264,19 @@ public class UiV2OAuth extends UiServiceLogicBase {
             oAuthContainer.setShowReadonly(true);
           }
         }
-        if (StringUtils.isNotBlank(sqlReadonlyGroupName)) {
-          Group sqlReadonlyGroup = GroupFinder.findByName(grouperSession, sqlReadonlyGroupName, false);
-          if (sqlReadonlyGroup != null && sqlReadonlyGroup.hasMember(loggedInSubject)) {
-            oAuthContainer.setShowSqlReadonly(true);
-          }
+        // sql, admin readonly and admin readwrite: offer the scope to either tier, the same rule
+        // MCP enforces.  the all tier also requires a Grouper sysadmin (GRP-7415)
+        if (GrouperToolAccess.isSqlReadonlyAllTier(loggedInSubject)
+            || GrouperToolAccess.isSqlReadonlyLimitedTier(loggedInSubject)) {
+          oAuthContainer.setShowSqlReadonly(true);
         }
-        if (StringUtils.isNotBlank(adminReadonlyGroupName)) {
-          Group adminReadonlyGroup = GroupFinder.findByName(grouperSession, adminReadonlyGroupName, false);
-          if (adminReadonlyGroup != null && adminReadonlyGroup.hasMember(loggedInSubject)) {
-            oAuthContainer.setShowAdminReadonly(true);
-          }
+        if (GrouperToolAccess.isAdminReadonlyAllTier(loggedInSubject)
+            || GrouperToolAccess.isAdminReadonlyLimitedTier(loggedInSubject)) {
+          oAuthContainer.setShowAdminReadonly(true);
         }
-        if (StringUtils.isNotBlank(adminReadWriteGroupName)) {
-          Group adminReadWriteGroup = GroupFinder.findByName(grouperSession, adminReadWriteGroupName, false);
-          if (adminReadWriteGroup != null && adminReadWriteGroup.hasMember(loggedInSubject)) {
-            oAuthContainer.setShowAdminReadwrite(true);
-            oAuthContainer.setShowAdminReadonly(true);
-          }
+        if (GrouperToolAccess.isAdminReadwriteAllTier(loggedInSubject)
+            || GrouperToolAccess.isAdminReadwriteLimitedTier(loggedInSubject)) {
+          oAuthContainer.setShowAdminReadwrite(true);
         }
       } finally {
         GrouperSession.stopQuietly(grouperSession);

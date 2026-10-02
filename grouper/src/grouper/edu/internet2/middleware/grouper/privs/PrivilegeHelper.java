@@ -1389,6 +1389,75 @@ public class PrivilegeHelper {
   }
 
   /**
+   * Is this subject allowed to run (refresh) the loader job of the given group?  This is the one
+   * rule for the UI "refresh loader group" action and for the MCP admin_daemon_job_run tool on its
+   * limited tier (GRP-7415), so the two cannot drift.  Wheel/root always allowed.  Otherwise
+   * allowed if the subject has ADMIN on the group and uiV2.group.allowGroupAdminsToRefreshLoaderJobs
+   * is not false, or if the subject can VIEW the group and is in the uiV2.loader.edit.if.in.group
+   * loader editors group.  Those two settings are UI config, read here from the API so MCP sees
+   * the same values the UI does.
+   * @param subject
+   * @param group the loader group
+   * @return true if allowed
+   */
+  public static boolean canRunLoaderJob(Subject subject, Group group) {
+    if (subject == null || group == null) {
+      return false;
+    }
+    if (isWheelOrRoot(subject)) {
+      return true;
+    }
+
+    // group admins can refresh their own loader group unless the institution turned it off
+    if (GrouperUiConfigInApi.retrieveConfig().propertyValueBoolean(
+          "uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true)
+        && group.canHavePrivilege(subject, AccessPrivilege.ADMIN.toString(), false)) {
+      return true;
+    }
+
+    // loader editors can run any loader job they can see
+    String loaderEditorsGroupName = GrouperUiConfigInApi.retrieveConfig()
+        .propertyValueString("uiV2.loader.edit.if.in.group");
+    if (StringUtils.isNotBlank(loaderEditorsGroupName)
+        && group.canHavePrivilege(subject, AccessPrivilege.VIEW.toString(), false)) {
+      Group loaderEditorsGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), loaderEditorsGroupName, false);
+      if (loaderEditorsGroup != null && loaderEditorsGroup.hasMember(subject)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Is this subject allowed to run the loader job of the given group, asked from outside the UI,
+   * e.g. by MCP in the web services (GRP-7415)?  This is {@link #canRunLoaderJob} with one more
+   * condition.  That rule reads UI config, and a server which does not have grouper-ui.properties
+   * on its classpath only sees the UI defaults (which let group admins run their loader jobs) and
+   * the database, not what the institution set in that file, so it could allow what the UI
+   * forbids.  Rather than guess, when the file is not there only wheel/root is allowed.
+   * @param subject
+   * @param group the loader group
+   * @return true if allowed
+   */
+  public static boolean canRunLoaderJobOutsideUi(Subject subject, Group group) {
+    if (subject == null || group == null) {
+      return false;
+    }
+    if (isWheelOrRoot(subject)) {
+      return true;
+    }
+    if (!GrouperUiConfigInApi.isMainConfigFileOnClasspath()) {
+      LOG.warn("Not allowing " + GrouperUtil.subjectToString(subject) + " to run the loader job of "
+          + group.getName() + " from outside the UI: grouper-ui.properties is not on the classpath "
+          + "of this server, so the UI settings uiV2.group.allowGroupAdminsToRefreshLoaderJobs and "
+          + "uiV2.loader.edit.if.in.group cannot be read here");
+      return false;
+    }
+    return canRunLoaderJob(subject, group);
+  }
+
+  /**
    * Is this subject allowed to edit recent memberships loader on the given group?
    * Wheel/root always allowed. Otherwise must have admin privilege on the group.
    * If grouper.recentMemberships.edit.if.in.group is configured, must also be a member of that group.

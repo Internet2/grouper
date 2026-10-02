@@ -104,6 +104,13 @@ public class GrouperToolExecutor {
               resultHolder[0] = buildErrorResult("Access denied: user is not authorized for "
                   + toolName + ". " + category.getDeniedDetail());
 
+            } else if (!GrouperToolAccess.isAllowed(grouperTool, category, authUser)) {
+              // allowed in the category, but only on its limited tier, and this tool has not
+              // been opened to them (GRP-7415)
+              resultHolder[0] = buildErrorResult("Access denied: user is not authorized for "
+                  + toolName + ". This tool has not been made available to your limited MCP "
+                  + "access, ask your Grouper administrator.");
+
             } else {
               resultHolder[0] = grouperTool.execute(theArguments, authUser);
             }

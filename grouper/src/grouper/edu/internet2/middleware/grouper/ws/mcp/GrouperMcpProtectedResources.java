@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -110,12 +111,32 @@ public class GrouperMcpProtectedResources {
       addConfigGroupIfPresent(names, "grouper.mcp.users.canRunSqlReadonly");
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadonly");
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadWrite");
+      addConfigGroupIfPresent(names, "grouper.mcp.users.canRunSqlReadonlyLimited");
+      addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadonlyLimited");
+      addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadWriteLimited");
       addConfigGroupIfPresent(names, "grouper.mcp.users.canSeeStackTraces");
 
       // other security groups
       addConfigGroupIfPresent(names, "security.show.all.folders.if.in.group");
       addConfigGroupIfPresent(names, "deprovisioning.admin.group");
       addConfigGroupIfPresent(names, "workflow.editorsGroup");
+
+      // the loader editors group decides who can run loader jobs from MCP's limited admin
+      // readwrite tier (GRP-7415).  it is UI config, read from the API, and usually in etc anyway
+      try {
+        String loaderEditorsGroup = GrouperUiConfigInApi.retrieveConfig()
+            .propertyValueString("uiV2.loader.edit.if.in.group");
+        if (StringUtils.isNotBlank(loaderEditorsGroup)) {
+          names.add(loaderEditorsGroup);
+        }
+      } catch (Exception e) {
+        // UI config may not be available in all environments
+        LOG.debug("Could not read uiV2.loader.edit.if.in.group config: " + e.getMessage());
+      }
+
+      // the per tool and per external system limitedAccessGroups which open MCP to the limited
+      // tiers do not need listing: they are required to be in etc:mcp, and everything under etc
+      // is protected by isProtectedGroupName
 
       // WS client user group (from grouper-ws config, optional)
       try {

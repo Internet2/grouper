@@ -1495,7 +1495,7 @@ public class GrouperCheckConfig {
           String mcpCanRunSql = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.canRunSqlReadonly");
           if (StringUtils.isNotBlank(mcpCanRunSql)) {
             groupSaves.add(new GroupSave().assignName(mcpCanRunSql).assignDescription(
-                "members of this group can run read-only SQL queries via MCP. This should only be granted to people who would would let read the entire Grouper database and configured SQL external systems.").assignCreateParentStemsIfNotExist(true));
+                "members of this group can run read-only SQL queries via MCP. Must also be a Grouper sysadmin (wheel), this reaches the entire Grouper database and configured SQL external systems.").assignCreateParentStemsIfNotExist(true));
           }
         }
         {
@@ -1517,6 +1517,29 @@ public class GrouperCheckConfig {
           if (StringUtils.isNotBlank(mcpAdminReadWrite)) {
             groupSaves.add(new GroupSave().assignName(mcpAdminReadWrite).assignDescription(
                 "members of this group can run admin commands readwrite via MCP. Must also be a Grouper sysadmin.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        // GRP-7415: limited tiers of the MCP sql, admin readonly and admin readwrite categories.
+        // no sysadmin requirement, members only get what is opened to them
+        {
+          String mcpCanRunSqlLimited = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.canRunSqlReadonlyLimited");
+          if (StringUtils.isNotBlank(mcpCanRunSqlLimited)) {
+            groupSaves.add(new GroupSave().assignName(mcpCanRunSqlLimited).assignDescription(
+                "members of this group can run read-only SQL queries via MCP, but only on the databases opened to them with grouper.mcp.sql.<externalSystemId>.limitedAccessGroup. Does not require a Grouper sysadmin.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpAdminReadonlyLimited = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.adminReadonlyLimited");
+          if (StringUtils.isNotBlank(mcpAdminReadonlyLimited)) {
+            groupSaves.add(new GroupSave().assignName(mcpAdminReadonlyLimited).assignDescription(
+                "members of this group can run admin readonly commands via MCP, but only the tools and external systems opened to them with a limitedAccessGroup. Does not require a Grouper sysadmin.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpAdminReadWriteLimited = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.adminReadWriteLimited");
+          if (StringUtils.isNotBlank(mcpAdminReadWriteLimited)) {
+            groupSaves.add(new GroupSave().assignName(mcpAdminReadWriteLimited).assignDescription(
+                "members of this group can run, via MCP, the loader jobs of groups they could refresh in the UI (e.g. ADMIN on the group). No other daemon jobs. Does not require a Grouper sysadmin.").assignCreateParentStemsIfNotExist(true));
           }
         }
 

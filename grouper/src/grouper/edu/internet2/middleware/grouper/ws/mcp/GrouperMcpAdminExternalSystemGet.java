@@ -67,6 +67,8 @@ import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryApiCommands;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundrySettings;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -178,7 +180,7 @@ public class GrouperMcpAdminExternalSystemGet {
 
     try {
       if ("listExternalSystems".equals(action)) {
-        return listExternalSystems();
+        return listExternalSystems(authUser);
       }
 
       if ("getUser".equals(action)) {
@@ -197,6 +199,20 @@ public class GrouperMcpAdminExternalSystemGet {
           return buildErrorResult("subjectIdOrIdentifier is required for 'getUser' action.");
         }
 
+        // trimmed once, so the system whose access is checked is the system which is used
+        externalSystemConfigId = externalSystemConfigId.trim();
+
+        // a caller who is not on the all tier may only look users up in the systems opened to
+        // them.  the same answer for a system which is not configured, so they are not told
+        // which is
+        if (!GrouperToolAccess.isExternalSystemAllowed(GrouperToolCategory.admin_readonly,
+            GrouperToolAccess.ADMIN_EXTERNAL_SYSTEM_CONFIG_PREFIX, externalSystemConfigId,
+            authUser)) {
+          return buildErrorResult("External system '" + externalSystemConfigId
+              + "' is not available to you. Use 'listExternalSystems' to see the external "
+              + "systems available to you.");
+        }
+
         return getUser(externalSystemConfigId, subjectIdOrIdentifier, subjectSourceId);
       }
 
@@ -211,12 +227,14 @@ public class GrouperMcpAdminExternalSystemGet {
 
   /**
    * list all external systems configured for MCP user lookups by scanning config for
-   * grouper.mcp.adminExternalSystem.&lt;id&gt;.subjectIdTranslationJexl properties.
+   * grouper.mcp.adminExternalSystem.&lt;id&gt;.subjectIdTranslationJexl properties.  a caller on
+   * the limited tier only sees the systems opened to them
+   * @param authUser the caller
    * @return the MCP tool result with the list of external systems
    */
-  private static ObjectNode listExternalSystems() throws Exception {
+  private static ObjectNode listExternalSystems(GrouperMcpAuthUser authUser) throws Exception {
 
-    Set<String> configIds = findConfiguredExternalSystemIds();
+    Set<String> configIds = externalSystemIdsFor(authUser);
 
     ArrayNode systemsArray = objectMapper.createArrayNode();
     for (String configId : configIds) {
@@ -819,6 +837,40 @@ public class GrouperMcpAdminExternalSystemGet {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
     return buildSuccessResult(resultText);
+  }
+
+  /**
+   * the external system config IDs this caller may look users up in.  a caller on the all tier
+   * of admin readonly gets every configured system.  a caller on the limited tier only gets
+   * those whose grouper.mcp.adminExternalSystem.&lt;id&gt;.limitedAccessGroup they are in
+   * (GRP-7415)
+   * @param authUser the caller
+   * @return the IDs, empty if none
+   */
+  static Set<String> externalSystemIdsFor(GrouperMcpAuthUser authUser) {
+    Set<String> result = new LinkedHashSet<String>();
+    for (String configId : findConfiguredExternalSystemIds()) {
+      if (GrouperToolAccess.isExternalSystemAllowed(GrouperToolCategory.admin_readonly,
+          GrouperToolAccess.ADMIN_EXTERNAL_SYSTEM_CONFIG_PREFIX, configId, authUser)) {
+        result.add(configId);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * if any external system is available to this caller.  a caller on the all tier is always
+   * offered the tool, as before, so they can be told what to configure.  anybody else only if a
+   * system is opened to them
+   * @param authUser the caller
+   * @return true if the tool is worth offering
+   */
+  public static boolean anyAvailableFor(GrouperMcpAuthUser authUser) {
+    if (GrouperToolAccess.isAllTier(GrouperToolCategory.admin_readonly,
+        authUser == null ? null : authUser.getSubject())) {
+      return true;
+    }
+    return !externalSystemIdsFor(authUser).isEmpty();
   }
 
   /**
