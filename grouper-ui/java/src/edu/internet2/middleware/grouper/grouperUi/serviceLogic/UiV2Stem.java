@@ -4892,7 +4892,7 @@ public class UiV2Stem {
         List<String> errorsDuringValidation = ruleConfig.getRulePattern().validate(ruleConfig, loggedInSubject);
         if (errorsDuringValidation.size() > 0) {
           for (String error: errorsDuringValidation) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, GrouperUiUtils.escapeHtml(error, true)));
           }
           return;
         }
@@ -4923,14 +4923,14 @@ public class UiV2Stem {
       if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {
         
         for (String error: typeWithMessages.get("ERROR")) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, GrouperUiUtils.escapeHtml(error, true)));
         }
         
         return;
       } else if (typeWithMessages.get("WARN") != null && typeWithMessages.get("WARN").size() > 0) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
         for (String warning: typeWithMessages.get("WARN")) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, warning));
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, GrouperUiUtils.escapeHtml(warning, true)));
         }
       } else if (typeWithMessages.get("SUCCESS") != null && typeWithMessages.get("SUCCESS").size() > 0) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
