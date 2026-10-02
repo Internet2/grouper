@@ -311,6 +311,19 @@ public class AssetSonarApiCommands {
    * @return the member, or null if not found
    */
   public static AssetSonarMember retrieveMemberById(String configId, String memberId) {
+    JsonNode node = retrieveMemberJsonById(configId, memberId);
+    return node == null ? null : AssetSonarMember.fromJson(node);
+  }
+
+  /**
+   * Read one member by id as the raw API JSON (all ~110 fields). Works for deactivated members too.
+   * The raw record carries secrets (e.g. webstore_authentication_token), so callers that show it to
+   * people must allow-list fields.
+   * @param configId external system config id
+   * @param memberId native member id
+   * @return the member JSON, or null if not found
+   */
+  public static JsonNode retrieveMemberJsonById(String configId, String memberId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveMemberById");
     debugMap.put("memberId", memberId);
@@ -332,7 +345,7 @@ public class AssetSonarApiCommands {
       }
       // sync-back: the read by id (also how the drain re-reads a written member)
       AssetSonarProvisioningTargetNativeSync.captureMemberJsonFromCurrentProvisioner(node);
-      return AssetSonarMember.fromJson(node);
+      return node;
     } finally {
       AssetSonarLog.assetSonarLog(debugMap, startNanos);
     }
@@ -349,6 +362,18 @@ public class AssetSonarApiCommands {
    * @return the member, or null if none
    */
   public static AssetSonarMember retrieveMemberByEmail(String configId, String email) {
+    JsonNode node = retrieveMemberJsonByEmail(configId, email);
+    return node == null ? null : AssetSonarMember.fromJson(node);
+  }
+
+  /**
+   * Look a member up by email as the raw API JSON, with the same narrowing check as
+   * {@link #retrieveMemberByEmail}. See {@link #retrieveMemberJsonById} about secrets in the record.
+   * @param configId external system config id
+   * @param email the email (case-insensitive)
+   * @return the member JSON, or null if none
+   */
+  public static JsonNode retrieveMemberJsonByEmail(String configId, String email) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveMemberByEmail");
     debugMap.put("email", email);
@@ -360,8 +385,14 @@ public class AssetSonarApiCommands {
       String pathAndQuery = MEMBERS_PATH + "?filter=email&filter_val=" + urlEncode(email.trim());
       String json = executeMethod(debugMap, "retrieveMemberByEmail", "GET", configId, pathAndQuery,
           GrouperUtil.toSet(200), new int[] {-1}, null);
+      // parseMembersPage validates the envelope and captures sync-back; its members line up with the
+      // raw nodes of the same array
       MembersPage membersPage = parseMembersPage(json, pathAndQuery);
-      return selectEmailMatch(membersPage.getMembers(), email);
+      AssetSonarMember match = selectEmailMatch(membersPage.getMembers(), email);
+      if (match == null) {
+        return null;
+      }
+      return parseJson(json, pathAndQuery).get("members").get(membersPage.getMembers().indexOf(match));
     } finally {
       AssetSonarLog.assetSonarLog(debugMap, startNanos);
     }

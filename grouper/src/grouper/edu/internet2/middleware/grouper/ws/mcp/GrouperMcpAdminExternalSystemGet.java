@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarApiCommands;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarExternalSystem;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureApiCommands;
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureUser;
@@ -77,7 +79,7 @@ import edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry).
+ * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar).
  * Supports two actions:
  * <ul>
  *   <li>{@code listExternalSystems} - list external systems configured for MCP user lookups</li>
@@ -107,7 +109,7 @@ public class GrouperMcpAdminExternalSystemGet {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "admin_external_system_get");
     tool.put("description",
-        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry) configured in Grouper. "
+        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar) configured in Grouper. "
         + "Use action 'listExternalSystems' to discover which external systems are configured "
         + "for user lookups. "
         + "Use action 'getUser' with an externalSystemConfigId and a Grouper subjectIdOrIdentifier "
@@ -311,7 +313,7 @@ public class GrouperMcpAdminExternalSystemGet {
     String type = detectExternalSystemType(externalSystemConfigId);
     if (type == null) {
       return buildErrorResult("External system '" + externalSystemConfigId
-          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry). "
+          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry, assetSonar). "
           + "Verify the external system connector is configured. For WsBearerToken-based systems "
           + "(SCIM, FreshService, Datadog, TrueFoundry) you may need to set grouper.mcp.adminExternalSystem."
           + externalSystemConfigId + ".externalSystemType");
@@ -388,6 +390,8 @@ public class GrouperMcpAdminExternalSystemGet {
       return getUserFreshserviceRequesters(externalSystemConfigId, lookupField, externalUserId, resultNode);
     } else if ("trueFoundry".equals(type)) {
       return getUserTrueFoundry(externalSystemConfigId, lookupField, externalUserId, resultNode);
+    } else if ("assetSonar".equals(type)) {
+      return getUserAssetSonar(externalSystemConfigId, lookupField, externalUserId, resultNode);
     }
 
     return buildErrorResult("Unsupported external system type: " + type);
@@ -840,6 +844,58 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
+   * AssetSonar member fields returned to the AI client.  This is an allow-list on purpose: the raw
+   * member record has ~110 fields, some of them secrets (webstore_authentication_token, secure_code,
+   * saml_session_index_id, signature), so the record is never passed through as-is
+   */
+  private static final String[] ASSET_SONAR_MEMBER_FIELDS = new String[] {
+    "id", "email", "first_name", "last_name", "employee_id", "employee_identification_number",
+    "role_id", "role_name", "status", "department", "creation_source", "created_by_scim",
+    "is_ldap_user", "auto_sync_with_ldap", "last_sync_source", "last_sync_date", "team_id",
+    "created_at", "updated_at", "confirmed_at", "deactivated_at"};
+
+  /**
+   * look up a member in AssetSonar by email (default) or id.  email uses filter=email, which also
+   * finds deactivated members and is verified to have actually narrowed the result (AssetSonar
+   * silently ignores filters it does not understand).  status 1 is active, 0 deactivated.
+   */
+  private static ObjectNode getUserAssetSonar(String configId, String lookupField,
+      String lookupValue, ObjectNode resultNode) throws Exception {
+
+    JsonNode memberNode;
+    if ("id".equals(lookupField)) {
+      memberNode = AssetSonarApiCommands.retrieveMemberJsonById(configId, lookupValue);
+    } else if ("email".equals(lookupField)) {
+      memberNode = AssetSonarApiCommands.retrieveMemberJsonByEmail(configId, lookupValue);
+    } else {
+      // the AssetSonar API cannot filter on anything else (other filters are silently ignored)
+      return buildErrorResult("AssetSonar lookupField must be 'email' or 'id', not '" + lookupField
+          + "'. Configure grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField");
+    }
+
+    if (memberNode == null) {
+      resultNode.put("userFound", false);
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
+    }
+
+    ObjectNode userNode = objectMapper.createObjectNode();
+    for (String field : ASSET_SONAR_MEMBER_FIELDS) {
+      if (memberNode.has(field)) {
+        userNode.set(field, memberNode.get(field));
+      }
+    }
+
+    resultNode.put("userFound", true);
+    resultNode.set("user", userNode);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
    * the external system config IDs this caller may look users up in.  a caller on the all tier
    * of admin readonly gets every configured system.  a caller on the limited tier only gets
    * those whose grouper.mcp.adminExternalSystem.&lt;id&gt;.limitedAccessGroup they are in
@@ -897,12 +953,12 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
-   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry)
+   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry, assetSonar)
    * by checking if an explicit type is configured, or by matching against configured connectors.
    * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, Datadog,
    * and TrueFoundry all use WsBearerTokenExternalSystem).
    * @param configId the external system config ID
-   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", or null if not detected
+   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", "assetSonar", or null if not detected
    */
   static String detectExternalSystemType(String configId) {
 
@@ -936,6 +992,9 @@ public class GrouperMcpAdminExternalSystemGet {
         }
         if (externalSystem instanceof TeamDynamixExternalSystem) {
           return "teamDynamix";
+        }
+        if (externalSystem instanceof AssetSonarExternalSystem) {
+          return "assetSonar";
         }
         if (externalSystem instanceof WsBearerTokenExternalSystem) {
           return "scim";

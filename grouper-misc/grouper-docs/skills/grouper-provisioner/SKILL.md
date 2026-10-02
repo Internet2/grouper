@@ -236,6 +236,39 @@ If the provisioner has custom membership metadata (e.g. team manager flag):
 - `{Name}SyncObjectMetadata.java`
 - Registers metadata fields that appear on provisioning attribute assignments in the UI
 
+## 15. MCP user lookup (admin_external_system_get)
+
+Add the target as a type in the MCP `admin_external_system_get` tool so an AI client can look up
+a user in the target ("what does jdoe look like in X?"). Do it as its own commit (and GRP), after
+the base provisioner -- MCP is not backported. Everything is in
+`grouper/src/grouper/edu/internet2/middleware/grouper/ws/mcp/GrouperMcpAdminExternalSystemGet.java`:
+
+- **Type detection** in `detectExternalSystemType()`: if the provisioner has its own external
+  system class, add an `instanceof {Name}ExternalSystem` check returning `"{name}"` BEFORE the
+  `WsBearerTokenExternalSystem` fallback, so no `externalSystemType` config is needed. A target on a
+  shared WsBearerToken system needs `grouper.mcp.adminExternalSystem.<id>.externalSystemType` instead.
+- **Dispatch**: add the `else if ("{name}".equals(type))` branch in `getUser()`.
+- **Lookup method** `getUser{Name}(configId, lookupField, lookupValue, resultNode)`: support only
+  the lookup fields the target API can really filter on (usually the match key, e.g. email, plus
+  id); anything else returns a clear error -- never fall through to a filter the target may
+  silently ignore. Reuse the provisioner's ApiCommands lookups (add raw-JSON variants if the typed
+  bean is too thin, and have the typed methods call them so there is one implementation).
+- **Return an allow-list of fields, never the raw target record.** Target user records often carry
+  secrets (AssetSonar: `webstore_authentication_token`, `secure_code`, `saml_session_index_id`).
+  Keep the useful identity, status, role and provenance fields.
+- **Text**: add the type to the class javadoc, `toolDefinition()` description, and the
+  "could not be identified as a supported type" error list.
+- **Config docs** in `grouper/conf/grouper.base.properties` (MCP section): add the system to the
+  list, a `# {Name} lookupField values: ...` line, and the type to the `externalSystemType` values.
+- **Tests** in `grouper-ws/grouper-ws/src/test/.../ws/mcp/GrouperMcpAdminExternalSystemGetTest.java`
+  (mock-server tests there are not gated, but list them in the class javadoc): seed the mock via
+  the provisioner's `{Name}ProvisionerTestUtils.setup{Name}ExternalSystem()` and mock table, assert
+  the detected type, a found user, that a field outside the allow-list is absent, and that an
+  unsupported lookup field errors.
+- **Docs**: the lookup-fields table, the intro lists and the type-detection note in
+  `grouper/temp/mcpDocs/mcpWikiAdminGuide.html`, then the live wiki pages "Grouper MCP server -
+  administrator guide" and "... - user guide" (they list the supported systems in several places).
+
 ---
 
 ## Files Modified in Existing Code
@@ -250,3 +283,5 @@ When creating a new provisioner, the following existing files need modifications
 | `grouper-loader.base.properties` | Add provisioner config section |
 | `grouper.textNg.en.us.base.properties` | Add externalized text entries |
 | `AllAppTests.java` or suite file | Optionally add test suite reference |
+| `GrouperMcpAdminExternalSystemGet.java` | MCP user lookup type (section 15, separate commit) |
+| `grouper.base.properties` | MCP lookup field / type docs (section 15) |

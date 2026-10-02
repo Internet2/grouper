@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarMockServiceHandler;
+import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
@@ -53,7 +55,8 @@ import junit.textui.TestRunner;
  * unit tests for GrouperMcpAdminExternalSystemGet (admin_external_system_get MCP tool).
  * Tests that require the mock server (testGetUserAzure, testGetUserDuo, testGetUserBox,
  * testGetUserGoogle, testGetUserFreshserviceRequesters, testGetUserRemedy,
- * testGetUserRemedyDigitalMarketplace, testGetUserTeamDynamix) need Tomcat running with MockServiceServlet deployed.
+ * testGetUserRemedyDigitalMarketplace, testGetUserTeamDynamix, testGetUserAssetSonar,
+ * testGetUserAssetSonarBadLookupField) need Tomcat running with MockServiceServlet deployed.
  *
  * @author mchyzer
  */
@@ -1020,6 +1023,114 @@ public class GrouperMcpAdminExternalSystemGetTest extends GrouperTest {
       } catch (Exception e) {
         fail("Failed to parse result JSON: " + e.getMessage());
       }
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * set up the AssetSonar mock with one DEACTIVATED member holding subject 0's email, and point
+   * MCP at it
+   * @param lookupField the externalSystemLookupField to configure
+   */
+  private static void setupAssetSonarForMcp(String lookupField) {
+    AssetSonarProvisionerTestUtils.setupAssetSonarExternalSystem();
+    AssetSonarMockServiceHandler.ensureAssetSonarMockTables();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_asset_sonar_member").executeSql();
+    new GcDbAccess().connectionName("grouper").sql(
+        "insert into mock_asset_sonar_member (id, email, first_name, last_name, employee_id, role_id, status) "
+        + "values ('767537', ?, 'Test', 'Subject0', 'test.subject.0', '1734', '0')")
+        .addBindVar(SubjectTestHelper.SUBJ0.getAttributeValue("email")).executeSql();
+
+    String configId = AssetSonarProvisionerTestUtils.CONFIG_ID;
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".subjectIdTranslationJexl",
+        "${subject.getAttributeValue('email')}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField", lookupField);
+  }
+
+  /**
+   * test getUser with the AssetSonar mock server: the type is auto-detected, the email lookup finds a
+   * deactivated member, and only allow-listed fields come back.
+   * requires Tomcat with MockServiceServlet running.
+   */
+  public void testGetUserAssetSonar() {
+
+    setupAssetSonarForMcp("email");
+    String configId = AssetSonarProvisionerTestUtils.CONFIG_ID;
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "getUser");
+      arguments.put("externalSystemConfigId", configId);
+      arguments.put("subjectIdOrIdentifier", "test.subject.0");
+
+      ObjectNode result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(configId, responseNode.get("externalSystemConfigId").asText());
+        // detected from the AssetSonar external system class, no externalSystemType needed
+        assertEquals("assetSonar", responseNode.get("externalSystemType").asText());
+        assertEquals("email", responseNode.get("lookupField").asText());
+        assertTrue(responseNode.get("userFound").asBoolean());
+
+        JsonNode user = responseNode.get("user");
+        assertEquals(767537, user.get("id").asInt());
+        assertEquals("test.subject.0", user.get("employee_id").asText());
+        assertEquals(1734, user.get("role_id").asInt());
+        // deactivated members are found by email
+        assertEquals(0, user.get("status").asInt());
+        // fields outside the allow-list are dropped (the mock returns external_id)
+        assertFalse("only allow-listed fields: " + user, user.has("external_id"));
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+
+      // and by id
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+          "grouper.mcp.adminExternalSystem." + configId + ".subjectIdTranslationJexl", "767537");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+          "grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField", "id");
+      result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
+      assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+      text = result.get("content").get(0).get("text").asText();
+      assertTrue(text, text.contains("\"userFound\" : true"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * an AssetSonar lookup field other than email or id is an error, since the API would silently
+   * ignore the filter and return an unrelated member
+   */
+  public void testGetUserAssetSonarBadLookupField() {
+
+    setupAssetSonarForMcp("employee_id");
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "getUser");
+      arguments.put("externalSystemConfigId", AssetSonarProvisionerTestUtils.CONFIG_ID);
+      arguments.put("subjectIdOrIdentifier", "test.subject.0");
+
+      ObjectNode result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
+
+      assertTrue("Expected error, got: " + result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.get("content").get(0).get("text").asText()
+          .contains("must be 'email' or 'id'"));
     } finally {
       GrouperSession.stopQuietly(session);
     }
