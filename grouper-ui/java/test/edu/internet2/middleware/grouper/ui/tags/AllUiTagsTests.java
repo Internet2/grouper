@@ -24,7 +24,8 @@ public class AllUiTagsTests {
 		TestSuite suite = new TestSuite(
 				"Test for edu.internet2.middleware.grouper.ui.tags");
 		//$JUnit-BEGIN$
-		suite.addTest(AllUiTagsTests.suite());
+		suite.addTestSuite(GrouperMessageTagTest.class);
+		suite.addTestSuite(GrouperUiFunctionsTest.class);
 		//$JUnit-END$
 		return suite;
 	}
