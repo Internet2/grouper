@@ -25,7 +25,7 @@
 							    <div class="workflowConfigErrors alert alert-error">
 	                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">x</button>
 	                 <c:forEach var="error" items="${grouperRequestContainer.workflowContainer.errors}">
-	                  <div>${error}</div>
+	                  <div>${grouper:escapeHtml(error)}</div>
 	                 </c:forEach>
 	                </div>
 						    </c:if>
