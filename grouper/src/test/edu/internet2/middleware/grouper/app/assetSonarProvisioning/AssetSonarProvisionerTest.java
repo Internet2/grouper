@@ -16,11 +16,14 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import junit.textui.TestRunner;
 
 /**
@@ -433,6 +436,64 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("960", mockColumn("id", EMAIL0));
       assertEquals(SubjectTestHelper.SUBJ0.getId(), mockColumn("first_name", EMAIL0));
       assertEquals(SubjectTestHelper.SUBJ0.getId(), mockColumn("employee_identification_number", EMAIL0));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Sync-back: a full sync captures every member (including one Grouper created, re-read by the
+   * drain after its write) into grouper_prov_user. Then, with fullSyncUsersFromSyncBack on, the
+   * next full sync is served from that cache instead of paging the members: a member added to
+   * AssetSonar behind Grouper's back is not in the cache, so it is not seen and therefore not
+   * deactivated -- which a normal full sync (deleteEntitiesIfNotExistInGrouper) would do.
+   */
+  public void testSyncBackCaptureAndFullSyncFromCache() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    AssetSonarProvisionerTestConfigInput configInput = new AssetSonarProvisionerTestConfigInput()
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      insertMockMember("900", "admin@x.edu", AssetSonarProvisionerTestUtils.ADMINISTRATOR_ROLE_ID, "1");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      GrouperProvisioningOutput output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+
+      String subj0MemberId = mockColumn("id", EMAIL0);
+      assertNotNull(subj0MemberId);
+
+      Long syncInternalId = GcGrouperSyncDao.retrieveByProvisionerName(null, defaultConfigId()).getInternalId();
+      List<String> cachedIds = new GcDbAccess().connectionName("grouper")
+          .sql("select target_user_id from grouper_prov_user where grouper_sync_internal_id = ?")
+          .addBindVar(syncInternalId).selectList(String.class);
+      assertTrue("read member captured: " + cachedIds, cachedIds.contains("900"));
+      assertTrue("created member captured via the drain re-read: " + cachedIds, cachedIds.contains(subj0MemberId));
+
+      // now serve full syncs from the cache
+      new GrouperDbConfig().configFileName("grouper-loader.properties")
+          .propertyName("provisioner." + defaultConfigId() + ".fullSyncUsersFromSyncBack").value("true").store();
+      ConfigPropertiesCascadeBase.clearCache();
+
+      // added in AssetSonar directly, so not in the cache
+      insertMockMember("901", "stray@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+
+      output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+
+      assertEquals("the uncached member was never selected, so never deactivated",
+          "1", mockColumn("status", "stray@x.edu"));
+      assertEquals("1", mockColumn("status", EMAIL0));
+      assertEquals(1, mockCount(EMAIL0));
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

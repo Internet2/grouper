@@ -13,6 +13,7 @@ public class AllAssetSonarProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllAssetSonarProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(AssetSonarProvisionerTest.class);
+    suite.addTestSuite(AssetSonarProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

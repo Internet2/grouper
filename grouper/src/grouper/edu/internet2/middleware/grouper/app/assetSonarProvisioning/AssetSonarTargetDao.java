@@ -166,6 +166,8 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       targetEntity.setId(memberId);
+      // sync-back: create/reactivate returns no member body, so the drain re-reads it
+      AssetSonarProvisioningTargetNativeSync.recordMemberWriteFromCurrentProvisioner(memberId);
       markProvisioned(targetEntity, true);
       return new TargetDaoInsertEntityResponse();
     } catch (RuntimeException e) {
@@ -226,6 +228,7 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
           }
         }
         AssetSonarApiCommands.updateMember(configId, memberId, userParams(member, attributeOrder));
+        AssetSonarProvisioningTargetNativeSync.recordMemberWriteFromCurrentProvisioner(memberId);
       }
 
       markProvisioned(targetEntity, true);
@@ -287,6 +290,8 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
       userParams.put(AssetSonarMember.ATTR_EMAIL, member.getEmail());
       userParams.put(AssetSonarMember.ATTR_STATUS, AssetSonarMember.STATUS_INACTIVE);
       AssetSonarApiCommands.updateMember(configId, memberId, userParams);
+      // sync-back: a deactivation is a write, not a delete -- the member still exists with status 0
+      AssetSonarProvisioningTargetNativeSync.recordMemberWriteFromCurrentProvisioner(memberId);
 
       markProvisioned(targetEntity, true);
       return new TargetDaoDeleteEntityResponse();
@@ -357,6 +362,14 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     // "delete" is a deactivation, see deleteEntity
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
+
+    // sync-back: members are captured at the AssetSonarApiCommands read seams and writes are
+    // recorded for re-read (AssetSonarProvisioningTargetNativeSync)
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+    // retrieveAllEntities is skipped by the framework when users come from the sync-back cache,
+    // and the default capture list holds every managed attribute, so the cache can stand in for
+    // the member paging
+    grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
   }
 
 }

@@ -4,6 +4,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
@@ -34,6 +35,11 @@ public class AssetSonarProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
     return AssetSonarProvisioningTranslator.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return AssetSonarProvisioningTargetNativeSync.class;
   }
 
   @Override

@@ -231,6 +231,8 @@ public class AssetSonarApiCommands {
     }
     for (JsonNode memberNode : membersNode) {
       membersPage.members.add(AssetSonarMember.fromJson(memberNode));
+      // sync-back: every list page (active, inactive, email lookup) passes through here
+      AssetSonarProvisioningTargetNativeSync.captureMemberJsonFromCurrentProvisioner(memberNode);
     }
     membersPage.totalPages = GrouperUtil.intValue(GrouperUtil.jsonJacksonGetInteger(root, "total_pages"), 0);
     return membersPage;
@@ -328,6 +330,8 @@ public class AssetSonarApiCommands {
       if (node.get(AssetSonarMember.ATTR_ID) == null) {
         return null;
       }
+      // sync-back: the read by id (also how the drain re-reads a written member)
+      AssetSonarProvisioningTargetNativeSync.captureMemberJsonFromCurrentProvisioner(node);
       return AssetSonarMember.fromJson(node);
     } finally {
       AssetSonarLog.assetSonarLog(debugMap, startNanos);
