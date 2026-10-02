@@ -13,7 +13,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                 <p class="lead">${textContainer.text['subjectAuditLogDescription'] }</p>
 
                 <form class="form-inline form-small form-filter" id="subjectFilterAuditFormId">
-                  <input type="hidden" name="auditType" value="${grouperRequestContainer.subjectContainer.auditType}" />
+                  <input type="hidden" name="auditType" value="${fn:escapeXml(grouperRequestContainer.subjectContainer.auditType)}" />
                   <label for="date-filter">${textContainer.text['subjectAuditLogFilterByDate'] }</label>&nbsp;
                   <select id="date-filter" class="span2" name="filterType">
                     <option value="all" selected="selected">${textContainer.text['subjectAuditLogFilterType_all']}</option>

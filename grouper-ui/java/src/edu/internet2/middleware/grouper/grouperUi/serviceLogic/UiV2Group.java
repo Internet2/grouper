@@ -2893,6 +2893,18 @@ public class UiV2Group {
   }
 
   /**
+   * only allow known audit types, since the value is displayed on the screen.  Unknown values behave like "group"
+   * @param auditType
+   * @return the audit type, or "group" if not recognized
+   */
+  private static String normalizeAuditType(String auditType) {
+    if ("membership".equals(auditType) || "actions".equals(auditType) || "privileges".equals(auditType)) {
+      return auditType;
+    }
+    return "group";
+  }
+
+  /**
    * view audits for group
    * @param request
    * @param response
@@ -2916,7 +2928,7 @@ public class UiV2Group {
       }
   
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      grouperRequestContainer.getGroupContainer().setAuditType(request.getParameter("auditType"));
+      grouperRequestContainer.getGroupContainer().setAuditType(normalizeAuditType(request.getParameter("auditType")));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -4802,7 +4814,7 @@ public class UiV2Group {
 
     guiSorting.processRequest(request);
     
-    String auditType = request.getParameter("auditType");
+    String auditType = normalizeAuditType(request.getParameter("auditType"));
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     GrouperSession grouperSession = GrouperSession.startIfNotStarted(loggedInSubject).getGrouperSession();
     Subject subj = SubjectFinder.findById(group.getUuid(), true);
@@ -4931,7 +4943,7 @@ public class UiV2Group {
 
       query.setQueryOptions(queryOptions);
 
-      String auditType = request.getParameter("auditType");
+      String auditType = normalizeAuditType(request.getParameter("auditType"));
       Subject subj = SubjectFinder.findById(group.getUuid(), true);
       Member member = MemberFinder.findBySubject(grouperSession, subj, false);
 

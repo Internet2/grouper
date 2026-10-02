@@ -2358,6 +2358,18 @@ public class UiV2Subject {
   }
   
   /**
+   * only allow known audit types, since the value is displayed on the screen.  Unknown values behave like "membership"
+   * @param auditType
+   * @return the audit type, or "membership" if not recognized
+   */
+  private static String normalizeAuditType(String auditType) {
+    if ("actions".equals(auditType) || "privileges".equals(auditType)) {
+      return auditType;
+    }
+    return "membership";
+  }
+
+  /**
    * view audits for subject
    * @param request
    * @param response
@@ -2383,7 +2395,7 @@ public class UiV2Subject {
         throw new RuntimeException("Not allowed to see audits for subject!");
       }
       
-      grouperRequestContainer.getSubjectContainer().setAuditType(request.getParameter("auditType"));
+      grouperRequestContainer.getSubjectContainer().setAuditType(normalizeAuditType(request.getParameter("auditType")));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -2521,7 +2533,7 @@ public class UiV2Subject {
     
     
     
-    String auditType = request.getParameter("auditType");
+    String auditType = normalizeAuditType(request.getParameter("auditType"));
     
     if ("actions".equals(auditType)) {
       query=query.loggedInMember(member);
@@ -2640,7 +2652,7 @@ public class UiV2Subject {
 
       query.setQueryOptions(queryOptions);
 
-      String auditType = request.getParameter("auditType");
+      String auditType = normalizeAuditType(request.getParameter("auditType"));
 
       if ("actions".equals(auditType)) {
         query = query.loggedInMember(member);
