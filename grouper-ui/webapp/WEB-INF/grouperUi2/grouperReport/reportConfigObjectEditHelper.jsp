@@ -127,7 +127,7 @@
                           <td>
                             <grouper:combobox2 idBase="grouperReportConfigViewersGroupCombo" style="width: 30em" 
                                    value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId}"
-                                   filterOperation="../app/UiV2Group.groupUpdateFilter" />
+                                   filterOperation="../app/UiV2Group.groupReadFilter" />
                             <br />
                             <span class="description">${textContainer.text['grouperReportConfigViewersGroupIdHint']}</span>
                           </td>
