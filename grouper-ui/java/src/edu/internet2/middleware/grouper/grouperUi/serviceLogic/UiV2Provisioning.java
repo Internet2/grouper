@@ -268,6 +268,20 @@ public class UiV2Provisioning {
           if (!checkProvisioning()) {
             return null;
           }
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+            throw new RuntimeException("Cannot access provisioning");
+          }
+          
+          if (!checkProvisioningConfiguredOnGroup(GROUP, targetName)) {
+            return null;
+          }
             
           setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
@@ -4333,7 +4347,7 @@ public class UiV2Provisioning {
       }
       
       //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      boolean configuredOnGroup = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
@@ -4346,6 +4360,10 @@ public class UiV2Provisioning {
           }
           if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
             throw new RuntimeException("Cannot access provisioning");
+          }
+          
+          if (!checkProvisioningConfiguredOnGroup(GROUP, targetName)) {
+            return false;
           }
           
           provisioningContainer.setTargetName(targetName);
@@ -4361,10 +4379,14 @@ public class UiV2Provisioning {
           setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
           guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-          return null;
+          return true;
           
         }
       });
+      
+      if (!configuredOnGroup) {
+        return;
+      }
             
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -4441,7 +4463,7 @@ public class UiV2Provisioning {
       }
       
       //switch over to admin so attributes work
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      boolean configuredOnGroup = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
@@ -4456,6 +4478,10 @@ public class UiV2Provisioning {
             throw new RuntimeException("Cannot access provisioning");
           }
           
+          if (!checkProvisioningConfiguredOnGroup(GROUP, targetName)) {
+            return false;
+          }
+          
           provisioningContainer.setTargetName(targetName);
           
           GcGrouperSyncGroup gcGrouperSyncGroup = GrouperProvisioningService.retrieveGcGrouperGroup(GROUP.getId(), targetName);
@@ -4465,10 +4491,14 @@ public class UiV2Provisioning {
           
           setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
-          return null;
+          return true;
           
         }
       });
+      
+      if (!configuredOnGroup) {
+        return;
+      }
             
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -4519,6 +4549,28 @@ public class UiV2Provisioning {
         return false;
       }
       throw e;
+    }
+    
+    return true;
+  }
+  
+  /**
+   * make sure the group actually has provisioning configured (directly or inherited from a parent folder)
+   * for the given target.  If not, add a clear error message and return false so the caller can stop
+   * instead of blowing up with a NullPointerException.
+   * @param group
+   * @param targetName
+   * @return true if provisioning is configured on the group for this target
+   */
+  private boolean checkProvisioningConfiguredOnGroup(Group group, String targetName) {
+    
+    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(group, targetName);
+    
+    if (grouperProvisioningAttributeValue == null) {
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("provisioningNotConfiguredOnObjectError")));
+      return false;
     }
     
     return true;
