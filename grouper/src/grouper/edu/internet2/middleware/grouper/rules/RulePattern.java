@@ -2732,6 +2732,11 @@ public enum RulePattern {
       
       String subjectSources = patternPropertiesValues.get("VetoIfNewMembershipIsNotAGroup.subjectSource");
       
+      String message = patternPropertiesValues.get("VetoIfNewMembershipIsNotAGroup.message");
+      if (StringUtils.isBlank(message)) {
+        message = GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroupArg1Message");
+      }
+      
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
       ruleConfig.setCheckOwner("thisGroup");
       
@@ -2741,7 +2746,7 @@ public enum RulePattern {
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
       ruleConfig.setThenArg0("rule.entity.must.be.a.group");
-      ruleConfig.setThenArg1(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroupArg1Message"));
+      ruleConfig.setThenArg1(message);
       
       Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
       return result;
@@ -2798,6 +2803,24 @@ public enum RulePattern {
 //          }
         }
         
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("VetoIfNewMembershipIsNotAGroup.message");
+        attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroup.message.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroup.message.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(false);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null && StringUtils.isNotBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg1());
+        } else {
+          attribute.setValue(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroupArg1Message"));
+        }
         elements.add(attribute);
       }
       
@@ -3177,6 +3200,11 @@ public enum RulePattern {
       
       String limit = patternPropertiesValues.get("VetoIfTooManyMembers.limit");
       
+      String message = patternPropertiesValues.get("VetoIfTooManyMembers.message");
+      if (StringUtils.isBlank(message)) {
+        message = GrouperTextContainer.textOrNull("VetoIfTooManyMembersArg1Message");
+      }
+      
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
       ruleConfig.setCheckOwner("thisGroup");
       
@@ -3187,7 +3215,7 @@ public enum RulePattern {
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
       ruleConfig.setThenArg0("rule.group.has.too.many.members");
-      ruleConfig.setThenArg1(GrouperTextContainer.textOrNull("VetoIfTooManyMembersArg1Message"));
+      ruleConfig.setThenArg1(message);
       
       Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
       return result;
@@ -3238,6 +3266,24 @@ public enum RulePattern {
         elements.add(attribute);
       }
       
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("VetoIfTooManyMembers.message");
+        attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfTooManyMembers.message.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("VetoIfTooManyMembers.message.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(false);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null && StringUtils.isNotBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg1());
+        } else {
+          attribute.setValue(GrouperTextContainer.textOrNull("VetoIfTooManyMembersArg1Message"));
+        }
+        elements.add(attribute);
+      }
+      
       return elements;
     }
 
@@ -3258,8 +3304,11 @@ public enum RulePattern {
           ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasTooManyMembers && 
           StringUtils.isNotBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg0()) && 
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.veto && 
-          StringUtils.equals(ruleDefinition.getThen().getThenEnumArg0(), "rule.group.has.too.many.members") &&
-          StringUtils.equals(ruleDefinition.getThen().getThenEnumArg1(), GrouperTextContainer.textOrNull("VetoIfTooManyMembersArg1Message"))) {
+          StringUtils.equals(ruleDefinition.getThen().getThenEnumArg0(), "rule.group.has.too.many.members")) {
+        // Intentionally do not match on getThenEnumArg1(): arg1 is the human-readable veto
+        // message, which admins routinely customize.  The if-condition groupHasTooManyMembers is
+        // unique to this pattern, so matching on it (plus the check/then/arg0) cannot collide with
+        // any other RulePattern.
         return true;
       }
       
