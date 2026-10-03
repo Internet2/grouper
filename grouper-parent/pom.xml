@@ -246,6 +246,19 @@
     <dependencyManagement>
         <dependencies>
 
+            <!-- GRP-7432: import the Jackson BOM so every Jackson module (annotations, core, databind,
+            datatype-jsr310, dataformat-cbor, jaxrs, ...) resolves to one aligned version. Without it a module
+            that pins one Jackson artifact can drag in an old jackson-annotations transitively (e.g. 2.18.2
+            alongside databind 2.22.1 -> NoClassDefFoundError JsonSerializeAs). The BOM also knows that
+            jackson-annotations has no patch number since 2.20 (2.22.1 -> annotations 2.22). -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark -->
             <dependency>
                 <groupId>com.vladsch.flexmark</groupId>
@@ -431,11 +444,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
             <dependency>
               <groupId>net.redhogs.cronparser</groupId>
@@ -695,16 +703,6 @@
               <groupId>org.wso2.charon</groupId>
               <artifactId>org.wso2.charon.samples</artifactId>
               <version>${charon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-base</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
 
             <!-- Runtime Dependencies -->
