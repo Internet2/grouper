@@ -459,6 +459,8 @@ public abstract class GrouperProvisioningConfiguration {
   private Integer failsafeMaxOverallPercentGroupsRemove;
   private Integer failsafeMaxOverallPercentMembershipsRemove;
   private Integer failsafeMinOverallNumberOfMembers;
+  private Integer failsafeMaxOverallPercentEntitiesRemove;
+  private Integer failsafeMinOverallNumberOfEntities;
 
   public Boolean getShowFailsafe() { return this.showFailsafe; }
   public Boolean getFailsafeUse() { return this.failsafeUse; }
@@ -469,6 +471,8 @@ public abstract class GrouperProvisioningConfiguration {
   public Integer getFailsafeMaxOverallPercentGroupsRemove() { return this.failsafeMaxOverallPercentGroupsRemove; }
   public Integer getFailsafeMaxOverallPercentMembershipsRemove() { return this.failsafeMaxOverallPercentMembershipsRemove; }
   public Integer getFailsafeMinOverallNumberOfMembers() { return this.failsafeMinOverallNumberOfMembers; }
+  public Integer getFailsafeMaxOverallPercentEntitiesRemove() { return this.failsafeMaxOverallPercentEntitiesRemove; }
+  public Integer getFailsafeMinOverallNumberOfEntities() { return this.failsafeMinOverallNumberOfEntities; }
 
   /**
    * # Object errors will be logged, at least a handful of each type
@@ -3472,6 +3476,8 @@ public abstract class GrouperProvisioningConfiguration {
       this.failsafeMaxOverallPercentGroupsRemove = this.retrieveConfigInt("failsafeMaxOverallPercentGroupsRemove", false);
       this.failsafeMaxOverallPercentMembershipsRemove = this.retrieveConfigInt("failsafeMaxOverallPercentMembershipsRemove", false);
       this.failsafeMinOverallNumberOfMembers = this.retrieveConfigInt("failsafeMinOverallNumberOfMembers", false);
+      this.failsafeMaxOverallPercentEntitiesRemove = this.retrieveConfigInt("failsafeMaxOverallPercentEntitiesRemove", false);
+      this.failsafeMinOverallNumberOfEntities = this.retrieveConfigInt("failsafeMinOverallNumberOfEntities", false);
     }
 
     this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
