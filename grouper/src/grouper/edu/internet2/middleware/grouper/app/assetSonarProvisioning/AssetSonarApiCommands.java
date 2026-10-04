@@ -9,12 +9,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -43,7 +45,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li>The default list returns ACTIVE members only. Deactivated members are readable by id.</li>
  *   <li><b>{@code user[external_id]} sets nothing and NULLS THE EMAIL.</b> It is never sent, and
  *       {@code user[email]} is always sent on updates as a guard.</li>
- *   <li>Creating a member whose email exists returns 403 with no member id in the body.</li>
+ *   <li>Creating a member whose email exists is refused with no member id in the body. For an
+ *       active member that is HTTP 403; for an <b>inactive</b> member it is <b>HTTP 200</b> with
+ *       {@code {"errors":{...},"status":403}} in the body. Any 2xx whose body has "errors" is
+ *       therefore treated as the body's status (see executeMethod).</li>
+ *   <li>A create without {@code user[role_id]} is refused: 400 "Role Id is invalid".</li>
+ *   <li>Under sustained writing the gateway occasionally answers <b>502</b> ("Incomplete response
+ *       received from application") for a call that actually committed (~0.5% in production). Every
+ *       call is retried on 502/503/504 with backoff (GRP-7434). That is safe: reads and updates are
+ *       idempotent, and a repeated create of a committed member gets the duplicate-email 403, which
+ *       the DAO turns into lookup-by-email and reactivate.</li>
  * </ul>
  */
 public class AssetSonarApiCommands {
@@ -62,6 +73,21 @@ public class AssetSonarApiCommands {
 
   /** guard against a server that ignores the page parameter and reports a huge page count */
   private static final int MAX_PAGES = 10000;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AssetSonarApiCommands.class);
+
+  /** gateway / availability codes that are retried; 4xx are real rejections and never retried */
+  public static final Set<Integer> RETRY_RETURN_CODES = GrouperUtil.toSet(502, 503, 504);
+
+  /** retries after the first attempt when no AssetSonar provisioner is running (see retrySettings) */
+  public static final int DEFAULT_RETRY_COUNT = 3;
+
+  /** first retry sleep when no AssetSonar provisioner is running; doubles each retry */
+  public static final int DEFAULT_RETRY_SLEEP_MILLIS = 1000;
+
+  /** tests only: overrides the retry sleep so retry tests do not take seconds; null normally */
+  static Integer retrySleepMillisForTests = null;
 
   /**
    * One page of a member list read.
@@ -93,7 +119,50 @@ public class AssetSonarApiCommands {
   }
 
   /**
-   * Execute an HTTP call against the AssetSonar REST API.
+   * @param code the HTTP status
+   * @param body the response body
+   * @return the error status a 2xx JSON body carries ("status", else 400 if it has "errors"), or -1
+   */
+  static int errorStatusFromBody(int code, String body) {
+    if (code < 200 || code > 299 || body == null || !body.trim().startsWith("{") || !body.contains("\"errors\"")) {
+      return -1;
+    }
+    try {
+      JsonNode node = GrouperUtil.jsonJacksonNode(body);
+      if (node == null || !node.has("errors")) {
+        return -1;
+      }
+      Integer status = GrouperUtil.jsonJacksonGetInteger(node, "status");
+      return status != null && status >= 400 ? status : 400;
+    } catch (Exception e) {
+      // not JSON after all: leave the code alone
+      return -1;
+    }
+  }
+
+  /**
+   * Retry count and first sleep for the running AssetSonar provisioner (assetSonarRetryCount,
+   * assetSonarRetrySleepMillis), or the defaults when called outside one (e.g. MCP lookups).
+   * @return {retryCount, retrySleepMillis}
+   */
+  static int[] retrySettings() {
+    int retryCount = DEFAULT_RETRY_COUNT;
+    int retrySleepMillis = DEFAULT_RETRY_SLEEP_MILLIS;
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    GrouperProvisioningConfiguration configuration = grouperProvisioner == null ? null
+        : grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    if (configuration instanceof AssetSonarProvisionerConfiguration) {
+      retryCount = ((AssetSonarProvisionerConfiguration) configuration).getAssetSonarRetryCount();
+      retrySleepMillis = ((AssetSonarProvisionerConfiguration) configuration).getAssetSonarRetrySleepMillis();
+    }
+    if (retrySleepMillisForTests != null) {
+      retrySleepMillis = retrySleepMillisForTests;
+    }
+    return new int[] {Math.max(0, retryCount), Math.max(0, retrySleepMillis)};
+  }
+
+  /**
+   * Execute an HTTP call against the AssetSonar REST API, retrying on 502/503/504.
    * @param debugMap map to accumulate debug info
    * @param debugLabel label for provisioner call stats
    * @param httpMethodName GET, POST, PUT
@@ -108,50 +177,79 @@ public class AssetSonarApiCommands {
       String httpMethodName, String configId, String pathAndQuery, Set<Integer> allowedReturnCodes,
       int[] returnCode, Map<String, String> userParams) {
 
-    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-    grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders);
-
-    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
-
-    // the external system adds the "token" header (httpHeader=token, prependBearerTokenPrefix=false),
-    // proxy settings, and delayAfterEachCallInMs
-    WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(
-        grouperHttpClient, configId, grouperLoaderConfig, debugMap);
+    int[] retrySettings = retrySettings();
+    int retryCount = retrySettings[0];
+    int retrySleepMillis = retrySettings[1];
 
     String url = retrieveBaseUrl(configId) + pathAndQuery;
     debugMap.put("url", url);
     debugMap.put("method", httpMethodName);
 
-    grouperHttpClient.assignUrl(url);
-    grouperHttpClient.assignGrouperHttpMethod(httpMethodName);
-    grouperHttpClient.addHeader("Accept", "application/json");
+    int code = -1;
+    String body = null;
+    for (int attempt = 0; ; attempt++) {
 
-    if (userParams != null) {
-      // writes are form-encoded user[...] parameters (POST and PUT), not JSON
-      for (Map.Entry<String, String> userParam : filterUserParams(userParams).entrySet()) {
-        grouperHttpClient.addBodyParameter("user[" + userParam.getKey() + "]", userParam.getValue());
+      // a fresh client per attempt: a GrouperHttpClient is single use
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders);
+
+      // the external system adds the "token" header (httpHeader=token, prependBearerTokenPrefix=false),
+      // proxy settings, and delayAfterEachCallInMs
+      WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(
+          grouperHttpClient, configId, GrouperLoaderConfig.retrieveConfig(), debugMap);
+
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(httpMethodName);
+      grouperHttpClient.addHeader("Accept", "application/json");
+
+      if (userParams != null) {
+        // writes are form-encoded user[...] parameters (POST and PUT), not JSON
+        for (Map.Entry<String, String> userParam : filterUserParams(userParams).entrySet()) {
+          grouperHttpClient.addBodyParameter("user[" + userParam.getKey() + "]", userParam.getValue());
+        }
       }
+
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
+        body = grouperHttpClient.getResponseBody();
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
+
+      if (!RETRY_RETURN_CODES.contains(code) || attempt >= retryCount) {
+        break;
+      }
+
+      // the gateway lost the response (the call usually committed): back off and try again.  WARN, not
+      // ERROR, since the retry normally succeeds and the log should not imply a failure that is not one
+      long sleepMillis = (long) retrySleepMillis << attempt;
+      LOG.warn("AssetSonar " + httpMethodName + " '" + url + "' returned " + code + ", retry "
+          + (attempt + 1) + " of " + retryCount + " in " + sleepMillis + "ms");
+      debugMap.put("retries", attempt + 1);
+      GrouperUtil.sleep(sleepMillis);
     }
 
-    long httpCallStartMillis = System.currentTimeMillis();
-    int code;
-    String body;
-    try {
-      grouperHttpClient.executeRequest();
-      code = grouperHttpClient.getResponseCode();
-      body = grouperHttpClient.getResponseBody();
-    } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + url + "'", e);
-    } finally {
-      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
-          System.currentTimeMillis() - httpCallStartMillis);
+    // AssetSonar sometimes reports an error inside a 200, e.g. creating an email held by an INACTIVE
+    // member: HTTP 200 {"errors":{"base":["The email is already taken by an Inactive Member..."]},
+    // "status":403}.  A success body never has "errors", so use the status it carries
+    int statusFromBody = errorStatusFromBody(code, body);
+    if (statusFromBody != -1) {
+      debugMap.put("httpCode", code);
+      code = statusFromBody;
     }
+
     returnCode[0] = code;
     debugMap.put("responseCode", code);
 
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException("Invalid return code '" + code + "', expecting: "
           + GrouperUtil.setToString(allowedReturnCodes) + ". '" + url + "' "
+          + (RETRY_RETURN_CODES.contains(code) ? "(after " + retryCount + " retries) " : "")
           + StringUtils.abbreviate(body, 2000));
     }
 

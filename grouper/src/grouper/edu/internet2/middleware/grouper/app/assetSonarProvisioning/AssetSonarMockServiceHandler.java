@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.assetSonarProvisioning;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
 import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
@@ -43,9 +45,14 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *   <li>only {@code filter=email} and {@code filter=status&amp;filter_val=inactive} are honored
  *       ({@code filter_val=0} is ignored like the real one)</li>
  *   <li>the default list excludes status=0 members, though they are readable by id</li>
- *   <li>a create with an existing email (any status, any case) returns 403 with no id</li>
+ *   <li>a create with an existing email (any case) is refused with no id: HTTP 403 for an active
+ *       member, but HTTP 200 with {"errors":...,"status":403} for an inactive one</li>
+ *   <li>a create without user[role_id] is refused with 400 "Role Id is invalid"</li>
  *   <li>{@code user[external_id]} sets nothing and nulls the email</li>
  *   <li>the member url accepts POST as an update</li>
+ *   <li>a write can be set to <b>commit and then answer 502</b> (the production gateway behavior)
+ *       for a given email, a set number of times, via the mock_asset_sonar_fault table
+ *       ({@link #FAULT_TABLE}); the client must retry and cope with the committed result</li>
  * </ul>
  *
  * <p>Routes under mock name "assetSonar": {@code .../mockServices/assetSonar/members.api} and
@@ -75,16 +82,74 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
    * Create the mock table if it does not exist yet.
    */
   public static void ensureAssetSonarMockTables() {
+    // each table is checked on its own so a database created before the fault table gets it added
+    for (String tableName : new String[] {"mock_asset_sonar_member", FAULT_TABLE}) {
+      try {
+        new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+      } catch (Exception e) {
+        GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+          @Override
+          public void changeDatabase(DdlVersionBean ddlVersionBean) {
+            Database database = ddlVersionBean.getDatabase();
+            AssetSonarMember.createTableAssetSonarMember(ddlVersionBean, database);
+            createTableAssetSonarFault(database);
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * mock-only table: email (lowercase) and how many more successful writes for that email should
+   * be answered with 502 after committing
+   */
+  public static final String FAULT_TABLE = "mock_asset_sonar_fault";
+
+  /**
+   * @param database ddlutils database
+   */
+  private static void createTableAssetSonarFault(Database database) {
     try {
-      new GcDbAccess().sql("select count(*) from mock_asset_sonar_member").select(int.class);
+      new GcDbAccess().sql("select count(*) from " + FAULT_TABLE).select(int.class);
     } catch (Exception e) {
-      GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        @Override
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          Database database = ddlVersionBean.getDatabase();
-          AssetSonarMember.createTableAssetSonarMember(ddlVersionBean, database);
-        }
-      });
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, FAULT_TABLE);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "email", Types.VARCHAR, "256", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "remaining_502", Types.INTEGER, "10", false, true);
+    }
+  }
+
+  /**
+   * If a 502 is scheduled for this email, use one up.  Called only after a write committed, so the
+   * caller sees the production failure mode: the change is applied but the response is lost.
+   * @param email the email of the written member
+   * @return true if this response should be a 502
+   */
+  private static boolean consumeScheduled502(String email) {
+    if (StringUtils.isBlank(email)) {
+      return false;
+    }
+    String key = email.trim().toLowerCase();
+    Integer remaining = new GcDbAccess().sql("select remaining_502 from " + FAULT_TABLE + " where email = ?")
+        .addBindVar(key).select(Integer.class);
+    if (remaining == null || remaining <= 0) {
+      return false;
+    }
+    new GcDbAccess().sql("update " + FAULT_TABLE + " set remaining_502 = ? where email = ?")
+        .addBindVar(remaining - 1).addBindVar(key).executeSql();
+    return true;
+  }
+
+  /**
+   * Replace a committed write's success response with the gateway's 502, if one is scheduled.
+   */
+  private static void loseResponseIfScheduled(MockServiceResponse mockServiceResponse, Map<String, String> params) {
+    // only a write that really succeeded (a 200 with "errors" in the body is a refusal)
+    if (mockServiceResponse.getResponseCode() == 200
+        && !StringUtils.contains(mockServiceResponse.getResponseBody(), "\"errors\"")
+        && consumeScheduled502(params.get("user[email]"))) {
+      mockServiceResponse.setResponseCode(502);
+      mockServiceResponse.setContentType("text/html");
+      mockServiceResponse.setResponseBody("<h1>Incomplete response received from application</h1>");
     }
   }
 
@@ -144,6 +209,7 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
       }
       if ("POST".equals(httpMethod)) {
         createMember(mockServiceResponse, params);
+        loseResponseIfScheduled(mockServiceResponse, params);
         return;
       }
     }
@@ -158,6 +224,7 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
       // the real member url accepts POST as an update, which is why the two url shapes matter
       if ("PUT".equals(httpMethod) || "POST".equals(httpMethod)) {
         updateMember(mockServiceResponse, memberId, params);
+        loseResponseIfScheduled(mockServiceResponse, params);
         return;
       }
     }
@@ -231,8 +298,27 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
       respond(mockServiceResponse, 422, errorJson("email", "can't be blank"));
       return;
     }
-    if (findByEmail(email) != null) {
-      respond(mockServiceResponse, 403, errorJson("base", AssetSonarApiCommands.EMAIL_TAKEN_MESSAGE + " by a Member"));
+    if (StringUtils.isBlank(params.get("user[role_id]"))) {
+      // the real API checks role_id before the email (a duplicate without role_id gets this 400)
+      ObjectNode result = GrouperUtil.jsonJacksonNode();
+      result.put("errors", "Role Id is invalid");
+      respond(mockServiceResponse, 400, result.toString());
+      return;
+    }
+    AssetSonarMember existing = findByEmail(email);
+    if (existing != null) {
+      if (existing.isInactive()) {
+        // the real API answers an INACTIVE duplicate with HTTP 200 and the 403 inside the body
+        ObjectNode result = GrouperUtil.jsonJacksonNode();
+        ObjectNode errors = GrouperUtil.jsonJacksonNode();
+        errors.set("base", GrouperUtil.jsonJacksonArrayNode().add(AssetSonarApiCommands.EMAIL_TAKEN_MESSAGE
+            + " by an Inactive Member. To reactivate, search with the email address and Activate Member"));
+        result.set("errors", errors);
+        result.put("status", 403);
+        respond(mockServiceResponse, 200, result.toString());
+      } else {
+        respond(mockServiceResponse, 403, errorJson("base", AssetSonarApiCommands.EMAIL_TAKEN_MESSAGE + " by a Member"));
+      }
       return;
     }
     AssetSonarMember member = new AssetSonarMember();

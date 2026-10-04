@@ -65,7 +65,32 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
     super.setUp();
     AssetSonarMockServiceHandler.ensureAssetSonarMockTables();
     new GcDbAccess().connectionName("grouper").sql("delete from mock_asset_sonar_member").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from " + AssetSonarMockServiceHandler.FAULT_TABLE).executeSql();
     AssetSonarProvisionerTestUtils.setupAssetSonarExternalSystem();
+    // retry tests would otherwise sleep 1s, 2s, 4s
+    AssetSonarApiCommands.retrySleepMillisForTests = 10;
+  }
+
+  @Override
+  protected void tearDown() {
+    AssetSonarApiCommands.retrySleepMillisForTests = null;
+    super.tearDown();
+  }
+
+  /**
+   * Make the mock commit the next {@code count} successful writes for this email and then answer 502,
+   * like the production gateway did.
+   */
+  private void schedule502(String email, int count) {
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into " + AssetSonarMockServiceHandler.FAULT_TABLE + " (email, remaining_502) values (?, ?)")
+        .addBindVar(email.toLowerCase()).addBindVar(count).executeSql();
+  }
+
+  private int remaining502(String email) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select remaining_502 from " + AssetSonarMockServiceHandler.FAULT_TABLE + " where email = ?")
+        .addBindVar(email.toLowerCase()).select(int.class);
   }
 
   // =============================================
@@ -267,11 +292,46 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("New", created.getFirstName());
     assertNull(created.getLastName());
 
-    // existing email, even an inactive member and in different case: 403, no id
+    // email of an INACTIVE member, different case: the real API answers HTTP 200 with
+    // {"errors":...,"status":403}; createMember must still see "taken" (null), not a missing member_id
     insertMockMember("401", "Taken@x.edu", "2", "0");
     params.put("email", "taken@x.edu");
     assertNull(AssetSonarApiCommands.createMember(CONFIG_ID, params));
     assertEquals(1, mockCount("taken@x.edu"));
+
+    // email of an ACTIVE member: a real HTTP 403, same result
+    insertMockMember("402", "active@x.edu", "2", "1");
+    params.put("email", "ACTIVE@x.edu");
+    assertNull(AssetSonarApiCommands.createMember(CONFIG_ID, params));
+    assertEquals(1, mockCount("active@x.edu"));
+  }
+
+  /** a create without role_id is refused by AssetSonar (400 "Role Id is invalid") */
+  public void testCreateWithoutRoleIdRejected() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    Map<String, String> params = new LinkedHashMap<String, String>();
+    params.put("email", "norole@x.edu");
+    try {
+      AssetSonarApiCommands.createMember(CONFIG_ID, params);
+      fail("a create without role_id must fail");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage(), e.getMessage().contains("'400'"));
+      assertTrue(e.getMessage(), e.getMessage().contains("Role Id is invalid"));
+    }
+    assertEquals(0, mockCount("norole@x.edu"));
+  }
+
+  /** a 2xx whose body carries "errors" is an error, with the status from the body (no network) */
+  public void testErrorStatusFromBody() {
+    assertEquals(403, AssetSonarApiCommands.errorStatusFromBody(200,
+        "{\"errors\":{\"base\":[\"The email is already taken by an Inactive Member.\"]},\"status\":403}"));
+    assertEquals(400, AssetSonarApiCommands.errorStatusFromBody(200, "{\"errors\":\"Role Id is invalid\"}"));
+    assertEquals(-1, AssetSonarApiCommands.errorStatusFromBody(200, "{\"message\":\"Member created.\",\"member_id\":5}"));
+    assertEquals(-1, AssetSonarApiCommands.errorStatusFromBody(403, "{\"errors\":{},\"status\":403}"));
+    assertEquals(-1, AssetSonarApiCommands.errorStatusFromBody(200, "<h1>not json \"errors\"</h1>"));
+    assertEquals(-1, AssetSonarApiCommands.errorStatusFromBody(200, null));
   }
 
   public void testUpdateMemberRequiresEmail() {
@@ -314,6 +374,136 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.toStringForLog(errors), GrouperUtil.length(errors) > 0);
     } finally {
       overrides.remove("grouper.wsBearerToken." + CONFIG_ID + ".accessTokenPassword");
+    }
+  }
+
+  // =============================================
+  // 502 retry (Tomcat)
+  // =============================================
+
+  /** an update that commits but loses its response to a 502 is retried and succeeds */
+  public void testUpdateRetriesAfter502() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    insertMockMember("701", "r1@x.edu", "2", "1");
+    schedule502("r1@x.edu", 1);
+
+    Map<String, String> params = new LinkedHashMap<String, String>();
+    params.put("email", "r1@x.edu");
+    params.put("role_id", "1734");
+    AssetSonarApiCommands.updateMember(CONFIG_ID, "701", params);
+
+    assertEquals("1734", mockColumn("role_id", "r1@x.edu"));
+    assertEquals("the 502 was used", 0, remaining502("r1@x.edu"));
+  }
+
+  /**
+   * A create that commits but loses its response: the retry gets the duplicate-email 403, so
+   * createMember returns null (the DAO then looks the member up and reactivates it) -- and there is
+   * still exactly one member, no fork.
+   */
+  public void testCreateRetryAfterCommitted502() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    schedule502("new502@x.edu", 1);
+
+    Map<String, String> params = new LinkedHashMap<String, String>();
+    params.put("email", "new502@x.edu");
+    params.put("first_name", "New");
+    params.put("role_id", "2");
+    assertNull("retry lands on the 403 path", AssetSonarApiCommands.createMember(CONFIG_ID, params));
+    assertEquals(1, mockCount("new502@x.edu"));
+    assertEquals(0, remaining502("new502@x.edu"));
+  }
+
+  /** a 502 that never clears fails after the configured retries, with the attempts in the message */
+  public void testRetriesExhausted() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    insertMockMember("702", "r2@x.edu", "2", "1");
+    schedule502("r2@x.edu", 10);
+
+    Map<String, String> params = new LinkedHashMap<String, String>();
+    params.put("email", "r2@x.edu");
+    params.put("role_id", "1734");
+    try {
+      AssetSonarApiCommands.updateMember(CONFIG_ID, "702", params);
+      fail("a 502 on every attempt must fail");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage(), e.getMessage().contains("'502'"));
+      assertTrue(e.getMessage(), e.getMessage().contains("after " + AssetSonarApiCommands.DEFAULT_RETRY_COUNT + " retries"));
+    }
+    // first attempt plus DEFAULT_RETRY_COUNT retries, and no more
+    assertEquals(10 - 1 - AssetSonarApiCommands.DEFAULT_RETRY_COUNT, remaining502("r2@x.edu"));
+  }
+
+  /**
+   * Full sync with a lost response on both an insert and an update: no errors, the inserted member is
+   * not duplicated and is active, the update landed, and the next sync has nothing to do.
+   */
+  public void testFullSyncSurvives502() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(new AssetSonarProvisionerTestConfigInput());
+
+    try {
+      // SUBJ1 exists with a stale first name (update); SUBJ0 does not (insert)
+      insertMockMember("710", EMAIL1, AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      schedule502(EMAIL0, 1);
+      schedule502(EMAIL1, 1);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      attachProvisioningAttribute(stem);
+
+      GrouperProvisioningOutput output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+
+      assertEquals(1, mockCount(EMAIL0));
+      assertEquals("1", mockColumn("status", EMAIL0));
+      assertEquals(SubjectTestHelper.SUBJ1.getId(), mockColumn("first_name", EMAIL1));
+      assertEquals(0, remaining502(EMAIL0));
+      assertEquals(0, remaining502(EMAIL1));
+
+      // converged: nothing left to write
+      output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+      assertEquals(1, mockCount(EMAIL0));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /** when the 502s outlast the retries the entity is reported as an error, not silently skipped */
+  public void testFullSyncRetriesExhaustedIsAnError() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(new AssetSonarProvisionerTestConfigInput()
+        .addExtraConfig("assetSonarRetryCount", "1"));
+
+    try {
+      schedule502(EMAIL0, 20);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      GrouperProvisioningOutput output = fullProvision(defaultConfigId(), true);
+      assertTrue("the failed entity must be reported", output.getRecordsWithErrors() >= 1);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
   }
 

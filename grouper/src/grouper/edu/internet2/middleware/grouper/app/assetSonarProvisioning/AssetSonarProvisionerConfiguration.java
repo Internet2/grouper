@@ -105,6 +105,31 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
     this.assetSonarAgentGroupName = assetSonarAgentGroupName;
   }
 
+  /**
+   * retries after the first attempt when a call gets 502/503/504 (default 3). The gateway
+   * occasionally loses the response of a committed write under load; see AssetSonarApiCommands
+   */
+  private int assetSonarRetryCount = AssetSonarApiCommands.DEFAULT_RETRY_COUNT;
+
+  /** first retry sleep in millis (default 1000), doubling each retry: 1s, 2s, 4s */
+  private int assetSonarRetrySleepMillis = AssetSonarApiCommands.DEFAULT_RETRY_SLEEP_MILLIS;
+
+  public int getAssetSonarRetryCount() {
+    return assetSonarRetryCount;
+  }
+
+  public void setAssetSonarRetryCount(int assetSonarRetryCount) {
+    this.assetSonarRetryCount = assetSonarRetryCount;
+  }
+
+  public int getAssetSonarRetrySleepMillis() {
+    return assetSonarRetrySleepMillis;
+  }
+
+  public void setAssetSonarRetrySleepMillis(int assetSonarRetrySleepMillis) {
+    this.assetSonarRetrySleepMillis = assetSonarRetrySleepMillis;
+  }
+
   public boolean isAssetSonarSelectInactiveMembers() {
     return assetSonarSelectInactiveMembers;
   }
@@ -128,6 +153,12 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
 
     this.assetSonarSelectInactiveMembers = GrouperUtil.booleanValue(
         this.retrieveConfigBoolean("assetSonarSelectInactiveMembers", false), true);
+
+    this.assetSonarRetryCount = GrouperUtil.intValue(
+        this.retrieveConfigInt("assetSonarRetryCount", false), AssetSonarApiCommands.DEFAULT_RETRY_COUNT);
+
+    this.assetSonarRetrySleepMillis = GrouperUtil.intValue(
+        this.retrieveConfigInt("assetSonarRetrySleepMillis", false), AssetSonarApiCommands.DEFAULT_RETRY_SLEEP_MILLIS);
   }
 
 }
