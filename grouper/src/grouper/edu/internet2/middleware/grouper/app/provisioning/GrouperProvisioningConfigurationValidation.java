@@ -651,6 +651,18 @@ public class GrouperProvisioningConfigurationValidation {
     } catch (Exception e) {
       this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("grouperLoaderMinOverallNumberOfMembersInvalid")));
     }
+
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMaxOverallPercentEntitiesRemove"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioningFailsafeMaxOverallPercentEntitiesRemoveInvalid")));
+    }
+
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMinOverallNumberOfEntities"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioningFailsafeMinOverallNumberOfEntitiesInvalid")));
+    }
     
   }
 

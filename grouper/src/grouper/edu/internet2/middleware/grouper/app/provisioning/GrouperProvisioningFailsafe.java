@@ -67,6 +67,8 @@ public class GrouperProvisioningFailsafe {
    */
   public void processFailsafes() {
 
+    processFailsafesOverallEntities();
+
     processFailsafesMinOverallNumberOfMembers();
 
     processFailsafesMaxGroupPercentRemove();
@@ -103,6 +105,12 @@ public class GrouperProvisioningFailsafe {
     if (this.grouperFailsafeBean.getMinOverallNumberOfMembers() != null && this.grouperFailsafeBean.getMinOverallNumberOfMembers() != -1) {
       sb.append(" minOverallNumberOfMembers=").append(this.grouperFailsafeBean.getMinOverallNumberOfMembers());
     }
+    if (this.grouperFailsafeBean.getMaxOverallPercentEntitiesRemove() != -1) {
+      sb.append(" maxOverallPercentEntitiesRemove=").append(this.grouperFailsafeBean.getMaxOverallPercentEntitiesRemove());
+    }
+    if (this.grouperFailsafeBean.getMinOverallNumberOfEntities() != null && this.grouperFailsafeBean.getMinOverallNumberOfEntities() != -1) {
+      sb.append(" minOverallNumberOfEntities=").append(this.grouperFailsafeBean.getMinOverallNumberOfEntities());
+    }
   }
 
   /**
@@ -120,6 +128,9 @@ public class GrouperProvisioningFailsafe {
       sb.append("enabled");
       appendActiveThresholds(sb);
       sb.append(": ");
+      if (this.overallEntities != null) {
+        sb.append(this.overallEntities).append(" entities, ").append(this.entityDeletes).append(" deletes; ");
+      }
       if (this.groupsEvaluatedForPercentRemove == 0) {
         sb.append("no group deletions; passed");
       } else {
@@ -409,6 +420,67 @@ public class GrouperProvisioningFailsafe {
   }
 
   /**
+   * GRP-7437: entities in the target before this run, set when an entity failsafe is configured
+   */
+  private Integer overallEntities;
+
+  /**
+   * GRP-7437: entity deletes this run, set with overallEntities
+   */
+  private int entityDeletes;
+
+  /**
+   * GRP-7437: entities in the target before this run: the larger of the entities this provisioner has
+   * in the target (grouper_sync_member in_target) and the target entities read this run.  The second
+   * covers a full sync that selects all entities, where the target can hold entities Grouper never
+   * created (and that a delete-if-not-in-Grouper run would delete).
+   * @return the count
+   */
+  private int retrieveOverallEntityCount() {
+    int syncCount = new GcDbAccess().sql("select count(1) from grouper_sync_member gsm where gsm.grouper_sync_id = ? and gsm.in_target = 'T'")
+        .addBindVar(this.getGrouperProvisioner().getGcGrouperSync().getId()).select(int.class);
+    int targetCount = 0;
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+        targetCount++;
+      }
+    }
+    return Math.max(syncCount, targetCount);
+  }
+
+  /**
+   * GRP-7437: failsafeMaxOverallPercentEntitiesRemove and failsafeMinOverallNumberOfEntities.  The group
+   * and membership failsafes see nothing in an entity-only provisioner (e.g. AssetSonar), so this is
+   * the only brake on a run that would delete (deactivate) most of the accounts in the target.
+   */
+  public void processFailsafesOverallEntities() {
+    if (!this.grouperFailsafeBean.isEntityFailsafeConfigured()) {
+      return;
+    }
+
+    GrouperProvisioningDataChanges dataChanges = this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges();
+    this.entityDeletes = GrouperUtil.length(dataChanges.getTargetObjectDeletes().getProvisioningEntities());
+    int entityInserts = GrouperUtil.length(dataChanges.getTargetObjectInserts().getProvisioningEntities());
+
+    // no query unless there is something to stop
+    this.overallEntities = this.entityDeletes == 0 ? 0 : this.retrieveOverallEntityCount();
+
+    if (this.grouperFailsafeBean.shouldAbortDueToTooManyOverallEntitiesRemoved(this.overallEntities, this.entityDeletes, entityInserts)) {
+      int percent = this.overallEntities > 0 ? (int) ((100L * this.entityDeletes) / this.overallEntities) : 0;
+      String detail = "currentEntityCount=" + this.overallEntities + " deletes=" + this.entityDeletes
+          + " (" + percent + "%) inserts=" + entityInserts;
+      writeFailsafeSummaryTripped("overallEntities", detail);
+      LOG.info("Failsafe TRIPPED overallEntities for job '" + this.grouperFailsafeBean.getJobName() + "': " + detail);
+      this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
+      notifyEmailIfNewFailsafeIssue();
+      throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Failsafe error current entity count: " + this.overallEntities
+          + ", assumed deletions: " + this.entityDeletes + ", assumed inserts: " + entityInserts
+          + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
+    }
+  }
+
+  /**
    * 
    */
   public void processFailsafesMinOverallNumberOfMembers() {
@@ -507,6 +579,13 @@ public class GrouperProvisioningFailsafe {
     {
       Integer failsafeMinOverallNumberOfMembers = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinOverallNumberOfMembers", false);
       this.grouperFailsafeBean.assignMinOverallNumberOfMembersOverride(failsafeMinOverallNumberOfMembers);
+    }
+    {
+      // GRP-7437
+      Integer failsafeMaxOverallPercentEntitiesRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxOverallPercentEntitiesRemove", false);
+      this.grouperFailsafeBean.assignMaxOverallPercentEntitiesRemoveOverride(failsafeMaxOverallPercentEntitiesRemove);
+      Integer failsafeMinOverallNumberOfEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinOverallNumberOfEntities", false);
+      this.grouperFailsafeBean.assignMinOverallNumberOfEntitiesOverride(failsafeMinOverallNumberOfEntities);
     }
     {
       String failsafeSendEmailToAddresses = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.sendEmailToAddresses");

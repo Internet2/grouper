@@ -19,8 +19,10 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutp
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -736,6 +738,57 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("960", mockColumn("id", EMAIL0));
       assertEquals(SubjectTestHelper.SUBJ0.getId(), mockColumn("first_name", EMAIL0));
       assertEquals(SubjectTestHelper.SUBJ0.getId(), mockColumn("employee_identification_number", EMAIL0));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * GRP-7437: an entity-only provisioner has a failsafe.  Three strays and one Grouper member: the
+   * first full sync would deactivate 3 of 4 members (75%), over failsafeMaxOverallPercentEntitiesRemove=50,
+   * so it trips and deactivates nobody.  Once approved, the strays are deactivated.
+   */
+  public void testEntityFailsafeBlocksMassDeactivation() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(new AssetSonarProvisionerTestConfigInput()
+        .addExtraConfig("showFailsafe", "true")
+        .addExtraConfig("failsafeUse", "true")
+        .addExtraConfig("failsafeSendEmail", "false")
+        .addExtraConfig("failsafeMaxOverallPercentEntitiesRemove", "50"));
+
+    String jobName = "OTHER_JOB_provisioner_full_" + defaultConfigId();
+    try {
+      insertMockMember("740", "stray1@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      insertMockMember("741", "stray2@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      insertMockMember("742", "stray3@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      insertMockMember("743", EMAIL0, AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      fullProvision(defaultConfigId(), true);
+
+      assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+      assertEquals("ERROR_FAILSAFE", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+      for (String email : new String[] {"stray1@x.edu", "stray2@x.edu", "stray3@x.edu"}) {
+        assertEquals("tripped: " + email + " not deactivated", "1", mockColumn("status", email));
+      }
+
+      GrouperUtil.sleep(1000);
+      GrouperFailsafe.assignApproveNextRun(jobName);
+      fullProvision();
+
+      assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+      for (String email : new String[] {"stray1@x.edu", "stray2@x.edu", "stray3@x.edu"}) {
+        assertEquals("approved: " + email + " deactivated", "0", mockColumn("status", email));
+      }
+      assertEquals("1", mockColumn("status", EMAIL0));
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

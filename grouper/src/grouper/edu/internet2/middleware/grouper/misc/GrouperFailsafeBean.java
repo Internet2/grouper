@@ -635,6 +635,95 @@ public class GrouperFailsafeBean {
     }
   }
 
+  // ===================== entities (GRP-7437) =====================
+  // Provisioners only: an entity-only provisioner (e.g. AssetSonar) has no groups or memberships, so
+  // the checks above all see zero.  These count entity deletes.  No global default: off unless set.
+
+  /**
+   * max percent of the entities in the target that one run may delete, -1 means off
+   */
+  private int maxOverallPercentEntitiesRemove = -1;
+
+  /**
+   * a run may not leave the target with fewer entities than this, null or -1 means off
+   */
+  private Integer minOverallNumberOfEntities;
+
+  /**
+   * @return max percent of the entities in the target that one run may delete, -1 means off
+   */
+  public int getMaxOverallPercentEntitiesRemove() {
+    return this.maxOverallPercentEntitiesRemove;
+  }
+
+  /**
+   * @return a run may not leave the target with fewer entities than this, null or -1 means off
+   */
+  public Integer getMinOverallNumberOfEntities() {
+    return this.minOverallNumberOfEntities;
+  }
+
+  /**
+   * @param theMaxOverallPercentEntitiesRemove null leaves it off
+   */
+  public void assignMaxOverallPercentEntitiesRemoveOverride(Integer theMaxOverallPercentEntitiesRemove) {
+    if (theMaxOverallPercentEntitiesRemove != null) {
+      this.maxOverallPercentEntitiesRemove = theMaxOverallPercentEntitiesRemove.intValue();
+    }
+  }
+
+  /**
+   * @param theMinOverallNumberOfEntities null leaves it off
+   */
+  public void assignMinOverallNumberOfEntitiesOverride(Integer theMinOverallNumberOfEntities) {
+    if (theMinOverallNumberOfEntities != null) {
+      this.minOverallNumberOfEntities = theMinOverallNumberOfEntities;
+    }
+  }
+
+  /**
+   * @return true if an entity failsafe is configured
+   */
+  public boolean isEntityFailsafeConfigured() {
+    return this.maxOverallPercentEntitiesRemove != -1
+        || (this.minOverallNumberOfEntities != null && this.minOverallNumberOfEntities != -1);
+  }
+
+  /**
+   * See if a provisioner run deletes too many entities.
+   * @param originalEntityCount entities in the target before the run
+   * @param entitiesToRemoveCount entity deletes this run
+   * @param entitiesToAddCount entity inserts this run
+   * @return true if should abort
+   */
+  public boolean shouldAbortDueToTooManyOverallEntitiesRemoved(int originalEntityCount, int entitiesToRemoveCount, int entitiesToAddCount) {
+    if (!this.useFailsafe) {
+      return false;
+    }
+
+    // if approved, dont abort
+    if (GrouperFailsafe.isApproved(this.jobName)) {
+      return false;
+    }
+
+    // nothing to protect yet (e.g. first run), and no deletes means nothing to stop
+    if (originalEntityCount == 0 || entitiesToRemoveCount == 0) {
+      return false;
+    }
+
+    if (this.maxOverallPercentEntitiesRemove != -1
+        && ((entitiesToRemoveCount * 100L) / originalEntityCount) > this.maxOverallPercentEntitiesRemove) {
+      return true;
+    }
+
+    if (this.minOverallNumberOfEntities != null && this.minOverallNumberOfEntities != -1
+        && (originalEntityCount + entitiesToAddCount - entitiesToRemoveCount) < this.minOverallNumberOfEntities) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * job name for this failsafe (note, it could be a subjob name)
    */
