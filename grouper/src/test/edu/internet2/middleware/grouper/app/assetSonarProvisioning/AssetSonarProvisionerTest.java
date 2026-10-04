@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -374,6 +375,101 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.toStringForLog(errors), GrouperUtil.length(errors) > 0);
     } finally {
       overrides.remove("grouper.wsBearerToken." + CONFIG_ID + ".accessTokenPassword");
+    }
+  }
+
+  /** the exclude list splits on commas, spaces and new lines and ignores case (no network) */
+  public void testParseExcludeEmails() {
+    Set<String> excluded = AssetSonarProvisionerConfiguration.parseExcludeEmails(
+        " Biochem@x.edu, labaccount@x.edu\nsvc@x.edu  scanner@x.edu,,");
+    assertEquals(GrouperUtil.toSet("biochem@x.edu", "labaccount@x.edu", "svc@x.edu", "scanner@x.edu"), excluded);
+    assertTrue(AssetSonarProvisionerConfiguration.parseExcludeEmails(null).isEmpty());
+
+    AssetSonarProvisionerConfiguration config = new AssetSonarProvisionerConfiguration();
+    config.setAssetSonarExcludeEmails(excluded);
+    assertTrue(config.isExcludedEmail("BIOCHEM@x.edu"));
+    assertFalse(config.isExcludedEmail("person@x.edu"));
+    assertFalse(config.isExcludedEmail(null));
+  }
+
+  // =============================================
+  // Exclude list (Tomcat)
+  // =============================================
+
+  /**
+   * Excluded non-person accounts survive deleteEntitiesIfNotExistInGrouper (an unexcluded stray is
+   * deactivated next to them) and are not captured into the sync-back cache.
+   */
+  public void testExcludedAccountsNeverDeactivatedOrCaptured() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(new AssetSonarProvisionerTestConfigInput()
+        .addExtraConfig("assetSonarExcludeEmails", "biochem@x.edu,\n LabAccount@x.edu")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true"));
+
+    try {
+      insertMockMember("720", "biochem@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      insertMockMember("721", "labaccount@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+      insertMockMember("722", "stray@x.edu", AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "1");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      GrouperProvisioningOutput output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+
+      assertEquals("excluded: untouched", "1", mockColumn("status", "biochem@x.edu"));
+      assertEquals("excluded (case-insensitive): untouched", "1", mockColumn("status", "labaccount@x.edu"));
+      assertEquals("not excluded and not in Grouper: deactivated", "0", mockColumn("status", "stray@x.edu"));
+      assertEquals("1", mockColumn("status", EMAIL0));
+
+      Long syncInternalId = GcGrouperSyncDao.retrieveByProvisionerName(null, defaultConfigId()).getInternalId();
+      List<String> cachedIds = new GcDbAccess().connectionName("grouper")
+          .sql("select target_user_id from grouper_prov_user where grouper_sync_internal_id = ?")
+          .addBindVar(syncInternalId).selectList(String.class);
+      assertFalse("excluded member not captured: " + cachedIds, cachedIds.contains("720"));
+      assertFalse("excluded member not captured: " + cachedIds, cachedIds.contains("721"));
+      assertTrue("normal member captured: " + cachedIds, cachedIds.contains("722"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * A provisioned person whose email is an excluded account is an error; the account is not adopted,
+   * renamed or reactivated.
+   */
+  public void testExcludedEmailCollisionIsAnError() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(new AssetSonarProvisionerTestConfigInput()
+        .addExtraConfig("assetSonarExcludeEmails", EMAIL0));
+
+    try {
+      // a lab account that happens to hold subject 0's email, deactivated
+      insertMockMember("730", EMAIL0, AssetSonarProvisionerTestUtils.STAFF_USER_ROLE_ID, "0");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      GrouperProvisioningOutput output = fullProvision(defaultConfigId(), true);
+      assertTrue("the collision must be reported", output.getRecordsWithErrors() >= 1);
+
+      assertEquals(1, mockCount(EMAIL0));
+      assertEquals("not renamed", "First730", mockColumn("first_name", EMAIL0));
+      assertEquals("not reactivated", "0", mockColumn("status", EMAIL0));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
   }
 

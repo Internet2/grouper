@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.assetSonarProvisioning;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
@@ -114,6 +117,44 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
   /** first retry sleep in millis (default 1000), doubling each retry: 1s, 2s, 4s */
   private int assetSonarRetrySleepMillis = AssetSonarApiCommands.DEFAULT_RETRY_SLEEP_MILLIS;
 
+  /**
+   * lowercased emails of members Grouper must never manage (equipment logins, lab and service
+   * accounts). From assetSonarExcludeEmails, comma or whitespace separated. Never null
+   */
+  private Set<String> assetSonarExcludeEmails = new LinkedHashSet<String>();
+
+  public Set<String> getAssetSonarExcludeEmails() {
+    return assetSonarExcludeEmails;
+  }
+
+  public void setAssetSonarExcludeEmails(Set<String> assetSonarExcludeEmails) {
+    this.assetSonarExcludeEmails = assetSonarExcludeEmails;
+  }
+
+  /**
+   * @param email a member email (any case)
+   * @return true if the email is in assetSonarExcludeEmails
+   */
+  public boolean isExcludedEmail(String email) {
+    return !StringUtils.isBlank(email) && this.assetSonarExcludeEmails.contains(email.trim().toLowerCase());
+  }
+
+  /**
+   * @param raw the config value: emails separated by commas, spaces or new lines
+   * @return the lowercased emails (never null)
+   */
+  static Set<String> parseExcludeEmails(String raw) {
+    Set<String> result = new LinkedHashSet<String>();
+    if (!StringUtils.isBlank(raw)) {
+      for (String email : raw.split("[,\\s]+")) {
+        if (!StringUtils.isBlank(email)) {
+          result.add(email.trim().toLowerCase());
+        }
+      }
+    }
+    return result;
+  }
+
   public int getAssetSonarRetryCount() {
     return assetSonarRetryCount;
   }
@@ -153,6 +194,8 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
 
     this.assetSonarSelectInactiveMembers = GrouperUtil.booleanValue(
         this.retrieveConfigBoolean("assetSonarSelectInactiveMembers", false), true);
+
+    this.assetSonarExcludeEmails = parseExcludeEmails(this.retrieveConfigString("assetSonarExcludeEmails", false));
 
     this.assetSonarRetryCount = GrouperUtil.intValue(
         this.retrieveConfigInt("assetSonarRetryCount", false), AssetSonarApiCommands.DEFAULT_RETRY_COUNT);

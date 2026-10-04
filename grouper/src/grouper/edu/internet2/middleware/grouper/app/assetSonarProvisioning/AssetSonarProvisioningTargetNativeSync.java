@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeUser;
@@ -161,6 +162,14 @@ public class AssetSonarProvisioningTargetNativeSync extends GrouperProvisioningT
   public static void captureMemberJsonFromCurrentProvisioner(JsonNode memberNode) {
     AssetSonarProvisioningTargetNativeSync sync = assetSonarSyncForCurrentProvisioner();
     if (sync == null) {
+      return;
+    }
+    // an excluded member must not be in the cache either, or fullSyncUsersFromSyncBack would seed it as
+    // a target entity and bypass the exclude list
+    GrouperProvisioningConfiguration configuration = sync.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    if (configuration instanceof AssetSonarProvisionerConfiguration && memberNode != null
+        && ((AssetSonarProvisionerConfiguration) configuration).isExcludedEmail(
+            GrouperUtil.jsonJacksonGetString(memberNode, AssetSonarMember.ATTR_EMAIL))) {
       return;
     }
     sync.recordTargetNativeUser(sync.buildNativeUserFromJson(memberNode));

@@ -46,6 +46,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *       checkout history.</li>
  * </ul>
  *
+ * <p><b>Excluded members</b> (assetSonarExcludeEmails: equipment logins, lab and service accounts)
+ * are invisible to the framework: dropped from every select, never written, and an insert of an
+ * excluded email is an error, so a person whose email collides with one is reported instead of
+ * adopting and renaming the account. The generic targetEntityAttribute.N.ignoreIfMatchesValue
+ * cannot do this: it is parsed but never applied.</p>
+ *
  * <p>Tiers whose Grouper group is not configured are unmanaged: an update never moves a member
  * out of one, and a delete never deactivates a member in one. See
  * {@link AssetSonarProvisioningTranslator}.</p>
@@ -94,6 +100,10 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
       for (AssetSonarMember member : members.values()) {
+        // excluded members never become target entities, so nothing can update or deactivate them
+        if (config.isExcludedEmail(member.getEmail())) {
+          continue;
+        }
         targetEntities.add(member.toProvisioningEntity());
       }
       return new TargetDaoRetrieveAllEntitiesResponse(targetEntities);
@@ -111,7 +121,8 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
 
     long startNanos = System.nanoTime();
     try {
-      String configId = getAssetSonarConfiguration().getAssetSonarExternalSystemConfigId();
+      AssetSonarProvisionerConfiguration config = getAssetSonarConfiguration();
+      String configId = config.getAssetSonarExternalSystemConfigId();
       String searchAttribute = targetDaoRetrieveEntityRequest.getSearchAttribute();
       String searchValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
 
@@ -123,6 +134,10 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
       } else {
         // email is the only working filter; anything else would be silently ignored by the API
         throw new RuntimeException("AssetSonar members can only be searched by id or email, not '" + searchAttribute + "'");
+      }
+      // an excluded member looks absent, same as in the full select
+      if (member != null && config.isExcludedEmail(member.getEmail())) {
+        member = null;
       }
       return new TargetDaoRetrieveEntityResponse(member == null ? null : member.toProvisioningEntity());
     } finally {
@@ -141,11 +156,19 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
 
     try {
-      String configId = getAssetSonarConfiguration().getAssetSonarExternalSystemConfigId();
+      AssetSonarProvisionerConfiguration config = getAssetSonarConfiguration();
+      String configId = config.getAssetSonarExternalSystemConfigId();
 
       AssetSonarMember member = AssetSonarMember.fromProvisioningEntity(targetEntity);
       if (StringUtils.isBlank(member.getEmail())) {
         throw new RuntimeException("email is required to create an AssetSonar member");
+      }
+      // a provisioned subject whose email is an excluded (non-person) account: refuse, loudly. Without
+      // this the create would 403, the fallback would find the lab/equipment account by email, and
+      // reactivate and rename it as this person
+      if (config.isExcludedEmail(member.getEmail())) {
+        throw new RuntimeException("email '" + member.getEmail() + "' is in assetSonarExcludeEmails and must not be "
+            + "provisioned; remove the subject from the provisioned groups or the email from the exclude list");
       }
 
       Map<String, String> userParams = userParams(member, WRITABLE_ATTRIBUTES);
@@ -195,6 +218,12 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
       String memberId = targetEntity.getId();
       if (StringUtils.isBlank(memberId)) {
         throw new RuntimeException("member id is required for updateEntity");
+      }
+
+      // never write an excluded member (it is not selected, so this is a guard, e.g. for a stale cache)
+      if (config.isExcludedEmail(targetEntity.retrieveAttributeValueString(AssetSonarMember.ATTR_EMAIL))) {
+        markProvisioned(targetEntity, true);
+        return new TargetDaoUpdateEntityResponse();
       }
 
       Set<String> changedAttributes = new LinkedHashSet<String>();
@@ -278,6 +307,12 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
           return new TargetDaoDeleteEntityResponse();
         }
         member = current;
+      }
+
+      // never deactivate an excluded (non-person) member
+      if (config.isExcludedEmail(member.getEmail())) {
+        markProvisioned(targetEntity, true);
+        return new TargetDaoDeleteEntityResponse();
       }
 
       if (isUnmanagedTier(config, member.getRoleId())) {
