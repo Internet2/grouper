@@ -298,6 +298,32 @@ public class GrouperProvisioningData {
   private Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = new HashSet<ProvisioningMembershipWrapper>();
 
   /**
+   * group containers pulled out because of ignoreIfMatchesValue (GRP-7436), flagged
+   * ignoredDueToAttributeValue.  Kept so memberships of these groups can be found and ignored by
+   * Grouper id or target id after the containers are no longer in provisioningGroupWrappers
+   */
+  private List<ProvisioningGroupWrapper> ignoredGroupWrappers = new ArrayList<ProvisioningGroupWrapper>();
+
+  /**
+   * entity containers pulled out because of ignoreIfMatchesValue (GRP-7436), see ignoredGroupWrappers
+   */
+  private List<ProvisioningEntityWrapper> ignoredEntityWrappers = new ArrayList<ProvisioningEntityWrapper>();
+
+  /**
+   * @return group containers ignored due to ignoreIfMatchesValue, never null
+   */
+  public List<ProvisioningGroupWrapper> getIgnoredGroupWrappers() {
+    return this.ignoredGroupWrappers;
+  }
+
+  /**
+   * @return entity containers ignored due to ignoreIfMatchesValue, never null
+   */
+  public List<ProvisioningEntityWrapper> getIgnoredEntityWrappers() {
+    return this.ignoredEntityWrappers;
+  }
+
+  /**
    * Native-target users from the most recent target select, keyed by their target id.
    * Canonical store for sync-back capture — record/replace/remove on this map directly
    * mutates the data that the end-of-run flush walks. Last-write-wins on duplicate ids

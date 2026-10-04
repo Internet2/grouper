@@ -102,6 +102,509 @@ public class GrouperProvisioningLogic {
     
   }
 
+  // ===================== ignoreIfMatchesValue (GRP-7436) =====================
+  // targetGroupAttribute.N.ignoreIfMatchesValue, targetEntityAttribute.N.ignoreIfMatchesValue and
+  // targetMembershipAttribute.N.ignoreIfMatchesValue mark objects Grouper must never insert, update or
+  // delete.  They are applied after matching, so a Grouper object and its target object are ignored
+  // together even when only one side carries the value (e.g. a hand-made admin whose target role is
+  // ignored but whose Grouper translation is not).  Ignored containers are pulled out of the data with
+  // their state flagged, so nothing downstream (inserts, compare, updates, deletes) sees them.  Not an
+  // error and not in the insert/update/delete counts; counted as ignoredGroups, ignoredEntities and
+  // ignoredMemberships.
+  // For groupAttributes / entityAttributes, an ignore value on the membership attribute itself ignores
+  // only those values (memberships), not the group / entity, so it works for target-only accounts too.
+
+  /**
+   * @param attributeNameToConfig a target attribute config map
+   * @return the attribute configs that have ignoreIfMatchesValue values (never null)
+   */
+  private static List<GrouperProvisioningConfigurationAttribute> attributesWithIgnoreValues(
+      Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig) {
+    List<GrouperProvisioningConfigurationAttribute> result = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+    for (GrouperProvisioningConfigurationAttribute attribute : GrouperUtil.nonNull(attributeNameToConfig).values()) {
+      if (attribute != null && GrouperUtil.length(attribute.getIgnoreIfMatchesValues()) > 0) {
+        result.add(attribute);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * For groupAttributes (entityAttributes), the group (entity) attribute that holds the memberships.  An
+   * ignoreIfMatchesValue on that attribute ignores just the matching values (memberships), never the
+   * whole group (entity), so it is left out of the container checks and applied by
+   * removeIgnoredMemberships instead.
+   * @param forGroups true for the group attribute (groupAttributes), false for the entity attribute
+   *   (entityAttributes)
+   * @return the membership attribute config if it has ignore values, else null
+   */
+  private GrouperProvisioningConfigurationAttribute membershipAttributeWithIgnoreValues(boolean forGroups) {
+    GrouperProvisioningConfiguration configuration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    if (membershipType != (forGroups ? GrouperProvisioningBehaviorMembershipType.groupAttributes
+        : GrouperProvisioningBehaviorMembershipType.entityAttributes)) {
+      return null;
+    }
+    String attributeNameForMemberships = configuration.getAttributeNameForMemberships();
+    if (StringUtils.isBlank(attributeNameForMemberships)) {
+      return null;
+    }
+    GrouperProvisioningConfigurationAttribute attribute = GrouperUtil.nonNull(forGroups ? configuration.getTargetGroupAttributeNameToConfig()
+        : configuration.getTargetEntityAttributeNameToConfig()).get(attributeNameForMemberships);
+    return attribute != null && GrouperUtil.length(attribute.getIgnoreIfMatchesValues()) > 0 ? attribute : null;
+  }
+
+  /**
+   * @param value an attribute value
+   * @param ignoreValue a configured ignore value
+   * @param caseSensitiveCompare from the attribute config
+   * @return true if they are the same value
+   */
+  private static boolean ignoreValueEquals(Object value, Object ignoreValue, boolean caseSensitiveCompare) {
+    if (value == null || ignoreValue == null) {
+      return false;
+    }
+    if (GrouperUtil.equals(value, ignoreValue)) {
+      return true;
+    }
+    // the ignore values are converted to the attribute value type at config load, but a target may
+    // still hand back a different java type (e.g. Integer vs Long), so compare as strings too
+    String valueString = GrouperUtil.stringValue(value);
+    String ignoreString = GrouperUtil.stringValue(ignoreValue);
+    return caseSensitiveCompare ? StringUtils.equals(valueString, ignoreString) : StringUtils.equalsIgnoreCase(valueString, ignoreString);
+  }
+
+  /**
+   * @param provisioningUpdatable a Grouper-side or target-side group, entity or membership, or null
+   * @param attributes attribute configs with ignore values
+   * @return true if any value of any of these attributes (any one value of a multi-valued attribute)
+   *   is one of that attribute's ignoreIfMatchesValue values
+   */
+  static boolean matchesIgnoreIfMatchesValue(ProvisioningUpdatable provisioningUpdatable,
+      List<GrouperProvisioningConfigurationAttribute> attributes) {
+    if (provisioningUpdatable == null || GrouperUtil.length(attributes) == 0) {
+      return false;
+    }
+    for (GrouperProvisioningConfigurationAttribute attribute : attributes) {
+      Object value = provisioningUpdatable.retrieveAttributeValue(attribute.getName());
+      Collection<?> values = value instanceof Collection ? (Collection<?>)value : GrouperUtil.toSet(value);
+      for (Object oneValue : GrouperUtil.nonNull(values)) {
+        for (Object ignoreValue : attribute.getIgnoreIfMatchesValues()) {
+          if (ignoreValueEquals(oneValue, ignoreValue, attribute.isCaseSensitiveCompare())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * GRP-7436: pull group and entity containers whose Grouper-side or target-side object matches a
+   * configured ignoreIfMatchesValue.  Called in full and incremental sync after groups and entities are
+   * matched (and missing ones retrieved), before insertGroups / insertEntities.  The pulled containers
+   * are flagged ignoredDueToAttributeValue and kept in the ignored lists for removeIgnoredMemberships.
+   * No-op unless a group or entity attribute has ignoreIfMatchesValue configured.
+   */
+  public void removeIgnoredGroupsAndEntities() {
+
+    GrouperProvisioningConfiguration configuration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    List<GrouperProvisioningConfigurationAttribute> groupAttributes = attributesWithIgnoreValues(configuration.getTargetGroupAttributeNameToConfig());
+    List<GrouperProvisioningConfigurationAttribute> entityAttributes = attributesWithIgnoreValues(configuration.getTargetEntityAttributeNameToConfig());
+
+    // the membership attribute ignores memberships, not the container (see removeIgnoredMemberships)
+    groupAttributes.remove(this.membershipAttributeWithIgnoreValues(true));
+    entityAttributes.remove(this.membershipAttributeWithIgnoreValues(false));
+
+    if (groupAttributes.isEmpty() && entityAttributes.isEmpty()) {
+      return;
+    }
+
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+
+    int ignoredGroups = 0;
+    if (!groupAttributes.isEmpty()) {
+      // copy: the containers are removed from the set while looping
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : new ArrayList<ProvisioningGroupWrapper>(
+          GrouperUtil.nonNull(grouperProvisioningData.getProvisioningGroupWrappers()))) {
+        if (matchesIgnoreIfMatchesValue(provisioningGroupWrapper.getGrouperTargetGroup(), groupAttributes)
+            || matchesIgnoreIfMatchesValue(provisioningGroupWrapper.getTargetProvisioningGroup(), groupAttributes)) {
+          provisioningGroupWrapper.getProvisioningStateGroup().setIgnoredDueToAttributeValue(true);
+          grouperProvisioningData.removeAndUnindexGroupWrapper(provisioningGroupWrapper);
+          grouperProvisioningData.getIgnoredGroupWrappers().add(provisioningGroupWrapper);
+          ignoredGroups++;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("ignoreIfMatchesValue: ignoring group " + provisioningGroupWrapper);
+          }
+        }
+      }
+    }
+
+    int ignoredEntities = 0;
+    if (!entityAttributes.isEmpty()) {
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
+          GrouperUtil.nonNull(grouperProvisioningData.getProvisioningEntityWrappers()))) {
+        if (matchesIgnoreIfMatchesValue(provisioningEntityWrapper.getGrouperTargetEntity(), entityAttributes)
+            || matchesIgnoreIfMatchesValue(provisioningEntityWrapper.getTargetProvisioningEntity(), entityAttributes)) {
+          provisioningEntityWrapper.getProvisioningStateEntity().setIgnoredDueToAttributeValue(true);
+          grouperProvisioningData.removeAndUnindexEntityWrapper(provisioningEntityWrapper);
+          grouperProvisioningData.getIgnoredEntityWrappers().add(provisioningEntityWrapper);
+          ignoredEntities++;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("ignoreIfMatchesValue: ignoring entity " + provisioningEntityWrapper);
+          }
+        }
+      }
+    }
+
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "ignoredGroups", ignoredGroups);
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "ignoredEntities", ignoredEntities);
+  }
+
+  /**
+   * GRP-7436: pull membership containers that match a membership ignoreIfMatchesValue, or whose group or
+   * entity was flagged by removeIgnoredGroupsAndEntities.  For groupAttributes / entityAttributes, also
+   * strip the membership values of ignored entities (groups) from the membership attribute of every
+   * remaining group (entity), on both the Grouper side and the target side, so they are neither added
+   * nor removed.  Called in full and incremental sync after memberships are matched, before
+   * compareTargetObjects.  No-op unless something is configured or was ignored.
+   */
+  public void removeIgnoredMemberships() {
+
+    GrouperProvisioningConfiguration configuration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+
+    List<GrouperProvisioningConfigurationAttribute> membershipAttributes = attributesWithIgnoreValues(configuration.getTargetMembershipAttributeNameToConfig());
+    List<ProvisioningGroupWrapper> ignoredGroupWrappers = grouperProvisioningData.getIgnoredGroupWrappers();
+    List<ProvisioningEntityWrapper> ignoredEntityWrappers = grouperProvisioningData.getIgnoredEntityWrappers();
+    GrouperProvisioningConfigurationAttribute groupMembershipAttribute = this.membershipAttributeWithIgnoreValues(true);
+    GrouperProvisioningConfigurationAttribute entityMembershipAttribute = this.membershipAttributeWithIgnoreValues(false);
+
+    if (membershipAttributes.isEmpty() && ignoredGroupWrappers.isEmpty() && ignoredEntityWrappers.isEmpty()
+        && groupMembershipAttribute == null && entityMembershipAttribute == null) {
+      return;
+    }
+
+    // target ids of the ignored containers, for target-side memberships that only carry ids
+    Set<String> ignoredTargetGroupIds = new HashSet<String>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : ignoredGroupWrappers) {
+      for (ProvisioningGroup provisioningGroup : new ProvisioningGroup[] {
+          provisioningGroupWrapper.getTargetProvisioningGroup(), provisioningGroupWrapper.getGrouperTargetGroup()}) {
+        if (provisioningGroup != null && !StringUtils.isBlank(provisioningGroup.getId())) {
+          ignoredTargetGroupIds.add(provisioningGroup.getId());
+        }
+      }
+    }
+    Set<String> ignoredTargetEntityIds = new HashSet<String>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : ignoredEntityWrappers) {
+      for (ProvisioningEntity provisioningEntity : new ProvisioningEntity[] {
+          provisioningEntityWrapper.getTargetProvisioningEntity(), provisioningEntityWrapper.getGrouperTargetEntity()}) {
+        if (provisioningEntity != null && !StringUtils.isBlank(provisioningEntity.getId())) {
+          ignoredTargetEntityIds.add(provisioningEntity.getId());
+        }
+      }
+    }
+
+    // a target-only membership (e.g. a SQL row) is often not linked to any group or entity object, just
+    // carries reference values (e.g. entity_uuid from entityAttributeValueCache0).  So for each membership
+    // attribute translated from a group (entity) field, collect the values the ignored groups (entities)
+    // have for that field, and ignore memberships that carry one
+    Map<GrouperProvisioningConfigurationAttribute, Set<Object>> membershipAttributeToIgnoredReferences =
+        new HashMap<GrouperProvisioningConfigurationAttribute, Set<Object>>();
+    for (GrouperProvisioningConfigurationAttribute attribute : GrouperUtil.nonNull(configuration.getTargetMembershipAttributeNameToConfig()).values()) {
+      if (attribute == null) {
+        continue;
+      }
+      Set<Object> ignoredReferences = new HashSet<Object>();
+      if (attribute.getTranslateExpressionType() == GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField
+          && !StringUtils.isBlank(attribute.getTranslateFromGrouperProvisioningEntityField())) {
+        for (ProvisioningEntityWrapper provisioningEntityWrapper : ignoredEntityWrappers) {
+          ignoredReferences.addAll(membershipValuesForIgnoredEntity(provisioningEntityWrapper, attribute.getTranslateFromGrouperProvisioningEntityField()));
+        }
+      } else if (attribute.getTranslateExpressionType() == GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField
+          && !StringUtils.isBlank(attribute.getTranslateFromGrouperProvisioningGroupField())) {
+        for (ProvisioningGroupWrapper provisioningGroupWrapper : ignoredGroupWrappers) {
+          ignoredReferences.addAll(membershipValuesForIgnoredGroup(provisioningGroupWrapper, attribute.getTranslateFromGrouperProvisioningGroupField()));
+        }
+      }
+      if (!ignoredReferences.isEmpty()) {
+        membershipAttributeToIgnoredReferences.put(attribute, ignoredReferences);
+      }
+    }
+
+    int ignoredMemberships = 0;
+    Set<ProvisioningMembershipWrapper> removedMembershipWrappers = new HashSet<ProvisioningMembershipWrapper>();
+
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
+        GrouperUtil.nonNull(grouperProvisioningData.getProvisioningMembershipWrappers()))) {
+
+      boolean ignore = matchesIgnoreIfMatchesValue(provisioningMembershipWrapper.getGrouperTargetMembership(), membershipAttributes)
+          || matchesIgnoreIfMatchesValue(provisioningMembershipWrapper.getTargetProvisioningMembership(), membershipAttributes);
+
+      // only a group or entity flagged ignoredDueToAttributeValue counts: a container that is missing for
+      // any other reason must not make its memberships ignored
+      if (!ignore) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+        ProvisioningEntityWrapper provisioningEntityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+        ignore = (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isIgnoredDueToAttributeValue())
+            || (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isIgnoredDueToAttributeValue());
+      }
+      if (!ignore) {
+        for (ProvisioningMembership provisioningMembership : new ProvisioningMembership[] {
+            provisioningMembershipWrapper.getTargetProvisioningMembership(), provisioningMembershipWrapper.getGrouperTargetMembership()}) {
+          if (provisioningMembership != null
+              && (ignoredTargetGroupIds.contains(provisioningMembership.getProvisioningGroupId())
+                  || ignoredTargetEntityIds.contains(provisioningMembership.getProvisioningEntityId()))) {
+            ignore = true;
+            break;
+          }
+        }
+      }
+      if (!ignore && !membershipAttributeToIgnoredReferences.isEmpty()) {
+        ignore = carriesIgnoredReference(provisioningMembershipWrapper.getTargetProvisioningMembership(), membershipAttributeToIgnoredReferences)
+            || carriesIgnoredReference(provisioningMembershipWrapper.getGrouperTargetMembership(), membershipAttributeToIgnoredReferences);
+      }
+
+      if (ignore) {
+        grouperProvisioningData.removeAndUnindexMembershipWrapper(provisioningMembershipWrapper);
+        removedMembershipWrappers.add(provisioningMembershipWrapper);
+        ignoredMemberships++;
+      }
+    }
+
+    // memberships as an attribute on the group (entity): strip the ignored values from both sides of
+    // every remaining group (entity) so compare neither adds nor removes them
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    String attributeNameForMemberships = configuration.getAttributeNameForMemberships();
+
+    // memberships pulled because their value was stripped (pulled after the loops below)
+    Set<ProvisioningMembershipWrapper> strippedMembershipWrappers = new HashSet<ProvisioningMembershipWrapper>();
+
+    if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes && !StringUtils.isBlank(attributeNameForMemberships)
+        && (!ignoredEntityWrappers.isEmpty() || !removedMembershipWrappers.isEmpty() || groupMembershipAttribute != null)) {
+      GrouperProvisioningConfigurationAttribute membershipAttribute = configuration.getTargetGroupAttributeNameToConfig().get(attributeNameForMemberships);
+      boolean caseSensitiveCompare = membershipAttribute == null || membershipAttribute.isCaseSensitiveCompare();
+      Set<Object> ignoredValues = new HashSet<Object>();
+      // ignoreIfMatchesValue on the membership attribute itself: these values are ignored memberships,
+      // which works even for a subject that is not in Grouper at all
+      if (groupMembershipAttribute != null) {
+        ignoredValues.addAll(groupMembershipAttribute.getIgnoreIfMatchesValues());
+      }
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : ignoredEntityWrappers) {
+        ignoredValues.addAll(membershipValuesForIgnoredEntity(provisioningEntityWrapper, configuration.getGroupMembershipAttributeValue()));
+      }
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(grouperProvisioningData.getProvisioningGroupWrappers())) {
+        ignoredValues.addAll(valuesOfRemovedMemberships(provisioningGroupWrapper.getGrouperTargetGroup(), attributeNameForMemberships, removedMembershipWrappers));
+      }
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(grouperProvisioningData.getProvisioningGroupWrappers())) {
+        ignoredMemberships += stripMembershipValues(provisioningGroupWrapper.getGrouperTargetGroup(), attributeNameForMemberships, ignoredValues, caseSensitiveCompare, strippedMembershipWrappers);
+        stripMembershipValues(provisioningGroupWrapper.getTargetProvisioningGroup(), attributeNameForMemberships, ignoredValues, caseSensitiveCompare, strippedMembershipWrappers);
+      }
+    }
+
+    if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes && !StringUtils.isBlank(attributeNameForMemberships)
+        && (!ignoredGroupWrappers.isEmpty() || !removedMembershipWrappers.isEmpty() || entityMembershipAttribute != null)) {
+      GrouperProvisioningConfigurationAttribute membershipAttribute = configuration.getTargetEntityAttributeNameToConfig().get(attributeNameForMemberships);
+      boolean caseSensitiveCompare = membershipAttribute == null || membershipAttribute.isCaseSensitiveCompare();
+      Set<Object> ignoredValues = new HashSet<Object>();
+      // ignoreIfMatchesValue on the membership attribute itself (e.g. a memberOf group name)
+      if (entityMembershipAttribute != null) {
+        ignoredValues.addAll(entityMembershipAttribute.getIgnoreIfMatchesValues());
+      }
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : ignoredGroupWrappers) {
+        ignoredValues.addAll(membershipValuesForIgnoredGroup(provisioningGroupWrapper, configuration.getEntityMembershipAttributeValue()));
+      }
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(grouperProvisioningData.getProvisioningEntityWrappers())) {
+        ignoredValues.addAll(valuesOfRemovedMemberships(provisioningEntityWrapper.getGrouperTargetEntity(), attributeNameForMemberships, removedMembershipWrappers));
+      }
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(grouperProvisioningData.getProvisioningEntityWrappers())) {
+        ignoredMemberships += stripMembershipValues(provisioningEntityWrapper.getGrouperTargetEntity(), attributeNameForMemberships, ignoredValues, caseSensitiveCompare, strippedMembershipWrappers);
+        stripMembershipValues(provisioningEntityWrapper.getTargetProvisioningEntity(), attributeNameForMemberships, ignoredValues, caseSensitiveCompare, strippedMembershipWrappers);
+      }
+    }
+
+    // a stripped value's membership container must not be inserted or deleted on its own either
+    // (e.g. an incremental membership delete)
+    strippedMembershipWrappers.removeAll(removedMembershipWrappers);
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : strippedMembershipWrappers) {
+      grouperProvisioningData.removeAndUnindexMembershipWrapper(provisioningMembershipWrapper);
+    }
+
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "ignoredMemberships", ignoredMemberships);
+  }
+
+  /**
+   * @param provisioningMembership a membership (either side) or null
+   * @param membershipAttributeToIgnoredReferences membership attribute to the values ignored groups /
+   *   entities have for it
+   * @return true if the membership points at an ignored group or entity by one of those values
+   */
+  private static boolean carriesIgnoredReference(ProvisioningMembership provisioningMembership,
+      Map<GrouperProvisioningConfigurationAttribute, Set<Object>> membershipAttributeToIgnoredReferences) {
+    if (provisioningMembership == null) {
+      return false;
+    }
+    for (Map.Entry<GrouperProvisioningConfigurationAttribute, Set<Object>> entry : membershipAttributeToIgnoredReferences.entrySet()) {
+      Object value = provisioningMembership.retrieveAttributeValue(entry.getKey().getName());
+      for (Object ignoredReference : entry.getValue()) {
+        if (ignoreValueEquals(value, ignoredReference, entry.getKey().isCaseSensitiveCompare())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @param provisioningUpdatable a Grouper-side group (entity) or null
+   * @param attributeNameForMemberships the membership attribute
+   * @param removedMembershipWrappers membership containers just pulled
+   * @return the membership attribute values that belong to those pulled memberships
+   */
+  private static Set<Object> valuesOfRemovedMemberships(ProvisioningUpdatable provisioningUpdatable,
+      String attributeNameForMemberships, Set<ProvisioningMembershipWrapper> removedMembershipWrappers) {
+    Set<Object> result = new HashSet<Object>();
+    if (provisioningUpdatable == null || removedMembershipWrappers.isEmpty()) {
+      return result;
+    }
+    ProvisioningAttribute provisioningAttribute = provisioningUpdatable.retrieveProvisioningAttribute(attributeNameForMemberships);
+    if (provisioningAttribute == null) {
+      return result;
+    }
+    for (Map.Entry<Object, ProvisioningMembershipWrapper> entry : GrouperUtil.nonNull(provisioningAttribute.getValueToProvisioningMembershipWrapper()).entrySet()) {
+      if (removedMembershipWrappers.contains(entry.getValue())) {
+        result.add(entry.getKey());
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Remove the given values from a multi-valued membership attribute.
+   * @param provisioningUpdatable a group or entity (either side) or null
+   * @param attributeNameForMemberships the membership attribute
+   * @param ignoredValues values to remove
+   * @param caseSensitiveCompare from the membership attribute config
+   * @param strippedMembershipWrappers collects the membership containers of the removed values
+   * @return how many values were removed
+   */
+  private static int stripMembershipValues(ProvisioningUpdatable provisioningUpdatable, String attributeNameForMemberships,
+      Set<Object> ignoredValues, boolean caseSensitiveCompare, Set<ProvisioningMembershipWrapper> strippedMembershipWrappers) {
+    if (provisioningUpdatable == null || ignoredValues.isEmpty()) {
+      return 0;
+    }
+    ProvisioningAttribute provisioningAttribute = provisioningUpdatable.retrieveProvisioningAttribute(attributeNameForMemberships);
+    if (provisioningAttribute == null || !(provisioningAttribute.getValue() instanceof Collection)) {
+      return 0;
+    }
+    int removed = 0;
+    Iterator<?> iterator = ((Collection<?>)provisioningAttribute.getValue()).iterator();
+    while (iterator.hasNext()) {
+      Object value = iterator.next();
+      for (Object ignoredValue : ignoredValues) {
+        if (ignoreValueEquals(value, ignoredValue, caseSensitiveCompare)) {
+          iterator.remove();
+          if (provisioningAttribute.getValueToProvisioningMembershipWrapper() != null) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().remove(value);
+            if (provisioningMembershipWrapper != null) {
+              strippedMembershipWrappers.add(provisioningMembershipWrapper);
+            }
+          }
+          removed++;
+          break;
+        }
+      }
+    }
+    return removed;
+  }
+
+  /**
+   * The values an ignored entity has in a group's membership attribute (groupAttributes): the
+   * configured groupMembershipAttributeValue read from the sync member, or, for an entity with no sync
+   * row (target only), from the entity attribute that cache is configured on.
+   * @param provisioningEntityWrapper ignored entity
+   * @param groupMembershipAttributeValue e.g. entityAttributeValueCache0 or subjectId
+   * @return the values, never null
+   */
+  private Set<Object> membershipValuesForIgnoredEntity(ProvisioningEntityWrapper provisioningEntityWrapper, String groupMembershipAttributeValue) {
+    Set<Object> result = new HashSet<Object>();
+    if (StringUtils.isBlank(groupMembershipAttributeValue)) {
+      return result;
+    }
+    if (provisioningEntityWrapper.getGcGrouperSyncMember() != null) {
+      addIfNotBlank(result, provisioningEntityWrapper.getGcGrouperSyncMember().retrieveField(groupMembershipAttributeValue));
+    }
+    String cachedAttributeName = cacheAttributeName(groupMembershipAttributeValue, "entityAttributeValueCache",
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches());
+    if (cachedAttributeName != null) {
+      for (ProvisioningEntity provisioningEntity : new ProvisioningEntity[] {
+          provisioningEntityWrapper.getTargetProvisioningEntity(), provisioningEntityWrapper.getGrouperTargetEntity()}) {
+        if (provisioningEntity != null) {
+          addIfNotBlank(result, provisioningEntity.retrieveAttributeValue(cachedAttributeName));
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The values an ignored group has in an entity's membership attribute (entityAttributes), see
+   * membershipValuesForIgnoredEntity.
+   * @param provisioningGroupWrapper ignored group
+   * @param entityMembershipAttributeValue e.g. groupAttributeValueCache0 or name
+   * @return the values, never null
+   */
+  private Set<Object> membershipValuesForIgnoredGroup(ProvisioningGroupWrapper provisioningGroupWrapper, String entityMembershipAttributeValue) {
+    Set<Object> result = new HashSet<Object>();
+    if (StringUtils.isBlank(entityMembershipAttributeValue)) {
+      return result;
+    }
+    if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
+      addIfNotBlank(result, provisioningGroupWrapper.getGcGrouperSyncGroup().retrieveField(entityMembershipAttributeValue));
+    }
+    String cachedAttributeName = cacheAttributeName(entityMembershipAttributeValue, "groupAttributeValueCache",
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches());
+    if (cachedAttributeName != null) {
+      for (ProvisioningGroup provisioningGroup : new ProvisioningGroup[] {
+          provisioningGroupWrapper.getTargetProvisioningGroup(), provisioningGroupWrapper.getGrouperTargetGroup()}) {
+        if (provisioningGroup != null) {
+          addIfNotBlank(result, provisioningGroup.retrieveAttributeValue(cachedAttributeName));
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @param membershipAttributeValue e.g. entityAttributeValueCache2
+   * @param cachePrefix entityAttributeValueCache or groupAttributeValueCache
+   * @param caches the configured caches
+   * @return the attribute that cache holds, or null if the value is not a cache or the cache has no attribute
+   */
+  private static String cacheAttributeName(String membershipAttributeValue, String cachePrefix,
+      GrouperProvisioningConfigurationAttributeDbCache[] caches) {
+    if (membershipAttributeValue == null || !membershipAttributeValue.startsWith(cachePrefix) || caches == null) {
+      return null;
+    }
+    int index = GrouperUtil.intValue(membershipAttributeValue.substring(cachePrefix.length()), -1);
+    if (index < 0 || index >= caches.length || caches[index] == null) {
+      return null;
+    }
+    return StringUtils.trimToNull(caches[index].getAttributeName());
+  }
+
+  /**
+   * @param result set to add to
+   * @param value a single value (a collection is not expected here and is skipped)
+   */
+  private static void addIfNotBlank(Set<Object> result, Object value) {
+    if (value != null && !(value instanceof Collection) && !StringUtils.isBlank(GrouperUtil.stringValue(value))) {
+      result.add(value);
+    }
+  }
+
   /**
    * 
    */
@@ -221,6 +724,11 @@ public class GrouperProvisioningLogic {
     
     assignRecalcForGroupsAndEntities();
     
+    // GRP-7436: groups / entities are matched; pull the ignoreIfMatchesValue ones before anything is
+    // loaded to the sync tables or inserted
+    debugMap.put("state", "removeIgnoredGroupsAndEntities");
+    this.removeIgnoredGroupsAndEntities();
+
     debugMap.put("state", "loadDataToGrouper");
     long start = System.currentTimeMillis();
     grouperProvisioner.retrieveGrouperProvisioningLogic().loadDataToGrouper();
@@ -332,6 +840,10 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), false);
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true, false);
     
+    // GRP-7436: memberships are matched; pull the ignored ones before compare
+    debugMap.put("state", "removeIgnoredMemberships");
+    this.removeIgnoredMemberships();
+
     try {
       this.logCompareCalculationsPreCompare();
       
@@ -4555,6 +5067,10 @@ public class GrouperProvisioningLogic {
 
           grouperProvisioningLogicIncremental.calculateGroupAction();
           
+          // GRP-7436: groups / entities are matched; pull the ignoreIfMatchesValue ones before inserts
+          debugMap.put("state", "removeIgnoredGroupsAndEntities");
+          this.removeIgnoredGroupsAndEntities();
+
           // ######### STEP 30: create groups / entities
           debugMap.put("state", "insertGroups");
           createMissingGroupsFull();
@@ -4680,6 +5196,10 @@ public class GrouperProvisioningLogic {
             }
           }
           
+          // GRP-7436: memberships are matched; pull the ignored ones before compare
+          debugMap.put("state", "removeIgnoredMemberships");
+          this.removeIgnoredMemberships();
+
           // ######### STEP 36: compare target objects
           try {
             this.logCompareCalculationsPreCompare();

@@ -50,7 +50,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * are invisible to the framework: dropped from every select, never written, and an insert of an
  * excluded email is an error, so a person whose email collides with one is reported instead of
  * adopting and renaming the account. The generic targetEntityAttribute.N.ignoreIfMatchesValue
- * cannot do this: it is parsed but never applied.</p>
+ * (applied as of GRP-7436) also leaves such an account alone, but silently; this list makes the
+ * collision an error.</p>
  *
  * <p>Tiers whose Grouper group is not configured are unmanaged: an update never moves a member
  * out of one, and a delete never deactivates a member in one. See

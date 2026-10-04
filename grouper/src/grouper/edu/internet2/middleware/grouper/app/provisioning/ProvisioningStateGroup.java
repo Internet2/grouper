@@ -32,6 +32,27 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
    * deletes the attribute on groups who we arent deleting
    * note the sync object can be null if it is from target and grouper doesnt know about it
    */
+  /**
+   * true if this group was pulled out of the provisioning data because its Grouper-side or target-side
+   * object matched a configured ignoreIfMatchesValue (GRP-7436).  Memberships of a group flagged here are
+   * ignored too; a container removed for any other reason does not cause that
+   */
+  private boolean ignoredDueToAttributeValue;
+
+  /**
+   * @return true if ignored due to ignoreIfMatchesValue
+   */
+  public boolean isIgnoredDueToAttributeValue() {
+    return this.ignoredDueToAttributeValue;
+  }
+
+  /**
+   * @param ignoredDueToAttributeValue1
+   */
+  public void setIgnoredDueToAttributeValue(boolean ignoredDueToAttributeValue1) {
+    this.ignoredDueToAttributeValue = ignoredDueToAttributeValue1;
+  }
+
   private boolean deleteMembershipAttributeValues;
 
   /**
