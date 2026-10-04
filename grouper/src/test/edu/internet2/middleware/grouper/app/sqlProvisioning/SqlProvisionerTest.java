@@ -4559,6 +4559,73 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
 
+  /**
+   * GRP-7437: entity failsafes.  10 entities in the target; removing 5 subjects from every group
+   * would delete 50% of them, over failsafeMaxOverallPercentEntitiesRemove=30, so the run trips and
+   * nothing is deleted until it is approved.  Then failsafeMinOverallNumberOfEntities=4 trips a run
+   * that would leave 3.
+   */
+  public void testFullFailsafeEntities() {
+
+    setupFailsafeJob();
+
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+
+    fullProvision();
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals(new Integer(10), new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class));
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentEntitiesRemove").value("30").store();
+
+    // subjects 0-4 leave every group, so their entities would be deleted (the group and membership
+    // failsafes are -1 in this setup, so only the entity failsafe can trip)
+    for (Group group : failsafeGroups) {
+      for (Subject subject : new Subject[] {SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ2,
+          SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ4}) {
+        group.deleteMember(subject, false);
+      }
+    }
+    boolean tripped = false;
+    try {
+      GrouperLoader.runOnceByJobName(this.grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+      GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    } catch(Exception e) {
+      tripped = true;
+    }
+    assertTrue("should trip, entities now: " + new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class)
+        + ", debugMap: " + GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap(), tripped);
+
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals("ERROR_FAILSAFE", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+    assertEquals("nothing deleted", new Integer(10), new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class));
+    assertEquals("nothing deleted", new Integer(100), new GcDbAccess().sql("select count(1) from testgrouper_prov_mship2").select(int.class));
+
+    GrouperUtil.sleep(1000);
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    GrouperLoader.runOnceByJobName(this.grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+
+    assertEquals("SUCCESS", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals(new Integer(5), new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class));
+
+    // min count: 5 entities, removing 2 more would leave 3, under 4
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentEntitiesRemove").value("-1").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinOverallNumberOfEntities").value("4").store();
+    for (Group group : failsafeGroups) {
+      group.deleteMember(SubjectTestHelper.SUBJ5, false);
+      group.deleteMember(SubjectTestHelper.SUBJ6, false);
+    }
+    try {
+      GrouperLoader.runOnceByJobName(this.grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+      GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+      fail();
+    } catch(Exception e) {
+    }
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals("nothing deleted", new Integer(5), new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class));
+  }
+
   public void testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers() {
     
     SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
