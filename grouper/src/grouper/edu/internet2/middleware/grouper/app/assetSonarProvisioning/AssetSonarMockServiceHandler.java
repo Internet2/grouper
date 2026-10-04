@@ -89,7 +89,7 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
   }
 
   /**
-   * The token header must equal the configured apiToken of the test external system. This mock
+   * The token header must equal the accessTokenPassword of the test WsBearerToken external system. This mock
    * runs in the test Tomcat JVM whose config can lag the JUnit JVM's writes, so on a mismatch the
    * config cache is cleared and the check retried once.
    * @param mockServiceRequest the request
@@ -114,7 +114,7 @@ public class AssetSonarMockServiceHandler extends MockServiceHandler {
       return false;
     }
     String apiToken = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        AssetSonarExternalSystem.PROPERTY_PREFIX + configId + ".apiToken");
+        "grouper.wsBearerToken." + configId + ".accessTokenPassword");
     return !StringUtils.isBlank(apiToken) && StringUtils.equals(apiToken, token);
   }
 

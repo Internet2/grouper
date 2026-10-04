@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -96,7 +98,7 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
    */
   private Object[] rawCall(String method, String pathAndQuery, Map<String, String> userParams) {
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-    grouperHttpClient.assignUrl(AssetSonarExternalSystem.retrieveBaseUrl(CONFIG_ID) + pathAndQuery);
+    grouperHttpClient.assignUrl(AssetSonarApiCommands.retrieveBaseUrl(CONFIG_ID) + pathAndQuery);
     grouperHttpClient.assignGrouperHttpMethod(method);
     grouperHttpClient.addHeader("token", AssetSonarProvisionerTestUtils.TEST_TOKEN);
     if (userParams != null) {
@@ -170,6 +172,7 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(e.getMessage(), e.getMessage().contains("ignored filter=status"));
     }
   }
+
 
   // =============================================
   // Mock fidelity (Tomcat)
@@ -297,10 +300,21 @@ public class AssetSonarProvisionerTest extends GrouperProvisioningBaseTest {
     }
     insertMockMember("601", "t@x.edu", "2", "1");
     insertMockMember("602", "t2@x.edu", "2", "0");
-    AssetSonarExternalSystem externalSystem = new AssetSonarExternalSystem();
+    // the generic WsBearerToken test button, configured as documented for AssetSonar
+    WsBearerTokenExternalSystem externalSystem = new WsBearerTokenExternalSystem();
     externalSystem.setConfigId(CONFIG_ID);
     List<String> errors = externalSystem.test();
     assertEquals(GrouperUtil.toStringForLog(errors), 0, GrouperUtil.length(errors));
+
+    // a wrong token fails the test (401 instead of 200)
+    Map<String, String> overrides = GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap();
+    try {
+      overrides.put("grouper.wsBearerToken." + CONFIG_ID + ".accessTokenPassword", "wrongToken");
+      errors = externalSystem.test();
+      assertTrue(GrouperUtil.toStringForLog(errors), GrouperUtil.length(errors) > 0);
+    } finally {
+      overrides.remove("grouper.wsBearerToken." + CONFIG_ID + ".accessTokenPassword");
+    }
   }
 
   // =============================================

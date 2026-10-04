@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarApiCommands;
-import edu.internet2.middleware.grouper.app.assetSonarProvisioning.AssetSonarExternalSystem;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureApiCommands;
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureUser;
@@ -315,7 +314,7 @@ public class GrouperMcpAdminExternalSystemGet {
       return buildErrorResult("External system '" + externalSystemConfigId
           + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry, assetSonar). "
           + "Verify the external system connector is configured. For WsBearerToken-based systems "
-          + "(SCIM, FreshService, Datadog, TrueFoundry) you may need to set grouper.mcp.adminExternalSystem."
+          + "(SCIM, FreshService, Datadog, TrueFoundry, AssetSonar) you may need to set grouper.mcp.adminExternalSystem."
           + externalSystemConfigId + ".externalSystemType");
     }
 
@@ -956,7 +955,7 @@ public class GrouperMcpAdminExternalSystemGet {
    * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry, assetSonar)
    * by checking if an explicit type is configured, or by matching against configured connectors.
    * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, Datadog,
-   * and TrueFoundry all use WsBearerTokenExternalSystem).
+   * TrueFoundry and AssetSonar all use WsBearerTokenExternalSystem).
    * @param configId the external system config ID
    * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", "assetSonar", or null if not detected
    */
@@ -992,9 +991,6 @@ public class GrouperMcpAdminExternalSystemGet {
         }
         if (externalSystem instanceof TeamDynamixExternalSystem) {
           return "teamDynamix";
-        }
-        if (externalSystem instanceof AssetSonarExternalSystem) {
-          return "assetSonar";
         }
         if (externalSystem instanceof WsBearerTokenExternalSystem) {
           return "scim";

@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li><b>role_id</b> (if configured as a target entity attribute): the access tier. A member of
  *       the configured administrator group gets administratorRoleId, else a member of the agent
  *       group gets agentRoleId, else staffUserRoleId (the non-login custodian tier). Highest tier
- *       wins. Role ids come from the external system because they are tenant-specific.</li>
+ *       wins. Role ids are provisioner config because they are tenant-specific.</li>
  *   <li><b>status</b> (if configured): always 1. Every entity Grouper translates is provisionable,
  *       so it must be active; a deactivated member that comes back into scope is reactivated by
  *       the ordinary update diff. Removal (status 0) happens in the DAO's deleteEntity.</li>
@@ -59,7 +59,6 @@ public class AssetSonarProvisioningTranslator extends GrouperProvisioningTransla
       return grouperTargetEntities;
     }
 
-    String externalSystemConfigId = config.getAssetSonarExternalSystemConfigId();
     String staffUserRoleId = null;
     String agentRoleId = null;
     String administratorRoleId = null;
@@ -67,14 +66,17 @@ public class AssetSonarProvisioningTranslator extends GrouperProvisioningTransla
     Set<String> agentMemberIds = new HashSet<String>();
 
     if (manageRoleId) {
-      staffUserRoleId = AssetSonarExternalSystem.retrieveConfigValue(externalSystemConfigId, "staffUserRoleId", true);
+      staffUserRoleId = requiredRoleId(config.getAssetSonarStaffUserRoleId(), "assetSonarStaffUserRoleId",
+          "role_id is a target entity attribute");
 
       if (!StringUtils.isBlank(config.getAssetSonarAdministratorGroupName())) {
-        administratorRoleId = AssetSonarExternalSystem.retrieveConfigValue(externalSystemConfigId, "administratorRoleId", true);
+        administratorRoleId = requiredRoleId(config.getAssetSonarAdministratorRoleId(), "assetSonarAdministratorRoleId",
+            "assetSonarAdministratorGroupName is set");
         administratorMemberIds = memberIdsOfGroup(config.getAssetSonarAdministratorGroupName());
       }
       if (!StringUtils.isBlank(config.getAssetSonarAgentGroupName())) {
-        agentRoleId = AssetSonarExternalSystem.retrieveConfigValue(externalSystemConfigId, "agentRoleId", true);
+        agentRoleId = requiredRoleId(config.getAssetSonarAgentRoleId(), "assetSonarAgentRoleId",
+            "assetSonarAgentGroupName is set");
         agentMemberIds = memberIdsOfGroup(config.getAssetSonarAgentGroupName());
       }
     }
@@ -102,6 +104,21 @@ public class AssetSonarProvisioningTranslator extends GrouperProvisioningTransla
     }
 
     return grouperTargetEntities;
+  }
+
+  /**
+   * A tier's role id when it is needed: blank fails the sync instead of sending an empty role_id.
+   * @param roleId the configured value
+   * @param configSuffix the provisioner property, for the message
+   * @param why why it is required, for the message
+   * @return the role id
+   */
+  private String requiredRoleId(String roleId, String configSuffix, String why) {
+    if (StringUtils.isBlank(roleId)) {
+      throw new RuntimeException("provisioner." + this.getGrouperProvisioner().getConfigId() + "." + configSuffix
+          + " is required when " + why);
+    }
+    return roleId;
   }
 
   /**

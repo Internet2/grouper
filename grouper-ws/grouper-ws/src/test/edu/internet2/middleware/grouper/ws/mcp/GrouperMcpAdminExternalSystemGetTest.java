@@ -1048,10 +1048,13 @@ public class GrouperMcpAdminExternalSystemGetTest extends GrouperTest {
         "${subject.getAttributeValue('email')}");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField", lookupField);
+    // AssetSonar uses a generic WsBearerToken external system, so the type must be explicit
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".externalSystemType", "assetSonar");
   }
 
   /**
-   * test getUser with the AssetSonar mock server: the type is auto-detected, the email lookup finds a
+   * test getUser with the AssetSonar mock server: the type comes from externalSystemType, the email lookup finds a
    * deactivated member, and only allow-listed fields come back.
    * requires Tomcat with MockServiceServlet running.
    */
@@ -1078,7 +1081,7 @@ public class GrouperMcpAdminExternalSystemGetTest extends GrouperTest {
       try {
         JsonNode responseNode = objectMapper.readTree(text);
         assertEquals(configId, responseNode.get("externalSystemConfigId").asText());
-        // detected from the AssetSonar external system class, no externalSystemType needed
+        // from the explicit externalSystemType (WsBearerToken systems are not auto-detected)
         assertEquals("assetSonar", responseNode.get("externalSystemType").asText());
         assertEquals("email", responseNode.get("lookupField").asText());
         assertTrue(responseNode.get("userFound").asBoolean());

@@ -28,19 +28,22 @@ public class AssetSonarProvisionerTestUtils {
   public static final String ADMINISTRATOR_ROLE_ID = "1";
 
   /**
-   * Point the test AssetSonar external system at the local mock service.
+   * Point the test WsBearerToken external system at the local mock service, configured the way an
+   * AssetSonar deployment is: plain "token" header (no Bearer prefix) and the members.api test call.
    */
   public static void setupAssetSonarExternalSystem() {
     int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
 
-    String prefix = AssetSonarExternalSystem.PROPERTY_PREFIX + CONFIG_ID + ".";
-    storeLoader(prefix + "baseUrl", (ssl ? "https://" : "http://") + domainName + ":" + port + "/grouper/mockServices/assetSonar");
-    storeLoader(prefix + "apiToken", TEST_TOKEN);
-    storeLoader(prefix + "staffUserRoleId", STAFF_USER_ROLE_ID);
-    storeLoader(prefix + "agentRoleId", AGENT_ROLE_ID);
-    storeLoader(prefix + "administratorRoleId", ADMINISTRATOR_ROLE_ID);
+    String prefix = "grouper.wsBearerToken." + CONFIG_ID + ".";
+    storeLoader(prefix + "endpoint", (ssl ? "https://" : "http://") + domainName + ":" + port + "/grouper/mockServices/assetSonar");
+    storeLoader(prefix + "httpAuthnType", "bearerToken");
+    storeLoader(prefix + "accessTokenPassword", TEST_TOKEN);
+    storeLoader(prefix + "httpHeader", "token");
+    storeLoader(prefix + "prependBearerTokenPrefix", "false");
+    storeLoader(prefix + "testUrlSuffix", "/members.api");
+    storeLoader(prefix + "testUrlResponseBodyRegex", "^.*status.*$");
 
     // tells the mock (in the Tomcat JVM) which external system's token to validate
     new GrouperDbConfig().configFileName("grouper.properties")
@@ -67,6 +70,9 @@ public class AssetSonarProvisionerTestUtils {
 
     configureProvisionerSuffix(input, "class", AssetSonarProvisioner.class.getName());
     configureProvisionerSuffix(input, "assetSonarExternalSystemConfigId", CONFIG_ID);
+    configureProvisionerSuffix(input, "assetSonarStaffUserRoleId", STAFF_USER_ROLE_ID);
+    configureProvisionerSuffix(input, "assetSonarAgentRoleId", AGENT_ROLE_ID);
+    configureProvisionerSuffix(input, "assetSonarAdministratorRoleId", ADMINISTRATOR_ROLE_ID);
     configureProvisionerSuffix(input, "debugLog", "true");
     configureProvisionerSuffix(input, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(input, "showAdvanced", "true");

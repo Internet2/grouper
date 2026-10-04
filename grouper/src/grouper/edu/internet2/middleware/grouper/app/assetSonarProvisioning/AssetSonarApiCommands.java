@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -29,7 +31,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p>Behaviors established against a live tenant (EZO documents almost none of this), each of
  * which looks like pointless defensive code without the context:</p>
  * <ul>
- *   <li>Auth is a plain {@code token} header, not a bearer token.</li>
+ *   <li>Auth is a plain {@code token} header, not a bearer token. The connection is a generic
+ *       WsBearerToken external system configured with {@code httpHeader = token} and
+ *       {@code prependBearerTokenPrefix = false}, so the token is stored in
+ *       {@code accessTokenPassword} (encrypted, masked) and proxy / delay settings apply.</li>
  *   <li>Writes are form-encoded {@code user[...]} parameters, not JSON.</li>
  *   <li><b>Unknown query parameters are silently ignored</b> and return a normal-looking unfiltered
  *       page 1. Every filtered read here verifies the response was actually narrowed.</li>
@@ -43,7 +48,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AssetSonarApiCommands {
 
-  /** never log the company token or a SCIM bearer key */
+  /** never log the company token */
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("token", "authorization");
 
   /** path of the members collection */
@@ -79,11 +84,20 @@ public class AssetSonarApiCommands {
   }
 
   /**
+   * @param configId WsBearerToken external system config id
+   * @return the tenant root url (the external system endpoint) with no trailing slash
+   */
+  public static String retrieveBaseUrl(String configId) {
+    return GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig()
+        .propertyValueStringRequired("grouper.wsBearerToken." + configId + ".endpoint"));
+  }
+
+  /**
    * Execute an HTTP call against the AssetSonar REST API.
    * @param debugMap map to accumulate debug info
    * @param debugLabel label for provisioner call stats
    * @param httpMethodName GET, POST, PUT
-   * @param configId the AssetSonar external system config id
+   * @param configId the WsBearerToken external system config id
    * @param pathAndQuery path after the base url, already url-encoded (e.g. /members.api?page=2)
    * @param allowedReturnCodes acceptable HTTP status codes
    * @param returnCode single-element array that receives the actual status code
@@ -97,15 +111,19 @@ public class AssetSonarApiCommands {
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders);
 
-    String url = AssetSonarExternalSystem.retrieveBaseUrl(configId) + pathAndQuery;
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+
+    // the external system adds the "token" header (httpHeader=token, prependBearerTokenPrefix=false),
+    // proxy settings, and delayAfterEachCallInMs
+    WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(
+        grouperHttpClient, configId, grouperLoaderConfig, debugMap);
+
+    String url = retrieveBaseUrl(configId) + pathAndQuery;
     debugMap.put("url", url);
     debugMap.put("method", httpMethodName);
 
     grouperHttpClient.assignUrl(url);
     grouperHttpClient.assignGrouperHttpMethod(httpMethodName);
-
-    // plain "token" header -- AssetSonar does not use the Authorization: Bearer scheme on REST
-    grouperHttpClient.addHeader("token", AssetSonarExternalSystem.retrieveConfigValue(configId, "apiToken", true));
     grouperHttpClient.addHeader("Accept", "application/json");
 
     if (userParams != null) {
@@ -484,51 +502,6 @@ public class AssetSonarApiCommands {
     } finally {
       AssetSonarLog.assetSonarLog(debugMap, startNanos);
     }
-  }
-
-  /**
-   * Connection test for the external system. A 200 does not mean the request was understood, so
-   * this checks content:
-   * <ol>
-   *   <li>page 1 of the default list has a members array and total_pages</li>
-   *   <li>the inactive filter returns only status=0 members (fails loudly otherwise)</li>
-   *   <li>if a SCIM connector key is configured, SCIM /Users answers with it</li>
-   * </ol>
-   * @param configId external system config id
-   * @return error messages (empty if fine)
-   */
-  public static List<String> testConnection(String configId) {
-    List<String> errors = new ArrayList<String>();
-
-    MembersPage activePage = retrieveMembersPage(configId, false, 1);
-    if (activePage.getTotalPages() < 1 && activePage.getMembers().size() > 0) {
-      errors.add("GET " + MEMBERS_PATH + "?page=1 returned members but no total_pages");
-    }
-
-    MembersPage inactivePage = retrieveMembersPage(configId, true, 1);
-    for (AssetSonarMember member : inactivePage.getMembers()) {
-      if (!member.isInactive()) {
-        errors.add("filter=status&filter_val=inactive was IGNORED: it returned member " + member.getId()
-            + " with status '" + member.getStatus() + "'. The provisioner cannot see deactivated members.");
-        break;
-      }
-    }
-
-    String scimConnectorKey = AssetSonarExternalSystem.retrieveConfigValue(configId, "scimConnectorKey", false);
-    if (!StringUtils.isBlank(scimConnectorKey)) {
-      // do not test /ServiceProviderConfig or /Schemas: both return empty in this product
-      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders);
-      String url = AssetSonarExternalSystem.retrieveBaseUrl(configId) + "/scim/v2/Users?count=1";
-      grouperHttpClient.assignUrl(url);
-      grouperHttpClient.assignGrouperHttpMethod("GET");
-      grouperHttpClient.addHeader("Authorization", "Bearer " + scimConnectorKey);
-      grouperHttpClient.executeRequest();
-      if (grouperHttpClient.getResponseCode() != 200) {
-        errors.add("SCIM " + url + " returned " + grouperHttpClient.getResponseCode() + " with the connector key");
-      }
-    }
-    return errors;
   }
 
 }

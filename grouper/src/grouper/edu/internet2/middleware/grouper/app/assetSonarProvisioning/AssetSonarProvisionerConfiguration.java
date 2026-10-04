@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.assetSonarProvisioning;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -11,10 +13,30 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfiguration {
 
   /**
-   * required: the AssetSonar external system config id (grouper.assetSonarConnector.&lt;id&gt;.*),
-   * which holds the base url, REST token, and the tenant's role ids
+   * required: the WsBearerToken external system config id (grouper.wsBearerToken.&lt;id&gt;.*) that
+   * holds the tenant url (endpoint) and the REST token (accessTokenPassword, sent with
+   * httpHeader=token and prependBearerTokenPrefix=false)
    */
   private String assetSonarExternalSystemConfigId;
+
+  /**
+   * role_id of the non-login custodian tier (Staff User), the default tier; required when role_id is
+   * a configured target attribute (the translator enforces it). Role ids are
+   * tenant-specific records (Agent was 1734 in one tenant), so they are config, never code
+   */
+  private String assetSonarStaffUserRoleId;
+
+  /**
+   * role_id of the login-capable operator tier (Agent). Configure it even if no agent group is
+   * configured, so existing Agents are recognized and left alone
+   */
+  private String assetSonarAgentRoleId;
+
+  /**
+   * role_id of the Administrator tier. Configure it even if no administrator group is configured,
+   * so existing Administrators are recognized and never demoted or deactivated
+   */
+  private String assetSonarAdministratorRoleId;
 
   /**
    * optional full Grouper group name whose members get the Administrator tier. If blank, Grouper
@@ -41,6 +63,30 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
 
   public void setAssetSonarExternalSystemConfigId(String assetSonarExternalSystemConfigId) {
     this.assetSonarExternalSystemConfigId = assetSonarExternalSystemConfigId;
+  }
+
+  public String getAssetSonarStaffUserRoleId() {
+    return assetSonarStaffUserRoleId;
+  }
+
+  public void setAssetSonarStaffUserRoleId(String assetSonarStaffUserRoleId) {
+    this.assetSonarStaffUserRoleId = assetSonarStaffUserRoleId;
+  }
+
+  public String getAssetSonarAgentRoleId() {
+    return assetSonarAgentRoleId;
+  }
+
+  public void setAssetSonarAgentRoleId(String assetSonarAgentRoleId) {
+    this.assetSonarAgentRoleId = assetSonarAgentRoleId;
+  }
+
+  public String getAssetSonarAdministratorRoleId() {
+    return assetSonarAdministratorRoleId;
+  }
+
+  public void setAssetSonarAdministratorRoleId(String assetSonarAdministratorRoleId) {
+    this.assetSonarAdministratorRoleId = assetSonarAdministratorRoleId;
   }
 
   public String getAssetSonarAdministratorGroupName() {
@@ -71,6 +117,10 @@ public class AssetSonarProvisionerConfiguration extends GrouperProvisioningConfi
   public void configureSpecificSettings() {
 
     this.assetSonarExternalSystemConfigId = this.retrieveConfigString("assetSonarExternalSystemConfigId", true);
+
+    this.assetSonarStaffUserRoleId = StringUtils.trimToNull(this.retrieveConfigString("assetSonarStaffUserRoleId", false));
+    this.assetSonarAgentRoleId = StringUtils.trimToNull(this.retrieveConfigString("assetSonarAgentRoleId", false));
+    this.assetSonarAdministratorRoleId = StringUtils.trimToNull(this.retrieveConfigString("assetSonarAdministratorRoleId", false));
 
     this.assetSonarAdministratorGroupName = this.retrieveConfigString("assetSonarAdministratorGroupName", false);
 

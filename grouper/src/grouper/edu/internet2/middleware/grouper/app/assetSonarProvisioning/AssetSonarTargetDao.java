@@ -304,8 +304,8 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   /**
-   * A tier is unmanaged when its role id is configured on the external system (so it can be
-   * recognized) but its Grouper group is not configured on the provisioner.
+   * A tier is unmanaged when its role id is configured (so it can be recognized) but its Grouper
+   * group is not.
    * @param config provisioner config
    * @param roleId a member's current role id
    * @return true if Grouper must not move the member out of this tier or deactivate it
@@ -314,13 +314,12 @@ public class AssetSonarTargetDao extends GrouperProvisionerTargetDaoBase {
     if (StringUtils.isBlank(roleId)) {
       return false;
     }
-    String configId = config.getAssetSonarExternalSystemConfigId();
     if (StringUtils.isBlank(config.getAssetSonarAdministratorGroupName())
-        && StringUtils.equals(roleId, AssetSonarExternalSystem.retrieveConfigValue(configId, "administratorRoleId", false))) {
+        && StringUtils.equals(roleId, config.getAssetSonarAdministratorRoleId())) {
       return true;
     }
     if (StringUtils.isBlank(config.getAssetSonarAgentGroupName())
-        && StringUtils.equals(roleId, AssetSonarExternalSystem.retrieveConfigValue(configId, "agentRoleId", false))) {
+        && StringUtils.equals(roleId, config.getAssetSonarAgentRoleId())) {
       return true;
     }
     return false;
