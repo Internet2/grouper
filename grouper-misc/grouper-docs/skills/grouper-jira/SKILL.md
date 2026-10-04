@@ -134,6 +134,23 @@ Verify:
   curl -s -u "$ATLASSIAN_EMAIL:$ATLASSIAN_API_TOKEN" \
     "https://grouper.atlassian.net/rest/api/3/issue/GRP-####?fields=status,resolution"
 
+## Assign worked-on issues to the current user
+Any GRP issue you create or work on (code, resolve) must be assigned to the person
+you are working for, so the tracker shows who did it. Existing issues are often
+assigned to someone else (or no one) -- check, and reassign if needed; say so in
+your reply so the previous assignee can be told.
+
+The current user is the owner of the API token in use. Look them up instead of
+guessing; if the token is shared or the answer looks wrong, ask the person who
+they are (their Atlassian email) and search for that account:
+  GET /rest/api/3/myself                         -> accountId, displayName, emailAddress
+  GET /rest/api/3/user/search?query=<email>      -> accountId (when asked by email)
+
+Check and assign:
+  GET /rest/api/3/issue/GRP-####?fields=assignee
+  PUT /rest/api/3/issue/GRP-####/assignee   {"accountId":"<accountId>"}   -> 204
+On create, set it directly: "assignee": {"accountId": "<accountId>"} in fields.
+
 ## Add a comment (ADF body)
   POST /rest/api/3/issue/GRP-####/comment
   {"body":{"type":"doc","version":1,"content":[

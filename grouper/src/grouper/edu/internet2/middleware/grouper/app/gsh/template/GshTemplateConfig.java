@@ -727,7 +727,12 @@ public class GshTemplateConfig {
         
         actAsGroupUUID = grouperConfig.propertyValueString(configPrefix+"actAsGroupUUID", null);
         
-        if (gshTemplateType != GshTemplateType.provisioner) {
+        // GRP-7407: provisioner and daemon templates always run as GrouperSystem (daemons run as root).
+        // The UI hides runAsType / securityRunType for these types and saving the template removes
+        // them, so ignore them here rather than require them
+        boolean runsAsRoot = gshTemplateType == GshTemplateType.provisioner || gshTemplateType == GshTemplateType.daemon;
+
+        if (!runsAsRoot) {
           String runAsType = grouperConfig.propertyValueStringRequired(configPrefix+"runAsType");
           gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
         } else {
@@ -817,8 +822,11 @@ public class GshTemplateConfig {
           
         }
         
-        if (gshTemplateType != GshTemplateType.provisioner) {
+        if (!runsAsRoot) {
           gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        } else if (gshTemplateType == GshTemplateType.daemon) {
+          // GRP-7407: the daemon runs as root, which passes any check; wheel keeps anyone else out
+          gshTemplateSecurityRunType = GshTemplateSecurityRunType.wheel;
         }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {

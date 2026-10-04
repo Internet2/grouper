@@ -38,6 +38,7 @@ public class GshTemplateDaemonTest extends GrouperTest {
   public static void main(String[] args) {
     TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonRunsViaOtherJobScript"));
     TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonWrongBaseThrowsClearError"));
+    TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonWithoutRunAsAndSecurityRunType"));
   }
 
   /**
@@ -127,6 +128,43 @@ public class GshTemplateDaemonTest extends GrouperTest {
     // then
     assertEquals("compiled daemon ran for " + TEMPLATE_CONFIG_ID,
         otherJobInput.getHib3GrouperLoaderLog().getJobMessage());
+  }
+
+  /**
+   * GRP-7407: saving a daemon template in the UI removes runAsType and securityRunType (they are hidden
+   * for daemons).  The daemon must still run, as GrouperSystem, with wheel security.
+   */
+  public void testCompiledDaemonWithoutRunAsAndSecurityRunType() {
+
+    String source = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemon;\n"
+        + "import edu.internet2.middleware.grouper.app.loader.OtherJobTemplateInput;\n"
+        + "public class TestCompiledDaemonNoRunAs extends GrouperTemplateDaemon {\n"
+        + "  public void runDaemon(OtherJobTemplateInput otherJobTemplateInput) {\n"
+        + "    otherJobTemplateInput.getHib3GrouperLoaderLog().setJobMessage(\"ran without runAsType\");\n"
+        + "  }\n"
+        + "}\n";
+
+    configureDaemonTemplate(source);
+
+    // what a UI save of a daemon template leaves behind
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouperGshTemplate." + TEMPLATE_CONFIG_ID + ".runAsType");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouperGshTemplate." + TEMPLATE_CONFIG_ID + ".securityRunType");
+    assertNull(GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate." + TEMPLATE_CONFIG_ID + ".runAsType"));
+
+    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(TEMPLATE_CONFIG_ID);
+    gshTemplateConfig.populateConfiguration();
+    assertEquals(GshTemplateRunAsType.GrouperSystem, gshTemplateConfig.getGshTemplateRunAsType());
+    assertEquals(GshTemplateSecurityRunType.wheel, gshTemplateConfig.getGshTemplateSecurityRunType());
+
+    OtherJobInput otherJobInput = buildOtherJobInput();
+
+    // when
+    new OtherJobScript().run(otherJobInput);
+
+    // then
+    assertEquals("ran without runAsType", otherJobInput.getHib3GrouperLoaderLog().getJobMessage());
   }
 
   /**
