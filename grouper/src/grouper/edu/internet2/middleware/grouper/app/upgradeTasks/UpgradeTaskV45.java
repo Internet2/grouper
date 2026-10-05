@@ -23,9 +23,9 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *
  * <p>GRP-7417: on postgres, change grouper_file.file_contents_clob from VARCHAR(10000000) to TEXT.  The
  * varchar capped stored file contents at about 10MB (and postgres will not allow a varchar much larger
- * than that), TEXT is unbounded.  Postgres only: oracle is already CLOB and mysql is MEDIUMTEXT.  No views
- * reference grouper_file, so the ALTER is not blocked.  Idempotent: skipped once the column is already
- * text.</p>
+ * than that), TEXT is unbounded.  On mysql change it from MEDIUMTEXT (16MB) to LONGTEXT, since files can be up to
+ * grouperFile.maxSizeBytes (default 50MB).  Oracle is already CLOB.  No views reference grouper_file, so the ALTER is
+ * not blocked.  Idempotent: skipped once the column is already text / longtext.</p>
  *
  * <p>GRP-7439: add grouper_file.created_on_micros and grouper_file.updated_on_micros (bigint, micros since
  * 1970), backfill rows where they are null with the current time, then make both NOT NULL.  Existing rows
@@ -121,7 +121,7 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     boolean workToDo = false;
 
-    // GRP-7417 postgres grouper_file.file_contents_clob to text
+    // GRP-7417 grouper_file.file_contents_clob to postgres text / mysql longtext
     workToDo |= grp7417HasAutomaticWork();
 
     // GRP-7439 grouper_file created_on_micros / updated_on_micros
@@ -169,34 +169,48 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
   }
 
   /**
-   * Whether GRP-7417 has work: postgres, the grouper_file table exists, and file_contents_clob is not
-   * already text.  Always false on oracle/mysql.
+   * the type file_contents_clob should be on this database, or null if nothing to do (oracle is already CLOB)
+   * @return text on postgres, longtext on mysql, else null
+   */
+  private static String grp7417TargetDataType() {
+    if (GrouperDdlUtils.isPostgres()) {
+      return "text";
+    }
+    if (GrouperDdlUtils.isMysql()) {
+      return "longtext";
+    }
+    return null;
+  }
+
+  /**
+   * Whether GRP-7417 has work: postgres or mysql, the grouper_file table exists, and file_contents_clob is not
+   * already text (postgres) / longtext (mysql).  Always false on oracle.
    * @return true if the column still needs to be converted
    */
   private boolean grp7417HasAutomaticWork() {
-    if (!GrouperDdlUtils.isPostgres()) {
+    String targetDataType = grp7417TargetDataType();
+    if (targetDataType == null) {
       return false;
     }
     if (!GrouperDdlUtils.assertTableThere(true, GRP_7417_TABLE)) {
       return false;
     }
 
-    // ask information_schema rather than JDBC metadata, the driver reports text as varchar with a
-    // driver-dependent size, which is not a reliable signal
-    String dataType = new GcDbAccess().sql("select data_type from information_schema.columns "
-        + "where table_schema = current_schema() and table_name = ? and column_name = ?")
-        .addBindVar(GRP_7417_TABLE).addBindVar(GRP_7417_COLUMN).select(String.class);
+    // ask the catalog rather than JDBC metadata, the driver reports text as varchar with a
+    // driver-dependent size, which is not a reliable signal.  Honors ddlutils.schema
+    String dataType = GrouperDdlUtils.columnDataTypeFromCatalog(GRP_7417_TABLE, GRP_7417_COLUMN);
 
     // column missing (should not happen) means nothing we can convert
     if (StringUtils.isBlank(dataType)) {
       return false;
     }
-    return !StringUtils.equalsIgnoreCase("text", dataType);
+    return !StringUtils.equalsIgnoreCase(targetDataType, dataType);
   }
 
   /**
-   * GRP-7417: convert postgres grouper_file.file_contents_clob from VARCHAR(10000000) to TEXT.
-   * varchar to text is a binary-compatible change in postgres, so existing data is kept as is.
+   * GRP-7417: convert postgres grouper_file.file_contents_clob from VARCHAR(10000000) to TEXT, and mysql from
+   * MEDIUMTEXT to LONGTEXT.  varchar to text is a binary-compatible change in postgres, so existing data is kept as is.
+   * On mysql the MODIFY copies the table, grouper_file is small
    * @param otherJobInput
    */
   private void grp7417FileContentsClobToText(OtherJobInput otherJobInput) {
@@ -204,14 +218,20 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
       return;
     }
 
-    new GcDbAccess().sql("ALTER TABLE " + GRP_7417_TABLE + " ALTER COLUMN " + GRP_7417_COLUMN + " TYPE text").executeSql();
+    String targetDataType = grp7417TargetDataType();
+    if (GrouperDdlUtils.isMysql()) {
+      // MODIFY rewrites the whole column definition, the column is nullable
+      new GcDbAccess().sql("ALTER TABLE " + GRP_7417_TABLE + " MODIFY " + GRP_7417_COLUMN + " LONGTEXT NULL").executeSql();
+    } else {
+      new GcDbAccess().sql("ALTER TABLE " + GRP_7417_TABLE + " ALTER COLUMN " + GRP_7417_COLUMN + " TYPE text").executeSql();
+    }
 
-    LOG.info("GRP-7417: changed " + GRP_7417_TABLE + "." + GRP_7417_COLUMN + " to text");
+    LOG.info("GRP-7417: changed " + GRP_7417_TABLE + "." + GRP_7417_COLUMN + " to " + targetDataType);
 
     if (otherJobInput != null) {
       otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
       otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
-          ", changed " + GRP_7417_TABLE + "." + GRP_7417_COLUMN + " to text");
+          ", changed " + GRP_7417_TABLE + "." + GRP_7417_COLUMN + " to " + targetDataType);
     }
   }
 
@@ -373,7 +393,8 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
         if (GrouperDdlUtils.isMysql()) {
           new GcDbAccess().sql("DROP INDEX " + GRP_7445_INDEX + " ON " + GRP_7445_TABLE).executeSql();
         } else {
-          new GcDbAccess().sql("DROP INDEX " + GRP_7445_INDEX).executeSql();
+          // qualify with ddlutils.schema if set, the index might not be in the search path / user schema
+          new GcDbAccess().sql("DROP INDEX " + GrouperDdlUtils.indexNameQualifiedWithSchemaOverride(GRP_7445_INDEX)).executeSql();
         }
       }
       new GcDbAccess().sql("CREATE INDEX " + GRP_7445_INDEX + " ON " + GRP_7445_TABLE + " (id, config_id)").executeSql();

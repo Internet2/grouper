@@ -250,7 +250,9 @@ public class GrouperDdl2_5_34 {
     }
     
     if (GrouperDdlUtils.isMysql()) {
-      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_file ADD COLUMN file_contents_clob mediumtext;\n");
+      // GRP-7417: longtext (4GB) instead of mediumtext (16MB), files can be up to grouperFile.maxSizeBytes (default 50MB).
+      // Existing installs are altered by UpgradeTaskV45
+      ddlVersionBean.getAdditionalScripts().append("ALTER TABLE grouper_file ADD COLUMN file_contents_clob longtext;\n");
     } 
     
     if (GrouperDdlUtils.isOracle()) {

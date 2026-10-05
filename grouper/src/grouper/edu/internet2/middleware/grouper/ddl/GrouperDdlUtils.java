@@ -3358,6 +3358,59 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * The data type of a column, read from the database catalog (information_schema.columns data_type on postgres
+   * and mysql, user_tab_columns / all_tab_columns on oracle).  Honors the ddlutils.schema override.  Use this in DDL
+   * upgrade tasks that change a column type, JDBC metadata reports e.g. postgres text as varchar with a
+   * driver-dependent size (GRP-7417)
+   * @param tableName
+   * @param columnName
+   * @return the lower case data type e.g. text, character varying, mediumtext, longtext, clob, or null if the
+   * column is not found
+   */
+  public static String columnDataTypeFromCatalog(String tableName, String columnName) {
+    String schemaOverride = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
+    String dataType = null;
+    if (isOracle()) {
+      // oracle stores unquoted names in upper case
+      if (schemaOverride == null) {
+        dataType = new GcDbAccess().sql("select data_type from user_tab_columns where table_name = ? and column_name = ?")
+            .addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase()).select(String.class);
+      } else {
+        dataType = new GcDbAccess().sql("select data_type from all_tab_columns where owner = ? and table_name = ? and column_name = ?")
+            .addBindVar(schemaOverride.toUpperCase()).addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase())
+            .select(String.class);
+      }
+    } else {
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      String schemaClause = null;
+      if (schemaOverride != null) {
+        schemaClause = "lower(table_schema) = ?";
+        gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+      } else {
+        schemaClause = "table_schema = " + (isMysql() ? "database()" : "current_schema()");
+      }
+      dataType = gcDbAccess.sql("select data_type from information_schema.columns where " + schemaClause
+          + " and lower(table_name) = ? and lower(column_name) = ?")
+          .addBindVar(tableName.toLowerCase()).addBindVar(columnName.toLowerCase()).select(String.class);
+    }
+    return StringUtils.isBlank(dataType) ? null : dataType.toLowerCase();
+  }
+
+  /**
+   * qualify an index name with the ddlutils.schema override for DROP INDEX on postgres and oracle, where the index
+   * is found by name in the search path / user schema.  MySQL drops an index ON its table so does not need this
+   * @param indexName
+   * @return schema.indexName if the override is set and this is not mysql, else the index name
+   */
+  public static String indexNameQualifiedWithSchemaOverride(String indexName) {
+    String schemaOverride = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
+    if (schemaOverride == null || isMysql()) {
+      return indexName;
+    }
+    return schemaOverride + "." + indexName;
+  }
+
+  /**
    * Whether an index is unique, read from the database catalog on every call (pg_indexes on postgres,
    * information_schema.statistics on mysql, user_indexes on oracle).  Use this in DDL upgrade tasks that
    * drop and recreate an index, not the ddlutils model: the model can be cached for the length of an

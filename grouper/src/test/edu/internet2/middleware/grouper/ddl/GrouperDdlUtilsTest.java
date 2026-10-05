@@ -1065,8 +1065,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    * GRP-7417: on postgres grouper_file.file_contents_clob was VARCHAR(10000000), which capped file contents at
    * about 10MB.  Validate that a fresh install creates it as TEXT, that the deep DDL compare is clean (the
    * ddlutils model is LONGVARCHAR with no size), that a value over 10MB can be stored, and that
-   * UpgradeTaskV45 converts an old varchar column to text and is idempotent.  Postgres only (oracle is CLOB,
-   * mysql is MEDIUMTEXT, neither changed).
+   * UpgradeTaskV45 converts an old varchar column to text and is idempotent.  Postgres only (oracle is CLOB and
+   * unchanged, mysql is in testGrp7417FileContentsClobLongtextMysql).
    */
   public void testGrp7417FileContentsClobText() {
 
@@ -1117,6 +1117,31 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       .addBindVar(0L).addBindVar(bigContents).addBindVar(nowMicros).addBindVar(nowMicros).executeSql();
     assertEquals(Integer.valueOf(11000000), new GcDbAccess().sql(
         "select length(file_contents_clob) from grouper_file where file_path = 'test/grp7417.txt'").select(Integer.class));
+  }
+
+  /**
+   * GRP-7417: on mysql grouper_file.file_contents_clob was MEDIUMTEXT (16MB), smaller than the default
+   * grouperFile.maxSizeBytes (50MB).  Validate that UpgradeTaskV45 converts a mediumtext column to longtext and is
+   * idempotent.  MySQL only.
+   */
+  public void testGrp7417FileContentsClobLongtextMysql() {
+
+    if (!GrouperDdlUtils.isMysql()) {
+      return;
+    }
+
+    // simulate a pre-GRP-7417 database
+    new GcDbAccess().sql("ALTER TABLE grouper_file MODIFY file_contents_clob MEDIUMTEXT NULL").executeSql();
+    assertEquals("mediumtext", GrouperDdlUtils.columnDataTypeFromCatalog("grouper_file", "file_contents_clob"));
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task converts it, and a second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals("longtext", GrouperDdlUtils.columnDataTypeFromCatalog("grouper_file", "file_contents_clob"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals("longtext", GrouperDdlUtils.columnDataTypeFromCatalog("grouper_file", "file_contents_clob"));
   }
 
   /**

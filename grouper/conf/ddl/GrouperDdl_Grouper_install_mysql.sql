@@ -1851,7 +1851,7 @@ CREATE TABLE grouper_file
     hibernate_version_number BIGINT NOT NULL,
     context_id VARCHAR(40) NULL,
     file_contents_varchar VARCHAR(4000) NULL,
-    file_contents_clob MEDIUMTEXT,
+    file_contents_clob LONGTEXT,
     file_contents_bytes BIGINT,
     created_on_micros BIGINT NOT NULL,
     updated_on_micros BIGINT NOT NULL,
