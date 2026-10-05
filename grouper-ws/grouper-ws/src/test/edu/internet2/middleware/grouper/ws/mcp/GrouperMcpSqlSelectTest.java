@@ -985,5 +985,22 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
     error = GrouperMcpSqlSelect.validateReadOnlySql("SELECT 1;");
     assertNotNull(error);
     assertTrue(error.contains("semicolon"));
+
+    // SELECT INTO creates a table on postgres
+    error = GrouperMcpSqlSelect.validateReadOnlySql("SELECT * INTO evil FROM grouper_groups");
+    assertNotNull(error);
+    assertTrue(error.contains("INTO"));
+
+    // functions that change state, kill sessions, or sleep
+    for (String sql : new String[] {
+        "SELECT pg_terminate_backend(123)", "SELECT setval('some_seq', 1)", "SELECT pg_sleep (100)",
+        "SELECT dblink_exec('x', 'vacuum')", "SELECT SLEEP(10)", "SELECT lo_import('/etc/passwd')"}) {
+      error = GrouperMcpSqlSelect.validateReadOnlySql(sql);
+      assertNotNull(sql, error);
+      assertTrue(sql, error.contains("prohibited function"));
+    }
+
+    // a column named like a function is fine, only a call is blocked
+    assertNull(GrouperMcpSqlSelect.validateReadOnlySql("SELECT sleep, nextval_count FROM some_table"));
   }
 }

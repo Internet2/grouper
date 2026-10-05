@@ -34,7 +34,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcConnectionCallback;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionEnd;
 
 /**
  * MCP tool handler for executing read-only SQL SELECT queries against the
@@ -203,11 +206,17 @@ public class GrouperMcpSqlSelect {
     String countSql = "SELECT COUNT(*) AS cnt FROM (" + sql + ") countQuery";
 
     try {
-      long count = new GcDbAccess()
-          .connectionName(externalSystem)
-          .readOnly(true)
-          .sql(countSql)
-          .select(Long.class);
+      long count = runInReadOnlyTransaction(externalSystem, new GcTransactionCallback<Long>() {
+
+        @Override
+        public Long callback(GcDbAccess dbAccess) {
+          return new GcDbAccess()
+              .connectionName(externalSystem)
+              .queryTimeoutSeconds(queryTimeoutSeconds())
+              .sql(countSql)
+              .select(Long.class);
+        }
+      });
 
       ObjectNode resultNode = objectMapper.createObjectNode();
       resultNode.put("count", count);
@@ -254,12 +263,21 @@ public class GrouperMcpSqlSelect {
     }
 
     try {
-      List<? extends Map<String, Object>> rows = new GcDbAccess()
-          .connectionName(externalSystem)
-          .readOnly(true)
-          .paging(pageNumber, pageSize)
-          .sql(sql)
-          .selectListMap();
+      final int thePageNumber = pageNumber;
+      final int thePageSize = pageSize;
+      List<? extends Map<String, Object>> rows = runInReadOnlyTransaction(externalSystem,
+          new GcTransactionCallback<List<? extends Map<String, Object>>>() {
+
+        @Override
+        public List<? extends Map<String, Object>> callback(GcDbAccess dbAccess) {
+          return new GcDbAccess()
+              .connectionName(externalSystem)
+              .queryTimeoutSeconds(queryTimeoutSeconds())
+              .paging(thePageNumber, thePageSize)
+              .sql(sql)
+              .selectListMap();
+        }
+      });
 
       int totalRows = rows.size();
 
@@ -482,11 +500,98 @@ public class GrouperMcpSqlSelect {
   }
 
   /**
+   * seconds before an MCP SQL query is cancelled, so a slow or sleeping query does not hold a connection
+   * @return the timeout, or null for no timeout
+   */
+  static Integer queryTimeoutSeconds() {
+    int seconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.sql.queryTimeoutSeconds", 120);
+    return seconds > 0 ? seconds : null;
+  }
+
+  /**
+   * run MCP SQL in a read-only transaction which is always rolled back.  The keyword checks in
+   * validateReadOnlySql() are not enough on their own: setReadOnly(true) on an autocommit connection is not
+   * enforced by the postgres driver (readOnlyMode=transaction) or by oracle, so a SELECT that writes
+   * (SELECT ... INTO, setval(), etc) would otherwise be committed.  On postgres, oracle, and mysql this runs
+   * SET TRANSACTION READ ONLY first so the database itself refuses writes, on others it uses setReadOnly(true)
+   * @param externalSystem the connection name
+   * @param query runs the query, must use a new GcDbAccess with this connection name (it joins the transaction)
+   * @return what the query returns
+   */
+  static <T> T runInReadOnlyTransaction(final String externalSystem, final GcTransactionCallback<T> query) {
+    return new GcDbAccess().connectionName(externalSystem).callbackTransaction(new GcTransactionCallback<T>() {
+
+      @Override
+      public T callback(GcDbAccess dbAccess) {
+        final boolean[] previousReadOnly = new boolean[] {false};
+        final boolean[] setReadOnly = new boolean[] {false};
+        try {
+          // this is the first statement of the transaction, as these databases require
+          new GcDbAccess().connectionName(externalSystem).callbackConnection(new GcConnectionCallback<Void>() {
+
+            @Override
+            public Void callback(java.sql.Connection connection) {
+              try {
+                String productName = StringUtils.defaultString(connection.getMetaData().getDatabaseProductName()).toLowerCase();
+                if (productName.contains("postgres") || productName.contains("oracle") || productName.contains("mysql")
+                    || productName.contains("mariadb")) {
+                  try (java.sql.Statement statement = connection.createStatement()) {
+                    statement.execute("SET TRANSACTION READ ONLY");
+                  }
+                } else {
+                  previousReadOnly[0] = connection.isReadOnly();
+                  connection.setReadOnly(true);
+                  setReadOnly[0] = true;
+                }
+              } catch (java.sql.SQLException sqle) {
+                throw new RuntimeException("Cannot start a read-only transaction for MCP SQL", sqle);
+              }
+              return null;
+            }
+          });
+          return query.callback(dbAccess);
+        } finally {
+          // never commit anything the query might have done.  endOnlyIfStarted is false since this joined the
+          // transaction (it did not start it), the outer callbackTransaction then commits an empty transaction
+          GcDbAccess.transactionEnd(GcTransactionEnd.rollback, false, externalSystem);
+          if (setReadOnly[0]) {
+            new GcDbAccess().connectionName(externalSystem).callbackConnection(new GcConnectionCallback<Void>() {
+
+              @Override
+              public Void callback(java.sql.Connection connection) {
+                try {
+                  connection.setReadOnly(previousReadOnly[0]);
+                } catch (Exception e) {
+                  LOG.debug("Cannot reset read only on connection", e);
+                }
+                return null;
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
+  /**
    * pattern for dangerous SQL keywords (word boundaries, case-insensitive).
    * these keywords should not appear as standalone words in a read-only query.
+   * INTO (SELECT ... INTO new_table creates a table on postgres), OUTFILE / DUMPFILE (mysql writes a file)
    */
   private static final Pattern DANGEROUS_SQL_PATTERN = Pattern.compile(
-      "\\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|GRANT|REVOKE|MERGE|CALL|EXEC)\\b",
+      "\\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|GRANT|REVOKE|MERGE|CALL|EXEC|INTO|OUTFILE|DUMPFILE)\\b",
+      Pattern.CASE_INSENSITIVE);
+
+  /**
+   * pattern for function calls that change state, read server files, kill sessions, or sleep, which a read-only
+   * transaction does not always stop (e.g. pg_terminate_backend, dblink_exec which uses its own connection).
+   * Only matches a call, i.e. the name followed by a paren, so a column named e.g. sleep is fine
+   */
+  private static final Pattern DANGEROUS_SQL_FUNCTION_PATTERN = Pattern.compile(
+      "\\b(pg_terminate_backend|pg_cancel_backend|pg_sleep\\w*|pg_read_\\w+|pg_ls_\\w+|pg_stat_file|pg_reload_conf"
+      + "|pg_rotate_logfile|pg_switch_wal|pg_promote|pg_\\w*advisory\\w*|pg_create_\\w+|pg_drop_\\w+|pg_logical_\\w+"
+      + "|lo_\\w+|dblink\\w*|setval|nextval|set_config|dbms_\\w+|utl_\\w+|sleep|benchmark|load_file|get_lock"
+      + "|release_lock)\\s*\\(",
       Pattern.CASE_INSENSITIVE);
 
   /**
@@ -519,6 +624,13 @@ public class GrouperMcpSqlSelect {
     if (matcher.find()) {
       return "SQL query contains a prohibited keyword: " + matcher.group(1).toUpperCase()
           + ". Only SELECT statements are allowed.";
+    }
+
+    // check for dangerous function calls
+    Matcher functionMatcher = DANGEROUS_SQL_FUNCTION_PATTERN.matcher(normalized);
+    if (functionMatcher.find()) {
+      return "SQL query calls a prohibited function: " + functionMatcher.group(1)
+          + ". Only read-only SELECT statements are allowed.";
     }
 
     return null;
