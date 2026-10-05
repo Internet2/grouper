@@ -149,6 +149,30 @@ public class GcDbAccess {
     GcDbAccess.grouperIsStarted = theGrouperIsStarted;
   }
 
+  /**
+   * if the version is checked for classes with an optimisticLockVersion field (see GcPersistableField).
+   * If false the version is still incremented, but not checked in the where clause.
+   * Grouper sets this at startup from grouper.properties dao.optimisticLocking (default true)
+   */
+  private static boolean optimisticLocking = true;
+
+  /**
+   * if the version is checked for classes with an optimisticLockVersion field
+   * @return the optimisticLocking
+   */
+  public static boolean isOptimisticLocking() {
+    return optimisticLocking;
+  }
+
+  /**
+   * if the version is checked for classes with an optimisticLockVersion field.
+   * If false the version is still incremented, but not checked in the where clause
+   * @param theOptimisticLocking
+   */
+  public static void setOptimisticLocking(boolean theOptimisticLocking) {
+    GcDbAccess.optimisticLocking = theOptimisticLocking;
+  }
+
 
   /**
    * A map to cache result bean data in based on a key, and host it for a particular amount of time.
@@ -939,6 +963,8 @@ public class GcDbAccess {
       listOfObjects.add(o);
     }
     
+    // note: this does not check the optimisticLockVersion of versioned classes, a bulk delete
+    // deletes the rows by primary key even if someone else changed them (efficient batch delete)
     for (List<Object> listOfObjects: typeToObjects.values()) {
       deleteFromDatabaseMultipleSameType(listOfObjects);
     }
@@ -1064,7 +1090,14 @@ public class GcDbAccess {
    *  @param o is the object to delete from the database.
    */
   public  void deleteFromDatabase(Object o){
-    if (!isPreviouslyPersisted(o)){
+
+    // versioned classes know from the version if they were stored (no select), unsaved means nothing to delete
+    Field optimisticLockVersionField = GcPersistableHelper.optimisticLockVersionField(o.getClass());
+    if (optimisticLockVersionField != null) {
+      if (optimisticLockVersionUnsaved(optimisticLockVersionField, o)) {
+        return;
+      }
+    } else if (!isPreviouslyPersisted(o)){
       if (!GcPersistableHelper.defaultUpdate(o.getClass())) {
         return;
       }
@@ -1097,9 +1130,18 @@ public class GcDbAccess {
 
       String sqlToUse = "delete from " + tableName + " where " + primaryKeyColumnName + " = ? ";
 
+      List<Object> theBindVariables = new ArrayList<Object>();
+      theBindVariables.add(primaryKey);
+
+      // if versioned, only delete the version we loaded
+      Field versionField = GcPersistableHelper.optimisticLockVersionField(o.getClass());
+      sqlToUse += optimisticLockWhereClause(versionField, o, theBindVariables);
+
       this.sql(sqlToUse);
-      this.bindVars(primaryKey);
-      this.executeSql();
+      this.bindVars(theBindVariables);
+      int records = this.executeSql();
+
+      optimisticLockCheckRecords(records, versionField, o, "delete");
 
       if (o instanceof GcDbVersionable) {
         ((GcDbVersionable)o).dbVersionDelete();
@@ -1129,14 +1171,71 @@ public class GcDbAccess {
       }
       theSql = theSql.substring(0, theSql.length() - 4);
 
+      // if versioned, only delete the version we loaded
+      Field versionField = GcPersistableHelper.optimisticLockVersionField(o.getClass());
+      theSql += optimisticLockWhereClause(versionField, o, theBindVariables);
+
       this.sql(theSql);
       this.bindVars(theBindVariables);
-      this.executeSql();
+      int records = this.executeSql();
+
+      optimisticLockCheckRecords(records, versionField, o, "delete");
     }
 
     if (o instanceof GcDbVersionable) {
       ((GcDbVersionable)o).dbVersionDelete();
     }
+  }
+
+  /**
+   * if the class is versioned and optimistic locking is on, return the where clause part that checks
+   * the version the object has (i.e. the version it was loaded with), and add the bind variable.
+   * An unsaved version (null or negative, e.g. a manually assigned primary key object that was not loaded
+   * from the db) is checked with "is null", so it will not blindly overwrite a versioned row.
+   * @param versionField null if not versioned
+   * @param o the object being updated or deleted
+   * @param bindVariables add the version bind variable here
+   * @return the sql to append, or empty string if no check
+   */
+  private static String optimisticLockWhereClause(Field versionField, Object o, List<Object> bindVariables) {
+    if (versionField == null || !optimisticLocking) {
+      return "";
+    }
+    Object currentVersion = null;
+    try {
+      currentVersion = versionField.get(o);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    String columnName = GcPersistableHelper.columnName(versionField);
+    if (optimisticLockVersionUnsaved(versionField, o)) {
+      return " and " + columnName + " is null ";
+    }
+    bindVariables.add(currentVersion);
+    return " and " + columnName + " = ? ";
+  }
+
+  /**
+   * if the class is versioned and optimistic locking is on, and no rows were affected, then someone else
+   * changed or deleted the row since it was loaded, throw a stale exception
+   * @param records number of rows updated or deleted
+   * @param versionField null if not versioned
+   * @param o the object being updated or deleted
+   * @param action update or delete, for the message
+   */
+  private static void optimisticLockCheckRecords(int records, Field versionField, Object o, String action) {
+    if (versionField == null || !optimisticLocking || records > 0) {
+      return;
+    }
+    Object currentVersion = null;
+    try {
+      currentVersion = versionField.get(o);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    throw new GcStaleObjectException("Row was changed or deleted by someone else, cannot " + action + " "
+        + o.getClass().getSimpleName() + " with " + GcPersistableHelper.columnName(versionField) + " " + currentVersion
+        + ", reload and try again");
   }
 
 
@@ -1186,12 +1285,18 @@ public class GcDbAccess {
     
     try{
       
-      if (defaultUpdate) {
+      // if versioned (optimistic locking), the version decides insert vs update like hibernate does:
+      // an unsaved version (null or negative) is new.  This saves the select that isPreviouslyPersisted() does
+      // for manually assigned primary keys, and a stale update never falls back to an insert (defaultUpdate)
+      Field versionField = GcPersistableHelper.optimisticLockVersionField(t.getClass());
+      if (versionField != null) {
+        previouslyPersisted = !optimisticLockVersionUnsaved(versionField, t);
+      } else if (defaultUpdate) {
         previouslyPersisted = true;
       } else {
         previouslyPersisted = isPreviouslyPersisted(t);
       }
-      
+
       boolean keepPrimaryKeyColumns = t instanceof GcSqlAssignPrimaryKey && !previouslyPersisted;
       
       if (keepPrimaryKeyColumns) {
@@ -1210,7 +1315,9 @@ public class GcDbAccess {
 
       // Update if we are already saved.
 
-      if (defaultUpdate) {
+      // versioned defaultUpdate classes already decided insert vs update above, and must not
+      // fall back to insert when 0 rows are updated (that means stale, not new)
+      if (defaultUpdate && versionField == null) {
         try {
           int records = this.storeToDatabaseUpdateHelper(t, columnNamesAndValues, primaryKey);
           if (records == 0) {
@@ -1226,17 +1333,47 @@ public class GcDbAccess {
         if (previouslyPersisted){
           this.storeToDatabaseUpdateHelper(t, columnNamesAndValues, primaryKey);
         } else {
+
+          // new versioned rows start at version 0.  Only set it on the object after the insert works,
+          // so a failed insert does not leave the object looking previously persisted
+          boolean setInitialVersion = versionField != null && optimisticLockVersionUnsaved(versionField, t);
+          if (setInitialVersion) {
+            columnNamesAndValues.put(GcPersistableHelper.columnName(versionField), 0L);
+          }
           this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey, keepPrimaryKeyColumns);
+          if (setInitialVersion) {
+            versionField.set(t, 0L);
+          }
         }
       }
-      
+
       if (t instanceof GcDbVersionable) {
         ((GcDbVersionable)t).dbVersionReset();
       }
       return true;
+    } catch (GcStaleObjectException gsoe) {
+      // dont wrap so callers can catch it
+      throw gsoe;
     } catch (Exception e){
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * if the version field value means the object has not been stored: null or negative
+   * (Grouper objects start with hibernateVersionNumber -1)
+   * @param versionField
+   * @param o
+   * @return true if unsaved
+   */
+  private static boolean optimisticLockVersionUnsaved(Field versionField, Object o) {
+    Object version = null;
+    try {
+      version = versionField.get(o);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    return version == null || ((Number)version).longValue() < 0;
   }
 
   /**
@@ -1313,8 +1450,14 @@ public class GcDbAccess {
     List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(t.getClass());
 
     try{
-      
-      boolean previouslyPersisted = isPreviouslyPersisted(t);
+
+      // versioned classes know from the version (no select)
+      Field versionField = GcPersistableHelper.optimisticLockVersionField(t.getClass());
+
+      // TODO follow up: for unversioned classes this repeats the isPreviouslyPersisted() that storeToDatabase()
+      // just did (an extra select per update for manually assigned primary keys), and the column map below
+      // rebuilds the one storeToDatabase() already built.  Could pass previouslyPersisted in from the caller
+      boolean previouslyPersisted = versionField != null ? !optimisticLockVersionUnsaved(versionField, t) : isPreviouslyPersisted(t);
 
       boolean keepPrimaryKeyColumns = t instanceof GcSqlAssignPrimaryKey && !previouslyPersisted;
       
@@ -1330,6 +1473,13 @@ public class GcDbAccess {
         if ((primaryKey == null && GcPersistableHelper.isPersist(field, t.getClass())) || ( GcPersistableHelper.isPersist(field, t.getClass()) && (keepPrimaryKeyColumns || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
           columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(t));
         }
+      }
+
+      // if versioned, set the version column to the next version.  The where clause below checks the current one
+      Long newVersion = null;
+      if (versionField != null) {
+        newVersion = optimisticLockVersionUnsaved(versionField, t) ? 0L : ((Number)versionField.get(t)).longValue() + 1;
+        columnNamesAndValues.put(GcPersistableHelper.columnName(versionField), newVersion);
       }
 
       StringBuilder sqlToUse = new StringBuilder();
@@ -1364,11 +1514,26 @@ public class GcDbAccess {
         sqlToUse = new StringBuilder( sqlToUse.substring(0, sqlToUse.length() - 4));
       }
 
+      // if versioned, only update the version we loaded
+      sqlToUse.append(optimisticLockWhereClause(versionField, t, bindVarstoUse));
+
       // Execute the insert or update.
       this.sql(sqlToUse.toString());
       this.bindVars(bindVarstoUse);
-      return this.executeSql();
+      int records = this.executeSql();
 
+      // 0 rows with a version check means someone else changed or deleted it
+      optimisticLockCheckRecords(records, versionField, t, "update");
+
+      // only move the object to the new version if the row was updated
+      if (versionField != null && records > 0) {
+        versionField.set(t, newVersion);
+      }
+      return records;
+
+    } catch (GcStaleObjectException gsoe) {
+      // dont wrap so callers can catch it
+      throw gsoe;
     } catch (Exception e){
       throw new RuntimeException(e);
     }
@@ -1437,6 +1602,15 @@ public class GcDbAccess {
 
     if (objects == null || objects.size() == 0){
       return 0;
+    }
+
+    // batch row counts are not reliable on all drivers (e.g. oracle SUCCESS_NO_INFO) so the per row
+    // optimistic locking check cannot be done here.  Store versioned objects one at a time with storeToDatabase()
+    for (T t : objects) {
+      if (t != null && GcPersistableHelper.optimisticLockVersionField(t.getClass()) != null) {
+        throw new RuntimeException("Class " + t.getClass().getName() + " has an optimisticLockVersion field, "
+            + "batch store is not supported, use storeToDatabase() for each object");
+      }
     }
 
     // if we are checking db version, check that

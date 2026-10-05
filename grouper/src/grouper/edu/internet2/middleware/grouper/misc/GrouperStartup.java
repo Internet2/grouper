@@ -379,6 +379,9 @@ public class GrouperStartup {
             finishedStartupSuccessfully = true;
             GcDbAccess.setGrouperIsStarted(true);
 
+            // GcDbAccess classes with an optimisticLockVersion field follow the same switch as hibernate versioned classes
+            GcDbAccess.setOptimisticLocking(GrouperConfig.retrieveConfig().propertyValueBoolean("dao.optimisticLocking", true));
+
             //uncache config settings
             GrouperConfig.retrieveConfig().clearCachedCalculatedValues();
 

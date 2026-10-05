@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -479,5 +480,69 @@ public class GcPersistableHelper {
 		return persistable.primaryKeyManuallyAssigned() || persistable.compoundPrimaryKey();
 
 	}
+
+  /**
+   * cache the class to the optimistic lock version field.  Array with null entry if there is no version field
+   */
+  private static Map<Class<?>, Field[]> optimisticLockVersionFieldCache = new ConcurrentHashMap<Class<?>, Field[]>();
+
+  /**
+   * Get the field annotated with optimisticLockVersion=true, or null if the class is not versioned.
+   * Validates that there is at most one, that it is a long or Long, that it is persisted, and that it is not a primary key
+   * @param clazz is the class to check for the field on.
+   * @return the version field or null
+   */
+  public static Field optimisticLockVersionField(Class<? extends Object> clazz) {
+
+    Field[] resultArray = optimisticLockVersionFieldCache.get(clazz);
+
+    if (resultArray == null) {
+
+      resultArray = new Field[1];
+
+      for (Field field : heirarchicalFields(clazz)) {
+        GcPersistableField persistable = findPersistableAnnotation(field);
+        if (persistable == null || !persistable.optimisticLockVersion()) {
+          continue;
+        }
+
+        if (resultArray[0] != null) {
+          throw new RuntimeException("Class " + clazz.getName() + " has more than one optimisticLockVersion field: "
+              + resultArray[0].getName() + ", " + field.getName());
+        }
+
+        // only long is supported (all hibernate versioned tables use hibernate_version_number long)
+        if (field.getType() != Long.class && field.getType() != long.class) {
+          throw new RuntimeException("optimisticLockVersion field " + clazz.getName() + "." + field.getName()
+              + " must be a long or Long but is " + field.getType().getName());
+        }
+
+        if (persistable.primaryKey() || persistable.compoundPrimaryKey()) {
+          throw new RuntimeException("optimisticLockVersion field " + clazz.getName() + "." + field.getName()
+              + " cannot be a primary key");
+        }
+
+        if (!isPersist(field, clazz)) {
+          throw new RuntimeException("optimisticLockVersion field " + clazz.getName() + "." + field.getName()
+              + " must be persisted");
+        }
+
+        field.setAccessible(true);
+        resultArray[0] = field;
+      }
+
+      // the version check is appended to the primary key where clause, so there must be one
+      if (resultArray[0] != null) {
+        GcPersistableClass gcPersistableClass = findPersistableClassAnnotation(clazz);
+        if (gcPersistableClass != null && gcPersistableClass.hasNoPrimaryKey()) {
+          throw new RuntimeException("Class " + clazz.getName() + " has an optimisticLockVersion field but hasNoPrimaryKey=true, that is not supported");
+        }
+      }
+
+      optimisticLockVersionFieldCache.put(clazz, resultArray);
+    }
+
+    return resultArray[0];
+  }
 
 }

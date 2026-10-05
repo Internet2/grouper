@@ -51,4 +51,21 @@ public @interface GcPersistableField {
 	 * If this is a primary key, whether it is manually assigned, in which case we need to check the database every time to see if we should insert or update.
 	 */
 	boolean primaryKeyManuallyAssigned() default false;
+
+	/**
+	 * <pre>Whether this field is the optimistic locking version column (like the hibernate
+	 * &lt;version name="hibernateVersionNumber" column="hibernate_version_number"/&gt; mapping).
+	 * The field must be a long or Long, and there can be at most one per class.
+	 * On insert a null version is set to 0.  On update the version is incremented and the update
+	 * has "and version_col = oldVersion" in the where clause, if no rows are updated a
+	 * GcStaleObjectException is thrown.  deleteFromDatabase also checks the version
+	 * (deleteFromDatabaseMultiple does not, it is a batch delete by primary key).
+	 * The version decides insert vs update (like hibernate, no select): null or negative (e.g. -1) means
+	 * new so insert, 0 or more means previously persisted so update.
+	 * Note: storeBatchToDatabase / storeListToDatabase do not support versioned classes.
+	 * The check can be turned off (version still incremented) with GcDbAccess.setOptimisticLocking(false),
+	 * Grouper does that based on grouper.properties dao.optimisticLocking</pre>
+	 * @return true if this is the version field
+	 */
+	boolean optimisticLockVersion() default false;
 }
