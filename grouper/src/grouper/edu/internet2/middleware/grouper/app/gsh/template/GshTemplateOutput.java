@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.file.GrouperFile;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GshTemplateOutput {
@@ -264,7 +264,7 @@ public class GshTemplateOutput {
   public GshTemplateOutput assignDownloadGrouperFileId(String grouperFileId) {
     // fail now in the template rather than later in the download.  Only select the file name so
     // the contents are not loaded
-    if (grouperFileId != null && Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById(grouperFileId) == null) {
+    if (grouperFileId != null && GrouperFileDao.findFileNameById(grouperFileId) == null) {
       throw new RuntimeException("Cant find grouper file by id: " + grouperFileId);
     }
     this.downloadGrouperFileId = grouperFileId;

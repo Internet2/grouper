@@ -392,7 +392,6 @@ public abstract class Hib3DAO {
       addClass(configuration, Hib3TableIndexDAO.class);
       addClass(configuration, Hib3GrouperPasswordDAO.class);
       addClass(configuration, Hib3GrouperPasswordRecentlyUsedDAO.class);
-      addClass(configuration, Hib3GrouperFileDAO.class);
       configuration.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)

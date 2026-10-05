@@ -1,17 +1,27 @@
 package edu.internet2.middleware.grouper.file;
 
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccessLifecycle;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 
-@SuppressWarnings("serial")
-public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
-  
+/**
+ * a row in grouper_file: a file stored in the database for reports, workflow, gsh template downloads, etc.
+ *
+ * <p>Persisted with GcDbAccess (GRP-7440, was hibernate), see {@link GrouperFileDao}.  Field names map to
+ * column names (fileContentsVarchar to file_contents_varchar, etc).  hibernate_version_number is the
+ * optimistic locking version: -1 means not saved yet (insert), 0 or more means saved (update, checked
+ * against the database version).  The context id and created / updated timestamps are set in
+ * {@link #dbPreStore(boolean)}, like the hibernate GrouperAPI.onPreSave did.</p>
+ */
+@GcPersistableClass(tableName=GrouperFile.TABLE_GROUPER_FILE, defaultFieldPersist=GcPersist.doPersist)
+public class GrouperFile implements GcDbAccessLifecycle {
+
   /** db id for this row */
   public static final String COLUMN_ID = "id";
 
@@ -23,7 +33,7 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
 
   /** Unique path of the file */
   public static final String COLUMN_FILE_PATH = "file_path";
-  
+
   /** Context id links together multiple operations into one high level action */
   public static final String COLUMN_CONTEXT_ID = "context_id";
 
@@ -41,61 +51,24 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
 
   /** micros since 1970 when this row was last saved (insert or update) */
   public static final String COLUMN_UPDATED_ON_MICROS = "updated_on_micros";
-  
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
-  
-  /** constant for field name for: systemName */
-  public static final String FIELD_SYSTEM_NAME = "systemName";
-  
-  /** constant for field name for: contextId */
-  public static final String FIELD_CONTEXT_ID = "contextId";
-  
-  /** constant for field name for: fileName */
-  public static final String FIELD_FILE_NAME = "fileName";
 
-  /** constant for field name for: filePath */
-  public static final String FIELD_FILE_PATH = "filePath";
-
-  /** constant for field name for: fileContentsVarchar */
-  public static final String FIELD_FILE_CONTENTS_VARCHAR = "fileContentsVarchar";
-
-  /** constant for field name for: fileContentsBytes */
-  public static final String FIELD_FILE_CONTENTS_BYTES = "fileContentsBytes";
-
-  /** constant for field name for: fileContentsClob */
-  public static final String FIELD_FILE_CONTENTS_CLOB = "fileContentsClob";
-
-  /** constant for field name for: createdOnMicros */
-  public static final String FIELD_CREATED_ON_MICROS = "createdOnMicros";
-
-  /** constant for field name for: updatedOnMicros */
-  public static final String FIELD_UPDATED_ON_MICROS = "updatedOnMicros";
+  /** optimistic locking version of the row */
+  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
 
   /**
    * name of the table in the database.
    */
   public static final String TABLE_GROUPER_FILE = "grouper_file";
-  
-  /**
-   * fields which are included in db version
-   */
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_SYSTEM_NAME, FIELD_FILE_NAME, FIELD_FILE_PATH, FIELD_FILE_CONTENTS_VARCHAR, 
-      FIELD_FILE_CONTENTS_BYTES, FIELD_FILE_CONTENTS_CLOB, FIELD_CONTEXT_ID, FIELD_ID,
-      FIELD_CREATED_ON_MICROS, FIELD_UPDATED_ON_MICROS);
 
   /**
-   * fields which are included in clone method
+   * columns other than the contents, select these when the (possibly large) contents are not needed
    */
-  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_SYSTEM_NAME, FIELD_FILE_NAME, FIELD_FILE_PATH, FIELD_FILE_CONTENTS_VARCHAR, 
-      FIELD_FILE_CONTENTS_BYTES, FIELD_FILE_CONTENTS_CLOB, 
-      FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_CREATED_ON_MICROS, FIELD_UPDATED_ON_MICROS);
-  
-  
-  /** id of this type */
+  public static final String METADATA_COLUMNS = COLUMN_ID + ", " + COLUMN_SYSTEM_NAME + ", " + COLUMN_FILE_NAME
+      + ", " + COLUMN_FILE_PATH + ", " + COLUMN_CONTEXT_ID + ", " + COLUMN_FILE_CONTENTS_BYTES
+      + ", " + COLUMN_CREATED_ON_MICROS + ", " + COLUMN_UPDATED_ON_MICROS + ", " + COLUMN_HIBERNATE_VERSION_NUMBER;
+
+  /** uuid of this row, assigned by the caller before the first save */
+  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
   private String id;
 
   /**
@@ -104,23 +77,22 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   public void setId(String id1) {
     this.id = id1;
   }
-  
+
   /**
    * @return id
    */
   public String getId() {
-    return id;
+    return this.id;
   }
-  
-  /** context id ties multiple db changes */
+
+  /** context id ties multiple db changes, set in dbPreStore on save */
   private String contextId;
-  
-  
+
   /**
    * @return context id
    */
   public String getContextId() {
-    return contextId;
+    return this.contextId;
   }
 
   /**
@@ -130,115 +102,153 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   public void setContextId(String contextId1) {
     this.contextId = contextId1;
   }
-  
+
   /**
-   * system name
+   * system name, e.g. workflow, report, gshTemplateDownload
    */
   private String systemName;
-  
 
-  
-  public String getSystemName() {
-    return systemName;
-  }
-
-  
-  public void setSystemName(String systemName) {
-    this.systemName = systemName;
-  }
-  
-  
-  private String fileName;
-  
-  
-  public String getFileName() {
-    return fileName;
-  }
-
-  
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  private String filePath;
-  
-  
-  public String getFilePath() {
-    return filePath;
-  }
-
-  
-  public void setFilePath(String filePath) {
-    this.filePath = filePath;
-  }
-
-  
-  
   /**
-   * value of the property
+   * @return system name
+   */
+  public String getSystemName() {
+    return this.systemName;
+  }
+
+  /**
+   * @param systemName1
+   */
+  public void setSystemName(String systemName1) {
+    this.systemName = systemName1;
+  }
+
+  /** name of the file e.g. for the download */
+  private String fileName;
+
+  /**
+   * @return file name
+   */
+  public String getFileName() {
+    return this.fileName;
+  }
+
+  /**
+   * @param fileName1
+   */
+  public void setFileName(String fileName1) {
+    this.fileName = fileName1;
+  }
+
+  /** unique path of the file */
+  private String filePath;
+
+  /**
+   * @return file path
+   */
+  public String getFilePath() {
+    return this.filePath;
+  }
+
+  /**
+   * @param filePath1
+   */
+  public void setFilePath(String filePath1) {
+    this.filePath = filePath1;
+  }
+
+  /**
+   * contents if they fit in the varchar column, null if they are in the clob (or not selected)
    */
   private String fileContentsVarchar;
-  
+
   /**
-   * value of the property
-   * @return the configValue
+   * contents if they fit in the varchar column
+   * @return the contents or null
    */
   public String getFileContentsVarcharDb() {
     return this.fileContentsVarchar;
   }
-  
-  public void setFileContentsVarcharDb(String fileContentsVarchar) {
-    this.fileContentsVarchar = fileContentsVarchar;
-  }
-  
-  private String fileContentsClob;
-  
-  public String getFileContentsClobDb() {
-    return fileContentsClob;
+
+  /**
+   * @param fileContentsVarchar1
+   */
+  public void setFileContentsVarcharDb(String fileContentsVarchar1) {
+    this.fileContentsVarchar = fileContentsVarchar1;
   }
 
-  
-  public void setFileContentsClobDb(String fileContentsClob) {
-    this.fileContentsClob = fileContentsClob;
+  /**
+   * contents if they are too big for the varchar column, null otherwise (or not selected)
+   */
+  private String fileContentsClob;
+
+  /**
+   * contents if they are too big for the varchar column
+   * @return the contents or null
+   */
+  public String getFileContentsClobDb() {
+    return this.fileContentsClob;
+  }
+
+  /**
+   * @param fileContentsClob1
+   */
+  public void setFileContentsClobDb(String fileContentsClob1) {
+    this.fileContentsClob = fileContentsClob1;
   }
 
   /**
    * retrieve value. based on the size, it will be retrieved from file_contents_varchar or file_contents_clob
-   * @return
+   * @return the contents
    */
   public String retrieveValue() {
-    
-    if (StringUtils.isNotBlank(fileContentsVarchar)) {
-      return fileContentsVarchar;
+
+    if (StringUtils.isNotBlank(this.fileContentsVarchar)) {
+      return this.fileContentsVarchar;
     }
-    
-    return fileContentsClob;
-    
+
+    return this.fileContentsClob;
+
   }
-  
+
   /**
    * size of file contents in bytes
    */
   private Long fileContentsBytes;
-  
+
   /**
    * size of file contents in bytes
    * @return the fileContentsBytes
    */
   public Long getFileContentsBytes() {
-    return fileContentsBytes;
+    return this.fileContentsBytes;
   }
 
   /**
    * size of file contents in bytes
-   * @param the fileContentsBytes
+   * @param fileContentsBytes1
    */
-  public void setFileContentsBytes(Long fileContentsBytes) {
-    this.fileContentsBytes = fileContentsBytes;
+  public void setFileContentsBytes(Long fileContentsBytes1) {
+    this.fileContentsBytes = fileContentsBytes1;
   }
-  
+
   /**
-   * micros since 1970 when this row was inserted.  Set by the DAO on the first save, never changed after that.
+   * set contents to save. based on the size, it will be saved in file_contents_varchar or file_contents_clob
+   * @param value
+   */
+  public void setValueToSave(String value) {
+    int lengthAscii = GrouperUtil.lengthAscii(value);
+    if (lengthAscii <= 3000) {
+      this.fileContentsVarchar = value;
+      this.fileContentsClob = null;
+    } else {
+      this.fileContentsClob = value;
+      this.fileContentsVarchar = null;
+    }
+    this.fileContentsBytes = Long.valueOf(lengthAscii);
+  }
+
+  /**
+   * micros since 1970 when this row was inserted.  Set in dbPreStore on the first save, never changed after that.
    * Null only on a new object that has not been saved yet (the column is NOT NULL).
    */
   private Long createdOnMicros;
@@ -260,7 +270,7 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   }
 
   /**
-   * micros since 1970 when this row was last saved.  Set by the DAO on every save (insert and update),
+   * micros since 1970 when this row was last saved.  Set in dbPreStore on every save (insert and update),
    * so time-based cleanup can go by when the contents were last written.
    */
   private Long updatedOnMicros;
@@ -282,33 +292,55 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   }
 
   /**
-   * set config value to save. based on the size, it will be saved in config_value or config_value_clob
-   * @param value
+   * optimistic locking version (the column name is from when this table was hibernate mapped).
+   * -1 means not saved yet so the next store is an insert, GcDbAccess sets 0 on insert and increments it
+   * on each update, and an update with a version that does not match the database throws
+   * GcStaleObjectException
    */
-  public void setValueToSave(String value) {
-    int lengthAscii = GrouperUtil.lengthAscii(value);
-    if (GrouperUtil.lengthAscii(value) <= 3000) {
-      this.fileContentsVarchar = value;
-      this.fileContentsClob = null;
-    } else {
-      this.fileContentsClob = value;
-      this.fileContentsVarchar = null;
-    }
-    this.fileContentsBytes = new Long(lengthAscii);
-  }
-  
-  @Override
-  public GrouperAPI clone() {
-    return GrouperUtil.clone(this, CLONE_FIELDS);
-  }
-  
+  @GcPersistableField(optimisticLockVersion=true)
+  private Long hibernateVersionNumber = -1L;
+
   /**
-   * take a snapshot of the data since this is what is in the db
+   * @return the optimistic locking version, -1 if not saved yet
+   */
+  public Long getHibernateVersionNumber() {
+    return this.hibernateVersionNumber;
+  }
+
+  /**
+   * @param hibernateVersionNumber1
+   */
+  public void setHibernateVersionNumber(Long hibernateVersionNumber1) {
+    this.hibernateVersionNumber = hibernateVersionNumber1;
+  }
+
+  /**
+   * called by GcDbAccess before insert or update (GcDbAccessLifecycle, like hibernate onPreSave / onPreUpdate).
+   * Sets the context id, created_on_micros once, and updated_on_micros on every save.  Safe to call more
+   * than once for the same store (GcDbAccess may), it only sets fields.
+   * @param isInsert true if insert, false if update
    */
   @Override
-  public void dbVersionReset() {
-    //lets get the state from the db so we know what has changed
-    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  public void dbPreStore(boolean isInsert) {
+
+    // hibernate created a temporary inner context (new uuid) around the save if there was none, GcDbAccess has
+    // no hibernate session, so use the current context if there is one (e.g. inside a UI or WS action), else a
+    // new uuid like hibernate did.  false so it never trips audit.requireAuditsForAllActions
+    String currentContextId = GrouperContext.retrieveContextId(false);
+    this.contextId = currentContextId != null ? currentContextId : GrouperUuid.getUuid();
+
+    long nowMicros = System.currentTimeMillis() * 1000L;
+
+    // make sure updated always moves forward, even if two saves happen in the same millisecond
+    if (this.updatedOnMicros != null && nowMicros <= this.updatedOnMicros) {
+      nowMicros = this.updatedOnMicros + 1;
+    }
+
+    // created is set once on insert, never changed
+    if (this.createdOnMicros == null) {
+      this.createdOnMicros = nowMicros;
+    }
+    this.updatedOnMicros = nowMicros;
   }
 
 }

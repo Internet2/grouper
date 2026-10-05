@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDepend
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
@@ -194,13 +195,14 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3StemDAO.reset(hibernateSession);
             Hib3FieldDAO.reset(hibernateSession);
             Hib3MessageDAO.reset(hibernateSession);
-            Hib3GrouperFileDAO.reset(hibernateSession);
 
             return null;
           }
 
     });
 
+    // grouper_file is GcDbAccess now (GRP-7440)
+    GrouperFileDao.reset();
     GcGrouperSyncLog.reset();
     GcGrouperSyncMembership.reset();
     GcGrouperSyncGroup.reset();

@@ -19,8 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -219,7 +219,7 @@ public class UiV2DownloadFile {
     String grouperFileId = retrieveGrouperFileId(request.getSession(false), token, loggedInSubject);
 
     GrouperFile grouperFile = grouperFileId == null ? null
-        : Hib3DAOFactory.getFactory().getGrouperFile().findById(grouperFileId, false);
+        : GrouperFileDao.findById(grouperFileId, false);
 
     try {
       if (grouperFile == null) {

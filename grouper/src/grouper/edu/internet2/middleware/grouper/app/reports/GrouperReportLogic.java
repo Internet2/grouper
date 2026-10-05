@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.file.GrouperFile;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -155,7 +155,7 @@ public class GrouperReportLogic {
         grouperFile.setFilePath(GROUPER_REPORT_FILE_PATH_PREFIX + "/" + reportInstance.getReportFileUnencrypted().getName());
         grouperFile.setSystemName(GROUPER_REPORT_SYSTEM_NAME);
         
-        Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+        GrouperFileDao.store(grouperFile);
         reportInstance.setReportInstanceFilePointer(id);
       } else {
         throw new RuntimeException("reporting.storage.option is not valid. Use database, S3 or fileSystem '" + reportDestination + "'");
@@ -428,9 +428,8 @@ public class GrouperReportLogic {
       return getReportContentFromS3(reportInstance);
     }
     
-    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(reportInstance.getReportInstanceFilePointer(), false);
-    
-    if (grouperFile != null) {
+    // only check that the row is there, the contents are loaded below
+    if (GrouperFileDao.existsById(reportInstance.getReportInstanceFilePointer())) {
       return getReportContentFromDatabase(reportInstance);
     } else {
       return getReportContentFromFileSystem(reportInstance);
@@ -514,7 +513,7 @@ public class GrouperReportLogic {
       cipher = Cipher.getInstance("AES");
       cipher.init(Cipher.DECRYPT_MODE, encryptionKeySecret);
       
-      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(reportInstance.getReportInstanceFilePointer(), false);
+      GrouperFile grouperFile = GrouperFileDao.findById(reportInstance.getReportInstanceFilePointer(), false);
       if (grouperFile == null) {
         throw new RuntimeException("Could not find entry in grouper_file table for id "+reportInstance.getReportInstanceFilePointer());
       }
@@ -634,10 +633,8 @@ public class GrouperReportLogic {
       return;
     }
 
-    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(filePointer, false);
-    if (grouperFile != null) {
-      Hib3DAOFactory.getFactory().getGrouperFile().delete(grouperFile);
-    }
+    // delete by id, no need to load the contents
+    GrouperFileDao.deleteById(filePointer);
   }
 
   /**

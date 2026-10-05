@@ -12,8 +12,8 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -175,7 +175,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     grouperFile.setFilePath(filePath);
     grouperFile.setFileName(fileName);
     grouperFile.setValueToSave(contents);
-    Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+    GrouperFileDao.store(grouperFile);
     return grouperFile;
   }
 
@@ -206,7 +206,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     String fileId1 = output1.getGshTemplateOutput().getDownloadGrouperFileId();
     assertTrue(StringUtils.isNotBlank(fileId1));
 
-    GrouperFile grouperFile1 = Hib3DAOFactory.getFactory().getGrouperFile().findById(fileId1, true);
+    GrouperFile grouperFile1 = GrouperFileDao.findById(fileId1, true);
     assertEquals(GshTemplateDownloadFile.SYSTEM_NAME, grouperFile1.getSystemName());
     assertEquals(fileName1, grouperFile1.getFileName());
     assertEquals("/gshTemplateDownload/" + CONFIG_ID + "/" + day1 + "/" + fileName1, grouperFile1.getFilePath());
@@ -232,7 +232,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     assertEquals("cached", output2.getGshTemplateOutput().getOutputLines().get(0).getText());
     assertEquals(fileId1, output2.getGshTemplateOutput().getDownloadGrouperFileId());
     assertEquals(1, countFiles(GshTemplateDownloadFile.SYSTEM_NAME));
-    assertEquals(contents1, Hib3DAOFactory.getFactory().getGrouperFile().findById(fileId1, true).retrieveValue());
+    assertEquals(contents1, GrouperFileDao.findById(fileId1, true).retrieveValue());
 
     // when: run for another day
     GshTemplateExecOutput output3 = runTemplate(day2);
@@ -268,10 +268,10 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     assertEquals(first.getId(), GshTemplateDownloadFile.findIdByDate(CONFIG_ID, day, fileName));
     assertNull(GshTemplateDownloadFile.findIdByDate(CONFIG_ID, day, "missing.csv"));
     assertNull(GshTemplateDownloadFile.findIdByDate(CONFIG_ID, "2026-10-05", fileName));
-    assertEquals(fileName, Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById(first.getId()));
-    assertNull(Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById("notAnId"));
+    assertEquals(fileName, GrouperFileDao.findFileNameById(first.getId()));
+    assertNull(GrouperFileDao.findFileNameById("notAnId"));
     // small file goes in varchar
-    assertEquals("a,b\n3,4\n", Hib3DAOFactory.getFactory().getGrouperFile().findById(first.getId(), true).getFileContentsVarcharDb());
+    assertEquals("a,b\n3,4\n", GrouperFileDao.findById(first.getId(), true).getFileContentsVarcharDb());
   }
 
   /**
@@ -310,7 +310,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     assertEquals(second.getUpdatedOnMicros(), grp7439MicrosFromDb(first.getId(), "updated_on_micros"));
 
     // a reload from hibernate sees the same values
-    GrouperFile reloaded = Hib3DAOFactory.getFactory().getGrouperFile().findById(first.getId(), true);
+    GrouperFile reloaded = GrouperFileDao.findById(first.getId(), true);
     assertEquals(createdOnMicros, reloaded.getCreatedOnMicros());
     assertEquals(second.getUpdatedOnMicros(), reloaded.getUpdatedOnMicros());
   }
@@ -463,7 +463,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
     assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-03", "yesterday.csv"));
     assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, today, "today.csv"));
     assertNotNull("other template untouched", GshTemplateDownloadFile.findByDate(otherConfigId, "2026-09-01", "old.csv"));
-    assertNotNull("other feature untouched", Hib3DAOFactory.getFactory().getGrouperFile().findById(otherFile.getId(), false));
+    assertNotNull("other feature untouched", GrouperFileDao.findById(otherFile.getId(), false));
 
     // when: id with an underscore (like wildcard) only cleans its own files
     assertEquals(0, GshTemplateDownloadFile.deleteExpired(underscoreConfigId, today, 1));

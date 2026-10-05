@@ -11,8 +11,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -106,8 +106,7 @@ public class GrouperReportLogicTest extends GrouperTest {
     assertNotNull(newReportInstance.getReportInstanceEncryptionKey());
     assertNotNull(newReportInstance.getReportInstanceRows());
     
-    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile()
-        .findById(newReportInstance.getReportInstanceFilePointer(), false);
+    GrouperFile grouperFile = GrouperFileDao.findById(newReportInstance.getReportInstanceFilePointer(), false);
     assertNotNull(grouperFile);
     assertEquals("report", grouperFile.getSystemName());
     assertNotNull(grouperFile.getFileName());

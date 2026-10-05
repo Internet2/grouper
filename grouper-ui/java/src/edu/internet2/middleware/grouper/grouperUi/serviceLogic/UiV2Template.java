@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -76,7 +77,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -829,7 +829,7 @@ public class UiV2Template {
           String downloadGrouperFileId = gshTemplateExecOutput.getGshTemplateOutput().getDownloadGrouperFileId();
           if (!StringUtils.isBlank(downloadGrouperFileId)) {
             // only select the file name so the contents are not loaded
-            String downloadFileName = Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById(downloadGrouperFileId);
+            String downloadFileName = GrouperFileDao.findFileNameById(downloadGrouperFileId);
             if (downloadFileName == null) {
               LOG.error("gsh template: " + templateType + " returned download file id that does not exist: " + downloadGrouperFileId);
             } else {

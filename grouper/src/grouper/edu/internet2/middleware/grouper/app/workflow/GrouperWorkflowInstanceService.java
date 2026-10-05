@@ -64,7 +64,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.file.GrouperFile;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -468,7 +468,7 @@ public class GrouperWorkflowInstanceService {
       grouperFile.setFilePath(GROUPER_WORKFLOW_FILE_PATH_PREFIX + "/" + fileName);
       grouperFile.setSystemName(GROUPER_WORKFLOW_SYSTEM_NAME);
       
-      Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+      GrouperFileDao.store(grouperFile);
       fileInfo.setFilePointer(id);
     } else {
       throw new RuntimeException("workflow.storage.option is not valid. Use database, S3 or fileSystem");
@@ -755,9 +755,8 @@ public class GrouperWorkflowInstanceService {
     if (fileInfo.getFilePointer().startsWith("https://")) {
       html = getCurrentHtmlContentFromS3(instance);
     } else {
-      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(fileInfo.getFilePointer(), false);
-      
-      if (grouperFile != null) {
+      // only check that the row is there, the contents are loaded below
+      if (GrouperFileDao.existsById(fileInfo.getFilePointer())) {
         html = getCurrentHtmlFormFromDatabase(instance);
       } else {
         html = getCurrentHtmlFormFromFileSystem(instance);
@@ -804,7 +803,7 @@ public class GrouperWorkflowInstanceService {
       GrouperWorkflowInstanceFileInfo fileInfo = instance.getGrouperWorkflowInstanceFilesInfo()
       .getFileNamesAndPointers().get(lastIndex);
       
-      GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findById(fileInfo.getFilePointer(), false);
+      GrouperFile grouperFile = GrouperFileDao.findById(fileInfo.getFilePointer(), false);
       if (grouperFile == null) {
         throw new RuntimeException("Could not find entry in grouper_file table for id "+fileInfo.getFilePointer());
       }

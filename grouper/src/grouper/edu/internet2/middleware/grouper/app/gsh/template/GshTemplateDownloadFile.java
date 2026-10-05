@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.file.GrouperFile;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -81,7 +81,7 @@ public class GshTemplateDownloadFile {
    */
   public static GrouperFile findByDate(String templateConfigId, String date, String fileName) {
     String filePath = filePath(templateConfigId, date, fileName);
-    GrouperFile grouperFile = Hib3DAOFactory.getFactory().getGrouperFile().findByFilePath(filePath, false);
+    GrouperFile grouperFile = GrouperFileDao.findByFilePath(filePath, false);
 
     // path is namespaced by the prefix, but make sure it is really one of ours
     if (grouperFile != null && !StringUtils.equals(SYSTEM_NAME, grouperFile.getSystemName())) {
@@ -101,7 +101,7 @@ public class GshTemplateDownloadFile {
    */
   public static String findIdByDate(String templateConfigId, String date, String fileName) {
     String filePath = filePath(templateConfigId, date, fileName);
-    return Hib3DAOFactory.getFactory().getGrouperFile().findIdBySystemNameAndFilePath(SYSTEM_NAME, filePath);
+    return GrouperFileDao.findIdBySystemNameAndFilePath(SYSTEM_NAME, filePath);
   }
 
   /**
@@ -131,7 +131,7 @@ public class GshTemplateDownloadFile {
     // goes to varchar or clob based on size
     grouperFile.setValueToSave(contents);
 
-    Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
+    GrouperFileDao.store(grouperFile);
     return grouperFile;
   }
 
@@ -181,7 +181,7 @@ public class GshTemplateDownloadFile {
       }
 
       // delete without loading the contents
-      deletedCount += Hib3DAOFactory.getFactory().getGrouperFile().deleteById(id);
+      deletedCount += GrouperFileDao.deleteById(id);
     }
     if (deletedCount > 0) {
       LOG.info("Deleted " + deletedCount + " gsh template download files for template '" + templateConfigId + "' before " + cutoff);
