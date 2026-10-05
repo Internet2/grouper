@@ -28,7 +28,17 @@ public class GshTemplateValidationService {
 
   public boolean validate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
     
+    // check enabled, owner, and who can run it BEFORE the template's decorate logic runs.  Validation runs in a root
+    // session, and compiled templates are always V2 (GRP-7448), so decorate would otherwise run template code for
+    // a caller who is not allowed to run the template
+    boolean isValid = validateEnabled(templateConfig, gshTemplateOutput);
+    isValid = isValid && validateOwnerType(templateConfig, gshTemplateExec, gshTemplateOutput);
+    isValid = isValid && validateSecurityRunType(templateConfig, gshTemplateExec, gshTemplateOutput);
+    if (!isValid) {
+      return false;
+    }
     
+    // decorate before validating inputs since decorate can change the input configs
     if (StringUtils.equals("V2", templateConfig.getTemplateVersion())) {
       GshTemplateExec gshTemplateExec2 = new GshTemplateExec();
       gshTemplateExec2.assignConfigId(templateConfig.getConfigId());
@@ -65,12 +75,7 @@ public class GshTemplateValidationService {
       
     }
 
-    
-    boolean isValid = validateEnabled(templateConfig, gshTemplateOutput);
-    isValid = isValid && validateOwnerType(templateConfig, gshTemplateExec, gshTemplateOutput);
-    isValid = isValid && validateSecurityRunType(templateConfig, gshTemplateExec, gshTemplateOutput);
-    isValid = isValid && validateInputs(templateConfig, gshTemplateExec, gshTemplateOutput);
-    return isValid;
+    return validateInputs(templateConfig, gshTemplateExec, gshTemplateOutput);
   }
   
   private boolean validateOwnerType(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
