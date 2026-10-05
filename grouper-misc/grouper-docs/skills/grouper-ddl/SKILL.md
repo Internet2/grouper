@@ -169,6 +169,50 @@ boolean alreadyText = StringUtils.equalsIgnoreCase("text", dataType);
 Postgres `ALTER COLUMN ... TYPE text` from varchar is binary-compatible (no data rewrite), but it is
 still blocked by dependent views (see 1.) - check `pg_depend` first. See `UpgradeTaskV45` (GRP-7417).
 
+## Adding a NOT NULL column to a table that already has rows
+
+A NOT NULL column cannot be added in one step to a table with existing rows (unless it has a default,
+and Grouper only uses constant defaults like 'T'). Precedents: `UpgradeTaskV41` (grouper_sync.internal_id),
+`UpgradeTaskV16` (grouper_members.internal_id), `UpgradeTaskV45` (GRP-7439 grouper_file
+created_on_micros / updated_on_micros).
+
+**Fresh install / model:** declare the column `NOT NULL` in all three install SQL files and
+`aiGshDdl.txt`, and pass `isRequired=true` to `ddlutilsFindOrCreateColumn` in the version class.
+
+**Upgrade task, in this order, each step idempotent:**
+1. Add the column NULLABLE if missing (`GrouperDdlUtils.assertColumnThere(true, table, col)`).
+   Oracle: `ALTER TABLE t ADD col NUMBER(38)`; postgres/mysql: `ALTER TABLE t ADD COLUMN col BIGINT`.
+2. Backfill nulls. Use `coalesce(col, ?)` with `where col is null` so values already set are kept.
+3. If still nullable, make it NOT NULL:
+   - postgres: `ALTER TABLE t ALTER COLUMN col SET NOT NULL`
+   - mysql: `ALTER TABLE t MODIFY col BIGINT NOT NULL` (MODIFY rewrites the whole definition)
+   - oracle: `ALTER TABLE t MODIFY (col NOT NULL)`
+   Re-run the backfill right before each ALTER: an older Grouper node still running during a rolling
+   upgrade can insert a row without the column between the backfill and the ALTER, which makes the
+   ALTER fail.
+
+**Nullability check:** `GrouperDdlUtils.isColumnNullable(table, col, "id", "someNoSuchId")` reads the
+result-set metadata, so it works with zero matching rows and on all three databases.
+
+**`doesUpgradeTaskHaveDdlWorkToDo()`:** return true when the column is missing OR still nullable. Do not
+check only "column exists": if a DBA adds the column by hand (auto DDL off), the task would be marked done
+with null values and never made NOT NULL. Nullable implies the backfill may be pending, so no separate
+null-row count is needed.
+
+**Code that writes the table:** make sure every insert path sets the column (ideally in one place, e.g. the
+Hib3 DAO `saveOrUpdate`), and grep for raw `insert into <table>` in `src/grouper`, `src/test` and the other
+modules (grouper-ui, grouper-ws) - unit tests that insert with raw SQL must now supply the column.
+
+**Rolling upgrade risk (tell the user):** while an older-version node is still running, its inserts fail
+the NOT NULL. Usually acceptable for rarely-written tables; nullable avoids it entirely.
+
+**Unit test:** fresh install -> assert not nullable; drop the column, insert a raw row, run the task ->
+assert added, backfilled, not nullable; then make it nullable again (postgres `DROP NOT NULL`, mysql
+`MODIFY col BIGINT NULL`, oracle `MODIFY (col NULL)`) with set / half-set / null rows -> run -> set values
+kept, nulls filled, not nullable; run again -> no-op. See `GrouperDdlUtilsTest.testGrp7439FileTimestamps`.
+
+**Manual DBA SQL for release notes:** add column, backfill UPDATE, then the per-database NOT NULL ALTER.
+
 ## Step 2: DDL Version Class (for Database Compares)
 
 Create or update a `GrouperDdlX_Y_Z.java` class. This is what the database compare system
