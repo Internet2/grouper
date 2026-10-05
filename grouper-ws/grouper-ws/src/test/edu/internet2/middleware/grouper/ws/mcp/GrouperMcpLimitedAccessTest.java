@@ -89,13 +89,13 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
 
     // the MCP tier groups
     overrideConfig(GrouperToolAccess.GROUP_SQL_READONLY, testGroup("sqlAll"));
-    overrideConfig(GrouperToolAccess.GROUP_SQL_READONLY_LIMITED, testGroup("sqlLimited"));
+    overrideConfig(GrouperToolAccess.GROUP_SQL_READONLY_LIMITED, mcpGroup("sqlLimited"));
     overrideConfig(GrouperToolAccess.GROUP_ADMIN_READONLY, testGroup("adminReadonlyAll"));
     overrideConfig(GrouperToolAccess.GROUP_ADMIN_READONLY_LIMITED,
-        testGroup("adminReadonlyLimited"));
+        mcpGroup("adminReadonlyLimited"));
     overrideConfig(GrouperToolAccess.GROUP_ADMIN_READWRITE, testGroup("adminReadWriteAll"));
     overrideConfig(GrouperToolAccess.GROUP_ADMIN_READWRITE_LIMITED,
-        testGroup("adminReadWriteLimited"));
+        mcpGroup("adminReadWriteLimited"));
 
     GrouperMcpTestUtils.clearCaches();
   }
@@ -166,7 +166,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
     overrideConfig("grouper.mcp.sql.mcpLimitedDbB.limitedAccessGroup", mcpGroup("testDbBUsers"));
 
     Subject limited = SubjectTestHelper.SUBJ2;
-    addMember(testGroup("sqlLimited"), limited);
+    addMember(mcpGroup("sqlLimited"), limited);
     GrouperMcpAuthUser limitedUser = new GrouperMcpAuthUser(limited);
 
     assertTrue(GrouperToolAccess.isAllowed(GrouperToolCategory.sql, limitedUser));
@@ -217,7 +217,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
   public void testAdminReadonlyLimitedPerToolAndSystem() {
 
     Subject limited = SubjectTestHelper.SUBJ4;
-    addMember(testGroup("adminReadonlyLimited"), limited);
+    addMember(mcpGroup("adminReadonlyLimited"), limited);
     GrouperMcpAuthUser limitedUser = new GrouperMcpAuthUser(limited);
 
     GrouperTool daemonLogs = GrouperToolRegistry.find("admin_daemon_logs");
@@ -291,7 +291,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
     overrideConfig("grouper.mcp.sql.mcpLimitedDbC.grouperDatabase", "true");
 
     Subject limited = SubjectTestHelper.SUBJ7;
-    addMember(testGroup("sqlLimited"), limited);
+    addMember(mcpGroup("sqlLimited"), limited);
     GrouperMcpAuthUser limitedUser = new GrouperMcpAuthUser(limited);
 
     // a group outside etc:mcp is ignored even though they are in it
@@ -301,7 +301,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
         GrouperToolAccess.SQL_CONFIG_PREFIX, "mcpLimitedDbC", limitedUser));
 
     // the same for a per tool group
-    addMember(testGroup("adminReadonlyLimited"), limited);
+    addMember(mcpGroup("adminReadonlyLimited"), limited);
     overrideConfig("grouper.mcp.tool.admin_daemon_logs.limitedAccessGroup",
         testGroup("dbCUsers"));
     assertFalse(GrouperToolAccess.isAllowed(GrouperToolRegistry.find("admin_daemon_logs"),
@@ -321,6 +321,12 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
     GrouperMcpTestUtils.clearCaches();
     assertFalse(GrouperToolAccess.isExternalSystemAllowed(GrouperToolCategory.sql,
         GrouperToolAccess.SQL_CONFIG_PREFIX, "mcpLimitedDbC", limitedUser));
+
+    // the limited tier groups themselves have to be in etc:mcp too
+    assertTrue(GrouperToolAccess.isSqlReadonlyLimitedTier(limited));
+    overrideConfig(GrouperToolAccess.GROUP_SQL_READONLY_LIMITED, testGroup("sqlLimitedOutside"));
+    addMember(testGroup("sqlLimitedOutside"), limited);
+    assertFalse(GrouperToolAccess.isSqlReadonlyLimitedTier(limited));
   }
 
   /**
@@ -378,7 +384,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
     GrouperUiConfigInApi.assignMainConfigFileOnClasspathForTesting(true);
 
     Subject limited = SubjectTestHelper.SUBJ6;
-    addMember(testGroup("adminReadWriteLimited"), limited);
+    addMember(mcpGroup("adminReadWriteLimited"), limited);
     GrouperMcpAuthUser limitedUser = new GrouperMcpAuthUser(limited);
 
     assertTrue(GrouperToolAccess.isAllowed(GrouperToolCategory.admin_readwrite, limitedUser));
@@ -445,7 +451,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
 
     // a group admin on the limited tier
     Subject limited = SubjectTestHelper.SUBJ6;
-    addMember(testGroup("adminReadWriteLimited"), limited);
+    addMember(mcpGroup("adminReadWriteLimited"), limited);
     loaderGroup.grantPriv(limited, AccessPrivilege.ADMIN, false);
     GrouperMcpAuthUser limitedUser = new GrouperMcpAuthUser(limited);
 

@@ -414,13 +414,15 @@ public class GrouperToolAccess {
 
   /**
    * the limited tier of sql: in the limited sql group.  no sysadmin requirement, since this tier
-   * only reaches the databases opened to the caller
+   * only reaches the databases opened to the caller.  the group has to be in
+   * {@link #limitedAccessGroupFolderName()} like every limitedAccessGroup, so MCP cannot be used to change it
    * @param subject the caller
    * @return true if in the limited group
    */
   public static boolean isSqlReadonlyLimitedTier(Subject subject) {
     return subject != null
-        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_SQL_READONLY_LIMITED);
+        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_SQL_READONLY_LIMITED,
+            limitedAccessGroupFolderName());
   }
 
   /**
@@ -443,24 +445,28 @@ public class GrouperToolAccess {
 
   /**
    * the limited tier of admin readonly: in the limited admin readonly group.  no sysadmin
-   * requirement, since this tier only reaches the tools and systems opened to the caller
+   * requirement, since this tier only reaches the tools and systems opened to the caller.  the group has to
+   * be in {@link #limitedAccessGroupFolderName()}
    * @param subject the caller
    * @return true if in the limited group
    */
   public static boolean isAdminReadonlyLimitedTier(Subject subject) {
     return subject != null
-        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_ADMIN_READONLY_LIMITED);
+        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_ADMIN_READONLY_LIMITED,
+            limitedAccessGroupFolderName());
   }
 
   /**
    * the limited tier of admin readwrite: in the limited admin readwrite group.  no sysadmin
-   * requirement, since this tier can only run the loader jobs the caller could refresh in the UI
+   * requirement, since this tier can only run the loader jobs the caller could refresh in the UI.  the
+   * group has to be in {@link #limitedAccessGroupFolderName()}
    * @param subject the caller
    * @return true if in the limited group
    */
   public static boolean isAdminReadwriteLimitedTier(Subject subject) {
     return subject != null
-        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_ADMIN_READWRITE_LIMITED);
+        && GrouperMcpGroupMembership.isSubjectInGroup(subject, GROUP_ADMIN_READWRITE_LIMITED,
+            limitedAccessGroupFolderName());
   }
 
   /**
