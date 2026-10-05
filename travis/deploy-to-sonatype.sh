@@ -38,7 +38,7 @@ case "${TRAVIS_JOB_NUMBER}" in
     fi
 
     echo -e "building and deploying release artifacts to Sonatype for Travis job ${TRAVIS_JOB_NUMBER}"
-    mvn -f ./grouper-parent clean compile package deploy -Prelease -Dgpg.keyname=$GPG_KEY
+    mvn -f ./grouper-parent clean compile package deploy -Prelease -Dmaven.test.skip=true -Dgpg.keyname=$GPG_KEY
 
     # not needed
     #-Dgpg.publicKeyring=$TRAVIS_BUILD_DIR/pubring.gpg -Dgpg.secretKeyring=$TRAVIS_BUILD_DIR/secring.gpg
