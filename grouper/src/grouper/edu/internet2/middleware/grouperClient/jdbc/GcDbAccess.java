@@ -966,6 +966,13 @@ public class GcDbAccess {
     // note: this does not check the optimisticLockVersion of versioned classes, a bulk delete
     // deletes the rows by primary key even if someone else changed them (efficient batch delete)
     for (List<Object> listOfObjects: typeToObjects.values()) {
+
+      // let the beans do pre delete work (e.g. set the context id)
+      for (Object o : listOfObjects) {
+        if (o instanceof GcDbAccessLifecycle) {
+          ((GcDbAccessLifecycle)o).dbPreDelete();
+        }
+      }
       deleteFromDatabaseMultipleSameType(listOfObjects);
     }
     
@@ -1101,6 +1108,11 @@ public class GcDbAccess {
       if (!GcPersistableHelper.defaultUpdate(o.getClass())) {
         return;
       }
+    }
+
+    // let the bean do pre delete work (e.g. set the context id)
+    if (o instanceof GcDbAccessLifecycle) {
+      ((GcDbAccessLifecycle)o).dbPreDelete();
     }
 
     Field primaryKeyField = GcPersistableHelper.primaryKeyField(o.getClass());
@@ -1302,7 +1314,13 @@ public class GcDbAccess {
       if (keepPrimaryKeyColumns) {
         ((GcSqlAssignPrimaryKey)t).gcSqlAssignNewPrimaryKeyForInsert();
       }
-      
+
+      // let the bean set context id, timestamps, etc before the field values are read.
+      // unversioned defaultUpdate tries an update first, and calls this again if it falls back to insert
+      if (t instanceof GcDbAccessLifecycle) {
+        ((GcDbAccessLifecycle)t).dbPreStore(!previouslyPersisted);
+      }
+
       // Get column names and values
       for (Field field: GcPersistableHelper.heirarchicalFields(t.getClass())){
         field.setAccessible(true);
@@ -1326,6 +1344,17 @@ public class GcDbAccess {
         } catch (RuntimeException re) {
           if (LOG.isDebugEnabled()) {
             LOG.debug("Error trying to update a defaultUpdate record: " + t, re);
+          }
+
+          // it is an insert after all, tell the bean, and re-read the values it might have changed
+          if (t instanceof GcDbAccessLifecycle) {
+            ((GcDbAccessLifecycle)t).dbPreStore(true);
+            for (Field field: GcPersistableHelper.heirarchicalFields(t.getClass())){
+              String columnName = GcPersistableHelper.columnName(field);
+              if (columnNamesAndValues.containsKey(columnName)) {
+                columnNamesAndValues.put(columnName, field.get(t));
+              }
+            }
           }
           this.storeToDatabaseInsertHelper(t, columnNamesAndValues, primaryKey, keepPrimaryKeyColumns);
         }
@@ -1921,16 +1950,6 @@ public class GcDbAccess {
           }
         }
         
-        // Get column names and values
-        for (Field field : allFields){
-          if (fieldAndIncludeStatuses.get(field)){
-            columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(object));
-          }
-        }
-        
-        // The bind vars for the given object.
-        List<Object> bindVarstoUse = new ArrayList<Object>();
-
         // Update if we are already saved.
         Boolean isUpdate = null;
         if (isInsert != null) {
@@ -1942,6 +1961,22 @@ public class GcDbAccess {
             isUpdate = isPreviouslyPersisted.get(object);
           }
         }
+
+        // let the bean set context id, timestamps, etc before the field values are read
+        if (object instanceof GcDbAccessLifecycle) {
+          ((GcDbAccessLifecycle)object).dbPreStore(!isUpdate);
+        }
+
+        // Get column names and values
+        for (Field field : allFields){
+          if (fieldAndIncludeStatuses.get(field)){
+            columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(object));
+          }
+        }
+
+        // The bind vars for the given object.
+        List<Object> bindVarstoUse = new ArrayList<Object>();
+
         if (isUpdate){
 
           // Create the sql.
