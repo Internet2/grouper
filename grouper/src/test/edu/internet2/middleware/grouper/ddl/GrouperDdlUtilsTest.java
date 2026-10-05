@@ -1518,6 +1518,30 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     // second run is a no-op
     UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "file_contents_blob"));
+
+    // column comment (postgres / oracle): a run where the comment failed after the column was added is fixed by
+    // the next run, since the comment is set whenever the column exists
+    if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
+      assertTrue(StringUtils.defaultString(grp7446BlobComment()).startsWith("binary contents of the file"));
+      new GcDbAccess().sql("COMMENT ON COLUMN grouper_file.file_contents_blob IS ''").executeSql();
+      assertTrue(StringUtils.isBlank(grp7446BlobComment()));
+      UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+      assertTrue(StringUtils.defaultString(grp7446BlobComment()).startsWith("binary contents of the file"));
+    }
+  }
+
+  /**
+   * test helper: the column comment on grouper_file.file_contents_blob (postgres / oracle)
+   * @return the comment or null
+   */
+  private static String grp7446BlobComment() {
+    if (GrouperDdlUtils.isOracle()) {
+      return new GcDbAccess().sql("select comments from user_col_comments where table_name = 'GROUPER_FILE' "
+          + "and column_name = 'FILE_CONTENTS_BLOB'").select(String.class);
+    }
+    return new GcDbAccess().sql("select col_description('grouper_file'::regclass, "
+        + "(select attnum from pg_attribute where attrelid = 'grouper_file'::regclass and attname = 'file_contents_blob'))")
+        .select(String.class);
   }
 
   /**

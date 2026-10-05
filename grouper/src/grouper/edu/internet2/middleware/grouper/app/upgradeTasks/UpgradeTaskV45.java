@@ -38,7 +38,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * (zoom is optional).  Idempotent: skipped once the column is nullable and the index is non-unique.</p>
  *
  * <p>GRP-7446: add grouper_file.file_contents_blob (nullable; postgres bytea, oracle BLOB, mysql LONGBLOB) for
- * binary files.  No backfill, existing rows are text.  Idempotent: only added if missing.</p>
+ * binary files.  No backfill, existing rows are text.  Idempotent: only added if missing, the column comment is set
+ * each run so a comment that failed after the column was added is fixed.</p>
  *
  * <p>GRP-6303: widen grouper_failsafe.name from varchar(200) to varchar(512) like grouper_loader_log.job_name (the
  * failsafe name is the job name, and subjob names include a group name).  On mysql the unique index
@@ -101,6 +102,10 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
   /** GRP-7446: binary contents column */
   private static final String GRP_7446_COLUMN = "file_contents_blob";
+
+  /** GRP-7446: column comment, same as GrouperDdl7_7_0 and the install sql */
+  private static final String GRP_7446_COMMENT = "binary contents of the file (zip, xlsx, etc), null if the contents are "
+      + "text in file_contents_varchar or file_contents_clob";
 
   @Override
   public boolean upgradeTaskIsDdl() {
@@ -393,32 +398,35 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
   /**
    * GRP-7446: add grouper_file.file_contents_blob if missing.  Nullable, existing rows are text so there is
-   * nothing to backfill
+   * nothing to backfill.  The column comment is set whenever the column exists (not only right after adding it), so
+   * if a previous run added the column but failed on the comment, this run fixes the comment.  Setting a comment
+   * again is harmless
    * @param otherJobInput
    */
   private void grp7446FileContentsBlob(OtherJobInput otherJobInput) {
-    if (!grp7446HasAutomaticWork()) {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7446_TABLE)) {
       return;
     }
 
-    if (GrouperDdlUtils.isPostgres()) {
-      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " BYTEA").executeSql();
-    } else if (GrouperDdlUtils.isMysql()) {
-      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " LONGBLOB NULL").executeSql();
-    } else {
-      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD " + GRP_7446_COLUMN + " BLOB").executeSql();
+    if (!GrouperDdlUtils.assertColumnThere(true, GRP_7446_TABLE, GRP_7446_COLUMN)) {
+      if (GrouperDdlUtils.isPostgres()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " BYTEA").executeSql();
+      } else if (GrouperDdlUtils.isMysql()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " LONGBLOB NULL").executeSql();
+      } else {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD " + GRP_7446_COLUMN + " BLOB").executeSql();
+      }
+
+      LOG.info("GRP-7446: added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
+      }
     }
 
-    // comments are oracle / postgres only
+    // comments are oracle / postgres only.  Every run, so a comment that failed after the column was added is fixed
     if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-      new GcDbAccess().sql("COMMENT ON COLUMN " + GRP_7446_TABLE + "." + GRP_7446_COLUMN + " IS 'binary contents of the file "
-          + "(zip, xlsx, etc), null if the contents are text in file_contents_varchar or file_contents_clob'").executeSql();
-    }
-
-    LOG.info("GRP-7446: added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
-    if (otherJobInput != null) {
-      otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
+      new GcDbAccess().sql("COMMENT ON COLUMN " + GRP_7446_TABLE + "." + GRP_7446_COLUMN + " IS '" + GRP_7446_COMMENT + "'").executeSql();
     }
   }
 
