@@ -60,3 +60,6 @@ grouper-misc/googleapps-grouper-provisioner/docker-test/grouper/temp
 **/settings.local.json
 CLAUDE.local.md
 /plan.md
+
+# throwaway local JUnit suites (Trash*.java) for running a batch of tests in Eclipse, never commit
+**/test/**/Trash*.java
