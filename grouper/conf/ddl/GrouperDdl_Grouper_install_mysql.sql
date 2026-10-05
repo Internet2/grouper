@@ -1855,6 +1855,7 @@ CREATE TABLE grouper_file
     file_contents_bytes BIGINT,
     created_on_micros BIGINT NOT NULL,
     updated_on_micros BIGINT NOT NULL,
+    file_contents_blob LONGBLOB NULL,
     PRIMARY KEY (id)
 );
 

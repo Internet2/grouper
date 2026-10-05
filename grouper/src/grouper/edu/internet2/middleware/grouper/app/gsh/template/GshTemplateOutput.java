@@ -296,6 +296,21 @@ public class GshTemplateOutput {
     this.downloadGrouperFileId = grouperFile.getId();
     return this;
   }
+
+  /**
+   * GRP-7446: save binary contents (e.g. a zip, xlsx) as this template's download file for a date and file name,
+   * and download it after the template runs.  Same as the text version otherwise: an existing file for the same
+   * date and name is replaced
+   * @param date yyyy-MM-dd, the day this file is for (used by deleteExpiredDownloadFiles)
+   * @param fileName file name the browser saves, the extension decides the content type (e.g. .zip)
+   * @param contents binary contents
+   * @return this for chaining
+   */
+  public GshTemplateOutput assignDownloadFile(String date, String fileName, byte[] contents) {
+    GrouperFile grouperFile = GshTemplateDownloadFile.save(this.retrieveTemplateConfigIdRequired(), date, fileName, contents);
+    this.downloadGrouperFileId = grouperFile.getId();
+    return this;
+  }
   
   /**
    * GRP-7438: delete this template's download files whose date is more than retentionDays before

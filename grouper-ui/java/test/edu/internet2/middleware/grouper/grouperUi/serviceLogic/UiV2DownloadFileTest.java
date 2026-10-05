@@ -198,6 +198,14 @@ public class UiV2DownloadFileTest extends GrouperTest {
     assertEquals("application/json; charset=UTF-8", UiV2DownloadFile.contentType("a.json"));
     assertEquals("application/octet-stream", UiV2DownloadFile.contentType("a.html"));
     assertEquals("application/octet-stream", UiV2DownloadFile.contentType("noExtension"));
+    // GRP-7446 binary types
+    assertEquals("application/zip", UiV2DownloadFile.contentType("grouperMembers_2026-10-05.zip"));
+    assertEquals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", UiV2DownloadFile.contentType("a.XLSX"));
+    assertEquals("application/pdf", UiV2DownloadFile.contentType("a.pdf"));
+    assertTrue(UiV2DownloadFile.isCompressed("a.zip"));
+    assertTrue(UiV2DownloadFile.isCompressed("a.XLSX"));
+    assertFalse(UiV2DownloadFile.isCompressed("a.csv"));
+    assertFalse(UiV2DownloadFile.isCompressed("noExtension"));
   }
 
   /**
@@ -254,6 +262,31 @@ public class UiV2DownloadFileTest extends GrouperTest {
     assertNull(plainResponse.headers.get("Content-Encoding"));
     assertEquals(String.valueOf(csv.length()), plainResponse.headers.get("Content-Length"));
     assertEquals(csv.toString(), new String(plainResponse.body.toByteArray(), StandardCharsets.UTF_8));
+  }
+
+  /**
+   * GRP-7446: a binary file (zip) is written byte for byte, and not gzipped even if the browser accepts gzip
+   * since it is already compressed
+   * @throws IOException
+   */
+  public void testWriteFileZipNotGzipped() throws IOException {
+
+    // given: bytes that are not valid utf-8, so any text conversion would change them
+    byte[] zipBytes = new byte[] {'P', 'K', 3, 4, 0, (byte)0xff, (byte)0xfe, (byte)0x80, 10, 13};
+    GrouperFile grouperFile = new GrouperFile();
+    grouperFile.setFileName("grouperMembers_2026-10-05.zip");
+    grouperFile.setBytesToSave(zipBytes);
+
+    // when: browser accepts gzip
+    RecordingResponse response = new RecordingResponse();
+    UiV2DownloadFile.writeFile(grouperFile, "gzip, deflate, br", response.response);
+
+    // then: sent as is
+    assertEquals("application/zip", response.contentType);
+    assertNull(response.headers.get("Content-Encoding"));
+    assertEquals(String.valueOf(zipBytes.length), response.headers.get("Content-Length"));
+    assertTrue(response.headers.get("Content-Disposition").startsWith("attachment; filename=\"grouperMembers_2026-10-05.zip\""));
+    assertTrue(java.util.Arrays.equals(zipBytes, response.body.toByteArray()));
   }
 
 }

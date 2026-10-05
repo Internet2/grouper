@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.file.GrouperFile;
  * changed by UpgradeTaskV45).
  *
  * <p>GRP-7439: grouper_file.created_on_micros and grouper_file.updated_on_micros.</p>
+ * <p>GRP-7446: grouper_file.file_contents_blob.</p>
  */
 public class GrouperDdl7_7_0 {
 
@@ -84,6 +85,45 @@ public class GrouperDdl7_7_0 {
         GrouperFile.TABLE_GROUPER_FILE,
         GrouperFile.COLUMN_UPDATED_ON_MICROS,
         "timestamp in micros since 1970 when this file row was last saved");
+  }
+
+  // ------- grouper_file binary contents (GRP-7446) -------
+
+  /**
+   * GRP-7446: add grouper_file.file_contents_blob, nullable (only binary files use it).  Types.BLOB with no size
+   * like the quartz job_data columns: postgres BYTEA, oracle BLOB, mysql LONGBLOB
+   * @param database
+   * @param ddlVersionBean
+   */
+  static void addGrouperFileBlobColumn(Database database, DdlVersionBean ddlVersionBean) {
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    if (ddlVersionBean.didWeDoThis("v7_7_0_addGrouperFileBlobColumn", true)) {
+      return;
+    }
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, GrouperFile.TABLE_GROUPER_FILE);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, GrouperFile.COLUMN_FILE_CONTENTS_BLOB,
+        Types.BLOB, null, false, false);
+  }
+
+  /**
+   * GRP-7446: comment for grouper_file.file_contents_blob
+   * @param database
+   * @param ddlVersionBean
+   */
+  static void addGrouperFileBlobComments(Database database, DdlVersionBean ddlVersionBean) {
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    if (ddlVersionBean.didWeDoThis("v7_7_0_addGrouperFileBlobComments", true)) {
+      return;
+    }
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+        GrouperFile.TABLE_GROUPER_FILE,
+        GrouperFile.COLUMN_FILE_CONTENTS_BLOB,
+        "binary contents of the file (zip, xlsx, etc), null if the contents are text in file_contents_varchar or file_contents_clob");
   }
 
 }

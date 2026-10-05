@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.file;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -51,6 +53,9 @@ public class GrouperFile implements GcDbAccessLifecycle {
 
   /** micros since 1970 when this row was last saved (insert or update) */
   public static final String COLUMN_UPDATED_ON_MICROS = "updated_on_micros";
+
+  /** binary contents of the file (zip, xlsx, etc), null if the contents are text (GRP-7446) */
+  public static final String COLUMN_FILE_CONTENTS_BLOB = "file_contents_blob";
 
   /** optimistic locking version of the row */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
@@ -197,10 +202,16 @@ public class GrouperFile implements GcDbAccessLifecycle {
   }
 
   /**
-   * retrieve value. based on the size, it will be retrieved from file_contents_varchar or file_contents_clob
+   * retrieve value. based on the size, it will be retrieved from file_contents_varchar or file_contents_clob.
+   * Throws if the file is binary, use retrieveBytes() for that
    * @return the contents
    */
   public String retrieveValue() {
+
+    // a binary file has no text, dont quietly hand back null
+    if (this.fileContentsBlob != null) {
+      throw new RuntimeException("File '" + this.filePath + "' is binary, use retrieveBytes()");
+    }
 
     if (StringUtils.isNotBlank(this.fileContentsVarchar)) {
       return this.fileContentsVarchar;
@@ -245,6 +256,64 @@ public class GrouperFile implements GcDbAccessLifecycle {
       this.fileContentsVarchar = null;
     }
     this.fileContentsBytes = Long.valueOf(lengthAscii);
+    // a row is either text or binary
+    this.fileContentsBlob = null;
+  }
+
+  /**
+   * binary contents (zip, xlsx, etc), null if the contents are text.  Note: oracle stores an empty byte[] as
+   * null, so an empty binary file reads back as an empty text file (retrieveBytes() is still an empty array)
+   */
+  private byte[] fileContentsBlob;
+
+  /**
+   * binary contents, null if the contents are text
+   * @return the bytes or null
+   */
+  public byte[] getFileContentsBlobDb() {
+    return this.fileContentsBlob;
+  }
+
+  /**
+   * @param fileContentsBlob1
+   */
+  public void setFileContentsBlobDb(byte[] fileContentsBlob1) {
+    this.fileContentsBlob = fileContentsBlob1;
+  }
+
+  /**
+   * set binary contents to save (GRP-7446), e.g. a zip.  Clears the text columns, a row is either text or binary.
+   * file_contents_bytes is the byte length, so grouperFile.maxSizeBytes applies
+   * @param bytes
+   */
+  public void setBytesToSave(byte[] bytes) {
+    if (bytes == null) {
+      throw new RuntimeException("Bytes cannot be null for file: " + this.filePath);
+    }
+    this.fileContentsBlob = bytes;
+    this.fileContentsVarchar = null;
+    this.fileContentsClob = null;
+    this.fileContentsBytes = Long.valueOf(bytes.length);
+  }
+
+  /**
+   * @return true if the contents are binary (file_contents_blob), false if text
+   */
+  public boolean isBinary() {
+    return this.fileContentsBlob != null;
+  }
+
+  /**
+   * retrieve the contents as bytes whether the file is binary or text (text as UTF-8), e.g. for a download.
+   * Never null, an empty file is an empty array
+   * @return the bytes
+   */
+  public byte[] retrieveBytes() {
+    if (this.fileContentsBlob != null) {
+      return this.fileContentsBlob;
+    }
+    String text = StringUtils.isNotBlank(this.fileContentsVarchar) ? this.fileContentsVarchar : this.fileContentsClob;
+    return StringUtils.defaultString(text).getBytes(StandardCharsets.UTF_8);
   }
 
   /**

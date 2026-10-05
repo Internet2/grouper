@@ -1,8 +1,14 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -324,6 +330,77 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
   private static Long grp7439MicrosFromDb(String id, String column) {
     return new GcDbAccess().sql("select " + column + " from grouper_file where id = ?")
         .addBindVar(id).select(Long.class);
+  }
+
+  /**
+   * GRP-7446 full cycle with a binary file: the demo template (same source as GshTemplateDownloadZipDbSeeder)
+   * queries grouper_members, zips the csv, and saves it with assignDownloadFile(date, name, byte[]).  The row
+   * is binary (file_contents_blob, text columns null), unzips to the csv with a header plus one line per member,
+   * and a second run the same day reuses the file instead of recomputing it.
+   * @throws IOException
+   */
+  public void testZipDownloadFullCycle() throws IOException {
+
+    // given: the demo zip template, report date from the input so the test controls the day
+    GrouperSession.startRootSession();
+    configureCompiledTemplate(GshTemplateDownloadZipDbSeeder.templateJavaSource(
+        "in.getGsh_builtin_inputString(\"gsh_input_myExtension\")"));
+    String day = "2026-10-05";
+    String zipFileName = "grouperMembers_" + day + ".zip";
+
+    // when: first run computes it
+    GshTemplateExecOutput output1 = runTemplate(day);
+    int memberCount = new GcDbAccess().sql("select count(*) from grouper_members").select(int.class);
+
+    // then: output and a binary download file
+    String line1 = output1.getGshTemplateOutput().getOutputLines().get(0).getText();
+    assertTrue(line1, line1.startsWith("Computed " + memberCount + " members: " + zipFileName));
+    String fileId = output1.getGshTemplateOutput().getDownloadGrouperFileId();
+    assertTrue(StringUtils.isNotBlank(fileId));
+
+    GrouperFile grouperFile = GrouperFileDao.findById(fileId, true);
+    assertEquals(zipFileName, grouperFile.getFileName());
+    assertEquals(GshTemplateDownloadFile.filePath(CONFIG_ID, day, zipFileName), grouperFile.getFilePath());
+    assertTrue(grouperFile.isBinary());
+    assertNull(grouperFile.getFileContentsVarcharDb());
+    assertNull(grouperFile.getFileContentsClobDb());
+    byte[] zipBytes = grouperFile.retrieveBytes();
+    assertEquals(Long.valueOf(zipBytes.length), grouperFile.getFileContentsBytes());
+    // zip files start with PK
+    assertEquals('P', (char)zipBytes[0]);
+    assertEquals('K', (char)zipBytes[1]);
+    try {
+      grouperFile.retrieveValue();
+      fail("binary file has no text value");
+    } catch (RuntimeException re) {
+      // expected
+    }
+
+    // unzip: one entry, the csv
+    String csv = null;
+    try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+      ZipEntry zipEntry = zipInputStream.getNextEntry();
+      assertEquals("grouperMembers_" + day + ".csv", zipEntry.getName());
+      ByteArrayOutputStream csvBytes = new ByteArrayOutputStream();
+      zipInputStream.transferTo(csvBytes);
+      csv = new String(csvBytes.toByteArray(), StandardCharsets.UTF_8);
+      assertNull("only one entry", zipInputStream.getNextEntry());
+    }
+    List<String> lines = GrouperUtil.splitFileLines(StringUtils.removeEnd(csv, "\n"));
+    assertEquals(1 + memberCount, lines.size());
+    assertEquals("\"subject_source\",\"subject_id\",\"subject_identifier0\",\"name\",\"description\"", lines.get(0));
+    assertTrue(csv, csv.contains("\"g:isa\",\"GrouperSystem\""));
+    Long updatedOnMicros = grouperFile.getUpdatedOnMicros();
+
+    // when: second run the same day
+    GshTemplateExecOutput output2 = runTemplate(day);
+
+    // then: reused, not recomputed or re-saved
+    String line2 = output2.getGshTemplateOutput().getOutputLines().get(0).getText();
+    assertEquals("Using the file already computed for " + day + ": " + zipFileName, line2);
+    assertEquals(fileId, output2.getGshTemplateOutput().getDownloadGrouperFileId());
+    assertEquals(updatedOnMicros, GrouperFileDao.findById(fileId, true).getUpdatedOnMicros());
+    assertEquals(1, countFiles(GshTemplateDownloadFile.SYSTEM_NAME));
   }
 
   /**

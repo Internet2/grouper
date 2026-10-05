@@ -1329,6 +1329,63 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
+   * GRP-7446: validate grouper_file.file_contents_blob.  A fresh install has the column and the deep DDL compare
+   * is clean (modeled as Types.BLOB like the quartz job_data columns).  Then simulate a pre-GRP-7446 database
+   * (column dropped): UpgradeTaskV45 adds it back, binary data round trips, and a second run is a no-op.  Runs on
+   * all three databases.
+   */
+  public void testGrp7446FileContentsBlob() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the install SQL must create the column, nullable
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "file_contents_blob"));
+    assertTrue(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_file", "file_contents_blob"));
+
+    // the deep compare must agree with the install
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate a pre-GRP-7446 database
+    new GcDbAccess().sql("ALTER TABLE grouper_file DROP COLUMN file_contents_blob").executeSql();
+    assertFalse(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "file_contents_blob"));
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task adds it back
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "file_contents_blob"));
+    assertTrue(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_file", "file_contents_blob"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // binary round trip in the added column
+    byte[] bytes = new byte[] {0, 1, 2, (byte)0xff, (byte)0x80};
+    long nowMicros = System.currentTimeMillis() * 1000L;
+    new GcDbAccess().sql("insert into grouper_file (id, system_name, file_name, file_path, hibernate_version_number, "
+        + "file_contents_blob, created_on_micros, updated_on_micros) values (?, ?, ?, ?, ?, ?, ?, ?)")
+      .addBindVar(GrouperUuid.getUuid()).addBindVar("test").addBindVar("grp7446.zip").addBindVar("test/grp7446.zip")
+      .addBindVar(0L).addBindVar(bytes).addBindVar(nowMicros).addBindVar(nowMicros).executeSql();
+    assertTrue(java.util.Arrays.equals(bytes, new GcDbAccess().sql(
+        "select file_contents_blob from grouper_file where file_path = 'test/grp7446.zip'").select(byte[].class)));
+
+    // second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "file_contents_blob"));
+  }
+
+  /**
    * GRP-7076: validate that UpgradeTaskV43 widens the columns from varchar(255) to varchar(1024) on oracle and
    * mysql (including dropping/recreating the mysql indexes as (255) prefixes).  Postgres is skipped: there the
    * widening is a manual DBA task because ALTER COLUMN ... TYPE is blocked by the dependent views, so

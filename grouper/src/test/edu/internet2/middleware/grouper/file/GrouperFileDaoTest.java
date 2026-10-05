@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.file;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Random;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -247,6 +251,82 @@ public class GrouperFileDaoTest extends GrouperTest {
     } finally {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperFileDao.CONFIG_MAX_SIZE_BYTES);
     }
+  }
+
+  /**
+   * GRP-7446: binary contents in file_contents_blob.  A ~5MB random byte array round trips (by id and by path),
+   * the text columns are null for a binary row, switching text to binary and back clears the other columns,
+   * retrieveValue() throws on a binary row, retrieveBytes() works for both, and grouperFile.maxSizeBytes
+   * applies to the byte length
+   */
+  public void testBinaryContents() {
+
+    // given: random bytes (not valid utf-8, so any text conversion would corrupt them)
+    byte[] bigBytes = new byte[5 * 1024 * 1024 + 7];
+    new Random(7446).nextBytes(bigBytes);
+    GrouperFile grouperFile = newFile("/grp7446/a.zip", "placeholder");
+    grouperFile.setBytesToSave(bigBytes);
+    assertTrue(grouperFile.isBinary());
+    assertNull(grouperFile.getFileContentsVarcharDb());
+    assertNull(grouperFile.getFileContentsClobDb());
+
+    // when
+    GrouperFileDao.store(grouperFile);
+
+    // then: binary round trip by id and by path
+    GrouperFile loaded = GrouperFileDao.findById(grouperFile.getId(), true);
+    assertTrue(loaded.isBinary());
+    assertTrue(Arrays.equals(bigBytes, loaded.getFileContentsBlobDb()));
+    assertTrue(Arrays.equals(bigBytes, loaded.retrieveBytes()));
+    assertNull(loaded.getFileContentsVarcharDb());
+    assertNull(loaded.getFileContentsClobDb());
+    assertEquals(Long.valueOf(bigBytes.length), loaded.getFileContentsBytes());
+    assertTrue(Arrays.equals(bigBytes, GrouperFileDao.findByFilePath("/grp7446/a.zip", true).retrieveBytes()));
+    try {
+      loaded.retrieveValue();
+      fail("binary file has no text value");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("retrieveBytes"));
+    }
+
+    // when: same row switched to text
+    loaded.setValueToSave("now text");
+    GrouperFileDao.store(loaded);
+
+    // then: blob cleared
+    GrouperFile textFile = GrouperFileDao.findById(grouperFile.getId(), true);
+    assertFalse(textFile.isBinary());
+    assertNull(textFile.getFileContentsBlobDb());
+    assertEquals("now text", textFile.retrieveValue());
+    assertTrue(Arrays.equals("now text".getBytes(StandardCharsets.UTF_8), textFile.retrieveBytes()));
+
+    // when: back to binary (small)
+    byte[] smallBytes = new byte[] {0, 1, 2, (byte)0xff, (byte)0xfe};
+    textFile.setBytesToSave(smallBytes);
+    GrouperFileDao.store(textFile);
+
+    // then: text cleared
+    GrouperFile binaryAgain = GrouperFileDao.findById(grouperFile.getId(), true);
+    assertTrue(Arrays.equals(smallBytes, binaryAgain.retrieveBytes()));
+    assertNull(binaryAgain.getFileContentsVarcharDb());
+    assertNull(binaryAgain.getFileContentsClobDb());
+    assertEquals(Long.valueOf(5), binaryAgain.getFileContentsBytes());
+
+    // the max size applies to binary files too
+    try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperFileDao.CONFIG_MAX_SIZE_BYTES, "4");
+      binaryAgain.setBytesToSave(new byte[] {1, 2, 3, 4, 5});
+      try {
+        GrouperFileDao.store(binaryAgain);
+        fail("expected exception");
+      } catch (RuntimeException re) {
+        assertTrue(re.getMessage(), re.getMessage().contains(GrouperFileDao.CONFIG_MAX_SIZE_BYTES));
+      }
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperFileDao.CONFIG_MAX_SIZE_BYTES);
+    }
+
+    GrouperFileDao.deleteById(grouperFile.getId());
   }
 
 }

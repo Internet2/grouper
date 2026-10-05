@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -248,7 +248,8 @@ public class UiV2DownloadFile {
   static void writeFile(GrouperFile grouperFile, String acceptEncoding, HttpServletResponse response) throws IOException {
 
     String fileName = grouperFile.getFileName();
-    byte[] contents = StringUtils.defaultString(grouperFile.retrieveValue()).getBytes(StandardCharsets.UTF_8);
+    // GRP-7446: binary (blob) or text (as UTF-8)
+    byte[] contents = grouperFile.retrieveBytes();
 
     response.setContentType(contentType(fileName));
     response.setHeader("Content-Disposition", contentDisposition(fileName));
@@ -256,7 +257,8 @@ public class UiV2DownloadFile {
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("X-Content-Type-Options", "nosniff");
 
-    boolean gzip = StringUtils.defaultString(acceptEncoding).toLowerCase().contains("gzip");
+    // dont gzip a file that is already compressed (zip, xlsx, png, etc), it does not get smaller
+    boolean gzip = StringUtils.defaultString(acceptEncoding).toLowerCase().contains("gzip") && !isCompressed(fileName);
 
     OutputStream outputStream = response.getOutputStream();
     if (gzip) {
@@ -292,7 +294,45 @@ public class UiV2DownloadFile {
     if ("xml".equals(extension)) {
       return "application/xml; charset=UTF-8";
     }
+    // GRP-7446 binary types
+    if ("zip".equals(extension)) {
+      return "application/zip";
+    }
+    if ("gz".equals(extension)) {
+      return "application/gzip";
+    }
+    if ("xlsx".equals(extension)) {
+      return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    }
+    if ("docx".equals(extension)) {
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    }
+    if ("pdf".equals(extension)) {
+      return "application/pdf";
+    }
+    if ("png".equals(extension)) {
+      return "image/png";
+    }
+    if ("jpg".equals(extension) || "jpeg".equals(extension)) {
+      return "image/jpeg";
+    }
     return "application/octet-stream";
+  }
+
+  /**
+   * file types that are already compressed, so gzipping the download would not help
+   */
+  private static final Set<String> COMPRESSED_EXTENSIONS = GrouperUtil.toSet(
+      "zip", "gz", "tgz", "7z", "xlsx", "docx", "pptx", "pdf", "png", "jpg", "jpeg", "gif");
+
+  /**
+   * GRP-7446: whether the file is already compressed (by extension), so it is not gzipped on download
+   * @param fileName
+   * @return true if compressed
+   */
+  static boolean isCompressed(String fileName) {
+    String extension = StringUtils.defaultString(StringUtils.substringAfterLast(fileName, ".")).toLowerCase();
+    return COMPRESSED_EXTENSIONS.contains(extension);
   }
 
   /**

@@ -1953,6 +1953,7 @@ CREATE TABLE grouper_file
     file_contents_clob CLOB,
     created_on_micros NUMBER(38) NOT NULL,
     updated_on_micros NUMBER(38) NOT NULL,
+    file_contents_blob BLOB,
     PRIMARY KEY (id)
 );
 
@@ -3635,6 +3636,8 @@ COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in 
 COMMENT ON COLUMN grouper_file.created_on_micros IS 'timestamp in micros since 1970 when this file row was created';
 
 COMMENT ON COLUMN grouper_file.updated_on_micros IS 'timestamp in micros since 1970 when this file row was last saved';
+
+COMMENT ON COLUMN grouper_file.file_contents_blob IS 'binary contents of the file (zip, xlsx, etc), null if the contents are text in file_contents_varchar or file_contents_clob';
 
 COMMENT ON COLUMN grouper_sync.last_full_sync_start IS 'start time of last successful full sync';
 

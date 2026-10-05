@@ -117,7 +117,45 @@ public class GshTemplateDownloadFile {
     if (contents == null) {
       throw new RuntimeException("Contents cannot be null for file: " + fileName);
     }
+    GrouperFile grouperFile = findOrNew(templateConfigId, date, fileName);
 
+    // goes to varchar or clob based on size
+    grouperFile.setValueToSave(contents);
+
+    GrouperFileDao.store(grouperFile);
+    return grouperFile;
+  }
+
+  /**
+   * GRP-7446: save binary contents (e.g. a zip) for a template, date, and file name.  If the row is already
+   * there its contents are replaced (text or binary), so the id stays the same.  Stored unencrypted.
+   * @param templateConfigId
+   * @param date yyyy-MM-dd
+   * @param fileName
+   * @param contents binary contents, e.g. a zip
+   * @return the saved row
+   */
+  public static GrouperFile save(String templateConfigId, String date, String fileName, byte[] contents) {
+    if (contents == null) {
+      throw new RuntimeException("Contents cannot be null for file: " + fileName);
+    }
+    GrouperFile grouperFile = findOrNew(templateConfigId, date, fileName);
+
+    // goes to file_contents_blob, clears the text columns
+    grouperFile.setBytesToSave(contents);
+
+    GrouperFileDao.store(grouperFile);
+    return grouperFile;
+  }
+
+  /**
+   * the existing row for this template, date, and file name, or a new unsaved one
+   * @param templateConfigId
+   * @param date yyyy-MM-dd
+   * @param fileName
+   * @return the file, contents not set yet for a new one
+   */
+  private static GrouperFile findOrNew(String templateConfigId, String date, String fileName) {
     GrouperFile grouperFile = findByDate(templateConfigId, date, fileName);
 
     if (grouperFile == null) {
@@ -127,11 +165,6 @@ public class GshTemplateDownloadFile {
       grouperFile.setFilePath(filePath(templateConfigId, date, fileName));
       grouperFile.setFileName(fileName);
     }
-
-    // goes to varchar or clob based on size
-    grouperFile.setValueToSave(contents);
-
-    GrouperFileDao.store(grouperFile);
     return grouperFile;
   }
 

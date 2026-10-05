@@ -32,6 +32,9 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * nullable and recreate grouper_zoom_user_id_idx (id, config_id) as non-unique.  Several pending users in
  * one config would otherwise fail the NOT NULL, or collide on the unique index.  Only if the table exists
  * (zoom is optional).  Idempotent: skipped once the column is nullable and the index is non-unique.</p>
+ *
+ * <p>GRP-7446: add grouper_file.file_contents_blob (nullable; postgres bytea, oracle BLOB, mysql LONGBLOB) for
+ * binary files.  No backfill, existing rows are text.  Idempotent: only added if missing.</p>
  */
 public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
@@ -59,6 +62,12 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
   /** GRP-7445: index on (id, config_id), made non-unique */
   private static final String GRP_7445_INDEX = "grouper_zoom_user_id_idx";
 
+  /** GRP-7446: table getting the binary contents column */
+  private static final String GRP_7446_TABLE = "grouper_file";
+
+  /** GRP-7446: binary contents column */
+  private static final String GRP_7446_COLUMN = "file_contents_blob";
+
   @Override
   public boolean upgradeTaskIsDdl() {
     return true;
@@ -82,6 +91,9 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     // GRP-7445 grouper_prov_zoom_user.id nullable, grouper_zoom_user_id_idx non-unique
     workToDo |= grp7445HasAutomaticWork();
 
+    // GRP-7446 grouper_file.file_contents_blob
+    workToDo |= grp7446HasAutomaticWork();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
@@ -97,6 +109,7 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
         grp7417FileContentsClobToText(otherJobInput);
         grp7439FileTimestamps(otherJobInput);
         grp7445ZoomUserIdNullable(otherJobInput);
+        grp7446FileContentsBlob(otherJobInput);
         return null;
       }
     });
@@ -316,6 +329,48 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
         otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
         otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", recreated index " + GRP_7445_INDEX + " as non-unique");
       }
+    }
+  }
+
+  /**
+   * Whether GRP-7446 has work: the grouper_file table exists and file_contents_blob is missing
+   * @return true if the column needs to be added
+   */
+  private boolean grp7446HasAutomaticWork() {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7446_TABLE)) {
+      return false;
+    }
+    return !GrouperDdlUtils.assertColumnThere(true, GRP_7446_TABLE, GRP_7446_COLUMN);
+  }
+
+  /**
+   * GRP-7446: add grouper_file.file_contents_blob if missing.  Nullable, existing rows are text so there is
+   * nothing to backfill
+   * @param otherJobInput
+   */
+  private void grp7446FileContentsBlob(OtherJobInput otherJobInput) {
+    if (!grp7446HasAutomaticWork()) {
+      return;
+    }
+
+    if (GrouperDdlUtils.isPostgres()) {
+      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " BYTEA").executeSql();
+    } else if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD COLUMN " + GRP_7446_COLUMN + " LONGBLOB NULL").executeSql();
+    } else {
+      new GcDbAccess().sql("ALTER TABLE " + GRP_7446_TABLE + " ADD " + GRP_7446_COLUMN + " BLOB").executeSql();
+    }
+
+    // comments are oracle / postgres only
+    if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
+      new GcDbAccess().sql("COMMENT ON COLUMN " + GRP_7446_TABLE + "." + GRP_7446_COLUMN + " IS 'binary contents of the file "
+          + "(zip, xlsx, etc), null if the contents are text in file_contents_varchar or file_contents_clob'").executeSql();
+    }
+
+    LOG.info("GRP-7446: added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
+    if (otherJobInput != null) {
+      otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
     }
   }
 
