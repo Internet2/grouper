@@ -1663,6 +1663,76 @@ public class GrouperProvisioningLogicIncremental {
     }
 
     this.getGrouperProvisioner().getDebugMap().put("retrieveGrouperMembershipsForLinkDetectedIdChanges", true);
+    this.reloadGrouperMembershipsAttachSyncTranslateAndIndex();
+
+    // Some provisioners can only retrieve memberships by one side (e.g. Okta retrieves memberships by
+    // group, not by entity).  In that case an id change on the entity cannot pull the recreated user's
+    // (empty) roster by entity, so the compare never sees the still-"in target" memberships as missing.
+    // Bridge to the other side: for a newly-flagged entity, mark the groups of its memberships for
+    // membership recalc (and symmetrically for a newly-flagged group when only by-entity retrieval is
+    // available), so those rosters are retrieved and the missing memberships re-inserted.
+    boolean selectMembershipsAllForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity();
+    boolean selectMembershipsAllForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup();
+    boolean bridgedNewObjectForMembershipRecalc = false;
+    if ((!selectMembershipsAllForEntity && selectMembershipsAllForGroup)
+        || (!selectMembershipsAllForGroup && selectMembershipsAllForEntity)) {
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+        ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+        ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+        if (entityWrapper == null || groupWrapper == null) {
+          continue;
+        }
+        // entity id change, but memberships are retrieved by group -> recalc the entity's groups
+        if (!selectMembershipsAllForEntity && selectMembershipsAllForGroup
+            && entityWrapper.getMemberId() != null
+            && entityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()
+            && !GrouperUtil.nonNull(memberIdsRecalcMembershipsBeforeLink).contains(entityWrapper.getMemberId())
+            && !groupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+          groupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+          bridgedNewObjectForMembershipRecalc = true;
+        }
+        // group id change, but memberships are retrieved by entity -> recalc the group's entities
+        if (!selectMembershipsAllForGroup && selectMembershipsAllForEntity
+            && groupWrapper.getGroupId() != null
+            && groupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()
+            && !GrouperUtil.nonNull(groupIdsRecalcMembershipsBeforeLink).contains(groupWrapper.getGroupId())
+            && !entityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+          entityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+          bridgedNewObjectForMembershipRecalc = true;
+        }
+      }
+    }
+
+    // GRP-7412: the bridge just newly flagged the OTHER side (e.g. the recreated entity's groups) for
+    // full membership recalc, but the grouper membership reload above ran BEFORE that, so only the
+    // recreated object's own memberships are loaded on the grouper side -- the bridged group's OTHER
+    // members are missing.  determineGroupsToSelect below then makes retrieveIncrementalTargetMemberships
+    // pull the bridged group's FULL target roster, and with deleteMembershipsIfNotExistInGrouper those
+    // other members look orphaned (in target, not in grouper) and get wrongly deleted.  Reload grouper
+    // memberships again, keyed off the now-updated recalc flags, so the bridged objects' full grouper
+    // rosters are present for the compare.
+    if (bridgedNewObjectForMembershipRecalc) {
+      this.reloadGrouperMembershipsAttachSyncTranslateAndIndex();
+    }
+
+    // mark the recalc entity/group to select ALL its memberships (determine*ToSelect ran earlier this
+    // run, before the link flagged these objects).  This makes retrieveIncrementalTargetMemberships pull
+    // the object's full target membership roster so the compare inserts the memberships that are missing
+    // on the recreated target object.
+    this.determineGroupsToSelect();
+    this.determineEntitiesToSelect();
+  }
+
+  /**
+   * Reload grouper memberships for objects currently flagged for membership recalc, then attach their
+   * sync objects and (re)translate + (re)index grouper groups/entities so the membership translate and
+   * compare can resolve target ids.  Called by {@link #retrieveGrouperMembershipsForLinkDetectedIdChanges}
+   * both right after the link detects a target id change and again after the by-group/by-entity bridge
+   * flags the other side for membership recalc (GRP-7412), so the bridged objects' full grouper rosters
+   * are loaded before the target rosters are retrieved and compared.
+   */
+  private void reloadGrouperMembershipsAttachSyncTranslateAndIndex() {
+
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalMemberships();
 
     // the reloaded memberships can reference groups/entities that were not part of this run (e.g. the
@@ -1687,46 +1757,6 @@ public class GrouperProvisioningLogicIncremental {
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetEntities());
     this.getGrouperProvisioner().retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
     this.getGrouperProvisioner().retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
-
-    // Some provisioners can only retrieve memberships by one side (e.g. Okta retrieves memberships by
-    // group, not by entity).  In that case an id change on the entity cannot pull the recreated user's
-    // (empty) roster by entity, so the compare never sees the still-"in target" memberships as missing.
-    // Bridge to the other side: for a newly-flagged entity, mark the groups of its memberships for
-    // membership recalc (and symmetrically for a newly-flagged group when only by-entity retrieval is
-    // available), so those rosters are retrieved and the missing memberships re-inserted.
-    boolean selectMembershipsAllForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity();
-    boolean selectMembershipsAllForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup();
-    if ((!selectMembershipsAllForEntity && selectMembershipsAllForGroup)
-        || (!selectMembershipsAllForGroup && selectMembershipsAllForEntity)) {
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-        ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
-        ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
-        if (entityWrapper == null || groupWrapper == null) {
-          continue;
-        }
-        // entity id change, but memberships are retrieved by group -> recalc the entity's groups
-        if (!selectMembershipsAllForEntity && selectMembershipsAllForGroup
-            && entityWrapper.getMemberId() != null
-            && entityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()
-            && !GrouperUtil.nonNull(memberIdsRecalcMembershipsBeforeLink).contains(entityWrapper.getMemberId())) {
-          groupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
-        }
-        // group id change, but memberships are retrieved by entity -> recalc the group's entities
-        if (!selectMembershipsAllForGroup && selectMembershipsAllForEntity
-            && groupWrapper.getGroupId() != null
-            && groupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()
-            && !GrouperUtil.nonNull(groupIdsRecalcMembershipsBeforeLink).contains(groupWrapper.getGroupId())) {
-          entityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
-        }
-      }
-    }
-
-    // mark the recalc entity/group to select ALL its memberships (determine*ToSelect ran earlier this
-    // run, before the link flagged these objects).  This makes retrieveIncrementalTargetMemberships pull
-    // the object's full target membership roster so the compare inserts the memberships that are missing
-    // on the recreated target object.
-    this.determineGroupsToSelect();
-    this.determineEntitiesToSelect();
   }
 
 

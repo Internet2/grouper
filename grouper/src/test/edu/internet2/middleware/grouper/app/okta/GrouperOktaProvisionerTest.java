@@ -54,7 +54,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testGroupTargetIdChangePureRecreateNotDetectedIncremental"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncCapturesOrphanTargetEntities"));
     
   }
   
@@ -659,6 +659,129 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
     assertTrue(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId()).isInTarget());
     assertTrue(gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member1.getId()).isInTarget());
+  }
+
+  /**
+   * GRP-7412: when a user's target id changes (a target-only id that the target owns and can change at
+   * any time, e.g. Okta) and that user's membership is then (re-)added, the incremental must NOT delete
+   * the OTHER (unchanged) members of that group.
+   *
+   * <p>Same mechanics as {@link #testEntityTargetIdChangeDoesNotRemoveOtherMembersIncremental()} -- the
+   * reliable way to model the ticket's "the first incremental errored, the second one retries it" is an
+   * errored membership that the error-retry queue reprocesses -- but with the ticket's distinguishing
+   * configuration: the provisioner matches entities on BOTH login AND id, matches groups on BOTH name
+   * AND id, and runs with deleteMembershipsIfNotExistInGrouper=true.  That combination is what makes the
+   * retry wrongly schedule the untouched bystander (SUBJ1) for deletion.</p>
+   *
+   * <p>Scenario: SUBJ0 and SUBJ1 are in both groups and fully synced.  SUBJ0's target user is recreated
+   * with a new id (same login) and its membership rows are dropped; SUBJ0's test:testGroup membership is
+   * marked errored/not-in-target (the failed first incremental).  The next incremental recalcs SUBJ0,
+   * the link detects the new target id, and the retry re-sends SUBJ0's memberships to the recreated user.
+   * The bug: the bystander SUBJ1 is removed from the target groups in the process.</p>
+   *
+   * <p>Fix-specific assertion: SUBJ1 remains a member of both groups in the target.</p>
+   */
+  public void testEntityTargetIdChangeReAddDoesNotDeleteOtherMembersIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput()
+        .addExtraConfig("customizeMembershipCrud", "true")
+        .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "true")
+        .addExtraConfig("entityMatchingAttributeCount", "2")
+        .addExtraConfig("entityMatchingAttribute1name", "id")
+        .addExtraConfig("groupMatchingAttributeCount", "2")
+        .addExtraConfig("groupMatchingAttribute1name", "id"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    // this creates the mock tables
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    // SUBJ0 is the user whose target id will change; SUBJ1 is the bystander in both groups that must survive
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    // full sync: both groups, both users, and all four memberships are in the target
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    String staleUser0Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2();
+    String user1Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2();
+    assertNotNull(staleUser0Id);
+    assertNotNull(user1Id);
+
+    String group0TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).getGroupAttributeValueCache2();
+    String group1TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).getGroupAttributeValueCache2();
+    assertNotNull(group0TargetId);
+    assertNotNull(group1TargetId);
+
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(user1Id));
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId).contains(user1Id));
+
+    // ---- out-of-band target recreate of SUBJ0 only: drop SUBJ0's membership rows and give SUBJ0's
+    //      target user a NEW id (same login).  SUBJ1 is untouched; the link cache keeps the stale id. ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUser0Id).executeSql();
+    String freshUser0Id = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUser0Id).addBindVar(staleUser0Id).executeSql();
+    assertFalse(staleUser0Id.equals(freshUser0Id));
+
+    // ---- SUBJ0's test:testGroup membership failed on a previous incremental (the ticket's "first
+    //      incremental errored"), which is what makes this incremental recalc SUBJ0 and notice its id change ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    // ---- the retry incremental (the ticket's "second incremental"): re-sends SUBJ0 to the recreated
+    //      user.  The bug deletes the bystander SUBJ1 from the groups. ----
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member0.getId());
+    assertNotNull(provisioningEntityWrapper);
+    // precondition: the id change was detected, so the recalc bridged to SUBJ0's groups
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+
+    Set<String> group0Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId);
+    Set<String> group1Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId);
+
+    // SUBJ0 is back in both groups under the new id
+    assertTrue("SUBJ0 should be re-sent to test:testGroup under new id: " + group0Members, group0Members.contains(freshUser0Id));
+    assertTrue("SUBJ0 should be re-sent to test:testGroup2 under new id: " + group1Members, group1Members.contains(freshUser0Id));
+
+    // KEY (GRP-7412): the untouched bystander SUBJ1 must NOT have been deleted from either group
+    assertTrue("other member (SUBJ1) must not be deleted from test:testGroup: " + group0Members, group0Members.contains(user1Id));
+    assertTrue("other member (SUBJ1) must not be deleted from test:testGroup2: " + group1Members, group1Members.contains(user1Id));
+
+    // and SUBJ1's sync memberships must still be in target
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertTrue("SUBJ1 test:testGroup membership must still be in target",
+        gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId()).isInTarget());
+    assertTrue("SUBJ1 test:testGroup2 membership must still be in target",
+        gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member1.getId()).isInTarget());
   }
 
   /**
