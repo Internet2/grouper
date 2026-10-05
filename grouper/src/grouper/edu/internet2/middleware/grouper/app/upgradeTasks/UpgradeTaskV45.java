@@ -22,6 +22,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * than that), TEXT is unbounded.  Postgres only: oracle is already CLOB and mysql is MEDIUMTEXT.  No views
  * reference grouper_file, so the ALTER is not blocked.  Idempotent: skipped once the column is already
  * text.</p>
+ *
+ * <p>GRP-7439: add grouper_file.created_on_micros and grouper_file.updated_on_micros (bigint, micros since
+ * 1970), backfill rows where they are null with the current time, then make both NOT NULL.  Existing rows
+ * then look new, so time-based cleanup of files never deletes old rows by surprise.  Idempotent: columns
+ * are only added if missing, only null values are backfilled, and only nullable columns are altered.</p>
  */
 public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
@@ -33,6 +38,12 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
   /** GRP-7417: column converted from varchar to text */
   private static final String GRP_7417_COLUMN = "file_contents_clob";
+
+  /** GRP-7439: table getting the created / updated timestamp columns */
+  private static final String GRP_7439_TABLE = "grouper_file";
+
+  /** GRP-7439: timestamp columns added to grouper_file */
+  private static final String[] GRP_7439_COLUMNS = new String[] {"created_on_micros", "updated_on_micros"};
 
   @Override
   public boolean upgradeTaskIsDdl() {
@@ -51,6 +62,9 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     // GRP-7417 postgres grouper_file.file_contents_clob to text
     workToDo |= grp7417HasAutomaticWork();
 
+    // GRP-7439 grouper_file created_on_micros / updated_on_micros
+    workToDo |= grp7439HasAutomaticWork();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
@@ -64,6 +78,7 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
         grp7417FileContentsClobToText(otherJobInput);
+        grp7439FileTimestamps(otherJobInput);
         return null;
       }
     });
@@ -113,6 +128,113 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
       otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
       otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
           ", changed " + GRP_7417_TABLE + "." + GRP_7417_COLUMN + " to text");
+    }
+  }
+
+  /**
+   * Whether GRP-7439 has work: the grouper_file table exists and a timestamp column is missing or still
+   * nullable.  A nullable column means the backfill and NOT NULL have not been done (e.g. a DBA added the
+   * columns by hand with auto DDL off), so the task runs (or reports it) instead of being marked done.
+   * @return true if a column needs to be added, backfilled, or made NOT NULL
+   */
+  private boolean grp7439HasAutomaticWork() {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7439_TABLE)) {
+      return false;
+    }
+    for (String column : GRP_7439_COLUMNS) {
+      if (!GrouperDdlUtils.assertColumnThere(true, GRP_7439_TABLE, column)) {
+        return true;
+      }
+      if (grp7439ColumnNullable(column)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * whether a grouper_file timestamp column allows nulls.  Read from the catalog, not result set metadata,
+   * since the postgres driver caches nullability per connection and would miss the SET NOT NULL below.
+   * @param column
+   * @return true if nullable
+   */
+  private boolean grp7439ColumnNullable(String column) {
+    return GrouperDdlUtils.isColumnNullableFromCatalog(GRP_7439_TABLE, column);
+  }
+
+  /**
+   * GRP-7439: set null created_on_micros / updated_on_micros to now.  Each column is backfilled only where
+   * it is null, so a value that is already set (e.g. a row saved by the new code) is left alone.
+   * @return number of rows updated
+   */
+  private int grp7439Backfill() {
+    // one timestamp for the whole backfill, coalesce so a value that is already set is kept
+    long nowMicros = System.currentTimeMillis() * 1000L;
+    return new GcDbAccess().sql("update " + GRP_7439_TABLE
+        + " set created_on_micros = coalesce(created_on_micros, ?), updated_on_micros = coalesce(updated_on_micros, ?)"
+        + " where created_on_micros is null or updated_on_micros is null")
+        .addBindVar(nowMicros).addBindVar(nowMicros).executeSql();
+  }
+
+  /**
+   * GRP-7439: add the grouper_file created_on_micros / updated_on_micros columns if missing (nullable, since
+   * existing rows have no value yet), backfill null values with now, then make both NOT NULL.
+   * @param otherJobInput
+   */
+  private void grp7439FileTimestamps(OtherJobInput otherJobInput) {
+    if (!grp7439HasAutomaticWork()) {
+      return;
+    }
+
+    // add each column if missing
+    for (String column : GRP_7439_COLUMNS) {
+      if (GrouperDdlUtils.assertColumnThere(true, GRP_7439_TABLE, column)) {
+        continue;
+      }
+      if (GrouperDdlUtils.isOracle()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7439_TABLE + " ADD " + column + " NUMBER(38)").executeSql();
+      } else {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7439_TABLE + " ADD COLUMN " + column + " BIGINT").executeSql();
+      }
+      LOG.info("GRP-7439: added column " + GRP_7439_TABLE + "." + column);
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column " + GRP_7439_TABLE + "." + column);
+      }
+    }
+
+    int rowCount = grp7439Backfill();
+    if (rowCount > 0) {
+      LOG.info("GRP-7439: backfilled " + rowCount + " " + GRP_7439_TABLE + " rows with created/updated micros");
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(rowCount);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
+            ", backfilled " + rowCount + " " + GRP_7439_TABLE + " rows with created/updated micros");
+      }
+    }
+
+    // now that all rows have values, make the columns NOT NULL to match the install / DDL definition
+    for (String column : GRP_7439_COLUMNS) {
+      if (!grp7439ColumnNullable(column)) {
+        continue;
+      }
+
+      // backfill again right before the alter, in case an older grouper node (rolling upgrade) inserted a
+      // row without the timestamps since the backfill above, otherwise the alter would fail
+      grp7439Backfill();
+
+      if (GrouperDdlUtils.isPostgres()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7439_TABLE + " ALTER COLUMN " + column + " SET NOT NULL").executeSql();
+      } else if (GrouperDdlUtils.isMysql()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7439_TABLE + " MODIFY " + column + " BIGINT NOT NULL").executeSql();
+      } else {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7439_TABLE + " MODIFY (" + column + " NOT NULL)").executeSql();
+      }
+      LOG.info("GRP-7439: made " + GRP_7439_TABLE + "." + column + " NOT NULL");
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", made " + GRP_7439_TABLE + "." + column + " NOT NULL");
+      }
     }
   }
 

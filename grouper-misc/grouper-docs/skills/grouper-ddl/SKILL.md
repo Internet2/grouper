@@ -191,8 +191,11 @@ created_on_micros / updated_on_micros).
    upgrade can insert a row without the column between the backfill and the ALTER, which makes the
    ALTER fail.
 
-**Nullability check:** `GrouperDdlUtils.isColumnNullable(table, col, "id", "someNoSuchId")` reads the
-result-set metadata, so it works with zero matching rows and on all three databases.
+**Nullability check:** use `GrouperDdlUtils.isColumnNullableFromCatalog(table, col)`, which queries
+information_schema (postgres/mysql) or user_tab_columns (oracle) on every call. Do NOT use
+`isColumnNullable(table, col, ...)` in a task that changes nullability: it reads ResultSetMetaData, and the
+postgres driver caches column nullability per connection, so after `SET NOT NULL` a pooled connection keeps
+saying "nullable" and `doesUpgradeTaskHaveDdlWorkToDo()` wrongly reports work (found in GRP-7439).
 
 **`doesUpgradeTaskHaveDdlWorkToDo()`:** return true when the column is missing OR still nullable. Do not
 check only "column exists": if a DBA adds the column by hand (auto DDL off), the task would be marked done
@@ -506,5 +509,6 @@ add the new DDL in the same location as in the postgres install SQL.
 - `GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, columnName, comment)` - column comment
 - `GrouperDdlUtils.assertIndexExists(tableName, indexName)` - check if index exists (for upgrade tasks)
 - `GrouperDdlUtils.assertTableThere(true, tableName)` - check if table exists
+- `GrouperDdlUtils.isColumnNullableFromCatalog(tableName, columnName)` - nullability from the catalog (no driver cache)
 - `GrouperDdlUtils.isOracle()` / `GrouperDdlUtils.isPostgres()` / `GrouperDdlUtils.isMysql()` - DB type checks
 - `GcDbAccess().sql("...").executeSql()` - execute raw SQL (used in upgrade tasks)

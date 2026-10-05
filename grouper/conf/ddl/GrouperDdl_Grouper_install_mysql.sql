@@ -1853,6 +1853,8 @@ CREATE TABLE grouper_file
     file_contents_varchar VARCHAR(4000) NULL,
     file_contents_clob MEDIUMTEXT,
     file_contents_bytes BIGINT,
+    created_on_micros BIGINT NOT NULL,
+    updated_on_micros BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
 

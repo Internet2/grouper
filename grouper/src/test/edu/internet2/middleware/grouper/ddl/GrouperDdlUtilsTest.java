@@ -1109,12 +1109,151 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     // a value larger than the old varchar limit (and postgres' 10485760 varchar max) must now fit
     String bigContents = StringUtils.repeat("a", 11000000);
-    new GcDbAccess().sql("insert into grouper_file (id, system_name, file_name, file_path, hibernate_version_number, file_contents_clob) "
-        + "values (?, ?, ?, ?, ?, ?)")
+    // created_on_micros / updated_on_micros are NOT NULL (GRP-7439)
+    long nowMicros = System.currentTimeMillis() * 1000L;
+    new GcDbAccess().sql("insert into grouper_file (id, system_name, file_name, file_path, hibernate_version_number, file_contents_clob, "
+        + "created_on_micros, updated_on_micros) values (?, ?, ?, ?, ?, ?, ?, ?)")
       .addBindVar(GrouperUuid.getUuid()).addBindVar("test").addBindVar("grp7417.txt").addBindVar("test/grp7417.txt")
-      .addBindVar(0L).addBindVar(bigContents).executeSql();
+      .addBindVar(0L).addBindVar(bigContents).addBindVar(nowMicros).addBindVar(nowMicros).executeSql();
     assertEquals(Integer.valueOf(11000000), new GcDbAccess().sql(
         "select length(file_contents_clob) from grouper_file where file_path = 'test/grp7417.txt'").select(Integer.class));
+  }
+
+  /**
+   * GRP-7439: validate grouper_file.created_on_micros / updated_on_micros.  A fresh install has both columns
+   * NOT NULL and the deep DDL compare is clean.  Then simulate a pre-GRP-7439 database (columns dropped, one
+   * existing row): UpgradeTaskV45 adds the columns, backfills the row with now, and makes them NOT NULL.  Then
+   * simulate a DBA who added the columns nullable by hand: a row whose values are already set is left alone,
+   * a row with only one null value only gets that one filled, and the columns end up NOT NULL.  A second run
+   * is a no-op.  Runs on all three databases.
+   */
+  public void testGrp7439FileTimestamps() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the install SQL must create both columns NOT NULL
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "created_on_micros"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "updated_on_micros"));
+    assertFalse(grp7439Nullable("created_on_micros"));
+    assertFalse(grp7439Nullable("updated_on_micros"));
+
+    // the deep compare must agree with the install
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    // fresh install, empty table: nothing to do (the GRP-7417 part is also done on a fresh install)
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate a pre-GRP-7439 database with an existing row
+    new GcDbAccess().sql("ALTER TABLE grouper_file DROP COLUMN created_on_micros").executeSql();
+    new GcDbAccess().sql("ALTER TABLE grouper_file DROP COLUMN updated_on_micros").executeSql();
+    assertFalse(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "created_on_micros"));
+    grp7439InsertFile("old");
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task adds the columns, backfills the old row with now, and makes them NOT NULL
+    long beforeMicros = System.currentTimeMillis() * 1000L;
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    long afterMicros = System.currentTimeMillis() * 1000L;
+
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "created_on_micros"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_file", "updated_on_micros"));
+    Long oldCreated = grp7439Micros("old", "created_on_micros");
+    Long oldUpdated = grp7439Micros("old", "updated_on_micros");
+    assertNotNull(oldCreated);
+    assertEquals(oldCreated, oldUpdated);
+    assertTrue(oldCreated >= beforeMicros && oldCreated <= afterMicros);
+    assertFalse(grp7439Nullable("created_on_micros"));
+    assertFalse(grp7439Nullable("updated_on_micros"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate a DBA who added the columns by hand as nullable: that still counts as work, so the backfill
+    // and NOT NULL are not skipped.  A row that is fully set is left alone, a row with only updated null
+    // keeps its created.
+    grp7439MakeNullable("created_on_micros");
+    grp7439MakeNullable("updated_on_micros");
+    assertTrue(grp7439Nullable("created_on_micros"));
+    grp7439InsertFile("nulls");
+    grp7439InsertFile("set");
+    new GcDbAccess().sql("update grouper_file set created_on_micros = 123, updated_on_micros = 456 where file_name = 'set'").executeSql();
+    grp7439InsertFile("half");
+    new GcDbAccess().sql("update grouper_file set created_on_micros = 789 where file_name = 'half'").executeSql();
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+
+    assertNotNull(grp7439Micros("nulls", "created_on_micros"));
+    assertNotNull(grp7439Micros("nulls", "updated_on_micros"));
+    assertEquals(Long.valueOf(123), grp7439Micros("set", "created_on_micros"));
+    assertEquals(Long.valueOf(456), grp7439Micros("set", "updated_on_micros"));
+    assertEquals(Long.valueOf(789), grp7439Micros("half", "created_on_micros"));
+    assertNotNull(grp7439Micros("half", "updated_on_micros"));
+    assertEquals(oldCreated, grp7439Micros("old", "created_on_micros"));
+    assertFalse(grp7439Nullable("created_on_micros"));
+    assertFalse(grp7439Nullable("updated_on_micros"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(Long.valueOf(123), grp7439Micros("set", "created_on_micros"));
+    assertEquals(oldCreated, grp7439Micros("old", "created_on_micros"));
+    assertEquals(oldUpdated, grp7439Micros("old", "updated_on_micros"));
+  }
+
+  /**
+   * test helper: whether a grouper_file timestamp column allows nulls
+   * @param column
+   * @return true if nullable
+   */
+  private static boolean grp7439Nullable(String column) {
+    return GrouperDdlUtils.isColumnNullableFromCatalog("grouper_file", column);
+  }
+
+  /**
+   * test helper: make a grouper_file timestamp column nullable, to simulate columns a DBA added by hand
+   * @param column
+   */
+  private static void grp7439MakeNullable(String column) {
+    if (GrouperDdlUtils.isPostgres()) {
+      new GcDbAccess().sql("ALTER TABLE grouper_file ALTER COLUMN " + column + " DROP NOT NULL").executeSql();
+    } else if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("ALTER TABLE grouper_file MODIFY " + column + " BIGINT NULL").executeSql();
+    } else {
+      new GcDbAccess().sql("ALTER TABLE grouper_file MODIFY (" + column + " NULL)").executeSql();
+    }
+  }
+
+  /**
+   * test helper: insert a grouper_file row with raw SQL (no timestamps), file name and path from the key
+   * @param key
+   */
+  private static void grp7439InsertFile(String key) {
+    new GcDbAccess().sql("insert into grouper_file (id, system_name, file_name, file_path, hibernate_version_number, file_contents_varchar) "
+        + "values (?, ?, ?, ?, ?, ?)")
+      .addBindVar(GrouperUuid.getUuid()).addBindVar("test").addBindVar(key).addBindVar("test/grp7439/" + key)
+      .addBindVar(0L).addBindVar("contents").executeSql();
+  }
+
+  /**
+   * test helper: read a grouper_file timestamp column by file name
+   * @param key file name
+   * @param column created_on_micros or updated_on_micros
+   * @return the value or null
+   */
+  private static Long grp7439Micros(String key, String column) {
+    return new GcDbAccess().sql("select " + column + " from grouper_file where file_name = ?")
+        .addBindVar(key).select(Long.class);
   }
 
   /**

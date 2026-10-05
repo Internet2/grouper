@@ -82,6 +82,21 @@ public class Hib3GrouperFileDAO implements GrouperFileDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#saveOrUpdate(GrouperFile)
    */
   public void saveOrUpdate(GrouperFile grouperFileDao) {
+    // GRP-7439: timestamps are set here so every caller (reports, workflow, gsh template downloads) gets them
+    long nowMicros = System.currentTimeMillis() * 1000L;
+
+    // make sure updated always moves forward, even if two saves happen in the same millisecond
+    Long previousUpdatedOnMicros = grouperFileDao.getUpdatedOnMicros();
+    if (previousUpdatedOnMicros != null && nowMicros <= previousUpdatedOnMicros) {
+      nowMicros = previousUpdatedOnMicros + 1;
+    }
+
+    // created is set once on insert (or on the first save of a row that predates the column), never changed
+    if (grouperFileDao.getCreatedOnMicros() == null) {
+      grouperFileDao.setCreatedOnMicros(nowMicros);
+    }
+    grouperFileDao.setUpdatedOnMicros(nowMicros);
+
     HibernateSession.byObjectStatic().saveOrUpdate(grouperFileDao);
   }
   

@@ -35,6 +35,12 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
 
   /** size of file contents in bytes */
   public static final String COLUMN_FILE_CONTENTS_BYTES = "file_contents_bytes";
+
+  /** micros since 1970 when this row was inserted, never changed after that */
+  public static final String COLUMN_CREATED_ON_MICROS = "created_on_micros";
+
+  /** micros since 1970 when this row was last saved (insert or update) */
+  public static final String COLUMN_UPDATED_ON_MICROS = "updated_on_micros";
   
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
@@ -60,6 +66,12 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   /** constant for field name for: fileContentsClob */
   public static final String FIELD_FILE_CONTENTS_CLOB = "fileContentsClob";
 
+  /** constant for field name for: createdOnMicros */
+  public static final String FIELD_CREATED_ON_MICROS = "createdOnMicros";
+
+  /** constant for field name for: updatedOnMicros */
+  public static final String FIELD_UPDATED_ON_MICROS = "updatedOnMicros";
+
   /**
    * name of the table in the database.
    */
@@ -70,7 +82,8 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_SYSTEM_NAME, FIELD_FILE_NAME, FIELD_FILE_PATH, FIELD_FILE_CONTENTS_VARCHAR, 
-      FIELD_FILE_CONTENTS_BYTES, FIELD_FILE_CONTENTS_CLOB, FIELD_CONTEXT_ID, FIELD_ID);
+      FIELD_FILE_CONTENTS_BYTES, FIELD_FILE_CONTENTS_CLOB, FIELD_CONTEXT_ID, FIELD_ID,
+      FIELD_CREATED_ON_MICROS, FIELD_UPDATED_ON_MICROS);
 
   /**
    * fields which are included in clone method
@@ -78,7 +91,8 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_SYSTEM_NAME, FIELD_FILE_NAME, FIELD_FILE_PATH, FIELD_FILE_CONTENTS_VARCHAR, 
       FIELD_FILE_CONTENTS_BYTES, FIELD_FILE_CONTENTS_CLOB, 
-      FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID);
+      FIELD_CONTEXT_ID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
+      FIELD_CREATED_ON_MICROS, FIELD_UPDATED_ON_MICROS);
   
   
   /** id of this type */
@@ -223,6 +237,50 @@ public class GrouperFile extends GrouperAPI implements GrouperHasContext, Hib3Gr
     this.fileContentsBytes = fileContentsBytes;
   }
   
+  /**
+   * micros since 1970 when this row was inserted.  Set by the DAO on the first save, never changed after that.
+   * Null only on a new object that has not been saved yet (the column is NOT NULL).
+   */
+  private Long createdOnMicros;
+
+  /**
+   * micros since 1970 when this row was inserted
+   * @return the createdOnMicros
+   */
+  public Long getCreatedOnMicros() {
+    return this.createdOnMicros;
+  }
+
+  /**
+   * micros since 1970 when this row was inserted
+   * @param createdOnMicros1
+   */
+  public void setCreatedOnMicros(Long createdOnMicros1) {
+    this.createdOnMicros = createdOnMicros1;
+  }
+
+  /**
+   * micros since 1970 when this row was last saved.  Set by the DAO on every save (insert and update),
+   * so time-based cleanup can go by when the contents were last written.
+   */
+  private Long updatedOnMicros;
+
+  /**
+   * micros since 1970 when this row was last saved
+   * @return the updatedOnMicros
+   */
+  public Long getUpdatedOnMicros() {
+    return this.updatedOnMicros;
+  }
+
+  /**
+   * micros since 1970 when this row was last saved
+   * @param updatedOnMicros1
+   */
+  public void setUpdatedOnMicros(Long updatedOnMicros1) {
+    this.updatedOnMicros = updatedOnMicros1;
+  }
+
   /**
    * set config value to save. based on the size, it will be saved in config_value or config_value_clob
    * @param value

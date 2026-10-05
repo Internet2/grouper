@@ -1951,6 +1951,8 @@ CREATE TABLE grouper_file
     file_contents_varchar VARCHAR2(4000),
     file_contents_bytes NUMBER(38),
     file_contents_clob CLOB,
+    created_on_micros NUMBER(38) NOT NULL,
+    updated_on_micros NUMBER(38) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -3629,6 +3631,10 @@ COMMENT ON COLUMN grouper_file.file_contents_varchar IS 'contents of the file if
 COMMENT ON COLUMN grouper_file.file_contents_clob IS 'large contents of the file';
 
 COMMENT ON COLUMN grouper_file.file_contents_bytes IS 'size of file contents in bytes';
+
+COMMENT ON COLUMN grouper_file.created_on_micros IS 'timestamp in micros since 1970 when this file row was created';
+
+COMMENT ON COLUMN grouper_file.updated_on_micros IS 'timestamp in micros since 1970 when this file row was last saved';
 
 COMMENT ON COLUMN grouper_sync.last_full_sync_start IS 'start time of last successful full sync';
 

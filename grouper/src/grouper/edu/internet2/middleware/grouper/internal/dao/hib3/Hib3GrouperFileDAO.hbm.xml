@@ -63,6 +63,8 @@
     <property name="fileContentsVarcharDb" column="file_contents_varchar"/>
     <property name="fileContentsClobDb" column="file_contents_clob"/>
     <property name="fileContentsBytes" column="file_contents_bytes"/> 
+    <property name="createdOnMicros" column="created_on_micros"/>
+    <property name="updatedOnMicros" column="updated_on_micros"/>
 
   </class>
 </hibernate-mapping>

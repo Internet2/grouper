@@ -3252,6 +3252,36 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * Whether a column allows nulls, read from the database catalog on every call (information_schema on
+   * postgres and mysql, user_tab_columns on oracle).  Use this in DDL upgrade tasks that alter nullability,
+   * not {@link #isColumnNullable(String, String, String, String)}: that reads ResultSetMetaData, and the
+   * postgres driver caches column nullability per connection, so after an ALTER ... SET NOT NULL a pooled
+   * connection can keep reporting the old value (GRP-7439).
+   * @param tableName
+   * @param columnName
+   * @return true if the column is nullable, false if NOT NULL
+   * @throws RuntimeException if the column is not found
+   */
+  public static boolean isColumnNullableFromCatalog(String tableName, String columnName) {
+    String nullable = null;
+    if (isOracle()) {
+      // Y or N, oracle stores unquoted names in upper case
+      nullable = new GcDbAccess().sql("select nullable from user_tab_columns where table_name = ? and column_name = ?")
+          .addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase()).select(String.class);
+    } else {
+      // YES or NO
+      String schemaFunction = isMysql() ? "database()" : "current_schema()";
+      nullable = new GcDbAccess().sql("select is_nullable from information_schema.columns where table_schema = "
+          + schemaFunction + " and lower(table_name) = ? and lower(column_name) = ?")
+          .addBindVar(tableName.toLowerCase()).addBindVar(columnName.toLowerCase()).select(String.class);
+    }
+    if (StringUtils.isBlank(nullable)) {
+      throw new RuntimeException("Cant find column " + tableName + "." + columnName);
+    }
+    return nullable.toUpperCase().startsWith("Y");
+  }
+
+  /**
    * Get the declared size (max length) of a column from the live database, e.g. 1024 for VARCHAR(1024).
    * Reads the column definition (not the data) via JDBC result set metadata, so it works the same across
    * postgres, oracle, and mysql.  Useful for idempotent DDL upgrade tasks that widen a column.

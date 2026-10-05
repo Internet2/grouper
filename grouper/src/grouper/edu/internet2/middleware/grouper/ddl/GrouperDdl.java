@@ -2975,6 +2975,9 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdl7_2_0.addProvViews(database, ddlVersionBean);
 
+        // GRP-7439 grouper_file created / updated timestamps
+        GrouperDdl7_7_0.addGrouperFileTimestampColumns(database, ddlVersionBean);
+
         // back-fill the model for tables that were originally created only by raw-SQL upgrade tasks
         // (UpgradeTaskV37/V39 lifecycle, UpgradeTaskV25 sql cache mship history) so the deep DDL
         // compare can validate them.  Their foreign keys are declared in addAllForeignKeysViewsEtc().
@@ -6224,6 +6227,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdl2_5_34.addGrouperPitConfigComments(database, ddlVersionBean);
     GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
+    GrouperDdl7_7_0.addGrouperFileTimestampComments(database, ddlVersionBean);
 
     GrouperDdl2_5_38.addGrouperSyncLogComments(database, ddlVersionBean);
 

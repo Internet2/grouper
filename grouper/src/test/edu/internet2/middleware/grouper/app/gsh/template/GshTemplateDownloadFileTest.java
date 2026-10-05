@@ -275,6 +275,58 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
   }
 
   /**
+   * GRP-7439: the grouper_file DAO sets created_on_micros and updated_on_micros on insert, and on a
+   * second save of the same row (same date and file name) updated_on_micros advances while
+   * created_on_micros stays the same.  Checked in the database, not just on the java object.
+   */
+  public void testSaveSetsCreatedAndUpdatedMicros() {
+
+    // given
+    GrouperSession.startRootSession();
+    String day = "2026-10-04";
+    String fileName = "report.csv";
+    long beforeMicros = System.currentTimeMillis() * 1000L;
+
+    // when: insert
+    GrouperFile first = GshTemplateDownloadFile.save(CONFIG_ID, day, fileName, "a,b\n1,2\n");
+
+    // then: both set, equal, and the db has them
+    Long createdOnMicros = first.getCreatedOnMicros();
+    Long updatedOnMicros = first.getUpdatedOnMicros();
+    assertNotNull(createdOnMicros);
+    assertEquals(createdOnMicros, updatedOnMicros);
+    assertTrue(createdOnMicros >= beforeMicros);
+    assertEquals(createdOnMicros, grp7439MicrosFromDb(first.getId(), "created_on_micros"));
+    assertEquals(updatedOnMicros, grp7439MicrosFromDb(first.getId(), "updated_on_micros"));
+
+    // when: same row saved again with new contents
+    GrouperFile second = GshTemplateDownloadFile.save(CONFIG_ID, day, fileName, "a,b\n3,4\n");
+
+    // then: same row, created unchanged, updated advanced
+    assertEquals(first.getId(), second.getId());
+    assertEquals(createdOnMicros, second.getCreatedOnMicros());
+    assertTrue(second.getUpdatedOnMicros() > updatedOnMicros);
+    assertEquals(createdOnMicros, grp7439MicrosFromDb(first.getId(), "created_on_micros"));
+    assertEquals(second.getUpdatedOnMicros(), grp7439MicrosFromDb(first.getId(), "updated_on_micros"));
+
+    // a reload from hibernate sees the same values
+    GrouperFile reloaded = Hib3DAOFactory.getFactory().getGrouperFile().findById(first.getId(), true);
+    assertEquals(createdOnMicros, reloaded.getCreatedOnMicros());
+    assertEquals(second.getUpdatedOnMicros(), reloaded.getUpdatedOnMicros());
+  }
+
+  /**
+   * read a timestamp column straight from grouper_file (bypasses the hibernate cache)
+   * @param id grouper_file id
+   * @param column created_on_micros or updated_on_micros
+   * @return the value
+   */
+  private static Long grp7439MicrosFromDb(String id, String column) {
+    return new GcDbAccess().sql("select " + column + " from grouper_file where id = ?")
+        .addBindVar(id).select(Long.class);
+  }
+
+  /**
    * The date must be yyyy-MM-dd since the cleanup parses it from the path, and the file name
    * must fit the column and not contain a slash.
    */
