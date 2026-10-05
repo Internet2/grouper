@@ -2,8 +2,8 @@
 title: "Grouper Messaging provisioner"
 space: Grouper
 pageId: 236027906
-version: 4
-lastUpdated: 2026-09-23T17:06:31.239Z
+version: 6
+lastUpdated: 2026-09-29T19:20:40.905Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/236027906/Grouper+Messaging+provisioner
 ---
 
@@ -16,7 +16,7 @@ It is a **membership-objects** provisioner that sends to a message broker instea
 - Provisioner class: `edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner`
 - Provisioning type: `membershipObjects`
 - Supported brokers: Grouper built-in messaging, ActiveMQ, Amazon AWS SQS, RabbitMQ
-- Message format: `EsbEventJson` (the only format today)
+- Message format: `EsbEventJson`, or a JEXL `TranslationScript`
 
 See the [Grouper messaging system](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544824/Grouper+messaging+system) page for the broker-specific setup (external system configuration, credentials, queue naming).
 
@@ -149,7 +149,7 @@ Sent when a user is added to or removed from a group in scope. The membership is
 
 The three example messages fit together: they add group `test:testGroup`, then user `banderson`, then the membership between them, with `sequenceNumber` 2, 3 and 4. A consumer can join the messages using `groupId` and `memberId`.
 
-### Custom message body with JEXL (`TranslationScript`)
+### Custom message body with JEXL
 
 If the consumer needs a different body than the standard one, set `messagingFormatType` to `TranslationScript` and give a JEXL script for the object types you want to customize. Each script returns a map, and that map becomes the event object in the `esbEvent` array. An object type with no script keeps the standard `EsbEventJson` body.
 
@@ -163,7 +163,7 @@ If the consumer needs a different body than the standard one, set `messagingForm
 
 Example entity script:
 
-```
+```none
 ${ {
     "subjectId": targetEntity.getSubjectId(),
     "netid": targetEntity.retrieveAttributeValueString("subjectIdentifier1"),
@@ -173,17 +173,17 @@ ${ {
 }
 ```
 
-The script is JEXL, not JSON: quoted keys look like JSON but a trailing comma after the last entry, e.g. `..."email": targetEntity.email,\n  }`, is a parse error, not a warning. Drop the comma after the last entry.
+The script is JEXL, not JSON: quoted keys look like JSON but a trailing comma after the last entry, e.g. `..."email": targetEntity.email,\n }`, is a parse error, not a warning. Drop the comma after the last entry.
 
 As with the standard body, keys whose value is null (for example an entity with no email) are left out of the message, and a null property does not cause an error. Because of that, a misspelled variable name is also treated as null rather than reported. The envelope and the framework fields `eventType`, `sequenceNumber`, `changeOccurred` and `createdOnMicros` are always added after the script runs, so a script cannot override them. If the script does not return a map, or fails, the change is not sent and the provisioning run reports the error.
 
 The framework's own `createdOnMicros` is not available to the script (it is computed after the script runs), but a script can add its own current-time value with a JEXL expression. JEXL2 has no `new` operator, so `new java.util.Date()` or `new SimpleDateFormat(...)` will not parse; `java.time`'s static factory methods work instead, for example:
 
-```
+```none
 "generatedAt": java.time.Instant.now().toString()
 ```
 
-For the full list of properties and methods available on `targetGroup`, `targetEntity` and `targetMembership`, and the `eventType` values, see the **TranslationScript reference** section at the end of this page.
+For the full list of properties and methods available on `targetGroup`, `targetEntity` and `targetMembership`, and the `eventType` values, see JEXL translation script reference at the end of this page.
 
 ## Full sync and incremental sync
 
@@ -212,11 +212,11 @@ The provisioner takes the next `sequenceNumber` from its sync job (one counter p
 
 A gap in the sequence numbers can indicate a message that was lost or that has not been delivered yet. The provisioner does not resend a message that the broker accepted and later lost.
 
-## TranslationScript reference: targetGroup, targetEntity and targetMembership
+## JEXL translation script reference
 
-Properties and methods available to the `groupFormatTranslationScript`, `entityFormatTranslationScript` and `membershipFormatTranslationScript` scripts described under **Custom message body with JEXL (`TranslationScript`)** above.
+Properties and methods available to the `groupFormatTranslationScript`, `entityFormatTranslationScript` and `membershipFormatTranslationScript` scripts described under **Custom message body with JEXL** above.
 
-### `eventType` values
+### Event type values
 
 The same event types as the standard body (see the **Message format** section above):
 
@@ -226,9 +226,9 @@ The same event types as the standard body (see the **Message format** section ab
 | `targetEntity` script | `MEMBER_ADD`, `MEMBER_UPDATE`, `MEMBER_DELETE` |
 | `targetMembership` script | `MEMBERSHIP_ADD`, `MEMBERSHIP_DELETE` |
 
-### Properties and methods on `targetGroup`, `targetEntity` and `targetMembership`
+### Properties and methods on targetGroup, targetEntity and targetMembership
 
-`targetGroup`, `targetEntity` and `targetMembership` are Java beans, so a JEXL script can use either the dotted property form (`targetEntity.email`) or the getter method directly (`targetEntity.getEmail()`) — the ticket example that introduced this feature mixes both styles.
+`targetGroup`, `targetEntity` and `targetMembership` are Java beans, so a JEXL script can use either the dotted property form (`targetEntity.email`) or the getter method directly (`targetEntity.getEmail()`). The ticket example that introduced this feature mixes both styles.
 
 These methods are common to all three objects. What attribute names they accept depends on what the provisioner is configured to load (for example, an entity attribute only resolves if the provisioner's entity attribute resolver is configured to fetch it):
 
@@ -280,9 +280,9 @@ These methods are common to all three objects. What attribute names they accept 
 | `provisioningGroup` | The same object as the `targetGroup` variable, for convenience |
 | `provisioningEntity` | The same object as the `targetEntity` variable, for convenience |
 
-`targetMembership` does not carry `fieldId`, `fieldName`, `membershipType` or `sourceId` the way the standard membership body does — those are filled in by the messaging layer, not stored on the object. Use `targetGroup`/`targetEntity` attributes, or `id`, to identify the membership; use `targetGroup.retrieveAttributeValueString(...)` / `targetEntity.retrieveAttributeValueString(...)` for anything else the script needs to look up.
+`targetMembership` does not carry `fieldId`, `fieldName`, `membershipType` or `sourceId` the way the standard membership body does. Those are filled in by the messaging layer, not stored on the object. Use `targetGroup`/`targetEntity` attributes, or `id`, to identify the membership; use `targetGroup.retrieveAttributeValueString(...)` / `targetEntity.retrieveAttributeValueString(...)` for anything else the script needs to look up.
 
-### Provisioning wrappers: `provisioningEntityWrapper` and `provisioningGroupWrapper`
+### Provisioning wrappers
 
 `targetEntity` and `targetGroup` also each expose a `provisioningEntityWrapper` / `provisioningGroupWrapper` property, which reaches a few provisioning-framework lookups that are not on the target object itself (`targetMembership.provisioningEntityWrapper` and `targetMembership.provisioningGroupWrapper` reach the same wrappers as the entity and group scripts get directly). The wrapper classes have other methods too, mostly internal bookkeeping (matching Grouper-side and target-side copies, sync table rows, error state); these are the ones useful from a script:
 
@@ -300,7 +300,7 @@ These methods are common to all three objects. What attribute names they accept 
 
 Example, adding whether the entity is in an "owners" group to the entity message:
 
-```
+```none
 ${ {
     "subjectId": targetEntity.getSubjectId(),
     "isOwner": targetEntity.provisioningEntityWrapper.isInGroup("etc:owners")

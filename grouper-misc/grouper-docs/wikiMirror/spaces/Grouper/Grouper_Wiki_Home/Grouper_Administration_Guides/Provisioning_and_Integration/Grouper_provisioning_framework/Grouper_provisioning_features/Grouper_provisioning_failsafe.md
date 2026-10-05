@@ -2,8 +2,8 @@
 title: "Grouper provisioning failsafe"
 space: Grouper
 pageId: 28555489
-version: 13
-lastUpdated: 2026-07-01T05:38:07.345Z
+version: 15
+lastUpdated: 2026-10-04T21:06:38.019Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555489/Grouper+provisioning+failsafe
 ---
 
@@ -21,6 +21,19 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555489/Grouper+pr
 
 1. Deleting objects that it shouldn't.
 2. Changing attributes that it shouldn't.
+
+ 
+
+## Entity failsafe
+
+ As of `v7.7.0+` (GRP-7437), two settings count entity deletes. The group and membership failsafes see nothing in an entity-only provisioner (e.g. AssetSonar), so without these a run that deletes or deactivates most accounts in the target is not stopped.
+
+ 
+
+- `failsafeMaxOverallPercentEntitiesRemove`: trip if a run would delete more than this percent of the entities in the target
+- `failsafeMinOverallNumberOfEntities`: trip if a run would leave the target with fewer entities than this
+
+ The entity count is the larger of the entities this provisioner has in the target and the target entities read in this run, so a full sync that selects all entities also counts accounts Grouper never created. Both are off when blank or -1, with no global default. Approval and email work as for the other failsafes.
 
  
 
@@ -106,5 +119,17 @@ provisionerDefault.failsafeMaxOverallPercentMembershipsRemove = 20
 # -1 means disable this failsafe.  There is no default value for this configuration.
 # {valueType: "integer", order: 128000, subSection: "failsafe", showEl: "${showFailsafe}"}
 # provisioner.genericProvisioner.failsafeMinOverallNumberOfMembers =
+
+# If a run would delete more than this percent of the entities in the target, then trigger a failsafe (do not
+# run the job) until it is approved or this setting changes.  The entity count is the larger of the entities this
+# provisioner has in the target and the target entities read this run.  Use this for entity-only provisioners
+# (e.g. AssetSonar), where the group and membership failsafes see nothing.  Blank or -1 means off (GRP-7437).
+# {valueType: "integer", order: 128100, subSection: "failsafe", showEl: "${showFailsafe}"}
+# provisioner.genericProvisioner.failsafeMaxOverallPercentEntitiesRemove =
+
+# If a run would leave the target with fewer entities than this, then trigger a failsafe (do not run the job).
+# Blank or -1 means off (GRP-7437).
+# {valueType: "integer", order: 128200, subSection: "failsafe", showEl: "${showFailsafe}"}
+# provisioner.genericProvisioner.failsafeMinOverallNumberOfEntities =
 
 ```

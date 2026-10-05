@@ -2,8 +2,8 @@
 title: "Grouper MCP server"
 space: Grouper
 pageId: 28547487
-version: 26
-lastUpdated: 2026-09-04T12:23:16.477Z
+version: 27
+lastUpdated: 2026-09-29T15:22:14.478Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487/Grouper+MCP+server
 ---
 
@@ -33,7 +33,7 @@ Two authentication mechanisms are supported:
 1. **OAuth 2.1 with PKCE** (recommended for interactive AI use) – Users authenticate through the Grouper UI using the institution's existing authentication mechanism (Shibboleth, CAS, etc.) and approve access on a consent screen. No credentials are stored locally on the user's machine. With OAuth, users explicitly choose which permission scopes to grant (read-only, read-write, SQL read-only) on the consent page, and these consent choices are enforced on every MCP request in addition to group membership. This provides an extra layer of user-driven access control.
 2. **Normal WS authentication** (for automated or server-to-server use) – HTTP Basic auth or container-managed auth, using the same authentication mechanism as other Grouper WS endpoints. With WS authentication there is no consent flow, so authorization is based solely on group membership. This makes OAuth the preferred method for interactive use, since the consent step gives users control over what they grant to each MCP client.
 
-The built-in MCP server does not allow destructive operations such as deleting stems. Administrators control what each user can do via MCP authorization groups, e.g. read-only, read-write, SQL read-only, etc. Additionally, system groups and stems (under the Grouper built-in objects stem, default `etc`) are protected from modification via MCP, even for readwrite users. All tool calls are audited in a database table for security and compliance, and configurable per-category rate limits protect the system from abuse.
+The built-in MCP server does not allow destructive operations such as deleting stems. Administrators control what each user can do via MCP authorization groups, e.g. read-only, read-write, SQL read-only, etc. Additionally, system groups and stems (under the Grouper built-in objects stem, default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected from modification via MCP, even for readwrite users. All tool calls are audited in a database table for security and compliance, and configurable per-category rate limits protect the system from abuse.
 
 ## What can it do?
 

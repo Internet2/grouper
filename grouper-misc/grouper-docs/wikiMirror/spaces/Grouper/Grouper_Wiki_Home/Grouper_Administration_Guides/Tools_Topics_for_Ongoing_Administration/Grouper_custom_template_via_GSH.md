@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH"
 space: Grouper
 pageId: 28544720
-version: 85
-lastUpdated: 2026-07-12T15:26:27.528Z
+version: 86
+lastUpdated: 2026-10-05T06:29:02.460Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544720/Grouper+custom+template+via+GSH
 ---
 
@@ -143,6 +143,8 @@ See [this wiki as an example of developing GSH templates with java](https://grou
 ## Built in variables, inputs, and methods
 
 Before the configured GSH script is executed, it will be prefixed with some built in variables, and the inputs from the user (supplied in the UI or less commonly the WS).
+
+To give the user a file to download (v7.7.0+), see [GSH template file download](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/274464837/GSH+template+file+download).
 
 | **Type** | **V1 variable** | **V2 location** | **Value** |
 | --- | --- | --- | --- |

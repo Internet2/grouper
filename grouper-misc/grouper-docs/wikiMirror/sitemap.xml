@@ -12,10 +12,14 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/206635009/Circular+Memberships</loc><lastmod>2026-09-28</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/234323970/Penn+Atlassian+licensing+front+door</loc><lastmod>2026-09-21</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/236027906/Grouper+Messaging+provisioner</loc><lastmod>2026-09-23</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation</loc><lastmod>2026-09-27</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/236027906/Grouper+Messaging+provisioner</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/243564556/Penn+Claude+Academy+training+badges</loc><lastmod>2026-09-24</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/243728397/Grouper+managing+an+existing+Entra+ID+group+or+Microsoft+Team</loc><lastmod>2026-09-24</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/243728397/Grouper+managing+an+existing+Entra+ID+group+or+Microsoft+Team</loc><lastmod>2026-09-30</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/269516802/Grouper+AssetSonar+provisioner</loc><lastmod>2026-10-04</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/269582340/Grouper+AssetSonar+external+system</loc><lastmod>2026-10-04</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/271908865/Grouper+AI+assistant+in+the+UI</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/274464837/GSH+template+file+download</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28541532/How+to+use+the+Grouper+wiki</loc><lastmod>2024-11-15</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28541543/Navigation</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap</loc><lastmod>2026-07-28</lastmod></url>
@@ -217,7 +221,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544698/Cursor+based+paging+to+download+large+amounts+of+data+without+missing+records+during+inserts+deletes</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544705/Penn+authz+architecture</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544712/Grouper+External+systems+configuration</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544720/Grouper+custom+template+via+GSH</loc><lastmod>2026-07-12</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544720/Grouper+custom+template+via+GSH</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544732/Grouper+deprovisioning</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544741/Grouper+attribute+framework</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28544752/Banner+Grouper+integrations+at+Penn</loc><lastmod>2026-07-01</lastmod></url>
@@ -363,7 +367,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547469/Get+Members</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547475/GrouperShell+gsh+Group+insert+update+delete+GroupSave</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547482/Grouper+attestation+global+folders+and+groups+with+settings</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547487/Grouper+MCP+server</loc><lastmod>2026-09-04</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547487/Grouper+MCP+server</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547497/Grouper+external+system+mock+services</loc><lastmod>2026-07-19</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547507/External+Subject+Save</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28547513/Find+Attribute+Definitions</loc><lastmod>2026-07-01</lastmod></url>
@@ -503,7 +507,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548552/Grouper+web+services+log</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548558/Grouper+Web+Services+Versioning</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548564/Assign+Permissions</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548570/DDL+in+Grouper</loc><lastmod>2026-07-19</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548570/DDL+in+Grouper</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548580/GrouperShell+gsh+Membership+finder+MembershipFinder</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548587/Grouper+provisioning+in+UI</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548593/Web+Services+FAQ</loc><lastmod>2026-07-12</lastmod></url>
@@ -558,7 +562,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548929/Grouper+custom+template+via+GSH+inherited+privileges+WS+example</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548937/User+Audit+Log</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548946/SFTP+a+delimited+file+and+sync+to+SQL</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548954/Grouper+health+check+endpoint+healthcheck+status+diagnostics</loc><lastmod>2026-07-12</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548954/Grouper+health+check+endpoint+healthcheck+status+diagnostics</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548962/Grouper+custom+template+via+GSH+user+membership+history</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548971/Sample+change+log+consumer</loc><lastmod>2026-06-16</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28548977/Grouper+loader+with+CSV+data+sources</loc><lastmod>2026-07-01</lastmod></url>
@@ -576,9 +580,9 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549074/Using+the+Playwright+script+recorder</loc><lastmod>2024-06-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549083/Restoring+SOAP+Web+Services+in+Grouper+5</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549091/Unique+object+names+in+Grouper</loc><lastmod>2026-06-11</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7</loc><lastmod>2026-09-28</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549096/v7+Upgrade+instructions+from+v7</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549107/Specsheet</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549113/v7+Release+Notes</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549120/Grouper+database</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549126/Grouper+Entra+ID+Azure+External+System</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549137/Grouper+custom+template+via+GSH+impersonate+delete+example</loc><lastmod>2026-07-01</lastmod></url>
@@ -608,10 +612,10 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549324/Installation+by+maturity+level</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549331/Docker+database+setup+process</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549338/Grouper+rules+glossary</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes</loc><lastmod>2026-09-28</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549353/AWS+setup+process</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549360/Grouper+Built-in+Basic+Authentication+to+UI+and+Web+Services</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks</loc><lastmod>2026-08-14</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks</loc><lastmod>2026-10-05</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549383/Grouper+rules+setup+with+grouper+client</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549387/Grouper+local+entities</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28549394/Grouper+LDAP+external+system</loc><lastmod>2026-07-01</lastmod></url>
@@ -701,8 +705,8 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554319/Grouper+MCP+example+troubleshooting+daemon+issues</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554333/Grouper+Loader+LDAP+simple+from+hasMember</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554339/Grouper+MCP+server+-+technical+reference</loc><lastmod>2026-07-12</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide</loc><lastmod>2026-09-28</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide</loc><lastmod>2026-07-12</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide</loc><lastmod>2026-10-04</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554381/Grouper+MCP+example+testing+provisioning</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554393/Syncing+objects+to+Grouper+from+SQL</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28554401/Bad+memberships+finder+v2.5+update</loc><lastmod>2026-07-01</lastmod></url>
@@ -848,7 +852,7 @@
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555458/Grouper+Adobe+provisioner</loc><lastmod>2026-07-21</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555467/Grouper+MidPoint+provisioner</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555478/Generic+provisioning+configuration</loc><lastmod>2026-07-12</lastmod></url>
-  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555489/Grouper+provisioning+failsafe</loc><lastmod>2026-07-01</lastmod></url>
+  <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555489/Grouper+provisioning+failsafe</loc><lastmod>2026-10-04</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555497/Configuring+custom+jexl+java+expressions</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555503/Grouper+loader+real+time+updates</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28555514/Grouper+container+unit+tests</loc><lastmod>2026-07-01</lastmod></url>

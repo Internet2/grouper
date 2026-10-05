@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 20
-lastUpdated: 2026-09-28T07:37:59.672Z
+version: 23
+lastUpdated: 2026-10-04T03:25:18.439Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -56,6 +56,7 @@ To enable MCP with OAuth, set the following in your Grouper configuration or as 
 | `grouper.mcp.sqlGrouperExternalSystem` | grouper | The database connection name used when the AI queries the Grouper database (i.e. when `externalSystemId` is `"grouper"` or not specified). Defaults to `grouper` (the main Grouper database connection). Administrators can set this to a different external system that points to a read-only database user or a read replica for additional security. The external system must be configured under `grouperClient.jdbc.{name}.*` in `grouper.client.properties`. |
 | `grouper.mcp.tools.allow` | (empty) | Comma-separated list of MCP tool names to allow. If blank (the default), all tools are allowed (subject to the user's group membership and consent scopes). If set, only the listed tools are available. Deny list takes precedence over allow list (effective tools = allow minus deny). Example: `group_find, group_get_members, group_has_member, group_save` |
 | `grouper.mcp.tools.deny` | (empty) | Comma-separated list of MCP tool names to deny. If blank (the default), no tools are denied. Deny list takes precedence over allow list (effective tools = allow minus deny). Tools on the deny list will not appear in `tools/list` and will return an access-denied error if called directly. Example: `sql_select, sql_get_schema, admin_daemon_job_run` |
+| `grouper.mcp.protectedFolders` | (empty) | Comma-separated list of folders that MCP must not change, for any user. Everything under each folder is protected too. See "Protecting your own folders" below. Example: `app:payroll, ref:hr` |
 | `grouper.mcp.instructions` | Grouper is an enterprise access management system for managing groups, folders, memberships, privileges, and attributes. Use the doc_search tool to find institutional documentation before attempting operations you are unsure about. | Instructions sent to the AI client in the MCP `initialize` response. Customize this to give the AI client guidance specific to your institution — for example, highlighting that documentation should be consulted early and often, describing your folder naming conventions, or noting institutional policies. This text appears as the `instructions` field in the initialize response and is typically displayed as a system prompt by the AI client. Newlines can be embedded with `\n`. |
 
 ### OAuth settings (grouper.properties)
@@ -286,7 +287,7 @@ The MCP server includes administrative tools for Grouper system administrators. 
 | `admin_daemon_logs` | Returns information from `grouper_loader_log` for daemon job runs. Returns the most recent 100 rows ordered by start time descending. The job message is not returned (use `admin_daemon_job_message` for that). Filters: `jobName` (exact match), `status` (case-insensitive), `startedAfter`, `startedBefore` (format: yyyy-MM-dd or yyyy/MM/dd HH:mm:ss). At least one of `jobName` or `status` is required. |
 | `admin_config_search` | Searches Grouper configuration properties. Supports two search modes: `lucene` (default) for full-text search on config keys and values using a Lucene in-memory index, and `regex` for Java regex matching against config key names only. Sensitive values (passwords, secrets, private keys) are automatically masked as `*******`. Optionally filter by a specific config file (e.g., `grouper.properties`, `grouper-loader.properties`). Lucene results include metadata: where configured (base/override/database), default value, EL expression, comment, value type, and required flag. Returns up to 500 results. |
 | `admin_daemon_names` | Searches for distinct daemon job names in the `grouper_loader_log` table. Takes a search string that is split by whitespace into terms. Each term is matched against `job_name` using case-insensitive LIKE. Users can include `%` wildcards in each term; terms without wildcards are automatically wrapped with `%`. Returns up to 200 matching job names. |
-| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See [external system user lookup](#external-system-user-lookup) below for configuration details. |
+| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See [external system user lookup](#external-system-user-lookup) below for configuration details. |
 
 ### Admin readwrite tools
 
@@ -296,7 +297,7 @@ The MCP server includes administrative tools for Grouper system administrators. 
 
 ## External system user lookup
 
-The MCP server includes an admin tool for looking up users in external systems configured in Grouper. This is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, or FreshService Requesters) directly through an AI agent.
+The MCP server includes an admin tool for looking up users in external systems configured in Grouper. This is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, or AssetSonar) directly through an AI agent.
 
 The `admin_external_system_get` tool is an admin readonly tool gated by the `grouper.mcp.users.adminReadonly` group (and the `admin_readonly` OAuth consent scope for OAuth-authenticated users).
 
@@ -304,7 +305,7 @@ The tool works by:
 
 1. Resolving a Grouper subject from the provided subject ID or identifier.
 2. Translating the subject to the external system's user identifier using a configurable JEXL expression.
-3. Querying the external system API (Azure Graph, Duo Admin, SCIM 2.0, Box, Google Directory, Remedy, Digital Marketplace, TeamDynamix, or FreshService) to retrieve the user record.
+3. Querying the external system API (Azure Graph, Duo Admin, SCIM 2.0, Box, Google Directory, Remedy, Digital Marketplace, TeamDynamix, FreshService, or AssetSonar) to retrieve the user record.
 4. Returning the external system user data as JSON.
 
 ### Configuration
@@ -333,8 +334,9 @@ The `<configId>` must match the config ID of a configured external system connec
 | Remedy | `remedyLoginId` | Uses BMC Remedy ITSM API. Looks up users by their Remedy login ID. |
 | Remedy Digital Marketplace | `loginName` | Uses BMC Remedy Digital Marketplace API. Looks up users by their login name. |
 | TeamDynamix | `externalId`, `username`, `id` | Uses TeamDynamix API. `id` uses direct resource path `/people/{id}`; `externalId` and `username` use the search endpoint with field name matching. |
+| AssetSonar | `email`, `id` | Uses the AssetSonar REST API (added in v7, GRP-7423). `id` uses `/members/{id}.api`; `email` uses `filter=email`, which also finds deactivated members (`status` 0). Returns a fixed set of member fields (names, employee ids, `role_id`/`role_name`, `status`, provenance and timestamps), never the full record, which contains secrets. Requires `externalSystemType = assetSonar` (it uses a WsBearerToken connector). |
 
-**External system type detection.** The tool automatically detects the external system type by matching the `configId` against configured connectors. Azure connectors (`grouper.azureConnector.*`), Duo connectors (`grouper.duoConnector.*`), Box connectors (`grouperClient.boxConnector.*`), Google connectors (`grouper.googleConnector.*`), Remedy connectors (`grouper.remedyConnector.*`), Remedy Digital Marketplace connectors (`grouper.remedyDigitalMarketplaceConnector.*`), TeamDynamix connectors (`grouper.teamDynamix.*`), and WsBearerToken connectors (`grouper.wsBearerToken.*`, used for SCIM) are supported. For WsBearerToken-based systems where auto-detection is ambiguous (SCIM vs. FreshService Requesters), set `externalSystemType` explicitly.
+**External system type detection.** The tool automatically detects the external system type by matching the `configId` against configured connectors. Azure connectors (`grouper.azureConnector.*`), Duo connectors (`grouper.duoConnector.*`), Box connectors (`grouperClient.boxConnector.*`), Google connectors (`grouper.googleConnector.*`), Remedy connectors (`grouper.remedyConnector.*`), Remedy Digital Marketplace connectors (`grouper.remedyDigitalMarketplaceConnector.*`), TeamDynamix connectors (`grouper.teamDynamix.*`), and WsBearerToken connectors (`grouper.wsBearerToken.*`, used for SCIM) are supported. For WsBearerToken-based systems where auto-detection is ambiguous (SCIM vs. FreshService Requesters vs. AssetSonar), set `externalSystemType` explicitly.
 
 ### Tool reference
 
@@ -411,7 +413,11 @@ Note: `externalSystemType` must be set explicitly because FreshService Requester
 
 #### TeamDynamix
 
-`grouper.mcp.adminExternalSystem.teamdx.subjectIdTranslationJexl = ${subject.getId()} grouper.mcp.adminExternalSystem.teamdx.externalSystemLookupField = externalId grouper.mcp.adminExternalSystem.teamdx.documentationForAiClient = TeamDynamix IT service management and project portfolio`**Subject attributes.** The JEXL expression can use any method on the `Subject` interface, including `subject.getId()`, `subject.getName()`, `subject.getDescription()`, `subject.getAttributeValue('attributeName')`, and `subject.getSourceId()`. The available attributes depend on the subject source configuration.
+`grouper.mcp.adminExternalSystem.teamdx.subjectIdTranslationJexl = ${subject.getId()} grouper.mcp.adminExternalSystem.teamdx.externalSystemLookupField = externalId grouper.mcp.adminExternalSystem.teamdx.documentationForAiClient = TeamDynamix IT service management and project portfolio`
+
+#### AssetSonar
+
+`grouper.mcp.adminExternalSystem.myAssetSonar.subjectIdTranslationJexl = ${subject.getAttributeValue('email')} grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemLookupField = email grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemType = assetSonar grouper.mcp.adminExternalSystem.myAssetSonar.documentationForAiClient = AssetSonar IT asset inventory members (status 1 active, 0 deactivated)`**Subject attributes.** The JEXL expression can use any method on the `Subject` interface, including `subject.getId()`, `subject.getName()`, `subject.getDescription()`, `subject.getAttributeValue('attributeName')`, and `subject.getSourceId()`. The available attributes depend on the subject source configuration.
 
 ## Institutional tools (GSH templates)
 
@@ -512,11 +518,29 @@ MCP write tools (`group_save`, `group_delete`, `folder_delete`, `group_add_membe
 - **privilege_assign**: Cannot assign or revoke privileges on any protected group or stem.
 - **attribute_assignment_save**: Cannot assign attributes on any protected group or stem. For assignment-on-assignment operations (e.g. `group_asgn`), the server resolves the underlying owner of the marker attribute assignment and validates protected resources and OAuth scope against that owner. For example, assigning a configuration attribute on a marker that is assigned to a protected group will be denied.
 
+### Protecting your own folders
+
+You can protect other sensitive folders, such as payroll or reference groups, the same way. List them in `grouper.mcp.protectedFolders`, separated by commas, e.g. `app:payroll, ref:hr`. For each folder listed, and everything under it, MCP refuses every change for all users, sysadmins included:
+
+- creating, editing, renaming or deleting groups and folders
+- adding or removing members, including replacing all members at once
+- changing composites, eligibility requirements or provisioners
+- assigning or revoking privileges
+- changing attributes on those groups, folders or their memberships (e.g. loader or eligibility settings which could remove members)
+- institutional tools whose folder or group inputs point into the protected folder
+
+Reading still works. The error the AI client gets names the protected folder and points to the Grouper UI (using `grouper.ui.url` if it is set), where the change can still be made.
+
+- Matching is on whole folder names: `app:payroll` does not protect `app:payrollX`.
+- A group or folder that was moved into a protected folder is also refused under its old (alternate) name.
+- This setting is read on each call, so no restart is needed after changing it.
+- On the OAuth consent screen, a read-write folder or group that is protected (a folder listed here, the `etc` folder, a system group, or anything under them) is refused, since that access could never be used. A folder that only contains a protected folder, e.g. `app` when `app:payroll` is protected, is allowed; writes to the protected part are still refused.
+
 ### Stem rename protection
 
 When a stem rename tool is available, stems with more than 5 child objects (groups + sub-stems, counted recursively) cannot be renamed via MCP. This prevents accidental renaming of large folder hierarchies.
 
-The protected resource list is computed from configuration at first access and cached for the lifetime of the JVM. If you change the configuration properties that define system groups, a restart is required for the MCP protection to reflect the new values.
+The system group list is computed from configuration at first access and cached for the lifetime of the JVM (`grouper.mcp.protectedFolders` is not, it is read on each call). If you change the configuration properties that define system groups, a restart is required for the MCP protection to reflect the new values.
 
 ## Audit logging
 
