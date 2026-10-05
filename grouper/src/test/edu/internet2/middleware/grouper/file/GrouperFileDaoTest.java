@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.file;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -196,6 +197,56 @@ public class GrouperFileDaoTest extends GrouperTest {
     assertEquals(1, GrouperFileDao.deleteById(grouperFile.getId()));
     assertEquals(0, GrouperFileDao.deleteById(grouperFile.getId()));
     assertFalse(GrouperFileDao.existsById(grouperFile.getId()));
+  }
+
+  /**
+   * grouperFile.maxSizeBytes: at the limit stores, over the limit throws on insert and update and stores nothing,
+   * negative means no limit
+   */
+  public void testMaxSize() {
+
+    // default is 50MB
+    assertEquals(50 * 1024 * 1024, GrouperFileDao.DEFAULT_MAX_SIZE_BYTES);
+
+    try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperFileDao.CONFIG_MAX_SIZE_BYTES, "10");
+      assertEquals(10, GrouperFileDao.maxSizeBytes());
+
+      // at the limit is ok
+      GrouperFile grouperFile = newFile("/grp7444/a.txt", "0123456789");
+      GrouperFileDao.store(grouperFile);
+      assertEquals("0123456789", GrouperFileDao.findById(grouperFile.getId(), true).retrieveValue());
+
+      // update over the limit throws and leaves the row alone
+      grouperFile.setValueToSave("0123456789a");
+      try {
+        GrouperFileDao.store(grouperFile);
+        fail("expected exception");
+      } catch (RuntimeException re) {
+        assertTrue(re.getMessage(), re.getMessage().contains(GrouperFileDao.CONFIG_MAX_SIZE_BYTES));
+      }
+      assertEquals("0123456789", GrouperFileDao.findById(grouperFile.getId(), true).retrieveValue());
+
+      // insert over the limit throws and inserts nothing
+      GrouperFile bigFile = newFile("/grp7444/b.txt", "0123456789a");
+      try {
+        GrouperFileDao.store(bigFile);
+        fail("expected exception");
+      } catch (RuntimeException re) {
+        // expected
+      }
+      assertFalse(GrouperFileDao.existsById(bigFile.getId()));
+
+      // -1 is no limit
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperFileDao.CONFIG_MAX_SIZE_BYTES, "-1");
+      GrouperFileDao.store(bigFile);
+      assertEquals("0123456789a", GrouperFileDao.findById(bigFile.getId(), true).retrieveValue());
+
+      GrouperFileDao.deleteById(grouperFile.getId());
+      GrouperFileDao.deleteById(bigFile.getId());
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperFileDao.CONFIG_MAX_SIZE_BYTES);
+    }
   }
 
 }

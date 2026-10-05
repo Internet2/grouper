@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.file;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -16,6 +17,38 @@ public class GrouperFileDao {
    * no instances, all static
    */
   private GrouperFileDao() {
+  }
+
+  /**
+   * config key in grouper.properties for the max size of the file contents in bytes, -1 for no limit
+   */
+  public static final String CONFIG_MAX_SIZE_BYTES = "grouperFile.maxSizeBytes";
+
+  /**
+   * default max size of the file contents in bytes (50MB) if not configured
+   */
+  public static final int DEFAULT_MAX_SIZE_BYTES = 50 * 1024 * 1024;
+
+  /**
+   * @return the max size of the file contents in bytes from grouper.properties, -1 (or any negative) means no limit
+   */
+  public static int maxSizeBytes() {
+    return GrouperConfig.retrieveConfig().propertyValueInt(CONFIG_MAX_SIZE_BYTES, DEFAULT_MAX_SIZE_BYTES);
+  }
+
+  /**
+   * throw if the contents are bigger than grouperFile.maxSizeBytes.  Checked before the store so a too big file
+   * fails with a clear message instead of storing something that is slow or fails to read back
+   * @param grouperFile
+   */
+  public static void assertSize(GrouperFile grouperFile) {
+    int maxSizeBytes = maxSizeBytes();
+    Long fileContentsBytes = grouperFile.getFileContentsBytes();
+    if (maxSizeBytes >= 0 && fileContentsBytes != null && fileContentsBytes > maxSizeBytes) {
+      throw new RuntimeException("File '" + grouperFile.getFilePath() + "' is " + fileContentsBytes
+          + " bytes which is more than the max of " + maxSizeBytes + " bytes, see grouper.properties "
+          + CONFIG_MAX_SIZE_BYTES);
+    }
   }
 
   /**
@@ -104,6 +137,9 @@ public class GrouperFileDao {
   public static void store(GrouperFile grouperFile) {
     GrouperUtil.assertion(grouperFile != null, "grouperFile is null");
     GrouperUtil.assertion(grouperFile.getId() != null, "grouperFile id is null");
+
+    // fileContentsBytes is set by setValueToSave
+    assertSize(grouperFile);
 
     new GcDbAccess().storeToDatabase(grouperFile);
   }
