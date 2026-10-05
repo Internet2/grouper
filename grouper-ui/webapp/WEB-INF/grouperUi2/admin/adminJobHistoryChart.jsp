@@ -41,7 +41,7 @@ ${grouper:title('adminJobHistoryChart')}
                             value="${grouperRequestContainer.adminContainer.guiJobHistoryDateFrom}"
                             required="required" />
                         <input type="text" class="span2" name="timeFrom" id="time-from" placeholder="${textContainer.text['adminJobHistoryTimePlaceholder']}" 
-                            value="${grouperRequestContainer.adminContainer.guiJobHistoryTimeFrom}"
+                            value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryTimeFrom)}"
                             required="required" />
                         <br />                      
                         <span class="description">${textContainer.text['adminJobFilterFromHint']}</span>
@@ -55,7 +55,7 @@ ${grouper:title('adminJobHistoryChart')}
                             value="${grouperRequestContainer.adminContainer.guiJobHistoryDateTo}"
                             required="required" />
                         <input type="text" class="span2" name="timeTo" id="time-to" placeholder="${textContainer.text['adminJobHistoryTimePlaceholder']}" 
-                            value="${grouperRequestContainer.adminContainer.guiJobHistoryTimeTo}"
+                            value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryTimeTo)}"
                             required="required" />
                         <br />                      
                         <span class="description">${textContainer.text['adminJobFilterToHint']}</span>
@@ -76,7 +76,7 @@ ${grouper:title('adminJobHistoryChart')}
                       <td style="vertical-align: top; white-space: nowrap;"><strong><label for="min-elapsed-seconds">${textContainer.text['adminJobHistoryNamesLikeFilter']}</label></strong></td>
                       <td>
 
-                        <input type="text" class="span8" name="namesLikeFilter" id="names-like-filter" value="${grouperRequestContainer.adminContainer.guiJobHistoryNamesLikeFilter}"/>
+                        <input type="text" class="span8" name="namesLikeFilter" id="names-like-filter" value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryNamesLikeFilter)}"/>
                         <br />                      
                         <span class="description">${textContainer.text['adminJobHistoryNamesLikeFilterHint']}</span>
                       </td>
