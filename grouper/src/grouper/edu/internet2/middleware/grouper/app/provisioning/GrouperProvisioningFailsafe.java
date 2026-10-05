@@ -430,15 +430,20 @@ public class GrouperProvisioningFailsafe {
   private int entityDeletes;
 
   /**
-   * GRP-7437: entities in the target before this run: the larger of the entities this provisioner has
-   * in the target (grouper_sync_member in_target) and the target entities read this run.  The second
-   * covers a full sync that selects all entities, where the target can hold entities Grouper never
-   * created (and that a delete-if-not-in-Grouper run would delete).
+   * GRP-7437: entities in the target before this run: the entities this provisioner has in the target
+   * (grouper_sync_member in_target).  Only if there are none (e.g. the first full sync against a target that
+   * already has accounts Grouper never created, which a delete-if-not-in-Grouper run would delete), the target
+   * entities read this run.  Do not take the larger of the two: a target can return accounts that are already
+   * inactive (e.g. AssetSonar reads deactivated members), which would inflate the base so that deactivating
+   * every active account looks like a small percent
    * @return the count
    */
   private int retrieveOverallEntityCount() {
     int syncCount = new GcDbAccess().sql("select count(1) from grouper_sync_member gsm where gsm.grouper_sync_id = ? and gsm.in_target = 'T'")
         .addBindVar(this.getGrouperProvisioner().getGcGrouperSync().getId()).select(int.class);
+    if (syncCount > 0) {
+      return syncCount;
+    }
     int targetCount = 0;
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
@@ -446,7 +451,7 @@ public class GrouperProvisioningFailsafe {
         targetCount++;
       }
     }
-    return Math.max(syncCount, targetCount);
+    return targetCount;
   }
 
   /**
