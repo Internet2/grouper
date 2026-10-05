@@ -422,8 +422,9 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
             validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
             return;
           }
-          if (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation())
-              || StringUtils.equals(templateVersion.getValueOrExpressionEvaluation(), "V1")) {
+          // GRP-7448: compiled templates are always V2, templateVersion only applies to interpreted
+          if (!compiled && (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation())
+              || StringUtils.equals(templateVersion.getValueOrExpressionEvaluation(), "V1"))) {
             String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputTypeFileNotAllowedWithV1GshTemplate");
             validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
             return;

@@ -697,7 +697,14 @@ public class GshTemplateConfig {
 
         enabled = grouperConfig.propertyValueBoolean(configPrefix+"enabled", true);
 
-        templateVersion = grouperConfig.propertyValueString(configPrefix+"templateVersion", "V1");
+        // GRP-7448: a compiled template always extends GshTemplateV2, so it is V2 regardless of the
+        // templateVersion setting (which only applies to interpreted Groovy templates and defaults to V1).
+        // Callers check getTemplateVersion() for V2 behavior (decorateForUi, template tests)
+        if (gshTemplateMode == GshTemplateMode.compiled) {
+          templateVersion = "V2";
+        } else {
+          templateVersion = grouperConfig.propertyValueString(configPrefix+"templateVersion", "V1");
+        }
 
         simplifiedUi = grouperConfig.propertyValueBoolean(configPrefix+"simplifiedUi", false);
 

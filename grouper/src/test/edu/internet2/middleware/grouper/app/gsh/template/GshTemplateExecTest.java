@@ -214,6 +214,84 @@ public class GshTemplateExecTest extends GrouperTest {
   }
 
   /**
+   * GRP-7448: a compiled template with no templateVersion set (defaults to V1) is still treated as V2,
+   * so its decorateTemplateForUiDisplay runs during validation.  The decorator here makes the required
+   * input optional; if it did not run, validation would fail on the missing required input.
+   */
+  public void testExecuteCompiledJavaWithoutTemplateVersionRunsDecorator() {
+
+    // given
+    GshTemplateClassLoaderRegistry.clearCache();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    String templateConfigLines = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-template-config.properties", false);
+
+    List<String> templateConfigProperties = GrouperUtil.splitFileLines(templateConfigLines);
+
+    for (String keyValue: templateConfigProperties) {
+      if (StringUtils.isNotBlank(keyValue)) {
+        String[] keyValueArr = keyValue.split("=", 2);
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
+      }
+    }
+
+    // compiled mode, input stays required, and no templateVersion (what a UI save of a compiled template leaves)
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.templateMode", "compiled");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouperGshTemplate.testGshTemplateConfig.templateVersion");
+    assertNull(GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate.testGshTemplateConfig.templateVersion"));
+
+    String javaSource = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDecorateForUiInput;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;\n"
+        + "public class TestExecCompiledJavaDecorator extends GshTemplateV2 {\n"
+        + "  public void decorateTemplateForUiDisplay(GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput) {\n"
+        + "    for (GshTemplateInputConfigAndValue configAndValue : gshTemplateDecorateForUiInput.getGshTemplateInputConfigAndValues().values()) {\n"
+        + "      configAndValue.getGshTemplateInputConfig().setRequired(false);\n"
+        + "    }\n"
+        + "  }\n"
+        + "  public void gshRunLogic(GshTemplateV2input gshTemplateV2input, GshTemplateV2output gshTemplateV2output) {\n"
+        + "    gshTemplateV2output.getGsh_builtin_gshTemplateOutput().addOutputLine(\"decorated compiled java ran\");\n"
+        + "  }\n"
+        + "}\n";
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", javaSource);
+
+    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig("testGshTemplateConfig");
+    gshTemplateConfig.populateConfiguration();
+    assertEquals("compiled templates are always V2", "V2", gshTemplateConfig.getTemplateVersion());
+
+    Stem ownerStem = new StemSave(grouperSession).assignName("test2").save();
+
+    GshTemplateExec exec = new GshTemplateExec();
+    exec.assignConfigId("testGshTemplateConfig");
+    exec.assignCurrentUser(SubjectFinder.findRootSubject());
+
+    exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+    exec.assignOwnerStemName(ownerStem.getName());
+
+    GshTemplateInput input = new GshTemplateInput();
+    input.assignName("gsh_input_myExtension");
+    input.assignValue(null);
+    exec.addGshTemplateInput(input);
+
+    // when
+    GshTemplateExecOutput output = exec.execute();
+
+    // then
+    if (!output.isSuccess() && output.getException() != null) {
+      output.getException().printStackTrace();
+    }
+    assertEquals("decorator should have made the input optional", 0, output.getGshTemplateOutput().getValidationLines().size());
+    assertTrue("compiled template should run successfully", output.isSuccess());
+    assertEquals("decorated compiled java ran", output.getGshTemplateOutput().getOutputLines().get(0).getText());
+  }
+
+  /**
    * GRP-7026 (commit 2): when a compiled Java template throws, the real exception
    * (and its message) is preserved — it is NOT routed through the Groovy
    * line-number back-calculation (which only applies to Script&lt;n&gt;.groovy
