@@ -216,6 +216,35 @@ public class GrouperHttpClient {
     return doNotLogHeaders;
   }
 
+  /**
+   * add a header whose value should not be logged, e.g. a custom header that holds a token
+   * @param header
+   * @return this for chaining
+   */
+  public GrouperHttpClient addDoNotLogHeader(String header) {
+    if (!StringUtils.isBlank(header)) {
+      // copy, the assigned set might not be modifiable
+      Set<String> newDoNotLogHeaders = new HashSet<String>(GrouperUtil.nonNull(this.doNotLogHeaders));
+      newDoNotLogHeaders.add(header.trim());
+      this.doNotLogHeaders = newDoNotLogHeaders;
+    }
+    return this;
+  }
+
+  /**
+   * header names are case insensitive in HTTP, so match the do not log headers that way
+   * @param header
+   * @return true if the value of this header should not be logged
+   */
+  private boolean isDoNotLogHeader(String header) {
+    for (String doNotLogHeader : GrouperUtil.nonNull(this.doNotLogHeaders)) {
+      if (StringUtils.equalsIgnoreCase(doNotLogHeader, header)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   
   public boolean isDoNotLogResponseBody() {
@@ -1440,7 +1469,7 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.headers).keySet()) {
             theLog.append("HTTP request header: ").append(key).append(": ");
             if (!StringUtils.equalsIgnoreCase("Authorization", key)
-                && !this.getDoNotLogHeaders().contains(key)
+                && !this.isDoNotLogHeader(key)
                 && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.headers.get(key));
             } else {

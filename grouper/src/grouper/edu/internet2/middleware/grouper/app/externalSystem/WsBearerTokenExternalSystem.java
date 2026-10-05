@@ -387,6 +387,8 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
               "grouper.wsBearerToken." + externalSystemConfigId + ".httpHeader", "Authorization");
 
       grouperHttpClient.addHeader(httpHeader, headerValue);
+      // the header can be custom (e.g. token or X-Api-Token), never log the secret in it
+      grouperHttpClient.addDoNotLogHeader(httpHeader);
     } else if (StringUtils.equals(httpAuthnType, "basicAuth")) {
       
       String user = grouperLoaderConfig
@@ -416,6 +418,8 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       
       if (StringUtils.isNotBlank(apiKeyHeader) && StringUtils.isNotBlank(apiKeyPassword)) {      
         grouperHttpClient.addHeader(apiKeyHeader, apiKeyPassword);
+        // never log the api key
+        grouperHttpClient.addDoNotLogHeader(apiKeyHeader);
       }
       
     } else {
