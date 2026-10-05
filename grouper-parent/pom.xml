@@ -1008,6 +1008,9 @@
     </build>
 
     <profiles>
+        <!-- Maven Central release: run with -Prelease -Dmaven.test.skip=true so the -tests.jar artifacts are not
+             built or published (release size limit). Modules declare their test-jar dependencies in a profile
+             that turns off when maven.test.skip=true. GRP-7455 -->
         <profile>
             <id>release</id>
             <build>
