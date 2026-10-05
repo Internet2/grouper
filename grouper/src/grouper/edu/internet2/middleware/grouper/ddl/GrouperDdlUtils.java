@@ -3252,6 +3252,67 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * The sql of a view as the database stores it in its catalog (pg_views on postgres, user_views or all_views on
+   * oracle, information_schema.views on mysql), read on every call.  Each database normalizes the text differently
+   * (postgres adds AS and reformats, mysql adds backticks and AS, oracle keeps it about as written), so to look
+   * for something in it use {@link #retrieveViewDefinitionNormalized(String)}.  Honors ddlutils.schema.
+   * Useful for idempotent upgrade tasks that fix a view: only replace it if the old definition is there.
+   * @param viewName
+   * @return the view sql, or null if the view does not exist
+   */
+  public static String retrieveViewDefinition(String viewName) {
+    String schemaOverride = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
+    if (isOracle()) {
+      // oracle stores unquoted names in upper case.  text is a LONG, which the driver reads as a string
+      if (schemaOverride == null) {
+        return new GcDbAccess().sql("select text from user_views where view_name = ?")
+            .addBindVar(viewName.toUpperCase()).select(String.class);
+      }
+      return new GcDbAccess().sql("select text from all_views where owner = ? and view_name = ?")
+          .addBindVar(schemaOverride.toUpperCase()).addBindVar(viewName.toUpperCase()).select(String.class);
+    }
+    if (isMysql()) {
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      String schemaClause = "table_schema = database()";
+      if (schemaOverride != null) {
+        schemaClause = "lower(table_schema) = ?";
+        gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+      }
+      return gcDbAccess.sql("select view_definition from information_schema.views where " + schemaClause
+          + " and lower(table_name) = ?").addBindVar(viewName.toLowerCase()).select(String.class);
+    }
+    // postgres.  pg_views.definition is the full text, information_schema.views can truncate it
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    String schemaClause = "schemaname = current_schema()";
+    if (schemaOverride != null) {
+      schemaClause = "lower(schemaname) = ?";
+      gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+    }
+    return gcDbAccess.sql("select definition from pg_views where " + schemaClause + " and lower(viewname) = ?")
+        .addBindVar(viewName.toLowerCase()).select(String.class);
+  }
+
+  /**
+   * The view sql from {@link #retrieveViewDefinition(String)} normalized so it can be searched the same way on all
+   * databases: lower case, double quotes and backticks removed, the AS keyword removed, all whitespace collapsed to
+   * one space.  e.g. postgres "gdr.internal_id AS data_row_internal_id" and mysql
+   * "`gdr`.`internal_id` AS `data_row_internal_id`" both become "gdr.internal_id data_row_internal_id".
+   * Note: mysql also qualifies table names with the schema, so search for column expressions, not "from x".
+   * @param viewName
+   * @return the normalized sql, or null if the view does not exist
+   */
+  public static String retrieveViewDefinitionNormalized(String viewName) {
+    String definition = retrieveViewDefinition(viewName);
+    if (definition == null) {
+      return null;
+    }
+    String normalized = definition.toLowerCase().replace("`", "").replace("\"", "");
+    normalized = normalized.replaceAll("\\s+", " ");
+    normalized = normalized.replace(" as ", " ");
+    return normalized.trim();
+  }
+
+  /**
    * Whether a column allows nulls, read from the database catalog on every call (information_schema on
    * postgres and mysql, user_tab_columns on oracle).  Use this in DDL upgrade tasks that alter nullability,
    * not {@link #isColumnNullable(String, String, String, String)}: that reads ResultSetMetaData, and the

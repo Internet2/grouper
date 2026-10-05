@@ -8422,7 +8422,7 @@ COMMENT ON COLUMN grouper_data_row_assign_v.member_id IS 'member_id: member id';
 create view grouper_data_row_field_asgn_v as
 select gdr.config_id data_row_config_id, gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdrfa.value_integer,  
 gm.subject_source subject_source_id, gm.id member_id, gdf.internal_id data_field_internal_id, gdrfa.internal_id data_field_assign_internal_id, 
-gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id
+gdr.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id
 from grouper_data_field gdf, grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr,
 grouper_data_row_field_assign gdrfa 
 left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id 

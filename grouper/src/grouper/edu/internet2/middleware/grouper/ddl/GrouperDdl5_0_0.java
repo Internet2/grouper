@@ -7,6 +7,33 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDdl5_0_0 {
+
+  /**
+   * select for grouper_data_row_assign_v.  GRP-6677: data_row_internal_id is gdr.internal_id (it was
+   * gdra.internal_id, the data row assign id, twice).  Also used by UpgradeTaskV45 to replace the view.
+   */
+  public static final String DATA_ROW_ASSIGN_V_SQL = "select gdr.config_id data_row_config_id, gm.subject_id, "
+      + "gdr.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id, "
+      + "gm.subject_source subject_source_id, gm.id member_id "
+      + "from grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr "
+      + "where gdra.member_internal_id = gm.internal_id "
+      + "and gdr.internal_id = gdra.data_row_internal_id";
+
+  /**
+   * select for grouper_data_row_field_asgn_v.  GRP-6677: data_row_internal_id is gdr.internal_id (it was
+   * gdra.internal_id, the data row assign id, twice).  Also used by UpgradeTaskV45 to replace the view.
+   */
+  public static final String DATA_ROW_FIELD_ASGN_V_SQL = "select gdr.config_id data_row_config_id, gdf.config_id data_field_config_id, "
+      + "gm.subject_id, gd.the_text value_text, gdrfa.value_integer, "
+      + "gm.subject_source subject_source_id, gm.id member_id, gdf.internal_id data_field_internal_id, gdrfa.internal_id data_field_assign_internal_id, "
+      + "gdr.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id "
+      + "from grouper_data_field gdf, grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr, "
+      + "grouper_data_row_field_assign gdrfa "
+      + "left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id "
+      + "where gdra.member_internal_id = gm.internal_id "
+      + "and gdrfa.data_field_internal_id = gdf.internal_id "
+      + "and gdr.internal_id = gdra.data_row_internal_id "
+      + "and gdra.internal_id = gdrfa.data_row_assign_internal_id";
   
   /**
    * if building to this version at least
@@ -736,12 +763,7 @@ public class GrouperDdl5_0_0 {
             "data_row_assign_internal_id: data row assign internal id", 
             "subject_source_id: subject source id", 
             "member_id: member id"),
-        "select gdr.config_id data_row_config_id, gm.subject_id, "+
-        "gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id, "+
-        "gm.subject_source subject_source_id, gm.id member_id "+
-        "from grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr "+ 
-        "where gdra.member_internal_id = gm.internal_id "+
-        "and gdr.internal_id = gdra.data_row_internal_id"
+        DATA_ROW_ASSIGN_V_SQL
         );
   }
   
@@ -779,16 +801,7 @@ public class GrouperDdl5_0_0 {
             "data_field_assign_internal_id: data field assign internal id", 
             "data_row_internal_id: data row internal id", 
             "data_row_assign_internal_id: data row assign internal id"),
-        "select gdr.config_id data_row_config_id, gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdrfa.value_integer, "+  
-        "gm.subject_source subject_source_id, gm.id member_id, gdf.internal_id data_field_internal_id, gdrfa.internal_id data_field_assign_internal_id, "+
-        "gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id "+
-        "from grouper_data_field gdf, grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr, "+
-        "grouper_data_row_field_assign gdrfa "+
-        "left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id "+ 
-        "where gdra.member_internal_id = gm.internal_id "+
-        "and gdrfa.data_field_internal_id = gdf.internal_id "+
-        "and gdr.internal_id = gdra.data_row_internal_id "+
-        "and gdra.internal_id = gdrfa.data_row_assign_internal_id"
+        DATA_ROW_FIELD_ASGN_V_SQL
         );
   }
 

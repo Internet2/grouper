@@ -1,11 +1,15 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.ddl.GrouperDdl5_0_0;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -35,6 +39,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *
  * <p>GRP-7446: add grouper_file.file_contents_blob (nullable; postgres bytea, oracle BLOB, mysql LONGBLOB) for
  * binary files.  No backfill, existing rows are text.  Idempotent: only added if missing.</p>
+ *
+ * <p>GRP-6677: grouper_data_row_field_asgn_v (and grouper_data_row_assign_v when it was built from the DDL model)
+ * selected gdra.internal_id, the data row assign id, as data_row_internal_id.  Replace each view whose stored sql
+ * still has that, with gdr.internal_id.  Idempotent: the view sql is read from the database catalog, so a fixed
+ * view is left alone.</p>
  */
 public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
@@ -61,6 +70,14 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
   /** GRP-7445: index on (id, config_id), made non-unique */
   private static final String GRP_7445_INDEX = "grouper_zoom_user_id_idx";
+
+  /** GRP-6677: views that selected the wrong column, and their correct select */
+  private static final String[][] GRP_6677_VIEWS_AND_SQL = new String[][] {
+    {"grouper_data_row_assign_v", GrouperDdl5_0_0.DATA_ROW_ASSIGN_V_SQL},
+    {"grouper_data_row_field_asgn_v", GrouperDdl5_0_0.DATA_ROW_FIELD_ASGN_V_SQL}};
+
+  /** GRP-6677: the wrong column expression, as it looks in the normalized view sql */
+  private static final String GRP_6677_WRONG_COLUMN = "gdra.internal_id data_row_internal_id";
 
   /** GRP-7446: table getting the binary contents column */
   private static final String GRP_7446_TABLE = "grouper_file";
@@ -94,6 +111,9 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     // GRP-7446 grouper_file.file_contents_blob
     workToDo |= grp7446HasAutomaticWork();
 
+    // GRP-6677 data row views select the wrong data_row_internal_id
+    workToDo |= !grp6677ViewsToReplace().isEmpty();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
@@ -110,6 +130,13 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
         grp7439FileTimestamps(otherJobInput);
         grp7445ZoomUserIdNullable(otherJobInput);
         grp7446FileContentsBlob(otherJobInput);
+
+        // keep view changes LAST, add new table / column / index work above this.  Replacing a view is the step
+        // most likely to fail (e.g. postgres rejects CREATE OR REPLACE VIEW if the output columns change, or a
+        // site view depends on it), and each step commits on its own, so everything above is already applied if
+        // it does.  The task is not marked done, and the next run redoes only what is left (every step checks
+        // the database first)
+        grp6677ReplaceDataRowViews(otherJobInput);
         return null;
       }
     });
@@ -371,6 +398,38 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     if (otherJobInput != null) {
       otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
       otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column " + GRP_7446_TABLE + "." + GRP_7446_COLUMN);
+    }
+  }
+
+  /**
+   * GRP-6677: the data row views that exist and still select gdra.internal_id as data_row_internal_id
+   * @return view name to its correct select, empty if nothing to do
+   */
+  private Map<String, String> grp6677ViewsToReplace() {
+    Map<String, String> result = new LinkedHashMap<String, String>();
+    for (String[] viewAndSql : GRP_6677_VIEWS_AND_SQL) {
+      // read from the catalog every time, null if the view is not there
+      String definition = GrouperDdlUtils.retrieveViewDefinitionNormalized(viewAndSql[0]);
+      if (definition != null && definition.contains(GRP_6677_WRONG_COLUMN)) {
+        result.put(viewAndSql[0], viewAndSql[1]);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * GRP-6677: replace the data row views that select the wrong data_row_internal_id.  Same column names and types,
+   * so CREATE OR REPLACE works on all three databases (and keeps grants and comments)
+   * @param otherJobInput
+   */
+  private void grp6677ReplaceDataRowViews(OtherJobInput otherJobInput) {
+    for (Map.Entry<String, String> viewAndSql : grp6677ViewsToReplace().entrySet()) {
+      new GcDbAccess().sql("CREATE OR REPLACE VIEW " + viewAndSql.getKey() + " AS " + viewAndSql.getValue()).executeSql();
+      LOG.info("GRP-6677: replaced view " + viewAndSql.getKey());
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", replaced view " + viewAndSql.getKey());
+      }
     }
   }
 

@@ -1329,6 +1329,65 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
+   * GRP-6677: grouper_data_row_assign_v and grouper_data_row_field_asgn_v selected gdra.internal_id (the data row
+   * assign id) as data_row_internal_id.  A fresh install has gdr.internal_id in both (read back from the catalog with
+   * GrouperDdlUtils.retrieveViewDefinitionNormalized), then simulate the old views: UpgradeTaskV45 sees the work,
+   * replaces them, and a second run is a no-op.  Runs on all three databases.
+   */
+  public void testGrp6677DataRowViews() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    String[] views = new String[] {"grouper_data_row_assign_v", "grouper_data_row_field_asgn_v"};
+
+    // the utility: null for a view that is not there, normalized text for one that is
+    assertNull(GrouperDdlUtils.retrieveViewDefinition("grouper_no_such_view_v"));
+    assertNull(GrouperDdlUtils.retrieveViewDefinitionNormalized("grouper_no_such_view_v"));
+
+    // fresh install is correct
+    for (String view : views) {
+      String definition = GrouperDdlUtils.retrieveViewDefinitionNormalized(view);
+      assertNotNull(view, definition);
+      assertTrue(view + ": " + definition, definition.contains("gdr.internal_id data_row_internal_id"));
+      assertFalse(view + ": " + definition, definition.contains("gdra.internal_id data_row_internal_id"));
+    }
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate the old views
+    String oldAssignSql = GrouperDdl5_0_0.DATA_ROW_ASSIGN_V_SQL.replace("gdr.internal_id data_row_internal_id", "gdra.internal_id data_row_internal_id");
+    String oldFieldSql = GrouperDdl5_0_0.DATA_ROW_FIELD_ASGN_V_SQL.replace("gdr.internal_id data_row_internal_id", "gdra.internal_id data_row_internal_id");
+    assertFalse(oldAssignSql.equals(GrouperDdl5_0_0.DATA_ROW_ASSIGN_V_SQL));
+    assertFalse(oldFieldSql.equals(GrouperDdl5_0_0.DATA_ROW_FIELD_ASGN_V_SQL));
+    new GcDbAccess().sql("CREATE OR REPLACE VIEW grouper_data_row_assign_v AS " + oldAssignSql).executeSql();
+    new GcDbAccess().sql("CREATE OR REPLACE VIEW grouper_data_row_field_asgn_v AS " + oldFieldSql).executeSql();
+    for (String view : views) {
+      assertTrue(view, GrouperDdlUtils.retrieveViewDefinitionNormalized(view).contains("gdra.internal_id data_row_internal_id"));
+    }
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task replaces them
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    for (String view : views) {
+      String definition = GrouperDdlUtils.retrieveViewDefinitionNormalized(view);
+      assertTrue(view + ": " + definition, definition.contains("gdr.internal_id data_row_internal_id"));
+      assertFalse(view + ": " + definition, definition.contains("gdra.internal_id data_row_internal_id"));
+    }
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // second run is a no-op, views still selectable
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(0, new GcDbAccess().sql("select count(*) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(*) from grouper_data_row_assign_v").select(int.class).intValue());
+  }
+
+  /**
    * GRP-7446: validate grouper_file.file_contents_blob.  A fresh install has the column and the deep DDL compare
    * is clean (modeled as Types.BLOB like the quartz job_data columns).  Then simulate a pre-GRP-7446 database
    * (column dropped): UpgradeTaskV45 adds it back, binary data round trips, and a second run is a no-op.  Runs on
