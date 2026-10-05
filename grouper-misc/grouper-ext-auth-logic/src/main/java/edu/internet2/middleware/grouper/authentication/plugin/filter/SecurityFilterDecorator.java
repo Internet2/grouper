@@ -53,7 +53,8 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
             };
             try {
                 super.doFilter(request, response, trackingChain);
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                // Throwable, not Exception: an Error would otherwise reach the container error page with its stacktrace (GRP-7372)
                 if (chainInvoked[0]) {
                     // authentication succeeded, this is an application error and not a login failure
                     throw e;

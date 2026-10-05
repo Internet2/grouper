@@ -22,9 +22,10 @@ public class FilterDecoratorUtils {
     /**
      * Log the exception with its stacktrace and send a plain HTTP 500 with a short message, so that
      * the stacktrace is not presented to the user (CWE-209).  The message text may optionally contain
-     * %%exceptionMessage%%, which is replaced with the exception message.
+     * %%exceptionMessage%%, which is replaced with the exception message.  Takes a Throwable so an Error
+     * (e.g. NoClassDefFoundError from a jar mismatch) is handled too and does not reach the container error page.
      */
-    public static void handleLoginFailure(Exception e, HttpServletResponse response) throws IOException {
+    public static void handleLoginFailure(Throwable e, HttpServletResponse response) throws IOException {
         log.error("External authentication failed", e);
         if (response.isCommitted()) {
             return;
@@ -47,7 +48,7 @@ public class FilterDecoratorUtils {
     /**
      * replace the optional %%exceptionMessage%% token with the exception message
      */
-    public static String substituteExceptionMessage(String message, Exception e) {
+    public static String substituteExceptionMessage(String message, Throwable e) {
         if (!message.contains(EXCEPTION_MESSAGE_TOKEN)) {
             return message;
         }
