@@ -9,7 +9,7 @@
 </div>
 <form class="form-horizontal form-inline" method="get" id="vis-settings-form">
   <input type="hidden" name="operation" id="vis-settings-operation" value="${grouperRequestContainer.visualizationContainer.operation}" />
-  <input type="hidden" name="objectId" id="vis-settings-objectid" value="${grouperRequestContainer.visualizationContainer.objectId}" />
+  <input type="hidden" name="objectId" id="vis-settings-objectid" value="${fn:escapeXml(grouperRequestContainer.visualizationContainer.objectId)}" />
   <input type="hidden" name="objectType" id="vis-settings-objecttype" value="${grouperRequestContainer.visualizationContainer.objectType}" />
   <input type="hidden" name="overrideAbacScript" id="vis-override-abac-script" value="" />
 

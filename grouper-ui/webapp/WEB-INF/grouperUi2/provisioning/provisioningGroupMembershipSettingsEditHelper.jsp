@@ -4,7 +4,7 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisioningTargetNameId">${textContainer.text['provisioningTargetNameLabel']}</label></strong></td>
                           <td>
-                            <input type="hidden" name="provisioningPreviousTargetName" value="${grouperRequestContainer.provisioningContainer.targetName}" />
+                            <input type="hidden" name="provisioningPreviousTargetName" value="${fn:escapeXml(grouperRequestContainer.provisioningContainer.targetName)}" />
                             <select name="provisioningTargetName" id="provisioningTargetNameId" style="width: 30em"
                             onchange="ajax('../app/UiV2Provisioning.editProvisioningOnGroupMembership', {formIds: 'editProvisioningFormId'}); return false;">
                               <option value=""></option>

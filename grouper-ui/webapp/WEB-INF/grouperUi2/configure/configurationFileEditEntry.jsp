@@ -6,7 +6,7 @@
               <div id="configuration-select-container">
                <form id="configurationEditForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
                  <input type="hidden" name="configFile" value="${grouperRequestContainer.configurationContainer.configFileName}" />
-                 <input type="hidden" name="propertyNameName" value="${grouperRequestContainer.configurationContainer.currentConfigPropertyName}" />
+                 <input type="hidden" name="propertyNameName" value="${fn:escapeXml(grouperRequestContainer.configurationContainer.currentConfigPropertyName)}" />
                  <%-- GRP-7351: carry the row index back so the submit can re-render just that row --%>
                  <input type="hidden" name="index" value="${grouperRequestContainer.configurationContainer.currentIndex}" />
 
