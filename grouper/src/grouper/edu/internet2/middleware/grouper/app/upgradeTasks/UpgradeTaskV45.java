@@ -27,6 +27,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * 1970), backfill rows where they are null with the current time, then make both NOT NULL.  Existing rows
  * then look new, so time-based cleanup of files never deletes old rows by surprise.  Idempotent: columns
  * are only added if missing, only null values are backfilled, and only nullable columns are altered.</p>
+ *
+ * <p>GRP-7445: the zoom list users api returns no id for pending users, so make grouper_prov_zoom_user.id
+ * nullable and recreate grouper_zoom_user_id_idx (id, config_id) as non-unique.  Several pending users in
+ * one config would otherwise fail the NOT NULL, or collide on the unique index.  Only if the table exists
+ * (zoom is optional).  Idempotent: skipped once the column is nullable and the index is non-unique.</p>
  */
 public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
@@ -44,6 +49,15 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
   /** GRP-7439: timestamp columns added to grouper_file */
   private static final String[] GRP_7439_COLUMNS = new String[] {"created_on_micros", "updated_on_micros"};
+
+  /** GRP-7445: zoom user table */
+  private static final String GRP_7445_TABLE = "grouper_prov_zoom_user";
+
+  /** GRP-7445: zoom user id column, made nullable */
+  private static final String GRP_7445_COLUMN = "id";
+
+  /** GRP-7445: index on (id, config_id), made non-unique */
+  private static final String GRP_7445_INDEX = "grouper_zoom_user_id_idx";
 
   @Override
   public boolean upgradeTaskIsDdl() {
@@ -65,6 +79,9 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     // GRP-7439 grouper_file created_on_micros / updated_on_micros
     workToDo |= grp7439HasAutomaticWork();
 
+    // GRP-7445 grouper_prov_zoom_user.id nullable, grouper_zoom_user_id_idx non-unique
+    workToDo |= grp7445HasAutomaticWork();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
@@ -79,6 +96,7 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
 
         grp7417FileContentsClobToText(otherJobInput);
         grp7439FileTimestamps(otherJobInput);
+        grp7445ZoomUserIdNullable(otherJobInput);
         return null;
       }
     });
@@ -234,6 +252,69 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
       if (otherJobInput != null) {
         otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
         otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", made " + GRP_7439_TABLE + "." + column + " NOT NULL");
+      }
+    }
+  }
+
+  /**
+   * Whether GRP-7445 has work: the grouper_prov_zoom_user table exists, and the id column is still NOT NULL
+   * or grouper_zoom_user_id_idx is unique (or missing).
+   * @return true if the column or index needs to change
+   */
+  private boolean grp7445HasAutomaticWork() {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7445_TABLE)) {
+      return false;
+    }
+    if (!GrouperDdlUtils.isColumnNullableFromCatalog(GRP_7445_TABLE, GRP_7445_COLUMN)) {
+      return true;
+    }
+    // read from the catalog, the ddlutils model can be cached during the upgrade and miss the recreate
+    Boolean indexUnique = GrouperDdlUtils.isIndexUniqueFromCatalog(GRP_7445_TABLE, GRP_7445_INDEX);
+    return indexUnique == null || indexUnique;
+  }
+
+  /**
+   * GRP-7445: make grouper_prov_zoom_user.id nullable, and drop and recreate grouper_zoom_user_id_idx as
+   * non-unique (or create it if missing).
+   * @param otherJobInput
+   */
+  private void grp7445ZoomUserIdNullable(OtherJobInput otherJobInput) {
+    if (!grp7445HasAutomaticWork()) {
+      return;
+    }
+
+    // drop NOT NULL on the id column
+    if (!GrouperDdlUtils.isColumnNullableFromCatalog(GRP_7445_TABLE, GRP_7445_COLUMN)) {
+      if (GrouperDdlUtils.isPostgres()) {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7445_TABLE + " ALTER COLUMN " + GRP_7445_COLUMN + " DROP NOT NULL").executeSql();
+      } else if (GrouperDdlUtils.isMysql()) {
+        // MODIFY rewrites the whole column definition, so restate the type
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7445_TABLE + " MODIFY " + GRP_7445_COLUMN + " VARCHAR(40) NULL").executeSql();
+      } else {
+        new GcDbAccess().sql("ALTER TABLE " + GRP_7445_TABLE + " MODIFY (" + GRP_7445_COLUMN + " NULL)").executeSql();
+      }
+      LOG.info("GRP-7445: made " + GRP_7445_TABLE + "." + GRP_7445_COLUMN + " nullable");
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", made " + GRP_7445_TABLE + "." + GRP_7445_COLUMN + " nullable");
+      }
+    }
+
+    // recreate the index as non-unique
+    Boolean indexUnique = GrouperDdlUtils.isIndexUniqueFromCatalog(GRP_7445_TABLE, GRP_7445_INDEX);
+    if (indexUnique == null || indexUnique) {
+      if (indexUnique != null) {
+        if (GrouperDdlUtils.isMysql()) {
+          new GcDbAccess().sql("DROP INDEX " + GRP_7445_INDEX + " ON " + GRP_7445_TABLE).executeSql();
+        } else {
+          new GcDbAccess().sql("DROP INDEX " + GRP_7445_INDEX).executeSql();
+        }
+      }
+      new GcDbAccess().sql("CREATE INDEX " + GRP_7445_INDEX + " ON " + GRP_7445_TABLE + " (id, config_id)").executeSql();
+      LOG.info("GRP-7445: recreated index " + GRP_7445_INDEX + " as non-unique");
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", recreated index " + GRP_7445_INDEX + " as non-unique");
       }
     }
   }

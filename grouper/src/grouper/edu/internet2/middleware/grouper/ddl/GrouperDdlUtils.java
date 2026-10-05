@@ -3297,6 +3297,70 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * Whether an index is unique, read from the database catalog on every call (pg_indexes on postgres,
+   * information_schema.statistics on mysql, user_indexes on oracle).  Use this in DDL upgrade tasks that
+   * drop and recreate an index, not the ddlutils model: the model can be cached for the length of an
+   * upgrade run, so it would keep reporting the old index after the recreate (GRP-7445).
+   * @param tableName
+   * @param indexName
+   * @return true if unique, false if non-unique, null if the index is not there
+   */
+  public static Boolean isIndexUniqueFromCatalog(String tableName, String indexName) {
+    // honor the ddlutils.schema override (tables not in the connecting user's default schema)
+    String schemaOverride = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
+    if (isOracle()) {
+      // UNIQUE or NONUNIQUE, oracle stores unquoted names in upper case
+      String uniqueness = null;
+      if (schemaOverride == null) {
+        uniqueness = new GcDbAccess().sql("select uniqueness from user_indexes where table_name = ? and index_name = ?")
+            .addBindVar(tableName.toUpperCase()).addBindVar(indexName.toUpperCase()).select(String.class);
+      } else {
+        uniqueness = new GcDbAccess().sql("select uniqueness from all_indexes where owner = ? and table_name = ? and index_name = ?")
+            .addBindVar(schemaOverride.toUpperCase()).addBindVar(tableName.toUpperCase()).addBindVar(indexName.toUpperCase())
+            .select(String.class);
+      }
+      if (StringUtils.isBlank(uniqueness)) {
+        return null;
+      }
+      return StringUtils.equalsIgnoreCase("UNIQUE", uniqueness);
+    }
+    if (isMysql()) {
+      // one row per index column, non_unique is the same on each: 0 unique, 1 non-unique
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      String schemaClause = null;
+      if (schemaOverride != null) {
+        schemaClause = "lower(table_schema) = ?";
+        gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+      } else {
+        schemaClause = "table_schema = database()";
+      }
+      Integer nonUnique = gcDbAccess.sql("select max(non_unique) from information_schema.statistics where " + schemaClause
+          + " and lower(table_name) = ? and lower(index_name) = ?")
+          .addBindVar(tableName.toLowerCase()).addBindVar(indexName.toLowerCase()).select(Integer.class);
+      if (nonUnique == null) {
+        return null;
+      }
+      return nonUnique == 0;
+    }
+    // postgres, the index definition starts with CREATE UNIQUE INDEX or CREATE INDEX
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    String schemaClause = null;
+    if (schemaOverride != null) {
+      schemaClause = "lower(schemaname) = ?";
+      gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+    } else {
+      schemaClause = "schemaname = current_schema()";
+    }
+    String indexDef = gcDbAccess.sql("select indexdef from pg_indexes where " + schemaClause
+        + " and lower(tablename) = ? and lower(indexname) = ?")
+        .addBindVar(tableName.toLowerCase()).addBindVar(indexName.toLowerCase()).select(String.class);
+    if (StringUtils.isBlank(indexDef)) {
+      return null;
+    }
+    return indexDef.toUpperCase().startsWith("CREATE UNIQUE ");
+  }
+
+  /**
    * Get the declared size (max length) of a column from the live database, e.g. 1024 for VARCHAR(1024).
    * Reads the column definition (not the data) via JDBC result set metadata, so it works the same across
    * postgres, oracle, and mysql.  Useful for idempotent DDL upgrade tasks that widen a column.

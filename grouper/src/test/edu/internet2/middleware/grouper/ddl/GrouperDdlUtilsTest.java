@@ -1257,6 +1257,78 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
+   * GRP-7445: the zoom list users api returns no id for pending users.  Validate that a fresh install has
+   * grouper_prov_zoom_user.id nullable and grouper_zoom_user_id_idx non-unique, the deep DDL compare is clean,
+   * and several pending users (null id) in one config can be stored.  Then simulate an old database (id NOT
+   * NULL, unique index): UpgradeTaskV45 makes the column nullable and recreates the index non-unique, and a
+   * second run is a no-op.  Runs on all three databases.
+   */
+  public void testGrp7445ZoomUserIdNullable() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the install SQL must create the column nullable and the index non-unique
+    assertTrue(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_prov_zoom_user", "id"));
+    assertEquals(Boolean.FALSE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_prov_zoom_user", "grouper_zoom_user_id_idx"));
+
+    // the deep compare must agree with the install
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    // fresh install: nothing to do
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate a pre-GRP-7445 database: id NOT NULL and a unique index
+    if (GrouperDdlUtils.isPostgres()) {
+      new GcDbAccess().sql("ALTER TABLE grouper_prov_zoom_user ALTER COLUMN id SET NOT NULL").executeSql();
+    } else if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("ALTER TABLE grouper_prov_zoom_user MODIFY id VARCHAR(40) NOT NULL").executeSql();
+    } else {
+      new GcDbAccess().sql("ALTER TABLE grouper_prov_zoom_user MODIFY (id NOT NULL)").executeSql();
+    }
+    if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("DROP INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user").executeSql();
+    } else {
+      new GcDbAccess().sql("DROP INDEX grouper_zoom_user_id_idx").executeSql();
+    }
+    new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id)").executeSql();
+    assertFalse(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_prov_zoom_user", "id"));
+    assertEquals(Boolean.TRUE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_prov_zoom_user", "grouper_zoom_user_id_idx"));
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task makes id nullable and the index non-unique
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertTrue(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_prov_zoom_user", "id"));
+    assertEquals(Boolean.FALSE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_prov_zoom_user", "grouper_zoom_user_id_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_prov_zoom_user", "grouper_zoom_user_id_idx", "id"));
+    assertTrue(GrouperDdlUtils.assertIndexHasColumn("grouper_prov_zoom_user", "grouper_zoom_user_id_idx", "config_id"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(Boolean.FALSE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_prov_zoom_user", "grouper_zoom_user_id_idx"));
+
+    // several pending users (no zoom id yet) in the same config now fit
+    for (String email : new String[] {"pending1@example.edu", "pending2@example.edu"}) {
+      new GcDbAccess().sql("insert into grouper_prov_zoom_user (config_id, email, status) values (?, ?, ?)")
+        .addBindVar("zoomTest").addBindVar(email).addBindVar("pending").executeSql();
+    }
+    assertEquals(Integer.valueOf(2), new GcDbAccess().sql(
+        "select count(*) from grouper_prov_zoom_user where config_id = 'zoomTest' and id is null").select(Integer.class));
+  }
+
+  /**
    * GRP-7076: validate that UpgradeTaskV43 widens the columns from varchar(255) to varchar(1024) on oracle and
    * mysql (including dropping/recreating the mysql indexes as (255) prefixes).  Postgres is skipped: there the
    * widening is a manual DBA task because ALTER COLUMN ... TYPE is blocked by the dependent views, so

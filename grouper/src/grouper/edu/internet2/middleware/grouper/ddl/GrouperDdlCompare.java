@@ -645,7 +645,7 @@ public class GrouperDdlCompare {
           }
           
           analyzeIndexColumns(indexName, grouperDdlCompareIndex.getGrouperDdlCompareColumns(), tableErrors, tableWarnings, tableNotes);
-          tableNotes.append("Database index: " + databaseIndex.toVerboseString() + ", java index: " + databaseIndex.toVerboseString() + ".  ");
+          tableNotes.append("Database index: " + databaseIndex.toVerboseString() + ", java index: " + javaIndex.toVerboseString() + ".  ");
         }
       }
     }

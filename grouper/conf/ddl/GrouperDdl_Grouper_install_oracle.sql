@@ -1962,7 +1962,7 @@ CREATE TABLE grouper_prov_zoom_user
 (
     config_id VARCHAR2(50) NOT NULL,
     member_id VARCHAR2(40),
-    id VARCHAR2(40) NOT NULL,
+    id VARCHAR2(40),
     email VARCHAR2(200) NOT NULL,
     first_name VARCHAR2(256),
     last_name VARCHAR2(256),
@@ -1982,7 +1982,7 @@ CREATE INDEX grouper_zoom_us_config_id_idx ON grouper_prov_zoom_user (config_id)
 
 CREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prov_zoom_user (email, config_id);
 
-CREATE UNIQUE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id);
+CREATE INDEX grouper_zoom_user_id_idx ON grouper_prov_zoom_user (id, config_id);
 
 CREATE INDEX grouper_zoom_us_member_id_idx ON grouper_prov_zoom_user (member_id, config_id);
 

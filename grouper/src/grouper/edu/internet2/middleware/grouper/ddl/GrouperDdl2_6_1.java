@@ -289,8 +289,9 @@ public class GrouperDdl2_6_1 {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperZoomTable.getName(), 
           "grouper_zoom_user_email_idx", scriptOverrideName, true, COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
     }
+    // GRP-7445: non-unique, pending zoom users have no id, so (null, config_id) can repeat
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperZoomTable.getName(), 
-        "grouper_zoom_user_id_idx", true, 
+        "grouper_zoom_user_id_idx", false, 
         COLUMN_GROUPER_PROV_ZOOM_USER_ID, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperZoomTable.getName(), 
@@ -318,8 +319,9 @@ public class GrouperDdl2_6_1 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_MEMBER_ID,
         Types.VARCHAR, "40", false, false);
   
+    // GRP-7445: nullable, the zoom list users api returns no id for pending users
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_ID,
-        Types.VARCHAR, "40", false, true);
+        Types.VARCHAR, "40", false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL,
         Types.VARCHAR, "200", true, true);

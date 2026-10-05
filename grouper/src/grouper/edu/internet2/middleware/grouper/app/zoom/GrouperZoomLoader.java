@@ -723,9 +723,9 @@ public class GrouperZoomLoader extends OtherJobBase {
       }
 
       // pending zoom users come back with a blank id (the account exists in zoom but has not been
-      // assigned a zoom user id yet).  store null instead of "" so the unique (id, config_id) index
-      // treats each pending row as distinct - postgres allows multiple nulls in a unique index, but
-      // multiple empty strings would collide and either block the unique index or fail the sync.
+      // assigned a zoom user id yet).  store null instead of "" so the row is consistent across databases
+      // (oracle treats "" as null anyway).  the id column is nullable and grouper_zoom_user_id_idx is
+      // non-unique (GRP-7445), so several pending users in one config do not collide.
       gcTableSyncColumnMetadata = this.loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata().lookupColumn("id", true);
       if (StringUtils.isBlank((String) zoomUser.get("id"))) {
         rowData[gcTableSyncColumnMetadata.getColumnIndexZeroIndexed()] = null;
