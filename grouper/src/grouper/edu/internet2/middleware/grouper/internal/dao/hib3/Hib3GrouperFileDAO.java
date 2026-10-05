@@ -32,6 +32,53 @@ public class Hib3GrouperFileDAO implements GrouperFileDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#findByFilePath(String, boolean)
+   */
+  public GrouperFile findByFilePath(String filePath, boolean exceptionIfNotFound) {
+    // file_path has a unique index so this is at most one row
+    GrouperFile grouperFile = HibernateSession.byHqlStatic()
+      .createQuery("from GrouperFile where filePath = :theFilePath")
+      .setString("theFilePath", filePath).uniqueResult(GrouperFile.class);
+    
+    if (grouperFile == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find file by path: " + filePath);
+    }
+    
+    return grouperFile;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#findIdBySystemNameAndFilePath(String, String)
+   */
+  public String findIdBySystemNameAndFilePath(String systemName, String filePath) {
+    // select just the id so the (possibly large) contents are not loaded or put in the second level cache
+    return HibernateSession.byHqlStatic()
+      .createQuery("select theFile.id from GrouperFile theFile where theFile.systemName = :theSystemName and theFile.filePath = :theFilePath")
+      .setString("theSystemName", systemName)
+      .setString("theFilePath", filePath).uniqueResult(String.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#findFileNameById(String)
+   */
+  public String findFileNameById(String id) {
+    // select just the file name so the (possibly large) contents are not loaded
+    return HibernateSession.byHqlStatic()
+      .createQuery("select theFile.fileName from GrouperFile theFile where theFile.id = :theId")
+      .setString("theId", id).uniqueResult(String.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#deleteById(String)
+   */
+  public int deleteById(String id) {
+    // bulk hql delete so the contents are not loaded, hibernate evicts the cache region for bulk deletes
+    return HibernateSession.byHqlStatic()
+      .createQuery("delete from GrouperFile where id = :theId")
+      .setString("theId", id).executeUpdateInt();
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.GrouperFileDAO#saveOrUpdate(GrouperFile)
    */
   public void saveOrUpdate(GrouperFile grouperFileDao) {

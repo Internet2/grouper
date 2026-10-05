@@ -76,6 +76,8 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -822,6 +824,23 @@ public class UiV2Template {
             guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
                 TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteSuccess")));
           }        
+          
+          // GRP-7438: the template returned a file, start the download and show a link in case the browser blocks it
+          String downloadGrouperFileId = gshTemplateExecOutput.getGshTemplateOutput().getDownloadGrouperFileId();
+          if (!StringUtils.isBlank(downloadGrouperFileId)) {
+            // only select the file name so the contents are not loaded
+            String downloadFileName = Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById(downloadGrouperFileId);
+            if (downloadFileName == null) {
+              LOG.error("gsh template: " + templateType + " returned download file id that does not exist: " + downloadGrouperFileId);
+            } else {
+              String downloadUrl = UiV2DownloadFile.downloadUrl(downloadGrouperFileId);
+              String downloadMessage = TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateDownloadFile");
+              downloadMessage = StringUtils.replace(downloadMessage, "$$downloadUrl$$", GrouperUtil.escapeHtml(downloadUrl, true));
+              downloadMessage = StringUtils.replace(downloadMessage, "$$fileName$$", GrouperUtil.escapeHtml(downloadFileName, true));
+              guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, downloadMessage));
+              guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(downloadUrl, true) + "'"));
+            }
+          }
         }
         
 

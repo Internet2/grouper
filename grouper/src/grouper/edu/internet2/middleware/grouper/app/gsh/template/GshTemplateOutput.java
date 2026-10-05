@@ -1,10 +1,16 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.lang.ref.WeakReference;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.file.GrouperFile;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GshTemplateOutput {
@@ -27,6 +33,10 @@ public class GshTemplateOutput {
     
     if (this.wsOutput != null) {
       result.append("wsOutput: ").append(GrouperUtil.jsonConvertTo(this.wsOutput, false)).append("\n");
+    }
+    
+    if (this.downloadGrouperFileId != null) {
+      result.append("downloadGrouperFileId: ").append(this.downloadGrouperFileId).append("\n");
     }
     
     return result.toString();
@@ -187,6 +197,116 @@ public class GshTemplateOutput {
   
   public GrouperProvisioner retrieveGrouperProvisioner() {
     return grouperProvisioner;
+  }
+  
+  /**
+   * GRP-7438: config id of the template that is running, set by GshTemplateExec.  Used to
+   * namespace download files
+   */
+  private String templateConfigId;
+  
+  /**
+   * GRP-7438: config id of the template that is running
+   * @param templateConfigId
+   * @return this for chaining
+   */
+  public GshTemplateOutput assignTemplateConfigId(String templateConfigId) {
+    this.templateConfigId = templateConfigId;
+    return this;
+  }
+  
+  /**
+   * GRP-7438: config id of the template that is running.  If not assigned, get it from the
+   * thread local template runtime
+   * @return the config id or null if not known
+   */
+  public String getTemplateConfigId() {
+    if (StringUtils.isBlank(this.templateConfigId)) {
+      GshTemplateRuntime gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();
+      if (gshTemplateRuntime != null) {
+        return gshTemplateRuntime.getTemplateConfigId();
+      }
+    }
+    return this.templateConfigId;
+  }
+  
+  /**
+   * @return the template config id, or exception if not known
+   */
+  private String retrieveTemplateConfigIdRequired() {
+    String theTemplateConfigId = this.getTemplateConfigId();
+    if (StringUtils.isBlank(theTemplateConfigId)) {
+      throw new RuntimeException("Template config id is not known, cannot use download files");
+    }
+    return theTemplateConfigId;
+  }
+  
+  /**
+   * GRP-7438: grouper_file id the user should be able to download after the template runs, or null
+   */
+  private String downloadGrouperFileId;
+  
+  /**
+   * GRP-7438: grouper_file id the user should be able to download after the template runs
+   * @return the id or null if no download
+   */
+  public String getDownloadGrouperFileId() {
+    return this.downloadGrouperFileId;
+  }
+  
+  /**
+   * GRP-7438: let the user download an existing grouper_file row (any system name).  The row is not
+   * copied and is never deleted by the download cleanup.  The template is responsible for only
+   * handing back files the user is allowed to see.
+   * @param grouperFileId id of the grouper_file row, or null to not download anything
+   * @return this for chaining
+   */
+  public GshTemplateOutput assignDownloadGrouperFileId(String grouperFileId) {
+    // fail now in the template rather than later in the download.  Only select the file name so
+    // the contents are not loaded
+    if (grouperFileId != null && Hib3DAOFactory.getFactory().getGrouperFile().findFileNameById(grouperFileId) == null) {
+      throw new RuntimeException("Cant find grouper file by id: " + grouperFileId);
+    }
+    this.downloadGrouperFileId = grouperFileId;
+    return this;
+  }
+  
+  /**
+   * GRP-7438: find the id of the file this template saved for a date, e.g. to see if today's report
+   * is already computed.  If found, pass it to assignDownloadGrouperFileId().  Does not load the contents
+   * @param date yyyy-MM-dd
+   * @param fileName e.g. myReport_2026-10-04.csv
+   * @return the grouper_file id or null if not there
+   */
+  public String retrieveDownloadFileId(String date, String fileName) {
+    return GshTemplateDownloadFile.findIdByDate(this.retrieveTemplateConfigIdRequired(), date, fileName);
+  }
+  
+  /**
+   * GRP-7438: save text contents to grouper_file (unencrypted) for this template and date, and let the
+   * user download it.  Replaces the contents if the file for this date and name is already there.
+   * Not deleted automatically: the template should call deleteExpiredDownloadFiles()
+   * @param date yyyy-MM-dd, the day the file is for
+   * @param fileName name the browser saves the file as, e.g. myReport_2026-10-04.csv
+   * @param contents text contents, e.g. csv
+   * @return this for chaining
+   */
+  public GshTemplateOutput assignDownloadFile(String date, String fileName, String contents) {
+    GrouperFile grouperFile = GshTemplateDownloadFile.save(this.retrieveTemplateConfigIdRequired(), date, fileName, contents);
+    this.downloadGrouperFileId = grouperFile.getId();
+    return this;
+  }
+  
+  /**
+   * GRP-7438: delete this template's download files whose date is more than retentionDays before
+   * today.  There is no central cleanup, so templates that save download files should call this,
+   * e.g. after assignDownloadFile().  Only this template's files are affected
+   * @param retentionDays 0 keeps only today, 1 keeps today and yesterday, 7 keeps a week, etc
+   * @return number of files deleted
+   */
+  public int deleteExpiredDownloadFiles(int retentionDays) {
+    return GshTemplateDownloadFile.deleteExpired(this.retrieveTemplateConfigIdRequired(),
+        LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), retentionDays);
   }
   
   

@@ -330,6 +330,9 @@ public class GshTemplateExec {
     }
     
     gshTemplateRuntime.setTemplateConfigId(configId);
+    
+    // GRP-7438: download files are namespaced by template config id
+    gshTemplateOutput.assignTemplateConfigId(configId);
 
     if (currentUser == null) {
       throw new RuntimeException("currentUser cannot be null");
