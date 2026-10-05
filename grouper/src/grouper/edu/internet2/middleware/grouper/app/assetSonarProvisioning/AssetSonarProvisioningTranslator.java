@@ -66,17 +66,22 @@ public class AssetSonarProvisioningTranslator extends GrouperProvisioningTransla
     Set<String> agentMemberIds = new HashSet<String>();
 
     if (manageRoleId) {
+      // all three are required even if the agent / administrator groups are blank: the DAO recognizes a member
+      // holding an agent or administrator tier Grouper does not manage by these ids, and leaves the tier alone.
+      // A blank id would make a hand-made Administrator look like a Staff User who should be demoted
       staffUserRoleId = requiredRoleId(config.getAssetSonarStaffUserRoleId(), "assetSonarStaffUserRoleId",
+          "role_id is a target entity attribute");
+      String configuredAdministratorRoleId = requiredRoleId(config.getAssetSonarAdministratorRoleId(),
+          "assetSonarAdministratorRoleId", "role_id is a target entity attribute");
+      String configuredAgentRoleId = requiredRoleId(config.getAssetSonarAgentRoleId(), "assetSonarAgentRoleId",
           "role_id is a target entity attribute");
 
       if (!StringUtils.isBlank(config.getAssetSonarAdministratorGroupName())) {
-        administratorRoleId = requiredRoleId(config.getAssetSonarAdministratorRoleId(), "assetSonarAdministratorRoleId",
-            "assetSonarAdministratorGroupName is set");
+        administratorRoleId = configuredAdministratorRoleId;
         administratorMemberIds = memberIdsOfGroup(config.getAssetSonarAdministratorGroupName());
       }
       if (!StringUtils.isBlank(config.getAssetSonarAgentGroupName())) {
-        agentRoleId = requiredRoleId(config.getAssetSonarAgentRoleId(), "assetSonarAgentRoleId",
-            "assetSonarAgentGroupName is set");
+        agentRoleId = configuredAgentRoleId;
         agentMemberIds = memberIdsOfGroup(config.getAssetSonarAgentGroupName());
       }
     }
