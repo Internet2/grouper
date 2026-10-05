@@ -86,6 +86,12 @@ public class AssetSonarApiCommands {
   /** first retry sleep when no AssetSonar provisioner is running; doubles each retry */
   public static final int DEFAULT_RETRY_SLEEP_MILLIS = 1000;
 
+  /** most retries allowed whatever assetSonarRetryCount is, the backoff doubles so more is never useful */
+  public static final int MAX_RETRY_COUNT = 10;
+
+  /** longest sleep between retries whatever assetSonarRetrySleepMillis is */
+  public static final long MAX_RETRY_SLEEP_MILLIS = 60000L;
+
   /** tests only: overrides the retry sleep so retry tests do not take seconds; null normally */
   static Integer retrySleepMillisForTests = null;
 
@@ -158,7 +164,8 @@ public class AssetSonarApiCommands {
     if (retrySleepMillisForTests != null) {
       retrySleepMillis = retrySleepMillisForTests;
     }
-    return new int[] {Math.max(0, retryCount), Math.max(0, retrySleepMillis)};
+    // cap both so a large config value cannot back off for hours (or overflow the shift)
+    return new int[] {Math.min(MAX_RETRY_COUNT, Math.max(0, retryCount)), Math.max(0, retrySleepMillis)};
   }
 
   /**
@@ -227,7 +234,7 @@ public class AssetSonarApiCommands {
 
       // the gateway lost the response (the call usually committed): back off and try again.  WARN, not
       // ERROR, since the retry normally succeeds and the log should not imply a failure that is not one
-      long sleepMillis = (long) retrySleepMillis << attempt;
+      long sleepMillis = Math.min(MAX_RETRY_SLEEP_MILLIS, (long) retrySleepMillis << attempt);
       LOG.warn("AssetSonar " + httpMethodName + " '" + url + "' returned " + code + ", retry "
           + (attempt + 1) + " of " + retryCount + " in " + sleepMillis + "ms");
       debugMap.put("retries", attempt + 1);
