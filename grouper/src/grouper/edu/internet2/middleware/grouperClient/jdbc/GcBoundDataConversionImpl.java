@@ -33,6 +33,17 @@ public class GcBoundDataConversionImpl implements GcBoundDataConversion {
         return;
       }
 
+      // a null that knows its column type, e.g. a null byte[] field on a persistable bean.  setBytes(null) makes
+      // each driver send its own binary null (oracle can reject an untyped null going into a BLOB column)
+      if (bindVar instanceof GcDbTypedNull) {
+        if (((GcDbTypedNull)bindVar).getJavaType() == byte[].class) {
+          preparedStatement.setBytes(index, null);
+        } else {
+          preparedStatement.setObject(index, null);
+        }
+        return;
+      }
+
       // Get the class and try to iterate through most types.
       Class<?> clazz = bindVar.getClass();
       if (clazz == int.class || clazz == Integer.class) {

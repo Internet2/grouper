@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -1327,7 +1328,7 @@ public class GcDbAccess {
         // We are putting everything in here except the primary key because we may have to go out and get a primary key shortly
         // unless the primary key is manually assigned, in which case it can go in here.
         if ((primaryKey == null && GcPersistableHelper.isPersist(field, t.getClass())) || ( GcPersistableHelper.isPersist(field, t.getClass()) && (keepPrimaryKeyColumns || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
-          columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(t));
+          columnNamesAndValues.put(GcPersistableHelper.columnName(field), GcDbTypedNull.convertNullForBind(field.getType(), field.get(t)));
         }
       }
 
@@ -1352,7 +1353,7 @@ public class GcDbAccess {
             for (Field field: GcPersistableHelper.heirarchicalFields(t.getClass())){
               String columnName = GcPersistableHelper.columnName(field);
               if (columnNamesAndValues.containsKey(columnName)) {
-                columnNamesAndValues.put(columnName, field.get(t));
+                columnNamesAndValues.put(columnName, GcDbTypedNull.convertNullForBind(field.getType(), field.get(t)));
               }
             }
           }
@@ -1500,7 +1501,7 @@ public class GcDbAccess {
         // We are putting everything in here except the primary key because we may have to go out and get a primary key shortly
         // unless the primary key is manually assigned, in which case it can go in here.
         if ((primaryKey == null && GcPersistableHelper.isPersist(field, t.getClass())) || ( GcPersistableHelper.isPersist(field, t.getClass()) && (keepPrimaryKeyColumns || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
-          columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(t));
+          columnNamesAndValues.put(GcPersistableHelper.columnName(field), GcDbTypedNull.convertNullForBind(field.getType(), field.get(t)));
         }
       }
 
@@ -1970,7 +1971,8 @@ public class GcDbAccess {
         // Get column names and values
         for (Field field : allFields){
           if (fieldAndIncludeStatuses.get(field)){
-            columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(object));
+            // a null byte[] binds as a typed binary null, see GcDbTypedNull
+            columnNamesAndValues.put(GcPersistableHelper.columnName(field), GcDbTypedNull.convertNullForBind(field.getType(), field.get(object)));
           }
         }
 
@@ -3902,7 +3904,7 @@ public class GcDbAccess {
   }
   
   /**
-   * get a cell value from database, will return string, long, double, timestamp
+   * get a cell value from database, will return string, bigdecimal, boolean, timestamp, byte[]
    * @param resultSet
    * @param columnNumberOneIndexed
    * @return
@@ -3961,6 +3963,31 @@ public class GcDbAccess {
         Clob clob = resultSet.getClob(columnNumberOneIndexed);
         return clob != null ? clob.getSubString(1, (int) clob.length()) : null;
         
+      // postgres bytea reports BINARY, mysql (LONG|MEDIUM)BLOB reports LONGVARBINARY, oracle RAW reports VARBINARY.
+      // note: oracle stores an empty byte[] as null
+      case Types.BINARY:
+      case Types.VARBINARY:
+      case Types.LONGVARBINARY:
+
+        return resultSet.getBytes(columnNumberOneIndexed);
+
+      // oracle BLOB.  This reads the whole value into memory, which is limited to 2GB (int length)
+      case Types.BLOB:
+        Blob blob = resultSet.getBlob(columnNumberOneIndexed);
+        if (blob == null) {
+          return null;
+        }
+        try {
+          return blob.getBytes(1, (int) blob.length());
+        } finally {
+          // release the locator resources now instead of at the end of the transaction
+          try {
+            blob.free();
+          } catch (Exception e) {
+            LOG.debug("error freeing blob", e);
+          }
+        }
+
       case Types.OTHER: 
 
         return resultSet.getObject(columnNumberOneIndexed);
