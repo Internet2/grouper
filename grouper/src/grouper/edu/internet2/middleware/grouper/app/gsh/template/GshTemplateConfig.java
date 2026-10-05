@@ -727,12 +727,17 @@ public class GshTemplateConfig {
         
         actAsGroupUUID = grouperConfig.propertyValueString(configPrefix+"actAsGroupUUID", null);
         
-        // GRP-7407: provisioner and daemon templates always run as GrouperSystem (daemons run as root).
-        // The UI hides runAsType / securityRunType for these types and saving the template removes
-        // them, so ignore them here rather than require them
-        boolean runsAsRoot = gshTemplateType == GshTemplateType.provisioner || gshTemplateType == GshTemplateType.daemon;
+        // GRP-7407, GRP-7447: runAsType / securityRunType only take effect for gsh and abac templates,
+        // which run through GshTemplateExec (it picks the session subject and checks security).
+        // Every other type is loaded by its own caller, which ignores both settings:
+        //   provisioner, daemon, daemonChangeLog, report: run in the loader daemon as root
+        //   customUi: always wrapped in a root session (CustomUiContainer)
+        //   hook, library: run in the session of whoever triggered the hook / called the library
+        // The UI hides both fields for those types and saving the template removes them, so do not
+        // require them here, and ignore any value left over from before
+        boolean runAsAndSecurityApply = gshTemplateType == GshTemplateType.gsh || gshTemplateType == GshTemplateType.abac;
 
-        if (!runsAsRoot) {
+        if (runAsAndSecurityApply) {
           String runAsType = grouperConfig.propertyValueStringRequired(configPrefix+"runAsType");
           gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
         } else {
@@ -822,10 +827,11 @@ public class GshTemplateConfig {
           
         }
         
-        if (!runsAsRoot) {
+        if (runAsAndSecurityApply) {
           gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"securityRunType"), true);
-        } else if (gshTemplateType == GshTemplateType.daemon) {
-          // GRP-7407: the daemon runs as root, which passes any check; wheel keeps anyone else out
+        } else if (gshTemplateType != GshTemplateType.provisioner) {
+          // GRP-7407, GRP-7447: these types are not run through GshTemplateExec, so this is never really
+          // checked; wheel keeps anyone else out if someone tries.  Provisioner keeps its historical null
           gshTemplateSecurityRunType = GshTemplateSecurityRunType.wheel;
         }
         

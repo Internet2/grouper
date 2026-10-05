@@ -39,6 +39,7 @@ public class GshTemplateDaemonTest extends GrouperTest {
     TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonRunsViaOtherJobScript"));
     TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonWrongBaseThrowsClearError"));
     TestRunner.run(new GshTemplateDaemonTest("testCompiledDaemonWithoutRunAsAndSecurityRunType"));
+    TestRunner.run(new GshTemplateDaemonTest("testRunAsAndSecurityRunTypeOnlyForGshAndAbac"));
   }
 
   /**
@@ -165,6 +166,72 @@ public class GshTemplateDaemonTest extends GrouperTest {
 
     // then
     assertEquals("ran without runAsType", otherJobInput.getHib3GrouperLoaderLog().getJobMessage());
+  }
+
+  /**
+   * GRP-7447: runAsType and securityRunType only apply to gsh and abac templates.  Every other type
+   * loads without them, ignores leftover values, and gets GrouperSystem / wheel (provisioner keeps a
+   * null security run type).  gsh and abac still require both.
+   */
+  public void testRunAsAndSecurityRunTypeOnlyForGshAndAbac() {
+
+    // populateConfiguration does not compile the body, it just has to be non-blank
+    configureDaemonTemplate("// not compiled in this test");
+    String prefix = "grouperGshTemplate." + TEMPLATE_CONFIG_ID + ".";
+
+    for (GshTemplateType gshTemplateType : GshTemplateType.values()) {
+
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "templateType", gshTemplateType.name());
+
+      boolean runAsAndSecurityApply = gshTemplateType == GshTemplateType.gsh || gshTemplateType == GshTemplateType.abac;
+
+      // leftover values from before the UI hid the fields: honored only for gsh and abac
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "runAsType", "currentUser");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "securityRunType", "everyone");
+
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(TEMPLATE_CONFIG_ID);
+      gshTemplateConfig.populateConfiguration();
+
+      if (runAsAndSecurityApply) {
+        assertEquals(gshTemplateType.name(), GshTemplateRunAsType.currentUser, gshTemplateConfig.getGshTemplateRunAsType());
+        assertEquals(gshTemplateType.name(), GshTemplateSecurityRunType.everyone, gshTemplateConfig.getGshTemplateSecurityRunType());
+      } else {
+        assertIgnoredRunAsAndSecurity(gshTemplateType, gshTemplateConfig);
+      }
+
+      // what a UI save leaves behind for the types that hide the fields
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(prefix + "runAsType");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(prefix + "securityRunType");
+
+      gshTemplateConfig = new GshTemplateConfig(TEMPLATE_CONFIG_ID);
+      if (runAsAndSecurityApply) {
+        // still required for the types that use them
+        try {
+          gshTemplateConfig.populateConfiguration();
+          fail(gshTemplateType.name() + " should require runAsType");
+        } catch (RuntimeException re) {
+          assertTrue(gshTemplateType.name() + ": " + GrouperUtil.getFullStackTrace(re),
+              GrouperUtil.getFullStackTrace(re).contains("runAsType"));
+        }
+      } else {
+        gshTemplateConfig.populateConfiguration();
+        assertIgnoredRunAsAndSecurity(gshTemplateType, gshTemplateConfig);
+      }
+    }
+  }
+
+  /**
+   * types other than gsh and abac run as GrouperSystem with wheel security (provisioner: null security)
+   * @param gshTemplateType the template type being checked
+   * @param gshTemplateConfig the populated config
+   */
+  private void assertIgnoredRunAsAndSecurity(GshTemplateType gshTemplateType, GshTemplateConfig gshTemplateConfig) {
+    assertEquals(gshTemplateType.name(), GshTemplateRunAsType.GrouperSystem, gshTemplateConfig.getGshTemplateRunAsType());
+    if (gshTemplateType == GshTemplateType.provisioner) {
+      assertNull(gshTemplateType.name(), gshTemplateConfig.getGshTemplateSecurityRunType());
+    } else {
+      assertEquals(gshTemplateType.name(), GshTemplateSecurityRunType.wheel, gshTemplateConfig.getGshTemplateSecurityRunType());
+    }
   }
 
   /**
