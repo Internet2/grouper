@@ -33,7 +33,6 @@
   </parent>
 
     <!-- Project Metadata (override parent default) -->
-    <url>https://spaces.internet2.edu/display/Grouper/Grouper+Installer</url>
 
     <dependencies>
         <dependency>

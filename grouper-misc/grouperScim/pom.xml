@@ -25,8 +25,6 @@
   <description>Implementation of SCIM for Grouper</description>
   <packaging>jar</packaging>
 
-  <url>https://spaces.at.internet2.edu/display/Grouper/Grouper+SCIM+change+log+client</url>
-  
   <parent>
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-parent</artifactId>
