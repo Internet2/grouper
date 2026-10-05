@@ -27,6 +27,10 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * {@link GshTemplateOutput#deleteDownloadFilesOlderThanMinutes(int)}, which only sees that template's paths and
  * goes by when each file was last saved (grouper_file.updated_on_micros, GRP-7439), not by the date in the path.</p>
  *
+ * <p>Files are keyed by template, date, and file name, not by user.  A file found with retrieveDownloadFileId can be
+ * served to any user who runs the template, so do not reuse a file with per-user data unless the file name is unique
+ * to the user.</p>
+ *
  * <p>Templates normally use this through {@link GshTemplateOutput#retrieveDownloadFileId(String, String)}
  * and {@link GshTemplateOutput#assignDownloadFile(String, String, String)}, which fill in the
  * template config id.</p>

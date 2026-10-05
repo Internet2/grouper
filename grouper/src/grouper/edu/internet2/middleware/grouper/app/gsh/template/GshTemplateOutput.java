@@ -271,7 +271,10 @@ public class GshTemplateOutput {
   
   /**
    * GRP-7438: find the id of the file this template saved for a date, e.g. to see if today's report
-   * is already computed.  If found, pass it to assignDownloadGrouperFileId().  Does not load the contents
+   * is already computed.  If found, pass it to assignDownloadGrouperFileId().  Does not load the contents.
+   * Note: the file is keyed by template, date, and file name, not by user, so any user who runs the template can be
+   * served it.  Only reuse a file whose contents are the same for everyone who can run the template.  If the contents
+   * depend on the user running it, put something unique to the user in the file name, or do not reuse it
    * @param date yyyy-MM-dd
    * @param fileName e.g. myReport_2026-10-04.csv
    * @return the grouper_file id or null if not there
