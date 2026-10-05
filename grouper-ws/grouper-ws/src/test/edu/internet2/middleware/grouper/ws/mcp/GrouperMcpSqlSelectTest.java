@@ -109,7 +109,9 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
 
   /**
    * remove any grouper.mcp.sql.* config overrides so that no database is available
-   * to the MCP SQL tools, which is the out of the box state
+   * to the MCP SQL tools, which is the out of the box state.  A database can also be configured in a
+   * local (dev) grouper.properties, which the override map does not hold, so override what makes each
+   * remaining one available to blank / false
    */
   private static void removeAllSqlExternalSystemConfigs() {
     List<String> keys = new ArrayList<String>(
@@ -118,6 +120,14 @@ public class GrouperMcpSqlSelectTest extends GrouperTest {
       if (key.startsWith("grouper.mcp.sql.")) {
         GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(key);
       }
+    }
+    for (String externalSystemId : GrouperMcpSqlSelect.externalSystemIds()) {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+          "grouper.mcp.sql." + externalSystemId + ".grouperDatabase", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+          "grouper.mcp.sql." + externalSystemId + ".sqlTablesViews", "");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+          "grouper.mcp.sql." + externalSystemId + ".sqlTablesViewsQuery", "");
     }
   }
 
