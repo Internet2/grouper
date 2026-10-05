@@ -37,7 +37,6 @@
     <description>Client for Grouper LDAP and Web Services</description>
     <artifactId>grouperClient</artifactId>
     <packaging>jar</packaging>
-    <url>https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545215/Grouper+Client</url>
 
     <dependencies>
         <dependency>
