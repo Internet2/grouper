@@ -166,7 +166,8 @@ public class GrouperUiUtils {
    */
   public static boolean vetoHandle(GuiResponseJs guiResponseJs, Throwable cause) {
     
-    String errorMessage = vetoHandleErrorMessage(cause);
+    // the message goes into the page as html, so escape a free-text veto reason (GRP-7431)
+    String errorMessage = vetoHandleErrorMessage(cause, true);
     if (errorMessage != null) {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           errorMessage));
@@ -176,7 +177,25 @@ public class GrouperUiUtils {
     return false;
   }
   
+  /**
+   * get the message to show for a veto, or null if this is not a veto.  The reason is returned as-is,
+   * the caller must escape it for the context it is shown in
+   * @param cause
+   * @return the message or null
+   */
   public static String vetoHandleErrorMessage(Throwable cause) {
+    return vetoHandleErrorMessage(cause, false);
+  }
+
+  /**
+   * get the message to show for a veto, or null if this is not a veto
+   * @param cause
+   * @param escapeReasonHtml true to html escape the veto reason when there is no externalized text for the
+   * reason key.  The reason can be free text, e.g. the editable message of a veto rule set by a group admin
+   * (GRP-7431), so it must be escaped before it is put on the screen.  Externalized text is trusted and can have html
+   * @return the message or null
+   */
+  public static String vetoHandleErrorMessage(Throwable cause, boolean escapeReasonHtml) {
     
     Throwable causeCause = cause == null ? null : cause.getCause();
 
@@ -195,6 +214,9 @@ public class GrouperUiUtils {
       //make sure the key is in there
       if (StringUtils.isEmpty(messageToScreen)) {
         messageToScreen = hookVeto.getReason();
+        if (escapeReasonHtml) {
+          messageToScreen = escapeHtml(messageToScreen, true);
+        }
       }
 
       if (!StringUtils.isBlank(messageToScreen)) {
