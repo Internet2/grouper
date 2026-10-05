@@ -29,7 +29,8 @@ Work a new release newest-first: the new row goes ABOVE the current top row.
 - The built image `sha256:` digest (from the container build/push pipeline).
   Not needed up front -- the row goes in with it blank (step 0).
 - Release date (YYYY/MM/DD).
-- Status for the new row (see Status values).
+- Status for the new row: always `RELEASED` (see Status values). Promotion to
+  `LATEST STABLE` is a later step, confirmed with the user.
 
 ## 0. Jira and wiki edits BEFORE the mirror
 
@@ -562,12 +563,30 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
 
 ### Status values and cell colour
 
-A new release is **never** stable on release day. It goes out as `RELEASED`, and
-is promoted only after it has been out about **a week** with no issues reported --
-a judgment call by the Grouper team, not an automatic date. Until then the
-PREVIOUS release keeps `LATEST STABLE`. Promoting is a separate, later edit to the
-same page: set the new row to `LATEST STABLE` with the yellow fill, and demote the
-old one to `STABLE` by removing its `data-highlight-colour` attributes.
+A new release is **never** stable on release day. It goes out as `RELEASED` (white),
+and the PREVIOUS `LATEST STABLE` keeps that status. A release is promoted after it
+has been out about **4 days** with no issues reported. That is a judgment call by
+the Grouper team, not an automatic date, so **always confirm with the user before
+changing any status**: list the proposed changes per page, wait for a yes, then edit.
+
+The resulting state on each release-notes page (v7, v6, v4) is:
+
+- the newest release that has been out about 4 days or more: `LATEST STABLE`, yellow
+- any newer release still inside its ~4 days: `RELEASED`, white
+- every release between those and the expiry cutoff (the old LATEST STABLE, and any
+  RELEASED rows that were skipped over): `STABLE`, no fill
+- older than the cutoff: `EXPIRED`; `NOT STABLE` rows never change
+
+**When to check for promotions.** At the start of every release (any line, since the
+other lines' pages often have a RELEASED row waiting too), and whenever the user asks.
+Read all three pages, find RELEASED rows that are 4+ days old, and propose the
+promotion: the newest such row -> `LATEST STABLE` (yellow); the previous LATEST
+STABLE and any older RELEASED rows -> `STABLE` (strip `data-highlight-colour` from
+every cell). Then run the expiry sweep below with the new anchor. Example
+(2026/10/05): v7 had 7.7.0 (released that day), 7.6.1, 7.6.0, 7.5.1 RELEASED and
+7.5.0 LATEST STABLE; after confirming, 7.7.0 stayed RELEASED, 7.6.1 became LATEST
+STABLE, and 7.6.0, 7.5.1, 7.5.0 became STABLE. On v6 and v4 the newest release
+(6.5.0, 4.26.0) had been out long enough, so it became LATEST STABLE.
 
 Status text and the cell `data-highlight-colour` attribute (applied to every cell
 in the row):
@@ -576,7 +595,8 @@ in the row):
   when promoting a new one, demote the previous LATEST STABLE to `STABLE`.
 - `STABLE` -> no `data-highlight-colour` attribute (plain / no fill).
 - `NOT STABLE` -> no fill; add the blocking `GRP-####` link under the status.
-- `RELEASED` -> white (`#ffffff`); an interim state before a stability call.
+- `RELEASED` -> white (`#ffffff`); a release in its first ~4 days, before the
+  stability call. Never leave an older row RELEASED once a newer one is promoted.
 - `EXPIRED` -> no fill; older superseded releases, see the sweep below.
 
 ### Expire old rows -- run this on EVERY release AND every promotion
@@ -723,3 +743,6 @@ Template:
 
 Note the highlights are a flat list of lines, not a bulleted list -- Slack renders
 the plain lines the way the release-notes cell reads.
+
+After the announcement, tell the user the new row stays `RELEASED` and to ask for the
+promotion to `LATEST STABLE` in about 4 days (see "Status values and cell colour").
