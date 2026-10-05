@@ -3263,16 +3263,31 @@ public class GrouperDdlUtils {
    * @throws RuntimeException if the column is not found
    */
   public static boolean isColumnNullableFromCatalog(String tableName, String columnName) {
+    // honor the ddlutils.schema override (tables not in the connecting user's default schema)
+    String schemaOverride = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
     String nullable = null;
     if (isOracle()) {
       // Y or N, oracle stores unquoted names in upper case
-      nullable = new GcDbAccess().sql("select nullable from user_tab_columns where table_name = ? and column_name = ?")
-          .addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase()).select(String.class);
+      if (schemaOverride == null) {
+        nullable = new GcDbAccess().sql("select nullable from user_tab_columns where table_name = ? and column_name = ?")
+            .addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase()).select(String.class);
+      } else {
+        nullable = new GcDbAccess().sql("select nullable from all_tab_columns where owner = ? and table_name = ? and column_name = ?")
+            .addBindVar(schemaOverride.toUpperCase()).addBindVar(tableName.toUpperCase()).addBindVar(columnName.toUpperCase())
+            .select(String.class);
+      }
     } else {
       // YES or NO
-      String schemaFunction = isMysql() ? "database()" : "current_schema()";
-      nullable = new GcDbAccess().sql("select is_nullable from information_schema.columns where table_schema = "
-          + schemaFunction + " and lower(table_name) = ? and lower(column_name) = ?")
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      String schemaClause = null;
+      if (schemaOverride != null) {
+        schemaClause = "lower(table_schema) = ?";
+        gcDbAccess.addBindVar(schemaOverride.toLowerCase());
+      } else {
+        schemaClause = "table_schema = " + (isMysql() ? "database()" : "current_schema()");
+      }
+      nullable = gcDbAccess.sql("select is_nullable from information_schema.columns where " + schemaClause
+          + " and lower(table_name) = ? and lower(column_name) = ?")
           .addBindVar(tableName.toLowerCase()).addBindVar(columnName.toLowerCase()).select(String.class);
     }
     if (StringUtils.isBlank(nullable)) {
