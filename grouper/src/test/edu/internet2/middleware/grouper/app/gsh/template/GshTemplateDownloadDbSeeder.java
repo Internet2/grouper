@@ -80,7 +80,7 @@ public class GshTemplateDownloadDbSeeder {
       + "    gshTemplateOutput.addOutputLine(\"Computed \" + rows.size() + \" members: \" + fileName);\n"
       + "\n"
       + "    // clean up this template's old files\n"
-      + "    int deleted = gshTemplateOutput.deleteExpiredDownloadFiles(7);\n"
+      + "    int deleted = gshTemplateOutput.deleteDownloadFilesOlderThanMinutes(7 * 24 * 60);\n"
       + "    if (deleted > 0) {\n"
       + "      gshTemplateOutput.addOutputLine(\"Deleted \" + deleted + \" old files\");\n"
       + "    }\n"

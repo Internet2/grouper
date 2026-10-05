@@ -108,7 +108,7 @@ public class GshTemplateDownloadZipDbSeeder {
           gshTemplateOutput.addOutputLine("Computed " + rows.size() + " members: " + zipFileName + " (" + zipBytes.size() + " bytes)");
 
           // clean up this template's old files
-          int deleted = gshTemplateOutput.deleteExpiredDownloadFiles(7);
+          int deleted = gshTemplateOutput.deleteDownloadFilesOlderThanMinutes(7 * 24 * 60);
           if (deleted > 0) {
             gshTemplateOutput.addOutputLine("Deleted " + deleted + " old files");
           }

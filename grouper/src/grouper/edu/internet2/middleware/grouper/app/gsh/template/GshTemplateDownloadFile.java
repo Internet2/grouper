@@ -18,14 +18,14 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 /**
  * GRP-7438: files that a GSH template saves in grouper_file for the user to download.
  *
- * <p>Rows are stored as plain (unencrypted) text with system_name {@link #SYSTEM_NAME} and
+ * <p>Rows are stored unencrypted (text, or binary since GRP-7446) with system_name {@link #SYSTEM_NAME} and
  * file_path /gshTemplateDownload/&lt;templateConfigId&gt;/&lt;yyyy-MM-dd&gt;/&lt;fileName&gt;.
  * file_path has a unique index, so the path is the key: a template can cheaply check whether
- * the file for a day already exists and reuse it instead of recomputing.  The date in the path
- * is also what the retention cleanup goes by, since grouper_file has no timestamp column.</p>
+ * the file for a day already exists and reuse it instead of recomputing.</p>
  *
  * <p>There is no central cleanup: each template deletes its own old files with
- * {@link GshTemplateOutput#deleteExpiredDownloadFiles(int)}, which only sees that template's paths.</p>
+ * {@link GshTemplateOutput#deleteDownloadFilesOlderThanMinutes(int)}, which only sees that template's paths and
+ * goes by when each file was last saved (grouper_file.updated_on_micros, GRP-7439), not by the date in the path.</p>
  *
  * <p>Templates normally use this through {@link GshTemplateOutput#retrieveDownloadFileId(String, String)}
  * and {@link GshTemplateOutput#assignDownloadFile(String, String, String)}, which fill in the
@@ -169,21 +169,30 @@ public class GshTemplateDownloadFile {
   }
 
   /**
-   * delete one template's download files whose date is more than retentionDays before today.
-   * Only rows with system_name gshTemplateDownload under this template's path are looked at, so
-   * other templates' files, files from other features, and existing files a template pointed at
-   * are never deleted.
+   * delete one template's download files that were last saved (updated_on_micros) more than the given number of
+   * minutes ago.  Only rows with system_name gshTemplateDownload under this template's path are looked at, so
+   * other templates' files, files from other features, and existing files a template pointed at are never deleted.
+   * The date in the file path is only the "which day is this file for" key, it is not used here.
    * @param templateConfigId gsh template whose files to clean up
-   * @param today yyyy-MM-dd
-   * @param retentionDays 0 keeps only today, 1 keeps today and yesterday, etc
+   * @param minutes e.g. 60 keeps the last hour, 7 * 24 * 60 keeps a week
    * @return number of files deleted
    */
-  public static int deleteExpired(String templateConfigId, String today, int retentionDays) {
-    validateTemplateConfigId(templateConfigId);
-    if (retentionDays < 0) {
-      throw new RuntimeException("Retention days cannot be negative: " + retentionDays);
+  public static int deleteOlderThanMinutes(String templateConfigId, int minutes) {
+    if (minutes < 0) {
+      throw new RuntimeException("Minutes cannot be negative: " + minutes);
     }
-    LocalDate cutoff = parseDate(today).minusDays(retentionDays);
+    long cutoffMicros = (System.currentTimeMillis() - minutes * 60L * 1000L) * 1000L;
+    return deleteUpdatedBefore(templateConfigId, cutoffMicros);
+  }
+
+  /**
+   * delete one template's download files whose updated_on_micros is before the cutoff
+   * @param templateConfigId gsh template whose files to clean up
+   * @param cutoffMicros micros since 1970, files last saved before this are deleted
+   * @return number of files deleted
+   */
+  static int deleteUpdatedBefore(String templateConfigId, long cutoffMicros) {
+    validateTemplateConfigId(templateConfigId);
 
     // escape like wildcards in the config id so the prefix match is exact
     String templatePathPrefix = FILE_PATH_PREFIX + templateConfigId + "/";
@@ -191,8 +200,9 @@ public class GshTemplateDownloadFile {
 
     // only select id and path, no need to pull the contents
     List<Object[]> idsAndPaths = new GcDbAccess()
-        .sql("select id, file_path from grouper_file where system_name = ? and file_path like ? escape '!'")
-        .addBindVar(SYSTEM_NAME).addBindVar(likePrefix + "%").selectList(Object[].class);
+        .sql("select id, file_path from grouper_file where system_name = ? and file_path like ? escape '!' "
+            + "and updated_on_micros < ?")
+        .addBindVar(SYSTEM_NAME).addBindVar(likePrefix + "%").addBindVar(cutoffMicros).selectList(Object[].class);
 
     int deletedCount = 0;
     for (Object[] idAndPath : GrouperUtil.nonNull(idsAndPaths)) {
@@ -204,43 +214,14 @@ public class GshTemplateDownloadFile {
         continue;
       }
 
-      LocalDate fileDate = dateFromFilePath(filePath);
-      if (fileDate == null) {
-        LOG.warn("Cant parse date from gsh template download file path, not deleting: " + filePath);
-        continue;
-      }
-      if (!fileDate.isBefore(cutoff)) {
-        continue;
-      }
-
       // delete without loading the contents
       deletedCount += GrouperFileDao.deleteById(id);
     }
     if (deletedCount > 0) {
-      LOG.info("Deleted " + deletedCount + " gsh template download files for template '" + templateConfigId + "' before " + cutoff);
+      LOG.info("Deleted " + deletedCount + " gsh template download files for template '" + templateConfigId
+          + "' last saved before " + new java.sql.Timestamp(cutoffMicros / 1000));
     }
     return deletedCount;
-  }
-
-  /**
-   * get the date segment from /gshTemplateDownload/&lt;templateConfigId&gt;/&lt;yyyy-MM-dd&gt;/&lt;fileName&gt;
-   * @param filePath
-   * @return the date or null if the path is not in that format
-   */
-  static LocalDate dateFromFilePath(String filePath) {
-    if (filePath == null || !filePath.startsWith(FILE_PATH_PREFIX)) {
-      return null;
-    }
-    // templateConfigId, date, fileName
-    String[] segments = filePath.substring(FILE_PATH_PREFIX.length()).split("/");
-    if (segments.length != 3) {
-      return null;
-    }
-    try {
-      return parseDate(segments[1]);
-    } catch (RuntimeException re) {
-      return null;
-    }
   }
 
   /**

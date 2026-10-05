@@ -508,61 +508,94 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
   }
 
   /**
-   * Cleanup is per template: it deletes that template's rows whose date is older than the
-   * retention period, keeps recent ones, and never touches another template's rows or rows
-   * from other features even if their path has an old date in it.
+   * test helper: make a download file look like it was last saved some minutes ago
+   * @param templateConfigId
+   * @param date
+   * @param fileName
+   * @param minutesAgo
    */
-  public void testDeleteExpired() {
+  private static void setUpdatedMinutesAgo(String templateConfigId, String date, String fileName, int minutesAgo) {
+    long micros = (System.currentTimeMillis() - minutesAgo * 60L * 1000L) * 1000L;
+    int rows = new GcDbAccess().sql("update grouper_file set updated_on_micros = ? where file_path = ?")
+        .addBindVar(micros).addBindVar(GshTemplateDownloadFile.filePath(templateConfigId, date, fileName)).executeSql();
+    assertEquals(1, rows);
+  }
+
+  /**
+   * Cleanup is per template and goes by when each file was last saved (updated_on_micros), not by the date in the
+   * path: it deletes that template's files older than the given minutes, keeps newer ones (even with an old date
+   * in the path), and never touches another template's files or files from other features.
+   */
+  public void testDeleteOlderThanMinutes() {
 
     // given
     GrouperSession.startRootSession();
-    String today = "2026-10-04";
     String otherConfigId = "otherTemplateConfig";
     // like wildcard in the id should not match testXGshTemplateConfig
     String underscoreConfigId = "test_GshTemplateConfig";
 
-    GshTemplateDownloadFile.save(CONFIG_ID, "2026-09-01", "old.csv", "old");
-    GshTemplateDownloadFile.save(CONFIG_ID, "2026-10-02", "twoDaysAgo.csv", "twoDaysAgo");
-    GshTemplateDownloadFile.save(CONFIG_ID, "2026-10-03", "yesterday.csv", "yesterday");
-    GshTemplateDownloadFile.save(CONFIG_ID, today, "today.csv", "today");
+    GshTemplateDownloadFile.save(CONFIG_ID, "2026-09-01", "threeDays.csv", "threeDays");
+    setUpdatedMinutesAgo(CONFIG_ID, "2026-09-01", "threeDays.csv", 3 * 24 * 60);
+    GshTemplateDownloadFile.save(CONFIG_ID, "2026-10-03", "twoHours.csv", "twoHours");
+    setUpdatedMinutesAgo(CONFIG_ID, "2026-10-03", "twoHours.csv", 120);
+    GshTemplateDownloadFile.save(CONFIG_ID, "2026-10-04", "tenMinutes.csv", "tenMinutes");
+    setUpdatedMinutesAgo(CONFIG_ID, "2026-10-04", "tenMinutes.csv", 10);
+    // old date in the path, but saved just now: kept
+    GshTemplateDownloadFile.save(CONFIG_ID, "2020-01-01", "justSaved.csv", "justSaved");
     GshTemplateDownloadFile.save(otherConfigId, "2026-09-01", "old.csv", "other template old");
+    setUpdatedMinutesAgo(otherConfigId, "2026-09-01", "old.csv", 3 * 24 * 60);
     GshTemplateDownloadFile.save("testXGshTemplateConfig", "2026-09-01", "old.csv", "similar id old");
+    setUpdatedMinutesAgo("testXGshTemplateConfig", "2026-09-01", "old.csv", 3 * 24 * 60);
     GrouperFile otherFile = saveOtherGrouperFile("someOtherFeature", "/someOtherFeature/2020-01-01/other.csv",
         "other.csv", "other");
+    new GcDbAccess().sql("update grouper_file set updated_on_micros = 0 where id = ?").addBindVar(otherFile.getId()).executeSql();
 
-    // when: keep 1 day back (today and yesterday)
-    int deletedCount = GshTemplateDownloadFile.deleteExpired(CONFIG_ID, today, 1);
+    // when: keep the last hour
+    int deletedCount = GshTemplateDownloadFile.deleteOlderThanMinutes(CONFIG_ID, 60);
 
     // then
     assertEquals(2, deletedCount);
-    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-09-01", "old.csv"));
-    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-02", "twoDaysAgo.csv"));
-    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-03", "yesterday.csv"));
-    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, today, "today.csv"));
+    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-09-01", "threeDays.csv"));
+    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-03", "twoHours.csv"));
+    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-04", "tenMinutes.csv"));
+    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2020-01-01", "justSaved.csv"));
     assertNotNull("other template untouched", GshTemplateDownloadFile.findByDate(otherConfigId, "2026-09-01", "old.csv"));
     assertNotNull("other feature untouched", GrouperFileDao.findById(otherFile.getId(), false));
 
     // when: id with an underscore (like wildcard) only cleans its own files
-    assertEquals(0, GshTemplateDownloadFile.deleteExpired(underscoreConfigId, today, 1));
+    assertEquals(0, GshTemplateDownloadFile.deleteOlderThanMinutes(underscoreConfigId, 60));
 
     // then
     assertNotNull(GshTemplateDownloadFile.findByDate("testXGshTemplateConfig", "2026-09-01", "old.csv"));
 
-    // when: retention 0 keeps only today
-    assertEquals(1, GshTemplateDownloadFile.deleteExpired(CONFIG_ID, today, 0));
+    // when: re-saving a file restarts its clock
+    setUpdatedMinutesAgo(CONFIG_ID, "2026-10-04", "tenMinutes.csv", 120);
+    GshTemplateDownloadFile.save(CONFIG_ID, "2026-10-04", "tenMinutes.csv", "resaved");
+    assertEquals(0, GshTemplateDownloadFile.deleteOlderThanMinutes(CONFIG_ID, 60));
+
+    // when: 5 minutes keeps only the files saved just now
+    setUpdatedMinutesAgo(CONFIG_ID, "2020-01-01", "justSaved.csv", 10);
+    assertEquals(1, GshTemplateDownloadFile.deleteOlderThanMinutes(CONFIG_ID, 5));
 
     // then
-    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-03", "yesterday.csv"));
-    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, today, "today.csv"));
+    assertNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2020-01-01", "justSaved.csv"));
+    assertNotNull(GshTemplateDownloadFile.findByDate(CONFIG_ID, "2026-10-04", "tenMinutes.csv"));
+
+    // negative is an error
+    try {
+      GshTemplateDownloadFile.deleteOlderThanMinutes(CONFIG_ID, -1);
+      fail("expected exception");
+    } catch (RuntimeException re) {
+      // expected
+    }
   }
 
   /**
-   * A template cleans up its own files through GshTemplateOutput.deleteExpiredDownloadFiles(),
-   * relative to the real today.
+   * A template cleans up its own files through GshTemplateOutput.deleteDownloadFilesOlderThanMinutes()
    */
   public void testTemplateSelfCleanup() {
 
-    // given: files for this template from today and 10 days ago, and an old one for another template
+    // given: files for this template saved just now and 10 days ago, and an old one for another template
     GrouperSession.startRootSession();
     LocalDate now = LocalDate.now();
     String today = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -570,7 +603,9 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
 
     GshTemplateDownloadFile.save(CONFIG_ID, today, "report.csv", "today");
     GshTemplateDownloadFile.save(CONFIG_ID, tenDaysAgo, "report.csv", "old");
+    setUpdatedMinutesAgo(CONFIG_ID, tenDaysAgo, "report.csv", 10 * 24 * 60);
     GshTemplateDownloadFile.save("otherTemplateConfig", tenDaysAgo, "report.csv", "other old");
+    setUpdatedMinutesAgo("otherTemplateConfig", tenDaysAgo, "report.csv", 10 * 24 * 60);
 
     String javaSource = ""
         + "package edu.internet2.middleware.grouper.gshTest;\n"
@@ -579,7 +614,7 @@ public class GshTemplateDownloadFileTest extends GrouperTest {
         + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;\n"
         + "public class TestDownloadSelfCleanupTemplate extends GshTemplateV2 {\n"
         + "  public void gshRunLogic(GshTemplateV2input in, GshTemplateV2output out) {\n"
-        + "    int deleted = out.getGsh_builtin_gshTemplateOutput().deleteExpiredDownloadFiles(7);\n"
+        + "    int deleted = out.getGsh_builtin_gshTemplateOutput().deleteDownloadFilesOlderThanMinutes(7 * 24 * 60);\n"
         + "    out.getGsh_builtin_gshTemplateOutput().addOutputLine(\"deleted \" + deleted);\n"
         + "  }\n"
         + "}\n";

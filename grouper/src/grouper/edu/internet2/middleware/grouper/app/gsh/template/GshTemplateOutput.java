@@ -1,8 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.lang.ref.WeakReference;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -285,7 +283,7 @@ public class GshTemplateOutput {
   /**
    * GRP-7438: save text contents to grouper_file (unencrypted) for this template and date, and let the
    * user download it.  Replaces the contents if the file for this date and name is already there.
-   * Not deleted automatically: the template should call deleteExpiredDownloadFiles()
+   * Not deleted automatically: the template should call deleteDownloadFilesOlderThanMinutes()
    * @param date yyyy-MM-dd, the day the file is for
    * @param fileName name the browser saves the file as, e.g. myReport_2026-10-04.csv
    * @param contents text contents, e.g. csv
@@ -301,7 +299,7 @@ public class GshTemplateOutput {
    * GRP-7446: save binary contents (e.g. a zip, xlsx) as this template's download file for a date and file name,
    * and download it after the template runs.  Same as the text version otherwise: an existing file for the same
    * date and name is replaced
-   * @param date yyyy-MM-dd, the day this file is for (used by deleteExpiredDownloadFiles)
+   * @param date yyyy-MM-dd, the day this file is for (the key for retrieveDownloadFileId)
    * @param fileName file name the browser saves, the extension decides the content type (e.g. .zip)
    * @param contents binary contents
    * @return this for chaining
@@ -313,15 +311,15 @@ public class GshTemplateOutput {
   }
   
   /**
-   * GRP-7438: delete this template's download files whose date is more than retentionDays before
-   * today.  There is no central cleanup, so templates that save download files should call this,
-   * e.g. after assignDownloadFile().  Only this template's files are affected
-   * @param retentionDays 0 keeps only today, 1 keeps today and yesterday, 7 keeps a week, etc
+   * GRP-7438: delete this template's download files that were last saved more than the given number of minutes
+   * ago (grouper_file.updated_on_micros).  There is no central cleanup, so templates that save download files should
+   * call this, e.g. after assignDownloadFile().  Only this template's files are affected.  A file that is re-saved
+   * (same date and name) counts from its last save
+   * @param minutes e.g. 60 keeps the last hour, 24 * 60 keeps a day, 7 * 24 * 60 keeps a week
    * @return number of files deleted
    */
-  public int deleteExpiredDownloadFiles(int retentionDays) {
-    return GshTemplateDownloadFile.deleteExpired(this.retrieveTemplateConfigIdRequired(),
-        LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), retentionDays);
+  public int deleteDownloadFilesOlderThanMinutes(int minutes) {
+    return GshTemplateDownloadFile.deleteOlderThanMinutes(this.retrieveTemplateConfigIdRequired(), minutes);
   }
   
   
