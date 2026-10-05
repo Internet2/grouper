@@ -2143,7 +2143,7 @@ CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_i
 CREATE TABLE grouper_failsafe
 (
     id VARCHAR2(40) NOT NULL,
-    name VARCHAR2(200) NOT NULL,
+    name VARCHAR2(512) NOT NULL,
     last_run NUMBER(38),
     last_failsafe_issue_started NUMBER(38),
     last_failsafe_issue NUMBER(38),

@@ -40,6 +40,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * <p>GRP-7446: add grouper_file.file_contents_blob (nullable; postgres bytea, oracle BLOB, mysql LONGBLOB) for
  * binary files.  No backfill, existing rows are text.  Idempotent: only added if missing.</p>
  *
+ * <p>GRP-6303: widen grouper_failsafe.name from varchar(200) to varchar(512) like grouper_loader_log.job_name (the
+ * failsafe name is the job name, and subjob names include a group name).  On mysql the unique index
+ * grouper_failsafe_name_idx is recreated on the first 255 chars, like stem_name_idx.  Idempotent: only if the column
+ * is narrower than 512 or the index is missing (e.g. a mysql run that failed after dropping it).</p>
+ *
  * <p>GRP-6677: grouper_data_row_field_asgn_v (and grouper_data_row_assign_v when it was built from the DDL model)
  * selected gdra.internal_id, the data row assign id, as data_row_internal_id.  Replace each view whose stored sql
  * still has that, with gdr.internal_id.  Idempotent: the view sql is read from the database catalog, so a fixed
@@ -79,6 +84,18 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
   /** GRP-6677: the wrong column expression, as it looks in the normalized view sql */
   private static final String GRP_6677_WRONG_COLUMN = "gdra.internal_id data_row_internal_id";
 
+  /** GRP-6303: failsafe table */
+  private static final String GRP_6303_TABLE = "grouper_failsafe";
+
+  /** GRP-6303: failsafe name column, widened */
+  private static final String GRP_6303_COLUMN = "name";
+
+  /** GRP-6303: new width of the name column */
+  private static final int GRP_6303_WIDTH = 512;
+
+  /** GRP-6303: unique index on the name, a 255 char prefix on mysql */
+  private static final String GRP_6303_INDEX = "grouper_failsafe_name_idx";
+
   /** GRP-7446: table getting the binary contents column */
   private static final String GRP_7446_TABLE = "grouper_file";
 
@@ -111,6 +128,9 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
     // GRP-7446 grouper_file.file_contents_blob
     workToDo |= grp7446HasAutomaticWork();
 
+    // GRP-6303 grouper_failsafe.name to varchar(512)
+    workToDo |= grp6303HasAutomaticWork();
+
     // GRP-6677 data row views select the wrong data_row_internal_id
     workToDo |= !grp6677ViewsToReplace().isEmpty();
 
@@ -130,6 +150,7 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
         grp7439FileTimestamps(otherJobInput);
         grp7445ZoomUserIdNullable(otherJobInput);
         grp7446FileContentsBlob(otherJobInput);
+        grp6303FailsafeNameWidth(otherJobInput);
 
         // keep view changes LAST, add new table / column / index work above this.  Replacing a view is the step
         // most likely to fail (e.g. postgres rejects CREATE OR REPLACE VIEW if the output columns change, or a
@@ -429,6 +450,70 @@ public class UpgradeTaskV45 implements UpgradeTasksInterface {
       if (otherJobInput != null) {
         otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
         otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", replaced view " + viewAndSql.getKey());
+      }
+    }
+  }
+
+  /**
+   * Whether GRP-6303 has work: the grouper_failsafe table exists, and the name column is narrower than 512 or the
+   * name index is missing
+   * @return true if the column or index needs to change
+   */
+  private boolean grp6303HasAutomaticWork() {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_6303_TABLE)) {
+      return false;
+    }
+    if (GrouperDdlUtils.getColumnSize(GRP_6303_TABLE, GRP_6303_COLUMN) < GRP_6303_WIDTH) {
+      return true;
+    }
+    // read from the catalog, null if the index is not there
+    return GrouperDdlUtils.isIndexUniqueFromCatalog(GRP_6303_TABLE, GRP_6303_INDEX) == null;
+  }
+
+  /**
+   * GRP-6303: widen grouper_failsafe.name to varchar(512).  On mysql drop the unique index first, MODIFY the column
+   * (restating NOT NULL since MODIFY rewrites the whole definition), and recreate the index on the first 255 chars.
+   * Each step checks the database, so a run that fails partway is finished by the next run
+   * @param otherJobInput
+   */
+  private void grp6303FailsafeNameWidth(OtherJobInput otherJobInput) {
+    if (!grp6303HasAutomaticWork()) {
+      return;
+    }
+
+    if (GrouperDdlUtils.getColumnSize(GRP_6303_TABLE, GRP_6303_COLUMN) < GRP_6303_WIDTH) {
+      if (GrouperDdlUtils.isPostgres()) {
+        // varchar widening does not rewrite the table, and no views use this table
+        new GcDbAccess().sql("ALTER TABLE " + GRP_6303_TABLE + " ALTER COLUMN " + GRP_6303_COLUMN
+            + " TYPE VARCHAR(" + GRP_6303_WIDTH + ")").executeSql();
+      } else if (GrouperDdlUtils.isMysql()) {
+        // the index becomes a prefix index, so drop it first and recreate it below
+        if (GrouperDdlUtils.isIndexUniqueFromCatalog(GRP_6303_TABLE, GRP_6303_INDEX) != null) {
+          new GcDbAccess().sql("DROP INDEX " + GRP_6303_INDEX + " ON " + GRP_6303_TABLE).executeSql();
+        }
+        new GcDbAccess().sql("ALTER TABLE " + GRP_6303_TABLE + " MODIFY " + GRP_6303_COLUMN
+            + " VARCHAR(" + GRP_6303_WIDTH + ") NOT NULL").executeSql();
+      } else {
+        // oracle MODIFY keeps NOT NULL
+        new GcDbAccess().sql("ALTER TABLE " + GRP_6303_TABLE + " MODIFY (" + GRP_6303_COLUMN
+            + " VARCHAR2(" + GRP_6303_WIDTH + "))").executeSql();
+      }
+      LOG.info("GRP-6303: widened " + GRP_6303_TABLE + "." + GRP_6303_COLUMN + " to " + GRP_6303_WIDTH);
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", widened " + GRP_6303_TABLE + "." + GRP_6303_COLUMN
+            + " to " + GRP_6303_WIDTH);
+      }
+    }
+
+    // recreate the index if it is missing (mysql above, or a previous run that failed after dropping it)
+    if (GrouperDdlUtils.isIndexUniqueFromCatalog(GRP_6303_TABLE, GRP_6303_INDEX) == null) {
+      String indexColumn = GrouperDdlUtils.isMysql() ? GRP_6303_COLUMN + "(255)" : GRP_6303_COLUMN;
+      new GcDbAccess().sql("CREATE UNIQUE INDEX " + GRP_6303_INDEX + " ON " + GRP_6303_TABLE + " (" + indexColumn + ")").executeSql();
+      LOG.info("GRP-6303: created index " + GRP_6303_INDEX);
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created index " + GRP_6303_INDEX);
       }
     }
   }

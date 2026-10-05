@@ -1329,6 +1329,82 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
+   * GRP-6303: grouper_failsafe.name widened from varchar(200) to varchar(512), with the unique index on the first 255
+   * chars on mysql.  A fresh install is 512 with the index, the deep compare is clean, and a 512 char name fits.  Then
+   * simulate the old column: UpgradeTaskV45 widens it and keeps the unique index.  Then simulate a mysql style run that
+   * failed after dropping the index: the missing index is work and gets recreated.  A second run is a no-op.  Runs on
+   * all three databases.
+   */
+  public void testGrp6303FailsafeNameWidth() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // fresh install
+    assertEquals(512, GrouperDdlUtils.getColumnSize("grouper_failsafe", "name"));
+    assertEquals(Boolean.TRUE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_failsafe", "grouper_failsafe_name_idx"));
+
+    // the deep compare must agree with the install (including the mysql prefix index)
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+      .assignDropBeforeCreate(false).assignWriteAndRunScript(false).assignDropOnly(false)
+      .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0, grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0, grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // a 512 char name fits
+    String longName = StringUtils.repeat("a", 512);
+    new GcDbAccess().sql("insert into grouper_failsafe (id, name, approved_once) values (?, ?, ?)")
+      .addBindVar(GrouperUuid.getUuid()).addBindVar(longName).addBindVar("F").executeSql();
+    assertEquals(longName, new GcDbAccess().sql("select name from grouper_failsafe where name = ?").addBindVar(longName).select(String.class));
+    new GcDbAccess().sql("delete from grouper_failsafe").executeSql();
+
+    // simulate the old varchar(200) column with a full column unique index
+    if (GrouperDdlUtils.isPostgres()) {
+      new GcDbAccess().sql("ALTER TABLE grouper_failsafe ALTER COLUMN name TYPE VARCHAR(200)").executeSql();
+    } else if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("DROP INDEX grouper_failsafe_name_idx ON grouper_failsafe").executeSql();
+      new GcDbAccess().sql("ALTER TABLE grouper_failsafe MODIFY name VARCHAR(200) NOT NULL").executeSql();
+      new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_failsafe_name_idx ON grouper_failsafe (name)").executeSql();
+    } else {
+      new GcDbAccess().sql("ALTER TABLE grouper_failsafe MODIFY (name VARCHAR2(200))").executeSql();
+    }
+    assertEquals(200, GrouperDdlUtils.getColumnSize("grouper_failsafe", "name"));
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // the upgrade task widens it and the unique index is there, column still NOT NULL
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(512, GrouperDdlUtils.getColumnSize("grouper_failsafe", "name"));
+    assertEquals(Boolean.TRUE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_failsafe", "grouper_failsafe_name_idx"));
+    assertFalse(GrouperDdlUtils.isColumnNullableFromCatalog("grouper_failsafe", "name"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // simulate a run that failed after dropping the index: missing index is work, and is recreated
+    if (GrouperDdlUtils.isMysql()) {
+      new GcDbAccess().sql("DROP INDEX grouper_failsafe_name_idx ON grouper_failsafe").executeSql();
+    } else {
+      new GcDbAccess().sql("DROP INDEX grouper_failsafe_name_idx").executeSql();
+    }
+    assertNull(GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_failsafe", "grouper_failsafe_name_idx"));
+    assertTrue(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(Boolean.TRUE, GrouperDdlUtils.isIndexUniqueFromCatalog("grouper_failsafe", "grouper_failsafe_name_idx"));
+    assertFalse(UpgradeTasks.V45.upgradeTask().doesUpgradeTaskHaveDdlWorkToDo());
+
+    // second run is a no-op
+    UpgradeTasks.V45.upgradeTask().updateVersionFromPrevious(null);
+    assertEquals(512, GrouperDdlUtils.getColumnSize("grouper_failsafe", "name"));
+  }
+
+  /**
    * GRP-6677: grouper_data_row_assign_v and grouper_data_row_field_asgn_v selected gdra.internal_id (the data row
    * assign id) as data_row_internal_id.  A fresh install has gdr.internal_id in both (read back from the catalog with
    * GrouperDdlUtils.retrieveViewDefinitionNormalized), then simulate the old views: UpgradeTaskV45 sees the work,

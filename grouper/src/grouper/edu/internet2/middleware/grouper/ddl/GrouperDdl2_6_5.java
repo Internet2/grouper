@@ -468,9 +468,10 @@ public class GrouperDdl2_6_5 {
           "grouper_failsafe_id_idx", true, 
           COLUMN_GROUPER_FAILSAFE_ID);
     }
+    // GRP-6303: mysql indexes the first 255 chars (like stem_name_idx), ddlutils drops the prefix on postgres / oracle
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFailsafeTable.getName(), 
         "grouper_failsafe_name_idx", true, 
-        COLUMN_GROUPER_FAILSAFE_NAME);
+        COLUMN_GROUPER_FAILSAFE_NAME + "(255)");
 
   }
 
@@ -490,8 +491,10 @@ public class GrouperDdl2_6_5 {
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFailsafeTable, COLUMN_GROUPER_FAILSAFE_ID,
         Types.VARCHAR, "40", true, true);
+    // GRP-6303: 512 (was 200) like grouper_loader_log.job_name, since the name is the job name.  Existing
+    // databases are widened by UpgradeTaskV45
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFailsafeTable, COLUMN_GROUPER_FAILSAFE_NAME,
-        Types.VARCHAR, "200", false, true);
+        Types.VARCHAR, "512", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFailsafeTable, COLUMN_GROUPER_FAILSAFE_LAST_RUN,
         Types.BIGINT, "12", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFailsafeTable, COLUMN_GROUPER_FAILSAFE_LAST_FAILSAFE_ISSUE_STARTED,

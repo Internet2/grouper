@@ -2044,7 +2044,7 @@ CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_i
 CREATE TABLE grouper_failsafe
 (
     id VARCHAR(40) NOT NULL,
-    name VARCHAR(200) NOT NULL,
+    name VARCHAR(512) NOT NULL,
     last_run BIGINT,
     last_failsafe_issue_started BIGINT,
     last_failsafe_issue BIGINT,
@@ -2059,7 +2059,7 @@ CREATE TABLE grouper_failsafe
 
 CREATE UNIQUE INDEX grouper_failsafe_id_idx ON grouper_failsafe (id);
 
-CREATE UNIQUE INDEX grouper_failsafe_name_idx ON grouper_failsafe (name);
+CREATE UNIQUE INDEX grouper_failsafe_name_idx ON grouper_failsafe (name(255));
 
 CREATE TABLE grouper_last_login
 (
