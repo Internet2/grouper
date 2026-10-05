@@ -16,8 +16,10 @@
     limitations under the License.
 
 -->
+<!-- child.project.url.inherit.append.path=false: child modules publish the repo url as-is instead of url/artifactId (which 404s) -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+    child.project.url.inherit.append.path="false">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -1219,8 +1221,8 @@
         </plugins>
     </reporting>
 
-    <!-- Project Metadata -->
-    <url>https://www.internet2.edu/products-services/trust-identity/grouper/</url>
+    <!-- Project Metadata: url is the source repo (Maven Central / Sonatype checks it), not a doc page. GRP-7452 -->
+    <url>https://github.com/Internet2/grouper</url>
 
     <licenses>
         <license>
@@ -1237,7 +1239,7 @@
 
     <issueManagement>
         <system>JIRA</system>
-        <url>https://todos.internet2.edu/browse/GRP</url>
+        <url>https://todos.grouper.internet2.edu/browse/GRP</url>
     </issueManagement>
 
     <mailingLists>
@@ -1257,7 +1259,10 @@
         </mailingList>
     </mailingLists>
 
-    <scm>
+    <!-- inherit.append.path=false so child modules do not get /artifactId appended to the scm urls (GRP-7452) -->
+    <scm child.scm.connection.inherit.append.path="false"
+         child.scm.developerConnection.inherit.append.path="false"
+         child.scm.url.inherit.append.path="false">
         <connection>scm:git:git@github.com:Internet2/grouper.git</connection>
         <developerConnection>scm:git:git@github.com:Internet2/grouper.git</developerConnection>
         <url>https://github.com/Internet2/grouper</url>
@@ -1270,7 +1275,7 @@
             <name>Chris Hyzer</name>
             <organization>University of Pennsylvania</organization>
             <organizationUrl>http://www.upenn.edu</organizationUrl>
-            <email>mchyzer@isc.upenn.edu</email>
+            <email>mchyzer@gmail.com</email>
             <roles>
                 <role>Project Lead</role>
                 <role>Developer</role>
@@ -1299,9 +1304,9 @@
         <developer>
             <id>cer28</id>
             <name>Chad Redman</name>
-            <organization>University of North Carolina - Chapel Hill</organization>
-            <organizationUrl>http://www.unc.edu</organizationUrl>
-            <email>chad_redman@unc.edu</email>
+            <organization>Unicon</organization>
+            <organizationUrl>https://www.unicon.net</organizationUrl>
+            <email>credman@unicon.net</email>
             <roles>
                 <role>Developer</role>
             </roles>
