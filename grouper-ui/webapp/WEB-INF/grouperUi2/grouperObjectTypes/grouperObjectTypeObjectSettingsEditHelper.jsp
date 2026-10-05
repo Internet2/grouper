@@ -4,7 +4,7 @@
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperObjectTypeNameId">${textContainer.text['objectTypeNameLabel']}</label></strong></td>
                           <td>
-                            <input type="hidden" name="grouperObjectTypePreviousTypeName" value="${grouperRequestContainer.objectTypeContainer.objectTypeName}" />
+                            <input type="hidden" name="grouperObjectTypePreviousTypeName" value="${fn:escapeXml(grouperRequestContainer.objectTypeContainer.objectTypeName)}" />
                             <select name="grouperObjectTypeName" id="grouperObjectTypeNameId" style="width: 30em"
                             onchange="ajax('../app/UiV2GrouperObjectTypes.editObjectTypesOn${ObjectType}', {formIds: 'editGrouperObjectTypeFormId'}); return false;">
                               <option value=""></option>

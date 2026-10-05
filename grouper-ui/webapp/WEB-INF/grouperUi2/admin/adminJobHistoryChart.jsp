@@ -38,7 +38,7 @@ ${grouper:title('adminJobHistoryChart')}
                       <td>
 
                         <input type="text" class="span2" name="dateFrom" id="date-from" placeholder="${textContainer.text['adminJobHistoryDatePlaceholder']}" 
-                            value="${grouperRequestContainer.adminContainer.guiJobHistoryDateFrom}"
+                            value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryDateFrom)}"
                             required="required" />
                         <input type="text" class="span2" name="timeFrom" id="time-from" placeholder="${textContainer.text['adminJobHistoryTimePlaceholder']}" 
                             value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryTimeFrom)}"
@@ -52,7 +52,7 @@ ${grouper:title('adminJobHistoryChart')}
                       <td>
 
                         <input type="text" class="span2" name="dateTo" id="date-to" placeholder="${textContainer.text['adminJobHistoryDatePlaceholder']}" 
-                            value="${grouperRequestContainer.adminContainer.guiJobHistoryDateTo}"
+                            value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryDateTo)}"
                             required="required" />
                         <input type="text" class="span2" name="timeTo" id="time-to" placeholder="${textContainer.text['adminJobHistoryTimePlaceholder']}" 
                             value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryTimeTo)}"
@@ -66,7 +66,7 @@ ${grouper:title('adminJobHistoryChart')}
                       <td>
 
                         <input type="text" class="span2" name="minElapsedSeconds" id="min-elapsed-seconds" placeholder="${textContainer.text['adminJobFilterPlaceholderSeconds']}" 
-                          value="${grouperRequestContainer.adminContainer.guiJobHistoryMinimumElapsedSeconds}"
+                          value="${fn:escapeXml(grouperRequestContainer.adminContainer.guiJobHistoryMinimumElapsedSeconds)}"
                           required="required" />
                         <br />                      
                         <span class="description">${textContainer.text['adminJobHistoryMinExecutionFilterHint']}</span>
