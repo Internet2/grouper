@@ -711,8 +711,9 @@ public class GrouperFailsafeBean {
       return false;
     }
 
+    // compare without integer division, which floors the percent, so e.g. 1 of 200 (0.5%) is over a max of 0
     if (this.maxOverallPercentEntitiesRemove != -1
-        && ((entitiesToRemoveCount * 100L) / originalEntityCount) > this.maxOverallPercentEntitiesRemove) {
+        && (entitiesToRemoveCount * 100L) > ((long)this.maxOverallPercentEntitiesRemove * originalEntityCount)) {
       return true;
     }
 
