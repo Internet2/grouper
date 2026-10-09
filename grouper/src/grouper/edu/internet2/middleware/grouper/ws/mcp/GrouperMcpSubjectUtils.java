@@ -139,7 +139,7 @@ public class GrouperMcpSubjectUtils {
     prop.put("type", "string");
     prop.put("description",
         StringUtils.defaultIfBlank(description,
-            "The subject ID or identifier (e.g., login ID, pennkey, eppn). "
+            "The subject ID or identifier (e.g., login ID, netid, eppn). "
             + "By default this is resolved as either an ID or identifier."));
     properties.set("subjectIdOrIdentifier", prop);
   }

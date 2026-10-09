@@ -161,7 +161,7 @@ public class GrouperMcpAssignAttributes {
     ownerSubjectIdOrIdentifierProp.put("type", "string");
     ownerSubjectIdOrIdentifierProp.put("description",
         "The subject ID or identifier to assign the attribute on "
-        + "(e.g., login ID, pennkey, eppn, or subject ID).");
+        + "(e.g., login ID, netid, eppn, or subject ID).");
     properties.set("ownerSubjectIdOrIdentifier", ownerSubjectIdOrIdentifierProp);
 
     ObjectNode ownerSubjectIdTypeProp = objectMapper.createObjectNode();

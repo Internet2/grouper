@@ -63,7 +63,7 @@ public class GrouperMcpGetGrouperPrivilegesLite {
     ObjectNode properties = objectMapper.createObjectNode();
 
     GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
-        "The subject ID or identifier to check privileges for (e.g., login ID, pennkey, eppn, or subject ID).");
+        "The subject ID or identifier to check privileges for (e.g., login ID, netid, eppn, or subject ID).");
     GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
     GrouperMcpSubjectUtils.addSourceIdProperty(properties, null);
 
