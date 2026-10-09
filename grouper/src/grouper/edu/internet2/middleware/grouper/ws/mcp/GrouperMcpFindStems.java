@@ -175,13 +175,13 @@ public class GrouperMcpFindStems {
   /**
    * the searches the web service pages: an approximate name search and the folders under a parent,
    * the ones which can match many folders.  exact name and uuid find at most one, and the attribute
-   * search does not page
+   * search does not page.  case insensitive, as the web service reads the search type
    * @param stemQueryFilterType the search type
    * @return true if pageSize and pageNumber apply
    */
   public static boolean supportsPaging(String stemQueryFilterType) {
-    return "FIND_BY_STEM_NAME_APPROXIMATE".equals(stemQueryFilterType)
-        || "FIND_BY_PARENT_STEM_NAME".equals(stemQueryFilterType);
+    return StringUtils.equalsIgnoreCase("FIND_BY_STEM_NAME_APPROXIMATE", stemQueryFilterType)
+        || StringUtils.equalsIgnoreCase("FIND_BY_PARENT_STEM_NAME", stemQueryFilterType);
   }
 
   /**

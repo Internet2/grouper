@@ -91,6 +91,10 @@ public class GrouperUiAgentCaller {
     Long theMemberInternalId = this.memberInternalId;
     if (theMemberInternalId == null) {
       theMemberInternalId = GrouperUiAgentToolRunner.retrieveMemberInternalId(this.subject);
+      if (theMemberInternalId == null) {
+        throw new RuntimeException("Cannot find the member for the user logged in to the UI: "
+            + this.subject.getSourceId() + " / " + this.subject.getId());
+      }
       this.memberInternalId = theMemberInternalId;
     }
     return theMemberInternalId;

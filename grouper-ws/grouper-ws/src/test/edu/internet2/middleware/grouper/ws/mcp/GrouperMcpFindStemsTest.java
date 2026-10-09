@@ -319,6 +319,11 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
 
     arguments.put("pageNumber", 2);
     assertEquals(1, stemsReturned(GrouperMcpFindStems.execute(arguments, authUser)));
+
+    // the web service reads the search type in any case, so paging has to as well
+    arguments.put("stemQueryFilterType", "find_by_parent_stem_name");
+    assertEquals(1, stemsReturned(GrouperMcpFindStems.execute(arguments, authUser)));
+    assertTrue(GrouperMcpFindStems.supportsPaging("find_by_stem_name_approximate"));
   }
 
   /**

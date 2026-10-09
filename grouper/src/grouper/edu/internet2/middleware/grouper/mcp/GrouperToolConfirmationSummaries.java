@@ -319,7 +319,17 @@ public class GrouperToolConfirmationSummaries {
   }
 
   /**
-   * read a text argument the way the tools do
+   * read a text argument the way the tools do.
+   *
+   * <p>this deliberately does not skip an explicit json null, even though
+   * GrouperUtil.jsonJacksonGetString does.  the tools read their arguments as
+   * arguments.has(x) ? arguments.get(x).asText() : null, and asText() on a json null is the string
+   * "null", so a null stemName makes the tool act on a folder named "null".  the summary has to say
+   * folder 'null' because that is what will run.  having the summary alone report "not given" would
+   * let a user approve "on no folder" and get the privilege granted on a folder named "null".
+   * the fix for the whole class of problem is to make the tools treat an explicit null as not given,
+   * which is a change across every tool, not something to patch here.</p>
+   *
    * @param arguments the arguments
    * @param name the argument
    * @return the text, or null if not given

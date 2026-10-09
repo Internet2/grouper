@@ -90,9 +90,6 @@ public class GrouperToolExecutor {
     final long startedMicros = System.currentTimeMillis() * 1000L;
     final long startNanos = System.nanoTime();
 
-    // run as the authenticated user, so object level security applies to whatever the tool does
-    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
-
     final ObjectNode[] resultHolder = new ObjectNode[1];
     final boolean[] isErrorHolder = new boolean[] { false };
     final String[] responseTextHolder = new String[] { null };
@@ -103,6 +100,10 @@ public class GrouperToolExecutor {
     final Integer[] pageSizeLimitHolder = new Integer[1];
     final JsonNode theArguments = applyPageSizeLimit(grouperTool, authUser.getEntryPath(), arguments,
         pageSizeLimitHolder);
+
+    // run as the authenticated user, so object level security applies to whatever the tool does.
+    // start the session right before the try/finally which stops it, so nothing in between can leak it
+    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
 
     try {
       GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
