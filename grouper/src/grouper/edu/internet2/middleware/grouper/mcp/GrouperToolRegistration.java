@@ -94,6 +94,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("doc_search",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // 10 results by default, and a cap on characters
+        return GrouperToolResultBound.cappedInTool;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         // nothing to search unless this caller has at least one source
         return GrouperMcpDocSearchIndex.hasAnySourcesForSubject(authUser.getSubject());
@@ -108,6 +112,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("attribute_def_name_find",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        return 50;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpFindAttributeDefNames.toolDefinition();
       }
@@ -118,6 +128,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_find",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        return 50;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpFindGroups.toolDefinition();
       }
@@ -128,6 +144,16 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("folder_find",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // the searches which can match many folders page.  exact name and uuid find one, and the
+        // attribute search, which the web service does not page, is for legacy stem attributes
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        // with no pageSize it returns every match, as it always has
+        String stemQueryFilterType = GrouperUtil.jsonJacksonGetString(arguments, "stemQueryFilterType");
+        return GrouperMcpFindStems.supportsPaging(stemQueryFilterType) ? Integer.valueOf(0) : null;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpFindStems.toolDefinition();
       }
@@ -138,6 +164,11 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("attribute_assignment_get",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // every assignment of an attribute, or on an owner.  the web service call it uses does not
+        // page, so there is nothing to cap it with before the rows are read
+        return GrouperToolResultBound.notBounded;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetAttributeAssignmentsLite.toolDefinition();
       }
@@ -148,6 +179,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("audit_get",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        return 50;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetAuditEntries.toolDefinition();
       }
@@ -158,6 +195,11 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("privilege_get",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // every privilege holder on one group or folder.  the web service call it uses does not
+        // page, so there is nothing to cap it with before the rows are read
+        return GrouperToolResultBound.notBounded;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetGrouperPrivilegesLite.toolDefinition();
       }
@@ -168,6 +210,13 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("entity_get_groups",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        // without a pageSize this returns every group the entity is in
+        return 0;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetGroups.toolDefinition();
       }
@@ -178,6 +227,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_get_members",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        return 50;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetMembersLite.toolDefinition();
       }
@@ -188,6 +243,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("memberships_get",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        return 50;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetMemberships.toolDefinition();
       }
@@ -198,6 +259,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("entity_get",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // one subject, or a search the subject sources limit
+        return GrouperToolResultBound.boundedBySubjectSources;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGetSubjects.toolDefinition();
       }
@@ -208,6 +273,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_has_member",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // one answer for each subject passed in
+        return GrouperToolResultBound.boundedByInput;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpHasMember.toolDefinition();
       }
@@ -220,6 +289,22 @@ public class GrouperToolRegistration {
     // there is anything to offer by returning no definition, which the tool list skips
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("institutional_tools",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // the templates admins set up, and the output of the scripts they wrote
+        return GrouperToolResultBound.boundedByConfig;
+      }
+      public GrouperToolCategory category(JsonNode arguments) {
+        // schema, and running a template marked mcpReadonly, are reads.  running any other template
+        // can change anything the script does, so it is a write: it needs readwrite, counts
+        // against the readwrite throttle, and the AI agent in the UI asks the user first
+        return GrouperMcpInstitutionalTools.isExecuteOfReadwriteTemplate(arguments)
+            ? GrouperToolCategory.readwrite : GrouperToolCategory.readonly;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        // the same test as category, so exactly the calls which are writes get a summary
+        return GrouperMcpInstitutionalTools.isExecuteOfReadwriteTemplate(arguments)
+            ? GrouperToolConfirmationSummaries.institutionalToolExecute(arguments) : null;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpInstitutionalTools.toolDefinition(authUser,
             GrouperToolAccess.isAllowedReadwrite(authUser));
@@ -232,6 +317,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("recipe",
         GrouperToolCategory.readonly) {
+      public GrouperToolResultBound resultBound() {
+        // the recipes admins and content owners wrote
+        return GrouperToolResultBound.boundedByConfig;
+      }
       public GrouperToolCategory category(JsonNode arguments) {
         // list and get are ordinary reads; update writes standing guidance for everybody who
         // consults it.  an unrecognised or missing action is refused by the tool anyway, so it
@@ -239,6 +328,11 @@ public class GrouperToolRegistration {
         String action = GrouperUtil.jsonJacksonGetString(arguments, "action");
         return "update".equals(action) ? GrouperToolCategory.readwrite
             : GrouperToolCategory.readonly;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        // the same test as category, so exactly the calls which are writes get a summary
+        String action = GrouperUtil.jsonJacksonGetString(arguments, "action");
+        return "update".equals(action) ? GrouperToolConfirmationSummaries.recipeUpdate(arguments) : null;
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpRecipeTool.toolDefinition(authUser,
@@ -258,6 +352,13 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_add_member",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        // one result for each subject passed in
+        return GrouperToolResultBound.boundedByInput;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.groupAddMember(arguments);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAddMember.toolDefinition();
       }
@@ -268,6 +369,13 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("attribute_assignment_save",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        // the assignments and values passed in
+        return GrouperToolResultBound.boundedByInput;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.attributeAssignmentSave(arguments);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAssignAttributes.toolDefinition();
       }
@@ -278,6 +386,12 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("privilege_assign",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.privilegeAssign(arguments);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAssignGrouperPrivilegesLite.toolDefinition();
       }
@@ -288,6 +402,13 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_remove_member",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        // one result for each subject passed in
+        return GrouperToolResultBound.boundedByInput;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.groupRemoveMember(arguments);
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpDeleteMember.toolDefinition();
       }
@@ -300,8 +421,14 @@ public class GrouperToolRegistration {
     // readwrite scope does not reach a group or a folder has nothing to point them at
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("folder_delete",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return authUser.hasGroupOrFolderReadwriteScope();
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.folderDelete(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpFolderDelete.toolDefinition();
@@ -313,8 +440,14 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_delete",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return authUser.hasGroupOrFolderReadwriteScope();
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.groupDelete(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGroupDelete.toolDefinition();
@@ -326,8 +459,14 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_save",
         GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return authUser.hasGroupOrFolderReadwriteScope();
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.groupSave(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGroupSave.toolDefinition();
@@ -350,6 +489,11 @@ public class GrouperToolRegistration {
         // opened to the limited tier per database, which the tool checks (GRP-7415)
         return true;
       }
+      public GrouperToolResultBound resultBound() {
+        // the tables of a database, or the columns of a table: as many as the database has.  a
+        // list of names from the database's own metadata, not rows of data
+        return GrouperToolResultBound.notBounded;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.anyAvailableFor(authUser);
       }
@@ -367,8 +511,18 @@ public class GrouperToolRegistration {
         // opened to the limited tier per database, which the tool checks (GRP-7415)
         return true;
       }
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.paged;
+      }
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.anyAvailableFor(authUser);
+      }
+      public Integer pageSizeWhenNotGiven(JsonNode arguments) {
+        // a count is one row whatever the page size
+        if (arguments != null && arguments.path("countOnly").asBoolean(false)) {
+          return null;
+        }
+        return GrouperMcpSqlSelect.DEFAULT_PAGE_SIZE;
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.toolDefinition();
@@ -384,6 +538,9 @@ public class GrouperToolRegistration {
       public boolean limitedAccessCheckedByTool() {
         // opened to the limited tier per database, which the tool checks (GRP-7415)
         return true;
+      }
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpSqlSelect.toolDefinition();
@@ -412,6 +569,10 @@ public class GrouperToolRegistration {
         // a caller on the limited tier is only offered this if a system is opened to them
         return GrouperMcpAdminExternalSystemGet.anyAvailableFor(authUser);
       }
+      public GrouperToolResultBound resultBound() {
+        // the external systems admins configured, or one user in one of them
+        return GrouperToolResultBound.boundedByConfig;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminExternalSystemGet.toolDefinition();
       }
@@ -422,6 +583,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_daemon_job_message",
         GrouperToolCategory.admin_readonly) {
+      public GrouperToolResultBound resultBound() {
+        // the message is cut to a set number of characters
+        return GrouperToolResultBound.cappedInTool;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminGetDaemonJobMessage.toolDefinition();
       }
@@ -432,6 +597,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_daemon_logs",
         GrouperToolCategory.admin_readonly) {
+      public GrouperToolResultBound resultBound() {
+        // a set number of log rows
+        return GrouperToolResultBound.cappedInTool;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminGetDaemonJobs.toolDefinition();
       }
@@ -442,6 +611,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_config_search",
         GrouperToolCategory.admin_readonly) {
+      public GrouperToolResultBound resultBound() {
+        // a set number of matching properties
+        return GrouperToolResultBound.cappedInTool;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminSearchConfigs.toolDefinition();
       }
@@ -452,6 +625,10 @@ public class GrouperToolRegistration {
 
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("admin_daemon_names",
         GrouperToolCategory.admin_readonly) {
+      public GrouperToolResultBound resultBound() {
+        // a set number of job names
+        return GrouperToolResultBound.cappedInTool;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminSearchDaemons.toolDefinition();
       }
@@ -470,6 +647,10 @@ public class GrouperToolRegistration {
         // a caller on the limited tier is only offered this if an LDAP system is opened to them
         return GrouperMcpLdapSearch.anyAvailableFor(authUser);
       }
+      public GrouperToolResultBound resultBound() {
+        // grouper.mcp.ldap.maxEntries, maxTotalAttributeValues and maxResponseChars
+        return GrouperToolResultBound.cappedInTool;
+      }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpLdapSearch.toolDefinition();
       }
@@ -483,6 +664,12 @@ public class GrouperToolRegistration {
       public boolean limitedAccessCheckedByTool() {
         // opened to the limited tier per job: loader jobs the caller could refresh in the UI, which the tool checks (GRP-7415)
         return true;
+      }
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.adminDaemonJobRun(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpAdminRunDaemonJob.toolDefinition();

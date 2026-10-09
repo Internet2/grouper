@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentSettings;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -115,6 +116,16 @@ public class GrouperMcpProtectedResources {
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadonlyLimited");
       addConfigGroupIfPresent(names, "grouper.mcp.users.adminReadWriteLimited");
       addConfigGroupIfPresent(names, "grouper.mcp.users.canSeeStackTraces");
+
+      // who may use the AI agent in the UI, so the agent cannot be used to add people to it
+      addConfigGroupIfPresent(names, "grouper.ai.agent.users");
+
+      // groups which raise AI agent limits, so the agent cannot be used to raise its own user's
+      // limits by adding them to one
+      for (String configId : GrouperUtil.nonNull(GrouperConfig.retrieveConfig()
+          .propertyConfigIds(GrouperAiAgentSettings.LIMIT_OVERRIDE_PATTERN))) {
+        addConfigGroupIfPresent(names, "grouper.ai.agent.limitOverride." + configId + ".groupName");
+      }
 
       // other security groups
       addConfigGroupIfPresent(names, "security.show.all.folders.if.in.group");

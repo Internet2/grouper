@@ -381,6 +381,16 @@ public enum UpgradeTasks {
     public UpgradeTasksInterface upgradeTask() {
       return new UpgradeTaskV45();
     }
+  },
+  /**
+   * 7.8.0: the AI agent in the Grouper UI: grouper_mcp_tool_log.entry_path, and the
+   * grouper_ai_agent_usage and grouper_ai_agent_call_log tables
+   */
+  V46{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV46();
+    }
   }
   // Update https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks when new upgrade tasks are added
   ,

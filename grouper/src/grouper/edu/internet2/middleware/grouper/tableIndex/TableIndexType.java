@@ -809,6 +809,24 @@ public enum TableIndexType {
     public boolean isHasIdColumn() {
       return false;
     }
+  },
+  /** one row per call the AI agent in the Grouper UI made to its AI provider */
+  aiAgentCallLog {
+
+    @Override
+    public String tableName() {
+      return "grouper_ai_agent_call_log";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   };
 
   /**

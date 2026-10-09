@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputValidat
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateSecurityRunType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
@@ -319,6 +320,42 @@ public class GrouperMcpInstitutionalTools {
     }
 
     return toolNames;
+  }
+
+  /**
+   * whether a call runs a template which can make changes: an execute of any template other than
+   * one which is MCP enabled and marked mcpReadonly, the same test {@link #executeTemplate} uses to
+   * require readwrite.  read straight from config the way {@link GshTemplateConfig} reads it,
+   * rather than loading the whole template, since this is asked before every call.  a template
+   * which is missing or cannot be read counts as a write, so a call is never let through as a read
+   * because its template could not be checked; the tool refuses such a template anyway
+   * @param arguments the tool arguments
+   * @return true if the call runs a template which can make changes
+   */
+  public static boolean isExecuteOfReadwriteTemplate(JsonNode arguments) {
+
+    // read the way execute reads them
+    String action = arguments != null && arguments.has("action")
+        ? arguments.get("action").asText() : null;
+    if (!"execute".equals(action)) {
+      return false;
+    }
+
+    String configId = arguments.has("configId") ? arguments.get("configId").asText() : null;
+    if (StringUtils.isBlank(configId)) {
+      return true;
+    }
+
+    try {
+      String configPrefix = "grouperGshTemplate." + configId + ".";
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      boolean mcpReadonly = grouperConfig.propertyValueBoolean(configPrefix + "mcpEnabled", false)
+          && grouperConfig.propertyValueBoolean(configPrefix + "mcpReadonly", false);
+      return !mcpReadonly;
+    } catch (RuntimeException re) {
+      LOG.error("Error reading whether template '" + configId + "' is mcpReadonly, treating it as a write", re);
+      return true;
+    }
   }
 
   /**

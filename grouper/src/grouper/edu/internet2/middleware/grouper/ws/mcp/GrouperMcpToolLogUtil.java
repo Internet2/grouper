@@ -74,6 +74,9 @@ public class GrouperMcpToolLogUtil {
       logEntry.setIsError(isError ? "T" : "F");
       logEntry.setStartedMicros(startedMicros);
       logEntry.setDurationMicros(durationMicros);
+      // so a call the user made through the AI agent in the UI can be told apart from one an MCP
+      // client made on their behalf.  getEntryPath() is never null
+      logEntry.setEntryPath(authUser.getEntryPath().name());
 
       new GcDbAccess().storeToDatabase(logEntry);
 

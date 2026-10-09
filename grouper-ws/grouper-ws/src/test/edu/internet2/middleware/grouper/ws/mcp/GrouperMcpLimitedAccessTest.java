@@ -44,7 +44,7 @@ public class GrouperMcpLimitedAccessTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpLimitedAccessTest("testNeitherTierGetsNothing"));
+    TestRunner.run(GrouperMcpLimitedAccessTest.class);
   }
 
   /**

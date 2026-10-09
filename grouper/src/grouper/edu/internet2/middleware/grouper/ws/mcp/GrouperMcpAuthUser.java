@@ -174,10 +174,6 @@ public class GrouperMcpAuthUser {
   }
 
   /**
-   * whether this user authenticated via OAuth JWT
-   * @return true if OAuth JWT authenticated
-   */
-  /**
    * @return which front door this call came through, never null
    */
   public GrouperToolEntryPath getEntryPath() {
@@ -191,6 +187,22 @@ public class GrouperMcpAuthUser {
     this.entryPath = entryPath1 == null ? GrouperToolEntryPath.mcp : entryPath1;
   }
 
+  /**
+   * whether the consentScope* flags limit what this caller may do, on top of their group
+   * membership.  true for an OAuth caller, where they are the scopes the user consented to for
+   * that client, and for the AI agent in the UI, where they are the scope the user chose for the
+   * session.  false for an MCP caller who authenticated with web service credentials, who is
+   * limited by group membership only
+   * @return true if the consent scope applies
+   */
+  public boolean isConsentScopeEnforced() {
+    return this.oAuthAuthenticated || this.entryPath == GrouperToolEntryPath.ui;
+  }
+
+  /**
+   * whether this user authenticated via OAuth JWT
+   * @return true if OAuth JWT authenticated
+   */
   public boolean isOAuthAuthenticated() {
     return this.oAuthAuthenticated;
   }

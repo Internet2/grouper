@@ -56,7 +56,10 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
   JUNIT("grouperJunit"),
 
   /** MCP (Model Context Protocol) engine */
-  MCP("grouperMcp");
+  MCP("grouperMcp"),
+
+  /** the AI agent in the Grouper UI, so its changes can be told apart from a person's in the UI */
+  UI_AI_AGENT("grouperUiAiAgent");
 
   /**
    * have the label different from name

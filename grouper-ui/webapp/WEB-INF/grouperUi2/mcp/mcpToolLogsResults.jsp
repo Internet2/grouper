@@ -11,6 +11,7 @@
                       <thead>
                         <tr>
                           <th>${textContainer.text['mcpInfoToolLogsTimeHeader']}</th>
+                          <th>${textContainer.text['mcpInfoToolLogsEntryPathHeader']}</th>
                           <th>${textContainer.text['mcpInfoToolLogsToolNameHeader']}</th>
                           <th>${textContainer.text['mcpInfoToolLogsCategoryHeader']}</th>
                           <th>${textContainer.text['mcpInfoToolLogsErrorHeader']}</th>
@@ -23,6 +24,7 @@
                         <c:forEach var="guiMcpToolLog" items="${grouperRequestContainer.mcpContainer.guiMcpToolLogs}">
                           <tr>
                             <td style="white-space: nowrap">${grouper:escapeHtml(guiMcpToolLog.startedTimeFormatted)}</td>
+                            <td style="white-space: nowrap">${grouper:escapeHtml(guiMcpToolLog.entryPathLabel)}</td>
                             <td>${grouper:escapeHtml(guiMcpToolLog.grouperMcpToolLog.toolName)}</td>
                             <td>${grouper:escapeHtml(guiMcpToolLog.grouperMcpToolLog.toolCategory)}</td>
                             <td>

@@ -63,8 +63,8 @@ public class GrouperMcpSqlSelect {
   /** maximum page size (rows per page) */
   static final int MAX_ROWS = 5000;
 
-  /** default page size */
-  static final int DEFAULT_PAGE_SIZE = 500;
+  /** default page size.  public so the tool registration can declare it, see GrouperTool.pageSizeWhenNotGiven */
+  public static final int DEFAULT_PAGE_SIZE = 500;
 
   /** maximum characters in the response text */
   static final int MAX_RESPONSE_CHARS = 1000000;

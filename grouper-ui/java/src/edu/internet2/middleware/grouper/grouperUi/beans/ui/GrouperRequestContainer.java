@@ -1130,6 +1130,22 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * container for the AI agent screen
+   */
+  private AiAgentContainer aiAgentContainer;
+
+  /**
+   * container for the AI agent screen
+   * @return the container
+   */
+  public AiAgentContainer getAiAgentContainer() {
+    if (this.aiAgentContainer == null) {
+      this.aiAgentContainer = new AiAgentContainer();
+    }
+    return this.aiAgentContainer;
+  }
+
+  /**
    * container for OAuth consent page data
    */
   private OAuthContainer oauthContainer;

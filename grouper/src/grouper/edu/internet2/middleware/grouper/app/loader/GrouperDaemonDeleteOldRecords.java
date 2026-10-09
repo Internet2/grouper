@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentUsage;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
@@ -156,6 +157,28 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         LOG.error("Error in deleteOldMcpToolLogs", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInMcpToolLogDelete", ExceptionUtils.getStackTrace(e));
         jobMessage.append("\nError in deleteOldMcpToolLogs: " +ExceptionUtils.getStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      try {
+        deleteOldAiAgentUsage(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error in deleteOldAiAgentUsage", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAiAgentUsageDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldAiAgentUsage: " +ExceptionUtils.getStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      try {
+        deleteOldAiAgentCallLogs(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error in deleteOldAiAgentCallLogs", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAiAgentCallLogDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldAiAgentCallLogs: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -1378,6 +1401,102 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       } else {
         if (jobMessage != null) {
           jobMessage.append("Configured to not delete old MCP tool log records.\n");
+        }
+      }
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
+    }
+  }
+
+  /**
+   * delete old AI agent usage rows from grouper_ai_agent_usage.  the daily token limit only reads
+   * today's row, so how long rows are kept only matters for looking back at usage.  public for tests
+   * @param jobMessage may be null
+   * @param hib3GrouploaderLog may be null
+   */
+  public static void deleteOldAiAgentUsage(StringBuilder jobMessage,
+      Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+
+    try {
+      int daysToKeep = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueInt("loader.retain.db.ai_agent_usage.days", 365);
+
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAiAgentUsageDays", daysToKeep);
+
+      if (daysToKeep != -1) {
+        // usage_day is yyyymmdd in the agent's time zone, so the cutoff is worked out the same way
+        Calendar calendar = GregorianCalendar.getInstance(GrouperAiAgentUsage.timeZone());
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeep);
+        long cutoffDay = Long.parseLong(GrouperAiAgentUsage.dayFormat().format(calendar.getTime()));
+
+        int records = new GcDbAccess()
+            .sql("delete from grouper_ai_agent_usage where usage_day < ?")
+            .addBindVar(cutoffDay)
+            .executeSql();
+
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(records);
+        }
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAiAgentUsageCount", records);
+
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + records
+              + " AI agent usage records older than " + daysToKeep + " days.\n");
+        }
+      } else {
+        if (jobMessage != null) {
+          jobMessage.append("Configured to not delete old AI agent usage records.\n");
+        }
+      }
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
+    }
+  }
+
+  /**
+   * delete old AI agent call log rows from grouper_ai_agent_call_log.  public for tests
+   * @param jobMessage may be null
+   * @param hib3GrouploaderLog may be null
+   */
+  public static void deleteOldAiAgentCallLogs(StringBuilder jobMessage,
+      Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+
+    try {
+      int daysToKeep = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueInt("loader.retain.db.ai_agent_call_log.days", 365);
+
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAiAgentCallLogDays", daysToKeep);
+
+      if (daysToKeep != -1) {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeep);
+        long cutoffMicros = calendar.getTimeInMillis() * 1000L;
+
+        int records = new GcDbAccess()
+            .sql("delete from grouper_ai_agent_call_log where started_micros < ?")
+            .addBindVar(cutoffMicros)
+            .executeSql();
+
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(records);
+        }
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAiAgentCallLogCount", records);
+
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + records
+              + " AI agent call log records older than " + daysToKeep + " days.\n");
+        }
+      } else {
+        if (jobMessage != null) {
+          jobMessage.append("Configured to not delete old AI agent call log records.\n");
         }
       }
     } finally {

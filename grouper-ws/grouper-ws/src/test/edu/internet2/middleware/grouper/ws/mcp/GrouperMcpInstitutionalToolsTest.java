@@ -30,6 +30,9 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperTool;
+import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
+import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
@@ -52,7 +55,7 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpInstitutionalToolsTest("testSchemaWithMcpEnabledTemplate"));
+    TestRunner.run(GrouperMcpInstitutionalToolsTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -593,6 +596,51 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
     } finally {
       GrouperSession.stopQuietly(session);
     }
+  }
+
+  /**
+   * running a template which is not readonly is a write, so it needs readwrite, counts against the
+   * readwrite throttle, and the AI agent in the UI asks before running it.  schema and readonly
+   * templates stay reads
+   */
+  public void testCategoryOfExecute() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.mcpCategoryRw.mcpEnabled", "true");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.mcpCategoryRo.mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.mcpCategoryRo.mcpReadonly", "true");
+
+    // mcpReadonly only counts when the template is MCP enabled, as in GshTemplateConfig
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.mcpCategoryNotEnabled.mcpReadonly", "true");
+
+    GrouperTool grouperTool = GrouperToolRegistry.find("institutional_tools");
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "execute");
+    arguments.put("configId", "mcpCategoryRw");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+    assertNotNull(grouperTool.confirmationSummary(arguments));
+
+    arguments.put("configId", "mcpCategoryRo");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    assertNull(grouperTool.confirmationSummary(arguments));
+
+    arguments.put("configId", "mcpCategoryNotEnabled");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // a template which does not exist, or none named, is never let through as a read
+    arguments.put("configId", "mcpCategoryDoesNotExist");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+    arguments.remove("configId");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    arguments = objectMapper.createObjectNode();
+    arguments.put("action", "schema");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    assertNull(grouperTool.confirmationSummary(arguments));
+
+    // what the tool list asks, so readonly users are still offered the tool
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(null));
   }
 
   /**

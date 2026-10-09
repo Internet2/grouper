@@ -66,6 +66,31 @@ public interface GrouperTool {
   }
 
   /**
+   * for a tool which returns a list a page at a time, with a pageSize argument: how many it returns
+   * when no pageSize is given, or 0 if it then returns everything.  the executor caps pageSize at
+   * the limit for the front door the call came through (grouper.ai.agent.maxPageSize for the UI,
+   * grouper.mcp.maxPageSize for MCP, see GrouperToolExecutor.maxPageSize), so where a limit is set
+   * one call cannot pull back more rows than that however it is asked.  null for a tool
+   * which does not page, which is left alone.  it takes the arguments because a tool can page for
+   * some requests and not others: sql_select pages rows but not a count
+   *
+   * @param arguments as the caller supplied them, may be null
+   * @return the page size used when none is given, 0 for everything, or null if the tool does not
+   * page for this request
+   */
+  public default Integer pageSizeWhenNotGiven(JsonNode arguments) {
+    return null;
+  }
+
+  /**
+   * how this tool keeps its result from growing without limit.  deliberately has no default, so a
+   * tool cannot be added without deciding.  a tool which says paged must also say, through
+   * {@link #pageSizeWhenNotGiven}, how it pages
+   * @return the bound, never null
+   */
+  public GrouperToolResultBound resultBound();
+
+  /**
    * whether this tool is offered to callers.  false for names kept working for older clients
    * which should not show up in a tool list
    * @return true if the tool should be advertised

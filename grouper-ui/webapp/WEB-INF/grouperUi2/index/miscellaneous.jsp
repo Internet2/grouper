@@ -42,6 +42,11 @@
                         >${textContainer.text['miscMcpLink'] }</a>
                     </c:if>
 
+                    <c:if test="${grouperRequestContainer.aiAgentContainer.canSeeAiAgentLink}">
+                      <br /><br /><a id="miscAiAgentLink" href="?operation=UiV2AiAgent.aiAgent" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AiAgent.aiAgent');" style="white-space: nowrap;"
+                        >${textContainer.text['miscAiAgentLink'] }</a>
+                    </c:if>
+
                     <%-- shown to recipe administrators and to anybody who owns the content of a
                          recipe, otherwise a delegated editor has a screen they cannot reach.
                          deliberately NOT in the Administration section below: that whole block is
@@ -88,6 +93,11 @@
                         ${textContainer.text['adminAuthenticationLink'] }</a>
                     </c:if>
                 	
+                	 <c:if test="${grouperRequestContainer.aiAgentContainer.canSeeUsageReportLink}">
+                      <br /><br /><a id="miscAiAgentUsageReportLink" href="?operation=UiV2AiAgent.aiAgentUsageReport" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AiAgent.aiAgentUsageReport');" style="white-space: nowrap;">
+                        ${textContainer.text['miscAiAgentUsageReportLink'] }</a>
+                    </c:if>
+
                 	 <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
                       <br /><br /><a id="miscConfigureLink" href="?operation=UiV2Configure.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.index');" style="white-space: nowrap;">
                       	${textContainer.text['adminConfigureLink'] }</a>

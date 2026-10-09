@@ -156,8 +156,19 @@ public class GrouperServiceJ2ee implements Filter {
   }
 
   /**
+   * how the web service works out who is logged in: from the servlet request and the configured
+   * authentication class.  assigned to the request context for every request this filter handles
+   */
+  private static final GrouperWsSubjectResolver WS_SUBJECT_RESOLVER = new GrouperWsSubjectResolver() {
+
+    public Subject retrieveSubjectLoggedIn() {
+      return GrouperServiceJ2ee.retrieveSubjectLoggedInFromRequest();
+    }
+  };
+
+  /**
    * retrieve the subject logged in.  kept so that existing callers do not change; the answer now
-   * comes from the request context, which asks whichever resolver this deployment registered
+   * comes from the request context, which asks the resolver this request assigned
    *
    * @return the subject
    */
@@ -685,6 +696,7 @@ public class GrouperServiceJ2ee implements Filter {
         GrouperWsRequestContext.assignDebugMap(debugMap);
         GrouperWsRequestContext.assignRequestStartMillis(System.currentTimeMillis());
         GrouperWsRequestContext.assignRemoteAddr(request.getRemoteAddr());
+        GrouperWsRequestContext.assignSubjectResolverForRequest(WS_SUBJECT_RESOLVER);
         GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
         try {
           filterChain.doFilter(request, response);
@@ -797,6 +809,7 @@ public class GrouperServiceJ2ee implements Filter {
       String remoteAddr = StringUtils.defaultIfBlank(xForwardedFor, request.getRemoteAddr());
       grouperContext.setCallerIpAddress(remoteAddr);
       GrouperWsRequestContext.assignRemoteAddr(request.getRemoteAddr());
+      GrouperWsRequestContext.assignSubjectResolverForRequest(WS_SUBJECT_RESOLVER);
       
       //get the proxy IP address
       debugMap.put("start", timeFormat.format(new Date()));
@@ -894,13 +907,10 @@ public class GrouperServiceJ2ee implements Filter {
    */
   public void init(FilterConfig arg0) throws ServletException {
 
-    //tell core how this war works out who is logged in.  the UI registers its own
-    GrouperWsRequestContext.assignSubjectResolver(new GrouperWsSubjectResolver() {
-
-      public Subject retrieveSubjectLoggedIn() {
-        return GrouperServiceJ2ee.retrieveSubjectLoggedInFromRequest();
-      }
-    });
+    //tell core how this war works out who is logged in.  this is only the fallback: every request
+    //through doFilter assigns the same resolver for itself, so a UI request in the same webapp
+    //cannot end up using this one or change it for the web service
+    GrouperWsRequestContext.assignSubjectResolver(WS_SUBJECT_RESOLVER);
 
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.WS, false, false);
 

@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
+import edu.internet2.middleware.grouper.mcp.GrouperToolEntryPath;
 
 /**
  * GUI wrapper for GrouperMcpToolLog that provides formatted fields
@@ -76,6 +79,21 @@ public class GuiMcpToolLog {
       return "";
     }
     return String.valueOf(this.grouperMcpToolLog.getDurationMicros() / 1000);
+  }
+
+  /**
+   * where the call came from, for the screen: an MCP client or the AI assistant in the UI, which
+   * both log here.  a row from before entry_path existed was an MCP call, since there was nothing
+   * else then
+   * @return the label, or the stored value as is if it is one this screen does not know
+   */
+  public String getEntryPathLabel() {
+    String entryPath = this.grouperMcpToolLog == null ? null : this.grouperMcpToolLog.getEntryPath();
+    if (StringUtils.isBlank(entryPath)) {
+      entryPath = GrouperToolEntryPath.mcp.name();
+    }
+    String label = TextContainer.retrieveFromRequest().getText().get("mcpInfoToolLogsEntryPath_" + entryPath);
+    return StringUtils.isBlank(label) ? entryPath : label;
   }
 
   /**

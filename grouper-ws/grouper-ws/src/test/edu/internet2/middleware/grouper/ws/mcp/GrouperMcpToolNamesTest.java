@@ -35,8 +35,9 @@ import junit.textui.TestRunner;
  * it can drift away from the tools this module actually has, and a recipe pointing at a tool
  * which no longer exists fails silently: its pointer is added to nothing.
  *
- * <p>Two things keep it honest.  addToolIfAllowed refuses to advertise a tool which is not in
- * the list, so a new tool which nobody registered fails the first time a tool list is built.
+ * <p>Two things keep it honest.  GrouperToolExecutor.retrieveToolDefinitions refuses to advertise
+ * a tool which is not in the list, so a new tool which nobody registered fails the first time a
+ * tool list is built.
  * This test covers the other direction, a name left in the list after its tool was removed.</p>
  *
  * <p>This reads source files and touches nothing else, so it extends TestCase rather than

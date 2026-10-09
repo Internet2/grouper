@@ -55,6 +55,8 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
 
   public static final String COLUMN_DURATION_MICROS = "duration_micros";
 
+  public static final String COLUMN_ENTRY_PATH = "entry_path";
+
   // -------- tool category constants --------
 
   public static final String CATEGORY_READONLY = "readonly";
@@ -98,6 +100,10 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
 
   @GcPersistableField(columnName = "duration_micros")
   private Long durationMicros;
+
+  /** which front door the call came through, the name of a GrouperToolEntryPath */
+  @GcPersistableField(columnName = "entry_path")
+  private String entryPath;
 
   // -------- primary key assignment --------
 
@@ -250,5 +256,20 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
    */
   public void setDurationMicros(Long durationMicros1) {
     this.durationMicros = durationMicros1;
+  }
+
+  /**
+   * @return which front door the call came through: mcp or ui.  null for calls logged before
+   * this column existed
+   */
+  public String getEntryPath() {
+    return this.entryPath;
+  }
+
+  /**
+   * @param entryPath1 which front door the call came through, the name of a GrouperToolEntryPath
+   */
+  public void setEntryPath(String entryPath1) {
+    this.entryPath = entryPath1;
   }
 }

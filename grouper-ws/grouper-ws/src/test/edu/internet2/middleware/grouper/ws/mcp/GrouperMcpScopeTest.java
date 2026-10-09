@@ -80,7 +80,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpScopeTest("testGroupInScope_unrestricted"));
+    TestRunner.run(GrouperMcpScopeTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();

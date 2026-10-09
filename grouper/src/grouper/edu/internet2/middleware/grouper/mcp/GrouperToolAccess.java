@@ -15,9 +15,10 @@ import edu.internet2.middleware.subject.Subject;
  * whether a caller is allowed to run a tool in a given category.
  *
  * <p>this is an intersection and never a grant: the caller has to be in the Grouper group for the
- * category, and, if they arrived over OAuth, to have consented to the matching scope.  neither
- * half can stand in for the other.  if it were computed from the consent record alone, the
- * consent screen would become a way to hand yourself access you do not have.</p>
+ * category, and, where a scope applies (see {@link GrouperMcpAuthUser#isConsentScopeEnforced()}),
+ * to have the matching scope.  neither half can stand in for the other.  if it were computed from
+ * the consent record alone, the consent screen would become a way to hand yourself access you do
+ * not have.</p>
  *
  * <p>group membership is checked against Grouper rather than read from the token, so removing
  * somebody from the group takes effect within a minute even while they hold an unexpired token
@@ -45,9 +46,10 @@ import edu.internet2.middleware.subject.Subject;
  * group the caller can refresh in the UI, and nothing else, so provisioning and other daemon jobs
  * stay sysadmin only.  the admin_daemon_job_run tool checks that per job.</p>
  *
- * <p>it lives here rather than on the MCP servlet so that the UI is held to the same rule.  a UI
- * caller is not OAuth authenticated, so the consent half does not apply to them; the narrowing a
- * UI user chooses for their session is a separate check on top of this one.</p>
+ * <p>it lives here rather than on the MCP servlet so that the UI is held to the same rule.  for an
+ * OAuth caller the scope is what they consented to for that client; for the AI agent in the UI it
+ * is the scope the user chose for the session, carried in the same flags.  either way it can only
+ * narrow what group membership allows, tiers included.</p>
  */
 public class GrouperToolAccess {
 
@@ -319,7 +321,7 @@ public class GrouperToolAccess {
       return false;
     }
 
-    if (authUser.isOAuthAuthenticated()
+    if (authUser.isConsentScopeEnforced()
         && !authUser.isConsentScopeReadonly() && !authUser.isConsentScopeReadwrite()) {
       return false;
     }
@@ -337,7 +339,7 @@ public class GrouperToolAccess {
       return false;
     }
 
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeReadwrite()) {
+    if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeReadwrite()) {
       return false;
     }
 
@@ -355,7 +357,7 @@ public class GrouperToolAccess {
       return false;
     }
 
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeSqlReadonly()) {
+    if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeSqlReadonly()) {
       return false;
     }
 
@@ -373,7 +375,7 @@ public class GrouperToolAccess {
       return false;
     }
 
-    if (authUser.isOAuthAuthenticated()
+    if (authUser.isConsentScopeEnforced()
         && !authUser.isConsentScopeAdminReadonly() && !authUser.isConsentScopeAdminReadwrite()) {
       return false;
     }
@@ -392,7 +394,7 @@ public class GrouperToolAccess {
       return false;
     }
 
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeAdminReadwrite()) {
+    if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeAdminReadwrite()) {
       return false;
     }
 

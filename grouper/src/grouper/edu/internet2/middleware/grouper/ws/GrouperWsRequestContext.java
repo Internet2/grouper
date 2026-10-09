@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.ws;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -22,6 +24,9 @@ import edu.internet2.middleware.subject.Subject;
  * request is over, since threads are pooled and reused.</p>
  */
 public class GrouperWsRequestContext {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperWsRequestContext.class);
 
   /**
    * debug map for the current request, logged when the request finishes
@@ -85,22 +90,58 @@ public class GrouperWsRequestContext {
   }
 
   /**
-   * how this deployment works out who is authenticated, registered once at startup by whichever
-   * front door is running
+   * fallback for working out who is authenticated, registered once at startup by the web service
+   * filter.  a front door should prefer {@link #assignSubjectResolverForRequest}: this one is a
+   * single static, so if the UI and the web service ever share a classloader (both enabled in one
+   * webapp) whichever registered last would answer for both
    */
   private static volatile GrouperWsSubjectResolver subjectResolver = null;
 
   /**
-   * register how this deployment works out who is authenticated.  grouper-ws registers a resolver
-   * which reads the servlet request, the UI one which reads its session
+   * how the front door that is handling the current request works out who is authenticated.  set
+   * at the start of each request and cleared with the other thread locals, so a web service
+   * request and a UI request running side by side in one webapp each get their own answer
+   */
+  private static ThreadLocal<GrouperWsSubjectResolver> threadLocalSubjectResolver =
+      new ThreadLocal<GrouperWsSubjectResolver>();
+
+  /**
+   * register the fallback resolver, used only when the current request has not assigned its own.
+   * a second registration of a different kind is logged, since it would silently change who the
+   * other front door thinks is logged in
    * @param theSubjectResolver the resolver
    */
   public static void assignSubjectResolver(GrouperWsSubjectResolver theSubjectResolver) {
+    GrouperWsSubjectResolver existing = subjectResolver;
+    if (existing != null && theSubjectResolver != null
+        && existing.getClass() != theSubjectResolver.getClass()) {
+      LOG.warn("Replacing the registered GrouperWsSubjectResolver " + existing.getClass().getName()
+          + " with " + theSubjectResolver.getClass().getName() + ".  Front doors should assign "
+          + "their resolver per request with assignSubjectResolverForRequest instead");
+    }
     subjectResolver = theSubjectResolver;
   }
 
   /**
-   * the subject authenticated for this request, from the registered resolver, every time.
+   * the registered fallback resolver, so a test which replaces it can put it back
+   * @return the fallback resolver, or null if none is registered
+   */
+  static GrouperWsSubjectResolver retrieveSubjectResolver() {
+    return subjectResolver;
+  }
+
+  /**
+   * set how the current request works out who is authenticated.  the caller must call
+   * {@link #clearThreadLocals()} in a finally when the request is over
+   * @param theSubjectResolver the resolver for this request
+   */
+  public static void assignSubjectResolverForRequest(GrouperWsSubjectResolver theSubjectResolver) {
+    threadLocalSubjectResolver.set(theSubjectResolver);
+  }
+
+  /**
+   * the subject authenticated for this request.  asks the resolver the current request assigned,
+   * or the registered fallback if it did not, every time.
    *
    * <p>the answer is deliberately not cached here.  servlet threads are pooled, so a cached
    * subject which outlived its request would be handed to whoever got that thread next.  the
@@ -112,12 +153,19 @@ public class GrouperWsRequestContext {
    */
   public static Subject retrieveSubjectLoggedIn() {
 
-    if (subjectResolver == null) {
-      throw new RuntimeException("No GrouperWsSubjectResolver is registered, so there is no way "
-          + "to work out who is logged in.  grouper-ws registers one in GrouperServiceJ2ee.init()");
+    GrouperWsSubjectResolver theSubjectResolver = threadLocalSubjectResolver.get();
+
+    if (theSubjectResolver == null) {
+      theSubjectResolver = subjectResolver;
     }
 
-    return subjectResolver.retrieveSubjectLoggedIn();
+    if (theSubjectResolver == null) {
+      throw new RuntimeException("No GrouperWsSubjectResolver is assigned for this request or "
+          + "registered, so there is no way to work out who is logged in.  grouper-ws assigns one "
+          + "in GrouperServiceJ2ee");
+    }
+
+    return theSubjectResolver.retrieveSubjectLoggedIn();
   }
 
   /**
@@ -160,6 +208,7 @@ public class GrouperWsRequestContext {
     threadLocalRequestStartMillis.remove();
     threadLocalRestRequest.remove();
     threadLocalRemoteAddr.remove();
+    threadLocalSubjectResolver.remove();
   }
 
 }

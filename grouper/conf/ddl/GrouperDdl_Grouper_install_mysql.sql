@@ -3376,6 +3376,7 @@ CREATE TABLE grouper_mcp_tool_log
     is_error VARCHAR(1) NOT NULL,
     started_micros BIGINT NOT NULL,
     duration_micros BIGINT,
+    entry_path VARCHAR(32),
     PRIMARY KEY (internal_id)
 );
 
@@ -3386,6 +3387,47 @@ CREATE INDEX grp_mcp_tool_log_started_idx ON grouper_mcp_tool_log (started_micro
 CREATE INDEX grp_mcp_tool_log_name_idx ON grouper_mcp_tool_log (tool_name);
 
 CREATE INDEX grp_mcp_tool_log_oauth_idx ON grouper_mcp_tool_log (oauth_client_internal_id);
+
+CREATE TABLE grouper_ai_agent_usage
+(
+    member_internal_id BIGINT NOT NULL,
+    usage_day BIGINT NOT NULL,
+    message_count BIGINT NOT NULL,
+    model_call_count BIGINT NOT NULL,
+    input_tokens BIGINT NOT NULL,
+    cached_input_tokens BIGINT NOT NULL,
+    output_tokens BIGINT NOT NULL,
+    last_updated_micros BIGINT NOT NULL,
+    PRIMARY KEY (member_internal_id, usage_day)
+);
+
+CREATE INDEX grp_ai_agent_usage_day_idx ON grouper_ai_agent_usage (usage_day);
+
+CREATE TABLE grouper_ai_agent_call_log
+(
+    internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    conversation_id VARCHAR(40) NOT NULL,
+    provider VARCHAR(32) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    call_type VARCHAR(16) NOT NULL,
+    outcome VARCHAR(16) NOT NULL,
+    stop_reason VARCHAR(32),
+    tool_call_count BIGINT,
+    input_tokens BIGINT,
+    cached_input_tokens BIGINT,
+    cache_write_input_tokens BIGINT,
+    output_tokens BIGINT,
+    provider_request_id VARCHAR(100),
+    error_summary VARCHAR(1000),
+    started_micros BIGINT NOT NULL,
+    duration_micros BIGINT NOT NULL,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grp_ai_agent_call_started_idx ON grouper_ai_agent_call_log (started_micros);
+
+CREATE INDEX grp_ai_agent_call_member_idx ON grouper_ai_agent_call_log (member_internal_id, started_micros);
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
 ('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'),

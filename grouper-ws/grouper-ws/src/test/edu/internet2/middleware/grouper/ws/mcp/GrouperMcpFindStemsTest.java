@@ -62,7 +62,7 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpFindStemsTest("testFindByStemNameExact"));
+    TestRunner.run(GrouperMcpFindStemsTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -287,6 +287,51 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
       }
     } finally {
       GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * the folders under a parent come a page at a time when a pageSize is given, and all of them when
+   * it is not, as before paging was added
+   */
+  public void testFindByParentStemPaged() {
+
+    for (int i = 1; i <= 3; i++) {
+      new StemSave(GrouperSession.staticGrouperSession())
+          .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+          .assignStemNameToEdit("test:mcpFindPaged:child" + i)
+          .assignName("test:mcpFindPaged:child" + i)
+          .assignCreateParentStemsIfNotExist(true).save();
+    }
+
+    // as root, so the count is not narrowed by privileges
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(GrouperSession.staticGrouperSession().getSubject());
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("stemQueryFilterType", "FIND_BY_PARENT_STEM_NAME");
+    arguments.put("parentStemName", "test:mcpFindPaged");
+    arguments.put("parentStemNameScope", "ONE_LEVEL");
+
+    assertEquals(3, stemsReturned(GrouperMcpFindStems.execute(arguments, authUser)));
+
+    arguments.put("pageSize", 2);
+    assertEquals(2, stemsReturned(GrouperMcpFindStems.execute(arguments, authUser)));
+
+    arguments.put("pageNumber", 2);
+    assertEquals(1, stemsReturned(GrouperMcpFindStems.execute(arguments, authUser)));
+  }
+
+  /**
+   * @param result a folder_find result
+   * @return how many folders it returned
+   */
+  private static int stemsReturned(ObjectNode result) {
+    assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+    try {
+      return objectMapper.readTree(result.get("content").get(0).get("text").asText())
+          .get("totalStemsReturned").asInt();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 

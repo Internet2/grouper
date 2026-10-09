@@ -64,7 +64,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpFindGroupsTest("testFindByGroupNameExact"));
+    TestRunner.run(GrouperMcpFindGroupsTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();

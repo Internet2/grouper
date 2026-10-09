@@ -8711,6 +8711,7 @@ CREATE TABLE grouper_mcp_tool_log
     is_error VARCHAR(1) NOT NULL,
     started_micros BIGINT NOT NULL,
     duration_micros BIGINT,
+    entry_path VARCHAR(32),
     PRIMARY KEY (internal_id)
 );
 
@@ -8734,6 +8735,79 @@ COMMENT ON COLUMN grouper_mcp_tool_log.response_or_error IS 'response or error m
 COMMENT ON COLUMN grouper_mcp_tool_log.is_error IS 'T if the call resulted in an error, F otherwise';
 COMMENT ON COLUMN grouper_mcp_tool_log.started_micros IS 'micros since 1970 when the call started';
 COMMENT ON COLUMN grouper_mcp_tool_log.duration_micros IS 'duration of the call in microseconds';
+COMMENT ON COLUMN grouper_mcp_tool_log.entry_path IS 'which front door the call came through: mcp for an MCP client, ui for the AI agent in the Grouper UI.  null for calls logged before this column existed';
+
+CREATE TABLE grouper_ai_agent_usage
+(
+    member_internal_id BIGINT NOT NULL,
+    usage_day BIGINT NOT NULL,
+    message_count BIGINT NOT NULL,
+    model_call_count BIGINT NOT NULL,
+    input_tokens BIGINT NOT NULL,
+    cached_input_tokens BIGINT NOT NULL,
+    output_tokens BIGINT NOT NULL,
+    last_updated_micros BIGINT NOT NULL,
+    PRIMARY KEY (member_internal_id, usage_day)
+);
+
+CREATE INDEX grp_ai_agent_usage_day_idx ON grouper_ai_agent_usage (usage_day);
+
+COMMENT ON TABLE grouper_ai_agent_usage IS 'what each user of the AI agent in the Grouper UI used each day, for the daily token limit and for reporting';
+
+COMMENT ON COLUMN grouper_ai_agent_usage.member_internal_id IS 'member internal id of the user';
+COMMENT ON COLUMN grouper_ai_agent_usage.usage_day IS 'the day, as yyyymmdd in grouper.ai.agent.timeZone, the server time zone if blank';
+COMMENT ON COLUMN grouper_ai_agent_usage.message_count IS 'messages the user sent, which the daily question limit counts.  approving or declining changes does not count';
+COMMENT ON COLUMN grouper_ai_agent_usage.model_call_count IS 'calls made to the AI provider';
+COMMENT ON COLUMN grouper_ai_agent_usage.input_tokens IS 'input tokens sent to the AI provider, including those read from its cache';
+COMMENT ON COLUMN grouper_ai_agent_usage.cached_input_tokens IS 'input tokens the AI provider read from its cache';
+COMMENT ON COLUMN grouper_ai_agent_usage.output_tokens IS 'output tokens the AI provider returned';
+COMMENT ON COLUMN grouper_ai_agent_usage.last_updated_micros IS 'micros since 1970 when this row last changed';
+
+CREATE TABLE grouper_ai_agent_call_log
+(
+    internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    conversation_id VARCHAR(40) NOT NULL,
+    provider VARCHAR(32) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    call_type VARCHAR(16) NOT NULL,
+    outcome VARCHAR(16) NOT NULL,
+    stop_reason VARCHAR(32),
+    tool_call_count BIGINT,
+    input_tokens BIGINT,
+    cached_input_tokens BIGINT,
+    cache_write_input_tokens BIGINT,
+    output_tokens BIGINT,
+    provider_request_id VARCHAR(100),
+    error_summary VARCHAR(1000),
+    started_micros BIGINT NOT NULL,
+    duration_micros BIGINT NOT NULL,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grp_ai_agent_call_started_idx ON grouper_ai_agent_call_log (started_micros);
+
+CREATE INDEX grp_ai_agent_call_member_idx ON grouper_ai_agent_call_log (member_internal_id, started_micros);
+
+COMMENT ON TABLE grouper_ai_agent_call_log IS 'one row per call the AI agent in the Grouper UI made to its AI provider, worked or failed, to match the provider bill call by call and trace failures.  no conversation text is kept';
+
+COMMENT ON COLUMN grouper_ai_agent_call_log.internal_id IS 'primary key, from grouper_table_index';
+COMMENT ON COLUMN grouper_ai_agent_call_log.member_internal_id IS 'member internal id of the user';
+COMMENT ON COLUMN grouper_ai_agent_call_log.conversation_id IS 'id of the conversation in the UI session of the user, to group the calls of one conversation';
+COMMENT ON COLUMN grouper_ai_agent_call_log.provider IS 'the AI provider: anthropic or openai';
+COMMENT ON COLUMN grouper_ai_agent_call_log.model IS 'the model asked for, from grouper.ai.agent.model';
+COMMENT ON COLUMN grouper_ai_agent_call_log.call_type IS 'turn for a step of answering the user, summary for summarizing the older messages of a long conversation';
+COMMENT ON COLUMN grouper_ai_agent_call_log.outcome IS 'ok if the provider answered, error if the call failed, contextTooLong if the provider said the conversation is too long for the model';
+COMMENT ON COLUMN grouper_ai_agent_call_log.stop_reason IS 'why the model stopped: endTurn, toolUse, maxTokens, refusal or other.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.tool_call_count IS 'tools the model asked to run.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.input_tokens IS 'input tokens sent to the AI provider, including those read from or written to its cache.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.cached_input_tokens IS 'input tokens the AI provider read from its cache.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.cache_write_input_tokens IS 'input tokens the AI provider wrote to its cache, 0 if the provider does not report them.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.output_tokens IS 'output tokens the AI provider returned.  null if the call failed';
+COMMENT ON COLUMN grouper_ai_agent_call_log.provider_request_id IS 'the id the AI provider gave the request, which its support can look up, or the call id of a gateway in front of it, from the headers in grouper.ai.agent.requestIdHeaders.  null if none was sent';
+COMMENT ON COLUMN grouper_ai_agent_call_log.error_summary IS 'what went wrong: the HTTP status and the error type and code from the provider, or the java exception types.  no text from the response.  null if the call worked';
+COMMENT ON COLUMN grouper_ai_agent_call_log.started_micros IS 'micros since 1970 when the call started';
+COMMENT ON COLUMN grouper_ai_agent_call_log.duration_micros IS 'how long the call took, in micros';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
 ('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'),

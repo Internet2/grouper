@@ -2996,6 +2996,18 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl5_14_0.addGrouperSqlCacheMshipHstIndexes(ddlVersionBean, database);
         GrouperDdl5_14_0.addGrouperSqlCacheMshipHstComments(database, ddlVersionBean);
 
+        // 7.8.0: the AI agent in the UI.  existing installs get these from UpgradeTaskV46
+        GrouperDdl7_8_0.addGrouperMcpToolLogEntryPath(database, ddlVersionBean);
+        GrouperDdl7_8_0.addGrouperMcpToolLogEntryPathComment(database, ddlVersionBean);
+
+        GrouperDdl7_8_0.addGrouperAiAgentUsageTable(database, ddlVersionBean);
+        GrouperDdl7_8_0.addGrouperAiAgentUsageIndex(ddlVersionBean, database);
+        GrouperDdl7_8_0.addGrouperAiAgentUsageComments(database, ddlVersionBean);
+
+        GrouperDdl7_8_0.addGrouperAiAgentCallLogTable(database, ddlVersionBean);
+        GrouperDdl7_8_0.addGrouperAiAgentCallLogIndexes(ddlVersionBean, database);
+        GrouperDdl7_8_0.addGrouperAiAgentCallLogComments(database, ddlVersionBean);
+
     }
   }
   //DON'T ADD ANY MORE Vs, we are only doing UpgradeTaskX going forward

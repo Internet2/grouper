@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.mcp.GrouperToolExecutor;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
@@ -104,24 +105,32 @@ public final class GrouperServiceUtils {
 
   /**
    * Whether a full stack trace may be sent to the client on the current request.
-   * <p>Outside of MCP this is always true and the WS layer keeps its existing behavior,
-   * which is driven by ws.throwExceptionsToClient.  Under MCP the stack trace is
-   * additionally restricted to members of the group configured in
-   * grouper.mcp.users.canSeeStackTraces, since the MCP specification says servers should
-   * sanitize tool outputs and the output goes to an AI client.  The exception is still
-   * logged on the server either way.</p>
+   * <p>For an ordinary web service call this is always true and the WS layer keeps its existing
+   * behavior, which is driven by ws.throwExceptionsToClient.  When the caller is an AI -- a tool is
+   * running, from MCP or from the AI agent in the UI, or the request came in over MCP or through
+   * the UI agent -- the stack trace is additionally restricted to members of the group configured
+   * in grouper.mcp.users.canSeeStackTraces, since the MCP specification says servers should
+   * sanitize tool outputs, and the output goes to an AI provider and on to the user.  The
+   * exception is still logged on the server either way.</p>
+   * <p>A running tool is checked as well as the engine so that every front door to the tools is
+   * covered, including any added later, whatever engine it runs under.</p>
    * @return true if a stack trace may go to the client
    */
   public static boolean allowsStackTraceToClient() {
 
+    GrouperSession toolGrouperSession = GrouperToolExecutor.retrieveToolGrouperSession();
+
     GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
-    if (grouperContext == null
-        || grouperContext.getGrouperEngine() != GrouperEngineBuiltin.MCP) {
+    GrouperEngineBuiltin grouperEngine = grouperContext == null ? null : grouperContext.getGrouperEngine();
+
+    if (toolGrouperSession == null && grouperEngine != GrouperEngineBuiltin.MCP
+        && grouperEngine != GrouperEngineBuiltin.UI_AI_AGENT) {
       return true;
     }
 
-    // under MCP the session was established by the MCP servlet as the authenticated user
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    // the session the tool executor started as the caller, or the one the MCP servlet established
+    GrouperSession grouperSession = toolGrouperSession != null ? toolGrouperSession
+        : GrouperSession.staticGrouperSession(false);
     if (grouperSession == null) {
       return false;
     }
@@ -864,6 +873,15 @@ public final class GrouperServiceUtils {
     if (testSession != null) {
       startedSession.set(false);
       return testSession;
+    }
+    // a tool is running (from MCP or the UI): use the session the tool executor started as the
+    // caller.  the caller was already authenticated and authorized by the front door and the
+    // executor, and is not a web service client, so the web service login and actAs checks below
+    // do not apply.  the executor owns this session, so the caller must not stop it
+    GrouperSession toolGrouperSession = GrouperToolExecutor.retrieveToolGrouperSession();
+    if (toolGrouperSession != null) {
+      startedSession.set(false);
+      return toolGrouperSession;
     }
     // in MCP context, use the pre-established session from the MCP servlet.
     // this allows MCP to bypass the WS auth check (etc:wsGroup)

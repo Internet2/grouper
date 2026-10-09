@@ -147,6 +147,20 @@ public class GrouperMcpFindStems {
         + "for each folder in the results. These are different from typeOfGroups (group, role, entity) which is a structural classification. Defaults to false.");
     properties.set("includeGdgTypes", includeGdgTypesProp);
 
+    ObjectNode pageSizeProp = objectMapper.createObjectNode();
+    pageSizeProp.put("type", "integer");
+    pageSizeProp.put("description",
+        "Number of folders per page, for FIND_BY_STEM_NAME_APPROXIMATE and FIND_BY_PARENT_STEM_NAME. "
+        + "Default is all matching folders, though the server may limit how many it returns in one call.");
+    properties.set("pageSize", pageSizeProp);
+
+    ObjectNode pageNumberProp = objectMapper.createObjectNode();
+    pageNumberProp.put("type", "integer");
+    pageNumberProp.put("description",
+        "Page number (1-indexed), used with pageSize. Default is 1.");
+    pageNumberProp.put("default", 1);
+    properties.set("pageNumber", pageNumberProp);
+
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
@@ -156,6 +170,18 @@ public class GrouperMcpFindStems {
     tool.set("inputSchema", inputSchema);
 
     return tool;
+  }
+
+  /**
+   * the searches the web service pages: an approximate name search and the folders under a parent,
+   * the ones which can match many folders.  exact name and uuid find at most one, and the attribute
+   * search does not page
+   * @param stemQueryFilterType the search type
+   * @return true if pageSize and pageNumber apply
+   */
+  public static boolean supportsPaging(String stemQueryFilterType) {
+    return "FIND_BY_STEM_NAME_APPROXIMATE".equals(stemQueryFilterType)
+        || "FIND_BY_PARENT_STEM_NAME".equals(stemQueryFilterType);
   }
 
   /**
@@ -189,6 +215,12 @@ public class GrouperMcpFindStems {
         ? arguments.get("stemAttributeValue").asText() : null;
     boolean includeGdgTypes = arguments != null && arguments.has("includeGdgTypes")
         && arguments.get("includeGdgTypes").asBoolean(false);
+    // no pageSize means every match, as before paging was added.  the tool executor sets one when
+    // the front door the call came through has a limit
+    Integer pageSize = arguments != null && arguments.has("pageSize") && !arguments.get("pageSize").isNull()
+        ? Integer.valueOf(arguments.get("pageSize").asInt()) : null;
+    int pageNumber = arguments != null && arguments.has("pageNumber")
+        ? arguments.get("pageNumber").asInt(1) : 1;
 
     if (StringUtils.isBlank(stemQueryFilterType)) {
       return buildErrorResult("stemQueryFilterType is required.");
@@ -214,6 +246,14 @@ public class GrouperMcpFindStems {
       }
       if (StringUtils.isNotBlank(stemAttributeValue)) {
         wsStemQueryFilter.setStemAttributeValue(stemAttributeValue);
+      }
+      // only the searches which page use it; the others would ignore it
+      if (pageSize != null && supportsPaging(stemQueryFilterType)) {
+        wsStemQueryFilter.setPageSize(String.valueOf(pageSize));
+        wsStemQueryFilter.setPageNumber(String.valueOf(pageNumber));
+        // pages need a fixed order, or the next page can repeat or skip folders.  the parent search
+        // already sorts by display name when none is given; the approximate name search does not
+        wsStemQueryFilter.setSortString("displayName");
       }
 
       WsFindStemsResults wsResults = GrouperServiceLogic.findStems(

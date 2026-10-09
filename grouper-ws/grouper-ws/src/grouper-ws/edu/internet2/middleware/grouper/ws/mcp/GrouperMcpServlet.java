@@ -46,17 +46,11 @@ import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpGroupMembership;
-import edu.internet2.middleware.grouper.mcp.GrouperMcpToolNames;
-import edu.internet2.middleware.grouper.mcp.GrouperTool;
-import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.mcp.GrouperToolException;
 import edu.internet2.middleware.grouper.mcp.GrouperToolExecutor;
-import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
@@ -1439,49 +1433,10 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     ObjectNode result = objectMapper.createObjectNode();
-    ArrayNode toolsArray = objectMapper.createArrayNode();
 
-    // use callbackGrouperSession to put the authenticated MCP user's session
-    // on the thread-local, consistent with handleToolsCall
-    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
-    try {
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-
-          // the registry is the one list of what Grouper can be asked to do, in the order it
-          // has always been advertised in.  a tool is offered when the caller is allowed to use
-          // it and when there is any point offering it, both of which the tool answers for
-          // itself
-          for (GrouperTool grouperTool : GrouperToolRegistry.advertisedTools()) {
-
-            // includes, for a caller on the limited tier of a category, whether this tool has
-            // been opened to them (GRP-7415)
-            if (!GrouperToolAccess.isAllowed(grouperTool, grouperTool.category(null), authUser)) {
-              continue;
-            }
-
-            if (!grouperTool.availableFor(authUser)) {
-              continue;
-            }
-
-            ObjectNode toolDef = grouperTool.toolDefinition(authUser);
-            if (toolDef != null) {
-              addToolIfAllowed(toolsArray, toolDef);
-            }
-          }
-
-          return null;
-        }
-      });
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-
-    // a recipe which names tools gets a pointer added to those tools' own descriptions.  it is
-    // done here, over the finished list, so it covers every tool without each one having to
-    // know about recipes, and so the recipes are looked up once rather than per tool
-    GrouperMcpRecipeTool.appendRecipePointers(toolsArray, authUser);
+    // which tools to offer is decided in core, so that this and the UI agent offer the same
+    // thing to the same caller
+    ArrayNode toolsArray = GrouperToolExecutor.retrieveToolDefinitions(authUser);
 
     result.set("tools", toolsArray);
 
@@ -1494,43 +1449,6 @@ public class GrouperMcpServlet extends HttpServlet {
     result.put("cacheScope", "private");
 
     return result;
-  }
-
-  /**
-   * add a tool definition to the tools array only if the tool is allowed
-   * by the deployer's allow/deny configuration.
-   * @param toolsArray the array to add to
-   * @param toolDef the tool definition from toolDefinition()
-   */
-  private static void addToolIfAllowed(ArrayNode toolsArray, ObjectNode toolDef) {
-    String toolName = toolDef.get("name").asText();
-
-    // a tool which is not in GrouperMcpToolNames cannot be pointed at by a recipe, because the
-    // recipe configuration validates against that list.  failing here rather than quietly
-    // advertising it means adding a tool without registering it is caught the first time the
-    // list is built, not months later by somebody wondering why their recipe does nothing
-    if (!GrouperMcpToolNames.isToolName(toolName)) {
-      throw new RuntimeException("MCP tool '" + toolName + "' is not in GrouperMcpToolNames. "
-          + "Add it there so recipes can point at it.");
-    }
-
-    if (isToolAllowedByConfig(toolName)) {
-      toolsArray.add(toolDef);
-    }
-  }
-
-  /**
-   * check if a tool is allowed by the deployer's allow/deny configuration.
-   * the allow list (grouper.mcp.tools.allow) specifies which tools to allow;
-   * blank means all tools are allowed.
-   * the deny list (grouper.mcp.tools.deny) specifies which tools to deny;
-   * blank means no tools are denied.
-   * effective tools = allow minus deny.
-   * @param toolName the tool name
-   * @return true if the tool is allowed
-   */
-  static boolean isToolAllowedByConfig(String toolName) {
-    return GrouperMcpToolNames.isToolAllowedByConfig(toolName);
   }
 
   /**

@@ -32,12 +32,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * which does not exist, and the recipes screen, which tells a deployer when a recipe that used
  * to work has stopped pointing anywhere.</p>
  *
- * <p>The list is kept honest from the grouper-ws side rather than by hoping somebody remembers
- * it: {@code addToolIfAllowed} refuses to advertise a tool which is not named here, so adding a
- * tool without registering it fails immediately rather than quietly making recipes about it
- * unwritable.  A unit test in grouper-ws checks the dispatch covers these names too.</p>
+ * <p>The list is kept honest rather than by hoping somebody remembers it:
+ * {@code GrouperToolExecutor.retrieveToolDefinitions} refuses to advertise a tool which is not
+ * named here, and {@code GrouperToolRegistry.register} refuses to register one, so adding a tool
+ * without listing it fails immediately rather than quietly making recipes about it unwritable.  A
+ * unit test in grouper-ws checks the registry covers these names too.</p>
  *
- * <p>The dispatch in the servlet is a superset of this list: {@code sql_select_count} is still
+ * <p>The registry is a superset of this list: {@code sql_select_count} is still
  * answered for older clients but is not advertised, so it is not something a recipe should point
  * at.</p>
  *

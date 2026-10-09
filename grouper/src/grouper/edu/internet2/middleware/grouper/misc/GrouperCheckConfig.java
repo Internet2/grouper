@@ -1543,6 +1543,15 @@ public class GrouperCheckConfig {
           }
         }
 
+        // AI agent in the UI: who may use it at all.  created empty, so nobody can until added
+        {
+          String aiAgentUsers = GrouperConfig.retrieveConfig().propertyValueString("grouper.ai.agent.users");
+          if (StringUtils.isNotBlank(aiAgentUsers)) {
+            groupSaves.add(new GroupSave().assignName(aiAgentUsers).assignDescription(
+                "members of this group can use the AI agent in the Grouper UI.  Which tools it can use for them is still decided by the MCP groups.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+
         boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
 
         if (autocreateSystemGroups) {
