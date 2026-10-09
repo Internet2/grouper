@@ -189,7 +189,7 @@ public class GrouperMcpFindGroups {
     ObjectNode sortStringProp = objectMapper.createObjectNode();
     sortStringProp.put("type", "string");
     sortStringProp.put("description",
-        "Field to sort by: name, displayName, extension, displayExtension.");
+        "Field to sort by: name, displayName, extension, displayExtension. Default is displayName.");
     properties.set("sortString", sortStringProp);
 
     ObjectNode ascendingProp = objectMapper.createObjectNode();
@@ -339,6 +339,10 @@ public class GrouperMcpFindGroups {
       }
       if (StringUtils.isNotBlank(sortString)) {
         wsQueryFilter.setSortString(sortString);
+      } else if (supportsPaging) {
+        // pages need a fixed order, or the next page can repeat or skip groups.  the groups in a
+        // folder already sort by display name when none is given; the approximate name search does not
+        wsQueryFilter.setSortString("displayName");
       }
       if (StringUtils.isNotBlank(ascending)) {
         wsQueryFilter.setAscending(ascending);
