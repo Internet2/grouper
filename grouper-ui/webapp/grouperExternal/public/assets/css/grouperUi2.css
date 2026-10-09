@@ -275,8 +275,34 @@ input::-ms-input-placeholder { /* Microsoft Edge */
   color: #757575;
 }
 
-.alert.alert-error {
+/* bootstrap 2's alert and warning text is too light on its own backgrounds for WCAG AA (4.5:1).
+   these are bootstrap 3's darker shades of the same colors.  the plain .alert rule comes first so
+   the colored ones after it win, with the same specificity as bootstrap's, so css.additional can
+   still override them */
+.alert,
+.alert h4 {
+  color: #8a6d3b;
+}
+
+.alert-info,
+.alert-info h4 {
+  color: #31708f;
+}
+
+.alert-success,
+.alert-success h4 {
+  color: #3c763d;
+}
+
+.alert.alert-error,
+.alert-error h4,
+.alert-danger,
+.alert-danger h4 {
   color: #58151c;
+}
+
+.text-warning {
+  color: #8a6d3b;
 }
 
 /* uncomment to add underlines to hyperlinks for accessibility */
