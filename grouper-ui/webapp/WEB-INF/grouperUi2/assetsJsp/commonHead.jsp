@@ -13,7 +13,7 @@
 </style>
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=01242022" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=10092026_1" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap-datepicker.min.css" rel="stylesheet">
 
 <link href="../../grouperExternal/public/assets/css/c3.min.css" rel="stylesheet" type="text/css">
