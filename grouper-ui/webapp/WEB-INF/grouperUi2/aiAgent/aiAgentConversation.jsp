@@ -68,10 +68,11 @@
       <h4 id="aiAgentApprovalsHeaderId" tabindex="-1">${textContainer.text['aiAgentApprovalsHeader'] }</h4>
       <p>${textContainer.text['aiAgentApprovalsDescription'] }</p>
       <c:choose>
-        <%-- one change: nothing to pick between, so no checkbox --%>
+        <%-- one change: nothing to pick between, so no checkbox.  bootstrap takes the bottom margin
+             off a paragraph in an alert, so it is put back to keep the buttons off the text --%>
         <c:when test="${aiAgentContainer.pendingConfirmationCount == 1}">
           <c:forEach items="${aiAgentContainer.pendingConfirmations}" var="pendingConfirmation">
-            <p style="word-wrap: break-word;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
+            <p style="word-wrap: break-word; margin-bottom: 10px;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
           </c:forEach>
         </c:when>
         <c:otherwise>

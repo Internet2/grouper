@@ -130,9 +130,11 @@ public class GrouperAiAgent {
   static final String OLDER_TOOL_RESULT_STUB = "[This result was removed to save space, since it is "
       + "from an earlier question.  Call the tool again if it is needed.]";
 
-  /** what a call outside the session scope tells the model */
-  static final String NOT_IN_SCOPE = "Not run: this session does not allow this kind of action.  The "
-      + "user can allow it in the assistant's settings for this session and then ask again.";
+  /** what a call outside the session scope tells the model.  the model cannot see the scope, so it
+   * is told to try again when asked rather than assume the setting has not changed */
+  static final String NOT_IN_SCOPE = "Not run: the scope the user chose for this session does not "
+      + "allow this kind of action.  The user can allow it in the assistant's settings at any time, "
+      + "and it is checked each time a tool runs, so if the user asks again, call the tool again.";
 
   /** what a declined write tells the model */
   static final String DECLINED_BY_USER = "Not run: the user declined this.";
