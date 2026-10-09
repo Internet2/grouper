@@ -500,6 +500,16 @@ public class UiV2AiAgent extends UiServiceLogicBase {
         }
       }
 
+      // read and write includes read-only, and admin read and write includes admin read-only, as on
+      // the OAuth consent screen.  the screen checks and disables the included box, and a disabled
+      // box is not sent, so it is added here, still only if the user's groups allow it
+      if (chosen.contains(GrouperToolCategory.readwrite) && allowed.contains(GrouperToolCategory.readonly)) {
+        chosen.add(GrouperToolCategory.readonly);
+      }
+      if (chosen.contains(GrouperToolCategory.admin_readwrite) && allowed.contains(GrouperToolCategory.admin_readonly)) {
+        chosen.add(GrouperToolCategory.admin_readonly);
+      }
+
       SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
       sessionContainer.setAiAgentToolScope(chosen);
       sessionContainer.storeToSession();
