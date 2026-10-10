@@ -496,16 +496,13 @@ public class UiV2GroupImport {
         out.close();
 
         // one-time export: after delivering the file, delete everything left behind - the stored
-        // file (including the grouper_file row for database storage, which the report cleanup does
-        // not remove), the report instance, the report config, and its durable quartz job.
+        // file, the report instance, the report config, and its durable quartz job.
         final GrouperReportConfigurationBean configBean = REPORT_INSTANCE.getGrouperReportConfigurationBean();
         GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
           @Override
           public Object callback(GrouperSession rootSession) throws GrouperSessionException {
             try {
-              // delete the database-stored file row (not handled by the report instance delete)
-              GrouperReportLogic.deleteFileFromDatabase(REPORT_INSTANCE);
-              // deletes the instance(s) (+ S3/filesystem file), the config, and the quartz job
+              // deletes the instance(s) (+ database/S3/filesystem file), the config, and the quartz job
               GrouperReportConfigService.deleteGrouperReportConfig(group, configBean);
             } catch (Exception cleanupException) {
               // the file was already delivered; log and move on rather than failing the download

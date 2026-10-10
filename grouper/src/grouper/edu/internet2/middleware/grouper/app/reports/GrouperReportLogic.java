@@ -621,9 +621,9 @@ public class GrouperReportLogic {
   }
   
   /**
-   * delete the database-stored file (grouper_file row) for a given report instance.  The standard
-   * instance cleanup only handles S3 and filesystem storage, so for database storage the content
-   * row is otherwise orphaned.  No-op if the instance is not stored in the database.
+   * delete the database-stored file (grouper_file row) for a given report instance.  Called from
+   * GrouperReportInstanceService.deleteReportInstances when the file pointer is a grouper_file id.
+   * No-op if the instance is not stored in the database.
    * @param reportInstance
    */
   public static void deleteFileFromDatabase(GrouperReportInstance reportInstance) {

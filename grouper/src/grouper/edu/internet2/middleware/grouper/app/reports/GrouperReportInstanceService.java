@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -169,8 +170,11 @@ public class GrouperReportInstanceService {
     for (GrouperReportInstance instance: instancesToBeDeleted) {
       
       if (StringUtils.equals(instance.getReportInstanceStatus(),GrouperReportInstance.STATUS_SUCCESS)) {
+        String filePointer = instance.getReportInstanceFilePointer();
         if (instance.isReportStoredInS3()) {
           GrouperReportLogic.deleteFileFromS3(instance);
+        } else if (StringUtils.isNotBlank(filePointer) && GrouperFileDao.existsById(filePointer)) {
+          GrouperReportLogic.deleteFileFromDatabase(instance);
         } else {
           GrouperReportLogic.deleteFromFileSystem(instance);
         }
