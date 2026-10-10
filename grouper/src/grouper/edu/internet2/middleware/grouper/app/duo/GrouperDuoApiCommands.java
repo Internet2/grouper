@@ -686,9 +686,11 @@ public class GrouperDuoApiCommands {
           JsonNode userNode = usersArray.get(i);
           GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
           results.add(grouperDuoUser);
-          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
-          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo cycle.
-          GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+          // Do NOT capture this user for sync-back.  /groups/{id}/users only returns a partial user
+          // (user_id and username, no status, email, is_enrolled, last_login, phones, tokens, or
+          // webauthncredentials), and it runs after the full user read in the same cycle, so capturing
+          // it would replace the full record with blanks and zero device counts.  The full record comes
+          // from the user reads (retrieveDuoUsers / retrieveDuoUser / retrieveDuoUserByName).
         }
 
         // live progress: pages memberships over many slow WS calls with no total available, so report

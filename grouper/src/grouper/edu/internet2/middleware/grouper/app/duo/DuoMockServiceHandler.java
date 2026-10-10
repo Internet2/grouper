@@ -959,22 +959,28 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     ByHqlStatic query = HibernateSession.byHqlStatic()
         .createQuery("from GrouperDuoUser u where u.id in (select m.userId from GrouperDuoMembership m where m.groupId = :theGroupId) ")
         .setString("theGroupId", groupId);
-    
+
     QueryOptions queryOptions = new QueryOptions();
     QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
     queryOptions = queryOptions.paging(queryPaging);
-    
+
     query.options(queryOptions);
-    
+
     grouperDuoUsers = query.list(GrouperDuoUser.class);
-    
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
+
     resultNode.put("stat", "OK");
-    
+
+    // real Duo v2 GET /groups/{id}/users returns only user_id and username per member, not the full
+    // user (no status, email, phones, ...).  Match that, so callers cannot accidentally depend on a
+    // full user here (sync-back did, and blanked the full record for members of managed groups).
     for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
-      valueNode.add(toUserJson(grouperDuoUser));
+      ObjectNode memberNode = GrouperUtil.jsonJacksonNode();
+      GrouperUtil.jsonJacksonAssignString(memberNode, "user_id", grouperDuoUser.getId());
+      GrouperUtil.jsonJacksonAssignString(memberNode, "username", grouperDuoUser.getUserName());
+      valueNode.add(memberNode);
     }
     
     resultNode.set("response", valueNode);
