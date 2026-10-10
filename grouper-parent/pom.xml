@@ -1054,34 +1054,65 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Stub -javadoc.jar instead of real javadoc (GRP-7456). Maven Central requires a javadoc jar per
+                         artifact but does not check its contents, and real javadoc was about half of each release
+                         (release size limit). Developers get javadoc from the git source, or from the -sources.jar
+                         which IDEs use for hover docs. The stub has a README and an index.html pointing to the source. -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
-                                <id>release-javadoc</id>
-                                <phase>package</phase>
+                                <id>javadoc-stub-files</id>
+                                <!-- prepare-package so the files exist before the javadoc-stub-jar execution (package) -->
+                                <phase>prepare-package</phase>
                                 <goals>
-                                    <goal>javadoc</goal>
+                                    <goal>run</goal>
                                 </goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/javadoc-stub"/>
+                                        <echo file="${project.build.directory}/javadoc-stub/README.txt">${project.artifactId} ${project.version}
+
+Javadoc is not published in this jar (to keep Maven Central release size down).
+
+The javadoc is in the source code:
+  - the ${project.artifactId}-${project.version}-sources.jar next to this jar (IDEs show it as hover docs), or
+  - https://github.com/Internet2/grouper/tree/GROUPER_RELEASE_${project.version}
+
+Grouper documentation: https://docs.grouper.internet2.edu/
+</echo>
+                                        <echo file="${project.build.directory}/javadoc-stub/index.html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;${project.artifactId} ${project.version} javadoc&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;Javadoc for ${project.artifactId} ${project.version} is not published in this jar (to keep Maven Central release size down).&lt;/p&gt;
+&lt;p&gt;The javadoc is in the source code: the ${project.artifactId}-${project.version}-sources.jar (IDEs show it as hover docs), or
+&lt;a href="https://github.com/Internet2/grouper/tree/GROUPER_RELEASE_${project.version}"&gt;https://github.com/Internet2/grouper/tree/GROUPER_RELEASE_${project.version}&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Grouper documentation: &lt;a href="https://docs.grouper.internet2.edu/"&gt;https://docs.grouper.internet2.edu/&lt;/a&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+</echo>
+                                    </target>
+                                </configuration>
                             </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
                             <execution>
-                                <id>attach-javadocs</id>
+                                <id>javadoc-stub-jar</id>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <classifier>javadoc</classifier>
+                                    <classesDirectory>${project.build.directory}/javadoc-stub</classesDirectory>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <minmemory>128m</minmemory>
-                            <maxmemory>1g</maxmemory>
-                            <!-- (for version < 3) <additionalparam>-Xdoclint:none</additionalparam>-->
-                            <doclint>none</doclint>
-                            <quiet>true</quiet>
-                            <author>false</author>
-                            <version>true</version>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
