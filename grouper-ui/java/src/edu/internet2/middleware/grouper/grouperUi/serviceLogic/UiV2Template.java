@@ -1085,10 +1085,15 @@ public class UiV2Template {
           TextContainer.retrieveFromRequest().getText().get("stemTemplateTypeRequiredError")));
       return null;
     }
-    
+
+    // a built-in template that is disabled cannot be run, even if its key is submitted directly
+    if (!builtInTemplateEnabledOrAddError(templateType)) {
+      return null;
+    }
+
     try {
-      
-      GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType, 
+
+      GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType,
           GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer());
 
       return templateLogic;
@@ -1099,12 +1104,58 @@ public class UiV2Template {
   }
 
   /**
-   * @param templateType 
-   * @param stemTemplateContainer 
+   * see if a built-in template (configured with grouper.template.&lt;key&gt;.logicClass) is turned off.
+   * a built-in template is disabled if grouper.template.&lt;key&gt;.enabled is false, or if its
+   * logicClass is configured blank (older way to hide it, GRP-7376).  Custom GSH templates do not
+   * have a logicClass, so they are never a disabled built-in template
+   * @param templateType template key, e.g. service, policyGroup, tierStructure
+   * @return true if this is a built-in template that is disabled
+   */
+  public static boolean builtInTemplateDisabled(String templateType) {
+
+    String logicClassKey = "grouper.template." + templateType + ".logicClass";
+
+    // not a built-in template (e.g. a custom GSH template)
+    if (!GrouperUiConfig.retrieveConfig().containsKey(logicClassKey)) {
+      return false;
+    }
+
+    if (StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString(logicClassKey))) {
+      return true;
+    }
+
+    return !GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.template." + templateType + ".enabled", true);
+  }
+
+  /**
+   * if the template is a disabled built-in template, add an error to the screen
+   * @param templateType
+   * @return true if ok to proceed, false if disabled (and error was added)
+   */
+  private static boolean builtInTemplateEnabledOrAddError(String templateType) {
+
+    if (!builtInTemplateDisabled(templateType)) {
+      return true;
+    }
+
+    GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+        "#templateTypeId",
+        TextContainer.retrieveFromRequest().getText().get("stemTemplateTypeNotEnabledError")));
+    return false;
+  }
+
+  /**
+   * @param templateType
+   * @param stemTemplateContainer
    * @return the instance
    */
   public static GrouperTemplateLogicBase getTemplateLogic(String templateType, GroupStemTemplateContainer stemTemplateContainer) {
-    
+
+    // never instantiate a disabled built-in template
+    if (builtInTemplateDisabled(templateType)) {
+      throw new RuntimeException("Template is not enabled: '" + templateType + "'");
+    }
+
     String implementationClass = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.template."+templateType+".logicClass");
     
     Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
@@ -1254,7 +1305,12 @@ public class UiV2Template {
         if (matcher.matches()) {          
         
           String templateKey = matcher.group(1);
-          
+
+          // org can hide a built-in template with grouper.template.<key>.enabled = false (GRP-7376)
+          if (StringUtils.isBlank(implementationClass) || builtInTemplateDisabled(templateKey)) {
+            continue;
+          }
+
           Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
           
           GrouperTemplateLogicBase templateLogic = GrouperUtil.newInstance(templateLogicSubClass);
@@ -1335,9 +1391,14 @@ public class UiV2Template {
       if (StringUtils.isNotBlank(templateType)) {
         
         templateContainer.setTemplateType(templateType);
-                
+
+        // a disabled built-in template returns null below, which would otherwise be treated as a custom gsh template
+        if (!builtInTemplateEnabledOrAddError(templateType)) {
+          return;
+        }
+
         GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
-        
+
         if (templateLogic == null) {
           // must be gsh custom template
           int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
