@@ -32,6 +32,22 @@ Work a new release newest-first: the new row goes ABOVE the current top row.
 - Status for the new row: always `RELEASED` (see Status values). Promotion to
   `LATEST STABLE` is a later step, confirmed with the user.
 
+## 0-pre. Review open GitHub PRs
+
+Before anything else, check for community PRs waiting on the release branch, so
+anything mergeable ships in this release (merge before tagging, step 2):
+
+```bash
+gh pr list --repo Internet2/grouper --state open --base GROUPER_7_BRANCH
+```
+
+Use the release line's branch for `--base` (e.g. `GROUPER_6_BRANCH`). For each PR,
+review the diff (`/code-review <PR URL>`) and give the user the findings. The user
+decides whether to merge or comment -- never merge, approve, or post on a PR
+yourself. A merged PR's GRP issue is then resolved/tagged with the others in
+steps 5-6. Also listed on the internal "Release steps for new container build"
+wiki page (GrIntDev, pageId `48794029`).
+
 ## 0. Jira and wiki edits BEFORE the mirror
 
 The mirror refresh (step 1) is committed and then tagged, so anything written to
