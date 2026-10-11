@@ -189,7 +189,7 @@ public class GrouperMcpFindGroups {
     ObjectNode sortStringProp = objectMapper.createObjectNode();
     sortStringProp.put("type", "string");
     sortStringProp.put("description",
-        "Field to sort by: name, displayName, extension, displayExtension. Default is displayName.");
+        "Field to sort by: name, displayName, extension, displayExtension. Default is name.");
     properties.set("sortString", sortStringProp);
 
     ObjectNode ascendingProp = objectMapper.createObjectNode();
@@ -330,9 +330,11 @@ public class GrouperMcpFindGroups {
         wsQueryFilter.setTypeOfGroups(typeOfGroups);
       }
       // only set paging params for query types that support it
-      // (exact name and UUID lookups return at most one result and reject paging)
+      // (exact name and UUID lookups return at most one result and reject paging, and the
+      // approximate attribute search rejects paging and sorting)
       boolean supportsPaging = !"FIND_BY_GROUP_NAME_EXACT".equals(queryFilterType)
-          && !"FIND_BY_GROUP_UUID".equals(queryFilterType);
+          && !"FIND_BY_GROUP_UUID".equals(queryFilterType)
+          && !"FIND_BY_APPROXIMATE_ATTRIBUTE".equals(queryFilterType);
       if (supportsPaging) {
         wsQueryFilter.setPageSize(String.valueOf(pageSize));
         wsQueryFilter.setPageNumber(String.valueOf(pageNumber));
@@ -340,9 +342,9 @@ public class GrouperMcpFindGroups {
       if (StringUtils.isNotBlank(sortString)) {
         wsQueryFilter.setSortString(sortString);
       } else if (supportsPaging) {
-        // pages need a fixed order, or the next page can repeat or skip groups.  the groups in a
-        // folder already sort by display name when none is given; the approximate name search does not
-        wsQueryFilter.setSortString("displayName");
+        // pages need a fixed order, or the next page can repeat or skip groups.  sort by name since it
+        // is unique; display name is not, and ties can come back in a different order on each page
+        wsQueryFilter.setSortString("name");
       }
       if (StringUtils.isNotBlank(ascending)) {
         wsQueryFilter.setAscending(ascending);
