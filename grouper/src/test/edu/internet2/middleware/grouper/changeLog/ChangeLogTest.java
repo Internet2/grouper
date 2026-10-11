@@ -11447,7 +11447,7 @@ public class ChangeLogTest extends GrouperTest {
   }
   
   /**
-   * GRP-XXXX: Test that pass-through change log entries (e.g. ABAC data entries) are batched
+   * GRP-6907: Test that pass-through change log entries (e.g. ABAC data entries) are batched
    * correctly during the temp-to-entity conversion. Tests three scenarios:
    * 1. Batch size 3 with 7 entries (hits the batch limit multiple times)
    * 2. Interleaved pass-through and non-pass-through entries (verifies ordering and PIT)

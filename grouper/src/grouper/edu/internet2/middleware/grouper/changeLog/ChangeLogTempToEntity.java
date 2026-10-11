@@ -300,7 +300,7 @@ public class ChangeLogTempToEntity {
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
     final int tooManyChangeLogUpdatesSize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.tooManyChangeLogUpdatesSize");
 
-    // GRP-XXXX: Max batch size for pass-through change log entries (e.g. ABAC data entries) that have
+    // GRP-6907: Max batch size for pass-through change log entries (e.g. ABAC data entries) that have
     // no per-row processing (no PIT updates, no cache sync, no flattening). Consecutive pass-through
     // entries are accumulated and saved in a single batch for better performance.
     final int passThroughBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
@@ -330,7 +330,7 @@ public class ChangeLogTempToEntity {
 
               List<ChangeLogEntry> changeLogEntriesToSave = new ArrayList<ChangeLogEntry>();
 
-              // GRP-XXXX: Accumulator for pass-through change log entries (entries that don't match any
+              // GRP-6907: Accumulator for pass-through change log entries (entries that don't match any
               // specific processing type, e.g. ABAC data entries). These are batched together for
               // better performance since they have no per-row Java processing (no PIT, no cache sync).
               List<ChangeLogEntry> passThroughBatch = new ArrayList<ChangeLogEntry>();
@@ -497,7 +497,7 @@ public class ChangeLogTempToEntity {
                   ChangeLogTempToEntity.processGroupSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else {
 
-                  // GRP-XXXX: This is a pass-through entry (e.g. ABAC data entries like
+                  // GRP-6907: This is a pass-through entry (e.g. ABAC data entries like
                   // dataRowFieldAssign, dataRowAssign, dataFieldAssign). It has no per-row
                   // processing, so accumulate it in a batch for better performance.
                   isPassThrough = true;
@@ -618,7 +618,7 @@ public class ChangeLogTempToEntity {
   }
   
   /**
-   * GRP-XXXX: Flush accumulated pass-through change log entries into the save and processed lists.
+   * GRP-6907: Flush accumulated pass-through change log entries into the save and processed lists.
    * Pass-through entries are those that don't match any specific processing type (e.g. ABAC data
    * entries like dataRowFieldAssign). They have no per-row Java processing so they can be
    * batched together for better performance.
