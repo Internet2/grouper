@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 23
-lastUpdated: 2026-10-04T03:25:18.439Z
+version: 24
+lastUpdated: 2026-10-11T04:10:53.594Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -143,6 +143,7 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | entity_get_groups |  |  |  |  |  |
 | folder_delete |  |  |  |  |  |
 | folder_find |  |  |  |  |  |
+| folder_save |  |  |  |  |  |
 | group_add_member |  |  |  |  |  |
 | group_delete |  |  |  |  |  |
 | group_find |  |  |  |  |  |
@@ -155,7 +156,7 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | privilege_assign |  |  |  |  |  |
 | privilege_get |  |  |  |  |  |
 
-An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
+An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `folder_save`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
 
 ## Recipes
 
@@ -487,7 +488,7 @@ The `mcpScopeType` option only appears in the UI wizard when `mcpEnabled` is `tr
 
 ## Protected resources
 
-MCP write tools (`group_save`, `group_delete`, `folder_delete`, `group_add_member`, `group_remove_member`, `privilege_assign`, `attribute_assignment_save`) enforce server-side protection that blocks modifications to critical system groups and stems. This prevents AI agents or other MCP clients from inadvertently modifying security-sensitive resources.
+MCP write tools (`group_save`, `group_delete`, `folder_delete`, `folder_save`, `group_add_member`, `group_remove_member`, `privilege_assign`, `attribute_assignment_save`) enforce server-side protection that blocks modifications to critical system groups and stems. This prevents AI agents or other MCP clients from inadvertently modifying security-sensitive resources.
 
 ### What is protected
 
@@ -513,6 +514,7 @@ MCP write tools (`group_save`, `group_delete`, `folder_delete`, `group_add_membe
 
 - **group_save**: Cannot create or update any group under the `etc` stem, and cannot modify any explicitly protected group.
 - **folder_delete**: Cannot delete any stem under the `etc` stem, and cannot delete any explicitly protected stem.
+- **folder_save**: Cannot create or update any stem under the `etc` stem, or any explicitly protected stem. This includes parent folders the call would create.
 - **group_delete**: Cannot delete any group under the `etc` stem, and cannot delete any explicitly protected group.
 - **group_add_member / group_remove_member**: Cannot add or remove members from any protected group.
 - **privilege_assign**: Cannot assign or revoke privileges on any protected group or stem.
@@ -577,7 +579,7 @@ The MCP server enforces per-user, per-category rate limits to protect system per
 | Category | Tools | Default (calls/min) | Config property |
 | --- | --- | --- | --- |
 | `readonly` | group_find, folder_find, group_get_members, etc. | 200 | `grouper.mcp.throttle.readonly.defaultCallsPerMinute` |
-| `readwrite` | folder_delete, group_add_member, group_delete, group_remove_member, group_save, etc. | 60 | `grouper.mcp.throttle.readwrite.defaultCallsPerMinute` |
+| `readwrite` | folder_delete, folder_save, group_add_member, group_delete, group_remove_member, group_save, etc. | 60 | `grouper.mcp.throttle.readwrite.defaultCallsPerMinute` |
 | `sql` | sql_select, sql_get_schema | 30 | `grouper.mcp.throttle.sql.defaultCallsPerMinute` |
 | `admin_readonly` | admin_daemon_names, admin_daemon_logs, etc. | 60 | `grouper.mcp.throttle.admin_readonly.defaultCallsPerMinute` |
 | `admin_readwrite` | admin_daemon_job_run | 10 | `grouper.mcp.throttle.admin_readwrite.defaultCallsPerMinute` |

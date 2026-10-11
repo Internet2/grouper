@@ -2,8 +2,8 @@
 title: "Grouper MCP server - user guide"
 space: Grouper
 pageId: 28554356
-version: 16
-lastUpdated: 2026-10-02T08:17:53.373Z
+version: 17
+lastUpdated: 2026-10-11T04:10:30.012Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide
 ---
 
@@ -404,6 +404,24 @@ Search for Grouper stems (folders) by name, parent stem, or attribute. Supports 
 
 **Response:** Returns a JSON object with `totalStemsReturned` and a `stems` array. Each stem includes `name`, `displayName`, `extension`, `description`, and `uuid`. If `includeGdgTypes` is true, each stem also includes a `gdgTypes` array with GDG type names (e.g., "policy", "ref", "basis", "manual").
 
+### folder_save
+
+Create a Grouper stem (folder), or change the display name or description of an existing one. Use the `action` parameter to choose the operation. Only the fields you pass in are changed. Renaming or moving a folder is not supported; do that in the Grouper UI. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted and must include the folder (and any parent folders the call would create). System stems, stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders` are protected and cannot be created or changed via MCP. Available in Grouper 7.8.0 and later.
+
+**Security:** Creating a folder requires the CREATE (stem) privilege on the parent folder. Changing a folder requires STEM_ADMIN on the folder. In the Grouper UI AI assistant, each call is shown to the user for approval before it runs.
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `action` | string | Yes | `createFolder` = create a new folder (fails if it exists). `createOrUpdateFolder` = create the folder, or update the display name and description of an existing one. `updateFolderPart` = update the display name and/or description of an existing folder. |
+| `stemName` | string | Yes | The fully qualified folder name (e.g., `app:myApp:groups`). The last part is the folder ID. |
+| `displayExtension` | string | No | The friendly name of the folder (the last part of its display name). When creating, defaults to the folder ID. |
+| `description` | string | No | The description of the folder. An empty string clears it. |
+| `createParentFoldersIfNotExist` | boolean | No | When creating, also create any parent folders that do not exist yet. Default is false, so the parent folder must already exist. |
+
+**Response:** Returns a JSON object with `action`, `resultCode` (`INSERT`, `UPDATE`, or `NO_CHANGE`), `success` (boolean), `name`, `displayName`, `displayExtension`, `description`, and `uuid`.
+
 ### group_add_member
 
 Add one or more subjects as members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Supports setting membership enabled/disabled dates for time-limited or future-dated memberships. Delegates to the existing Grouper WS `group_add_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
@@ -456,7 +474,7 @@ Search for Grouper groups by name, stem, or attribute. Supports exact and approx
 | `typeOfGroups` | string | No | Comma-separated types: group, role, entity. Default is all. |
 | `pageSize` | integer | No | Number of results per page (default 50). |
 | `pageNumber` | integer | No | Page number, 1-indexed (default 1). |
-| `sortString` | string | No | Field to sort by: name, displayName, extension, displayExtension. |
+| `sortString` | string | No | Field to sort by: name, displayName, extension, displayExtension. Default is name. |
 | `ascending` | boolean | No | Sort ascending (true, default) or descending (false). |
 | `includeGdgTypes` | boolean | No | If true, include Grouper Deployment Guide (GDG) type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) for each group in the results. These are different from typeOfGroups (group, role, entity) which is a structural classification. Defaults to false. |
 | `includeGroupEligibilityRequirement` | boolean | No | If true, include membership eligibility requirements (e.g., requireEmployee, requireAffiliate) for each group. These are configured requirements that restrict who can be added as a member (the member must also belong to a specified population group). Returned as a comma-separated string of requirement configIds. Defaults to false. |

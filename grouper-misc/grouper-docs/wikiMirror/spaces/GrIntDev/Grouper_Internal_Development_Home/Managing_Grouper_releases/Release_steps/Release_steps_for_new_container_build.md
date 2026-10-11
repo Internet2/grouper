@@ -2,8 +2,8 @@
 title: "Release steps for new container build"
 space: GrIntDev
 pageId: 48794029
-version: 62
-lastUpdated: 2026-08-30T23:40:46.950Z
+version: 63
+lastUpdated: 2026-10-07T17:05:18.251Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+steps+for+new+container+build
 ---
 
@@ -19,7 +19,13 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
     ```
   2. See the [jenkins security report](https://jenkins.testbed.tier.internet2.edu/job/docker/job/grouper/job/2.6.16.2-rocky-multi-arch-test/30/Security_20Scan/) (change version in URL)
 2. Look at the jiras for the stable branch and make sure all commits are cherry picked back
-3. See if there is an updated Tomcat version (ITS webprod6 NOW!)
+3. Review open GitHub pull requests against the release branch (e.g. GROUPER_7_BRANCH) at [github.com/Internet2/grouper/pulls](https://github.com/Internet2/grouper/pulls). For each: review the diff (AI can help, e.g. Claude Code `/code-review <PR URL>`), then merge it (and resolve its GRP Jira with the fixVersion) or comment on what is needed. Merge before tagging so it ships in this release.
+  
+  
+  ```
+  gh pr list --repo Internet2/grouper --state open --base GROUPER_7_BRANCH
+  ```
+4. See if there is an updated Tomcat version (ITS webprod6 NOW!)
   
   
   
@@ -49,11 +55,11 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
     put server.xml in server.xml.original, adjust server.xml.grouper
     diff -u server.xml.original server.xml.grouper > server.xml.grouper.patch
     ```
-4. If there are DDL changes make sure theres not an index longer than expected 768
-5. Check unit tests (email with CI test results (summary))
-6. Copy wiki back to markdown (point AI at grouper-misc/grouper-docs/wikiMirror)
-7. Tag as GROUPER_RELEASE_x.y.z in grouper git
-8. In [Internet2 build git](https://github.internet2.edu/internet2/grouper.git), branch as x.y.z.
+5. If there are DDL changes make sure theres not an index longer than expected 768
+6. Check unit tests (email with CI test results (summary))
+7. Copy wiki back to markdown (point AI at grouper-misc/grouper-docs/wikiMirror)
+8. Tag as GROUPER_RELEASE_x.y.z in grouper git
+9. In [Internet2 build git](https://github.internet2.edu/internet2/grouper.git), branch as x.y.z.
   
   
   
@@ -66,8 +72,8 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
   3. Create an empty commit so it triggers a build  
     git commit --allow-empty -m "build 2.5.63"
   4. Push to remote
-9. Wait 15 minutes [build to finish](https://jenkins.testbed.tier.internet2.edu/job/internet2/job/grouper/) (old: [for build to finish](https://travis-ci.com/github/Internet2/grouper/builds))
-10. Go to: [https://central.sonatype.com/](https://central.sonatype.com/)
+10. Wait 15 minutes [build to finish](https://jenkins.testbed.tier.internet2.edu/job/internet2/job/grouper/) (old: [for build to finish](https://travis-ci.com/github/Internet2/grouper/builds))
+11. Go to: [https://central.sonatype.com/](https://central.sonatype.com/)
   
   
   
@@ -75,24 +81,24 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
     (ok to leave checked "automatically drop")
   2. Browse public repositories, Navigate the folder structure to /edu/internet2/middleware/grouper/grouper to make sure the new version is there
   3. Wait for a while until the installer is resolvable here: [https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/X.Y.Z/grouper-installer-X.Y.Z.jar](https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/grouper-installer/5.19.1/grouper-installer-5.19.1.jar)
-11. In the docker_grouper project
+12. In the docker_grouper project
   
   
   
   1. remove any patches
   2. make an x.y.z branch if not already there
-12. Make sure docker unit test count matches the number of changed unit tests in grouperContainerUnitTest.sh
+13. Make sure docker unit test count matches the number of changed unit tests in grouperContainerUnitTest.sh
   
   
   
   1. have there been any new tests (assert*) since the last release? If so, update grouperContainerUnitTest.sh by incrementing expectedSuccesses by the number of new tests  
     git log -p 2.5.62.. -- container_files/tier-support/test/grouperContainerUnitTestUi.sh container_files/tier-support/test/grouperContainerUnitTest.sh
-13. Change the Dockerfile to x.y.z in one place (or two for 2.5), [commit and push](https://github.internet2.edu/docker/grouper/branches)
-14. Wait 15 minutes
-15. Wait until [build is done](https://jenkins.testbed.tier.internet2.edu/job/docker/job/grouper/)
-16. Check build output for conflicting jars
-17. Run the [container unit tests](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555514/Grouper+container+unit+tests). Link to [Grouper dockerhub](https://hub.docker.com/r/i2incommon/grouper/tags?page=1&ordering=last_updated)
-18. Container mysql replicate (if build error)
+14. Change the Dockerfile to x.y.z in one place (or two for 2.5), [commit and push](https://github.internet2.edu/docker/grouper/branches)
+15. Wait 15 minutes
+16. Wait until [build is done](https://jenkins.testbed.tier.internet2.edu/job/docker/job/grouper/)
+17. Check build output for conflicting jars
+18. Run the [container unit tests](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555514/Grouper+container+unit+tests). Link to [Grouper dockerhub](https://hub.docker.com/r/i2incommon/grouper/tags?page=1&ordering=last_updated)
+19. Container mysql replicate (if build error)
   
   
   ```
@@ -149,13 +155,13 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
   Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
   mchyzer@ISC20-0637-WL:~/containerTest$ docker run --detach --name my_mysql --publish 3306:3306 my_mysql:latest
   ```
-19. [Use the installer](https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-installer/2.5.xx/) to install the container against a mysql from docker (case sensitive)
+20. [Use the installer](https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-installer/2.5.xx/) to install the container against a mysql from docker (case sensitive)
   
   
   
   1. jdbc:mysql://docker.for.win.localhost:3306/grouper_v2_5?useSSL=false
-20. Upgrade the demo server
-21. Adjust the version of apache/shib/java/tomcat in the [release notes](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793539/v2.5+Release+Notes)  
+21. Upgrade the demo server
+22. Adjust the version of apache/shib/java/tomcat in the [release notes](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793539/v2.5+Release+Notes)  
   v4
   
   
@@ -169,7 +175,7 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48794029/Release+s
   ```
   docker run --rm i2incommon/grouper:2.5.xx bash -c "java -version && grep 'Apache Tomcat Version' /opt/tomcat/RELEASE-NOTES && grep PRETTY_NAME /etc/os-release"
   ```
-22. Adjust the SHA in release notes
+23. Adjust the SHA in release notes
   
   
   

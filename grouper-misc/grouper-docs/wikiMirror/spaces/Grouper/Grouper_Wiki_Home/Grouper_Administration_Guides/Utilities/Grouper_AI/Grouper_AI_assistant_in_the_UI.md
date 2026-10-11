@@ -2,8 +2,8 @@
 title: "Grouper AI assistant in the UI"
 space: Grouper
 pageId: 271908865
-version: 1
-lastUpdated: 2026-10-02T18:25:53.787Z
+version: 2
+lastUpdated: 2026-10-05T11:09:59.530Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/271908865/Grouper+AI+assistant+in+the+UI
 ---
 
@@ -40,7 +40,7 @@ Three things decide this, and each can only narrow the others:
   - SQL, admin read-only and admin read and write each have a full tier (`canRunSqlReadonly`, `adminReadonly`, `adminReadWrite`), which also requires being a Grouper sysadmin, and a limited tier (`canRunSqlReadonlyLimited`, `adminReadonlyLimited`, `adminReadWriteLimited`), which only gets what is opened to it with a `limitedAccessGroup`. See the MCP documentation.
 3. **The session scope.** On the screen, each user chooses what the assistant may do in their session, among what their MCP groups allow: read-only, read and write, SQL, admin read-only, admin read and write. It starts as read-only. The choice lasts for the UI session, so each new login starts as read-only again.
 
-Changes always wait for the person's approval. Look-ups, SQL queries included, run without asking. **Use a read-only database account for the SQL tools** (`grouper.mcp.sql.*`): the assistant runs queries without asking, and the SQL tools' check for read-only queries can't catch every SELECT that changes something.
+Changes always wait for the person's approval. Look-ups, SQL queries included, run without asking. **Use a read-only database account for the SQL tools** (`grouper.mcp.sql.*`): the assistant runs queries without asking. Each query runs in a read-only transaction that is rolled back, and a read-only account adds a second safeguard.
 
 Removing someone from a group, or turning the assistant off, takes effect within a minute. The assistant checks before every call to the model and every look-up, so a request it is already working on stops too, whether or not the person's screen is still open. Every tool call also checks the MCP groups as it runs.
 
@@ -194,7 +194,7 @@ A second check, for someone who runs expensive conversations all day. Most peopl
 | `output_tokens` | Output tokens |
 | `last_updated_micros` | When the row last changed, microseconds since 1970 |
 
-If a daily limit is set and this table cannot be read, for example because upgrade task V45 has not run yet, the assistant refuses new messages and says it cannot check usage limits right now. The error is in the Grouper UI log. A limit is never silently skipped. Recording usage works the other way: if a row cannot be written, the error is logged and the assistant carries on, since that usage is already spent.
+If a daily limit is set and this table cannot be read, for example because upgrade task V46 has not run yet, the assistant refuses new messages and says it cannot check usage limits right now. The error is in the Grouper UI log. A limit is never silently skipped. Recording usage works the other way: if a row cannot be written, the error is logged and the assistant carries on, since that usage is already spent.
 
 Rows older than `loader.retain.db.ai_agent_usage.days` (grouper-loader.properties, default `365`, `-1` for forever) are deleted by the daily `OTHER_JOB_cleanLogs` daemon.
 
@@ -347,4 +347,4 @@ The assistant uses `grouper.wsBearerToken.<configId>.endpoint`, `accessTokenPass
 
 ## Upgrading
 
-Upgrade task **V45** (7.7.0) creates `grouper_ai_agent_usage` and `grouper_ai_agent_call_log` with their indexes and column comments, and adds `grouper_mcp_tool_log.entry_path` (`mcp` or `ui`; empty for calls logged before it existed). New installs get all of this from the install DDL. The assistant's group, `etc:aiAgent:aiAgentUsers`, is created empty when Grouper starts. Add V45 to the [Grouper upgrade tasks](https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks) page.
+Upgrade task **V46** (7.8.0) creates `grouper_ai_agent_usage` and `grouper_ai_agent_call_log` with their indexes and column comments, and adds `grouper_mcp_tool_log.entry_path` (`mcp` or `ui`; empty for calls logged before it existed). New installs get all of this from the install DDL. The assistant's group, `etc:aiAgent:aiAgentUsers`, is created empty when Grouper starts. Add V46 to the [Grouper upgrade tasks](https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks) page.

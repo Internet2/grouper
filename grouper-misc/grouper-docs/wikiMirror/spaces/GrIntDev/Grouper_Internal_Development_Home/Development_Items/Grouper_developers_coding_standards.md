@@ -2,8 +2,8 @@
 title: "Grouper developers coding standards"
 space: GrIntDev
 pageId: 48792568
-version: 63
-lastUpdated: 2026-09-20T17:33:09.348Z
+version: 64
+lastUpdated: 2026-10-07T15:07:58.785Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards
 ---
 
@@ -187,6 +187,7 @@ Intellij
 ### Cross database
 
 - If doing a count, dont have order by. do the order by in the real query. due to hsql: [JIRA GRP-2370]
+- Use `NOT EXISTS` instead of `NOT IN` with a subquery, e.g. `where not exists (select 1 from grouper_memberships gm where gm.member_id = m.id)` rather than `where m.id not in (select gm.member_id from grouper_memberships gm)`. `NOT IN` returns no rows if the subquery yields any null, and on large tables some databases (e.g. Postgres) cannot turn it into an anti-join, so it can be orders of magnitude slower.
 
 ### Load test with data
 

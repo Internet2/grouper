@@ -2,8 +2,8 @@
 title: "Grouper upgrade tasks"
 space: Grouper
 pageId: 28549372
-version: 44
-lastUpdated: 2026-10-05T07:03:50.181Z
+version: 46
+lastUpdated: 2026-10-09T14:25:29.641Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks
 ---
 
@@ -58,6 +58,7 @@ View upgrade tasks in v7.3.0+ in the UI: Miscellaneous → Configure → Upgrade
 | 43 | Widen grouper_members.subject_identifier0  Add primary key grouper_stem_view_privilege.grouper_stem_v_priv_pk | Y | N | 7.3.0 | v7+ | No |
 | 44 | Encrypt the OAuth JWT signing private key at rest in database config | N | N | 7.4.0 | v7+ | No |
 | 45 | grouper_file.file_contents_clob: Postgres varchar(10000000) to text, MySQL mediumtext to longtext ([GRP-7417](https://grouper.atlassian.net/browse/GRP-7417))   Add grouper_file.created_on_micros and updated_on_micros ([GRP-7439](https://grouper.atlassian.net/browse/GRP-7439))   Add grouper_file.file_contents_blob for binary files ([GRP-7446](https://grouper.atlassian.net/browse/GRP-7446))   Zoom: grouper_prov_zoom_user.id nullable, grouper_zoom_user_id_idx non-unique ([GRP-7445](https://grouper.atlassian.net/browse/GRP-7445))   Widen grouper_failsafe.name to varchar(512) ([GRP-6303](https://grouper.atlassian.net/browse/GRP-6303))   Fix data_row_internal_id in grouper_data_row_field_asgn_v and grouper_data_row_assign_v ([GRP-6677](https://grouper.atlassian.net/browse/GRP-6677)) | Y | N | 7.7.0 | v7+ | No |
+| 46 | AI assistant in the Grouper UI:    - Add grouper_mcp_tool_log.entry_path (whether a tool call came from an MCP client or the UI) - Tables: grouper_ai_agent_usage (usage per user per day), grouper_ai_agent_call_log (one row per call to the AI provider) | Y | N | 7.8.0 | v7+ | No |
 
 ## Skip an upgrade task
 
