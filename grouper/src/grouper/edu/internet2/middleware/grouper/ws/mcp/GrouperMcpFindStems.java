@@ -251,9 +251,9 @@ public class GrouperMcpFindStems {
       if (pageSize != null && supportsPaging(stemQueryFilterType)) {
         wsStemQueryFilter.setPageSize(String.valueOf(pageSize));
         wsStemQueryFilter.setPageNumber(String.valueOf(pageNumber));
-        // pages need a fixed order, or the next page can repeat or skip folders.  the parent search
-        // already sorts by display name when none is given; the approximate name search does not
-        wsStemQueryFilter.setSortString("displayName");
+        // pages need a fixed order, or the next page can repeat or skip folders.  sort by name since it
+        // is unique; display name is not, and ties can come back in a different order on each page
+        wsStemQueryFilter.setSortString("name");
       }
 
       WsFindStemsResults wsResults = GrouperServiceLogic.findStems(
