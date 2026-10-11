@@ -71,6 +71,29 @@ public class GrouperToolConfirmationSummaries {
   }
 
   /**
+   * @param arguments folder_save arguments
+   * @return the summary
+   */
+  public static String folderSave(JsonNode arguments) {
+
+    String action = argumentText(arguments, "action");
+    String folder = quote(argumentText(arguments, "stemName"));
+
+    String headline = null;
+    if (StringUtils.equals("createFolder", action)) {
+      headline = "Create folder " + folder;
+    } else if (StringUtils.equals("createOrUpdateFolder", action)) {
+      headline = "Create or update folder " + folder;
+    } else if (StringUtils.equals("updateFolderPart", action)) {
+      headline = "Update folder " + folder;
+    } else {
+      headline = "Change folder " + folder + " with action " + quote(action);
+    }
+
+    return withOtherArguments(headline, arguments, "action", "stemName");
+  }
+
+  /**
    * @param arguments privilege_assign arguments
    * @return the summary
    */

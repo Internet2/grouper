@@ -196,6 +196,14 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
     assertEquals("Delete folder (not given)",
         GrouperToolConfirmationSummaries.folderDelete(json("{}")));
 
+    assertEquals("Create folder 'a:b' (also given: description: 'new folder')",
+        GrouperToolConfirmationSummaries.folderSave(json("{\"action\":\"createFolder\",\"stemName\":\"a:b\","
+            + "\"description\":\"new folder\"}")));
+
+    assertEquals("Update folder 'a:b' (also given: displayExtension: 'B')",
+        GrouperToolConfirmationSummaries.folderSave(json("{\"action\":\"updateFolderPart\",\"stemName\":\"a:b\","
+            + "\"displayExtension\":\"B\"}")));
+
     assertEquals("Run daemon job 'CHANGE_LOG_consumer_x' now",
         GrouperToolConfirmationSummaries.adminDaemonJobRun(json("{\"jobName\":\"CHANGE_LOG_consumer_x\"}")));
 

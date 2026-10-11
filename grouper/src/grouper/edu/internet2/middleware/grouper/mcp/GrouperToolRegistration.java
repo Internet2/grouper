@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindAttributeDefNames;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindGroups;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindStems;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFolderDelete;
+import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFolderSave;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpGetAttributeAssignmentsLite;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpGetAuditEntries;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpGetGrouperPrivilegesLite;
@@ -417,7 +418,7 @@ public class GrouperToolRegistration {
       }
     });
 
-    // these three act on whole groups and folders rather than on memberships, so a caller whose
+    // these four act on whole groups and folders rather than on memberships, so a caller whose
     // readwrite scope does not reach a group or a folder has nothing to point them at
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("folder_delete",
         GrouperToolCategory.readwrite) {
@@ -435,6 +436,25 @@ public class GrouperToolRegistration {
       }
       public ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
         return GrouperMcpFolderDelete.execute(arguments, authUser);
+      }
+    });
+
+    GrouperToolRegistry.register(new GrouperToolLegacyAdapter("folder_save",
+        GrouperToolCategory.readwrite) {
+      public GrouperToolResultBound resultBound() {
+        return GrouperToolResultBound.oneObject;
+      }
+      public boolean availableFor(GrouperMcpAuthUser authUser) {
+        return authUser.hasGroupOrFolderReadwriteScope();
+      }
+      public String confirmationSummary(JsonNode arguments) {
+        return GrouperToolConfirmationSummaries.folderSave(arguments);
+      }
+      public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
+        return GrouperMcpFolderSave.toolDefinition();
+      }
+      public ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
+        return GrouperMcpFolderSave.execute(arguments, authUser);
       }
     });
 

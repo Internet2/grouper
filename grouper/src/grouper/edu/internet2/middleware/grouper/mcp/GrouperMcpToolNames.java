@@ -75,6 +75,7 @@ public class GrouperMcpToolNames {
     toolNames.add("privilege_assign");
     toolNames.add("group_remove_member");
     toolNames.add("folder_delete");
+    toolNames.add("folder_save");
     toolNames.add("group_delete");
     toolNames.add("group_save");
 

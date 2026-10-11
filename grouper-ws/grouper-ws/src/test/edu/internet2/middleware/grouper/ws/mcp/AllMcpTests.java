@@ -51,6 +51,7 @@ public class AllMcpTests {
     suite.addTestSuite(GrouperMcpGetAttributeAssignmentsLiteTest.class);
     suite.addTestSuite(GrouperMcpFindStemsTest.class);
     suite.addTestSuite(GrouperMcpFolderDeleteTest.class);
+    suite.addTestSuite(GrouperMcpFolderSaveTest.class);
     suite.addTestSuite(GrouperMcpGroupDeleteTest.class);
     suite.addTestSuite(GrouperMcpGroupSaveTest.class);
     suite.addTestSuite(GrouperMcpAssignAttributesTest.class);
