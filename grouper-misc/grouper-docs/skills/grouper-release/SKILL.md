@@ -94,7 +94,12 @@ Confluence work that does not need the built image FIRST, then mirror, then tag:
    page, a feature page, a security-issue page). Ask the user which pages; grep
    the wikiMirror for the config keys and features the commits touch.
 4. **v7 Upgrade instructions from v7** rows for anything operators must do or be
-   aware of (this sets the `Upgrade instructions` count in the row).
+   aware of (this sets the `Upgrade instructions` count in the row). New rows go
+   on top. Every cell's `data-highlight-colour` follows the row's Importance:
+   `Important` = pink `#ffebe6`, `Medium important` = yellow `#fffae6`,
+   `Not important` = blue `#deebff`. Copying the row above keeps ITS colour, which
+   is how the 7.7.0 Important row (GRP-7418) went in yellow; set it from the
+   Importance instead, and re-check every row's colour after the edit.
 5. A security-issue page for a fix in this release: mark the release as released
    on the release date (timeline, affected-versions table, remediation text).
 6. The **release-notes row** (step 8) with the `sha256:` left BLANK
