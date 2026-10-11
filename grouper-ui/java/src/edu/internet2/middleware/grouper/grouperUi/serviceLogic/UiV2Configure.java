@@ -1235,22 +1235,9 @@ public class UiV2Configure {
       // and clear this node now, rather than waiting for it to notice its own notification
       GrouperConfigHibernate.clearConfigsInMemory();
 
-      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
-
-      String configFileString = request.getParameter("configFile");
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-      configurationContainer.setConfigFileName(configFileName);
-
-      if (!StringUtils.isBlank(configFileString)) {
-
-        buildConfigFileAndMetadata(null, null);
-
-      }
-
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      redrawConfigureScreenAfterClearCache(request, guiResponseJs);
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("configurationFilesClearCacheAllNodesSuccess")));
@@ -1286,22 +1273,9 @@ public class UiV2Configure {
       ConfigPropertiesCascadeBase.clearCache();
       GrouperUiApiTextConfig.clearCache();
 
-      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
-
-      String configFileString = request.getParameter("configFile");
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
-      configurationContainer.setConfigFileName(configFileName);
-
-      if (!StringUtils.isBlank(configFileString)) {
-
-        buildConfigFileAndMetadata(null, null);
-
-      }
-
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
-          "/WEB-INF/grouperUi2/configure/configure.jsp"));
+      redrawConfigureScreenAfterClearCache(request, guiResponseJs);
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("configurationFilesClearCacheSuccess")));
@@ -1309,6 +1283,30 @@ public class UiV2Configure {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * GRP-7392: the clear config cache actions are ajax and leave the user on whatever screen they
+   * were on. The client only sends configFile when it is on the configuration files screen with a
+   * file listed, so only then redraw that screen to show the refreshed values.
+   * @param request
+   * @param guiResponseJs
+   */
+  private void redrawConfigureScreenAfterClearCache(HttpServletRequest request, GuiResponseJs guiResponseJs) {
+
+    String configFileString = request.getParameter("configFile");
+
+    if (StringUtils.isBlank(configFileString)) {
+      return;
+    }
+
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    configurationContainer.setConfigFileName(ConfigFileName.valueOfIgnoreCase(configFileString, false));
+
+    buildConfigFileAndMetadata(null, null);
+
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+        "/WEB-INF/grouperUi2/configure/configure.jsp"));
   }
 
   /**
