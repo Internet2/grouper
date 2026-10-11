@@ -48,6 +48,40 @@ yourself. A merged PR's GRP issue is then resolved/tagged with the others in
 steps 5-6. Also listed on the internal "Release steps for new container build"
 wiki page (GrIntDev, pageId `48794029`).
 
+## 0-review. Review every commit since the last release
+
+Before the mirror and the tag, review every commit in the release range, grouped
+by GRP issue (commits without a GRP issue are reviewed too):
+
+```bash
+git log --no-merges --format='%h %an %s' --shortstat GROUPER_RELEASE_<prev>..origin/<BRANCH>
+```
+
+Review each issue's combined diff on four dimensions:
+
+- **Security:** authorization (privilege checks, sysadmin-only paths), injection
+  (SQL/HQL, XSS -- unescaped JSP output, JS string building), secrets in logs or
+  responses, new endpoints/servlets and their auth, unsafe defaults (a new feature
+  should be off by default when it reaches outside Grouper, e.g. an AI provider).
+- **Functionality:** does the code do what the issue says; edge cases (null,
+  blank, empty lists, paging), regressions in callers, transaction/cache handling,
+  DB portability (postgres/oracle/mysql) for DDL and queries.
+- **Tests:** is there a test that would fail without the change, and does it cover
+  the risky part. Note what is untested; do not write tests unasked.
+- **Documentation:** new config keys exist in the `*.base.properties` with a
+  blank value and the default in the `# {...}` comment, matching the code default;
+  new features have a wiki page or an update to an existing one; externalized text
+  for new UI strings; upgrade instructions when operators must act.
+
+Large issues (thousands of lines, e.g. a new feature) get their own reviewer;
+small ones can share one. Use parallel subagents, each returning findings with
+file:line, severity (blocker / should-fix / nit) and a concrete failure scenario.
+Verify any blocker yourself before reporting it.
+
+Give the user one consolidated report, blockers first. The user decides what to
+fix before the tag; fixes go in as normal commits with their own (or the original)
+GRP issue, then re-check the commit-vs-Jira reconciliation (step 6).
+
 ## 0. Jira and wiki edits BEFORE the mirror
 
 The mirror refresh (step 1) is committed and then tagged, so anything written to
