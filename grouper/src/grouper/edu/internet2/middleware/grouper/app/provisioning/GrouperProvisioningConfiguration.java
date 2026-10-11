@@ -535,6 +535,43 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * GRP-7458.  Maximum number of unexpected per-object errors (error code UNE) allowed in a run before the
+   * run is failed.  An unexpected exception while processing a single group / entity / membership is recorded
+   * as an object error and the run continues; the run is only failed when the count exceeds this value (or the
+   * percent threshold below).  Default 0 preserves the historical behavior of failing on the first unexpected error.
+   * # Max number of unexpected object errors before the run fails.  0 fails on the first unexpected error.
+   * # {valueType: "integer", order: 130035, defaultValue: "0", subSection: "errorHandling", showEl: "${errorHandlingShow && errorHandlingProvisionerDaemonShouldFailOnObjectError}"}
+   * # provisioner.genericProvisioner.errorHandlingUnexpectedErrorMaxCount =
+   */
+  private int errorHandlingUnexpectedErrorMaxCount = 0;
+
+  public int getErrorHandlingUnexpectedErrorMaxCount() {
+    return errorHandlingUnexpectedErrorMaxCount;
+  }
+
+  public void setErrorHandlingUnexpectedErrorMaxCount(int errorHandlingUnexpectedErrorMaxCount1) {
+    this.errorHandlingUnexpectedErrorMaxCount = errorHandlingUnexpectedErrorMaxCount1;
+  }
+
+  /**
+   * GRP-7458.  Maximum percent (0-100) of processed objects that can have unexpected per-object errors (error
+   * code UNE) before the run is failed.  The run fails when either this percent threshold or the absolute count
+   * threshold above is exceeded.  Default 0 preserves the historical behavior of failing on the first unexpected error.
+   * # Max percent of processed objects with unexpected errors before the run fails.  0 fails on the first unexpected error.
+   * # {valueType: "integer", order: 130036, defaultValue: "0", subSection: "errorHandling", showEl: "${errorHandlingShow && errorHandlingProvisionerDaemonShouldFailOnObjectError}"}
+   * # provisioner.genericProvisioner.errorHandlingUnexpectedErrorMaxPercent =
+   */
+  private int errorHandlingUnexpectedErrorMaxPercent = 0;
+
+  public int getErrorHandlingUnexpectedErrorMaxPercent() {
+    return errorHandlingUnexpectedErrorMaxPercent;
+  }
+
+  public void setErrorHandlingUnexpectedErrorMaxPercent(int errorHandlingUnexpectedErrorMaxPercent1) {
+    this.errorHandlingUnexpectedErrorMaxPercent = errorHandlingUnexpectedErrorMaxPercent1;
+  }
+
+  /**
    * # If invalid data counts as an error.  Data is invalid if it is the wrong type or fails a validation
    * # {valueType: "boolean", order: 130040, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
    * # provisioner.genericProvisioner.errorHandlingInvalidDataIsAnError = 
@@ -3557,6 +3594,18 @@ public abstract class GrouperProvisioningConfiguration {
       this.errorHandlingLogErrors = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingLogErrors", false), true);
       this.errorHandlingLogCountPerType = GrouperUtil.intValue(this.retrieveConfigInt("errorHandlingLogCountPerType", false), 5);
       this.errorHandlingProvisionerDaemonShouldFailOnObjectError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingProvisionerDaemonShouldFailOnObjectError", false), true);
+      this.errorHandlingUnexpectedErrorMaxCount = GrouperUtil.intValue(this.retrieveConfigInt("errorHandlingUnexpectedErrorMaxCount", false), 0);
+      // GRP-7458: a negative max count makes no sense; clamp to 0 (fail on first unexpected error)
+      if (this.errorHandlingUnexpectedErrorMaxCount < 0) {
+        this.errorHandlingUnexpectedErrorMaxCount = 0;
+      }
+      this.errorHandlingUnexpectedErrorMaxPercent = GrouperUtil.intValue(this.retrieveConfigInt("errorHandlingUnexpectedErrorMaxPercent", false), 0);
+      // GRP-7458: percent is 0-100; clamp out-of-range values
+      if (this.errorHandlingUnexpectedErrorMaxPercent < 0) {
+        this.errorHandlingUnexpectedErrorMaxPercent = 0;
+      } else if (this.errorHandlingUnexpectedErrorMaxPercent > 100) {
+        this.errorHandlingUnexpectedErrorMaxPercent = 100;
+      }
       this.errorHandlingInvalidDataIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingInvalidDataIsAnError", false), true);
       this.errorHandlingLengthValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingLengthValidationIsAnError", false), true);
       this.errorHandlingMatchingValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingMatchingValidationIsAnError", false), true);

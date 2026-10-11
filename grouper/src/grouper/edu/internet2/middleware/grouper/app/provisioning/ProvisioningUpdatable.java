@@ -978,9 +978,56 @@ public abstract class ProvisioningUpdatable {
     ProvisioningUpdatableWrapper provisioningUpdatableWrapper = this.getProvisioningWrapper();
     if (internal_exception != null && provisioningUpdatableWrapper != null) {
       if (provisioningUpdatableWrapper.getErrorCode() == null) {
-        provisioningUpdatableWrapper.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        // GRP-7458: a fatal (not object-specific) failure -- e.g. cannot connect to the target or an auth failure --
+        // is recorded as ERR so it fails the run immediately.  An object-specific exception is recorded as UNE so it
+        // is subject to the configurable unexpected-error threshold (this applies to insert, update and delete).
+        provisioningUpdatableWrapper.setErrorCode(
+            isFatalProvisioningException(internal_exception) ? GcGrouperSyncErrorCode.ERR : GcGrouperSyncErrorCode.UNE);
       }
     }
+  }
+
+  /**
+   * GRP-7458: heuristic classification of a per-object exception as fatal (not object-specific).  Fatal failures
+   * (cannot connect to target, timeouts, auth failures) should fail the run immediately rather than be absorbed into
+   * the unexpected-error threshold, per the ticket.  This is a conservative best-effort check on the exception chain;
+   * the batch-wide detection in GrouperProvisioningLogic.errorHandling() is the backstop for systemic failures that
+   * do not match a known type/message here.
+   * @param throwable the exception to classify
+   * @return true if the exception looks like a fatal / non-object-specific failure
+   */
+  public static boolean isFatalProvisioningException(Throwable throwable) {
+    Throwable current = throwable;
+    int timeToLive = 20;
+    while (current != null && timeToLive-- > 0) {
+      String className = current.getClass().getName();
+      if (className.equals("java.net.ConnectException")
+          || className.equals("java.net.SocketTimeoutException")
+          || className.equals("java.net.UnknownHostException")
+          || className.equals("java.net.NoRouteToHostException")
+          || className.equals("javax.net.ssl.SSLHandshakeException")) {
+        return true;
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase();
+        if (lower.contains("connection refused")
+            || lower.contains("connection reset")
+            || lower.contains("connection timed out")
+            || lower.contains("read timed out")
+            || lower.contains("unable to connect")
+            || lower.contains("unknownhostexception")
+            || lower.contains("return code '401'")
+            || lower.contains("return code '403'")
+            || lower.contains("401 unauthorized")
+            || lower.contains("403 forbidden")
+            || lower.contains("invalid access token")) {
+          return true;
+        }
+      }
+      current = current.getCause();
+    }
+    return false;
   }
  
   protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField, boolean includeObjectChanges) {

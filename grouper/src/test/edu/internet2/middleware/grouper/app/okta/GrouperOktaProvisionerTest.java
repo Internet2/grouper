@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
@@ -54,7 +55,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncCapturesOrphanTargetEntities"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testOktaIncrementalUnexpectedErrorOverThresholdFails"));
     
   }
   
@@ -1506,6 +1507,221 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     OktaProvisionerTestUtils.configureOktaProvisioner(configInput);
 
     GrouperStartup.startup();
+  }
+
+  /**
+   * GRP-7458 shared setup: configure the Okta provisioner with error handling on and the given unexpected-error
+   * thresholds, and mark the test: folder provisionable (sub scope).  Groups are created separately by the caller
+   * so the full and incremental tests can control WHEN each group is created relative to priming.
+   * @param configId provisioner config id
+   * @param unexpectedErrorMaxCount value for errorHandlingUnexpectedErrorMaxCount
+   * @param unexpectedErrorMaxPercent value for errorHandlingUnexpectedErrorMaxPercent
+   * @return the root GrouperSession
+   */
+  private GrouperSession configureOktaUnexpectedErrorScenario(String configId, int unexpectedErrorMaxCount, int unexpectedErrorMaxPercent) {
+
+    Map<String, String> errorHandlingConfig = new HashMap<String, String>();
+    errorHandlingConfig.put("errorHandlingShow", "true");
+    errorHandlingConfig.put("errorHandlingProvisionerDaemonShouldFailOnObjectError", "true");
+    errorHandlingConfig.put("errorHandlingUnexpectedErrorMaxCount", "" + unexpectedErrorMaxCount);
+    errorHandlingConfig.put("errorHandlingUnexpectedErrorMaxPercent", "" + unexpectedErrorMaxPercent);
+    setupOktaSyncBack(configId, errorHandlingConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    return grouperSession;
+  }
+
+  /**
+   * GRP-7458: create a group whose insert the Okta mock is made to fail.  Named with the mock's sentinel so the
+   * Okta mock (which runs in a separate webapp classloader and cannot see test-JVM config) responds 500 on its
+   * insert, producing a single unexpected (UNE) object error.  Left with no members on purpose: a member would also
+   * fail its membership insert and that dependent error is recorded as ERR (not UNE), which would fail the run
+   * regardless of the unexpected-error threshold.  Keeping the group empty (groupsRequireMembers=false, so it is
+   * still inserted) isolates exactly one unexpected group error.
+   * @param grouperSession root session
+   * @return the failing group
+   */
+  private Group createOktaFailmeGroup(GrouperSession grouperSession) {
+    return new GroupSave(grouperSession).assignName("test:" + OktaMockServiceHandler.FAIL_INSERT_GROUP_NAME_MARKER).save();
+  }
+
+  /**
+   * GRP-7458 end-to-end (full): with the unexpected-error threshold set high enough to tolerate the one failing
+   * group, a full sync does NOT fail the run.  The two good groups still provision into the Okta target, and the
+   * failing group is recorded as an unexpected (UNE) object error rather than aborting the whole run.
+   */
+  public void testOktaFullSyncUnexpectedErrorUnderThresholdContinues() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // both thresholds generous so the single unexpected error (by count AND by percent) is tolerated
+    GrouperSession grouperSession = configureOktaUnexpectedErrorScenario(configId, 100, 100);
+
+    Group good1Group = new GroupSave(grouperSession).assignName("test:good1Group").save();
+    good1Group.addMember(SubjectTestHelper.SUBJ0, false);
+    Group good2Group = new GroupSave(grouperSession).assignName("test:good2Group").save();
+    good2Group.addMember(SubjectTestHelper.SUBJ1, false);
+    Group failmeGroup = createOktaFailmeGroup(grouperSession);
+
+    GrouperProvisioningOutput output = fullProvision(configId, true);
+
+    // the run was NOT failed, since the one unexpected error is under the configured threshold
+    assertFalse("run should not be marked ERROR when under the unexpected-error threshold",
+        GrouperLoaderStatus.ERROR.name().equals(output.getHib3GrouperLoaderLog().getStatus()));
+
+    // the failing group was still recorded as an unexpected (UNE) object error
+    assertTrue("at least one record should have an error", output.getRecordsWithErrors() >= 1);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup failmeSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(failmeGroup.getId());
+    assertEquals(GcGrouperSyncErrorCode.UNE, failmeSyncGroup.getErrorCode());
+
+    // the other two groups still provisioned to the target (one bad object did not block them)
+    int mockGroupCount = new GcDbAccess().connectionName("grouper").sql("select count(*) from mock_okta_group").select(int.class);
+    assertEquals("good groups should still provision while the failing group does not", 2, mockGroupCount);
+  }
+
+  /**
+   * GRP-7458 end-to-end (full): with the unexpected-error threshold at 0 (the back-compatible default), a single
+   * unexpected error fails the run.  Even so, the good groups still provision -- the failure decision is made at
+   * the end of the run, after every object has been processed, so one bad object does not block the others.
+   */
+  public void testOktaFullSyncUnexpectedErrorOverThresholdFails() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // both thresholds at 0 (the back-compat default): the first unexpected error fails the run
+    GrouperSession grouperSession = configureOktaUnexpectedErrorScenario(configId, 0, 0);
+
+    Group good1Group = new GroupSave(grouperSession).assignName("test:good1Group").save();
+    good1Group.addMember(SubjectTestHelper.SUBJ0, false);
+    Group good2Group = new GroupSave(grouperSession).assignName("test:good2Group").save();
+    good2Group.addMember(SubjectTestHelper.SUBJ1, false);
+    Group failmeGroup = createOktaFailmeGroup(grouperSession);
+
+    GrouperProvisioningOutput output = fullProvision(configId, true);
+
+    // the run WAS failed, since the unexpected error exceeds the threshold of 0
+    assertEquals("run should be marked ERROR when the unexpected error exceeds the threshold",
+        GrouperLoaderStatus.ERROR.name(), output.getHib3GrouperLoaderLog().getStatus());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup failmeSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(failmeGroup.getId());
+    assertEquals(GcGrouperSyncErrorCode.UNE, failmeSyncGroup.getErrorCode());
+
+    // the other two groups still provisioned even though the run is ultimately marked failed
+    int mockGroupCount = new GcDbAccess().connectionName("grouper").sql("select count(*) from mock_okta_group").select(int.class);
+    assertEquals("good groups should still provision even when the run fails on the unexpected error", 2, mockGroupCount);
+  }
+
+  /**
+   * GRP-7458 end-to-end (incremental): the unexpected-error threshold applies to incremental runs too (errorHandling
+   * is shared between full and incremental).  Seed two good groups via full sync, then on an incremental run add a
+   * new good group AND the failing group.  With the threshold generous, the incremental does NOT fail the run: the
+   * new good group still provisions and the failing group is recorded as an unexpected (UNE) object error.
+   */
+  public void testOktaIncrementalUnexpectedErrorUnderThresholdContinues() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    GrouperSession grouperSession = configureOktaUnexpectedErrorScenario(configId, 100, 100);
+
+    // seed two good groups via full sync (also establishes the last full sync start so the incremental stays incremental)
+    Group good1Group = new GroupSave(grouperSession).assignName("test:good1Group").save();
+    good1Group.addMember(SubjectTestHelper.SUBJ0, false);
+    Group good2Group = new GroupSave(grouperSession).assignName("test:good2Group").save();
+    good2Group.addMember(SubjectTestHelper.SUBJ1, false);
+    assertEquals(0, fullProvision(configId, false).getRecordsWithErrors());
+
+    // prime the changelog consumer (its first run only initializes its position and processes nothing)
+    incrementalProvision();
+
+    // incremental batch: a new good group that provisions fine, plus the failing group
+    Group good3Group = new GroupSave(grouperSession).assignName("test:good3Group").save();
+    good3Group.addMember(SubjectTestHelper.SUBJ2, false);
+    Group failmeGroup = createOktaFailmeGroup(grouperSession);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioningOutput output = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+    // the incremental run was NOT failed, since the one unexpected error is under the threshold
+    assertFalse("incremental run should not be marked ERROR when under the unexpected-error threshold",
+        GrouperLoaderStatus.ERROR.name().equals(output.getHib3GrouperLoaderLog().getStatus()));
+
+    assertTrue("at least one record should have an error", output.getRecordsWithErrors() >= 1);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup failmeSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(failmeGroup.getId());
+    assertEquals(GcGrouperSyncErrorCode.UNE, failmeSyncGroup.getErrorCode());
+
+    // the new good group provisioned in the same incremental batch where the failing group errored (seed=2, +good3)
+    int mockGroupCount = new GcDbAccess().connectionName("grouper").sql("select count(*) from mock_okta_group").select(int.class);
+    assertEquals("new good group should provision while the failing group does not", 3, mockGroupCount);
+  }
+
+  /**
+   * GRP-7458 end-to-end (incremental): with the unexpected-error threshold at 0 (the back-compatible default), a
+   * single unexpected error fails the incremental run too.  The new good group still provisions, confirming the
+   * failure decision is made after processing the batch rather than aborting it.
+   */
+  public void testOktaIncrementalUnexpectedErrorOverThresholdFails() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    GrouperSession grouperSession = configureOktaUnexpectedErrorScenario(configId, 0, 0);
+
+    Group good1Group = new GroupSave(grouperSession).assignName("test:good1Group").save();
+    good1Group.addMember(SubjectTestHelper.SUBJ0, false);
+    Group good2Group = new GroupSave(grouperSession).assignName("test:good2Group").save();
+    good2Group.addMember(SubjectTestHelper.SUBJ1, false);
+    assertEquals(0, fullProvision(configId, false).getRecordsWithErrors());
+
+    incrementalProvision();
+
+    Group good3Group = new GroupSave(grouperSession).assignName("test:good3Group").save();
+    good3Group.addMember(SubjectTestHelper.SUBJ2, false);
+    Group failmeGroup = createOktaFailmeGroup(grouperSession);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioningOutput output = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+    // the incremental run WAS failed, since the unexpected error exceeds the threshold of 0
+    assertEquals("incremental run should be marked ERROR when the unexpected error exceeds the threshold",
+        GrouperLoaderStatus.ERROR.name(), output.getHib3GrouperLoaderLog().getStatus());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncGroup failmeSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(failmeGroup.getId());
+    assertEquals(GcGrouperSyncErrorCode.UNE, failmeSyncGroup.getErrorCode());
+
+    // the new good group still provisioned even though the run is ultimately marked failed (seed=2, +good3)
+    int mockGroupCount = new GcDbAccess().connectionName("grouper").sql("select count(*) from mock_okta_group").select(int.class);
+    assertEquals("new good group should provision even when the incremental run fails on the unexpected error", 3, mockGroupCount);
   }
 
   /**

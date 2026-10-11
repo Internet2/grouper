@@ -1444,8 +1444,13 @@ public class GrouperProvisioningService {
    */
   private static boolean isErrorFatal(GrouperProvisioningConfiguration grouperProvisioningConfiguration, String errorCode) {
     
-    GcGrouperSyncErrorCode syncErrorCode = GcGrouperSyncErrorCode.valueOf(errorCode);
-    
+    GcGrouperSyncErrorCode syncErrorCode = GcGrouperSyncErrorCode.valueOfOrNull(errorCode);
+
+    // GRP-7458: unknown/unrecognized codes (e.g. a newer code during a rolling upgrade) and UNE are not fatal
+    if (syncErrorCode == null) {
+      return false;
+    }
+
     if (syncErrorCode == GcGrouperSyncErrorCode.INV && grouperProvisioningConfiguration.isErrorHandlingInvalidDataIsAnError()) {
       return true;
     }

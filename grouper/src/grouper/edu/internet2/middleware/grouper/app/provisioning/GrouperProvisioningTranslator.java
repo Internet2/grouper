@@ -1052,7 +1052,9 @@ public class GrouperProvisioningTranslator {
         grouperTargetMemberships.add(grouperTargetMembership); 
       } catch (RuntimeException re) {
         try {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(grouperProvisioningMembership.getProvisioningMembershipWrapper(), GcGrouperSyncErrorCode.ERR, 
+          // GRP-7458: an unexpected exception translating a single membership is recorded as UNE so it is subject to
+          // the configurable count / percent threshold rather than failing the whole run on the first occurrence.
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(grouperProvisioningMembership.getProvisioningMembershipWrapper(), GcGrouperSyncErrorCode.UNE, 
               grouperProvisioningMembership.getProvisioningMembershipWrapper() + ", " + GrouperUtil.getFullStackTrace(re));
         } catch (RuntimeException e) {
           throw new RuntimeException("Cannot translate membership or log error for: " + grouperProvisioningMembership, re);
@@ -1228,7 +1230,8 @@ public class GrouperProvisioningTranslator {
         }
       } catch (RuntimeException re) {
         try {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(grouperProvisioningEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.ERR, 
+          // GRP-7458: unexpected per-object exception recorded as UNE so it is subject to the configurable threshold.
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(grouperProvisioningEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.UNE, 
               grouperProvisioningEntity.getProvisioningEntityWrapper() + ", " + GrouperUtil.getFullStackTrace(re));
         } catch (RuntimeException e) {
           throw new RuntimeException("Cannot translate entity or log error for: " + grouperProvisioningEntity, re);
@@ -1428,7 +1431,8 @@ public class GrouperProvisioningTranslator {
         grouperTargetGroups.add(grouperTargetGroup);
       } catch (RuntimeException re) {
         try {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(grouperProvisioningGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.ERR, 
+          // GRP-7458: unexpected per-object exception recorded as UNE so it is subject to the configurable threshold.
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(grouperProvisioningGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.UNE, 
               grouperProvisioningGroup.getProvisioningGroupWrapper() + ", " + GrouperUtil.getFullStackTrace(re));
         } catch (RuntimeException e) {
           throw new RuntimeException("Cannot translate group or log error for: " + grouperProvisioningGroup, re);

@@ -5581,6 +5581,10 @@ public class GrouperProvisioningLogic {
         break;
       case ERR:
         break;
+      case UNE:
+        // GRP-7458: unexpected per-object exception.  Always an error, but the decision to fail the run is
+        // deferred to the count / percent threshold evaluated in errorHandling() below.
+        break;
       default:
         throw new RuntimeException("Not expecting error code! " + gcGrouperSyncErrorCode);
     }
@@ -5588,7 +5592,9 @@ public class GrouperProvisioningLogic {
     if (!errorCodeIsError) {
       return false;
     }
-    if (daemonShouldFail) {
+    // GRP-7458: UNE (unexpected) errors do not fail the run immediately; they are counted and the run is only
+    // failed past the configured threshold (see errorHandling()).  Other error codes keep the immediate behavior.
+    if (daemonShouldFail && gcGrouperSyncErrorCode != GcGrouperSyncErrorCode.UNE) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
       this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);
     }
@@ -5610,6 +5616,12 @@ public class GrouperProvisioningLogic {
 
     Map<MultiKey, Integer> objectTypeErrorCodeToCount = new HashMap<MultiKey, Integer>();
 
+    // GRP-7458: track how many objects share the exact same exception instance.  A real batch DAO sets the one
+    // exception it caught on every object in the failed batch, so an instance attached to 2+ objects signals a
+    // systemic (not object-specific) failure that should fail the run (the batch-wide backstop to the type-based
+    // isFatalProvisioningException check).  IdentityHashMap so distinct-but-equal exceptions are not merged.
+    Map<Exception, Integer> exceptionInstanceCounts = new java.util.IdentityHashMap<Exception, Integer>();
+
     boolean hasError = false;
     
     // look at errors
@@ -5620,9 +5632,15 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncGroup == null) {
         continue;
       }
+      if (exception != null) {
+        Integer existingCount = exceptionInstanceCounts.get(exception);
+        exceptionInstanceCounts.put(exception, existingCount == null ? 1 : existingCount + 1);
+      }
       
       if (exception != null && gcGrouperSyncGroup.getErrorCode() == null) {
-        gcGrouperSyncGroup.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        // GRP-7458: an object-specific exception is recorded as UNE (subject to the threshold); a fatal failure
+        // (cannot connect / auth) is recorded as ERR so it fails the run immediately.
+        gcGrouperSyncGroup.setErrorCode(ProvisioningUpdatable.isFatalProvisioningException(exception) ? GcGrouperSyncErrorCode.ERR : GcGrouperSyncErrorCode.UNE);
         gcGrouperSyncGroup.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
         Timestamp groupErrorTimestamp = this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
         gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
@@ -5647,8 +5665,13 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncMember == null) {
         continue;
       }
+      if (exception != null) {
+        Integer existingCount = exceptionInstanceCounts.get(exception);
+        exceptionInstanceCounts.put(exception, existingCount == null ? 1 : existingCount + 1);
+      }
       if (exception != null && gcGrouperSyncMember.getErrorCode() == null) {
-        gcGrouperSyncMember.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        // GRP-7458: object-specific -> UNE (threshold); fatal (cannot connect / auth) -> ERR (fail immediately).
+        gcGrouperSyncMember.setErrorCode(ProvisioningUpdatable.isFatalProvisioningException(exception) ? GcGrouperSyncErrorCode.ERR : GcGrouperSyncErrorCode.UNE);
         gcGrouperSyncMember.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
         Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncMember);
         gcGrouperSyncMember.setErrorTimestamp(entityErrorTimestamp);
@@ -5672,8 +5695,13 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncMembership == null) {
         continue;
       }
+      if (exception != null) {
+        Integer existingCount = exceptionInstanceCounts.get(exception);
+        exceptionInstanceCounts.put(exception, existingCount == null ? 1 : existingCount + 1);
+      }
       if (exception != null && gcGrouperSyncMembership.getErrorCode() == null) {
-        gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        // GRP-7458: object-specific -> UNE (threshold); fatal (cannot connect / auth) -> ERR (fail immediately).
+        gcGrouperSyncMembership.setErrorCode(ProvisioningUpdatable.isFatalProvisioningException(exception) ? GcGrouperSyncErrorCode.ERR : GcGrouperSyncErrorCode.UNE);
         gcGrouperSyncMembership.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
         Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
         gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
@@ -5704,9 +5732,73 @@ public class GrouperProvisioningLogic {
 
     String errorSummaryString = errorSummary.toString();
     this.getGrouperProvisioner().getDebugMap().put("objectErrors", errorSummaryString);
-    
-    if (hasError && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isErrorHandlingProvisionerDaemonShouldFailOnObjectError()) {
+
+    // GRP-7458: separate unexpected (UNE) errors from the other object errors.  Non-UNE errors keep the
+    // historical all-or-nothing behavior.  UNE errors only fail the run once the configured count / percent
+    // threshold is exceeded, so one bad object no longer blocks the rest of the run.
+    int unexpectedErrorCount = 0;
+    boolean hasNonUnexpectedError = false;
+    for (MultiKey objectTypeErrorCode : objectTypeErrorCodeToCount.keySet()) {
+      if (objectTypeErrorCode.getKey(1) == GcGrouperSyncErrorCode.UNE) {
+        unexpectedErrorCount += objectTypeErrorCodeToCount.get(objectTypeErrorCode);
+      } else {
+        hasNonUnexpectedError = true;
+      }
+    }
+
+    // GRP-7458: count the root cause once.  A membership whose group or entity also errored this run is a cascade
+    // of that parent failure (e.g. a group whose translation / insert failed drags its memberships down), so it is
+    // not counted again toward the unexpected-error threshold.  Otherwise one bad group with many members would
+    // inflate the count and blow the threshold.
+    int cascadeUnexpectedMembershipErrors = 0;
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      if (gcGrouperSyncMembership == null || gcGrouperSyncMembership.getErrorCode() != GcGrouperSyncErrorCode.UNE) {
+        continue;
+      }
+      ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+      ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+      boolean groupErrored = groupWrapper != null && groupWrapper.getGcGrouperSyncGroup() != null && groupWrapper.getGcGrouperSyncGroup().getErrorCode() != null;
+      boolean entityErrored = entityWrapper != null && entityWrapper.getGcGrouperSyncMember() != null && entityWrapper.getGcGrouperSyncMember().getErrorCode() != null;
+      if (groupErrored || entityErrored) {
+        cascadeUnexpectedMembershipErrors++;
+      }
+    }
+    unexpectedErrorCount = Math.max(0, unexpectedErrorCount - cascadeUnexpectedMembershipErrors);
+
+    boolean daemonShouldFail = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isErrorHandlingProvisionerDaemonShouldFailOnObjectError();
+    int maxCount = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingUnexpectedErrorMaxCount();
+    int maxPercent = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingUnexpectedErrorMaxPercent();
+
+    int totalObjectsProcessed = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())
+        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())
+        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+
+    if (unexpectedErrorCount > 0) {
+      int unexpectedErrorPercent = totalObjectsProcessed == 0 ? 100 : (unexpectedErrorCount * 100) / totalObjectsProcessed;
+      this.getGrouperProvisioner().getDebugMap().put("unexpectedObjectErrorCount", unexpectedErrorCount);
+      this.getGrouperProvisioner().getDebugMap().put("unexpectedObjectErrorPercent", unexpectedErrorPercent);
+    }
+
+    // GRP-7458: batch-wide / systemic failure backstop -- if one exception instance was set on 2+ objects, a real
+    // batch DAO call failed wholesale (not an object-specific problem), so fail the run regardless of the threshold.
+    boolean fatalError = false;
+    for (Integer sharedCount : exceptionInstanceCounts.values()) {
+      if (sharedCount != null && sharedCount >= 2) {
+        fatalError = true;
+        break;
+      }
+    }
+    if (fatalError) {
+      this.getGrouperProvisioner().getDebugMap().put("provisioningFatalBatchError", true);
+    }
+
+    boolean shouldFailRun = errorHandlingShouldFailRun(fatalError, daemonShouldFail, hasNonUnexpectedError,
+        unexpectedErrorCount, totalObjectsProcessed, maxCount, maxPercent);
+
+    if (shouldFailRun) {
       this.grouperProvisioner.retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
+      this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);
     }
     // maybe not mess with job status?
 //    if (GcGrouperSyncLogState.ERROR.equals(this.getGrouperProvisioner().getGcGrouperSyncLog().getStatus())) {
@@ -5717,6 +5809,54 @@ public class GrouperProvisioningLogic {
 //        this.grouperProvisioner.getGcGrouperSyncJob().setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
 //      }
 //    }
+  }
+
+  /**
+   * GRP-7458: decide if the run should be failed given the object errors encountered.  Non-unexpected object errors
+   * (e.g. validation) keep the historical all-or-nothing behavior: any one fails the run when daemonShouldFail is true.
+   * Unexpected per-object errors (code UNE) only fail the run once they exceed the configured absolute count or percent
+   * threshold, so one bad object no longer blocks the rest of the run.  A fatal / systemic failure always fails the run
+   * regardless of the threshold or the daemonShouldFail toggle.  Kept as a pure static method so the threshold
+   * semantics can be unit tested without building a full provisioner run.
+   * @param fatalError true if a fatal / non-object-specific failure occurred (always fails the run)
+   * @param daemonShouldFail errorHandlingProvisionerDaemonShouldFailOnObjectError
+   * @param hasNonUnexpectedError true if there was at least one non-UNE object error
+   * @param unexpectedErrorCount number of UNE object errors in the run
+   * @param totalObjectsProcessed number of groups + entities + memberships processed (percent denominator)
+   * @param maxCount errorHandlingUnexpectedErrorMaxCount (absolute threshold)
+   * @param maxPercent errorHandlingUnexpectedErrorMaxPercent (0-100 threshold)
+   * @return true if the run should be marked as failed
+   */
+  public static boolean errorHandlingShouldFailRun(boolean fatalError, boolean daemonShouldFail, boolean hasNonUnexpectedError,
+      int unexpectedErrorCount, int totalObjectsProcessed, int maxCount, int maxPercent) {
+
+    // a fatal / systemic failure (cannot connect, auth, or a batch that failed wholesale) always fails the run
+    if (fatalError) {
+      return true;
+    }
+
+    if (!daemonShouldFail) {
+      return false;
+    }
+
+    if (hasNonUnexpectedError) {
+      return true;
+    }
+
+    if (unexpectedErrorCount <= 0) {
+      return false;
+    }
+
+    if (unexpectedErrorCount > maxCount) {
+      return true;
+    }
+
+    // percent check with long math to avoid integer-division truncation (e.g. 1 in 1000 is not silently 0%).
+    // When nothing was processed, treat the percent as 100.
+    if (totalObjectsProcessed <= 0) {
+      return 100 > maxPercent;
+    }
+    return (long) unexpectedErrorCount * 100L > (long) maxPercent * (long) totalObjectsProcessed;
   }
 
   public void storeAllSyncObjects() {

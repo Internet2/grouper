@@ -644,8 +644,9 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     
     for (String error: GrouperUtil.nonNull(errorCountByCode).keySet()) {
       
-      GcGrouperSyncErrorCode gcGrouperSyncErrorCode = GcGrouperSyncErrorCode.valueOf(error);
-      if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.ERR) {
+      GcGrouperSyncErrorCode gcGrouperSyncErrorCode = GcGrouperSyncErrorCode.valueOfOrNull(error);
+      // GRP-7458: UNE (unexpected exception) counts as an exception, same bucket as ERR
+      if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.ERR || gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.UNE) {
         counts[0] = counts[0] + errorCountByCode.get(error);
       } else if (gcGrouperSyncErrorCode == GcGrouperSyncErrorCode.DNE) {
         counts[1] = counts[1] + errorCountByCode.get(error);
