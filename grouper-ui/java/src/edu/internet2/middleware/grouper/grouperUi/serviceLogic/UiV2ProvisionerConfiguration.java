@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -84,6 +85,18 @@ public class UiV2ProvisionerConfiguration {
    * uniquely identifies this diagnostics request as opposed to other diagnostics in other tabs
    */
   private static ExpirableCache<MultiKey, GrouperProvisioner> diagnosticsThreadProgress = new ExpirableCache<MultiKey, GrouperProvisioner>(300);
+
+  /**
+   * make a validation error message clickable so it scrolls to the offending element.  Do not use a hash href since
+   * History.js treats hashes containing dots (e.g. targetEntityAttribute.1.name) as urls and rewrites the browser location
+   * @param jqueryHandle e.g. #config_targetEntityAttribute.1.name_spanid
+   * @param errorMessage
+   * @return the html
+   */
+  private static String clickableValidationErrorMessage(String jqueryHandle, String errorMessage) {
+    return "<a href=\"#\" onclick=\"guiScrollTo('" + GrouperUiUtils.escapeJavascript(jqueryHandle, true) + "'); return false;\">"
+        + errorMessage + "</a>";
+  }
 
   /**
    * start diagnostics
@@ -1468,7 +1481,7 @@ public class UiV2ProvisionerConfiguration {
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           //make error message clickable and navigate to the element when clicked
           String errorMessage = validationErrorsToDisplay.get(validationKey);
-          String clickableErrorMessage = "<a href='"+validationKey+"'>"+errorMessage+"</a>";
+          String clickableErrorMessage = clickableValidationErrorMessage(validationKey, errorMessage);
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, clickableErrorMessage));
         }
 
@@ -1636,7 +1649,7 @@ public class UiV2ProvisionerConfiguration {
           
           String errorMessage = validationErrorsToDisplay.get(validationKey);
           //make error message clickable and navigate to the element when clicked
-          String clickableErrorMessage = "<a href='"+validationKey+"'>"+errorMessage+"</a>";
+          String clickableErrorMessage = clickableValidationErrorMessage(validationKey, errorMessage);
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, clickableErrorMessage));
         }
 
