@@ -8659,6 +8659,7 @@ public class GrouperUtil {
    * @return the timestamp object
    */
   public static Timestamp stringToTimestampTimeRequiredWithoutSeconds(String input) {
+    assertNotIncompleteDateTime(input);
     Date date = stringToTimestampTimeRequiredWithoutSecondsHelper(input);
     if (date == null) {
       return null;
@@ -8671,6 +8672,36 @@ public class GrouperUtil {
   }
   
   /**
+   * format a date for an html datetime-local input with seconds, e.g. 2022-02-15T15:27:42
+   * @param date
+   * @return the formatted date or null if null
+   */
+  public static String formatLocalDateTime(Date date) {
+    if (date == null) {
+      return null;
+    }
+    synchronized (timestampHoursMinutesSecondsLocalDateTime) {
+      return timestampHoursMinutesSecondsLocalDateTime.format(date);
+    }
+  }
+
+  /**
+   * value the UI sends for a datetime-local input that has a date but no time (the browser reports an empty value)
+   */
+  public static final String INCOMPLETE_DATE_TIME = "__incompleteDateTime__";
+
+  /**
+   * throw if the input is the marker for an incomplete datetime-local input from the UI
+   * @param input
+   */
+  public static void assertNotIncompleteDateTime(String input) {
+    if (INCOMPLETE_DATE_TIME.equals(trim(input))) {
+      LOG.warn("Incomplete date/time submitted (date without time)");
+      throw new RuntimeException("Incomplete date/time, date and time are both required");
+    }
+  }
+
+  /**
    * <pre>convert a string to timestamp based on the following formats:
    * 2022-02-15T15:27:42
    * 2022-02-15T15:27
@@ -8680,6 +8711,8 @@ public class GrouperUtil {
    */
   public static Timestamp stringToTimestampTimeRequiredLocalDateTime(String input) {
 
+    assertNotIncompleteDateTime(input);
+
     //trim and handle null and empty
     if (isBlank(input)) {
       return null;
@@ -8687,10 +8720,15 @@ public class GrouperUtil {
     input = input.trim();
     try {
       Date date = null;
+      // try seconds first: parse() ignores trailing text, so the minutes format would drop the seconds
       try {
-        date = timestampHoursMinutesLocalDateTime.parse(input);
+        synchronized (timestampHoursMinutesSecondsLocalDateTime) {
+          date = timestampHoursMinutesSecondsLocalDateTime.parse(input);
+        }
       } catch (ParseException pe) {
-        date = timestampHoursMinutesSecondsLocalDateTime.parse(input);
+        synchronized (timestampHoursMinutesLocalDateTime) {
+          date = timestampHoursMinutesLocalDateTime.parse(input);
+        }
       }
       if (date == null) {
         return null;

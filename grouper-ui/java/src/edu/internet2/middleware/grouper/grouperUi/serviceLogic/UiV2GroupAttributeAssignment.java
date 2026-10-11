@@ -683,29 +683,28 @@ public class UiV2GroupAttributeAssignment {
         return;
       }
 
-      {
-        String enabledDate = httpServletRequest.getParameter("enabledDate");
-        
-        if (StringUtils.isBlank(enabledDate) ) {
-          attributeAssign.setEnabledTime(null);
-        } else {
-          //must be yyyy/mm/dd
-          Timestamp enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(enabledDate);
-          attributeAssign.setEnabledTime(enabledTimestamp);
-        }
+      Timestamp enabledTimestamp = null;
+      try {
+        //must be yyyy/mm/dd
+        enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(httpServletRequest.getParameter("enabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#enabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.assignEditEnabledDateInvalid")));
+        return;
       }
-      
-      {
-        String disabledDate = httpServletRequest.getParameter("disabledDate");
-  
-        if (StringUtils.isBlank(disabledDate) ) {
-          attributeAssign.setDisabledTime(null);
-        } else {
-          //must be yyyy/mm/dd
-          Timestamp disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(disabledDate);
-          attributeAssign.setDisabledTime(disabledTimestamp);
-        }
+
+      Timestamp disabledTimestamp = null;
+      try {
+        //must be yyyy/mm/dd
+        disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(httpServletRequest.getParameter("disabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#disabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.assignEditDisabledDateInvalid")));
+        return;
       }
+
+      attributeAssign.setEnabledTime(enabledTimestamp);
+      attributeAssign.setDisabledTime(disabledTimestamp);
       
       attributeAssign.saveOrUpdate();
       

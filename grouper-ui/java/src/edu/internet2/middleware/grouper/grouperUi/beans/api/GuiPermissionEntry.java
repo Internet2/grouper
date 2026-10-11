@@ -226,7 +226,7 @@ public class GuiPermissionEntry implements Serializable {
    * @return the string format
    */
   public synchronized static String formatEnabledDisabled(Timestamp timestamp) {
-    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(timestamp);
+    return GrouperUtil.formatLocalDateTime(timestamp);
   }
 
 

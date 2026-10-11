@@ -55,7 +55,7 @@ public class GuiMembership {
       return null;
     }
     
-    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.membership.getEnabledTime());
+    return GrouperUtil.formatLocalDateTime(this.membership.getEnabledTime());
     
   }
 
@@ -70,7 +70,7 @@ public class GuiMembership {
       return null;
     }
     
-    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.membership.getDisabledTime());
+    return GrouperUtil.formatLocalDateTime(this.membership.getDisabledTime());
     
   }
 

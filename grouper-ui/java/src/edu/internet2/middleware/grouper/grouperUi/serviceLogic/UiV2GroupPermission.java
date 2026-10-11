@@ -753,27 +753,26 @@ public class UiV2GroupPermission {
         
       }
       
-      {
-        String enabledDate = request.getParameter("enabledDate");
-        
-        if (StringUtils.isBlank(enabledDate) ) {
-          attributeAssign.setEnabledTime(null);
-        } else {
-          Timestamp enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(enabledDate);
-          attributeAssign.setEnabledTime(enabledTimestamp);
-        }
+      Timestamp enabledTimestamp = null;
+      try {
+        enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(request.getParameter("enabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#enabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.assignEditEnabledDateInvalid")));
+        return;
       }
-      
-      {
-        String disabledDate = request.getParameter("disabledDate");
-  
-        if (StringUtils.isBlank(disabledDate) ) {
-          attributeAssign.setDisabledTime(null);
-        } else {
-          Timestamp disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(disabledDate);
-          attributeAssign.setDisabledTime(disabledTimestamp);
-        }
+
+      Timestamp disabledTimestamp = null;
+      try {
+        disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(request.getParameter("disabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#disabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.assignEditDisabledDateInvalid")));
+        return;
       }
+
+      attributeAssign.setEnabledTime(enabledTimestamp);
+      attributeAssign.setDisabledTime(disabledTimestamp);
       
       attributeAssign.saveOrUpdate();
       
@@ -916,28 +915,27 @@ public class UiV2GroupPermission {
         }
       }
 
-      {
-        String enabledDate = request.getParameter("enabledDate");
-        
-        if (StringUtils.isBlank(enabledDate) ) {
-          limitAssign.setEnabledTime(null);
-        } else {
-          Timestamp enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(enabledDate);
-          limitAssign.setEnabledTime(enabledTimestamp);
-        }
+      Timestamp enabledTimestamp = null;
+      try {
+        enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(request.getParameter("enabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#enabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.limitEditEnabledDateInvalid")));
+        return;
       }
-      
-      {
-        String disabledDate = request.getParameter("disabledDate");
-  
-        if (StringUtils.isBlank(disabledDate) ) {
-          limitAssign.setDisabledTime(null);
-        } else {
-          //must be yyyy/mm/dd
-          Timestamp disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(disabledDate);
-          limitAssign.setDisabledTime(disabledTimestamp);
-        }
+
+      Timestamp disabledTimestamp = null;
+      try {
+        //must be yyyy/mm/dd
+        disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(request.getParameter("disabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#disabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.limitEditDisabledDateInvalid")));
+        return;
       }
+
+      limitAssign.setEnabledTime(enabledTimestamp);
+      limitAssign.setDisabledTime(disabledTimestamp);
       
       limitAssign.saveOrUpdate();
       

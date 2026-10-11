@@ -5005,16 +5005,30 @@ public class UiV2Stem {
 
         if (!GrouperUtil.isEmpty(request.getParameter("dateFromAbsolute"))) {
           String dateFromString = request.getParameter("dateFromAbsolute");
-          LocalDateTime localDateTime = LocalDateTime.parse(dateFromString, formatter);
-          dateFromDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+          try {
+            GrouperUtil.assertNotIncompleteDateTime(dateFromString);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateFromString, formatter);
+            dateFromDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#dateFromAbsoluteId",
+                TextContainer.retrieveFromRequest().getText().get("groupHistoryChartTimePeriodFromInvalid")));
+            return;
+          }
         } else {
           dateFromDate = null;
         }
 
         if (!GrouperUtil.isEmpty(request.getParameter("dateToAbsolute"))) {
           String dateToString = request.getParameter("dateToAbsolute");
-          LocalDateTime localDateTime = LocalDateTime.parse(dateToString, formatter);
-          dateToDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+          try {
+            GrouperUtil.assertNotIncompleteDateTime(dateToString);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateToString, formatter);
+            dateToDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#dateToAbsoluteId",
+                TextContainer.retrieveFromRequest().getText().get("groupHistoryChartTimePeriodToInvalid")));
+            return;
+          }
         } else {
           dateToDate = new Date();
         }

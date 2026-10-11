@@ -1031,7 +1031,7 @@ function ajax(theUrl, options) {
       for(var j=0;j<theForm.elements.length;j++) {
         var element = theForm.elements[j];
         
-        options.requestParams[element.name] = guiFieldValues(element);
+        options.requestParams[element.name] = guiAjaxFieldValues(element);
         
         //alert(element.id + ' - ' + element.nodeName.toUpperCase() + " - " + element.name + " - " + element.type + " - " + options.requestParams[element.name]);
         
@@ -1048,7 +1048,7 @@ function ajax(theUrl, options) {
 
       var element = document.getElementsByName(additionalFormElementName)[0];
       
-      options.requestParams[element.name] = guiFieldValues(element);
+      options.requestParams[element.name] = guiAjaxFieldValues(element);
     } 
   } 
 
@@ -2037,6 +2037,18 @@ function guiStartsWith(a, b) {
   } else {
     return false;
   }
+}
+
+/** Value of a field to send in an ajax request.  A datetime-local with a date but no time
+(e.g. Firefox) has an empty value and badInput, so send a marker instead so the server
+rejects it rather than treating it as no date. */
+function guiAjaxFieldValues(theField) {
+  if (theField.nodeName.toUpperCase() == "INPUT"
+      && theField.type && theField.type.toUpperCase() == "DATETIME-LOCAL"
+      && theField.validity && theField.validity.badInput) {
+    return "__incompleteDateTime__";
+  }
+  return guiFieldValues(theField);
 }
 
 /** Get the value of the field, if it is a radio or checkbox, 

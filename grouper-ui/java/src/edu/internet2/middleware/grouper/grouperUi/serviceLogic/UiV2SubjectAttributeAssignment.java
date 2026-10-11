@@ -587,27 +587,26 @@ public class UiV2SubjectAttributeAssignment {
         return;
       }
 
-      {
-        String enabledDate = httpServletRequest.getParameter("enabledDate");
-        
-        if (StringUtils.isBlank(enabledDate) ) {
-          attributeAssign.setEnabledTime(null);
-        } else {
-          Timestamp enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(enabledDate);
-          attributeAssign.setEnabledTime(enabledTimestamp);
-        }
+      Timestamp enabledTimestamp = null;
+      try {
+        enabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(httpServletRequest.getParameter("enabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#enabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.assignEditEnabledDateInvalid")));
+        return;
       }
-      
-      {
-        String disabledDate = httpServletRequest.getParameter("disabledDate");
-  
-        if (StringUtils.isBlank(disabledDate) ) {
-          attributeAssign.setDisabledTime(null);
-        } else {
-          Timestamp disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(disabledDate);
-          attributeAssign.setDisabledTime(disabledTimestamp);
-        }
+
+      Timestamp disabledTimestamp = null;
+      try {
+        disabledTimestamp = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(httpServletRequest.getParameter("disabledDate"));
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#disabledDateId",
+            TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.assignEditDisabledDateInvalid")));
+        return;
       }
+
+      attributeAssign.setEnabledTime(enabledTimestamp);
+      attributeAssign.setDisabledTime(disabledTimestamp);
       
       attributeAssign.saveOrUpdate();
       
