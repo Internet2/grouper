@@ -169,7 +169,7 @@
         <amqp-client.version>5.35.0</amqp-client.version>
         
         <jackson.version>2.22.3</jackson.version>
-        <jsoup.version>1.23.1</jsoup.version>
+        <jsoup.version>1.23.2</jsoup.version>
         <java-ipv6.version>0.17</java-ipv6.version>
         
         <!-- grouper-ui -->
