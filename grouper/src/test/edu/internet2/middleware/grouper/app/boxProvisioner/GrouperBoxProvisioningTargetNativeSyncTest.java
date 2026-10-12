@@ -156,8 +156,10 @@ public class GrouperBoxProvisioningTargetNativeSyncTest extends GrouperTest {
   }
 
   /**
-   * No provisioner config -> Box group defaults: name, group_type, provenance. targetId comes from
-   * {@code /id} (not captured as an attribute).
+   * No provisioner config -> Box group defaults: name, description, group_type, provenance,
+   * external_sync_identifier, invitability_level, member_viewability_level (GRP-7293 widened the
+   * group defaults). targetId comes from {@code /id} (not captured as an attribute). Fields missing
+   * from the json (invitability_level, member_viewability_level here) are skipped, not captured as null.
    */
   public void testBuildNativeGroupAppliesDefaults() {
     GrouperProvisioningTargetNativeGroup bean =
@@ -165,11 +167,13 @@ public class GrouperBoxProvisioningTargetNativeSyncTest extends GrouperTest {
 
     assertEquals("255224", bean.getTargetId());                          // from /id
     assertEquals("Support", bean.getAttributes().get("name"));
+    assertEquals("the support group", bean.getAttributes().get("description"));
     assertEquals("managed_group", bean.getAttributes().get("group_type"));
     assertEquals("Okta", bean.getAttributes().get("provenance"));
+    assertEquals("idp-group-0001", bean.getAttributes().get("external_sync_identifier"));
+    assertFalse("not in the json, so not captured", bean.getAttributes().containsKey("invitability_level"));
     assertFalse("id is the target_group_id column, not an attribute",
         bean.getAttributes().containsKey("id"));
-    assertFalse("description is not a default", bean.getAttributes().containsKey("description"));
     assertFalse("memberships_url is not a default",
         bean.getAttributes().containsKey("memberships_url"));
   }
