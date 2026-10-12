@@ -170,25 +170,32 @@ public class GrouperMcpInstitutionalTools {
     ownerTypeEnum.add("group");
     ownerTypeEnum.add("stem");
     ownerTypeProp.set("enum", ownerTypeEnum);
+    // the owner is easy to mistake for the object a template acts on: asked to get a group, a model
+    // passes that group here and leaves the template's own input empty.  so this says when to pass
+    // one, and that otherwise it is left out
     ownerTypeProp.put("description",
-        "Owner type for execution context. 'group' if running on a group, 'stem' if running on a folder. "
-        + "Optional for 'execute' action. Check the schema to see which types are applicable.");
+        "The group or folder a template runs on, which is not necessarily what its inputs act on. "
+        + "'group' only for a template whose schema says executeOnGroupName is true, 'stem' only for "
+        + "one whose schema says executeOnFolderName is true. If both are false the template runs "
+        + "with no owner: leave this, ownerGroupName and ownerStemName out, and pass any group or "
+        + "folder the user asked about in the template's inputs.");
     properties.set("ownerType", ownerTypeProp);
 
     // ownerGroupName
     ObjectNode ownerGroupNameProp = objectMapper.createObjectNode();
     ownerGroupNameProp.put("type", "string");
     ownerGroupNameProp.put("description",
-        "The fully qualified group name to execute on (e.g., 'stem1:stem2:groupName'). "
-        + "Required when ownerType is 'group'.");
+        "The fully qualified name of the group the template runs on (e.g., 'stem1:stem2:groupName'), "
+        + "only when ownerType is 'group'. Not the group a template's inputs act on: that goes in "
+        + "inputs.");
     properties.set("ownerGroupName", ownerGroupNameProp);
 
     // ownerStemName
     ObjectNode ownerStemNameProp = objectMapper.createObjectNode();
     ownerStemNameProp.put("type", "string");
     ownerStemNameProp.put("description",
-        "The fully qualified folder name to execute on (e.g., 'stem1:stem2'). "
-        + "Required when ownerType is 'stem'.");
+        "The fully qualified name of the folder the template runs on (e.g., 'stem1:stem2'), only "
+        + "when ownerType is 'stem'. Not the folder a template's inputs act on: that goes in inputs.");
     properties.set("ownerStemName", ownerStemNameProp);
 
     // inputs
