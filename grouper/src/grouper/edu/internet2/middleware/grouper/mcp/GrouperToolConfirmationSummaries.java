@@ -20,7 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
  * same way the tool reads them, so that for example a privilege call without "allowed" reads as a
  * revoke, because that is what it does.  every other argument the call was given is listed after
  * the headline, so nothing that affects the call is left out, including arguments a tool gains
- * after this was written.</p>
+ * after this was written.  an institutional tool's inputs, which can be many, follow on lines of
+ * their own, one per input.</p>
  */
 public class GrouperToolConfirmationSummaries {
 
@@ -212,7 +213,26 @@ public class GrouperToolConfirmationSummaries {
     // the owner and the inputs are what the script acts on, and are listed after the headline
     String headline = "Run institutional tool " + quote(argumentText(arguments, "configId"))
         + ", a script which can make changes";
-    return withOtherArguments(headline, arguments, "action", "configId");
+
+    // a template can have many inputs, which run together unreadably on one line, so each goes on
+    // a line of its own, in the order the model gave them.  a value cannot start a line of its own,
+    // since escape shows a new line in it as \n.  anything other than an object of inputs is
+    // listed with the other arguments as before
+    JsonNode inputs = arguments == null ? null : arguments.get("inputs");
+    if (inputs == null || !inputs.isObject() || inputs.size() == 0) {
+      return withOtherArguments(headline, arguments, "action", "configId");
+    }
+
+    StringBuilder result = new StringBuilder(
+        withOtherArguments(headline, arguments, "action", "configId", "inputs"));
+    result.append("\ninputs:");
+    Iterator<String> fieldNames = inputs.fieldNames();
+    while (fieldNames.hasNext()) {
+      String fieldName = fieldNames.next();
+      result.append("\n").append(argumentName(fieldName)).append(": ")
+        .append(argumentValue(inputs.get(fieldName)));
+    }
+    return result.toString();
   }
 
   /**
@@ -333,12 +353,18 @@ public class GrouperToolConfirmationSummaries {
       if (result.length() > 0) {
         result.append(", ");
       }
-      JsonNode value = arguments.get(fieldName);
-      result.append(argumentName(fieldName)).append(": ")
-        .append(value.isTextual() ? quote(value.asText()) : escape(value.toString(), false));
+      result.append(argumentName(fieldName)).append(": ").append(argumentValue(arguments.get(fieldName)));
     }
 
     return result.length() == 0 ? null : result.toString();
+  }
+
+  /**
+   * @param value an argument's value
+   * @return text in quotes, anything else as JSON, escaped either way
+   */
+  private static String argumentValue(JsonNode value) {
+    return value.isTextual() ? quote(value.asText()) : escape(value.toString(), false);
   }
 
   /**

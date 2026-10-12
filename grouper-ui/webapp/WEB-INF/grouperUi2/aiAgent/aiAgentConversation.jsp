@@ -61,7 +61,9 @@
 </c:if></div>
 
 <%-- the approval: the summary is what is being approved.  only the ids go back, and only ids of
-     calls actually waiting are accepted --%>
+     calls actually waiting are accepted.  pre-line keeps the summary's own line breaks, which an
+     institutional tool's summary uses to put each input on a line; a value cannot add one, since
+     the summary shows a new line in a value as \n --%>
 <c:if test="${!aiAgentContainer.running && !empty aiAgentContainer.pendingConfirmations}">
   <form id="aiAgentApproveFormId" onsubmit="return false;">
     <div class="alert alert-block">
@@ -72,7 +74,7 @@
              off a paragraph in an alert, so it is put back to keep the buttons off the text --%>
         <c:when test="${aiAgentContainer.pendingConfirmationCount == 1}">
           <c:forEach items="${aiAgentContainer.pendingConfirmations}" var="pendingConfirmation">
-            <p style="word-wrap: break-word; margin-bottom: 10px;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
+            <p style="word-wrap: break-word; white-space: pre-line; margin-bottom: 10px;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
           </c:forEach>
         </c:when>
         <c:otherwise>
@@ -82,7 +84,7 @@
             <label class="checkbox" style="word-wrap: break-word;">
               <input type="checkbox" name="aiAgentApprove" value="${grouper:escapeHtml(pendingConfirmation.toolCallId)}"
                 checked="checked" onchange="aiAgentApproveCountChanged();" />
-              ${grouper:escapeHtml(pendingConfirmation.summary)}
+              <span style="white-space: pre-line;">${grouper:escapeHtml(pendingConfirmation.summary)}</span>
             </label>
           </c:forEach>
         </c:otherwise>
