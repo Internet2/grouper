@@ -29,8 +29,9 @@ ${grouper:title('miscellaneousMcpRecipeAddBreadcrumb')}
       <table class="table table-condensed table-striped">
         <tbody>
           <tr>
+            <%-- two columns, label and value: the fields below hide the expression language column
+                 (shouldShowElCheckbox false), so there is no middle column to line up with --%>
             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="mcpRecipeConfigId">${textContainer.text['mcpRecipeConfigIdLabel']}</label></strong></td>
-            <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
             <td>
               <%-- posting back on change is what draws the rest of the form.  the fields below
                    come from the configuration module, which needs a config id before it can
@@ -54,7 +55,7 @@ ${grouper:title('miscellaneousMcpRecipeAddBreadcrumb')}
           <tbody>
             <c:if test="${!grouper:isBlank(subSection.label) and subSection.show }">
               <tr>
-                <th colspan="3">
+                <th colspan="2">
                   <h4>${subSection.title}</h4>
                   <p style="font-weight: normal;">${subSection.description} </p>
                 </th>

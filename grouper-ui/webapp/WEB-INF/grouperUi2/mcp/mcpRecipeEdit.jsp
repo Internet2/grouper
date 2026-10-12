@@ -41,8 +41,9 @@ ${grouper:title('miscellaneousMcpRecipeEditBreadcrumb')}
           <tr>
             <%-- the config id is not editable here, so this is a caption for a value rather than
                  a form label.  a label element with nothing to point at is an orphaned label --%>
+            <%-- two columns, label and value: the fields below hide the expression language column
+                 (shouldShowElCheckbox false), so there is no middle column to line up with --%>
             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['mcpRecipeConfigIdLabel']}</strong></td>
-            <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
             <td>
               ${grouper:escapeHtml(mcpRecipeConfigId)}
             </td>
@@ -53,7 +54,7 @@ ${grouper:title('miscellaneousMcpRecipeEditBreadcrumb')}
           <tbody>
             <c:if test="${!grouper:isBlank(subSection.label) and subSection.show }">
               <tr>
-                <th colspan="3">
+                <th colspan="2">
                   <h4>${subSection.title}</h4>
                   <p style="font-weight: normal;">${subSection.description} </p>
                 </th>
