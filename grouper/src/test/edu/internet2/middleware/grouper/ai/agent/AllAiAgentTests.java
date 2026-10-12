@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.mcp.GrouperToolExecutorPageSizeTest;
 import edu.internet2.middleware.grouper.mcp.GrouperToolResultBoundTest;
 import edu.internet2.middleware.grouper.ws.GrouperWsRequestContextTest;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAuthUserTest;
+import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpInstitutionalToolsReadonlyWhenTest;
 
 /**
  * tests for the AI agent in the Grouper UI and the parts of the tool layer it added: the agent loop,
@@ -37,6 +38,7 @@ public class AllAiAgentTests {
     suite.addTestSuite(GrouperToolResultBoundTest.class);
     suite.addTestSuite(GrouperWsRequestContextTest.class);
     suite.addTestSuite(GrouperMcpAuthUserTest.class);
+    suite.addTestSuite(GrouperMcpInstitutionalToolsReadonlyWhenTest.class);
     //$JUnit-END$
     return suite;
   }
