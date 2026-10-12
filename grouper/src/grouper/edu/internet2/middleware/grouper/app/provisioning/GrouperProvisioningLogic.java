@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -2171,8 +2172,17 @@ public class GrouperProvisioningLogic {
       membershipRecords.add(membershipRecord);
     }
     
-    this.assignProvisioningObjectInternalIds(targetUserIdToRecord, TableIndexType.provUser);
-    this.assignProvisioningObjectInternalIds(targetGroupIdToRecord, TableIndexType.provGroup);
+    // GRP-7474: reuse the internal_id a target user / group already has in the sync-back tables.  Reserving a
+    // fresh internal_id for every object on every run made the table sync (keyed on internal_id) delete every
+    // existing user, group, attribute value, and membership row and insert them all again: very slow for large
+    // targets (e.g. Duo, 226k users and 3.6M value rows), and the tables were half empty for other readers
+    // while it ran.  New ids are only reserved for objects that are not in the table yet.
+    Map<String, ExistingGenericProvisioningObjectRow> existingUserRows = this.fetchExistingGenericProvisioningObjectRows(
+        "grouper_prov_user", "target_user_id", "member_internal_id", grouperSyncInternalId);
+    Map<String, ExistingGenericProvisioningObjectRow> existingGroupRows = this.fetchExistingGenericProvisioningObjectRows(
+        "grouper_prov_group", "target_group_id", "group_internal_id", grouperSyncInternalId);
+    this.reuseOrAssignProvisioningObjectInternalIds(targetUserIdToRecord, TableIndexType.provUser, existingUserRows);
+    this.reuseOrAssignProvisioningObjectInternalIds(targetGroupIdToRecord, TableIndexType.provGroup, existingGroupRows);
 
     // populate the Grouper-side linkage columns (member_internal_id / group_internal_id) on
     // the records by looking up the in-memory wrappers. Target-side orphans (target_ids the
@@ -2201,16 +2211,23 @@ public class GrouperProvisioningLogic {
     this.addProvisioningStringValues(groupAttributeRecords, stringValues);
     Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues);
 
-    // build user row data
+    // build user row data.  GRP-7474: an unchanged row keeps its last_updated, so the table sync sees no
+    // difference and does not write it
     List<Object[]> userRowData = new ArrayList<Object[]>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
-      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, userRecord.getMemberInternalId(), userRecord.getTargetId(), nowMicros});
+      ExistingGenericProvisioningObjectRow existingRow = existingUserRows.get(userRecord.getTargetId());
+      long lastUpdated = existingRow != null && existingRow.internalId == userRecord.getInternalId()
+          && Objects.equals(existingRow.linkInternalId, userRecord.getMemberInternalId()) ? existingRow.lastUpdated : nowMicros;
+      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, userRecord.getMemberInternalId(), userRecord.getTargetId(), lastUpdated});
     }
 
     // build group row data
     List<Object[]> groupRowData = new ArrayList<Object[]>();
     for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
-      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), nowMicros});
+      ExistingGenericProvisioningObjectRow existingRow = existingGroupRows.get(groupRecord.getTargetId());
+      long lastUpdated = existingRow != null && existingRow.internalId == groupRecord.getInternalId()
+          && Objects.equals(existingRow.linkInternalId, groupRecord.getGroupInternalId()) ? existingRow.lastUpdated : nowMicros;
+      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), lastUpdated});
     }
 
     // build user attribute catalog row data (one row per distinct attribute_name)
@@ -2219,15 +2236,27 @@ public class GrouperProvisioningLogic {
     // build group attribute catalog row data (one row per distinct attribute_name)
     List<Object[]> groupAttributeRowData = this.buildProvisioningAttrCatalogRowData(groupAttrCatalog, grouperSyncInternalId, nowMicros);
 
-    // build user attribute value row data
+    // build user attribute value row data.  GRP-7474: reuse the internal_id (and last_updated) of a value row
+    // that is already there with the same object, attribute, and value, so unchanged values are not rewritten
     List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
-        userAttributeRecords, TableIndexType.provUserAttrValue, valueStringToDictionaryInternalId, nowMicros);
+        userAttributeRecords, TableIndexType.provUserAttrValue, valueStringToDictionaryInternalId, nowMicros,
+        this.fetchExistingGenericProvisioningValueRows(
+            "select internal_id, prov_user_attr_internal_id, prov_user_internal_id, value_integer, value_dictionary_internal_id, last_updated "
+            + "from grouper_prov_user_attr_value where prov_user_internal_id in (select internal_id from grouper_prov_user where grouper_sync_internal_id = ?)",
+            grouperSyncInternalId));
 
     // build group attribute value row data
     List<Object[]> groupAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
-        groupAttributeRecords, TableIndexType.provGroupAttrValue, valueStringToDictionaryInternalId, nowMicros);
+        groupAttributeRecords, TableIndexType.provGroupAttrValue, valueStringToDictionaryInternalId, nowMicros,
+        this.fetchExistingGenericProvisioningValueRows(
+            "select internal_id, prov_group_attr_internal_id, prov_group_internal_id, value_integer, value_dictionary_internal_id, last_updated "
+            + "from grouper_prov_group_attr_value where prov_group_internal_id in (select internal_id from grouper_prov_group where grouper_sync_internal_id = ?)",
+            grouperSyncInternalId));
 
-    // build role row data - always include the default role so every membership has a non-null role FK
+    // build role row data - always include the default role so every membership has a non-null role FK.
+    // GRP-7474: reuse existing role rows by name, reserve ids only for new role names
+    Map<String, ExistingGenericProvisioningObjectRow> existingRoleRows = this.fetchExistingGenericProvisioningObjectRows(
+        "grouper_prov_mship_role", "role_name", null, grouperSyncInternalId);
     Map<String, Long> roleNameToInternalId = new LinkedHashMap<String, Long>();
     Set<String> roleNames = new LinkedHashSet<String>();
     roleNames.add(DEFAULT_MSHIP_ROLE_NAME);
@@ -2236,32 +2265,55 @@ public class GrouperProvisioningLogic {
         roleNames.add(membershipRecord.roleName);
       }
     }
-    List<String> roleNamesList = new ArrayList<String>(roleNames);
-    List<Long> roleInternalIds = TableIndex.reserveIds(TableIndexType.provMshipRole, roleNamesList.size());
-    for (int i = 0; i < roleNamesList.size(); i++) {
-      roleNameToInternalId.put(roleNamesList.get(i), roleInternalIds.get(i));
+    List<String> newRoleNames = new ArrayList<String>();
+    for (String roleName : roleNames) {
+      ExistingGenericProvisioningObjectRow existingRole = existingRoleRows.get(roleName);
+      if (existingRole != null) {
+        roleNameToInternalId.put(roleName, existingRole.internalId);
+      } else {
+        newRoleNames.add(roleName);
+      }
     }
-    
+    if (newRoleNames.size() > 0) {
+      List<Long> roleInternalIds = TableIndex.reserveIds(TableIndexType.provMshipRole, newRoleNames.size());
+      for (int i = 0; i < newRoleNames.size(); i++) {
+        roleNameToInternalId.put(newRoleNames.get(i), roleInternalIds.get(i));
+      }
+    }
+
     List<Object[]> roleRowData = new ArrayList<Object[]>();
     for (String roleName : roleNameToInternalId.keySet()) {
-      roleRowData.add(new Object[] {roleNameToInternalId.get(roleName), roleName, grouperSyncInternalId, nowMicros});
+      ExistingGenericProvisioningObjectRow existingRole = existingRoleRows.get(roleName);
+      long lastUpdated = existingRole != null ? existingRole.lastUpdated : nowMicros;
+      roleRowData.add(new Object[] {roleNameToInternalId.get(roleName), roleName, grouperSyncInternalId, lastUpdated});
     }
-    
-    // build membership row data
+
+    // build membership row data.  GRP-7474: reuse the existing row for the same user, group, and role
+    Map<MultiKey, long[]> existingMembershipRows = this.fetchExistingGenericProvisioningMembershipRows(grouperSyncInternalId);
     List<Object[]> membershipRowData = new ArrayList<Object[]>();
-    if (GrouperUtil.length(membershipRecords) > 0) {
-      List<Long> membershipInternalIds = TableIndex.reserveIds(TableIndexType.provMship, membershipRecords.size());
-      for (int i = 0; i < membershipRecords.size(); i++) {
-        GenericProvisioningMembershipRecord membershipRecord = membershipRecords.get(i);
-        GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(membershipRecord.targetUserId);
-        GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(membershipRecord.targetGroupId);
-        String effectiveRoleName = membershipRecord.roleName != null ? membershipRecord.roleName : DEFAULT_MSHIP_ROLE_NAME;
-        Long roleInternalId = roleNameToInternalId.get(effectiveRoleName);
-        if (userRecord == null || groupRecord == null) {
-          continue;
-        }
-        membershipRowData.add(new Object[] {membershipInternalIds.get(i), grouperSyncInternalId, userRecord.getInternalId(),
-            groupRecord.getInternalId(), roleInternalId, nowMicros});
+    List<Object[]> newMembershipRowData = new ArrayList<Object[]>();
+    for (GenericProvisioningMembershipRecord membershipRecord : membershipRecords) {
+      GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(membershipRecord.targetUserId);
+      GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(membershipRecord.targetGroupId);
+      String effectiveRoleName = membershipRecord.roleName != null ? membershipRecord.roleName : DEFAULT_MSHIP_ROLE_NAME;
+      Long roleInternalId = roleNameToInternalId.get(effectiveRoleName);
+      if (userRecord == null || groupRecord == null) {
+        continue;
+      }
+      long[] existingMembership = existingMembershipRows.get(
+          new MultiKey(userRecord.getInternalId(), groupRecord.getInternalId(), roleInternalId));
+      Object[] row = new Object[] {existingMembership == null ? null : existingMembership[0], grouperSyncInternalId,
+          userRecord.getInternalId(), groupRecord.getInternalId(), roleInternalId,
+          existingMembership == null ? nowMicros : existingMembership[1]};
+      membershipRowData.add(row);
+      if (existingMembership == null) {
+        newMembershipRowData.add(row);
+      }
+    }
+    if (newMembershipRowData.size() > 0) {
+      List<Long> membershipInternalIds = TableIndex.reserveIds(TableIndexType.provMship, newMembershipRowData.size());
+      for (int i = 0; i < newMembershipRowData.size(); i++) {
+        newMembershipRowData.get(i)[0] = membershipInternalIds.get(i);
       }
     }
     
@@ -4002,25 +4054,33 @@ public class GrouperProvisioningLogic {
   
   private List<Object[]> buildProvisioningAttributeValueRowData(List<GenericProvisioningAttributeRecord> attributeRecords,
       TableIndexType tableIndexType, Map<String, Long> valueStringToDictionaryInternalId, long nowMicros) {
-    
+    return this.buildProvisioningAttributeValueRowData(attributeRecords, tableIndexType,
+        valueStringToDictionaryInternalId, nowMicros, null);
+  }
+
+  /**
+   * build value rows for grouper_prov_user_attr_value / grouper_prov_group_attr_value
+   * (internal_id, attr catalog id, object id, value_integer, value_dictionary_internal_id, last_updated).
+   * GRP-7474: when existing value rows are passed, a value that is already stored for the same object,
+   * attribute, and value keeps that row's internal_id and last_updated, so the table sync sees an identical
+   * row and does nothing.  Only values that are not stored yet get a new internal_id.
+   * @param existingValueRows object internal_id to its existing value rows, or null to always reserve new ids
+   */
+  private List<Object[]> buildProvisioningAttributeValueRowData(List<GenericProvisioningAttributeRecord> attributeRecords,
+      TableIndexType tableIndexType, Map<String, Long> valueStringToDictionaryInternalId, long nowMicros,
+      Map<Long, List<ExistingGenericProvisioningValueRow>> existingValueRows) {
+
     List<Object[]> result = new ArrayList<Object[]>();
     if (GrouperUtil.length(attributeRecords) == 0) {
       return result;
     }
-    
-    int valueCount = 0;
+
+    // rows that need a new internal_id, filled in after one reserveIds call
+    List<Object[]> newRows = new ArrayList<Object[]>();
+
     for (GenericProvisioningAttributeRecord attributeRecord : attributeRecords) {
-      valueCount += GrouperUtil.length(attributeRecord.values);
-    }
-    
-    if (valueCount == 0) {
-      return result;
-    }
-    
-    List<Long> internalIds = TableIndex.reserveIds(tableIndexType, valueCount);
-    int currentIndex = 0;
-    
-    for (GenericProvisioningAttributeRecord attributeRecord : attributeRecords) {
+      List<ExistingGenericProvisioningValueRow> existingRowsForObject = existingValueRows == null ? null
+          : existingValueRows.get(attributeRecord.objectInternalId);
       for (GenericProvisioningTypedValue typedValue : attributeRecord.values) {
         Long valueInteger = typedValue.valueInteger;
         Long valueDictionaryInternalId = null;
@@ -4034,9 +4094,150 @@ public class GrouperProvisioningLogic {
           }
           // else: empty string value → emit row with both value columns NULL
         }
-        result.add(new Object[] {internalIds.get(currentIndex++), attributeRecord.internalId,
-            attributeRecord.objectInternalId, valueInteger, valueDictionaryInternalId, nowMicros});
+
+        // reuse an unused existing row with the same attribute and value (multi-valued attributes can
+        // have several rows for one attribute, each existing row is reused at most once)
+        ExistingGenericProvisioningValueRow match = null;
+        for (ExistingGenericProvisioningValueRow existingRow : GrouperUtil.nonNull(existingRowsForObject)) {
+          if (!existingRow.used && existingRow.attrInternalId == attributeRecord.internalId
+              && Objects.equals(existingRow.valueInteger, valueInteger)
+              && Objects.equals(existingRow.valueDictionaryInternalId, valueDictionaryInternalId)) {
+            match = existingRow;
+            break;
+          }
+        }
+        if (match != null) {
+          match.used = true;
+          result.add(new Object[] {match.internalId, attributeRecord.internalId,
+              attributeRecord.objectInternalId, valueInteger, valueDictionaryInternalId, match.lastUpdated});
+        } else {
+          Object[] row = new Object[] {null, attributeRecord.internalId,
+              attributeRecord.objectInternalId, valueInteger, valueDictionaryInternalId, nowMicros};
+          result.add(row);
+          newRows.add(row);
+        }
       }
+    }
+
+    if (newRows.size() > 0) {
+      List<Long> internalIds = TableIndex.reserveIds(tableIndexType, newRows.size());
+      for (int i = 0; i < newRows.size(); i++) {
+        newRows.get(i)[0] = internalIds.get(i);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * GRP-7474: an existing row of grouper_prov_user / grouper_prov_group / grouper_prov_mship_role, keyed by
+   * its natural key (target id, or role name), so a full sync can reuse the internal_id
+   */
+  private static class ExistingGenericProvisioningObjectRow {
+    private long internalId;
+    /** member_internal_id / group_internal_id, null if none (or not applicable) */
+    private Long linkInternalId;
+    private long lastUpdated;
+  }
+
+  /**
+   * GRP-7474: an existing grouper_prov_*_attr_value row, so a full sync can reuse it for the same value
+   */
+  private static class ExistingGenericProvisioningValueRow {
+    private long internalId;
+    private long attrInternalId;
+    private Long valueInteger;
+    private Long valueDictionaryInternalId;
+    private long lastUpdated;
+    /** set once this row has been matched to a value in this run */
+    private boolean used;
+  }
+
+  /**
+   * GRP-7474: load the existing rows of a sync-back object table for this provisioner, keyed by natural key
+   * @param tableName grouper_prov_user, grouper_prov_group, or grouper_prov_mship_role
+   * @param naturalKeyColumn target_user_id, target_group_id, or role_name
+   * @param linkColumn member_internal_id, group_internal_id, or null
+   * @param grouperSyncInternalId provisioner sync id
+   * @return natural key to existing row, never null
+   */
+  private Map<String, ExistingGenericProvisioningObjectRow> fetchExistingGenericProvisioningObjectRows(
+      String tableName, String naturalKeyColumn, String linkColumn, long grouperSyncInternalId) {
+    Map<String, ExistingGenericProvisioningObjectRow> result = new HashMap<String, ExistingGenericProvisioningObjectRow>();
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, " + naturalKeyColumn + ", " + (linkColumn == null ? "null" : linkColumn) + ", last_updated from "
+            + tableName + " where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      if (row == null || row[0] == null || row[1] == null) {
+        continue;
+      }
+      // match how the new rows' natural keys are normalized (target ids are trimmed)
+      String naturalKey = StringUtils.equals(naturalKeyColumn, "role_name") ? row[1].toString() : this.normalizeTargetId(row[1].toString());
+      if (StringUtils.isBlank(naturalKey)) {
+        continue;
+      }
+      ExistingGenericProvisioningObjectRow existingRow = new ExistingGenericProvisioningObjectRow();
+      existingRow.internalId = ((Number) row[0]).longValue();
+      existingRow.linkInternalId = row[2] == null ? null : ((Number) row[2]).longValue();
+      existingRow.lastUpdated = row[3] == null ? 0L : ((Number) row[3]).longValue();
+      result.put(naturalKey, existingRow);
+    }
+    return result;
+  }
+
+  /**
+   * GRP-7474: load the existing value rows of a sync-back value table for this provisioner, grouped by object
+   * @param sql selects internal_id, attr internal_id, object internal_id, value_integer, value_dictionary_internal_id,
+   * last_updated, with one bind var for the grouper_sync internal_id
+   * @param grouperSyncInternalId provisioner sync id
+   * @return object internal_id to its value rows, never null
+   */
+  private Map<Long, List<ExistingGenericProvisioningValueRow>> fetchExistingGenericProvisioningValueRows(
+      String sql, long grouperSyncInternalId) {
+    Map<Long, List<ExistingGenericProvisioningValueRow>> result = new HashMap<Long, List<ExistingGenericProvisioningValueRow>>();
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper").sql(sql)
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      if (row == null || row[0] == null || row[1] == null || row[2] == null) {
+        continue;
+      }
+      ExistingGenericProvisioningValueRow existingRow = new ExistingGenericProvisioningValueRow();
+      existingRow.internalId = ((Number) row[0]).longValue();
+      existingRow.attrInternalId = ((Number) row[1]).longValue();
+      existingRow.valueInteger = row[3] == null ? null : ((Number) row[3]).longValue();
+      existingRow.valueDictionaryInternalId = row[4] == null ? null : ((Number) row[4]).longValue();
+      existingRow.lastUpdated = row[5] == null ? 0L : ((Number) row[5]).longValue();
+      Long objectInternalId = ((Number) row[2]).longValue();
+      List<ExistingGenericProvisioningValueRow> rowsForObject = result.get(objectInternalId);
+      if (rowsForObject == null) {
+        rowsForObject = new ArrayList<ExistingGenericProvisioningValueRow>(16);
+        result.put(objectInternalId, rowsForObject);
+      }
+      rowsForObject.add(existingRow);
+    }
+    return result;
+  }
+
+  /**
+   * GRP-7474: load the existing grouper_prov_mship rows for this provisioner
+   * @param grouperSyncInternalId provisioner sync id
+   * @return MultiKey(prov_user_internal_id, prov_group_internal_id, prov_mship_role_internal_id) to
+   * {internal_id, last_updated}, never null
+   */
+  private Map<MultiKey, long[]> fetchExistingGenericProvisioningMembershipRows(long grouperSyncInternalId) {
+    Map<MultiKey, long[]> result = new HashMap<MultiKey, long[]>();
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, prov_user_internal_id, prov_group_internal_id, prov_mship_role_internal_id, last_updated "
+            + "from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      if (row == null || row[0] == null || row[1] == null || row[2] == null) {
+        continue;
+      }
+      // Long keys, to match the in-memory ids the new rows are looked up with
+      MultiKey key = new MultiKey(((Number) row[1]).longValue(), ((Number) row[2]).longValue(),
+          row[3] == null ? null : ((Number) row[3]).longValue());
+      result.put(key, new long[] {((Number) row[0]).longValue(), row[4] == null ? 0L : ((Number) row[4]).longValue()});
     }
     return result;
   }
@@ -4449,15 +4650,32 @@ public class GrouperProvisioningLogic {
     return result;
   }
   
-  private void assignProvisioningObjectInternalIds(Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord,
-      TableIndexType tableIndexType) {
+  /**
+   * GRP-7474: give each object the internal_id it already has in the sync-back table (by target id), and
+   * reserve new internal_ids only for objects that are not there yet
+   * @param targetIdToObjectRecord objects from this run, keyed by normalized target id
+   * @param tableIndexType provUser or provGroup, to reserve new ids
+   * @param existingRows target id to existing row, from fetchExistingGenericProvisioningObjectRows
+   */
+  private void reuseOrAssignProvisioningObjectInternalIds(Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord,
+      TableIndexType tableIndexType, Map<String, ExistingGenericProvisioningObjectRow> existingRows) {
     if (GrouperUtil.length(targetIdToObjectRecord) == 0) {
       return;
     }
-    List<Long> internalIds = TableIndex.reserveIds(tableIndexType, targetIdToObjectRecord.size());
-    int currentIndex = 0;
-    for (GenericProvisioningRecord objectRecord : targetIdToObjectRecord.values()) {
-      objectRecord.setInternalId(internalIds.get(currentIndex++));
+    List<GenericProvisioningRecord> newObjectRecords = new ArrayList<GenericProvisioningRecord>();
+    for (Map.Entry<String, ? extends GenericProvisioningRecord> entry : targetIdToObjectRecord.entrySet()) {
+      ExistingGenericProvisioningObjectRow existingRow = existingRows.get(entry.getKey());
+      if (existingRow != null) {
+        entry.getValue().setInternalId(existingRow.internalId);
+      } else {
+        newObjectRecords.add(entry.getValue());
+      }
+    }
+    if (newObjectRecords.size() > 0) {
+      List<Long> internalIds = TableIndex.reserveIds(tableIndexType, newObjectRecords.size());
+      for (int i = 0; i < newObjectRecords.size(); i++) {
+        newObjectRecords.get(i).setInternalId(internalIds.get(i));
+      }
     }
   }
   

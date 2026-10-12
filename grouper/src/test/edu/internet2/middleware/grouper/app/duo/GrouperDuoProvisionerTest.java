@@ -1616,6 +1616,136 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
+   * GRP-7474: a full sync must reuse the sync-back rows it already wrote.  It used to reserve a new
+   * internal_id for every user / group / value / membership on every run, so the table sync deleted every
+   * row and inserted it again (slow for large targets, and the tables were half empty while it ran).
+   * Now an unchanged sync keeps every row exactly (same internal_id and last_updated), and a change to one
+   * user only touches that user's changed values.
+   */
+  public void testDuoFullSyncReusesSyncBackRows() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myDuoProvisioner";
+    Map<String, String> includeAuthMethods = new HashMap<String, String>();
+    includeAuthMethods.put("nativeAttributesEntitiesIncludeAuthMethods", "true");
+    setupDuoSyncBack(configId, includeAuthMethods);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // pass 1 creates the Duo users and group in the mock
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    String subj0 = SubjectTestHelper.SUBJ0.getId();
+    String subj1 = SubjectTestHelper.SUBJ1.getId();
+    seedMockDuoAuthMethods(subj0, 1727537850L, "{"
+        + "\"phones\":[{\"activated\":true,\"capabilities\":[\"auto\",\"push\",\"sms\",\"phone\",\"mobile_otp\"],"
+        + "\"last_seen\":\"2025-01-02T03:04:05\",\"number\":\"+12155550001\",\"type\":\"Mobile\"}],"
+        + "\"tokens\":[],\"webauthncredentials\":[],\"u2ftokens\":[]}");
+    String subj1SmsOnly = "{"
+        + "\"phones\":[{\"activated\":false,\"capabilities\":[\"auto\",\"sms\",\"phone\"],"
+        + "\"last_seen\":\"\",\"number\":\"+12155550002\",\"type\":\"Mobile\"}],"
+        + "\"tokens\":[],\"webauthncredentials\":[],\"u2ftokens\":[]}";
+    seedMockDuoAuthMethods(subj1, 1600000000L, subj1SmsOnly);
+
+    // pass 2 captures the auth methods into the sync-back tables
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    Set<String> usersBefore = syncBackRowIds(configId, "user");
+    Set<String> valuesBefore = syncBackRowIds(configId, "userValue");
+    Set<String> groupsBefore = syncBackRowIds(configId, "group");
+    Set<String> membershipsBefore = syncBackRowIds(configId, "membership");
+    assertTrue("SUBJ0 + SUBJ1 users", usersBefore.size() >= 2);
+    assertTrue("auth method values captured", valuesBefore.size() >= 20);
+    assertTrue("provisioned group", groupsBefore.size() >= 1);
+    assertTrue("SUBJ0 + SUBJ1 memberships", membershipsBefore.size() >= 2);
+
+    // pass 3 with nothing changed: every row is kept as is (same internal_id and last_updated)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(usersBefore, syncBackRowIds(configId, "user"));
+    assertEquals(valuesBefore, syncBackRowIds(configId, "userValue"));
+    assertEquals(groupsBefore, syncBackRowIds(configId, "group"));
+    assertEquals(membershipsBefore, syncBackRowIds(configId, "membership"));
+
+    // subj1 activates Duo Mobile: only subj1's changed values change, subj0 is untouched
+    Set<String> subj0ValuesBefore = syncBackValueRowIdsForSubject(configId, subj0);
+    Set<String> subj1ValuesBefore = syncBackValueRowIdsForSubject(configId, subj1);
+    seedMockDuoAuthMethods(subj1, 1600000000L, "{"
+        + "\"phones\":[{\"activated\":true,\"capabilities\":[\"auto\",\"push\",\"sms\",\"phone\",\"mobile_otp\"],"
+        + "\"last_seen\":\"2025-02-03T04:05:06\",\"number\":\"+12155550002\",\"type\":\"Mobile\"}],"
+        + "\"tokens\":[],\"webauthncredentials\":[],\"u2ftokens\":[]}");
+
+    // pass 4
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("users kept", usersBefore, syncBackRowIds(configId, "user"));
+    assertEquals("unchanged user kept", subj0ValuesBefore, syncBackValueRowIdsForSubject(configId, subj0));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj1, "pushPhoneCount"));
+    assertEquals(Long.valueOf(1), authMethodInteger(configId, subj1, "mobileOtpPhoneCount"));
+    assertEquals("2025-02-03T04:05:06", authMethodString(configId, subj1, "pushPhoneLastSeen"));
+
+    // subj1's unchanged values (userName, sms / voice counts, ...) kept their rows; only the changed ones did not
+    Set<String> subj1ValuesAfter = syncBackValueRowIdsForSubject(configId, subj1);
+    Set<String> subj1Kept = new HashSet<String>(subj1ValuesBefore);
+    subj1Kept.retainAll(subj1ValuesAfter);
+    assertTrue("most of subj1's value rows kept, kept " + subj1Kept.size() + " of " + subj1ValuesBefore.size(),
+        subj1Kept.size() >= subj1ValuesBefore.size() - 2);
+    assertTrue("subj1 has new rows for the changed values", subj1ValuesAfter.size() > subj1Kept.size());
+  }
+
+  /**
+   * GRP-7474: "internal_id|last_updated" of every sync-back row of one kind for a provisioner, to check rows
+   * are kept (not deleted and re-inserted) across full syncs
+   * @param kind user, userValue, group, or membership
+   */
+  private static Set<String> syncBackRowIds(String configId, String kind) {
+    String syncIdClause = "(select internal_id from grouper_sync where provisioner_name = ?)";
+    String sql;
+    if (StringUtils.equals(kind, "user")) {
+      sql = "select internal_id, last_updated from grouper_prov_user where grouper_sync_internal_id in " + syncIdClause;
+    } else if (StringUtils.equals(kind, "userValue")) {
+      sql = "select v.internal_id, v.last_updated from grouper_prov_user_attr_value v, grouper_prov_user u "
+          + "where v.prov_user_internal_id = u.internal_id and u.grouper_sync_internal_id in " + syncIdClause;
+    } else if (StringUtils.equals(kind, "group")) {
+      sql = "select internal_id, last_updated from grouper_prov_group where grouper_sync_internal_id in " + syncIdClause;
+    } else {
+      sql = "select internal_id, last_updated from grouper_prov_mship where grouper_sync_internal_id in " + syncIdClause;
+    }
+    return rowIdSet(new GcDbAccess().connectionName("grouper").sql(sql).addBindVar(configId).selectList(Object[].class));
+  }
+
+  /** GRP-7474: "internal_id|last_updated" of a subject's sync-back value rows */
+  private static Set<String> syncBackValueRowIdsForSubject(String configId, String subjectId) {
+    return rowIdSet(new GcDbAccess().connectionName("grouper")
+        .sql("select v.internal_id, v.last_updated from grouper_prov_user_attr_value v, grouper_prov_user u, grouper_members m "
+            + "where v.prov_user_internal_id = u.internal_id and u.member_internal_id = m.internal_id and m.subject_id = ? "
+            + "and u.grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(subjectId).addBindVar(configId).selectList(Object[].class));
+  }
+
+  /** rows of (internal_id, last_updated) as "id|lastUpdated" strings, so jdbc number types do not matter */
+  private static Set<String> rowIdSet(List<Object[]> rows) {
+    Set<String> result = new HashSet<String>();
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      result.add(((Number) row[0]).longValue() + "|" + (row[1] == null ? "null" : ((Number) row[1]).longValue()));
+    }
+    return result;
+  }
+
+  /**
    * GRP-7384: seed what the Duo mock reports for a user: last login, enrolled, and the raw
    * phones / tokens / webauthncredentials / u2ftokens arrays (which the mock returns verbatim).
    */
