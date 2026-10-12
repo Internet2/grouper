@@ -3204,7 +3204,27 @@ public class GrouperProvisioningLogic {
       }
       membershipTargetIdsToDelete.add(new MultiKey(targetGroupId, targetUserId));
     }
-    
+
+    // GRP-7475: memberships removed by a write hook (e.g. SCIM PATCH op=remove on a group's members) have no
+    // membership wrapper in a delete state, they were only dropped from the native membership map.  This flush
+    // only sees this run's map keys, so without these the removed rows stayed in grouper_prov_mship until the
+    // next full sync.
+    GrouperProvisioningData grouperProvisioningDataForMshipDeletes = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    synchronized (grouperProvisioningDataForMshipDeletes.getTargetNativeMembershipDeletes()) {
+      for (MultiKey hookDeleteKey : grouperProvisioningDataForMshipDeletes.getTargetNativeMembershipDeletes()) {
+        String targetGroupId = StringUtils.trimToNull((String) hookDeleteKey.getKey(0));
+        String targetUserId = StringUtils.trimToNull((String) hookDeleteKey.getKey(1));
+        if (targetGroupId != null && targetUserId != null) {
+          membershipTargetIdsToDelete.add(new MultiKey(targetGroupId, targetUserId));
+        }
+      }
+    }
+    // groups whose members were replaced: the group's rows for users not in the new set are deleted below
+    Map<String, Set<String>> replacedGroupTargetIdToUserTargetIds = new LinkedHashMap<String, Set<String>>();
+    synchronized (grouperProvisioningDataForMshipDeletes.getTargetNativeMembershipReplacedGroups()) {
+      replacedGroupTargetIdToUserTargetIds.putAll(grouperProvisioningDataForMshipDeletes.getTargetNativeMembershipReplacedGroups());
+    }
+
     // collect group target IDs to delete (successfully deleted from target)
     Set<String> groupTargetIdsToDelete = new LinkedHashSet<String>();
     for (ProvisioningGroupWrapper provisioningGroupWrapper : 
@@ -3257,7 +3277,8 @@ public class GrouperProvisioningLogic {
     allGroupTargetIds.addAll(groupTargetIdsToDelete);
     
     if (GrouperUtil.length(allUserTargetIds) == 0 && GrouperUtil.length(allGroupTargetIds) == 0
-        && GrouperUtil.length(membershipRecords) == 0 && GrouperUtil.length(membershipTargetIdsToDelete) == 0) {
+        && GrouperUtil.length(membershipRecords) == 0 && GrouperUtil.length(membershipTargetIdsToDelete) == 0
+        && GrouperUtil.length(replacedGroupTargetIdToUserTargetIds) == 0) {
       return;
     }
     
@@ -3357,6 +3378,40 @@ public class GrouperProvisioningLogic {
         deleteCount += rowsDeleted;
       }
       debugMap.put("loadGenericIncrMshipDeletes", deleteCount);
+    }
+
+    // GRP-7475: a group whose member list was replaced keeps only the replaced set; delete its other rows.
+    // Users in the new set that are missing a row are inserted below from the membership map as usual.
+    if (GrouperUtil.length(replacedGroupTargetIdToUserTargetIds) > 0) {
+      int deleteCount = 0;
+      for (Map.Entry<String, Set<String>> replacedGroup : replacedGroupTargetIdToUserTargetIds.entrySet()) {
+        Set<String> keepUserTargetIds = GrouperUtil.nonNull(replacedGroup.getValue());
+        // read the group's current rows and pick the ones to drop in java: the keep set can be thousands of
+        // users, too many for a sql in-list on some databases
+        List<Object[]> groupMshipRows = new GcDbAccess().connectionName("grouper")
+            .sql("select m.internal_id, u.target_user_id from grouper_prov_mship m, grouper_prov_user u, grouper_prov_group g "
+                + "where m.prov_user_internal_id = u.internal_id and m.prov_group_internal_id = g.internal_id "
+                + "and m.grouper_sync_internal_id = ? and g.target_group_id = ?")
+            .addBindVar(grouperSyncInternalId).addBindVar(replacedGroup.getKey()).selectList(Object[].class);
+        List<Long> mshipInternalIdsToDelete = new ArrayList<Long>();
+        for (Object[] groupMshipRow : GrouperUtil.nonNull(groupMshipRows)) {
+          String rowUserTargetId = groupMshipRow[1] == null ? null : groupMshipRow[1].toString();
+          if (!keepUserTargetIds.contains(rowUserTargetId)) {
+            mshipInternalIdsToDelete.add(((Number) groupMshipRow[0]).longValue());
+          }
+        }
+        int batchSize = 900;
+        for (int i = 0; i < mshipInternalIdsToDelete.size(); i += batchSize) {
+          List<Long> batch = mshipInternalIdsToDelete.subList(i, Math.min(i + batchSize, mshipInternalIdsToDelete.size()));
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper")
+              .sql("delete from grouper_prov_mship where internal_id in (" + GrouperClientUtils.appendQuestions(batch.size()) + ")");
+          for (Long mshipInternalId : batch) {
+            gcDbAccess.addBindVar(mshipInternalId);
+          }
+          deleteCount += gcDbAccess.executeSql();
+        }
+      }
+      debugMap.put("loadGenericIncrMshipReplaceDeletes", deleteCount);
     }
     
     // now handle upserts for users, groups, attributes, attribute values, memberships

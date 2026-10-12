@@ -524,9 +524,12 @@ public class GrouperProvisioningTargetNativeSync {
     GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
     membership.setTargetGroupId(targetGroupId);
     membership.setTargetUserId(targetUserId);
+    MultiKey membershipKey = new MultiKey(targetGroupId, targetUserId);
     this.grouperProvisioner.retrieveGrouperProvisioningData()
         .getTargetGroupIdTargetUserIdToNativeMembership()
-        .put(new MultiKey(targetGroupId, targetUserId), membership);
+        .put(membershipKey, membership);
+    // re-added after a remove in the same run: it is no longer a removal for the incremental flush
+    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeMembershipDeletes().remove(membershipKey);
   }
 
   /**
@@ -542,9 +545,13 @@ public class GrouperProvisioningTargetNativeSync {
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
       return;
     }
+    MultiKey membershipKey = new MultiKey(targetGroupId, targetUserId);
     this.grouperProvisioner.retrieveGrouperProvisioningData()
         .getTargetGroupIdTargetUserIdToNativeMembership()
-        .remove(new MultiKey(targetGroupId, targetUserId));
+        .remove(membershipKey);
+    // GRP-7475: an incremental flush only sees this run's map keys, so it has to be told about the removal
+    // to delete the grouper_prov_mship row (a full sync's flush deletes it anyway since the key is gone)
+    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeMembershipDeletes().add(membershipKey);
   }
 
   /**
@@ -579,6 +586,7 @@ public class GrouperProvisioningTargetNativeSync {
         }
       }
       // 2. add exactly the replaced set
+      java.util.Set<String> replacedUserIds = new java.util.LinkedHashSet<String>();
       if (targetUserIds != null) {
         for (String targetUserId : targetUserIds) {
           if (targetUserId == null) {
@@ -588,8 +596,13 @@ public class GrouperProvisioningTargetNativeSync {
           membership.setTargetGroupId(targetGroupId);
           membership.setTargetUserId(targetUserId);
           index.put(new MultiKey(targetGroupId, targetUserId), membership);
+          replacedUserIds.add(targetUserId);
         }
       }
+      // GRP-7475: an incremental flush only sees this run's map keys, so record that the group's member list
+      // is now exactly this set; the flush deletes the group's other grouper_prov_mship rows
+      this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeMembershipReplacedGroups()
+          .put(targetGroupId, replacedUserIds);
     }
   }
 

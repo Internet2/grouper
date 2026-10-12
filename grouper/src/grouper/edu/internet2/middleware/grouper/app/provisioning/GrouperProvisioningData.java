@@ -379,6 +379,34 @@ public class GrouperProvisioningData {
       targetGroupIdTargetUserIdToNativeMembership =
           Collections.synchronizedMap(new LinkedHashMap<MultiKey, GrouperProvisioningTargetNativeMembership>());
 
+  /**
+   * Memberships removed from the target this run by a write hook (e.g. SCIM PATCH op=remove), keyed by
+   * {@code MultiKey(targetGroupId, targetUserId)}.  Dropping the key from the membership map is enough for a
+   * full sync (its flush reconciles the whole table to the map), but an incremental flush only sees this
+   * run's keys, so it needs the removals listed explicitly to delete their grouper_prov_mship rows.
+   * A later add of the same key in the run takes it back out.
+   */
+  private Set<MultiKey> targetNativeMembershipDeletes =
+      Collections.synchronizedSet(new LinkedHashSet<MultiKey>());
+
+  /**
+   * Groups whose full member list was replaced on the target this run (e.g. SCIM PATCH op=replace on
+   * members), target group id to the target user ids it now has.  For the incremental flush: every
+   * grouper_prov_mship row of the group whose user is not in the set is deleted.
+   */
+  private Map<String, Set<String>> targetNativeMembershipReplacedGroups =
+      Collections.synchronizedMap(new LinkedHashMap<String, Set<String>>());
+
+  /** memberships removed by write hooks this run, see field javadoc */
+  public Set<MultiKey> getTargetNativeMembershipDeletes() {
+    return this.targetNativeMembershipDeletes;
+  }
+
+  /** groups whose members were replaced by write hooks this run, see field javadoc */
+  public Map<String, Set<String>> getTargetNativeMembershipReplacedGroups() {
+    return this.targetNativeMembershipReplacedGroups;
+  }
+
   /** the canonical user index — mutate this for record/replace/remove */
   public Map<String, GrouperProvisioningTargetNativeUser> getTargetUserIdToNativeUser() {
     return this.targetUserIdToNativeUser;
