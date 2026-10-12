@@ -139,6 +139,13 @@ function guiV2link(url, options) {
     stateObj.handleStateInitially = false;
   }
   
+  // GRP-7392: History.js ignores a push to the url we are already on, so an ajax action that ends by
+  // linking back to the current screen would not redraw it.  Reload the screen directly in that case.
+  if (url == location.search && stateObj.handleStateInitially !== false) {
+    guiProcessUrlForAjax(url);
+    return false;
+  }
+  
   History.pushState(stateObj, null, url);
 
   //return false so the browser navigate
