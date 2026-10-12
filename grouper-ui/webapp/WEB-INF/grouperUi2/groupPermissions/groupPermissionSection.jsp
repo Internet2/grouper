@@ -83,7 +83,7 @@
                     <div class="span9">
                       <span>${textContainer.text['groupPermissionsGroupNotRoleText'] }</span> &nbsp;
                       <button type="button" class="btn btn-primary"
-                        onclick="return guiV2link('operation=UiV2Group.convertGroupToRole&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupPermissionsGroupToRoleButton'] }
+                        onclick="ajax('../app/UiV2Group.convertGroupToRole?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;">${textContainer.text['groupPermissionsGroupToRoleButton'] }
                       </button>
                     </div>
                     </div>
