@@ -225,7 +225,13 @@ public class GrouperMcpRecipeTool {
       count++;
     }
 
-    description.append(".");
+    // close the list with a period unless the last summary already ended in sentence
+    // punctuation.  summaries are encouraged to be full sentences, so blindly appending
+    // left "per product.." in the description the client reads
+    char lastChar = description.charAt(description.length() - 1);
+    if (lastChar != '.' && lastChar != '?' && lastChar != '!') {
+      description.append(".");
+    }
 
     tool.put("description", description.toString());
 
