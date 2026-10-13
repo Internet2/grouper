@@ -770,7 +770,8 @@ public class UiV2Template {
             }
             
             if (StringUtils.isNotBlank(exceptionMessage)) {
-              guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+exceptionMessage+"</pre>"));
+              // escape like the script output above: exception messages can carry user/remote data
+              guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "<pre>"+GrouperUtil.escapeHtml(exceptionMessage, true)+"</pre>"));
             }
           } else {
             LOG.error("Error in gshTemplate: " + templateType + "\n" + gshTemplateExecOutput.getGshScriptOutput());
