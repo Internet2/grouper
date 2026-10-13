@@ -132,6 +132,13 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
         GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"renameGroup\",\"groupName\":\"a:b\","
             + "\"newExtension\":\"c\",\"setAlternateNameIfRename\":true}")));
 
+    // the folder is in the headline, so it is not listed again after it
+    assertEquals("Move group 'a:b' to folder 'c:d' (also given: setAlternateNameIfMove: true)",
+        GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"moveGroup\",\"groupName\":\"a:b\","
+            + "\"newFolderName\":\"c:d\",\"setAlternateNameIfMove\":true}")));
+    assertEquals("Move group 'a:b' to folder (not given)",
+        GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"moveGroup\",\"groupName\":\"a:b\"}")));
+
     assertEquals("Change group 'a:b' with action 'somethingNew'",
         GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"somethingNew\",\"groupName\":\"a:b\"}")));
   }

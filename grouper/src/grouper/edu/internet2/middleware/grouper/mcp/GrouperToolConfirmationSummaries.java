@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -158,6 +159,11 @@ public class GrouperToolConfirmationSummaries {
       headline = "Update group " + group;
     } else if (StringUtils.equals("renameGroup", action)) {
       headline = "Rename group " + group;
+    } else if (Strings.CS.equals("moveGroup", action)) {
+      // the folder is part of the headline, so it is left out of the arguments listed after it
+      return withOtherArguments("Move group " + group + " to folder "
+          + quote(argumentText(arguments, "newFolderName")), arguments, "action", "groupName",
+          "newFolderName");
     } else if (StringUtils.equals("addGroupType", action)) {
       headline = "Add a group type to group " + group;
     } else if (StringUtils.equals("removeGroupType", action)) {

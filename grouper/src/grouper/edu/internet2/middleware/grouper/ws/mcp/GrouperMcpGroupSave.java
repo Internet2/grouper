@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.ws.mcp;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,8 +29,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupMove;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupSave;
 import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireConfigBean;
@@ -39,7 +43,9 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttri
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionableGroupSave;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * MCP tool handler for creating, updating, and managing Grouper groups.
@@ -59,6 +65,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li><b>renameGroup</b> - Change the group ID (the last part of the group name, which the
  *       UI labels "Group ID") of an existing group, keeping it in the same folder and keeping
  *       its uuid, memberships, and privileges</li>
+ *   <li><b>moveGroup</b> - Move an existing group to a different folder, keeping its group ID,
+ *       uuid, memberships, and privileges</li>
  *   <li><b>addGroupType</b> - Assign an object type (policy, ref, basis, etc.) to a group</li>
  *   <li><b>removeGroupType</b> - Remove an object type from a group</li>
  *   <li><b>addComposite</b> - Make a group a composite of two other groups</li>
@@ -91,7 +99,7 @@ public class GrouperMcpGroupSave {
     tool.put("description",
         "Create or update a Grouper group, manage group types, composites, and provisioners. "
         + "Use the 'action' parameter to specify which operation to perform. "
-        + "Actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, "
+        + "Actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, moveGroup, "
         + "addGroupType, removeGroupType, "
         + "addComposite, updateComposite, removeComposite, "
         + "addEligibilityRequirement, removeEligibilityRequirement, "
@@ -110,6 +118,7 @@ public class GrouperMcpGroupSave {
     actionEnum.add("createOrUpdateGroup");
     actionEnum.add("updateGroupPart");
     actionEnum.add("renameGroup");
+    actionEnum.add("moveGroup");
     actionEnum.add("addGroupType");
     actionEnum.add("removeGroupType");
     actionEnum.add("addComposite");
@@ -126,6 +135,8 @@ public class GrouperMcpGroupSave {
         + "createOrUpdateGroup = create a new group or update an existing one without replacing all settings. "
         + "updateGroupPart = update specific fields on an existing group without replacing all settings. "
         + "renameGroup = rename an existing group by giving it a new group ID in the same folder; "
+        + "the group keeps its uuid, memberships, privileges, and attribute assignments. "
+        + "moveGroup = move an existing group to a different folder, keeping its group ID; "
         + "the group keeps its uuid, memberships, privileges, and attribute assignments. "
         + "addGroupType = assign an object type (e.g., policy, ref, basis) to a group. "
         + "removeGroupType = remove an object type from a group. "
@@ -178,7 +189,7 @@ public class GrouperMcpGroupSave {
         + "'newName' and not 'stem1:stem2:newName'. This is a name, not the group's uuid. "
         + "The group is renamed in place, so its new fully qualified name is the existing "
         + "parent folder plus this group ID, and a group cannot be moved to a different folder "
-        + "by renaming it. Required for renameGroup.");
+        + "by renaming it: use moveGroup for that. Required for renameGroup.");
     properties.set("newExtension", newExtensionProp);
 
     ObjectNode setAlternateNameIfRenameProp = objectMapper.createObjectNode();
@@ -189,6 +200,27 @@ public class GrouperMcpGroupSave {
         + "which matches the unchecked 'Update alternate ID path' box on the UI's group edit "
         + "screen. Used with renameGroup.");
     properties.set("setAlternateNameIfRename", setAlternateNameIfRenameProp);
+
+    // --- parameters for moveGroup ---
+    ObjectNode newFolderNameProp = objectMapper.createObjectNode();
+    newFolderNameProp.put("type", "string");
+    newFolderNameProp.put("description",
+        "The fully qualified name of the folder to move the group to, e.g. 'stem1:stem3'. The "
+        + "folder must already exist, and must be given by its current name, not a name it used "
+        + "to have. The group keeps its group ID, so its new name is this folder "
+        + "plus its current group ID. To change the group ID as well, rename it with renameGroup "
+        + "before or after the move. Required for moveGroup.");
+    properties.set("newFolderName", newFolderNameProp);
+
+    ObjectNode setAlternateNameIfMoveProp = objectMapper.createObjectNode();
+    setAlternateNameIfMoveProp.put("type", "boolean");
+    setAlternateNameIfMoveProp.put("description",
+        "Whether to set the group's alternate ID path to its old ID path, which keeps the group "
+        + "searchable and resolvable by the name it had before the move. A group has only one "
+        + "alternate ID path, so true replaces any it already has, and false leaves an existing "
+        + "one as it is, unless the group is moving back to that very name, in which case it is "
+        + "removed. Defaults to false. Used with moveGroup.");
+    properties.set("setAlternateNameIfMove", setAlternateNameIfMoveProp);
 
     // --- parameters for addGroupType and removeGroupType ---
     ObjectNode objectTypeProp = objectMapper.createObjectNode();
@@ -338,6 +370,8 @@ public class GrouperMcpGroupSave {
           return executeUpdateGroupPart(arguments, groupName);
         case "renameGroup":
           return executeRenameGroup(arguments, groupName, authUser);
+        case "moveGroup":
+          return executeMoveGroup(arguments, groupName, authUser);
         case "addGroupType":
           return executeAddGroupType(arguments, groupName);
         case "removeGroupType":
@@ -359,7 +393,7 @@ public class GrouperMcpGroupSave {
         default:
           return buildErrorResult("Unknown action: " + action
               + ". Valid actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, "
-              + "addGroupType, removeGroupType, addComposite, updateComposite, removeComposite, addEligibilityRequirement, "
+              + "moveGroup, addGroupType, removeGroupType, addComposite, updateComposite, removeComposite, addEligibilityRequirement, "
               + "removeEligibilityRequirement, addProvisioner, removeProvisioner.");
       }
     } catch (Exception e) {
@@ -578,7 +612,7 @@ public class GrouperMcpGroupSave {
       return buildErrorResult("newExtension must be the new group ID of the group, which is the "
           + "last colon separated part of its name, not a fully qualified name (e.g. 'newName', "
           + "not 'stem1:stem2:newName').  A group cannot be moved to a different folder by "
-          + "renaming it.");
+          + "renaming it: use moveGroup for that.");
     }
 
     String parentFolderName = GrouperUtil.parentStemNameFromName(groupName);
@@ -654,6 +688,171 @@ public class GrouperMcpGroupSave {
     resultNode.put("resultCode", saveResultType.name());
     resultNode.put("success", true);
     resultNode.put("previousName", groupName);
+    resultNode.put("name", group.getName());
+    if (StringUtils.isNotBlank(group.getDisplayExtension())) {
+      resultNode.put("displayExtension", group.getDisplayExtension());
+    }
+    if (StringUtils.isNotBlank(group.getDescription())) {
+      resultNode.put("description", group.getDescription());
+    }
+    resultNode.put("uuid", group.getUuid());
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * Move an existing group to a different folder.  The group keeps its group ID (the extension),
+   * uuid, memberships, privileges, and attribute assignments; its fully qualified name becomes
+   * newFolderName:extension.
+   *
+   * <p>The old name is kept as the group's alternate ID path only when the caller asks for it
+   * with setAlternateNameIfMove=true.  GroupMove itself defaults that to true, and so does the
+   * UI's move screen, but the default here is false, the same as renameGroup: an alternate name
+   * keeps resolving the old name, which most callers moving a group do not want.</p>
+   *
+   * <p>GroupMove checks admin on the group and create on the folder.  Admin is checked here first
+   * as well, so the caller is told it is missing rather than getting the API's exception, and the
+   * folder is only looked for among folders the caller can create groups in.</p>
+   *
+   * <p>The group and the folder are both found by name, and Grouper's finders match an
+   * alternate name as well as the real one, so either name the caller typed may be an old name.
+   * A folder given by an old name is refused, since the UI's approval box shows the folder name
+   * as given, and the user has to approve the folder the group really goes into.  A group given
+   * by an old name is allowed, as it is by every action, so the protected resource and readwrite
+   * scope checks are run on real names: the group's current name (execute() only checked the
+   * typed one) and the name the group will have, built from the folder's name and the group's
+   * own extension.</p>
+   *
+   * @param arguments the MCP request arguments
+   * @param groupName the fully qualified name of the group to move
+   * @param authUser the authenticated user, whose readwrite scope the new name is checked against
+   * @return the MCP tool result
+   */
+  private static ObjectNode executeMoveGroup(JsonNode arguments, String groupName,
+      GrouperMcpAuthUser authUser) throws Exception {
+
+    String newFolderName = arguments.has("newFolderName")
+        ? arguments.get("newFolderName").asText() : null;
+
+    if (StringUtils.isBlank(newFolderName)) {
+      return buildErrorResult("newFolderName is required for moveGroup.");
+    }
+
+    // looked up as the authenticated user, so a group the caller cannot see is not found
+    Group groupToMove = GroupFinder.findByName(groupName, false);
+    if (groupToMove == null) {
+      return buildErrorResult("Cannot move '" + groupName
+          + "': the group was not found, or you cannot see it.");
+    }
+
+    // the finder matches a group's alternate name as well as its name, so groupName may be a name
+    // the group used to have.  execute() checked protection and scope on that typed name; they are
+    // checked again on the group's real name, so an old name outside a protected folder or inside
+    // a consented one cannot be used to move a group out of where it really is
+    String currentName = groupToMove.getName();
+
+    if (GrouperMcpProtectedResources.isProtectedGroupName(currentName)) {
+      return buildErrorResult(
+          GrouperMcpProtectedResources.buildProtectedGroupError(currentName));
+    }
+
+    if (authUser.isOAuthAuthenticated()
+        && !authUser.isGroupInReadwriteScope(currentName, groupToMove.getUuid())) {
+      return buildErrorResult(
+          authUser.buildReadwriteScopeDeniedError("group", currentName));
+    }
+
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+
+    if (!groupToMove.hasAdmin(subject)) {
+      return buildErrorResult("Cannot move '" + currentName
+          + "': you are not an admin of that group.");
+    }
+
+    // only among folders the caller can create groups in, as the UI's move screen does, so a
+    // folder they cannot move a group into is just not found.  a plain lookup by name does not
+    // check privileges, and the messages below would tell anyone a folder's name.  this is by
+    // exact name, not by scope like the UI: a scope is lowercased before it is compared, which
+    // finds no folder with a capital letter in its name on a case sensitive database
+    Stem newFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+        .assignSubject(subject).addStemName(newFolderName).findStem();
+    if (newFolder == null) {
+      return buildErrorResult("Cannot move '" + currentName + "': the folder '" + newFolderName
+          + "' was not found, or you cannot create groups in it.  The folder must already exist.");
+    }
+
+    // the root folder's name is blank, which is refused above, so this is a safeguard only
+    if (newFolder.isRootStem()) {
+      return buildErrorResult("Cannot move '" + currentName + "': a group cannot be moved to the "
+          + "root folder.");
+    }
+
+    // the finder matches a folder's alternate name as well as its name, and on a case insensitive
+    // database a name in different case.  the approval box in the UI shows newFolderName as the
+    // model gave it, so anything but the folder's name there would have the user approve one
+    // folder while the group went into another.  the folder's name is required instead, so what
+    // is approved is where it goes
+    if (!Strings.CS.equals(newFolder.getName(), newFolderName)) {
+      return buildErrorResult("Cannot move '" + currentName + "': the folder given as '"
+          + newFolderName + "' is named '" + newFolder.getName() + "'.  Call again with that name.");
+    }
+
+    // by uuid, not by name, since the group's own name may have been given as an old one.
+    // GroupMove does nothing in this case, which would otherwise be reported as a move
+    if (Strings.CS.equals(newFolder.getUuid(), groupToMove.getParentUuid())) {
+      return buildErrorResult("Cannot move '" + currentName + "': it is already in folder '"
+          + newFolder.getName() + "'.");
+    }
+
+    String newGroupName = newFolder.getName() + ":" + groupToMove.getExtension();
+
+    // the name the group will have, so a move cannot land a group in a protected folder
+    if (GrouperMcpProtectedResources.isProtectedGroupName(newGroupName)) {
+      return buildErrorResult(
+          GrouperMcpProtectedResources.buildProtectedGroupError(newGroupName));
+    }
+
+    // unlike renameGroup this passes no uuid: a consent for the group itself covers changing it
+    // where it is, not putting it into another folder, so the new name has to be in scope the
+    // way createGroup's is, inside a consented folder or consented by name
+    if (authUser.isOAuthAuthenticated()
+        && !authUser.isGroupInReadwriteScope(newGroupName, null)) {
+      return buildErrorResult(
+          authUser.buildReadwriteScopeDeniedError("group", newGroupName));
+    }
+
+    boolean setAlternateNameIfMove = arguments.has("setAlternateNameIfMove")
+        && arguments.get("setAlternateNameIfMove").asBoolean();
+
+    // a group moved back to a name it still has as its alternate name would be refused by Grouper
+    // with "already exists", about the group itself, since a group's name and alternate name
+    // cannot be the same.  when no new alternate name is asked for, that one is dropped instead.
+    // this only changes the group object, and GroupMove stores it with the move
+    if (!setAlternateNameIfMove && Strings.CS.equals(groupToMove.getAlternateName(), newGroupName)) {
+      groupToMove.deleteAlternateName(newGroupName);
+    }
+
+    // GroupMove sets the new name on the group object it moves.  that object is also the one in
+    // GroupFinder's cache, and it is changed before Grouper decides whether the move is allowed, so
+    // if the move fails it is taken out of the cache.  otherwise a retry soon after would find it
+    // under the new name and be told the group is already there
+    try {
+      new GroupMove(groupToMove, newFolder).assignAlternateName(setAlternateNameIfMove).save();
+    } catch (RuntimeException re) {
+      GroupFinder.groupCacheRemove(groupToMove);
+      throw re;
+    }
+    Group group = groupToMove;
+
+    // build the response with the moved group details.  GroupMove reports no result type, and
+    // a move to the folder the group is already in was refused above, so this always changed it
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("action", "moveGroup");
+    resultNode.put("resultCode", SaveResultType.UPDATE.name());
+    resultNode.put("success", true);
+    resultNode.put("previousName", currentName);
     resultNode.put("name", group.getName());
     if (StringUtils.isNotBlank(group.getDisplayExtension())) {
       resultNode.put("displayExtension", group.getDisplayExtension());
