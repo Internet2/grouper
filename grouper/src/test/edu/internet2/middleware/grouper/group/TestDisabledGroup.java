@@ -55,6 +55,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
@@ -1672,6 +1674,55 @@ public class TestDisabledGroup extends GrouperTest {
         group2.getUuid(), group1MemberUuid, Group.getDefaultList(), "immediate", true, false).delete();
     hib3GrouperLoaderLog = runEnabledDisabledJob();
     assertFalse(GrouperLoaderStatus.WARNING.name().equals(hib3GrouperLoaderLog.getStatus()));
+  }
+
+  /**
+   * groups.member.circularMembershipCheck.enabled=false allows a circular group membership that would
+   * otherwise be vetoed, and the cycle can be broken again by removing one of its memberships
+   */
+  public void testCircularMembershipCheckCanBeDisabledViaConfig() {
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    Group group3 = edu.addChildGroup("test3", "test3");
+
+    group2.addMember(group1.toSubject());
+    group3.addMember(group2.toSubject());
+
+    // default: adding group3 as a member of group1 would create a circular membership, and is vetoed
+    try {
+      group1.addMember(group3.toSubject());
+      fail("expected a circular membership veto");
+    } catch (RuntimeException re) {
+      assertNotNull("expected a circular membership veto", GroupSet.retrieveCircularMembershipVeto(re));
+    }
+    assertFalse(group1.hasMember(group3.toSubject()));
+
+    // with the check disabled, the same add is allowed
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.member.circularMembershipCheck.enabled", "false");
+    group1.addMember(group3.toSubject());
+    assertTrue(group1.hasMember(group3.toSubject()));
+    assertTrue("group2 is in group1 only through the cycle: group2 in group3, group3 in group1",
+        group1.hasMember(group2.toSubject()));
+    // what a cycle means: group1 is in group2, which is in group3, which is in group1.  as before GRP-7291, the
+    // membership at the end of the loop is kept, only a group set from a group to itself is not
+    assertTrue("group1 is an effective member of itself through the cycle", group1.hasMember(group1.toSubject()));
+
+    // a group is still never a direct member of itself, refused by the membership validator
+    try {
+      group1.addMember(group1.toSubject());
+      fail("a group should never be a direct member of itself");
+    } catch (RuntimeException re) {
+      assertTrue(GrouperUtil.getFullStackTrace(re),
+          GrouperUtil.getFullStackTrace(re).contains(ImmediateMembershipValidator.INVALID_CIRCULAR));
+    }
+
+    // breaking the cycle removes the effective memberships which only came through it
+    group1.deleteMember(group3.toSubject());
+    assertFalse(group1.hasMember(group3.toSubject()));
+    assertFalse("group2 was only in group1 through the cycle", group1.hasMember(group2.toSubject()));
+    assertFalse("group1 is no longer a member of itself", group1.hasMember(group1.toSubject()));
+    assertTrue(group3.hasMember(group2.toSubject()));
+    assertTrue(group2.hasMember(group1.toSubject()));
   }
 
   /**

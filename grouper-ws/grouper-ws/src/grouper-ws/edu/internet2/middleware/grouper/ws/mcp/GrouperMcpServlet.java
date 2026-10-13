@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.mcp.GrouperToolException;
 import edu.internet2.middleware.grouper.mcp.GrouperToolExecutor;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
@@ -231,6 +232,8 @@ public class GrouperMcpServlet extends HttpServlet {
       // response has already been set by authenticateRequest
       return;
     }
+
+    assignAuditContext(authUser);
 
     JsonNode jsonRpcRequest;
     try {
@@ -455,6 +458,27 @@ public class GrouperMcpServlet extends HttpServlet {
     serverInfo.put("name", SERVER_NAME);
     serverInfo.put("version", SERVER_VERSION);
     meta.set(META_SERVER_INFO, serverInfo);
+  }
+
+  /**
+   * audit what this request changes as the caller.  audit entries take the logged in member from
+   * the default context.  the UI sets it for each request and a web service call sets it once it
+   * knows who is calling, but an MCP request branches off before the web service would, so
+   * without this every change made through MCP was audited with nobody logged in, and screens
+   * which show who made a change, such as the config history, showed no one.  only the logged in
+   * member is set, as the UI does: act as is left for Grouper to fill in when a change runs as
+   * someone else, such as a GSH template which runs as a configured subject.  the web service
+   * filter creates this context for the request and removes it at the end.  if MCP ever passes a
+   * GSH template its own act as subject, GshTemplateExec's check that the caller is not already
+   * acting as someone else reads a set logged in member with an empty act as as a mismatch and
+   * refuses, so that check would need to treat an empty act as as not acting as anyone
+   * @param authUser the authenticated caller
+   */
+  private static void assignAuditContext(GrouperMcpAuthUser authUser) {
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+    if (grouperContext != null && authUser != null && !StringUtils.isBlank(authUser.getMemberId())) {
+      grouperContext.setLoggedInMemberId(authUser.getMemberId());
+    }
   }
 
   /**
@@ -746,6 +770,7 @@ public class GrouperMcpServlet extends HttpServlet {
         GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(subject);
         Member member = MemberFinder.findBySubject(grouperSession, subject, true);
         authUser.setMemberInternalId(member.getInternalId());
+        authUser.setMemberId(member.getUuid());
         return authUser;
       }
     } catch (Exception e) {

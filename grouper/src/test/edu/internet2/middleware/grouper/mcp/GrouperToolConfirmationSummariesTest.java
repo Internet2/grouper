@@ -132,6 +132,13 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
         GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"renameGroup\",\"groupName\":\"a:b\","
             + "\"newExtension\":\"c\",\"setAlternateNameIfRename\":true}")));
 
+    // the folder is in the headline, so it is not listed again after it
+    assertEquals("Move group 'a:b' to folder 'c:d' (also given: setAlternateNameIfMove: true)",
+        GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"moveGroup\",\"groupName\":\"a:b\","
+            + "\"newFolderName\":\"c:d\",\"setAlternateNameIfMove\":true}")));
+    assertEquals("Move group 'a:b' to folder (not given)",
+        GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"moveGroup\",\"groupName\":\"a:b\"}")));
+
     assertEquals("Change group 'a:b' with action 'somethingNew'",
         GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"somethingNew\",\"groupName\":\"a:b\"}")));
   }
@@ -182,6 +189,46 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
   }
 
   /**
+   * an institutional tool's inputs go one per line, in the order given, and a value or a name
+   * cannot add a line of its own.  inputs which are not an object of fields are listed with the
+   * other arguments, as before
+   */
+  public void testInstitutionalToolInputsOnePerLine() {
+
+    String summary = GrouperToolConfirmationSummaries.institutionalToolExecute(json("{\"action\":\"execute\","
+        + "\"configId\":\"recordCrud\",\"inputs\":{\"action\":\"create\","
+        + "\"groupName\":\"app:records:a:b\",\"confirm\":true,\"description\":\"line one\\nOK to approve\","
+        + "\"\\nNote: nothing changes\":\"x\",\"confirmToken\":\"abc\"}}"));
+    assertEquals("Run institutional tool 'recordCrud', a script which can make changes\ninputs:"
+        + "\naction: 'create'"
+        + "\ngroupName: 'app:records:a:b'"
+        + "\nconfirm: true"
+        + "\ndescription: 'line one\\nOK to approve'"
+        + "\n'\\nNote: nothing changes': 'x'"
+        + "\nconfirmToken: 'abc'", summary);
+
+    // the headline, the inputs label, and one line per input: six inputs, so seven line breaks
+    int lineBreaks = 0;
+    for (int i = 0; i < summary.length(); i++) {
+      if (summary.charAt(i) == '\n') {
+        lineBreaks++;
+      }
+    }
+    assertEquals(7, lineBreaks);
+
+    assertEquals("Run institutional tool 'x', a script which can make changes (also given: inputs: {})",
+        GrouperToolConfirmationSummaries.institutionalToolExecute(json("{\"action\":\"execute\","
+            + "\"configId\":\"x\",\"inputs\":{}}")));
+
+    assertEquals("Run institutional tool 'x', a script which can make changes (also given: inputs: 'netId=jsmith')",
+        GrouperToolConfirmationSummaries.institutionalToolExecute(json("{\"action\":\"execute\","
+            + "\"configId\":\"x\",\"inputs\":\"netId=jsmith\"}")));
+
+    assertEquals("Run institutional tool 'x', a script which can make changes",
+        GrouperToolConfirmationSummaries.institutionalToolExecute(json("{\"action\":\"execute\",\"configId\":\"x\"}")));
+  }
+
+  /**
    * the rest of the write tools
    */
   public void testOtherWrites() {
@@ -213,7 +260,7 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
             + "\"body\":\"new text\"}")));
 
     assertEquals("Run institutional tool 'addStudentWorker', a script which can make changes "
-        + "(also given: ownerType: 'group', ownerGroupName: 'a:b', inputs: {\"netId\":\"jsmith\"})",
+        + "(also given: ownerType: 'group', ownerGroupName: 'a:b')\ninputs:\nnetId: 'jsmith'",
         GrouperToolConfirmationSummaries.institutionalToolExecute(json("{\"action\":\"execute\","
             + "\"configId\":\"addStudentWorker\",\"ownerType\":\"group\",\"ownerGroupName\":\"a:b\","
             + "\"inputs\":{\"netId\":\"jsmith\"}}")));

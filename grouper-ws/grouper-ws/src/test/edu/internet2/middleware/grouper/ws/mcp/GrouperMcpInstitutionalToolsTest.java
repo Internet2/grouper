@@ -30,14 +30,18 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpGroupMembership;
 import edu.internet2.middleware.grouper.mcp.GrouperTool;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
+import edu.internet2.middleware.grouper.mcp.GrouperToolExecutor;
 import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 /**
@@ -641,6 +645,238 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
 
     // what the tool list asks, so readonly users are still offered the tool
     assertEquals(GrouperToolCategory.readonly, grouperTool.category(null));
+  }
+
+  /**
+   * a call matching a readwrite template's mcpReadonlyWhen is a read, read from the template's
+   * config the way the template reads its inputs: an optional input left out takes its default,
+   * and a required input has none, even if one is configured
+   */
+  public void testCategoryOfExecuteReadonlyWhen() {
+
+    String configPrefix = "grouperGshTemplate.mcpCategoryWhen.";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyWhen",
+        "gsh_input_action=get, gsh_input_confirm=false, gsh_input_dryRun=true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "3");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_action");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.type", "string");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.1.name", "gsh_input_confirm");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.1.type", "boolean");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.1.defaultValue", "false");
+    // required, so the template ignores this default, and so must the match
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.2.name", "gsh_input_dryRun");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.2.type", "boolean");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.2.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.2.defaultValue", "true");
+
+    GrouperTool grouperTool = GrouperToolRegistry.find("institutional_tools");
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "execute");
+    arguments.put("configId", "mcpCategoryWhen");
+    ObjectNode inputs = arguments.putObject("inputs");
+
+    // a get
+    inputs.put("action", "get");
+    inputs.put("confirm", "true");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    assertNull(grouperTool.confirmationSummary(arguments));
+
+    // a plan: confirm left out takes its default, false
+    inputs.removeAll();
+    inputs.put("action", "create");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    assertNull(grouperTool.confirmationSummary(arguments));
+
+    // confirming is a write, and the required dryRun's configured default does not make it a read
+    inputs.put("confirm", "true");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+    assertNotNull(grouperTool.confirmationSummary(arguments));
+
+    // dryRun given does match
+    inputs.put("dryRun", "true");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+
+    // the same template with no mcpReadonlyWhen is a write whatever the inputs
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(configPrefix + "mcpReadonlyWhen");
+    inputs.removeAll();
+    inputs.put("action", "get");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+  }
+
+  /**
+   * a readwrite template refused because the session's scope leaves out readwrite, for a user who
+   * has readwrite, says it is the scope, so the user is not told they have no access.  a user
+   * without readwrite is still told they need it
+   */
+  public void testExecuteReadwriteUserOutsideScope() {
+
+    String configPrefix = "grouperGshTemplate.mcpScopeExecTemplate.";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateType", "gsh");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateVersion", "V1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateName", "Scope Template");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateDescription", "Requires readwrite");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "securityRunType", "everyone");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "gshTemplate",
+        "gsh_builtin_gshTemplateOutput.addOutputLine(\"should not run\");");
+
+    // SUBJ0 has readwrite, SUBJ1 does not
+    Group readwriteGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpScopeReadwriteUsers")
+        .assignName("test:mcpScopeReadwriteUsers")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+    readwriteGroup.addMember(SubjectTestHelper.SUBJ0);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperToolAccess.GROUP_READWRITE,
+        "test:mcpScopeReadwriteUsers");
+    GrouperMcpGroupMembership.clearCache();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "execute");
+    arguments.put("configId", "mcpScopeExecTemplate");
+
+    try {
+      GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      try {
+        GrouperMcpAuthUser authUser = readonlyScopeAuthUser(SubjectTestHelper.SUBJ0);
+        ObjectNode result = GrouperMcpInstitutionalTools.execute(arguments, authUser,
+            GrouperToolAccess.isAllowedReadwrite(authUser));
+
+        assertTrue(result.get("isError").asBoolean());
+        String text = result.get("content").get(0).get("text").asText();
+        assertTrue(text, text.contains("was authorized with does not include it"));
+        assertFalse(text, text.contains("requires MCP readwrite access"));
+      } finally {
+        GrouperSession.stopQuietly(session);
+      }
+
+      session = GrouperSession.start(SubjectTestHelper.SUBJ1);
+      try {
+        GrouperMcpAuthUser authUser = readonlyScopeAuthUser(SubjectTestHelper.SUBJ1);
+        ObjectNode result = GrouperMcpInstitutionalTools.execute(arguments, authUser,
+            GrouperToolAccess.isAllowedReadwrite(authUser));
+
+        assertTrue(result.get("isError").asBoolean());
+        String text = result.get("content").get(0).get("text").asText();
+        assertTrue(text, text.contains("requires MCP readwrite access"));
+      } finally {
+        GrouperSession.stopQuietly(session);
+      }
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperToolAccess.GROUP_READWRITE);
+      GrouperMcpGroupMembership.clearCache();
+    }
+  }
+
+  /**
+   * a call matching mcpReadonlyWhen is a read, so it gets past the tool layer's readonly gate, but
+   * the template still needs readwrite: a user with readonly only, or with readwrite but a readonly
+   * scope, is refused and the script does not run.  a readwrite user with no scope limit runs it,
+   * so the refusals are not just the template failing
+   */
+  public void testReadonlyWhenCallStillNeedsReadwrite() {
+
+    String configPrefix = "grouperGshTemplate.mcpWhenExecTemplate.";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateType", "gsh");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateVersion", "V1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateName", "Readonly When Template");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateDescription", "Get is a read");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "securityRunType", "everyone");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyWhen", "gsh_input_action=get");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "allowWsFromNoOwner", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_action");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.label", "Action");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.description", "What to do");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.type", "string");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.validationType", "none");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "gshTemplate",
+        "gsh_builtin_gshTemplateOutput.addOutputLine(\"ran \" + gsh_input_action);");
+
+    // SUBJ0 has readwrite, SUBJ1 has readonly only
+    Group readonlyGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpWhenReadonlyUsers")
+        .assignName("test:mcpWhenReadonlyUsers")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+    readonlyGroup.addMember(SubjectTestHelper.SUBJ1);
+    Group readwriteGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpWhenReadwriteUsers")
+        .assignName("test:mcpWhenReadwriteUsers")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+    readwriteGroup.addMember(SubjectTestHelper.SUBJ0);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperToolAccess.GROUP_READONLY,
+        "test:mcpWhenReadonlyUsers");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperToolAccess.GROUP_READWRITE,
+        "test:mcpWhenReadwriteUsers");
+    GrouperMcpGroupMembership.clearCache();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "execute");
+    arguments.put("configId", "mcpWhenExecTemplate");
+    arguments.putObject("inputs").put("action", "get");
+
+    try {
+      assertEquals(GrouperToolCategory.readonly,
+          GrouperToolRegistry.find("institutional_tools").category(arguments));
+
+      // readwrite, no scope limit: runs
+      ObjectNode result = GrouperToolExecutor.executeTool("institutional_tools", arguments,
+          new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0));
+      String text = result.get("content").get(0).get("text").asText();
+      assertFalse(text, result.get("isError").asBoolean());
+      assertTrue(text, text.contains("ran get"));
+
+      // readonly only: past the readonly gate, refused by the template's readwrite check
+      result = GrouperToolExecutor.executeTool("institutional_tools", arguments,
+          new GrouperMcpAuthUser(SubjectTestHelper.SUBJ1));
+      text = result.get("content").get(0).get("text").asText();
+      assertTrue(text, result.get("isError").asBoolean());
+      assertTrue(text, text.contains("requires MCP readwrite access"));
+      assertFalse(text, text.contains("ran get"));
+
+      // readwrite, but a readonly scope: refused, and told it is the scope
+      result = GrouperToolExecutor.executeTool("institutional_tools", arguments,
+          readonlyScopeAuthUser(SubjectTestHelper.SUBJ0));
+      text = result.get("content").get(0).get("text").asText();
+      assertTrue(text, result.get("isError").asBoolean());
+      assertTrue(text, text.contains("was authorized with does not include it"));
+      assertFalse(text, text.contains("ran get"));
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperToolAccess.GROUP_READONLY);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperToolAccess.GROUP_READWRITE);
+      GrouperMcpGroupMembership.clearCache();
+    }
+  }
+
+  /**
+   * @param subject who
+   * @return an OAuth auth user whose consented scope is readonly only
+   */
+  private static GrouperMcpAuthUser readonlyScopeAuthUser(Subject subject) {
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(subject);
+    authUser.setOAuthAuthenticated(true);
+    authUser.setConsentScopeReadonly(true);
+    authUser.setConsentScopeReadwrite(false);
+    return authUser;
   }
 
   /**

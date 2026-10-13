@@ -129,6 +129,11 @@ public class GrouperMcpAuthUser {
   private long memberInternalId;
 
   /**
+   * member id (uuid) from grouper_members for the authenticated user, or null if not looked up
+   */
+  private String memberId;
+
+  /**
    * internal id of the OAuth client that was used for authentication,
    * or null if not authenticated via OAuth JWT.
    * This is a soft reference to grouper_oauth_client.internal_id
@@ -171,6 +176,22 @@ public class GrouperMcpAuthUser {
    */
   public void setMemberInternalId(long memberInternalId1) {
     this.memberInternalId = memberInternalId1;
+  }
+
+  /**
+   * member id (uuid) from grouper_members for the authenticated user
+   * @return the member id, or null if not looked up
+   */
+  public String getMemberId() {
+    return this.memberId;
+  }
+
+  /**
+   * set the member id (uuid)
+   * @param memberId1
+   */
+  public void setMemberId(String memberId1) {
+    this.memberId = memberId1;
   }
 
   /**

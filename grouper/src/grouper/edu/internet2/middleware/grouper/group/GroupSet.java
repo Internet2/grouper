@@ -414,8 +414,13 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
           this.getMemberGroupId(), Group.getDefaultList());
 
       // a group cannot be a member of itself at any depth.  If the owner group is already reachable from the
-      // member group, then this immediate group set would create a circular membership.  This cannot be bypassed.
-      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      // member group, then this immediate group set would create a circular membership.  This is vetoed unless
+      // groups.member.circularMembershipCheck.enabled is false, which is only meant as a temporary measure for a
+      // site moving off a source that already has circular memberships.  the group set code still copes with
+      // cycles (see internal_isCircular), and a group as a direct member of itself is refused regardless, by
+      // ImmediateMembershipValidator
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())
+          && GrouperConfig.retrieveConfig().propertyValueBoolean("groups.member.circularMembershipCheck.enabled", true)) {
         for (GroupSet groupSetHasMember : groupSetHasMembers) {
           if (StringUtils.equals(this.getOwnerGroupId(), groupSetHasMember.getMemberGroupId())) {
             throw this.circularMembershipVeto();

@@ -830,13 +830,15 @@ public class UiV2GrouperLoader {
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
       scheduler.pauseJob(jobKey);
+
+      // GRP-7392: this is ajax, navigate to the loader screen so the url matches what is shown
+      GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newScript(
+          "guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-    
-    loader(request, response);
   }
   
   /**
@@ -868,6 +870,10 @@ public class UiV2GrouperLoader {
 
       GrouperFailsafe.assignApproveNextRun(grouperLoaderContainer.getJobName());
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      // GRP-7392: this is ajax, navigate to the loader screen so the url matches what is shown.  The navigation
+      // clears messages, so it goes before the success message
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("failsafeApproved")));
 
     } catch (Exception e) {
@@ -875,8 +881,6 @@ public class UiV2GrouperLoader {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-    
-    loader(request, response);
   }
 
   /**
@@ -910,13 +914,15 @@ public class UiV2GrouperLoader {
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
       JobKey jobKey = new JobKey(grouperLoaderContainer.getJobName());
       scheduler.resumeJob(jobKey);
+
+      // GRP-7392: this is ajax, navigate to the loader screen so the url matches what is shown
+      GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newScript(
+          "guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-    
-    loader(request, response);
   }
 
   /**

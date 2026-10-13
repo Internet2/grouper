@@ -14,7 +14,7 @@
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob != null  && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
                             <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob.showMoreActionsDisable}" >
-                              <li><a href="?operation=UiV2GrouperLoader.disableJob&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.disableJob&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.disableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
                                   >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
                             </c:if>
                           </c:if>
@@ -31,14 +31,14 @@
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader && grouperRequestContainer.grouperLoaderContainer.failsafeIssue}" >
-                          <li><a href="?operation=UiV2GrouperLoader.failsafeApprove?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.failsafeApprove?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.failsafeApprove?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
                               >${textContainer.text['grouperLoaderFailsafeApprove'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob != null  && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
                             <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob.showMoreActionsEnable}" >
-                              <li><a href="?operation=UiV2GrouperLoader.enableJob&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.enableJob&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.enableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
                                   >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</a></li>
                             </c:if>
                           </c:if>

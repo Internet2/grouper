@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputValidationType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateSecurityRunType;
@@ -49,6 +52,8 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpGroupMembership;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -76,6 +81,9 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>{@code mcpEnabled} - boolean, default false. Enables MCP for this template.</li>
  *   <li>{@code mcpReadonly} - boolean, default false. If true, readonly MCP users can execute
  *       this template. Only shown when mcpEnabled is true.</li>
+ *   <li>{@code mcpReadonlyWhen} - comma separated input=value pairs, for a template which is not
+ *       mcpReadonly.  A call matching any one of them changes nothing, so the AI agent in the UI
+ *       runs it without asking first.  It still needs readwrite.</li>
  *   <li>{@code input.N.mcpScopeType} - dropdown (folders, groups, subjects). Restricts this
  *       input to approved readwrite scopes. Only shown when mcpEnabled is true and mcpReadonly
  *       is false.</li>
@@ -162,25 +170,32 @@ public class GrouperMcpInstitutionalTools {
     ownerTypeEnum.add("group");
     ownerTypeEnum.add("stem");
     ownerTypeProp.set("enum", ownerTypeEnum);
+    // the owner is easy to mistake for the object a template acts on: asked to get a group, a model
+    // passes that group here and leaves the template's own input empty.  so this says when to pass
+    // one, and that otherwise it is left out
     ownerTypeProp.put("description",
-        "Owner type for execution context. 'group' if running on a group, 'stem' if running on a folder. "
-        + "Optional for 'execute' action. Check the schema to see which types are applicable.");
+        "The group or folder a template runs on, which is not necessarily what its inputs act on. "
+        + "'group' only for a template whose schema says executeOnGroupName is true, 'stem' only for "
+        + "one whose schema says executeOnFolderName is true. If both are false the template runs "
+        + "with no owner: leave this, ownerGroupName and ownerStemName out, and pass any group or "
+        + "folder the user asked about in the template's inputs.");
     properties.set("ownerType", ownerTypeProp);
 
     // ownerGroupName
     ObjectNode ownerGroupNameProp = objectMapper.createObjectNode();
     ownerGroupNameProp.put("type", "string");
     ownerGroupNameProp.put("description",
-        "The fully qualified group name to execute on (e.g., 'stem1:stem2:groupName'). "
-        + "Required when ownerType is 'group'.");
+        "The fully qualified name of the group the template runs on (e.g., 'stem1:stem2:groupName'), "
+        + "only when ownerType is 'group'. Not the group a template's inputs act on: that goes in "
+        + "inputs.");
     properties.set("ownerGroupName", ownerGroupNameProp);
 
     // ownerStemName
     ObjectNode ownerStemNameProp = objectMapper.createObjectNode();
     ownerStemNameProp.put("type", "string");
     ownerStemNameProp.put("description",
-        "The fully qualified folder name to execute on (e.g., 'stem1:stem2'). "
-        + "Required when ownerType is 'stem'.");
+        "The fully qualified name of the folder the template runs on (e.g., 'stem1:stem2'), only "
+        + "when ownerType is 'stem'. Not the folder a template's inputs act on: that goes in inputs.");
     properties.set("ownerStemName", ownerStemNameProp);
 
     // inputs
@@ -325,10 +340,14 @@ public class GrouperMcpInstitutionalTools {
   /**
    * whether a call runs a template which can make changes: an execute of any template other than
    * one which is MCP enabled and marked mcpReadonly, the same test {@link #executeTemplate} uses to
-   * require readwrite.  read straight from config the way {@link GshTemplateConfig} reads it,
-   * rather than loading the whole template, since this is asked before every call.  a template
-   * which is missing or cannot be read counts as a write, so a call is never let through as a read
-   * because its template could not be checked; the tool refuses such a template anyway
+   * require readwrite, unless the call matches the template's mcpReadonlyWhen.  that is the
+   * template author saying which calls change nothing, such as a get, or a plan which is only
+   * shown before it is confirmed.  it decides the category only: it does not change the readwrite
+   * access {@link #executeTemplate} requires.  read straight from config the way
+   * {@link GshTemplateConfig} reads it, rather than loading the whole template, since this is asked
+   * before every call.  a template which is missing or cannot be read counts as a write, so a call
+   * is never let through as a read because its template could not be checked; the tool refuses
+   * such a template anyway
    * @param arguments the tool arguments
    * @return true if the call runs a template which can make changes
    */
@@ -349,13 +368,126 @@ public class GrouperMcpInstitutionalTools {
     try {
       String configPrefix = "grouperGshTemplate." + configId + ".";
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-      boolean mcpReadonly = grouperConfig.propertyValueBoolean(configPrefix + "mcpEnabled", false)
-          && grouperConfig.propertyValueBoolean(configPrefix + "mcpReadonly", false);
-      return !mcpReadonly;
+      if (!grouperConfig.propertyValueBoolean(configPrefix + "mcpEnabled", false)) {
+        return true;
+      }
+      if (grouperConfig.propertyValueBoolean(configPrefix + "mcpReadonly", false)) {
+        return false;
+      }
+
+      String readonlyWhen = grouperConfig.propertyValueString(configPrefix + "mcpReadonlyWhen");
+      if (StringUtils.isBlank(readonlyWhen)) {
+        return true;
+      }
+
+      // each input's type and default, read the way GshTemplateConfig reads them.  a required input
+      // has no default there, so it has none here either
+      Map<String, GshTemplateInputType> inputTypes = new HashMap<String, GshTemplateInputType>();
+      Map<String, String> inputDefaults = new HashMap<String, String>();
+      int numberOfInputs = grouperConfig.propertyValueInt(configPrefix + "numberOfInputs", 0);
+      for (int i = 0; i < numberOfInputs; i++) {
+        String inputPrefix = configPrefix + "input." + i + ".";
+        String inputName = grouperConfig.propertyValueString(inputPrefix + "name");
+        if (StringUtils.isBlank(inputName)) {
+          continue;
+        }
+        inputTypes.put(inputName, GshTemplateInputType.valueOfIgnoreCase(
+            grouperConfig.propertyValueString(inputPrefix + "type", "string"), true));
+        if (!grouperConfig.propertyValueBoolean(inputPrefix + "required", false)) {
+          String defaultValue = grouperConfig.propertyValueString(inputPrefix + "defaultValue", null);
+          if (!StringUtils.isBlank(defaultValue)) {
+            inputDefaults.put(inputName, defaultValue);
+          }
+        }
+      }
+
+      return !isReadonlyCall(readonlyWhen, inputTypes, inputDefaults, arguments.get("inputs"));
     } catch (RuntimeException re) {
       LOG.error("Error reading whether template '" + configId + "' is mcpReadonly, treating it as a write", re);
       return true;
     }
+  }
+
+  /**
+   * whether a call's inputs match any one of a template's mcpReadonlyWhen pairs.  values are taken
+   * the way {@link GshTemplateExec} takes them, so this compares what the template will actually
+   * get: inputs named with or without the gsh_input_ prefix, a blank value replaced by the input's
+   * default, and both sides converted to the input's type, so a boolean false matches f or no.
+   * values are not trimmed: the template trims most inputs, so " get " may well run as a get, but
+   * not matching only means the user is asked, which is the safe way to be wrong.  anything this
+   * cannot read does not match: a pair naming an input the template does not have, a file input,
+   * and a value which does not convert.  an input given twice, with and without the prefix, makes
+   * the call a write, since which of the two the template gets depends on the order they came in.
+   * the types and defaults come from config, so this relies on the template's decorate code, which
+   * runs before validation and may change input configs, leaving the listed inputs alone.  that is
+   * the template author's to keep, like the promise that a listed value changes nothing, and the
+   * documentation of mcpReadonlyWhen says so
+   * @param readonlyWhen the template's mcpReadonlyWhen, comma separated input=value pairs
+   * @param inputTypes the type of each of the template's inputs, by full input name
+   * @param inputDefaults the default of each optional input which has one, by full input name
+   * @param inputsNode the call's inputs argument, or null if it had none
+   * @return true if the call matches a pair, so it changes nothing
+   */
+  static boolean isReadonlyCall(String readonlyWhen, Map<String, GshTemplateInputType> inputTypes,
+      Map<String, String> inputDefaults, JsonNode inputsNode) {
+
+    if (StringUtils.isBlank(readonlyWhen)) {
+      return false;
+    }
+
+    // named the way executeTemplate names them, and the value read the same way
+    Map<String, String> callInputs = new HashMap<String, String>();
+    if (inputsNode != null && inputsNode.isObject()) {
+      Iterator<String> fieldNames = inputsNode.fieldNames();
+      while (fieldNames.hasNext()) {
+        String fieldName = fieldNames.next();
+        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
+        if (callInputs.containsKey(inputName)) {
+          return false;
+        }
+        callInputs.put(inputName, inputsNode.get(fieldName).asText());
+      }
+    }
+
+    for (String pair : GrouperUtil.splitTrim(readonlyWhen, ",")) {
+      int equalsIndex = pair.indexOf('=');
+      if (equalsIndex <= 0) {
+        continue;
+      }
+      String name = pair.substring(0, equalsIndex).trim();
+      String value = pair.substring(equalsIndex + 1).trim();
+      if (StringUtils.isBlank(value)) {
+        continue;
+      }
+      String inputName = name.startsWith("gsh_input_") ? name : "gsh_input_" + name;
+
+      GshTemplateInputType inputType = inputTypes.get(inputName);
+      if (inputType == null || inputType == GshTemplateInputType.FILE) {
+        continue;
+      }
+
+      String callValue = callInputs.get(inputName);
+      if (StringUtils.isBlank(callValue)) {
+        callValue = inputDefaults.get(inputName);
+      }
+      if (StringUtils.isBlank(callValue)) {
+        continue;
+      }
+
+      Object callTyped;
+      Object valueTyped;
+      try {
+        callTyped = inputType.convertToType(callValue);
+        valueTyped = inputType.convertToType(value);
+      } catch (RuntimeException re) {
+        // the template refuses a value it cannot convert, so this call runs nothing either way
+        continue;
+      }
+      if (callTyped != null && callTyped.equals(valueTyped)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -636,6 +768,18 @@ public class GrouperMcpInstitutionalTools {
 
     // if user only has readonly access, they can only execute readonly templates
     if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
+      // a call matching mcpReadonlyWhen is a read, so it gets past the scope check to here.  if the
+      // caller has readwrite and only this session's scope leaves it out, say so, so the user is
+      // pointed at the scope rather than told they have no access
+      if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeReadwrite()
+          && GrouperMcpGroupMembership.isSubjectInGroup(authUser, GrouperToolAccess.GROUP_READWRITE)) {
+        // worded for both kinds of scope: one the user chose for a session of the AI agent in the
+        // UI, and one an MCP client was authorized with, which is widened by authorizing it again
+        return buildErrorResult("Not run: template '" + configId + "' needs readwrite, and the scope"
+            + " this session or client was authorized with does not include it.  The user can allow"
+            + " it by widening that scope, and it is checked each time a tool runs, so if the user"
+            + " asks again, call the tool again.");
+      }
       return buildErrorResult("Access denied: template '" + configId + "' requires MCP readwrite access.");
     }
 
