@@ -33,6 +33,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
@@ -1336,6 +1338,35 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
     Recorded recorded = this.post(new LinkedHashMap<String, String>(),
         "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{\"cursor\":\"x\"}}");
     assertEquals(INVALID_PARAMS, recorded.errorCode());
+  }
+
+  /**
+   * once a request is authenticated, the request's context has the caller as the logged in
+   * member, so whatever the request changes is audited as the caller.  act as is left empty, as
+   * the UI leaves it, for Grouper to fill in when a change runs as someone else
+   * @throws Exception if the servlet throws
+   */
+  public void testAuthenticatedRequestAuditsAsCaller() throws Exception {
+
+    assertNull("the request starts with nobody logged in",
+        GrouperContext.retrieveDefaultContext().getLoggedInMemberId());
+
+    Recorded recorded = this.post(new LinkedHashMap<String, String>(),
+        "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\",\"params\":{}}");
+    assertTrue("the ping should have been answered: " + recorded.json(),
+        recorded.json() != null && recorded.json().has("result"));
+
+    // a session of its own: the servlet starts and stops sessions while it handles the request,
+    // so whatever session the test began with may not be the current one afterwards
+    String subj0MemberId;
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    try {
+      subj0MemberId = MemberFinder.findBySubject(rootSession, SubjectTestHelper.SUBJ0, true).getUuid();
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+    assertEquals(subj0MemberId, GrouperContext.retrieveDefaultContext().getLoggedInMemberId());
+    assertNull(GrouperContext.retrieveDefaultContext().getLoggedInMemberIdActAs());
   }
 
   /**
