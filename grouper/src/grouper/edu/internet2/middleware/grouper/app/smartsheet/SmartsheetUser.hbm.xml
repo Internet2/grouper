@@ -1,0 +1,21 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.smartsheet" default-lazy="false">
+  <class name="SmartsheetUser" table="mock_smartsheet_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="email" column="email" />
+    <property name="firstName" column="first_name" />
+    <property name="lastName" column="last_name" />
+    <property name="status" column="status" />
+    <property name="adminDb" column="admin" />
+    <property name="licensedSheetCreatorDb" column="licensed_sheet_creator" />
+    <property name="groupAdminDb" column="group_admin" />
+    <property name="resourceViewerDb" column="resource_viewer" />
+
+  </class>
+</hibernate-mapping>

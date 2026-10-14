@@ -73,6 +73,9 @@ import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.app.jamf.JamfAccount;
 import edu.internet2.middleware.grouper.app.jamf.JamfAccountGroup;
 import edu.internet2.middleware.grouper.app.jamf.JamfMembership;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetGroup;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetMembership;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetUser;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxGroup;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxMembership;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxUser;
@@ -340,6 +343,10 @@ public abstract class Hib3DAO {
         addClass(configuration, JamfAccountGroup.class);
         addClass(configuration, JamfAccount.class);
         addClass(configuration, JamfMembership.class);
+
+        addClass(configuration, SmartsheetGroup.class);
+        addClass(configuration, SmartsheetUser.class);
+        addClass(configuration, SmartsheetMembership.class);
 
         addClass(configuration, DropboxGroup.class);
         addClass(configuration, DropboxUser.class);
