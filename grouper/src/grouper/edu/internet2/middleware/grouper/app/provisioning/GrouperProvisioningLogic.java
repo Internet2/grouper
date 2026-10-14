@@ -2742,6 +2742,22 @@ public class GrouperProvisioningLogic {
     }
   }
 
+  /**
+   * GRP-7490: take the dao's filtered list of cache-reconstructed objects, counting how many it dropped
+   * @param reconstructed what was reconstructed from the cache
+   * @param filtered what the dao returned (null means none)
+   * @param debugMapKey debug map key for the number filtered out
+   * @return the filtered list (never null)
+   */
+  private <T> List<T> filterFromSyncBack(List<T> reconstructed, List<T> filtered, String debugMapKey) {
+    List<T> result = filtered == null ? new ArrayList<T>() : filtered;
+    int filteredOut = GrouperUtil.length(reconstructed) - result.size();
+    if (filteredOut > 0) {
+      this.getGrouperProvisioner().getDebugMap().put(debugMapKey, filteredOut);
+    }
+    return result;
+  }
+
   private void seedTargetEntitiesFromSyncBack() {
 
     if (!this.isEntitiesFromSyncBackCacheThisRun()) {
@@ -2749,6 +2765,10 @@ public class GrouperProvisioningLogic {
     }
 
     List<ProvisioningEntity> cachedTargetEntities = this.retrieveTargetEntitiesFromSyncBack();
+    // GRP-7490: let the dao apply the same filtering it applies to a live retrieve (the mirror keeps them)
+    cachedTargetEntities = this.filterFromSyncBack(cachedTargetEntities, this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().filterTargetEntitiesFromSyncBack(
+            GrouperUtil.nonNull(cachedTargetEntities)), "syncBackEntitiesFilteredByDao");
     if (GrouperUtil.length(cachedTargetEntities) > 0) {
       this.processTargetDataEntities(cachedTargetEntities, false);
       for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(cachedTargetEntities)) {
@@ -2872,6 +2892,10 @@ public class GrouperProvisioningLogic {
     }
 
     List<ProvisioningMembership> cachedTargetMemberships = this.retrieveTargetMembershipsFromSyncBack();
+    // GRP-7490: let the dao apply the same filtering it applies to a live retrieve (the mirror keeps them)
+    cachedTargetMemberships = this.filterFromSyncBack(cachedTargetMemberships, this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().filterTargetMembershipsFromSyncBack(
+            GrouperUtil.nonNull(cachedTargetMemberships)), "syncBackMembershipsFilteredByDao");
     if (GrouperUtil.length(cachedTargetMemberships) > 0) {
       this.processTargetDataMemberships(cachedTargetMemberships, false);
       for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(cachedTargetMemberships)) {
@@ -3087,6 +3111,10 @@ public class GrouperProvisioningLogic {
     }
 
     List<ProvisioningGroup> cachedTargetGroups = this.retrieveTargetGroupsFromSyncBack();
+    // GRP-7490: let the dao apply the same filtering it applies to a live retrieve (the mirror keeps them)
+    cachedTargetGroups = this.filterFromSyncBack(cachedTargetGroups, this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().filterTargetGroupsFromSyncBack(
+            GrouperUtil.nonNull(cachedTargetGroups)), "syncBackGroupsFilteredByDao");
     if (GrouperUtil.length(cachedTargetGroups) > 0) {
       this.processTargetDataGroups(cachedTargetGroups, false);
       for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(cachedTargetGroups)) {

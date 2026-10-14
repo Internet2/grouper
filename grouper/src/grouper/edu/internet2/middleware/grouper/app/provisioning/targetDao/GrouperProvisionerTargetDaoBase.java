@@ -6,6 +6,9 @@ import java.util.concurrent.ExecutorService;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -52,7 +55,42 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
 
   public abstract void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities);
-  
+
+  /**
+   * GRP-7490: filter the target users reconstructed from the sync-back cache (fullSyncUsersFromSyncBack)
+   * before they enter the compare, so a full sync served from the cache applies the same rules as a
+   * live retrieve (e.g. an ignore list, or treating a disabled / deactivated account as absent).  The
+   * sync-back mirror is the full view of the target and keeps the filtered users.  A filtered-out
+   * user that Grouper provisions is then "missing", and is re-read live through retrieveEntity, which
+   * applies the live filtering.  Default: no filtering.
+   * @param targetEntities the reconstructed target users (not null)
+   * @return the users to use as the target view
+   */
+  public List<ProvisioningEntity> filterTargetEntitiesFromSyncBack(List<ProvisioningEntity> targetEntities) {
+    return targetEntities;
+  }
+
+  /**
+   * GRP-7490: groups analogue of {@link #filterTargetEntitiesFromSyncBack(List)} (fullSyncGroupsFromSyncBack).
+   * Default: no filtering.
+   * @param targetGroups the reconstructed target groups (not null)
+   * @return the groups to use as the target view
+   */
+  public List<ProvisioningGroup> filterTargetGroupsFromSyncBack(List<ProvisioningGroup> targetGroups) {
+    return targetGroups;
+  }
+
+  /**
+   * GRP-7490: memberships analogue of {@link #filterTargetEntitiesFromSyncBack(List)}
+   * (fullSyncMembershipsFromSyncBack), e.g. to drop memberships of users or groups a live retrieve
+   * would not return.  Called after the users and groups have been seeded.  Default: no filtering.
+   * @param targetMemberships the reconstructed target memberships (not null)
+   * @return the memberships to use as the target view
+   */
+  public List<ProvisioningMembership> filterTargetMembershipsFromSyncBack(List<ProvisioningMembership> targetMemberships) {
+    return targetMemberships;
+  }
+
   private List<TargetDaoTimingInfo> targetDaoTimingInfos = new ArrayList<TargetDaoTimingInfo>();
   
   public void addTargetDaoTimingInfo(TargetDaoTimingInfo targetDaoTimingInfo) {
