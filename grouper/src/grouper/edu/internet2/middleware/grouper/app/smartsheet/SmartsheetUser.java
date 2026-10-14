@@ -43,6 +43,36 @@ public class SmartsheetUser {
   /** status of a deactivated user (cannot use Smartsheet; sharing is unchanged) */
   public static final String STATUS_DEACTIVATED = "DEACTIVATED";
 
+  /** seat type: paid seat (user subscription model) */
+  public static final String SEAT_MEMBER = "MEMBER";
+
+  /** seat type: temporary paid seat granted by Smartsheet; cannot be set by the API */
+  public static final String SEAT_PROVISIONAL_MEMBER = "PROVISIONAL_MEMBER";
+
+  /** seat type: free seat, can edit what is shared with them but not create or own */
+  public static final String SEAT_CONTRIBUTOR = "CONTRIBUTOR";
+
+  /** seat type: external users only */
+  public static final String SEAT_GUEST = "GUEST";
+
+  /** seat type: deprecated name for the free seat, treated as CONTRIBUTOR */
+  public static final String SEAT_VIEWER = "VIEWER";
+
+  /** entity attribute holding the computed / current seat type */
+  public static final String ATTR_SEAT_TYPE = "seatType";
+
+  /**
+   * @param seatType a seat type from Smartsheet or config
+   * @return the upper-cased seat type, with the deprecated VIEWER mapped to CONTRIBUTOR; null if blank
+   */
+  public static String normalizeSeatType(String seatType) {
+    if (StringUtils.isBlank(seatType)) {
+      return null;
+    }
+    String result = seatType.trim().toUpperCase();
+    return SEAT_VIEWER.equals(result) ? SEAT_CONTRIBUTOR : result;
+  }
+
   /** the boolean account flags Grouper can manage on a user */
   public static final Set<String> BOOLEAN_FLAG_ATTRIBUTES = GrouperUtil.toSet(
       "admin", "licensedSheetCreator", "groupAdmin", "resourceViewer");
@@ -57,7 +87,8 @@ public class SmartsheetUser {
     final String tableName = "mock_smartsheet_user";
 
     try {
-      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+      // select the newest column so a table from an older version gets the columns added
+      new GcDbAccess().sql("select count(seat_type) from " + tableName).select(int.class);
     } catch (Exception e) {
       Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
@@ -70,6 +101,9 @@ public class SmartsheetUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "licensed_sheet_creator", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_admin", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "resource_viewer", Types.VARCHAR, "1", false, false);
+      // seat type and internal ("T"/"F"), only returned when a planId is passed
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "seat_type", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_internal", Types.VARCHAR, "1", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_smartsheet_user_email_idx", true, "email");
     }
@@ -102,6 +136,15 @@ public class SmartsheetUser {
 
   /** true if the user can access resource views */
   private Boolean resourceViewer;
+
+  /** MEMBER, PROVISIONAL_MEMBER, CONTRIBUTOR, GUEST (only returned when a planId is passed) */
+  private String seatType;
+
+  /**
+   * false for a user outside the organization (e.g. an external collaborator on the plan); only
+   * returned when a planId is passed, null otherwise
+   */
+  private Boolean internal;
 
   public String getId() {
     return id;
@@ -175,6 +218,29 @@ public class SmartsheetUser {
     this.resourceViewer = resourceViewer;
   }
 
+  public String getSeatType() {
+    return seatType;
+  }
+
+  public void setSeatType(String seatType) {
+    this.seatType = seatType;
+  }
+
+  public Boolean getInternal() {
+    return internal;
+  }
+
+  public void setInternal(Boolean internal) {
+    this.internal = internal;
+  }
+
+  /**
+   * @return true if Smartsheet says this user is outside the organization (only known when read with a planId)
+   */
+  public boolean isExternal() {
+    return this.internal != null && !this.internal;
+  }
+
   /**
    * @return true if this user is deactivated in Smartsheet
    */
@@ -206,6 +272,14 @@ public class SmartsheetUser {
 
   public void setGroupAdminDb(String groupAdminDb) {
     this.groupAdmin = GrouperUtil.booleanObjectValue(groupAdminDb);
+  }
+
+  public String getInternalDb() {
+    return booleanToTf(this.internal);
+  }
+
+  public void setInternalDb(String internalDb) {
+    this.internal = GrouperUtil.booleanObjectValue(internalDb);
   }
 
   public String getResourceViewerDb() {
@@ -242,6 +316,8 @@ public class SmartsheetUser {
     user.licensedSheetCreator = GrouperUtil.jsonJacksonGetBoolean(node, "licensedSheetCreator");
     user.groupAdmin = GrouperUtil.jsonJacksonGetBoolean(node, "groupAdmin");
     user.resourceViewer = GrouperUtil.jsonJacksonGetBoolean(node, "resourceViewer");
+    user.seatType = GrouperUtil.jsonJacksonGetString(node, "seatType");
+    user.internal = GrouperUtil.jsonJacksonGetBoolean(node, "isInternal");
     return user;
   }
 
@@ -262,7 +338,10 @@ public class SmartsheetUser {
       result.put("lastName", this.lastName);
     }
     result.put("admin", this.admin != null && this.admin);
-    result.put("licensedSheetCreator", this.licensedSheetCreator != null && this.licensedSheetCreator);
+    // Smartsheet refuses an unlicensed Group Admin / Resource Viewer, so when Grouper does not manage
+    // the license flag, license those users
+    boolean needsLicense = (this.groupAdmin != null && this.groupAdmin) || (this.resourceViewer != null && this.resourceViewer);
+    result.put("licensedSheetCreator", this.licensedSheetCreator != null ? this.licensedSheetCreator : needsLicense);
     if (this.groupAdmin != null) {
       result.put("groupAdmin", this.groupAdmin);
     }
@@ -310,7 +389,9 @@ public class SmartsheetUser {
 
   /**
    * Convert to a Grouper provisioning entity. id is the native user id, email is the backup
-   * matching attribute.
+   * matching attribute. The boolean flags are held as the strings "true" / "false" (the provisioning
+   * framework has no boolean attribute type), matching what translations and the group-driven flags
+   * produce, so an unchanged flag compares equal.
    * @return the converted provisioning entity
    */
   public ProvisioningEntity toProvisioningEntity() {
@@ -330,16 +411,19 @@ public class SmartsheetUser {
       targetEntity.assignAttributeValue("status", this.status);
     }
     if (this.admin != null) {
-      targetEntity.assignAttributeValue("admin", this.admin);
+      targetEntity.assignAttributeValue("admin", this.admin.toString());
     }
     if (this.licensedSheetCreator != null) {
-      targetEntity.assignAttributeValue("licensedSheetCreator", this.licensedSheetCreator);
+      targetEntity.assignAttributeValue("licensedSheetCreator", this.licensedSheetCreator.toString());
     }
     if (this.groupAdmin != null) {
-      targetEntity.assignAttributeValue("groupAdmin", this.groupAdmin);
+      targetEntity.assignAttributeValue("groupAdmin", this.groupAdmin.toString());
     }
     if (this.resourceViewer != null) {
-      targetEntity.assignAttributeValue("resourceViewer", this.resourceViewer);
+      targetEntity.assignAttributeValue("resourceViewer", this.resourceViewer.toString());
+    }
+    if (this.seatType != null) {
+      targetEntity.assignAttributeValue(ATTR_SEAT_TYPE, normalizeSeatType(this.seatType));
     }
 
     return targetEntity;
@@ -362,6 +446,7 @@ public class SmartsheetUser {
     user.setLicensedSheetCreator(booleanAttribute(targetEntity, "licensedSheetCreator"));
     user.setGroupAdmin(booleanAttribute(targetEntity, "groupAdmin"));
     user.setResourceViewer(booleanAttribute(targetEntity, "resourceViewer"));
+    user.setSeatType(normalizeSeatType(targetEntity.retrieveAttributeValueString(ATTR_SEAT_TYPE)));
 
     return user;
   }

@@ -3,7 +3,9 @@ package edu.internet2.middleware.grouper.app.smartsheet;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCompare;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 /**
@@ -32,6 +34,18 @@ public class SmartsheetProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass() {
     return SmartsheetProvisionerConfiguration.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+    // computes the group-driven seatType and account flags
+    return SmartsheetProvisioningTranslator.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningCompare> grouperProvisioningCompareClass() {
+    // seatType compare: VIEWER equals CONTRIBUTOR, provisional members are not downgraded by default
+    return SmartsheetProvisioningCompare.class;
   }
 
   @Override

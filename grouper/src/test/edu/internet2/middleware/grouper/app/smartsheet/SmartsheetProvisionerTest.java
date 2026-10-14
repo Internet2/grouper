@@ -84,6 +84,25 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar("F").addBindVar("F").addBindVar("F").addBindVar("F").executeSql();
   }
 
+  private void insertMockUser(String id, String email, String status, String seatType, boolean internal) {
+    insertMockUser(id, email, status);
+    new GcDbAccess().connectionName("grouper")
+        .sql("update mock_smartsheet_user set seat_type = ?, is_internal = ? where id = ?")
+        .addBindVar(seatType).addBindVar(internal ? "T" : "F").addBindVar(id).executeSql();
+  }
+
+  private String userSeatType(String email) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select seat_type from mock_smartsheet_user where lower(email) = ?")
+        .addBindVar(email.toLowerCase()).select(String.class);
+  }
+
+  private String userFlag(String email, String column) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select " + column + " from mock_smartsheet_user where lower(email) = ?")
+        .addBindVar(email.toLowerCase()).select(String.class);
+  }
+
   private void insertMockGroup(String id, String name) {
     new GcDbAccess().connectionName("grouper")
         .sql("insert into mock_smartsheet_group (id, name, owner, owner_id) values (?, ?, ?, ?)")
@@ -187,9 +206,10 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("new@example.edu", readBack.getEmail());
     assertEquals("New", readBack.getFirstName());
     assertEquals(Boolean.TRUE, readBack.getGroupAdmin());
-    // admin and licensedSheetCreator default to false on create
+    // admin defaults to false on create; licensedSheetCreator is not managed here, so a Group Admin
+    // is created licensed (Smartsheet refuses an unlicensed Group Admin)
     assertEquals(Boolean.FALSE, readBack.getAdmin());
-    assertEquals(Boolean.FALSE, readBack.getLicensedSheetCreator());
+    assertEquals(Boolean.TRUE, readBack.getLicensedSheetCreator());
 
     // a second add of the same email is rejected by Smartsheet
     try {
@@ -352,6 +372,102 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
     SmartsheetUser readBack = SmartsheetApiCommands.retrieveUserById(CONFIG_ID, "1000000000000051");
     assertEquals(Boolean.TRUE, readBack.getAdmin());
     assertEquals("Jane", readBack.getFirstName());
+  }
+
+  /** plan id used by the seat type tests */
+  private static final String PLAN_ID = "1234567890123456";
+
+  public void testSeatTypeReadAndChange() {
+    insertMockUser("1000000000000061", "seat@example.edu", "ACTIVE", "MEMBER", true);
+
+    // no seatType without a planId (like the real API)
+    assertNull(SmartsheetApiCommands.retrieveUserByEmail(CONFIG_ID, "seat@example.edu").getSeatType());
+    assertEquals("MEMBER", SmartsheetApiCommands.retrieveUserByEmail(CONFIG_ID, "seat@example.edu", PLAN_ID).getSeatType());
+
+    SmartsheetApiCommands.changeUserSeatType(CONFIG_ID, "1000000000000061", PLAN_ID, "CONTRIBUTOR", false);
+    assertEquals("CONTRIBUTOR", userSeatType("seat@example.edu"));
+
+    // a contributor cannot be downgraded again
+    try {
+      SmartsheetApiCommands.changeUserSeatType(CONFIG_ID, "1000000000000061", PLAN_ID, "CONTRIBUTOR", false);
+      fail("downgrade of a contributor should fail");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage(), e.getMessage().contains("not eligible"));
+    }
+
+    SmartsheetApiCommands.changeUserSeatType(CONFIG_ID, "1000000000000061", PLAN_ID, "MEMBER", true);
+    assertEquals("MEMBER", userSeatType("seat@example.edu"));
+    // upgrading to the current seat is fine
+    SmartsheetApiCommands.changeUserSeatType(CONFIG_ID, "1000000000000061", PLAN_ID, "MEMBER", true);
+
+    // deactivated users must be reactivated first
+    SmartsheetApiCommands.deactivateUser(CONFIG_ID, "1000000000000061");
+    try {
+      SmartsheetApiCommands.changeUserSeatType(CONFIG_ID, "1000000000000061", PLAN_ID, "CONTRIBUTOR", false);
+      fail("seat change of a deactivated user should fail");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage(), e.getMessage().contains("deactivated"));
+    }
+  }
+
+  public void testExternalUsersOnlyListedWithPlanId() {
+    insertMockUser("1000000000000071", "inside@example.edu", "ACTIVE", "MEMBER", true);
+    insertMockUser("1000000000000072", "outside@partner.org", "ACTIVE", "GUEST", false);
+
+    assertEquals(1, SmartsheetApiCommands.retrieveUsers(CONFIG_ID, Collections.<String>emptySet()).size());
+    List<SmartsheetUser> withPlan = SmartsheetApiCommands.retrieveUsers(CONFIG_ID, Collections.<String>emptySet(), PLAN_ID);
+    assertEquals(2, withPlan.size());
+    for (SmartsheetUser user : withPlan) {
+      assertEquals(user.getEmail(), user.getEmail().endsWith("@partner.org"), user.isExternal());
+    }
+  }
+
+  public void testIsSeatUpgrade() {
+    assertTrue(SmartsheetApiCommands.isSeatUpgrade("CONTRIBUTOR", "MEMBER"));
+    assertTrue(SmartsheetApiCommands.isSeatUpgrade("PROVISIONAL_MEMBER", "MEMBER"));
+    assertTrue(SmartsheetApiCommands.isSeatUpgrade(null, "MEMBER"));
+    assertFalse(SmartsheetApiCommands.isSeatUpgrade("MEMBER", "CONTRIBUTOR"));
+    assertFalse(SmartsheetApiCommands.isSeatUpgrade("PROVISIONAL_MEMBER", "CONTRIBUTOR"));
+    assertTrue(SmartsheetApiCommands.isSeatUpgrade("CONTRIBUTOR", "GUEST"));
+    assertFalse(SmartsheetApiCommands.isSeatUpgrade("MEMBER", "GUEST"));
+    assertFalse(SmartsheetApiCommands.isSeatUpgrade("PROVISIONAL_MEMBER", "GUEST"));
+    try {
+      SmartsheetApiCommands.isSeatUpgrade("MEMBER", "PROVISIONAL_MEMBER");
+      fail("provisional cannot be set");
+    } catch (RuntimeException e) {
+      // expected
+    }
+  }
+
+  public void testSeatTypeNormalizeAndProvisionalRule() {
+    assertEquals("CONTRIBUTOR", SmartsheetUser.normalizeSeatType("viewer"));
+    assertEquals("MEMBER", SmartsheetUser.normalizeSeatType(" member "));
+    assertNull(SmartsheetUser.normalizeSeatType(" "));
+
+    SmartsheetProvisionerConfiguration config = new SmartsheetProvisionerConfiguration();
+    config.setSmartsheetDowngradeProvisionalMembers(false);
+    assertTrue(SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, "PROVISIONAL_MEMBER", "CONTRIBUTOR"));
+    assertTrue(SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, "PROVISIONAL_MEMBER", "GUEST"));
+    // upgrading a provisional member is always done
+    assertFalse(SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, "PROVISIONAL_MEMBER", "MEMBER"));
+    assertFalse(SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, "MEMBER", "CONTRIBUTOR"));
+
+    config.setSmartsheetDowngradeProvisionalMembers(true);
+    assertFalse(SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, "PROVISIONAL_MEMBER", "CONTRIBUTOR"));
+  }
+
+  public void testCreateUserLicensesGroupAdmin() {
+    SmartsheetUser user = new SmartsheetUser();
+    user.setEmail("ga@example.edu");
+    user.setResourceViewer(true);
+    assertTrue(GrouperUtil.jsonJacksonToString(user.toJsonForCreate()).contains("\"licensedSheetCreator\":true"));
+    // an explicit value wins
+    user.setLicensedSheetCreator(false);
+    assertTrue(GrouperUtil.jsonJacksonToString(user.toJsonForCreate()).contains("\"licensedSheetCreator\":false"));
+    // nothing needing a license: unlicensed
+    SmartsheetUser plain = new SmartsheetUser();
+    plain.setEmail("plain@example.edu");
+    assertTrue(GrouperUtil.jsonJacksonToString(plain.toJsonForCreate()).contains("\"licensedSheetCreator\":false"));
   }
 
   public void testParseIgnoreSet() {
@@ -556,6 +672,239 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
       group.deleteMember(SubjectTestHelper.SUBJ1);
       fullProvision();
       assertEquals(0, userCount(subj1Email));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  public void testFullSyncSeatTypes() {
+    seatTypes(true);
+  }
+
+  public void testIncrementalSeatTypes() {
+    seatTypes(false);
+  }
+
+  /**
+   * Seat groups (not provisionable) drive the seat: highest wins, a user in no seat group is left
+   * alone (no default), and a membership change in a seat group reaches the incremental sync.
+   * @param isFull true for full sync, false for incremental
+   */
+  private void seatTypes(boolean isFull) {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("smartsheetPlanId", PLAN_ID)
+        .addExtraConfig("smartsheetSeatTypeMemberGroupName", "policy:seatTypesToSmartsheet:member")
+        .addExtraConfig("smartsheetSeatTypeContributorGroupName", "policy:seatTypesToSmartsheet:contributor");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      String subj0Email = SubjectTestHelper.SUBJ0.getAttributeValue("email");
+      String subj1Email = SubjectTestHelper.SUBJ1.getAttributeValue("email");
+      String subj2Email = SubjectTestHelper.SUBJ2.getAttributeValue("email");
+      insertMockUser("1000000000000401", subj0Email, "ACTIVE", "CONTRIBUTOR", true);
+      insertMockUser("1000000000000402", subj1Email, "ACTIVE", "MEMBER", true);
+      insertMockUser("1000000000000403", subj2Email, "ACTIVE", "MEMBER", true);
+
+      // seat groups live outside the provisioned folder
+      Group memberSeatGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("policy:seatTypesToSmartsheet:member").save();
+      Group contributorSeatGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("policy:seatTypesToSmartsheet:contributor").save();
+      memberSeatGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      contributorSeatGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      contributorSeatGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-s").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      group.addMember(SubjectTestHelper.SUBJ2, false);
+
+      initIncrementalState(isFull);
+      attachProvisioningAttribute(stem);
+      fullProvision();
+
+      // SUBJ0 in both seat groups: highest (MEMBER) wins; SUBJ1 contributor; SUBJ2 in none: left alone
+      assertEquals("MEMBER", userSeatType(subj0Email));
+      assertEquals("CONTRIBUTOR", userSeatType(subj1Email));
+      assertEquals("MEMBER", userSeatType(subj2Email));
+
+      // SUBJ1 into the member seat group (a group that is not provisionable)
+      memberSeatGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      provision(isFull);
+      assertEquals("MEMBER", userSeatType(subj1Email));
+
+      // SUBJ0 out of the member seat group: still contributor -> downgraded
+      memberSeatGroup.deleteMember(SubjectTestHelper.SUBJ0);
+      provision(isFull);
+      assertEquals("CONTRIBUTOR", userSeatType(subj0Email));
+
+      // SUBJ1 out of every seat group, no default: seat left alone
+      memberSeatGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      contributorSeatGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      provision(isFull);
+      assertEquals("MEMBER", userSeatType(subj1Email));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * smartsheetSeatTypeDefault gives everyone provisioned who is in no seat group that seat, and a
+   * provisional member is not downgraded unless smartsheetDowngradeProvisionalMembers.
+   */
+  public void testSeatTypeDefaultAndProvisional() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("smartsheetPlanId", PLAN_ID)
+        .addExtraConfig("smartsheetSeatTypeMemberGroupName", "policy:seatTypesToSmartsheet:member")
+        .addExtraConfig("smartsheetSeatTypeDefault", "CONTRIBUTOR");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      String subj0Email = SubjectTestHelper.SUBJ0.getAttributeValue("email");
+      String subj1Email = SubjectTestHelper.SUBJ1.getAttributeValue("email");
+      String subj2Email = SubjectTestHelper.SUBJ2.getAttributeValue("email");
+      insertMockUser("1000000000000501", subj0Email, "ACTIVE", "CONTRIBUTOR", true);
+      insertMockUser("1000000000000502", subj1Email, "ACTIVE", "MEMBER", true);
+      insertMockUser("1000000000000503", subj2Email, "ACTIVE", "PROVISIONAL_MEMBER", true);
+
+      Group memberSeatGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("policy:seatTypesToSmartsheet:member").save();
+      memberSeatGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-p").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      group.addMember(SubjectTestHelper.SUBJ2, false);
+
+      attachProvisioningAttribute(stem);
+      fullProvision();
+
+      assertEquals("MEMBER", userSeatType(subj0Email));
+      // in no seat group: the default reclaims the paid seat
+      assertEquals("CONTRIBUTOR", userSeatType(subj1Email));
+      // provisional members are left alone by default
+      assertEquals("PROVISIONAL_MEMBER", userSeatType(subj2Email));
+
+      // a repeat sync is stable
+      fullProvision();
+      assertEquals("PROVISIONAL_MEMBER", userSeatType(subj2Email));
+
+      // once allowed, the provisional member is downgraded
+      new edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig().configFileName("grouper-loader.properties")
+          .propertyName("provisioner." + PROVISIONER_ID + ".smartsheetDowngradeProvisionalMembers").value("true").store();
+      edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.clearCache();
+      fullProvision();
+      assertEquals("CONTRIBUTOR", userSeatType(subj2Email));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Flag groups: a configured flag is owned by Grouper (true for group members, false for everyone
+   * else provisioned); a flag whose group is not configured is never changed.
+   */
+  public void testFlagGroups() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("smartsheetAdminGroupName", "policy:smartsheetRoles:systemAdmin")
+        .addExtraConfig("smartsheetResourceViewerGroupName", "policy:smartsheetRoles:resourceViewer");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      String subj0Email = SubjectTestHelper.SUBJ0.getAttributeValue("email");
+      String subj1Email = SubjectTestHelper.SUBJ1.getAttributeValue("email");
+      insertMockUser("1000000000000601", subj0Email, "ACTIVE");
+      insertMockUser("1000000000000602", subj1Email, "ACTIVE");
+      // SUBJ1 was made admin and group admin by hand in Smartsheet
+      new GcDbAccess().connectionName("grouper")
+          .sql("update mock_smartsheet_user set admin = 'T', group_admin = 'T', licensed_sheet_creator = 'T' where id = ?")
+          .addBindVar("1000000000000602").executeSql();
+
+      Group adminGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("policy:smartsheetRoles:systemAdmin").save();
+      adminGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("policy:smartsheetRoles:resourceViewer").save();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-f").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+
+      // start the change log consumer so the later incremental sees the admin group change
+      initIncrementalState(false);
+      attachProvisioningAttribute(stem);
+      fullProvision();
+
+      assertEquals("T", userFlag(subj0Email, "admin"));
+      // Grouper owns admin: SUBJ1 is not in the admin group
+      assertEquals("F", userFlag(subj1Email, "admin"));
+      // groupAdmin has no group configured: untouched
+      assertEquals("T", userFlag(subj1Email, "group_admin"));
+      assertEquals("F", userFlag(subj0Email, "resource_viewer"));
+
+      // incremental: SUBJ1 into the admin group
+      adminGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      incrementalProvision();
+      assertEquals("T", userFlag(subj1Email, "admin"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * A configured group that does not exist fails the sync instead of quietly unassigning everyone.
+   */
+  public void testMissingSeatGroupFails() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("smartsheetPlanId", PLAN_ID)
+        .addExtraConfig("smartsheetSeatTypeMemberGroupName", "policy:seatTypesToSmartsheet:typo");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      insertMockUser("1000000000000701", SubjectTestHelper.SUBJ0.getAttributeValue("email"), "ACTIVE", "MEMBER", true);
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-m").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      try {
+        fullProvision();
+        fail("a missing seat group should fail the sync");
+      } catch (RuntimeException e) {
+        assertTrue(GrouperUtil.getFullStackTrace(e), GrouperUtil.getFullStackTrace(e).contains("typo"));
+      }
+      assertEquals("MEMBER", userSeatType(SubjectTestHelper.SUBJ0.getAttributeValue("email")));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

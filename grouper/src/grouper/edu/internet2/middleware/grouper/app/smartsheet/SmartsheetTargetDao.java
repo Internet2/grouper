@@ -59,7 +59,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *       reads filter deactivated users out, and an insert reactivates a deactivated user instead of
  *       adding a duplicate. Otherwise a delete removes the user from the org. Users on the ignore
  *       list are filtered from reads and never changed.</li>
- *   <li>Memberships: bulk add per group (array of emails), single remove by user id.</li>
+ *   <li>Memberships: bulk add per group (by user id, email fallback), single remove by user id.</li>
+ *   <li>Seat types (when configured): users are read with the planId so their seatType is known, and a
+ *       seatType change is applied with the upgrade / downgrade endpoints. Users outside the org, which
+ *       a planId read can include, are never deactivated or removed.</li>
  * </ul>
  */
 public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
@@ -72,6 +75,22 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public String loggingStop() {
     return GrouperHttpClient.logEnd();
+  }
+
+  /**
+   * native ids of users Smartsheet reports as outside the organization (isInternal=false, only known
+   * from planId reads). Grouper never deactivates or removes them: they are not org users.
+   */
+  private Set<String> externalUserIds = new HashSet<String>();
+
+  /**
+   * remember whether a user read from Smartsheet is outside the org
+   * @param user the user (may be null)
+   */
+  private void trackExternal(SmartsheetUser user) {
+    if (user != null && user.isExternal() && !StringUtils.isBlank(user.getId())) {
+      this.externalUserIds.add(user.getId());
+    }
   }
 
   private SmartsheetProvisionerConfiguration getSmartsheetConfiguration() {
@@ -126,10 +145,11 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
       Set<String> visibleUserIds = new HashSet<String>();
       List<String> declinedEmails = new ArrayList<String>();
-      for (SmartsheetUser user : SmartsheetApiCommands.retrieveUsers(configId, ignoreEmails)) {
+      for (SmartsheetUser user : SmartsheetApiCommands.retrieveUsers(configId, ignoreEmails, config.planIdForReads())) {
         if (filterOutUser(config, ignoreEmails, user)) {
           continue;
         }
+        trackExternal(user);
         // DECLINED users are left alone (linked, never re-invited); note them so admins can see who
         if (SmartsheetUser.STATUS_DECLINED.equalsIgnoreCase(user.getStatus())) {
           declinedEmails.add(user.getEmail());
@@ -194,11 +214,20 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       String searchAttribute = targetDaoRetrieveEntityRequest.getSearchAttribute();
       String searchValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
 
+      String planId = config.planIdForReads();
       SmartsheetUser user;
       if (StringUtils.equals("id", searchAttribute)) {
         user = SmartsheetApiCommands.retrieveUserById(configId, searchValue);
+        // GET /users/{id} has no seatType even for a plan; read it from the plan-scoped list by email
+        if (user != null && planId != null && !StringUtils.isBlank(user.getEmail())) {
+          SmartsheetUser withSeat = SmartsheetApiCommands.retrieveUserByEmail(configId, user.getEmail(), planId);
+          if (withSeat != null) {
+            user.setSeatType(withSeat.getSeatType());
+            user.setInternal(withSeat.getInternal());
+          }
+        }
       } else if (StringUtils.equals("email", searchAttribute)) {
-        user = SmartsheetApiCommands.retrieveUserByEmail(configId, searchValue);
+        user = SmartsheetApiCommands.retrieveUserByEmail(configId, searchValue, planId);
       } else {
         throw new RuntimeException("Not expecting entity search attribute '" + searchAttribute + "', expecting id or email");
       }
@@ -206,6 +235,7 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       if (filterOutUser(config, ignoreUserEmails(config), user)) {
         user = null;
       }
+      trackExternal(user);
 
       return new TargetDaoRetrieveEntityResponse(user == null ? null : user.toProvisioningEntity());
     } finally {
@@ -288,15 +318,21 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       if (existing != null) {
+        // a deactivated user must be reactivated before the seat can change
         if (existing.isDeactivated()) {
           SmartsheetApiCommands.reactivateUser(configId, existing.getId());
         }
         // refresh the managed fields in one PUT
-        SmartsheetApiCommands.updateUser(configId, existing.getId(), user, managedUserFields(targetEntity));
+        updateUserWithHint(configId, existing.getId(), user, managedUserFields(targetEntity));
         targetEntity.setId(existing.getId());
       } else {
         SmartsheetUser created = SmartsheetApiCommands.createUser(configId, user, config.isSmartsheetSendEmailOnAddUser());
         targetEntity.setId(created.getId());
+      }
+
+      // the org decides a new / reactivated user's seat, so read it and change it if Grouper manages it
+      if (config.isManageSeatType() && !StringUtils.isBlank(user.getSeatType())) {
+        applySeatType(config, configId, targetEntity.getId(), user.getEmail(), null, user.getSeatType());
       }
       markProvisioned(targetEntity, true);
 
@@ -351,21 +387,32 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       String configId = config.getSmartsheetExternalSystemConfigId();
 
       Set<String> fieldNamesToUpdate = new LinkedHashSet<String>();
+      boolean seatTypeChanged = false;
+      String oldSeatType = null;
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         if (!StringUtils.isBlank(change.getAttributeName())) {
           fieldNamesToUpdate.add(change.getAttributeName());
         }
+        if (StringUtils.equals(SmartsheetUser.ATTR_SEAT_TYPE, change.getAttributeName())) {
+          seatTypeChanged = true;
+          oldSeatType = GrouperUtil.stringValue(change.getOldValue());
+        }
       }
+      // seatType is not a PUT /users field, it is changed with upgrade / downgrade below
       fieldNamesToUpdate.retainAll(updatableUserFields());
 
-      if (!fieldNamesToUpdate.isEmpty()) {
-        SmartsheetUser user = SmartsheetUser.fromProvisioningEntity(targetEntity);
+      SmartsheetUser user = SmartsheetUser.fromProvisioningEntity(targetEntity);
+      // never modify an ignore-listed user
+      boolean ignored = SmartsheetApiCommands.isIgnored(user.getEmail(), ignoreUserEmails(config));
+      if (!ignored && (!fieldNamesToUpdate.isEmpty() || seatTypeChanged)) {
         if (StringUtils.isBlank(targetEntity.getId())) {
           throw new RuntimeException("user id is required for updateEntity");
         }
-        // never modify an ignore-listed user
-        if (!SmartsheetApiCommands.isIgnored(user.getEmail(), ignoreUserEmails(config))) {
-          SmartsheetApiCommands.updateUser(configId, targetEntity.getId(), user, fieldNamesToUpdate);
+        if (!fieldNamesToUpdate.isEmpty()) {
+          updateUserWithHint(configId, targetEntity.getId(), user, fieldNamesToUpdate);
+        }
+        if (seatTypeChanged && config.isManageSeatType()) {
+          applySeatType(config, configId, targetEntity.getId(), user.getEmail(), oldSeatType, user.getSeatType());
         }
       }
       markProvisioned(targetEntity, true);
@@ -404,6 +451,12 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.isBlank(userId)) {
         throw new RuntimeException("user id is required for deleteEntity");
       }
+      // a user outside the org (seen on a planId read) is not an org user: nothing to deactivate or remove
+      if (this.externalUserIds.contains(userId)) {
+        SmartsheetLog.smartsheetLog("Not deactivating / removing Smartsheet user outside the org: " + userId + ", " + email);
+        markProvisioned(targetEntity, true);
+        return new TargetDaoDeleteEntityResponse();
+      }
       if (config.isDisableEntitiesInsteadOfDelete()) {
         SmartsheetApiCommands.deactivateUser(configId, userId);
       } else {
@@ -419,6 +472,55 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
     }
+  }
+
+  /**
+   * PUT /users/{id}, adding a hint to the error when an account flag rule is the likely cause.
+   */
+  private static void updateUserWithHint(String configId, String userId, SmartsheetUser user, Set<String> fieldNamesToUpdate) {
+    try {
+      SmartsheetApiCommands.updateUser(configId, userId, user, fieldNamesToUpdate);
+    } catch (RuntimeException re) {
+      if (fieldNamesToUpdate != null && fieldNamesToUpdate.contains("licensedSheetCreator")
+          && Boolean.FALSE.equals(user.getLicensedSheetCreator())) {
+        throw new RuntimeException("Smartsheet does not allow licensedSheetCreator=false for a Group Admin or Resource Viewer; "
+            + "if the licensed sheet creator group is configured, it should include everyone in the group admin "
+            + "and resource viewer groups (user " + userId + ")", re);
+      }
+      throw re;
+    }
+  }
+
+  /**
+   * Move a user to the desired seat with the upgrade / downgrade endpoint, if it differs from the
+   * current seat. A provisional member is not downgraded unless smartsheetDowngradeProvisionalMembers.
+   * @param config the provisioner config
+   * @param configId the external system config id
+   * @param userId the native user id
+   * @param email the user email (to read the current seat if it is not known)
+   * @param currentSeat the current seat, or null to read it
+   * @param desiredSeat the computed seat (nothing happens if blank)
+   */
+  private static void applySeatType(SmartsheetProvisionerConfiguration config, String configId, String userId,
+      String email, String currentSeat, String desiredSeat) {
+
+    desiredSeat = SmartsheetUser.normalizeSeatType(desiredSeat);
+    if (desiredSeat == null) {
+      return;
+    }
+    currentSeat = SmartsheetUser.normalizeSeatType(currentSeat);
+    if (currentSeat == null && !StringUtils.isBlank(email)) {
+      SmartsheetUser withSeat = SmartsheetApiCommands.retrieveUserByEmail(configId, email, config.getSmartsheetPlanId());
+      currentSeat = withSeat == null ? null : SmartsheetUser.normalizeSeatType(withSeat.getSeatType());
+    }
+    if (StringUtils.equals(currentSeat, desiredSeat)) {
+      return;
+    }
+    if (SmartsheetProvisioningCompare.isProvisionalLeftAlone(config, currentSeat, desiredSeat)) {
+      return;
+    }
+    SmartsheetApiCommands.changeUserSeatType(configId, userId, config.getSmartsheetPlanId(), desiredSeat,
+        SmartsheetApiCommands.isSeatUpgrade(currentSeat, desiredSeat));
   }
 
   // ============================

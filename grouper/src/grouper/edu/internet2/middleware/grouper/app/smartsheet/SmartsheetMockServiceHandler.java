@@ -38,8 +38,10 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * Auth is the static Bearer token configured as accessTokenPassword on the external system.</p>
  *
  * <p>Simplifications: POST /users always adds the user directly as ACTIVE (as if user auto
- * provisioning matched), and adding a group member whose email is not an org user returns 404
- * errorCode 1020 (user not found).</p>
+ * provisioning matched) with a CONTRIBUTOR seat, and adding a group member whose email is not an org
+ * user returns 404 errorCode 1020 (user not found). Like the real API, seatType and isInternal are
+ * only returned when a planId is passed, and only then are users outside the org (is_internal F)
+ * listed. Upgrade / downgrade follow the documented seat rules.</p>
  */
 public class SmartsheetMockServiceHandler extends MockServiceHandler {
 
@@ -67,7 +69,8 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
    */
   public static void ensureSmartsheetMockTables() {
     try {
-      new GcDbAccess().sql("select count(*) from mock_smartsheet_user").select(int.class);
+      // newest column, so tables from an older version get it added
+      new GcDbAccess().sql("select count(seat_type) from mock_smartsheet_user").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_smartsheet_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_smartsheet_membership").select(int.class);
     } catch (Exception e) {
@@ -144,6 +147,7 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     String id = paths.length >= 3 ? paths[2] : null;
     String sub = paths.length >= 4 ? paths[3] : null;
     String subId = paths.length >= 5 ? paths[4] : null;
+    String subAction = paths.length >= 6 ? paths[5] : null;
 
     String httpMethod = mockServiceRequest.getHttpServletRequest().getMethod();
 
@@ -170,6 +174,10 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
       }
       if ("DELETE".equals(httpMethod) && sub == null) {
         removeUser(mockServiceResponse, id);
+        return;
+      }
+      if ("POST".equals(httpMethod) && "plans".equals(sub) && ("upgrade".equals(subAction) || "downgrade".equals(subAction))) {
+        changeSeatType(mockServiceRequest, mockServiceResponse, id, "upgrade".equals(subAction));
         return;
       }
     } else if ("groups".equals(resource)) {
@@ -216,6 +224,18 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     List<SmartsheetUser> users = HibernateSession.byHqlStatic()
         .createQuery("from SmartsheetUser order by email").list(SmartsheetUser.class);
 
+    // without a planId, users outside the org are not listed
+    boolean hasPlanId = !StringUtils.isBlank(mockServiceRequest.getHttpServletRequest().getParameter("planId"));
+    if (!hasPlanId) {
+      List<SmartsheetUser> internalUsers = new ArrayList<SmartsheetUser>();
+      for (SmartsheetUser user : users) {
+        if (!user.isExternal()) {
+          internalUsers.add(user);
+        }
+      }
+      users = internalUsers;
+    }
+
     String emailFilter = mockServiceRequest.getHttpServletRequest().getParameter("email");
     if (!StringUtils.isBlank(emailFilter)) {
       Set<String> emails = SmartsheetApiCommands.parseIgnoreSet(emailFilter);
@@ -232,7 +252,12 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     ObjectNode result = page(mockServiceRequest, users.size(), data);
     int[] range = pageRange(result, users.size());
     for (int i = range[0]; i < range[1]; i++) {
-      data.add(userToJson(users.get(i)));
+      ObjectNode userNode = userToJson(users.get(i));
+      if (hasPlanId) {
+        userNode.put("seatType", GrouperUtil.defaultIfBlank(users.get(i).getSeatType(), SmartsheetUser.SEAT_CONTRIBUTOR));
+        userNode.put("isInternal", !users.get(i).isExternal());
+      }
+      data.add(userNode);
     }
     ok(mockServiceResponse, result);
   }
@@ -273,6 +298,8 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     user.setLicensedSheetCreator(GrouperUtil.jsonJacksonGetBoolean(body, "licensedSheetCreator", false));
     user.setGroupAdmin(GrouperUtil.jsonJacksonGetBoolean(body, "groupAdmin", false));
     user.setResourceViewer(GrouperUtil.jsonJacksonGetBoolean(body, "resourceViewer", false));
+    user.setSeatType(SmartsheetUser.SEAT_CONTRIBUTOR);
+    user.setInternal(true);
     HibernateSession.byObjectStatic().save(user);
     okResult(mockServiceResponse, userToJson(user));
   }
@@ -334,6 +361,55 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     }
     new GcDbAccess().sql("delete from mock_smartsheet_membership where user_id = ?").addBindVar(userId).executeSql();
     HibernateSession.byObjectStatic().delete(user);
+    okResult(mockServiceResponse, null);
+  }
+
+  /**
+   * POST /2.0/users/{userId}/plans/{planId}/upgrade or /downgrade with {"seatType": ...}. Upgrade
+   * takes MEMBER, or GUEST (external users only); upgrading to the current seat is 200. Downgrade
+   * takes CONTRIBUTOR or GUEST, and is refused for a user already CONTRIBUTOR / VIEWER. Deactivated
+   * users are refused (reactivate first).
+   */
+  private void changeSeatType(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse,
+      String userId, boolean upgrade) {
+    SmartsheetUser user = findUserById(userId);
+    if (user == null) {
+      error(mockServiceResponse, 404, 1020, "User not found.");
+      return;
+    }
+    if (user.isDeactivated()) {
+      error(mockServiceResponse, 400, 1008, "Unable to change the seat type of a deactivated user. Reactivate the user first.");
+      return;
+    }
+    String seatType = SmartsheetUser.normalizeSeatType(GrouperUtil.jsonJacksonGetString(parseBody(mockServiceRequest), "seatType"));
+    String current = GrouperUtil.defaultIfBlank(SmartsheetUser.normalizeSeatType(user.getSeatType()), SmartsheetUser.SEAT_CONTRIBUTOR);
+
+    if (SmartsheetUser.SEAT_GUEST.equals(seatType) && !user.isExternal()) {
+      error(mockServiceResponse, 400, 1008, "GUEST is only available for external users.");
+      return;
+    }
+    if (upgrade) {
+      if (!SmartsheetUser.SEAT_MEMBER.equals(seatType) && !SmartsheetUser.SEAT_GUEST.equals(seatType)) {
+        error(mockServiceResponse, 400, 1008, "Invalid seatType for upgrade: " + seatType);
+        return;
+      }
+      if (SmartsheetUser.SEAT_GUEST.equals(seatType) && !SmartsheetUser.SEAT_CONTRIBUTOR.equals(current)
+          && !SmartsheetUser.SEAT_GUEST.equals(current)) {
+        error(mockServiceResponse, 400, 1008, "Cannot upgrade " + current + " to GUEST.");
+        return;
+      }
+    } else {
+      if (!SmartsheetUser.SEAT_CONTRIBUTOR.equals(seatType) && !SmartsheetUser.SEAT_GUEST.equals(seatType)) {
+        error(mockServiceResponse, 400, 1008, "Invalid seatType for downgrade: " + seatType);
+        return;
+      }
+      if (SmartsheetUser.SEAT_CONTRIBUTOR.equals(current)) {
+        error(mockServiceResponse, 400, 1008, "The user's seat type is not eligible for a downgrade.");
+        return;
+      }
+    }
+    user.setSeatType(seatType);
+    HibernateSession.byObjectStatic().update(user);
     okResult(mockServiceResponse, null);
   }
 

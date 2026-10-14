@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li>POST   /2.0/users/{userId}/deactivate      -- deactivate</li>
  *   <li>POST   /2.0/users/{userId}/reactivate      -- reactivate</li>
  *   <li>DELETE /2.0/users/{userId}                 -- remove from the org</li>
+ *   <li>POST   /2.0/users/{userId}/plans/{planId}/upgrade   -- seat to MEMBER or GUEST</li>
+ *   <li>POST   /2.0/users/{userId}/plans/{planId}/downgrade -- seat to CONTRIBUTOR or GUEST</li>
  *   <li>GET    /2.0/groups?page=&amp;pageSize=      -- list groups (paged, no members)</li>
  *   <li>GET    /2.0/groups/{groupId}               -- one group with members</li>
  *   <li>POST   /2.0/groups                         -- create a group</li>
@@ -234,6 +236,32 @@ public class SmartsheetApiCommands {
    * @return the users (never null)
    */
   public static List<SmartsheetUser> retrieveUsers(String configId, Set<String> ignoreEmails) {
+    return retrieveUsers(configId, ignoreEmails, null);
+  }
+
+  /**
+   * Query string that makes /2.0/users return each user's seatType (and isInternal) for a plan. With
+   * a planId the list can also include users outside the org (e.g. external collaborators on the
+   * plan). displayContributorSeatType makes free-tier users report CONTRIBUTOR instead of the
+   * deprecated VIEWER.
+   * @param planId the plan id, or null for none
+   * @return the query string fragment starting with "&amp;", or "" if no planId
+   */
+  static String planIdParams(String planId) {
+    if (StringUtils.isBlank(planId)) {
+      return "";
+    }
+    return "&planId=" + GrouperUtil.escapeUrlEncode(planId.trim()) + "&displayContributorSeatType=true";
+  }
+
+  /**
+   * Retrieve all users in the organization from GET /2.0/users, paging until totalPages.
+   * @param configId the external system config id
+   * @param ignoreEmails lowercased user emails to exclude (from {@link #parseIgnoreSet})
+   * @param planId if not blank, read seat types for this plan (System Admin)
+   * @return the users (never null)
+   */
+  public static List<SmartsheetUser> retrieveUsers(String configId, Set<String> ignoreEmails, String planId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUsers");
     long startNanos = System.nanoTime();
@@ -244,7 +272,7 @@ public class SmartsheetApiCommands {
       int totalPages = 1;
       while (page <= totalPages) {
         String json = executeMethod(debugMap, "retrieveUsers", "GET", configId,
-            "/2.0/users?pageSize=" + PAGE_SIZE + "&page=" + page, GrouperUtil.toSet(200), new int[] {-1}, null);
+            "/2.0/users?pageSize=" + PAGE_SIZE + "&page=" + page + planIdParams(planId), GrouperUtil.toSet(200), new int[] {-1}, null);
         JsonNode node = parseJson(json);
         if (node == null) {
           break;
@@ -274,6 +302,18 @@ public class SmartsheetApiCommands {
    * @return the user, or null if not found
    */
   public static SmartsheetUser retrieveUserByEmail(String configId, String email) {
+    return retrieveUserByEmail(configId, email, null);
+  }
+
+  /**
+   * Retrieve a user by email from GET /2.0/users?email=, optionally with the seat type for a plan.
+   * Emails are compared case-insensitively.
+   * @param configId the external system config id
+   * @param email the email
+   * @param planId if not blank, read the seat type for this plan (System Admin)
+   * @return the user, or null if not found
+   */
+  public static SmartsheetUser retrieveUserByEmail(String configId, String email, String planId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUserByEmail");
     long startNanos = System.nanoTime();
@@ -283,7 +323,7 @@ public class SmartsheetApiCommands {
         return null;
       }
       String json = executeMethod(debugMap, "retrieveUserByEmail", "GET", configId,
-          "/2.0/users?email=" + GrouperUtil.escapeUrlEncode(email), GrouperUtil.toSet(200), new int[] {-1}, null);
+          "/2.0/users?email=" + GrouperUtil.escapeUrlEncode(email) + planIdParams(planId), GrouperUtil.toSet(200), new int[] {-1}, null);
       JsonNode node = parseJson(json);
       ArrayNode data = node == null ? null : GrouperUtil.jsonJacksonGetArrayNode(node, "data");
       for (int i = 0; data != null && i < data.size(); i++) {
@@ -461,6 +501,61 @@ public class SmartsheetApiCommands {
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);
     }
+  }
+
+  /**
+   * Change a user's seat type via POST /2.0/users/{userId}/plans/{planId}/upgrade (MEMBER, or GUEST
+   * from CONTRIBUTOR) or .../downgrade (CONTRIBUTOR, or GUEST from MEMBER / PROVISIONAL_MEMBER).
+   * System Admin. PROVISIONAL_MEMBER cannot be set, and a deactivated user must be reactivated
+   * first. Upgrading to the current seat returns 200.
+   * @param configId the external system config id
+   * @param userId the native user id
+   * @param planId the plan id
+   * @param seatType the new seat: MEMBER, CONTRIBUTOR, or GUEST
+   * @param upgrade true for the upgrade endpoint, false for downgrade
+   */
+  public static void changeUserSeatType(String configId, String userId, String planId, String seatType, boolean upgrade) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    String action = upgrade ? "upgrade" : "downgrade";
+    debugMap.put("method", action + "User");
+    debugMap.put("userId", userId);
+    debugMap.put("seatType", seatType);
+    long startNanos = System.nanoTime();
+
+    try {
+      if (StringUtils.isBlank(userId) || StringUtils.isBlank(planId) || StringUtils.isBlank(seatType)) {
+        throw new RuntimeException("user id, plan id and seat type are required to " + action + " a user");
+      }
+      ObjectNode body = GrouperUtil.jsonJacksonNode();
+      body.put("seatType", seatType);
+      executeMethod(debugMap, action + "User", "POST", configId,
+          "/2.0/users/" + GrouperUtil.escapeUrlEncode(userId) + "/plans/" + GrouperUtil.escapeUrlEncode(planId.trim()) + "/" + action,
+          GrouperUtil.toSet(200), new int[] {-1}, GrouperUtil.jsonJacksonToString(body));
+    } finally {
+      SmartsheetLog.smartsheetLog(debugMap, startNanos);
+    }
+  }
+
+  /**
+   * Whether moving from currentSeat to desiredSeat is an upgrade (else a downgrade). Smartsheet's
+   * ladder is CONTRIBUTOR &lt; GUEST &lt; PROVISIONAL_MEMBER &lt; MEMBER: MEMBER is always an upgrade,
+   * CONTRIBUTOR always a downgrade, and GUEST is an upgrade from CONTRIBUTOR and a downgrade from
+   * MEMBER / PROVISIONAL_MEMBER.
+   * @param currentSeat the current seat (normalized), may be null if unknown
+   * @param desiredSeat the desired seat (normalized)
+   * @return true for upgrade
+   */
+  public static boolean isSeatUpgrade(String currentSeat, String desiredSeat) {
+    if (SmartsheetUser.SEAT_MEMBER.equals(desiredSeat)) {
+      return true;
+    }
+    if (SmartsheetUser.SEAT_CONTRIBUTOR.equals(desiredSeat)) {
+      return false;
+    }
+    if (SmartsheetUser.SEAT_GUEST.equals(desiredSeat)) {
+      return !(SmartsheetUser.SEAT_MEMBER.equals(currentSeat) || SmartsheetUser.SEAT_PROVISIONAL_MEMBER.equals(currentSeat));
+    }
+    throw new RuntimeException("Seat type cannot be set by Grouper: '" + desiredSeat + "'");
   }
 
   // ==================== groups ====================

@@ -16,6 +16,8 @@
     <property name="licensedSheetCreatorDb" column="licensed_sheet_creator" />
     <property name="groupAdminDb" column="group_admin" />
     <property name="resourceViewerDb" column="resource_viewer" />
+    <property name="seatType" column="seat_type" />
+    <property name="internalDb" column="is_internal" />
 
   </class>
 </hibernate-mapping>
