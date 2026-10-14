@@ -640,6 +640,10 @@ public class SmartsheetMockServiceHandler extends MockServiceHandler {
     node.put("licensedSheetCreator", user.getLicensedSheetCreator() != null && user.getLicensedSheetCreator());
     node.put("groupAdmin", user.getGroupAdmin() != null && user.getGroupAdmin());
     node.put("resourceViewer", user.getResourceViewer() != null && user.getResourceViewer());
+    // like the real API, a profile image (not something MCP passes through)
+    ObjectNode profileImage = GrouperUtil.jsonJacksonNode();
+    profileImage.put("imageId", "img-" + user.getId());
+    node.set("profileImage", profileImage);
     return node;
   }
 

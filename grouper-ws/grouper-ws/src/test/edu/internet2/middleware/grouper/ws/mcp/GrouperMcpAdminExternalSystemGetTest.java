@@ -36,8 +36,11 @@ import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerTestUtils;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetMockServiceHandler;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisionerTestUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -56,7 +59,8 @@ import junit.textui.TestRunner;
  * Tests that require the mock server (testGetUserAzure, testGetUserDuo, testGetUserBox,
  * testGetUserGoogle, testGetUserFreshserviceRequesters, testGetUserRemedy,
  * testGetUserRemedyDigitalMarketplace, testGetUserTeamDynamix, testGetUserAssetSonar,
- * testGetUserAssetSonarBadLookupField) need Tomcat running with MockServiceServlet deployed.
+ * testGetUserAssetSonarBadLookupField, testGetUserSmartsheet, testGetUserSmartsheetBadLookupField)
+ * need Tomcat running with MockServiceServlet deployed.
  *
  * @author mchyzer
  */
@@ -1127,6 +1131,136 @@ public class GrouperMcpAdminExternalSystemGetTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("action", "getUser");
       arguments.put("externalSystemConfigId", AssetSonarProvisionerTestUtils.CONFIG_ID);
+      arguments.put("subjectIdOrIdentifier", "test.subject.0");
+
+      ObjectNode result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
+
+      assertTrue("Expected error, got: " + result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.get("content").get(0).get("text").asText()
+          .contains("must be 'email' or 'id'"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /** Smartsheet user id seeded for the MCP lookup tests */
+  private static final String SMARTSHEET_USER_ID = "4583173393803140";
+
+  /**
+   * set up the Smartsheet mock with one MEMBER-seat user holding subject 0's email, point MCP at it,
+   * and (optionally) a Smartsheet provisioner on the same external system with a plan id, which is
+   * where the lookup gets the plan id for seat types
+   * @param lookupField the externalSystemLookupField to configure
+   * @param withPlanId whether a provisioner with smartsheetPlanId uses the external system
+   */
+  private static void setupSmartsheetForMcp(String lookupField, boolean withPlanId) {
+    SmartsheetProvisionerTestUtils.setupSmartsheetExternalSystem();
+    SmartsheetMockServiceHandler.ensureSmartsheetMockTables();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_smartsheet_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_smartsheet_user").executeSql();
+    new GcDbAccess().connectionName("grouper").sql(
+        "insert into mock_smartsheet_user (id, email, first_name, last_name, status, admin, licensed_sheet_creator, "
+        + "group_admin, resource_viewer, seat_type, is_internal) values (?, ?, 'Test', 'Subject0', 'ACTIVE', 'F', 'T', 'T', 'F', 'MEMBER', 'T')")
+        .addBindVar(SMARTSHEET_USER_ID).addBindVar(SubjectTestHelper.SUBJ0.getAttributeValue("email")).executeSql();
+
+    String configId = SmartsheetProvisionerTestUtils.CONFIG_ID;
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".subjectIdTranslationJexl",
+        "id".equals(lookupField) ? SMARTSHEET_USER_ID : "${subject.getAttributeValue('email')}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField", lookupField);
+    // Smartsheet uses a generic WsBearerToken external system, so the type must be explicit
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.adminExternalSystem." + configId + ".externalSystemType", "smartsheet");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+        "provisioner.smartsheetMcpTest.smartsheetExternalSystemConfigId", configId);
+    if (withPlanId) {
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+          "provisioner.smartsheetMcpTest.smartsheetPlanId", "1234567890123456");
+    } else {
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.smartsheetMcpTest.smartsheetPlanId");
+    }
+  }
+
+  /**
+   * run getUser for subject 0 against the Smartsheet external system
+   * @return the parsed response JSON
+   */
+  private JsonNode getUserSmartsheetResponse() throws Exception {
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "getUser");
+      arguments.put("externalSystemConfigId", SmartsheetProvisionerTestUtils.CONFIG_ID);
+      arguments.put("subjectIdOrIdentifier", "test.subject.0");
+
+      ObjectNode result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
+      assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+      return objectMapper.readTree(result.get("content").get(0).get("text").asText());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test getUser with the Smartsheet mock server: the type comes from externalSystemType, email and
+   * id lookups find the user, the seat type comes back when a provisioner on the external system has
+   * a plan id, and only allow-listed fields come back.
+   * requires Tomcat with MockServiceServlet running.
+   */
+  public void testGetUserSmartsheet() throws Exception {
+
+    // by email, with a plan id
+    setupSmartsheetForMcp("email", true);
+    JsonNode responseNode = getUserSmartsheetResponse();
+    assertEquals(SmartsheetProvisionerTestUtils.CONFIG_ID, responseNode.get("externalSystemConfigId").asText());
+    assertEquals("smartsheet", responseNode.get("externalSystemType").asText());
+    assertEquals("email", responseNode.get("lookupField").asText());
+    assertTrue(responseNode.get("userFound").asBoolean());
+    assertTrue(responseNode.get("seatTypesIncluded").asBoolean());
+
+    JsonNode user = responseNode.get("user");
+    assertEquals(SMARTSHEET_USER_ID, user.get("id").asText());
+    assertEquals("ACTIVE", user.get("status").asText());
+    assertEquals("MEMBER", user.get("seatType").asText());
+    assertTrue(user.get("groupAdmin").asBoolean());
+    assertTrue(user.get("isInternal").asBoolean());
+    // fields outside the allow-list are dropped (the mock returns profileImage)
+    assertFalse("only allow-listed fields: " + user, user.has("profileImage"));
+
+    // by id: the profile has no seat type, so it is merged from the plan-scoped list
+    setupSmartsheetForMcp("id", true);
+    responseNode = getUserSmartsheetResponse();
+    assertTrue(responseNode.get("userFound").asBoolean());
+    assertEquals("MEMBER", responseNode.get("user").get("seatType").asText());
+    assertFalse(responseNode.get("user").has("profileImage"));
+
+    // no provisioner with a plan id: found, without seat types
+    setupSmartsheetForMcp("email", false);
+    responseNode = getUserSmartsheetResponse();
+    assertTrue(responseNode.get("userFound").asBoolean());
+    assertFalse(responseNode.get("seatTypesIncluded").asBoolean());
+    assertFalse(responseNode.get("user").has("seatType"));
+  }
+
+  /**
+   * a Smartsheet lookup field other than email or id is an error, since the users API cannot
+   * filter on anything else
+   */
+  public void testGetUserSmartsheetBadLookupField() {
+
+    setupSmartsheetForMcp("firstName", false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "getUser");
+      arguments.put("externalSystemConfigId", SmartsheetProvisionerTestUtils.CONFIG_ID);
       arguments.put("subjectIdOrIdentifier", "test.subject.0");
 
       ObjectNode result = GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);

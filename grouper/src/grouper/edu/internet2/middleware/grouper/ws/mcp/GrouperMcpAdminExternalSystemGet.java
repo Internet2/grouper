@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperD
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetApiCommands;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixApiCommands;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixExternalSystem;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixUser;
@@ -78,7 +79,7 @@ import edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar).
+ * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar, Smartsheet).
  * Supports two actions:
  * <ul>
  *   <li>{@code listExternalSystems} - list external systems configured for MCP user lookups</li>
@@ -108,7 +109,7 @@ public class GrouperMcpAdminExternalSystemGet {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "admin_external_system_get");
     tool.put("description",
-        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar) configured in Grouper. "
+        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry, AssetSonar, Smartsheet) configured in Grouper. "
         + "Use action 'listExternalSystems' to discover which external systems are configured "
         + "for user lookups. "
         + "Use action 'getUser' with an externalSystemConfigId and a Grouper subjectIdOrIdentifier "
@@ -312,9 +313,9 @@ public class GrouperMcpAdminExternalSystemGet {
     String type = detectExternalSystemType(externalSystemConfigId);
     if (type == null) {
       return buildErrorResult("External system '" + externalSystemConfigId
-          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry, assetSonar). "
+          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry, assetSonar, smartsheet). "
           + "Verify the external system connector is configured. For WsBearerToken-based systems "
-          + "(SCIM, FreshService, Datadog, TrueFoundry, AssetSonar) you may need to set grouper.mcp.adminExternalSystem."
+          + "(SCIM, FreshService, Datadog, TrueFoundry, AssetSonar, Smartsheet) you may need to set grouper.mcp.adminExternalSystem."
           + externalSystemConfigId + ".externalSystemType");
     }
 
@@ -391,6 +392,8 @@ public class GrouperMcpAdminExternalSystemGet {
       return getUserTrueFoundry(externalSystemConfigId, lookupField, externalUserId, resultNode);
     } else if ("assetSonar".equals(type)) {
       return getUserAssetSonar(externalSystemConfigId, lookupField, externalUserId, resultNode);
+    } else if ("smartsheet".equals(type)) {
+      return getUserSmartsheet(externalSystemConfigId, lookupField, externalUserId, resultNode);
     }
 
     return buildErrorResult("Unsupported external system type: " + type);
@@ -895,6 +898,77 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
+   * Smartsheet user fields returned to the AI client.  An allow-list, so the user profile is never
+   * passed through as-is (it carries phones, profile image, alternate emails and other personal
+   * fields the lookup does not need).  seatType, seatTypeLastChangedAt, provisionalExpirationDate
+   * and isInternal are only present when a Smartsheet provisioner on this external system has a
+   * smartsheetPlanId
+   */
+  private static final String[] SMARTSHEET_USER_FIELDS = new String[] {
+    "id", "email", "name", "firstName", "lastName", "status", "admin", "licensedSheetCreator",
+    "groupAdmin", "resourceViewer", "seatType", "seatTypeLastChangedAt", "provisionalExpirationDate",
+    "isInternal", "lastLogin"};
+
+  /**
+   * look up a user in Smartsheet by email (default) or id.  email uses the users list email filter,
+   * checked against the result.  If a Smartsheet provisioner on this external system has a plan id,
+   * the seat type comes back too.  status is ACTIVE, PENDING, DECLINED or DEACTIVATED (the API token
+   * should belong to a System Admin for status and the account flags)
+   */
+  private static ObjectNode getUserSmartsheet(String configId, String lookupField,
+      String lookupValue, ObjectNode resultNode) throws Exception {
+
+    String planId = SmartsheetApiCommands.planIdForExternalSystem(configId);
+
+    JsonNode userNode;
+    if ("email".equals(lookupField)) {
+      userNode = SmartsheetApiCommands.retrieveUserJsonByEmail(configId, lookupValue, planId);
+    } else if ("id".equals(lookupField)) {
+      userNode = SmartsheetApiCommands.retrieveUserJsonById(configId, lookupValue);
+      // GET /users/{id} has no seat type even for a plan, so read it from the plan-scoped list
+      String email = userNode == null ? null : GrouperUtil.jsonJacksonGetString(userNode, "email");
+      if (planId != null && StringUtils.isNotBlank(email)) {
+        JsonNode withSeat = SmartsheetApiCommands.retrieveUserJsonByEmail(configId, email, planId);
+        if (withSeat != null) {
+          ObjectNode merged = ((ObjectNode) userNode).deepCopy();
+          for (String field : new String[] {"status", "seatType", "seatTypeLastChangedAt", "provisionalExpirationDate", "isInternal"}) {
+            if (withSeat.has(field)) {
+              merged.set(field, withSeat.get(field));
+            }
+          }
+          userNode = merged;
+        }
+      }
+    } else {
+      // the Smartsheet users API can only be filtered by email (or read by id)
+      return buildErrorResult("Smartsheet lookupField must be 'email' or 'id', not '" + lookupField
+          + "'. Configure grouper.mcp.adminExternalSystem." + configId + ".externalSystemLookupField");
+    }
+
+    if (userNode == null) {
+      resultNode.put("userFound", false);
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
+    }
+
+    ObjectNode userResult = objectMapper.createObjectNode();
+    for (String field : SMARTSHEET_USER_FIELDS) {
+      if (userNode.has(field)) {
+        userResult.set(field, userNode.get(field));
+      }
+    }
+
+    resultNode.put("userFound", true);
+    resultNode.put("seatTypesIncluded", planId != null);
+    resultNode.set("user", userResult);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
    * the external system config IDs this caller may look users up in.  a caller on the all tier
    * of admin readonly gets every configured system.  a caller on the limited tier only gets
    * those whose grouper.mcp.adminExternalSystem.&lt;id&gt;.limitedAccessGroup they are in
@@ -952,12 +1026,12 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
-   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry, assetSonar)
+   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry, assetSonar, smartsheet)
    * by checking if an explicit type is configured, or by matching against configured connectors.
    * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, Datadog,
-   * TrueFoundry and AssetSonar all use WsBearerTokenExternalSystem).
+   * TrueFoundry, AssetSonar and Smartsheet all use WsBearerTokenExternalSystem).
    * @param configId the external system config ID
-   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", "assetSonar", or null if not detected
+   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", "assetSonar", "smartsheet", or null if not detected
    */
   static String detectExternalSystemType(String configId) {
 

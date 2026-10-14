@@ -6,6 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -314,6 +317,20 @@ public class SmartsheetApiCommands {
    * @return the user, or null if not found
    */
   public static SmartsheetUser retrieveUserByEmail(String configId, String email, String planId) {
+    return SmartsheetUser.fromJson(retrieveUserJsonByEmail(configId, email, planId));
+  }
+
+  /**
+   * Retrieve the raw user JSON by email from GET /2.0/users?email=, optionally with the seat type
+   * for a plan. The email filter is checked against the result (case-insensitive) so an ignored or
+   * misread filter can never return some other user. Used by {@link #retrieveUserByEmail} and the
+   * MCP user lookup.
+   * @param configId the external system config id
+   * @param email the email
+   * @param planId if not blank, include the seat type for this plan (System Admin)
+   * @return the user JSON object, or null if not found
+   */
+  public static JsonNode retrieveUserJsonByEmail(String configId, String email, String planId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUserByEmail");
     long startNanos = System.nanoTime();
@@ -327,10 +344,10 @@ public class SmartsheetApiCommands {
       JsonNode node = parseJson(json);
       ArrayNode data = node == null ? null : GrouperUtil.jsonJacksonGetArrayNode(node, "data");
       for (int i = 0; data != null && i < data.size(); i++) {
-        SmartsheetUser user = SmartsheetUser.fromJson(data.get(i));
-        if (user != null && StringUtils.equalsIgnoreCase(email, user.getEmail())) {
+        JsonNode userNode = data.get(i);
+        if (userNode != null && StringUtils.equalsIgnoreCase(email, GrouperUtil.jsonJacksonGetString(userNode, "email"))) {
           debugMap.put("found", true);
-          return user;
+          return userNode;
         }
       }
       debugMap.put("found", false);
@@ -347,6 +364,17 @@ public class SmartsheetApiCommands {
    * @return the user, or null if not found (404)
    */
   public static SmartsheetUser retrieveUserById(String configId, String userId) {
+    return SmartsheetUser.fromJson(retrieveUserJsonById(configId, userId));
+  }
+
+  /**
+   * Retrieve the raw user JSON (the user profile) by native id from GET /2.0/users/{userId}. Used by
+   * {@link #retrieveUserById} and the MCP user lookup.
+   * @param configId the external system config id
+   * @param userId the native user id
+   * @return the user JSON object, or null if not found (404)
+   */
+  public static JsonNode retrieveUserJsonById(String configId, String userId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUserById");
     debugMap.put("userId", userId);
@@ -362,7 +390,7 @@ public class SmartsheetApiCommands {
       if (returnCode[0] == 404) {
         return null;
       }
-      return SmartsheetUser.fromJson(parseJson(json));
+      return parseJson(json);
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);
     }
@@ -825,6 +853,32 @@ public class SmartsheetApiCommands {
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);
     }
+  }
+
+  /**
+   * The smartsheetPlanId of a Smartsheet provisioner that uses this external system, so callers
+   * outside a provisioner (e.g. the MCP user lookup) can read seat types. If several provisioners
+   * use the external system, the first one with a plan id wins.
+   * @param configId the external system config id
+   * @return the plan id, or null if no provisioner on this external system has one
+   */
+  public static String planIdForExternalSystem(String configId) {
+    if (StringUtils.isBlank(configId)) {
+      return null;
+    }
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+    Pattern pattern = Pattern.compile("^provisioner\\.([^.]+)\\.smartsheetExternalSystemConfigId$");
+    for (String propertyName : new TreeSet<String>(grouperLoaderConfig.propertyNames())) {
+      Matcher matcher = pattern.matcher(propertyName);
+      if (!matcher.matches() || !StringUtils.equals(configId, grouperLoaderConfig.propertyValueString(propertyName))) {
+        continue;
+      }
+      String planId = grouperLoaderConfig.propertyValueString("provisioner." + matcher.group(1) + ".smartsheetPlanId");
+      if (!StringUtils.isBlank(planId)) {
+        return planId.trim();
+      }
+    }
+    return null;
   }
 
   // ==================== ignore lists ====================
