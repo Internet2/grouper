@@ -13,6 +13,7 @@ public class AllSmartsheetProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllSmartsheetProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(SmartsheetProvisionerTest.class);
+    suite.addTestSuite(SmartsheetProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

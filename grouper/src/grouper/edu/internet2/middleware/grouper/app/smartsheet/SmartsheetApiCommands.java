@@ -52,6 +52,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li>DELETE /2.0/groups/{groupId}/members/{userId} -- remove one member</li>
  * </ul>
  *
+ * <p>Sync-back: every user and group read here, and each group's member list, is captured into the
+ * native mirror (via {@link SmartsheetProvisioningTargetNativeSync}) before any filtering, so the mirror
+ * is the full view of Smartsheet. Captures are no-ops outside a Smartsheet provisioning run (e.g. the
+ * MCP user lookup).</p>
+ *
  * <p>Smartsheet rate limits per token (HTTP 429, errorCode 4003). Calls that get 429 (or a 502/503/504
  * from the gateway) are retried with a doubling backoff, see {@link #retrySettings()}.</p>
  */
@@ -284,6 +289,8 @@ public class SmartsheetApiCommands {
         ArrayNode data = GrouperUtil.jsonJacksonGetArrayNode(node, "data");
         for (int i = 0; data != null && i < data.size(); i++) {
           SmartsheetUser user = SmartsheetUser.fromJson(data.get(i));
+          // sync-back: the full view, before the ignore filter
+          SmartsheetProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
           if (user != null && !isIgnored(user.getEmail(), ignoreEmails)) {
             result.add(user);
           }
@@ -347,6 +354,7 @@ public class SmartsheetApiCommands {
         JsonNode userNode = data.get(i);
         if (userNode != null && StringUtils.equalsIgnoreCase(email, GrouperUtil.jsonJacksonGetString(userNode, "email"))) {
           debugMap.put("found", true);
+          SmartsheetProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(SmartsheetUser.fromJson(userNode));
           return userNode;
         }
       }
@@ -390,7 +398,11 @@ public class SmartsheetApiCommands {
       if (returnCode[0] == 404) {
         return null;
       }
-      return parseJson(json);
+      JsonNode userNode = parseJson(json);
+      // sync-back. The profile has no seatType: a plan-scoped email read (which the provisioner does
+      // right after when seat types are managed) re-captures the user with it
+      SmartsheetProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(SmartsheetUser.fromJson(userNode));
+      return userNode;
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);
     }
@@ -615,6 +627,8 @@ public class SmartsheetApiCommands {
         ArrayNode data = GrouperUtil.jsonJacksonGetArrayNode(node, "data");
         for (int i = 0; data != null && i < data.size(); i++) {
           SmartsheetGroup group = SmartsheetGroup.fromJson(data.get(i));
+          // sync-back: the full view, before the ignore filter
+          SmartsheetProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(group);
           if (group != null && !isIgnored(group.getName(), ignoreGroupNames)) {
             result.add(group);
           }
@@ -653,6 +667,17 @@ public class SmartsheetApiCommands {
       }
       SmartsheetGroup group = SmartsheetGroup.fromJson(parseJson(json));
       debugMap.put("memberCount", group == null ? 0 : GrouperUtil.length(group.getMembers()));
+      // sync-back: the group and its full member list
+      if (group != null) {
+        SmartsheetProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(group);
+        List<String> memberIds = new ArrayList<String>();
+        for (SmartsheetUser member : GrouperUtil.nonNull(group.getMembers())) {
+          if (!StringUtils.isBlank(member.getId())) {
+            memberIds.add(member.getId());
+          }
+        }
+        SmartsheetProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(group.getId(), memberIds);
+      }
       return group;
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisionerTest;
 import edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisionerTest;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetProvisionerTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -54,6 +55,10 @@ public class FullSyncFromSyncBackSuite {
     suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncMembershipsFromSyncBackWarmCache"));
     suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncMembershipsFromSyncBackAddAndRemove"));
     suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncGroupsFromSyncBackWarmCache"));
+
+    // Smartsheet (all three axes; full-view mirror filtered by the dao hooks, GRP-7490)
+    suite.addTest(new SmartsheetProvisionerTest("testFullSyncFromSyncBackWarmCache"));
+    suite.addTest(new SmartsheetProvisionerTest("testFullSyncFromSyncBackAppliesSameRules"));
 
     return suite;
   }

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.smartsheet;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -12,6 +13,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
@@ -470,6 +472,23 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(GrouperUtil.jsonJacksonToString(plain.toJsonForCreate()).contains("\"licensedSheetCreator\":false"));
   }
 
+  public void testUserRuleSameForLiveAndCache() {
+    SmartsheetProvisionerConfiguration config = new SmartsheetProvisionerConfiguration();
+    Set<String> ignore = SmartsheetApiCommands.parseIgnoreSet("svc@example.edu");
+
+    config.setDisableEntitiesInsteadOfDelete(true);
+    assertTrue(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "SVC@example.edu", "ACTIVE"));
+    assertTrue(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "a@example.edu", "DEACTIVATED"));
+    assertFalse(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "a@example.edu", "ACTIVE"));
+    assertFalse(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "a@example.edu", "PENDING"));
+    assertFalse(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "a@example.edu", null));
+
+    // removing (not deactivating): a deactivated user is still an org user, so present
+    config.setDisableEntitiesInsteadOfDelete(false);
+    assertFalse(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "a@example.edu", "DEACTIVATED"));
+    assertTrue(SmartsheetTargetDao.isUserFilteredOut(config, ignore, "svc@example.edu", "ACTIVE"));
+  }
+
   public void testParseIgnoreSet() {
     Set<String> ignore = SmartsheetApiCommands.parseIgnoreSet("a@x.edu, B@x.edu\nc@x.edu\r\n");
     assertEquals(3, ignore.size());
@@ -905,6 +924,206 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
         assertTrue(GrouperUtil.getFullStackTrace(e), GrouperUtil.getFullStackTrace(e).contains("typo"));
       }
       assertEquals("MEMBER", userSeatType(SubjectTestHelper.SUBJ0.getAttributeValue("email")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  // =============================================
+  // Sync-back (Tomcat required)
+  // =============================================
+
+  private int countSyncBack(String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName
+            + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(PROVISIONER_ID).select(int.class);
+  }
+
+  private boolean inSyncBack(String tableName, String idColumn, String targetId) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName + " where " + idColumn + " = ?"
+            + " and grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(targetId).addBindVar(PROVISIONER_ID).select(int.class) > 0;
+  }
+
+  private static Integer debugMapInt(Map<String, Object> debugMap, String key) {
+    Object value = debugMap == null ? null : debugMap.get(key);
+    return value == null ? null : ((Number) value).intValue();
+  }
+
+  /** sync-back config: mirror users, groups and memberships */
+  private SmartsheetProvisionerTestConfigInput syncBackConfig(boolean fullSyncFromCache) {
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (fullSyncFromCache) {
+      configInput.addExtraConfig("fullSyncUsersFromSyncBack", "true")
+          .addExtraConfig("fullSyncGroupsFromSyncBack", "true")
+          .addExtraConfig("fullSyncMembershipsFromSyncBack", "true");
+    }
+    return configInput;
+  }
+
+  /**
+   * The mirror is the full view of Smartsheet: ignored users, deactivated users and ignored groups
+   * (with their members) are mirrored too, even though the provisioner treats them as absent.
+   */
+  public void testSyncBackMirrorIsFullView() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = syncBackConfig(false)
+        .addExtraConfig("smartsheetIgnoreUserEmails", "svc-smartsheet@example.edu")
+        .addExtraConfig("smartsheetIgnoreGroupNames", "manual-group");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      insertMockUser("1000000000000801", "svc-smartsheet@example.edu", "ACTIVE");
+      insertMockUser("1000000000000802", "gone@example.edu", "DEACTIVATED");
+      insertMockGroup("2000000000000801", "manual-group");
+      insertMockMembership("2000000000000801", "1000000000000801");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-v").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      fullProvision();
+
+      assertTrue("ignored user is mirrored", inSyncBack("grouper_prov_user", "target_user_id", "1000000000000801"));
+      assertTrue("deactivated user is mirrored", inSyncBack("grouper_prov_user", "target_user_id", "1000000000000802"));
+      assertTrue("ignored group is mirrored", inSyncBack("grouper_prov_group", "target_group_id", "2000000000000801"));
+      // SUBJ0 in team-v, plus the ignored group's member
+      assertEquals(2, countSyncBack("grouper_prov_mship"));
+      // and the provisioner still left them alone
+      assertEquals("ACTIVE", userStatus("svc-smartsheet@example.edu"));
+      assertEquals(1, membershipCount("2000000000000801"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Warm cache: a full sync is served from the mirror (no user pull, no group list, no per-group
+   * member reads), and it still provisions changes.
+   */
+  public void testFullSyncFromSyncBackWarmCache() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(syncBackConfig(true));
+
+    try {
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-w").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      attachProvisioningAttribute(stem);
+
+      // warm the cache (the first run is a cold, live read)
+      fullProvision();
+      fullProvision();
+      fullProvision();
+      String groupId = groupIdByName("team-w");
+      assertEquals(2, membershipCount(groupId));
+      assertEquals(2, countSyncBack("grouper_prov_user"));
+      assertEquals(1, countSyncBack("grouper_prov_group"));
+      assertEquals(2, countSyncBack("grouper_prov_mship"));
+
+      // the warm run comes entirely from the cache
+      fullProvision();
+      Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+      assertNull("user pull skipped", debugMap.get("smartsheetRetrieveAllUsersApiCall"));
+      assertNull("group list skipped", debugMap.get("smartsheetRetrieveAllGroupsApiCall"));
+      assertNull("per-group member reads skipped", debugMap.get("smartsheetRetrieveMembershipsApiCall"));
+      assertEquals(2, membershipCount(groupId));
+
+      // a change still provisions from the cache-served view
+      group.deleteMember(SubjectTestHelper.SUBJ1);
+      fullProvision();
+      assertEquals(1, membershipCount(groupId));
+      assertFalse(isMember(groupId, SubjectTestHelper.SUBJ1.getAttributeValue("email")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * A full sync served from the full-view mirror applies the same rules as a live read: a deactivated
+   * user is treated as absent (not deactivated again, and reactivated when re-added), and an ignored
+   * out-of-band group member is left alone.
+   */
+  public void testFullSyncFromSyncBackAppliesSameRules() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String svcEmail = "svc-smartsheet@example.edu";
+    SmartsheetProvisionerTestConfigInput configInput = syncBackConfig(true)
+        .addExtraConfig("deleteEntities", "true")
+        .addExtraConfig("deleteEntitiesIfNotExistInGrouper", "true")
+        .addExtraConfig("smartsheetIgnoreUserEmails", svcEmail);
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      // the Smartsheet group already exists (Grouper links to it by name) with an out-of-band ignored
+      // member. It must be there before the first (cold, live) run: once users are served from the
+      // cache, a user added outside Grouper only reaches the mirror on a live read
+      String groupId = "2000000000000901";
+      insertMockGroup(groupId, "team-r2");
+      insertMockUser("1000000000000901", svcEmail, "ACTIVE");
+      insertMockMembership(groupId, "1000000000000901");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-r2").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      attachProvisioningAttribute(stem);
+
+      // warm the cache (the first run is a cold, live read)
+      fullProvision();
+      fullProvision();
+      fullProvision();
+      assertTrue("ignored user is mirrored", inSyncBack("grouper_prov_user", "target_user_id", "1000000000000901"));
+
+      String subj1Email = SubjectTestHelper.SUBJ1.getAttributeValue("email");
+
+      // SUBJ1 leaves: deactivated, membership removed
+      group.deleteMember(SubjectTestHelper.SUBJ1);
+      fullProvision();
+      assertEquals("DEACTIVATED", userStatus(subj1Email));
+      assertFalse(isMember(groupId, subj1Email));
+
+      // served from the cache, where SUBJ1 (deactivated) and the ignored user are mirrored: the same
+      // rules drop them from the compare, so nothing changes
+      fullProvision();
+      Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+      assertNull("user pull skipped", debugMap.get("smartsheetRetrieveAllUsersApiCall"));
+      assertNull("per-group member reads skipped", debugMap.get("smartsheetRetrieveMembershipsApiCall"));
+      assertTrue("deactivated and ignored users filtered from the cache view: " + debugMap,
+          debugMapInt(debugMap, "syncBackEntitiesFilteredByDao") != null && debugMapInt(debugMap, "syncBackEntitiesFilteredByDao") >= 2);
+      assertEquals("DEACTIVATED", userStatus(subj1Email));
+      assertEquals("ACTIVE", userStatus(svcEmail));
+      assertTrue("ignored member left alone", isMember(groupId, svcEmail));
+
+      // SUBJ1 back: reactivated (not duplicated) from a cache-served run, membership back
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      fullProvision();
+      assertEquals(1, userCount(subj1Email));
+      assertEquals("ACTIVE", userStatus(subj1Email));
+      assertTrue(isMember(groupId, subj1Email));
+      assertTrue(isMember(groupId, svcEmail));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -36,6 +36,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
@@ -63,6 +65,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *   <li>Seat types (when configured): users are read with the planId so their seatType is known, and a
  *       seatType change is applied with the upgrade / downgrade endpoints. Users outside the org, which
  *       a planId read can include, are never deactivated or removed.</li>
+ *   <li>Sync-back: the mirror is the full view of Smartsheet, captured in {@link SmartsheetApiCommands}
+ *       as objects are read (ignored and deactivated users and ignored groups included); memberships
+ *       are write-tracked here. retrieveAllData honors retrieveEntities / retrieveGroups /
+ *       retrieveMemberships = false so a full sync can be served from the cache (skipping the per-group
+ *       member reads is the main saving), and the filterTarget*FromSyncBack overrides apply the SAME
+ *       user / group / membership rules to the cache-reconstructed objects that a live read applies.</li>
  * </ul>
  */
 public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
@@ -115,10 +123,102 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
     if (user == null) {
       return true;
     }
-    if (SmartsheetApiCommands.isIgnored(user.getEmail(), ignoreEmails)) {
+    return isUserFilteredOut(config, ignoreEmails, user.getEmail(), user.getStatus());
+  }
+
+  /**
+   * The one user rule, for a live read and for a user reconstructed from the sync-back cache alike.
+   * @param config the provisioner config
+   * @param ignoreEmails lowercased ignore set
+   * @param email the user email
+   * @param status the user status
+   * @return true if the user is treated as absent
+   */
+  static boolean isUserFilteredOut(SmartsheetProvisionerConfiguration config, Set<String> ignoreEmails, String email, String status) {
+    if (SmartsheetApiCommands.isIgnored(email, ignoreEmails)) {
       return true;
     }
-    return config.isDisableEntitiesInsteadOfDelete() && user.isDeactivated();
+    return config.isDisableEntitiesInsteadOfDelete() && SmartsheetUser.STATUS_DEACTIVATED.equalsIgnoreCase(status);
+  }
+
+  /**
+   * ids of the users this run treats as present (after the user rule), from the live read or from the
+   * cache-reconstructed users. Memberships are only kept for these users.
+   */
+  private Set<String> visibleUserIds = new HashSet<String>();
+
+  /**
+   * ids of the groups this run treats as present (not ignored), from the live read or from the
+   * cache-reconstructed groups. Memberships are only kept for these groups.
+   */
+  private Set<String> visibleGroupIds = new HashSet<String>();
+
+  /**
+   * Apply the user rule to cache-reconstructed users (GRP-7490 hook). Same rule as the live read.
+   */
+  @Override
+  public List<ProvisioningEntity> filterTargetEntitiesFromSyncBack(List<ProvisioningEntity> targetEntities) {
+    SmartsheetProvisionerConfiguration config = getSmartsheetConfiguration();
+    Set<String> ignoreEmails = ignoreUserEmails(config);
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      if (targetEntity == null || isUserFilteredOut(config, ignoreEmails, targetEntity.retrieveAttributeValueString("email"),
+          targetEntity.retrieveAttributeValueString("status"))) {
+        continue;
+      }
+      result.add(targetEntity);
+      if (!StringUtils.isBlank(targetEntity.getId())) {
+        this.visibleUserIds.add(targetEntity.getId());
+        if ("false".equals(targetEntity.retrieveAttributeValueString(SmartsheetUser.ATTR_IS_INTERNAL))) {
+          this.externalUserIds.add(targetEntity.getId());
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Apply the group rule (ignore list) to cache-reconstructed groups (GRP-7490 hook). Same rule as the
+   * live read.
+   */
+  @Override
+  public List<ProvisioningGroup> filterTargetGroupsFromSyncBack(List<ProvisioningGroup> targetGroups) {
+    Set<String> ignoreGroups = ignoreGroupNames(getSmartsheetConfiguration());
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+      if (targetGroup == null || SmartsheetApiCommands.isIgnored(targetGroup.retrieveAttributeValueString("name"), ignoreGroups)) {
+        continue;
+      }
+      result.add(targetGroup);
+      if (!StringUtils.isBlank(targetGroup.getId())) {
+        this.visibleGroupIds.add(targetGroup.getId());
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Keep only memberships of visible users in visible groups (GRP-7490 hook), the same rule the live
+   * read applies. The users and groups were seeded first (from the live read or the cache), so the
+   * visible id sets are filled.
+   */
+  @Override
+  public List<ProvisioningMembership> filterTargetMembershipsFromSyncBack(List<ProvisioningMembership> targetMemberships) {
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+      if (targetMembership != null && isMembershipVisible(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId())) {
+        result.add(targetMembership);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The one membership rule: a membership is kept if its user and group are both present this run.
+   */
+  private boolean isMembershipVisible(String groupId, String userId) {
+    return !StringUtils.isBlank(groupId) && !StringUtils.isBlank(userId)
+        && this.visibleGroupIds.contains(groupId) && this.visibleUserIds.contains(userId);
   }
 
   // ============================
@@ -141,23 +241,42 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       String configId = config.getSmartsheetExternalSystemConfigId();
       Set<String> ignoreEmails = ignoreUserEmails(config);
 
-      // all users; remember which ids are visible so memberships only reference known users
+      // a fresh view for this run (filled by the live reads below or the sync-back seed hooks)
+      this.visibleUserIds.clear();
+      this.visibleGroupIds.clear();
+
+      // when a full sync is served from the sync-back cache the framework asks to skip these reads
+      boolean retrieveEntities = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveEntities();
+      boolean retrieveGroups = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveGroups();
+      boolean retrieveMemberships = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveMemberships();
+
+      // all users; remember which ids are visible so memberships only reference known users. Every
+      // user read is captured for sync-back in SmartsheetApiCommands (the mirror is the full view);
+      // the user rule below decides what this run treats as present
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
-      Set<String> visibleUserIds = new HashSet<String>();
       List<String> declinedEmails = new ArrayList<String>();
-      for (SmartsheetUser user : SmartsheetApiCommands.retrieveUsers(configId, ignoreEmails, config.planIdForReads())) {
-        if (filterOutUser(config, ignoreEmails, user)) {
-          continue;
+      if (retrieveEntities) {
+        // counter so tests (and diagnostics) can confirm the user pull ran or was skipped
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "smartsheetRetrieveAllUsersApiCall", 1);
+        for (SmartsheetUser user : SmartsheetApiCommands.retrieveUsers(configId, null, config.planIdForReads())) {
+          if (filterOutUser(config, ignoreEmails, user)) {
+            continue;
+          }
+          trackExternal(user);
+          // DECLINED users are left alone (linked, never re-invited); note them so admins can see who
+          if (SmartsheetUser.STATUS_DECLINED.equalsIgnoreCase(user.getStatus())) {
+            declinedEmails.add(user.getEmail());
+          }
+          provisioningEntities.add(user.toProvisioningEntity());
+          if (!StringUtils.isBlank(user.getId())) {
+            this.visibleUserIds.add(user.getId());
+          }
         }
-        trackExternal(user);
-        // DECLINED users are left alone (linked, never re-invited); note them so admins can see who
-        if (SmartsheetUser.STATUS_DECLINED.equalsIgnoreCase(user.getStatus())) {
-          declinedEmails.add(user.getEmail());
-        }
-        provisioningEntities.add(user.toProvisioningEntity());
-        if (!StringUtils.isBlank(user.getId())) {
-          visibleUserIds.add(user.getId());
-        }
+      } else if (retrieveMemberships) {
+        // users come from the sync-back cache but memberships are read live: the visible users are the
+        // cached users after the same user rule (the framework seeds them after this call)
+        this.filterTargetEntitiesFromSyncBack(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+            .retrieveTargetEntitiesFromSyncBack());
       }
       targetData.setProvisioningEntities(provisioningEntities);
       if (declinedEmails.size() > 0) {
@@ -170,22 +289,55 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningGroup> provisioningGroups = new ArrayList<ProvisioningGroup>();
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
 
-      for (SmartsheetGroup group : SmartsheetApiCommands.retrieveGroups(configId, ignoreGroupNames(config))) {
-        provisioningGroups.add(group.toProvisioningGroup());
-
-        SmartsheetGroup groupWithMembers = SmartsheetApiCommands.retrieveGroup(configId, group.getId());
-        if (groupWithMembers == null) {
-          continue;
-        }
-        for (SmartsheetUser member : GrouperUtil.nonNull(groupWithMembers.getMembers())) {
-          // skip ignored / deactivated / unknown (e.g. outside the org) members
-          if (StringUtils.isBlank(member.getId()) || !visibleUserIds.contains(member.getId())) {
+      // the group list is also needed to read memberships. All groups are read (and captured for
+      // sync-back in SmartsheetApiCommands); the ignore list decides which are present this run
+      Set<String> ignoreGroups = ignoreGroupNames(config);
+      List<SmartsheetGroup> visibleGroups = new ArrayList<SmartsheetGroup>();
+      List<SmartsheetGroup> ignoredGroups = new ArrayList<SmartsheetGroup>();
+      if (retrieveGroups || retrieveMemberships) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "smartsheetRetrieveAllGroupsApiCall", 1);
+        for (SmartsheetGroup group : SmartsheetApiCommands.retrieveGroups(configId, null)) {
+          if (SmartsheetApiCommands.isIgnored(group.getName(), ignoreGroups)) {
+            ignoredGroups.add(group);
             continue;
           }
-          ProvisioningMembership membership = new ProvisioningMembership(false);
-          membership.setProvisioningGroupId(group.getId());
-          membership.setProvisioningEntityId(member.getId());
-          provisioningMemberships.add(membership);
+          visibleGroups.add(group);
+          if (!StringUtils.isBlank(group.getId())) {
+            this.visibleGroupIds.add(group.getId());
+          }
+        }
+      }
+      if (retrieveGroups) {
+        for (SmartsheetGroup group : visibleGroups) {
+          provisioningGroups.add(group.toProvisioningGroup());
+        }
+      }
+
+      if (retrieveMemberships) {
+        // counter so tests (and diagnostics) can confirm the per-group member reads ran or were skipped
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "smartsheetRetrieveMembershipsApiCall", 1);
+        // each group read captures its full member list for sync-back in SmartsheetApiCommands
+        for (SmartsheetGroup group : visibleGroups) {
+          SmartsheetGroup groupWithMembers = SmartsheetApiCommands.retrieveGroup(configId, group.getId());
+          if (groupWithMembers == null) {
+            continue;
+          }
+          for (SmartsheetUser member : GrouperUtil.nonNull(groupWithMembers.getMembers())) {
+            // the membership rule: skip ignored / deactivated / unknown (e.g. outside the org) members
+            if (!isMembershipVisible(group.getId(), member.getId())) {
+              continue;
+            }
+            ProvisioningMembership membership = new ProvisioningMembership(false);
+            membership.setProvisioningGroupId(group.getId());
+            membership.setProvisioningEntityId(member.getId());
+            provisioningMemberships.add(membership);
+          }
+        }
+        // the mirror is the full view: read ignored groups' members too, but only when they are mirrored
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
+          for (SmartsheetGroup group : ignoredGroups) {
+            SmartsheetApiCommands.retrieveGroup(configId, group.getId());
+          }
         }
       }
       targetData.setProvisioningGroups(provisioningGroups);
@@ -194,6 +346,51 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       return response;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllData", startNanos));
+    }
+  }
+
+  // ============================
+  // Retrieve one group's memberships (GET /groups/{id}). Advertising this is also what lets the
+  // framework serve full-sync memberships from the sync-back cache (it requires a membership
+  // retrieve capability besides retrieveAllData).
+  // ============================
+
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(
+      TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+
+    long startNanos = System.nanoTime();
+
+    try {
+      List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+      ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
+      String groupId = targetGroup == null ? null : targetGroup.getId();
+      if (StringUtils.isBlank(groupId)) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+      }
+
+      SmartsheetProvisionerConfiguration config = getSmartsheetConfiguration();
+      // the group read captures its full member list for sync-back in SmartsheetApiCommands
+      SmartsheetGroup groupWithMembers = SmartsheetApiCommands.retrieveGroup(config.getSmartsheetExternalSystemConfigId(), groupId);
+      if (groupWithMembers == null || SmartsheetApiCommands.isIgnored(groupWithMembers.getName(), ignoreGroupNames(config))) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+      }
+
+      // a single-group read has no user list, so it applies the parts of the user rule it can: the
+      // ignore list (members carry their email). Status is not in the member list.
+      Set<String> ignoreEmails = ignoreUserEmails(config);
+      for (SmartsheetUser member : GrouperUtil.nonNull(groupWithMembers.getMembers())) {
+        if (StringUtils.isBlank(member.getId()) || SmartsheetApiCommands.isIgnored(member.getEmail(), ignoreEmails)) {
+          continue;
+        }
+        ProvisioningMembership membership = new ProvisioningMembership(false);
+        membership.setProvisioningGroupId(groupId);
+        membership.setProvisioningEntityId(member.getId());
+        result.add(membership);
+      }
+      return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
     }
   }
 
@@ -334,6 +531,8 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       if (config.isManageSeatType() && !StringUtils.isBlank(user.getSeatType())) {
         applySeatType(config, configId, targetEntity.getId(), user.getEmail(), null, user.getSeatType());
       }
+      // sync-back: the drain re-reads the user (seat, status and flags are set server side)
+      SmartsheetProvisioningTargetNativeSync.captureUserWriteFromCurrentProvisioner(targetEntity.getId());
       markProvisioned(targetEntity, true);
 
       return new TargetDaoInsertEntityResponse();
@@ -414,6 +613,7 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
         if (seatTypeChanged && config.isManageSeatType()) {
           applySeatType(config, configId, targetEntity.getId(), user.getEmail(), oldSeatType, user.getSeatType());
         }
+        SmartsheetProvisioningTargetNativeSync.captureUserWriteFromCurrentProvisioner(targetEntity.getId());
       }
       markProvisioned(targetEntity, true);
 
@@ -452,7 +652,8 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
         throw new RuntimeException("user id is required for deleteEntity");
       }
       // a user outside the org (seen on a planId read) is not an org user: nothing to deactivate or remove
-      if (this.externalUserIds.contains(userId)) {
+      if (this.externalUserIds.contains(userId)
+          || "false".equals(targetEntity.retrieveAttributeValueString(SmartsheetUser.ATTR_IS_INTERNAL))) {
         SmartsheetLog.smartsheetLog("Not deactivating / removing Smartsheet user outside the org: " + userId + ", " + email);
         markProvisioned(targetEntity, true);
         return new TargetDaoDeleteEntityResponse();
@@ -546,6 +747,8 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
 
       SmartsheetGroup created = SmartsheetApiCommands.createGroup(configId, group);
       targetGroup.setId(created.getId());
+      // sync-back: the create response is the new group, so no re-read is needed
+      SmartsheetProvisioningTargetNativeSync.captureGroupWriteFromCurrentProvisioner(created.getId(), created);
       markProvisioned(targetGroup, true);
 
       return new TargetDaoInsertGroupResponse();
@@ -582,6 +785,8 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
         }
         SmartsheetGroup group = SmartsheetGroup.fromProvisioningGroup(targetGroup);
         SmartsheetApiCommands.updateGroup(configId, targetGroup.getId(), group, fieldNamesToUpdate);
+        // sync-back: the drain re-reads the group
+        SmartsheetProvisioningTargetNativeSync.captureGroupWriteFromCurrentProvisioner(targetGroup.getId(), null);
       }
       markProvisioned(targetGroup, true);
 
@@ -668,6 +873,9 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
           SmartsheetApiCommands.addGroupMembers(configId, groupId, members);
           for (ProvisioningMembership membership : memberships) {
             markProvisioned(membership, true);
+            // sync-back write-track (memberships are never re-read)
+            SmartsheetProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+                groupId, membership.getProvisioningEntityId());
           }
         } catch (RuntimeException e) {
           // keep going with the other groups, mark this group's batch as failed
@@ -703,6 +911,8 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       if (!SmartsheetApiCommands.isIgnored(membershipEmail(targetMembership), ignoreUserEmails(config))) {
         SmartsheetApiCommands.removeGroupMember(configId, targetMembership.getProvisioningGroupId(),
             targetMembership.getProvisioningEntityId());
+        SmartsheetProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+            targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
       }
       markProvisioned(targetMembership, true);
 
@@ -745,6 +955,7 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
 
@@ -759,6 +970,14 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
     // add is a bulk call per group, remove is one call per member
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+
+    // sync-back: the full view is captured in SmartsheetApiCommands, memberships are write-tracked here;
+    // retrieveAllData honors retrieveEntities / retrieveGroups / retrieveMemberships = false and the
+    // filterTarget*FromSyncBack overrides apply the live rules to the cache-reconstructed objects
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
   }
 
 }

@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.app.jamf.JamfProvisioningTargetNativeSyn
 import edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.scim.GrouperScim2ProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryProvisioningTargetNativeSyncTest;
 
@@ -90,6 +91,7 @@ public class AllProvisioningTargetNativeSyncTests {
     suite.addTestSuite(GithubProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(InterfolioProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(JamfProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(SmartsheetProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

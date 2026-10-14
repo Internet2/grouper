@@ -62,6 +62,12 @@ public class SmartsheetUser {
   public static final String ATTR_SEAT_TYPE = "seatType";
 
   /**
+   * entity attribute (not configured, informational) holding "false" for a user outside the org, so
+   * a user reconstructed from the sync-back cache is still recognized as external
+   */
+  public static final String ATTR_IS_INTERNAL = "isInternal";
+
+  /**
    * @param seatType a seat type from Smartsheet or config
    * @return the upper-cased seat type, with the deprecated VIEWER mapped to CONTRIBUTOR; null if blank
    */
@@ -424,6 +430,9 @@ public class SmartsheetUser {
     }
     if (this.seatType != null) {
       targetEntity.assignAttributeValue(ATTR_SEAT_TYPE, normalizeSeatType(this.seatType));
+    }
+    if (this.internal != null) {
+      targetEntity.assignAttributeValue(ATTR_IS_INTERNAL, this.internal.toString());
     }
 
     return targetEntity;
