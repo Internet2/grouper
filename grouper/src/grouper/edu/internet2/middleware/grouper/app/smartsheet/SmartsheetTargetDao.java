@@ -125,9 +125,14 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       // all users; remember which ids are visible so memberships only reference known users
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
       Set<String> visibleUserIds = new HashSet<String>();
+      List<String> declinedEmails = new ArrayList<String>();
       for (SmartsheetUser user : SmartsheetApiCommands.retrieveUsers(configId, ignoreEmails)) {
         if (filterOutUser(config, ignoreEmails, user)) {
           continue;
+        }
+        // DECLINED users are left alone (linked, never re-invited); note them so admins can see who
+        if (SmartsheetUser.STATUS_DECLINED.equalsIgnoreCase(user.getStatus())) {
+          declinedEmails.add(user.getEmail());
         }
         provisioningEntities.add(user.toProvisioningEntity());
         if (!StringUtils.isBlank(user.getId())) {
@@ -135,6 +140,11 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       targetData.setProvisioningEntities(provisioningEntities);
+      if (declinedEmails.size() > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("smartsheetDeclinedUserCount", declinedEmails.size());
+        SmartsheetLog.smartsheetLog("Smartsheet users who declined their invitation (left alone, not re-invited): "
+            + GrouperUtil.toStringForLog(declinedEmails));
+      }
 
       // all groups, then one detail call per group for its members
       List<ProvisioningGroup> provisioningGroups = new ArrayList<ProvisioningGroup>();
@@ -524,7 +534,7 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       String configId = config.getSmartsheetExternalSystemConfigId();
       Set<String> ignoreEmails = ignoreUserEmails(config);
 
-      // group the batch by group id; the add endpoint takes an array of member emails per group
+      // group the batch by group id; the add endpoint takes an array of members per group
       Map<String, List<ProvisioningMembership>> groupIdToMemberships = new LinkedHashMap<String, List<ProvisioningMembership>>();
       for (ProvisioningMembership membership : GrouperUtil.nonNull(targetDaoInsertMembershipsRequest.getTargetMemberships())) {
         String groupId = membership.getProvisioningGroupId();
@@ -538,15 +548,22 @@ public class SmartsheetTargetDao extends GrouperProvisionerTargetDaoBase {
       RuntimeException firstException = null;
       for (String groupId : groupIdToMemberships.keySet()) {
         List<ProvisioningMembership> memberships = groupIdToMemberships.get(groupId);
-        List<String> emails = new ArrayList<String>();
+        // send the native user id (what Grouper matches on), with the email as the fallback
+        List<SmartsheetUser> members = new ArrayList<SmartsheetUser>();
         for (ProvisioningMembership membership : memberships) {
           String email = membershipEmail(membership);
-          if (!StringUtils.isBlank(email) && !SmartsheetApiCommands.isIgnored(email, ignoreEmails)) {
-            emails.add(email);
+          if (SmartsheetApiCommands.isIgnored(email, ignoreEmails)) {
+            continue;
+          }
+          SmartsheetUser member = new SmartsheetUser();
+          member.setId(membership.getProvisioningEntityId());
+          member.setEmail(email);
+          if (!StringUtils.isBlank(member.getId()) || !StringUtils.isBlank(member.getEmail())) {
+            members.add(member);
           }
         }
         try {
-          SmartsheetApiCommands.addGroupMembers(configId, groupId, emails);
+          SmartsheetApiCommands.addGroupMembers(configId, groupId, members);
           for (ProvisioningMembership membership : memberships) {
             markProvisioned(membership, true);
           }

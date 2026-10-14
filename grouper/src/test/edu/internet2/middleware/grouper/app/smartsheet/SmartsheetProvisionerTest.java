@@ -284,8 +284,13 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
     insertMockUser("1000000000000042", "b@example.edu", "ACTIVE");
     insertMockMembership("2000000000000011", "1000000000000041");
 
-    // existing member a is skipped in a bulk add, b is added
-    SmartsheetApiCommands.addGroupMembers(CONFIG_ID, "2000000000000011", Arrays.asList("a@example.edu", "b@example.edu"));
+    // existing member a (sent by id) is skipped in a bulk add, b (sent by email only) is added
+    SmartsheetUser memberA = new SmartsheetUser();
+    memberA.setId("1000000000000041");
+    memberA.setEmail("a@example.edu");
+    SmartsheetUser memberB = new SmartsheetUser();
+    memberB.setEmail("b@example.edu");
+    SmartsheetApiCommands.addGroupMembers(CONFIG_ID, "2000000000000011", Arrays.asList(memberA, memberB));
     assertEquals(2, membershipCount("2000000000000011"));
 
     SmartsheetGroup group = SmartsheetApiCommands.retrieveGroup(CONFIG_ID, "2000000000000011");
@@ -297,6 +302,56 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
 
     // removing a non-member (404) is a no-op
     SmartsheetApiCommands.removeGroupMember(CONFIG_ID, "2000000000000011", "1000000000000041");
+  }
+
+  public void testAddGroupMemberById() {
+    insertMockGroup("2000000000000012", "by-id-group");
+    insertMockUser("1000000000000043", "c@example.edu", "ACTIVE");
+
+    // the id wins even if the email Grouper has drifted from the Smartsheet primary email
+    SmartsheetUser member = new SmartsheetUser();
+    member.setId("1000000000000043");
+    member.setEmail("old-address@example.edu");
+    SmartsheetApiCommands.addGroupMembers(CONFIG_ID, "2000000000000012", Arrays.asList(member));
+    assertTrue(isMember("2000000000000012", "c@example.edu"));
+  }
+
+  public void testMemberJsonForAdd() {
+    SmartsheetUser member = new SmartsheetUser();
+    member.setId("1000000000000044");
+    member.setEmail("d@example.edu");
+    // id first, as a number, and no email alongside it
+    assertEquals("{\"id\":1000000000000044}", GrouperUtil.jsonJacksonToString(SmartsheetApiCommands.memberJsonForAdd(member)));
+
+    // no id (or a non-numeric one) falls back to email
+    member.setId(null);
+    assertEquals("{\"email\":\"d@example.edu\"}", GrouperUtil.jsonJacksonToString(SmartsheetApiCommands.memberJsonForAdd(member)));
+    member.setId("notANumber");
+    assertEquals("{\"email\":\"d@example.edu\"}", GrouperUtil.jsonJacksonToString(SmartsheetApiCommands.memberJsonForAdd(member)));
+
+    // neither: nothing to send
+    member.setEmail(null);
+    assertNull(SmartsheetApiCommands.memberJsonForAdd(member));
+  }
+
+  public void testUpdateUserUnsetFlagNotSent() {
+    SmartsheetUser user = new SmartsheetUser();
+    user.setFirstName("Jane");
+    user.setGroupAdmin(true);
+    // admin is being "updated" but has no value: it must not be sent as false
+    String json = GrouperUtil.jsonJacksonToString(user.toJsonForUpdate(GrouperUtil.toSet("firstName", "admin", "groupAdmin")));
+    assertTrue(json, json.contains("\"groupAdmin\":true"));
+    assertFalse(json, json.contains("admin\":false"));
+    assertFalse(json, json.contains("\"admin\""));
+
+    // end to end: an existing System Admin keeps admin when the flag is unset
+    insertMockUser("1000000000000051", "sysadmin@example.edu", "ACTIVE");
+    new GcDbAccess().connectionName("grouper").sql("update mock_smartsheet_user set admin = 'T' where id = ?")
+        .addBindVar("1000000000000051").executeSql();
+    SmartsheetApiCommands.updateUser(CONFIG_ID, "1000000000000051", user, GrouperUtil.toSet("firstName", "admin"));
+    SmartsheetUser readBack = SmartsheetApiCommands.retrieveUserById(CONFIG_ID, "1000000000000051");
+    assertEquals(Boolean.TRUE, readBack.getAdmin());
+    assertEquals("Jane", readBack.getFirstName());
   }
 
   public void testParseIgnoreSet() {
@@ -501,6 +556,60 @@ public class SmartsheetProvisionerTest extends GrouperProvisioningBaseTest {
       group.deleteMember(SubjectTestHelper.SUBJ1);
       fullProvision();
       assertEquals(0, userCount(subj1Email));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Link-only mode: insertEntities=false plus errorHandlingTargetObjectDoesNotExistIsAnError=false.
+   * Grouper never adds users to the org; a member who has no Smartsheet user yet is skipped quietly
+   * (no error) and is added to the group by the first full sync after they show up in Smartsheet
+   * (e.g. after their first SSO login).
+   */
+  public void testLinkOnlyMode() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    SmartsheetProvisionerTestConfigInput configInput = new SmartsheetProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_ID)
+        .addExtraConfig("insertEntities", "false")
+        .addExtraConfig("errorHandlingShow", "true")
+        .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false");
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      String subj0Email = SubjectTestHelper.SUBJ0.getAttributeValue("email");
+      String subj1Email = SubjectTestHelper.SUBJ1.getAttributeValue("email");
+
+      // SUBJ0 already uses Smartsheet, SUBJ1 has never logged in
+      insertMockUser("1000000000000301", subj0Email, "ACTIVE");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:smartsheet:team-l").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningAttribute(stem);
+
+      // no allowErrors: a missing user must not count as an error in this mode
+      GrouperProvisioningOutput output = fullProvision();
+      assertEquals(0, output.getRecordsWithErrors());
+
+      String groupId = groupIdByName("team-l");
+      assertNotNull(groupId);
+      assertTrue(isMember(groupId, subj0Email));
+      assertEquals("Grouper must not add users in link-only mode", 0, userCount(subj1Email));
+      assertEquals(1, membershipCount(groupId));
+
+      // SUBJ1 logs in (Smartsheet adds them), the next full sync puts them in the group
+      insertMockUser("1000000000000302", subj1Email, "ACTIVE");
+      fullProvision();
+      assertTrue(isMember(groupId, subj1Email));
+      assertEquals(2, membershipCount(groupId));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

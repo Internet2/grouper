@@ -637,38 +637,73 @@ public class SmartsheetApiCommands {
   }
 
   /**
-   * Add members to a group via POST /2.0/groups/{groupId}/members with an array of {email}. Users who
-   * are already members are skipped by Smartsheet (no error when sending an array).
+   * Add members to a group via POST /2.0/groups/{groupId}/members with an array of member objects.
+   * Each member is sent by native user id when known (the stable link Grouper matches on, immune to
+   * an email that drifted), else by email. Users who are already members are skipped by Smartsheet
+   * (no error when sending an array).
    * @param configId the external system config id
    * @param groupId the native group id
-   * @param emails the member emails to add
+   * @param members the members to add (id and / or email set)
    */
-  public static void addGroupMembers(String configId, String groupId, List<String> emails) {
+  public static void addGroupMembers(String configId, String groupId, List<SmartsheetUser> members) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "addGroupMembers");
     debugMap.put("groupId", groupId);
-    debugMap.put("memberCount", GrouperUtil.length(emails));
+    debugMap.put("memberCount", GrouperUtil.length(members));
     long startNanos = System.nanoTime();
 
     try {
       if (StringUtils.isBlank(groupId)) {
         throw new RuntimeException("group id is required for addGroupMembers");
       }
-      if (GrouperUtil.length(emails) == 0) {
+      ArrayNode body = GrouperUtil.jsonJacksonArrayNode();
+      int byIdCount = 0;
+      for (SmartsheetUser member : GrouperUtil.nonNull(members)) {
+        ObjectNode memberNode = memberJsonForAdd(member);
+        if (memberNode == null) {
+          continue;
+        }
+        if (memberNode.has("id")) {
+          byIdCount++;
+        }
+        body.add(memberNode);
+      }
+      if (body.size() == 0) {
         return;
       }
-      ArrayNode body = GrouperUtil.jsonJacksonArrayNode();
-      for (String email : emails) {
-        ObjectNode member = GrouperUtil.jsonJacksonNode();
-        member.put("email", email);
-        body.add(member);
-      }
+      debugMap.put("byIdCount", byIdCount);
       executeMethod(debugMap, "addGroupMembers", "POST", configId,
           "/2.0/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members", GrouperUtil.toSet(200),
           new int[] {-1}, GrouperUtil.jsonJacksonToString(body));
     } finally {
       SmartsheetLog.smartsheetLog(debugMap, startNanos);
     }
+  }
+
+  /**
+   * The member object for a group member add: {"id": n} when the native id is a number, else
+   * {"email": "..."}.
+   * @param member the member (may be null)
+   * @return the JSON object, or null if there is neither an id nor an email
+   */
+  static ObjectNode memberJsonForAdd(SmartsheetUser member) {
+    if (member == null) {
+      return null;
+    }
+    ObjectNode memberNode = GrouperUtil.jsonJacksonNode();
+    if (!StringUtils.isBlank(member.getId())) {
+      try {
+        memberNode.put("id", Long.parseLong(member.getId().trim()));
+        return memberNode;
+      } catch (NumberFormatException nfe) {
+        // not a Smartsheet id, fall through to email
+      }
+    }
+    if (!StringUtils.isBlank(member.getEmail())) {
+      memberNode.put("email", member.getEmail());
+      return memberNode;
+    }
+    return null;
   }
 
   /**

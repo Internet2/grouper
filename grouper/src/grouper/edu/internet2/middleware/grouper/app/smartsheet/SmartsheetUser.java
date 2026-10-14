@@ -294,19 +294,17 @@ public class SmartsheetUser {
   }
 
   /**
-   * Put a boolean flag in an update body if it is being updated. A null (unset) flag being updated
-   * is sent as false, since Smartsheet flags are not nullable.
+   * Put a boolean flag in an update body if it is being updated and has a value. A null (unset) flag
+   * is never sent: an attribute with no value means Grouper does not manage it, and sending false
+   * would quietly strip e.g. System Admin from the user.
    */
   private static void putBooleanIfUpdating(ObjectNode result, Set<String> fieldNamesToUpdate,
       String fieldName, Boolean value) {
-    if (fieldNamesToUpdate == null) {
-      if (value != null) {
-        result.put(fieldName, value);
-      }
+    if (value == null) {
       return;
     }
-    if (fieldNamesToUpdate.contains(fieldName)) {
-      result.put(fieldName, value != null && value);
+    if (fieldNamesToUpdate == null || fieldNamesToUpdate.contains(fieldName)) {
+      result.put(fieldName, value);
     }
   }
 
