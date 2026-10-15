@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1024,6 +1025,7 @@ public class GrouperScim2ApiCommands {
       }
       try {
         JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
+        canonicalizeFieldNames(rootNode);
         return rootNode;
       } catch (Exception e) {
         throw new RuntimeException("Error parsing response: '" + json + "'", e);
@@ -1158,6 +1160,50 @@ public class GrouperScim2ApiCommands {
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
 
+  }
+
+  /**
+   * GRP-7491: SCIM attribute names are case insensitive (RFC 7643 section 2.1), but the code
+   * reads response fields by exact name.  Map of lower case field name to the canonical
+   * spelling the code expects.  Add names here as servers are found that vary the case.
+   * Only top level response fields are canonicalized.
+   */
+  private static final Map<String, String> CANONICAL_TOP_LEVEL_FIELD_NAMES = new HashMap<String, String>();
+
+  static {
+    // Google sends "resources" in a ListResponse
+    CANONICAL_TOP_LEVEL_FIELD_NAMES.put("resources", "Resources");
+  }
+
+  /**
+   * GRP-7491: rename top level fields of a response to the canonical case the code expects
+   * (e.g. "resources" to "Resources") so the exact name lookups find them
+   * @param jsonNode parsed response (may be null)
+   */
+  private static void canonicalizeFieldNames(JsonNode jsonNode) {
+    if (!(jsonNode instanceof ObjectNode)) {
+      return;
+    }
+    ObjectNode objectNode = (ObjectNode)jsonNode;
+
+    // collect first, cant rename while iterating the field names
+    List<String> fieldNames = new ArrayList<String>();
+    Iterator<String> fieldNameIterator = objectNode.fieldNames();
+    while (fieldNameIterator.hasNext()) {
+      fieldNames.add(fieldNameIterator.next());
+    }
+
+    for (String fieldName : fieldNames) {
+      String canonicalFieldName = CANONICAL_TOP_LEVEL_FIELD_NAMES.get(fieldName.toLowerCase());
+      if (canonicalFieldName == null || canonicalFieldName.equals(fieldName)) {
+        continue;
+      }
+      // if the canonical name is also there, dont clobber it
+      if (objectNode.has(canonicalFieldName)) {
+        continue;
+      }
+      objectNode.set(canonicalFieldName, objectNode.remove(fieldName));
+    }
   }
 
   /**
