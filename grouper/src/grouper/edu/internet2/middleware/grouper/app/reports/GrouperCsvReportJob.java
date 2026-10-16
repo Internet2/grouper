@@ -134,7 +134,20 @@ public class GrouperCsvReportJob extends OtherJobBase {
       List<String[]> data = retrieveData(database, query);
       debugMap.put("rowsSize", GrouperUtil.length(data));
       hib3GrouperLoaderLog.setTotalCount(GrouperUtil.length(data));
-      
+
+      // failsafe: if the query returns fewer rows than expected (e.g. a source table was truncated or a
+      // reference group emptied), do not write or send the file, since the target system might remove
+      // or disable everyone not in it.  Throw so the job shows as an error and nothing is sent
+      Integer minRows = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + jobName + ".csvReport.minRows");
+      if (minRows != null && minRows > 0) {
+        debugMap.put("minRows", minRows);
+        if (GrouperUtil.length(data) < minRows) {
+          throw new RuntimeException("Failsafe: csv report '" + jobName + "' returned " + GrouperUtil.length(data)
+            + " rows which is less than the minimum of " + minRows + " (otherJob." + jobName
+            + ".csvReport.minRows), file not created or sent");
+        }
+      }
+
       String fileName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".csvReport.fileName");
   
       if (StringUtils.isBlank(fileName)) {
