@@ -401,7 +401,15 @@ public class GrouperProvisioningGrouperSyncDao {
 
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
       } else if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
-        //
+        // GRP-7464: a re-read in the same run (e.g. the reload after a link-detected target id change) returns a new
+        // instance of a sync membership the wrapper already holds, and the dao cache now points at that new instance.
+        // The run updates the wrapper's instance but the end of run store writes the cache's, so the update would be
+        // lost (e.g. a retried membership stays in_target=F with its error).  Point the cache back at the wrapper's.
+        if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != gcGrouperSyncMembership) {
+          gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+          grouperSyncMembershipMap.put(groupIdMemberId, gcGrouperSyncMembership);
+          gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipCacheReplace(gcGrouperSyncMembership);
+        }
       } else {
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()

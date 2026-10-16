@@ -261,6 +261,28 @@ public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioning
     this.recordTargetNativeMemberships(memberships);
   }
 
+  /**
+   * GRP-7464: build native membership beans for all groups of the supplied user (from the
+   * per-user group fetch, GET users/{id}/groups), and record them. Additive, like the group path.
+   */
+  public void captureMembershipsForUser(String targetUserId, Iterable<String> targetGroupIds) {
+    if (targetUserId == null || targetGroupIds == null) {
+      return;
+    }
+    List<GrouperProvisioningTargetNativeMembership> memberships =
+        new ArrayList<GrouperProvisioningTargetNativeMembership>();
+    for (String targetGroupId : targetGroupIds) {
+      if (targetGroupId == null) {
+        continue;
+      }
+      GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
+      membership.setTargetGroupId(targetGroupId);
+      membership.setTargetUserId(targetUserId);
+      memberships.add(membership);
+    }
+    this.recordTargetNativeMemberships(memberships);
+  }
+
   // ----- static dispatchers (called from GrouperOktaApiCommands / GrouperOktaTargetDao) -----
 
   /**
@@ -303,6 +325,19 @@ public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioning
       return;
     }
     oktaSync.captureMembershipsForGroup(targetGroupId, targetUserIds);
+  }
+
+  /**
+   * GRP-7464: record memberships for a given target user id (from the per-user group fetch)
+   * against the current provisioner's sync.
+   */
+  public static void captureMembershipsForUserForCurrentProvisioner(
+      String targetUserId, Iterable<String> targetGroupIds) {
+    GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
+    if (oktaSync == null) {
+      return;
+    }
+    oktaSync.captureMembershipsForUser(targetUserId, targetGroupIds);
   }
 
   // ----- membership write-track dispatchers (called from GrouperOktaTargetDao write sites) -----

@@ -849,6 +849,88 @@ public class GrouperOktaApiCommands {
       GrouperOktaLog.oktaLog(debugMap, startTime);
     }
   }
+
+  /**
+   * GRP-7464: return ids of all okta groups the user is a member of (GET /api/v1/users/{id}/groups).
+   * Note: this includes groups not managed by Grouper (e.g. Everyone, directory or app groups)
+   * @param configId
+   * @param userId okta user id
+   * @return group ids
+   */
+  public static Set<String> retrieveOktaUserGroups(String configId, String userId)  {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveOktaUserGroups");
+    debugMap.put("userId", userId);
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      Set<String> groupIds = new HashSet<String>();
+      
+      String nextPageUrl = null;
+      boolean firstRequest = true;
+      
+      String urlSuffixConstant = "users/" + userId + "/groups";
+
+      int maxCalls = 10000000;
+      int numberOfCalls = 0;
+      String previousPageUrl = null;
+      while (StringUtils.isNotBlank(nextPageUrl) || firstRequest) {
+        
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total results so far: " + groupIds.size()
+             + ", numberOfCalls: " + numberOfCalls);
+        }
+        
+        firstRequest = false;
+        String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
+        
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaUserGroups", configId, urlSuffix);
+        numberOfCalls++;
+        if (jsonNode == null) {
+          break;
+        }
+        ArrayNode groupsArray = (ArrayNode)jsonNode.get("data");
+        
+        if (groupsArray == null || groupsArray.size() == 0) {
+          break;
+        }
+        
+        JsonNode paginationNode = jsonNode.get("pagination");
+        if (paginationNode != null && paginationNode.get("next") != null) {
+          nextPageUrl = paginationNode.get("next").asText();
+        } else {
+          nextPageUrl = null;
+        }
+
+        for (int i = 0; i < groupsArray.size(); i++) {
+          String groupId = GrouperUtil.jsonJacksonGetString(groupsArray.get(i), "id");
+          if (StringUtils.isNotBlank(groupId)) {
+            groupIds.add(groupId);
+          }
+        }
+        
+        if (StringUtils.isNotBlank(previousPageUrl) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageUrl, nextPageUrl)) {
+          break;
+        }
+        previousPageUrl = nextPageUrl;
+        
+      }
+      
+      debugMap.put("numberOfCalls", numberOfCalls);
+      debugMap.put("size", GrouperClientUtils.length(groupIds));
+
+      return groupIds;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperOktaLog.oktaLog(debugMap, startTime);
+    }
+  }
   
   /**
    * @param configId

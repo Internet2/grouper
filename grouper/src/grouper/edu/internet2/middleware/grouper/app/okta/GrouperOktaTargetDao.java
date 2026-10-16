@@ -41,6 +41,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
@@ -598,6 +600,47 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     
   }
   
+  /**
+   * GRP-7464: retrieve all memberships of a user via GET users/{id}/groups.  Lets an entity membership
+   * recalc (e.g. user target id change) read only that user's groups instead of every group's roster.
+   */
+  @Override
+  public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(
+      TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
+
+    try {
+      GrouperOktaConfiguration oktaConfiguration = (GrouperOktaConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      String targetEntityId = resolveTargetEntityId(targetEntity);
+
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
+
+      if (StringUtils.isBlank(targetEntityId)) {
+        return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+      }
+
+      Set<String> groupIds = GrouperOktaApiCommands.retrieveOktaUserGroups(oktaConfiguration.getOktaExternalSystemConfigId(), targetEntityId);
+
+      for (String groupId : groupIds) {
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
+        targetMembership.setProvisioningGroupId(groupId);
+        targetMembership.setProvisioningEntityId(targetEntityId);
+        provisioningMemberships.add(targetMembership);
+      }
+
+      // generic provisioner sync back: capture (groupId, userId) pairs for this user
+      GrouperOktaProvisioningTargetNativeSync.captureMembershipsForUserForCurrentProvisioner(
+          targetEntityId, groupIds);
+
+      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
+    }
+  }
+
   private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
     
     if (targetGroup == null) {
@@ -730,6 +773,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    // GRP-7464: GET users/{id}/groups.  With both by-group and by-entity, a user target id change
+    // recalcs just that user's memberships instead of bridging to a full recalc of all of its groups
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
