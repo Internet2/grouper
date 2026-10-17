@@ -83,7 +83,8 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
    */
   public static void ensureDropboxMockTables() {
     try {
-      new edu.internet2.middleware.grouperClient.jdbc.GcDbAccess().sql("select count(*) from mock_dropbox_user").select(int.class);
+      // select the newest column so an older mock table is upgraded (persistent_id added)
+      new edu.internet2.middleware.grouperClient.jdbc.GcDbAccess().sql("select count(persistent_id) from mock_dropbox_user").select(int.class);
       new edu.internet2.middleware.grouperClient.jdbc.GcDbAccess().sql("select count(*) from mock_dropbox_group").select(int.class);
       new edu.internet2.middleware.grouperClient.jdbc.GcDbAccess().sql("select count(*) from mock_dropbox_membership").select(int.class);
     } catch (Exception e) {
@@ -456,7 +457,8 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
 
   /**
    * POST /2/team/members/add_v2. Body {@code {"new_members":[..],"force_async":false}}; each entry
-   * carries member_email / member_given_name / member_surname / member_external_id. Assign a native
+   * carries member_email / member_given_name / member_surname / member_external_id /
+   * member_persistent_id. Assign a native
    * team_member_id of {@code "dbmid:" + uuid} and an account_id, set status active, persist, and
    * return a SYNCHRONOUS {@code {".tag":"complete","complete":[{".tag":"success","success":{"profile":..,"role":..}}]}}.
    */
@@ -492,6 +494,7 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
         user.setGivenName(GrouperUtil.jsonJacksonGetString(newMember, "member_given_name"));
         user.setSurname(GrouperUtil.jsonJacksonGetString(newMember, "member_surname"));
         user.setExternalId(GrouperUtil.jsonJacksonGetString(newMember, "member_external_id"));
+        user.setPersistentId(GrouperUtil.jsonJacksonGetString(newMember, "member_persistent_id"));
         // newly added members are active immediately in this mock
         user.setStatus(DropboxUser.STATUS_ACTIVE);
         HibernateSession.byObjectStatic().save(user);
@@ -519,7 +522,7 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
 
   /**
    * POST /2/team/members/set_profile_v2. Body carries a UserSelectorArg plus new_email /
-   * new_external_id / new_given_name / new_surname. Apply by team_member_id and return the updated
+   * new_external_id / new_persistent_id / new_given_name / new_surname. Apply by team_member_id and return the updated
    * TeamMemberInfoV2 {@code {"profile":TeamMemberProfile}}.
    */
   public void membersSetProfileV2(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -542,6 +545,10 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
     String newExternalId = GrouperUtil.jsonJacksonGetString(body, "new_external_id");
     if (newExternalId != null) {
       user.setExternalId(newExternalId);
+    }
+    String newPersistentId = GrouperUtil.jsonJacksonGetString(body, "new_persistent_id");
+    if (newPersistentId != null) {
+      user.setPersistentId(newPersistentId);
     }
     String newGivenName = GrouperUtil.jsonJacksonGetString(body, "new_given_name");
     if (newGivenName != null) {
@@ -802,6 +809,9 @@ public class DropboxMockServiceHandler extends MockServiceHandler {
     profile.put("email", user.getEmail());
     if (user.getExternalId() != null) {
       profile.put("external_id", user.getExternalId());
+    }
+    if (user.getPersistentId() != null) {
+      profile.put("persistent_id", user.getPersistentId());
     }
     if (user.getAccountId() != null) {
       profile.put("account_id", user.getAccountId());
