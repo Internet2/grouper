@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -85,15 +88,17 @@ public class StemViewPrivilegeLogic {
       return;
     }
     
-    gcDbAccess = new GcDbAccess();
-    gcDbAccess.sql("select count(1) from grouper_stem_view_privilege where member_uuid = ? and stem_uuid = ? and object_type = 'S'");
-    gcDbAccess.addBindVar(memberId);
-    gcDbAccess.addBindVar(stemId);
-    count = gcDbAccess.select(int.class);
-    
+    // check and insert in the caller's hibernate transaction if there is one (e.g. folder create firing a
+    // privilege inheritance rule).  On a separate connection the check misses the uncommitted row the
+    // folder create already inserted, and the insert blocks on the primary key forever (self-deadlock)
+    count = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_stem_view_privilege where member_uuid = ? and stem_uuid = ? and object_type = 'S'",
+        GrouperUtil.toList((Object)memberId, stemId), GrouperUtil.toList((Type)StringType.INSTANCE, StringType.INSTANCE));
+
     if (count == 0) {
-      new GcDbAccess().sql("insert into grouper_stem_view_privilege (member_uuid, stem_uuid, object_type) values (?, ?, 'S')")
-        .addBindVar(memberId).addBindVar(stemId).executeSql();
+      HibernateSession.bySqlStatic().executeSql(
+          "insert into grouper_stem_view_privilege (member_uuid, stem_uuid, object_type) values (?, ?, 'S')",
+          GrouperUtil.toList((Object)memberId, stemId), GrouperUtil.toList((Type)StringType.INSTANCE, StringType.INSTANCE));
       if (this.debugMap != null) {
         GrouperUtil.mapAddValue(this.debugMap, "insertStemPrivilege", 1);
       }

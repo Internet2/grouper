@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -36,7 +38,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new StemViewPrivilegeTest("testPrivilegeAddedByGroupFull"));
+    TestRunner.run(new StemViewPrivilegeTest("testFolderCreateWithInheritedPrivilegeNoDeadlock"));
   }
   
   @Override
@@ -237,6 +239,73 @@ public class StemViewPrivilegeTest extends GrouperTest {
     assertEqualsMultiKey(grouperStemViewPrivilegesExpected, grouperStemViewPrivileges);
     
     assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+
+  }
+
+  /**
+   * Folder create hung forever when the parent folder has a privilege inheritance rule that grants
+   * a folder privilege to the creator.  The stem create transaction inserts the creator's
+   * grouper_stem_view_privilege row (not yet committed), then the rule fires Stem.grantPriv, and
+   * StemViewPrivilegeLogic.addStemPrivilegeIfNeeded inserts the same row on a different connection,
+   * which blocks on the primary key until the first transaction ends, which it never does.
+   * Run the create in another thread so a hang fails the test instead of hanging the JVM.
+   */
+  public void testFolderCreateWithInheritedPrivilegeNoDeadlock() throws Exception {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    Stem stemA = new StemSave().assignName("a").assignCreateParentStemsIfNotExist(true).save();
+
+    stemA.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+
+    // creator inherits folder privileges on new child folders (granted by the rule engine during the create)
+    RuleApi.inheritFolderPrivileges(stemA, Scope.SUB, SubjectTestHelper.SUBJ0,
+        GrouperUtil.toSet(NamingPrivilege.STEM_ATTR_READ));
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    // this user has checked view privileges recently, so view privileges are maintained incrementally for them
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    GrouperSession.stopQuietly(grouperSession);
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+
+    // create the child folder as the user in another thread, the grouper session is thread local
+    final Throwable[] throwable = new Throwable[1];
+    Thread thread = new Thread(new Runnable() {
+
+      @Override
+      public void run() {
+        GrouperSession threadSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+        try {
+          new StemSave().assignName("a:b").save();
+        } catch (Throwable t) {
+          throwable[0] = t;
+        } finally {
+          GrouperSession.stopQuietly(threadSession);
+        }
+      }
+    });
+    // if this hangs, dont keep the JVM alive after the test
+    thread.setDaemon(true);
+    thread.start();
+    thread.join(60000);
+
+    assertFalse("Folder create is hung, deadlock between the stem create transaction and StemViewPrivilegeLogic", thread.isAlive());
+    if (throwable[0] != null) {
+      throw new RuntimeException(throwable[0]);
+    }
+
+    grouperSession = GrouperSession.startRootSession();
+    Stem stemB = StemFinder.findByName(grouperSession, "a:b", true);
+
+    // creator has the inherited privilege and exactly one view privilege row on the new folder
+    assertTrue(stemB.hasStemAttrRead(SubjectTestHelper.SUBJ0));
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege where member_uuid = ? and stem_uuid = ? and object_type = 'S'")
+        .addBindVar(member0.getId()).addBindVar(stemB.getId()).select(int.class).intValue());
 
   }
 
