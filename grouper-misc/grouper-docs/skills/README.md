@@ -78,6 +78,12 @@ the individual skill for the expected path. Never commit tokens.
   piece it needs: the Java classes, configuration, mock service handler, tests,
   base properties, externalized text, Hibernate mappings, and documentation.
 
+- **grouper-accessibility** -- apply and review Grouper UI accessibility (WCAG 2.2
+  AA) standards when writing or reviewing JSPs, grouperUi.js and grouperUi2.css:
+  native buttons vs links, labels and aria, page titles/h1/skip link, ajax
+  messages and focus, contrast, focus ring and target size, plus a PR checklist.
+  Companion to the GrIntDev wiki page "Grouper UI accessibility standards".
+
 ## Contributing
 
 Add a new skill as its own folder with a `SKILL.md`, keep instructions tight

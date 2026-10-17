@@ -47,6 +47,26 @@ a different, frozen thing -- do NOT touch that one. Mind the hostname.
 Related: the Confluence wiki has the same arrangement -- `displayUrlConfluence`
 is `docs.grouper.internet2.edu`. See the grouper-wiki-edit skill.
 
+## Use the grpJira.py tool first
+`grpJira.py` (next to this file) wraps everything below: credentials, ADF
+conversion, assign-to-me on create, and the resolve gotcha. Prefer it over
+hand-built curl. Standard library only; reads ~/.secrets/grouper_confluence.env
+(or $GRP_JIRA_ENV_FILE, or ATLASSIAN_EMAIL / ATLASSIAN_API_TOKEN env vars).
+
+  python3 ~/.claude/skills/grouper-jira/grpJira.py myself
+  python3 ~/.claude/skills/grouper-jira/grpJira.py create --type improvement --summary "..." --file desc.txt
+  python3 ~/.claude/skills/grouper-jira/grpJira.py get GRP-1234 --comments
+  python3 ~/.claude/skills/grouper-jira/grpJira.py edit GRP-1234 --summary "..." --file desc.txt
+  python3 ~/.claude/skills/grouper-jira/grpJira.py comment GRP-1234 "text"
+  python3 ~/.claude/skills/grouper-jira/grpJira.py assign GRP-1234 --me      (or --email x@y.edu)
+  python3 ~/.claude/skills/grouper-jira/grpJira.py transition GRP-1234 "In Progress"
+  python3 ~/.claude/skills/grouper-jira/grpJira.py resolve GRP-1234 --comment "optional"
+
+Descriptions and comments are plain text (blank lines separate paragraphs);
+write longer text to a file in the scratchpad and pass --file. Create assigns to
+the token owner unless --unassigned. The REST details below are reference for
+anything the tool does not cover.
+
 ## Golden rules
 - WRITE (create / transition / comment) via the Jira Cloud REST API with an API
   token, not an MCP server (an institution's Grouper MCP OAuth token often reaches
