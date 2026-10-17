@@ -59,7 +59,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testEntityTargetIdChangeLargeGroupsIncremental"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testEntityTargetIdChangeDeletesMembershipRemovedInGrouperIncremental"));
     
   }
   
@@ -787,6 +787,191 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
         .membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
     assertTrue("retried membership should be in target", retriedMembership.isInTarget());
     assertNull("retried membership error should be cleared", retriedMembership.getErrorCode());
+  }
+
+  /**
+   * GRP-7464: users/{id}/groups is filtered to the groups the provisioner tracks.  A group the user was removed
+   * from in grouper has no grouper membership left, only its sync membership, so it must still be in the tracked
+   * set.  Otherwise the okta membership is filtered out of the user's (fully selected) memberships and is never deleted.
+   *
+   * <p>SUBJ0's okta id changes while the user stays in both groups in okta, and SUBJ0 is removed from
+   * test:testGroup2 in grouper.  An error on the other membership makes the incremental recalc SUBJ0 and detect
+   * the id change.  The test:testGroup2 membership (under the new id) must be deleted.</p>
+   */
+  public void testEntityTargetIdChangeDeletesMembershipRemovedInGrouperIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    // this creates the mock tables
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    String staleUser0Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2();
+    String user1Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2();
+    String group0TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).getGroupAttributeValueCache2();
+    String group1TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).getGroupAttributeValueCache2();
+    assertNotNull(staleUser0Id);
+    assertNotNull(user1Id);
+    assertNotNull(group0TargetId);
+    assertNotNull(group1TargetId);
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId).contains(staleUser0Id));
+
+    // start the incremental consumer so the next change is picked up (its first run only initializes)
+    incrementalProvision(configId);
+
+    // ---- out-of-band: SUBJ0's okta id changes and the user keeps both group memberships under the new id ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUser0Id).executeSql();
+    String freshUser0Id = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUser0Id).addBindVar(staleUser0Id).executeSql();
+    assertTrue(GrouperOktaApiCommands.createOktaMembership("myOkta", group0TargetId, freshUser0Id));
+    assertTrue(GrouperOktaApiCommands.createOktaMembership("myOkta", group1TargetId, freshUser0Id));
+
+    // ---- remove SUBJ0 from test:testGroup2 in grouper (still in okta, its sync membership is still in target) ----
+    testGroup2.deleteMember(SubjectTestHelper.SUBJ0, false);
+
+    // ---- error the test:testGroup membership so the incremental recalcs SUBJ0 and detects the id change ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
+        .getMemberUuidToProvisioningEntityWrapper().get(member0.getId());
+    assertNotNull(provisioningEntityWrapper);
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships());
+
+    Set<String> group0Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId);
+    Set<String> group1Members = GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group1TargetId);
+
+    // still in test:testGroup
+    assertTrue("SUBJ0 should stay in test:testGroup: " + group0Members, group0Members.contains(freshUser0Id));
+    // KEY: removed from test:testGroup2 (the group was in the tracked set via its sync membership)
+    assertFalse("SUBJ0 should be deleted from test:testGroup2: " + group1Members, group1Members.contains(freshUser0Id));
+    // the bystander stays
+    assertTrue("SUBJ1 should stay in test:testGroup2: " + group1Members, group1Members.contains(user1Id));
+  }
+
+  /**
+   * GRP-7464: with deleteMembershipsIfNotExistInGrouper=true and deleteMembershipsOnlyInTrackedGroups=false, a
+   * user target id change must not remove the user from okta groups grouper does not manage (e.g. Everyone or a
+   * directory group), even though users/{id}/groups returns them.
+   */
+  public void testEntityTargetIdChangeKeepsUntrackedMembershipsIncremental() throws IOException {
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput()
+        .addExtraConfig("customizeMembershipCrud", "true")
+        .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "true")
+        .addExtraConfig("deleteMembershipsOnlyInTrackedGroups", "false"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    String configId = "myOktaProvisioner";
+
+    // this creates the mock tables
+    GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    assignOktaProvisioningToStem(configId, stem);
+
+    // full sync before the untracked groups exist (with this config a full sync would remove those memberships)
+    fullProvision(configId);
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    String staleUser0Id = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2();
+    String group0TargetId = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).getGroupAttributeValueCache2();
+    assertNotNull(staleUser0Id);
+    assertNotNull(group0TargetId);
+
+    // ---- out-of-band recreate of SUBJ0 in okta with a new id and no memberships ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership where user_id = ?").addBindVar(staleUser0Id).executeSql();
+    String freshUser0Id = java.util.UUID.randomUUID().toString();
+    new GcDbAccess().connectionName("grouper").sql("update mock_okta_user set id = ? where id = ?").addBindVar(freshUser0Id).addBindVar(staleUser0Id).executeSql();
+
+    // ---- the new okta user is in groups grouper does not manage ----
+    List<String> untrackedOktaGroupIds = new ArrayList<String>();
+    for (String untrackedGroupName : new String[] {"Everyone", "directoryGroupNotManagedByGrouper"}) {
+      GrouperOktaGroup untrackedOktaGroup = new GrouperOktaGroup();
+      untrackedOktaGroup.setName(untrackedGroupName);
+      untrackedOktaGroup.setDescription(untrackedGroupName);
+      untrackedOktaGroup = GrouperOktaApiCommands.createOktaGroup("myOkta", untrackedOktaGroup, null);
+      assertTrue(GrouperOktaApiCommands.createOktaMembership("myOkta", untrackedOktaGroup.getId(), freshUser0Id));
+      untrackedOktaGroupIds.add(untrackedOktaGroup.getId());
+    }
+
+    // ---- error the membership so the incremental recalcs SUBJ0 and detects the id change ----
+    GcGrouperSyncMembership erroredMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+    erroredMembership.setInTarget(false);
+    erroredMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    erroredMembership.setErrorMessage("could not add membership");
+    erroredMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(erroredMembership);
+
+    incrementalProvision(configId, true, true, true);
+
+    // read the provisioner state before this thread makes any more okta calls
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    int untrackedSkipped = GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("oktaUserGroupsUntrackedSkipped"), 0);
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
+        .getMemberUuidToProvisioningEntityWrapper().get(member0.getId());
+    assertNotNull(provisioningEntityWrapper);
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships());
+    assertEquals("the untracked okta groups are filtered out of users/{id}/groups", 2, untrackedSkipped);
+
+    // SUBJ0 is back in its grouper group under the new id
+    assertTrue(GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", group0TargetId).contains(freshUser0Id));
+
+    // KEY: the untracked memberships survive
+    for (String untrackedOktaGroupId : untrackedOktaGroupIds) {
+      assertTrue("untracked okta group membership must not be removed: " + untrackedOktaGroupId,
+          GrouperOktaApiCommands.retrieveOktaGroupMembers("myOkta", untrackedOktaGroupId).contains(freshUser0Id));
+    }
   }
 
   /**

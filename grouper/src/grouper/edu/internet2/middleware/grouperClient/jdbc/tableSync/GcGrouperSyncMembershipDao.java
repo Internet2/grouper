@@ -576,10 +576,6 @@ public class GcGrouperSyncMembershipDao {
   }
 
   /**
-   * 
-   * @param gcGrouperSyncMembership
-   */
-  /**
    * put this instance in the cache (replacing another instance of the same row) so it is the one stored at the end of the run
    * @param gcGrouperSyncMembership
    */
@@ -587,6 +583,10 @@ public class GcGrouperSyncMembershipDao {
     this.internal_membershipCacheAdd(gcGrouperSyncMembership);
   }
 
+  /**
+   * 
+   * @param gcGrouperSyncMembership
+   */
   private void internal_membershipCacheAdd(GcGrouperSyncMembership gcGrouperSyncMembership) {
     if (gcGrouperSyncMembership.getGrouperSyncGroupId() != null && gcGrouperSyncMembership.getGrouperSyncMemberId() != null) {
       this.internalCacheSyncMemberships.put(

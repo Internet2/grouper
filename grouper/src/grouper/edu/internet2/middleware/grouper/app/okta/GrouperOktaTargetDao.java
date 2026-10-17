@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCache;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheSource;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
@@ -54,6 +59,7 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -624,21 +630,97 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
 
       Set<String> groupIds = GrouperOktaApiCommands.retrieveOktaUserGroups(oktaConfiguration.getOktaExternalSystemConfigId(), targetEntityId);
 
+      // users/{id}/groups returns every group the user is in (Everyone, directory / app groups, okta groups
+      // grouper does not manage).  Only keep the groups this provisioner tracks so the compare never sees the
+      // others (and so they are not captured into grouper_prov_mship)
+      Set<String> trackedOktaGroupIds = this.retrieveTrackedOktaGroupIds();
+      Set<String> trackedGroupIdsForUser = new HashSet<String>();
+      int untrackedGroupCount = 0;
+
       for (String groupId : groupIds) {
+        if (!trackedOktaGroupIds.contains(groupId)) {
+          untrackedGroupCount++;
+          continue;
+        }
+        trackedGroupIdsForUser.add(groupId);
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(groupId);
         targetMembership.setProvisioningEntityId(targetEntityId);
         provisioningMemberships.add(targetMembership);
       }
 
+      if (untrackedGroupCount > 0) {
+        Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+        synchronized (debugMap) {
+          GrouperUtil.mapAddValue(debugMap, "oktaUserGroupsUntrackedSkipped", untrackedGroupCount);
+        }
+      }
+
       // generic provisioner sync back: capture (groupId, userId) pairs for this user
       GrouperOktaProvisioningTargetNativeSync.captureMembershipsForUserForCurrentProvisioner(
-          targetEntityId, groupIds);
+          targetEntityId, trackedGroupIdsForUser);
 
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
     }
+  }
+
+  /**
+   * GRP-7464: okta group ids of the groups this provisioner tracks that are loaded in this run: the
+   * translated grouper group's id, the retrieved target group's id, or the target id cached on the sync group
+   * (e.g. a group the user is no longer in in grouper, which is only loaded from its sync membership)
+   * @return the okta group ids
+   */
+  private Set<String> retrieveTrackedOktaGroupIds() {
+
+    Integer groupIdCacheIndex = null;
+    GrouperProvisioningConfigurationAttributeDbCache[] groupAttributeDbCaches =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches();
+    for (int i = 0; i < GrouperUtil.length(groupAttributeDbCaches); i++) {
+      GrouperProvisioningConfigurationAttributeDbCache groupAttributeDbCache = groupAttributeDbCaches[i];
+      if (groupAttributeDbCache != null
+          && groupAttributeDbCache.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target
+          && groupAttributeDbCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute
+          && StringUtils.equals("id", groupAttributeDbCache.getAttributeName())) {
+        groupIdCacheIndex = groupAttributeDbCache.getIndex();
+        break;
+      }
+    }
+
+    Set<String> result = new HashSet<String>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+
+      // a target only group (e.g. Everyone in a full sync) is not tracked
+      if (provisioningGroupWrapper.getGrouperProvisioningGroup() == null && gcGrouperSyncGroup == null) {
+        continue;
+      }
+      if (provisioningGroupWrapper.getGrouperTargetGroup() != null && StringUtils.isNotBlank(provisioningGroupWrapper.getGrouperTargetGroup().getId())) {
+        result.add(provisioningGroupWrapper.getGrouperTargetGroup().getId());
+      }
+      if (provisioningGroupWrapper.getTargetProvisioningGroup() != null && StringUtils.isNotBlank(provisioningGroupWrapper.getTargetProvisioningGroup().getId())) {
+        result.add(provisioningGroupWrapper.getTargetProvisioningGroup().getId());
+      }
+      if (gcGrouperSyncGroup != null && groupIdCacheIndex != null) {
+        String cachedGroupId = null;
+        if (groupIdCacheIndex == 0) {
+          cachedGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache0();
+        } else if (groupIdCacheIndex == 1) {
+          cachedGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache1();
+        } else if (groupIdCacheIndex == 2) {
+          cachedGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache2();
+        } else if (groupIdCacheIndex == 3) {
+          cachedGroupId = gcGrouperSyncGroup.getGroupAttributeValueCache3();
+        }
+        if (StringUtils.isNotBlank(cachedGroupId)) {
+          result.add(cachedGroupId);
+        }
+      }
+    }
+    return result;
   }
 
   private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
