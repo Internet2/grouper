@@ -10,6 +10,7 @@
 
     <property name="email" column="email" />
     <property name="externalId" column="external_id" />
+    <property name="persistentId" column="persistent_id" />
     <property name="givenName" column="given_name" />
     <property name="surname" column="surname" />
     <property name="status" column="status" />
