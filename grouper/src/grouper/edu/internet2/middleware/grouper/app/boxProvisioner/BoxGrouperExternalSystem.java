@@ -119,9 +119,24 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
   public static String retrieveAccessTokenForBoxConfigId(Map<String, Object> debugMap, String configId) {
 
     long now = System.currentTimeMillis();
-    
-    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-    
+
+    String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".publicKeyId");
+
+    String clientId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".clientId");
+
+    // THE CACHE KEY INCLUDES THE CREDENTIALS, not just the config id.  Repointing a box config at
+    // a different app, or rotating its keypair, must not keep serving a token minted for the old
+    // one.  Keyed on the config id alone it did: the change looked like it had no effect, because
+    // calls carried on authenticating as the previous app until the token expired up to an hour
+    // later.  That is very hard to diagnose, since every symptom points at the new app's setup.
+    // Including the credentials makes a config change an ordinary cache miss, so there is no
+    // invalidation step for anyone to forget.  Only the non-secret identifiers are used; the
+    // secret and private key are not put in a cache key, and publicKeyId already changes whenever
+    // the keypair is rotated.
+    String cacheKey = configId + "__" + clientId + "__" + publicKeyId;
+
+    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(cacheKey);
+
     String encryptedBearerToken = null;
     if (expiresOnAndEncryptedBearerToken != null) {
       long expiresOnSeconds = (Long)expiresOnAndEncryptedBearerToken.getKey(0);
@@ -137,15 +152,13 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     
     String authenticationUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".authenticationUrl");
     
-    String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".publicKeyId");
-    
+    // publicKeyId and clientId are read above, since they are part of the cache key
+
     String privateKeyFilePath = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".privateKeyFileName");
     
     String privateKeyString = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".privateKeyContents_0");
     
     String privateKeyPass = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".privateKeyPass");
-    
-    String clientId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".clientId");
     
     String clientSecret = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".clientSecret");
     
@@ -268,7 +281,8 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
     long expiresOn = now/1000 + expiresInSeconds - 5; // subtract 5 seconds just to be safe
     expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
-    configKeyToExpiresOnAndBearerToken.put(configId, expiresOnAndEncryptedBearerToken);
+    // must be the same key the lookup above used, credentials included, or nothing ever hits
+    configKeyToExpiresOnAndBearerToken.put(cacheKey, expiresOnAndEncryptedBearerToken);
     
     return accessToken;
     
