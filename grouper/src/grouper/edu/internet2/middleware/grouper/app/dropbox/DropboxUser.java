@@ -100,7 +100,9 @@ public class DropboxUser {
     final String tableName = "mock_dropbox_user";
 
     try {
-      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+      // probe the newest column too, so a mock table created before persistent_id existed
+      // falls through and gets the missing column added (find-or-create is idempotent)
+      new GcDbAccess().sql("select count(persistent_id) from " + tableName).select(int.class);
     } catch (Exception e) {
       Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
       // id is the native Dropbox team_member_id (e.g. "dbmid:abc123")
@@ -115,6 +117,8 @@ public class DropboxUser {
       // built-in roles) or null for member_only; used by the mock to simulate
       // set_admin_permissions / get_info roles
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "admin_role", Types.VARCHAR, "40", false, false);
+      // persistent_id is the SAML SSO match value (e.g. the ePPN) Dropbox links the account to
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "persistent_id", Types.VARCHAR, "255", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_dbx_user_email_idx", true, "email");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_dbx_user_extid_idx", false, "external_id");
@@ -130,6 +134,13 @@ public class DropboxUser {
 
   /** external_id — Grouper sets this to a stable match key (e.g. pennname) */
   private String externalId;
+
+  /**
+   * persistent_id -- the value Dropbox SAML SSO matches against the configured SAML attribute
+   * (e.g. the ePPN) to link a login to this account.  Written as member_persistent_id on add and
+   * new_persistent_id on set_profile; read back as profile.persistent_id.
+   */
+  private String persistentId;
 
   /** given (first) name */
   private String givenName;
@@ -178,6 +189,14 @@ public class DropboxUser {
 
   public void setExternalId(String externalId) {
     this.externalId = externalId;
+  }
+
+  public String getPersistentId() {
+    return persistentId;
+  }
+
+  public void setPersistentId(String persistentId) {
+    this.persistentId = persistentId;
   }
 
   public String getGivenName() {
@@ -269,6 +288,8 @@ public class DropboxUser {
     dropboxUser.id = GrouperUtil.jsonJacksonGetString(profileNode, "team_member_id");
     dropboxUser.email = GrouperUtil.jsonJacksonGetString(profileNode, "email");
     dropboxUser.externalId = GrouperUtil.jsonJacksonGetString(profileNode, "external_id");
+    // returned as persistent_id on read (it is member_persistent_id / new_persistent_id on write)
+    dropboxUser.persistentId = GrouperUtil.jsonJacksonGetString(profileNode, "persistent_id");
     dropboxUser.accountId = GrouperUtil.jsonJacksonGetString(profileNode, "account_id");
 
     // status is a Dropbox union: { ".tag": "active" }
@@ -316,6 +337,10 @@ public class DropboxUser {
     if (!GrouperUtil.isBlank(this.externalId)) {
       memberNode.put("member_external_id", this.externalId);
     }
+    // set the SAML SSO match value up front so the member can sign in via SSO on first use
+    if (!GrouperUtil.isBlank(this.persistentId)) {
+      memberNode.put("member_persistent_id", this.persistentId);
+    }
     memberNode.put("send_welcome_email", false);
     return memberNode;
   }
@@ -336,6 +361,9 @@ public class DropboxUser {
     }
     if ((fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) && this.externalId != null) {
       bodyNode.put("new_external_id", this.externalId);
+    }
+    if ((fieldNamesToSet == null || fieldNamesToSet.contains("persistentId")) && this.persistentId != null) {
+      bodyNode.put("new_persistent_id", this.persistentId);
     }
     if ((fieldNamesToSet == null || fieldNamesToSet.contains("givenName")) && this.givenName != null) {
       bodyNode.put("new_given_name", this.givenName);
@@ -391,6 +419,9 @@ public class DropboxUser {
     if (this.externalId != null) {
       targetEntity.assignAttributeValue("externalId", this.externalId);
     }
+    if (this.persistentId != null) {
+      targetEntity.assignAttributeValue("persistentId", this.persistentId);
+    }
     if (this.givenName != null) {
       targetEntity.assignAttributeValue("givenName", this.givenName);
     }
@@ -431,6 +462,9 @@ public class DropboxUser {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {
       dropboxUser.setExternalId(targetEntity.retrieveAttributeValueString("externalId"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("persistentId")) {
+      dropboxUser.setPersistentId(targetEntity.retrieveAttributeValueString("persistentId"));
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("givenName")) {
       dropboxUser.setGivenName(targetEntity.retrieveAttributeValueString("givenName"));

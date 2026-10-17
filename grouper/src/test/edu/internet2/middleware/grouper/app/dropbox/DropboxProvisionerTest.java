@@ -213,6 +213,115 @@ public class DropboxProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
+   * persistentId (the SAML SSO match value) at the API level: createDropboxUser sends it as
+   * member_persistent_id, the read path returns it from profile.persistent_id, and
+   * updateDropboxUser sends a change as new_persistent_id.
+   *
+   * <p>Not gated behind {@link #tomcatRunTests()} -- runs against the in-JVM mock external
+   * system like {@link #testDropboxApiCommands()}.</p>
+   */
+  public void testDropboxPersistentIdApi() {
+
+    DropboxProvisionerTestUtils.setupDropboxExternalSystem();
+
+    // ---- create with a persistent id (members/add_v2 member_persistent_id) ----
+    DropboxUser newUser = new DropboxUser();
+    newUser.setEmail("pat@example.com");
+    newUser.setExternalId("12345678");
+    newUser.setPersistentId("pat@example.edu");
+    newUser.setGivenName("Pat");
+    newUser.setSurname("Smith");
+
+    DropboxUser createdUser = DropboxApiCommands.createDropboxUser(CONFIG_ID, newUser);
+    String teamMemberId = createdUser.getId();
+    assertNotNull(teamMemberId);
+
+    // stored in the mock and returned on read as profile.persistent_id
+    assertEquals("pat@example.edu", new GcDbAccess().connectionName("grouper")
+        .sql("select persistent_id from mock_dropbox_user where id = ?").addBindVar(teamMemberId).select(String.class));
+    DropboxUser readBack = DropboxApiCommands.retrieveDropboxUser(CONFIG_ID, "team_member_id", teamMemberId);
+    assertEquals("pat@example.edu", readBack.getPersistentId());
+
+    // the provisioning entity exposes it as the persistentId attribute
+    assertEquals("pat@example.edu", readBack.toProvisioningEntity().retrieveAttributeValueString("persistentId"));
+
+    // ---- update only the persistent id (members/set_profile_v2 new_persistent_id) ----
+    DropboxUser update = new DropboxUser();
+    update.setId(teamMemberId);
+    update.setPersistentId("pat2@example.edu");
+    DropboxApiCommands.updateDropboxUser(CONFIG_ID, update, GrouperUtil.toSet("persistentId"));
+
+    DropboxUser afterUpdate = DropboxApiCommands.retrieveDropboxUser(CONFIG_ID, "team_member_id", teamMemberId);
+    assertEquals("pat2@example.edu", afterUpdate.getPersistentId());
+    // a persistentId-only update must not touch other profile fields
+    assertEquals("pat@example.com", afterUpdate.getEmail());
+    assertEquals("12345678", afterUpdate.getExternalId());
+
+    // ---- a member created without one has no persistent id ----
+    DropboxUser noPid = new DropboxUser();
+    noPid.setEmail("nopid@example.com");
+    noPid.setExternalId("87654321");
+    DropboxUser createdNoPid = DropboxApiCommands.createDropboxUser(CONFIG_ID, noPid);
+    assertNull(DropboxApiCommands.retrieveDropboxUser(CONFIG_ID, "team_member_id", createdNoPid.getId()).getPersistentId());
+  }
+
+  /**
+   * persistentId through the provisioning pipeline: with a persistentId entity attribute
+   * translated from the subject, a full sync creates members with member_persistent_id set, and
+   * when the value in Dropbox drifts, the next full sync puts it back via new_persistent_id.
+   *
+   * <p>Gated behind {@link #tomcatRunTests()} (runs the real provisioning pipeline).</p>
+   */
+  public void testFullSyncPersistentId() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    // add a 4th entity attribute: persistentId = subjectId@example.edu (stands in for an ePPN)
+    DropboxProvisionerTestConfigInput configInput = provisionerConfig()
+        .addExtraConfig("numberOfEntityAttributes", "4")
+        .addExtraConfig("targetEntityAttribute.3.name", "persistentId")
+        .addExtraConfig("targetEntityAttribute.3.translateExpressionType", "translationScript")
+        .addExtraConfig("targetEntityAttribute.3.translateExpression", "${grouperProvisioningEntity.subjectId + '@example.edu'}");
+
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group engineering = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:engineering").save();
+      engineering.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningAttribute(stem);
+
+      fullProvision();
+
+      // created with the translated persistent id
+      String expected = SubjectTestHelper.SUBJ0.getId() + "@example.edu";
+      assertEquals(expected, new GcDbAccess().connectionName("grouper")
+          .sql("select persistent_id from mock_dropbox_user where external_id = ?")
+          .addBindVar(SubjectTestHelper.SUBJ0.getId()).select(String.class));
+
+      // simulate drift in Dropbox (e.g. set by hand or by an old pilot)
+      new GcDbAccess().connectionName("grouper")
+          .sql("update mock_dropbox_user set persistent_id = ? where external_id = ?")
+          .addBindVar("wrong@example.edu").addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+
+      fullProvision();
+
+      // full sync corrected it with set_profile new_persistent_id
+      assertEquals(expected, new GcDbAccess().connectionName("grouper")
+          .sql("select persistent_id from mock_dropbox_user where external_id = ?")
+          .addBindVar(SubjectTestHelper.SUBJ0.getId()).select(String.class));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
    * UC3 recovery: when createDropboxUser re-adds an email already associated with a member (Dropbox's
    * removed-but-recoverable / 7-day-window conflict, which members/add_v2 reports as
    * {@code user_already_on_team}), the API commands recover the account via team/members/recover and

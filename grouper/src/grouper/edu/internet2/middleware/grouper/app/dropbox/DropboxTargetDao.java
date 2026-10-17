@@ -544,7 +544,7 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
   /**
    * Update a Dropbox member's profile and (when managed and changed) its admin role.
    *
-   * <p>Profile fields ({@code email}, {@code externalId}, {@code givenName}, {@code surname}) that
+   * <p>Profile fields ({@code email}, {@code externalId}, {@code persistentId}, {@code givenName}, {@code surname}) that
    * changed are pushed via set_profile_v2. Separately, when admin roles are managed and the
    * {@code adminRole} attribute changed, the role NAME is resolved to a Dropbox {@code role_id} and
    * applied via set_admin_permissions_v2 ({@code member_only}/blank means an empty role list, i.e.
@@ -574,6 +574,7 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
       // push profile changes only if at least one set_profile-managed field changed
       boolean profileChanged = fieldNamesToUpdate.contains("email")
           || fieldNamesToUpdate.contains("externalId")
+          || fieldNamesToUpdate.contains("persistentId")
           || fieldNamesToUpdate.contains("givenName")
           || fieldNamesToUpdate.contains("surname");
       if (profileChanged && StringUtils.isNotBlank(teamMemberId)) {
