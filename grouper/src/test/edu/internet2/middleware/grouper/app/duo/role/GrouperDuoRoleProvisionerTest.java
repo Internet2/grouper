@@ -583,5 +583,14 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("RLMOCKTIER2SUPPORT01", duoRoleMockRoleId("test.subject.2@grouper.com"));
     assertEquals("help_desk", duoRoleMockRoleId("test.subject.1@grouper.com"));
     assertEquals("service_manager", duoRoleMockRoleId("test.subject.0@grouper.com"));
+    
+    // fail closed: move the Administrator to a role Duo rejects (like a custom role name that could not
+    // be resolved), they should end up read_only instead of keeping the higher role
+    Group badRoleGroup = new GroupSave(grouperSession).assignName("test:badRoleGroup").assignDisplayExtension("Not A Duo Role").save();
+    duoRoleProvisionGroup(badRoleGroup, "Read-only");
+    badRoleGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    adminGroup.deleteMember(SubjectTestHelper.SUBJ0);
+    grouperProvisioningOutput = fullProvision("myDuoRoleProvisioner", true);
+    assertEquals("read_only", duoRoleMockRoleId("test.subject.0@grouper.com"));
   }
 }
