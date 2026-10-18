@@ -306,12 +306,14 @@ public class GrouperDuoRoleApiCommands {
   }
 
   /**
-   * create a user
+   * create an administrator
+   * @param configId
    * @param grouperDuoUser
+   * @param roleId Duo role_id (e.g. help_desk or a custom role id), the legacy role param cannot assign custom roles
    * @return the result
    */
   public static GrouperDuoRoleUser createDuoAdministrator(String configId,
-      GrouperDuoRoleUser grouperDuoUser, String roleName) {
+      GrouperDuoRoleUser grouperDuoUser, String roleId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -323,7 +325,7 @@ public class GrouperDuoRoleApiCommands {
 
       Map<String, String> params = GrouperUtil.toMap("name", StringUtils.defaultString(grouperDuoUser.getName()),
           "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
-          "role", roleName);
+          "role_id", roleId);
       if (grouperDuoUser.getSendEmail() == 1) {
         params.put("send_email", "1");
       }
@@ -374,8 +376,9 @@ public class GrouperDuoRoleApiCommands {
         params.put("name", StringUtils.defaultString(grouperDuoUser.getName()));
       }
       
+      // the grouper attribute is named role, but it holds the Duo role_id
       if (fieldsToUpdate == null || fieldsToUpdate.contains("role")) {
-        params.put("role", StringUtils.defaultString(grouperDuoUser.getRole()));
+        params.put("role_id", StringUtils.defaultString(grouperDuoUser.getRole()));
       }
       
 //      if (fieldsToUpdate == null || fieldsToUpdate.contains("realname")) {
@@ -407,6 +410,47 @@ public class GrouperDuoRoleApiCommands {
 
   }
   
+  /**
+   * retrieve the custom admin roles (GET /admin/v1/admin_roles).  The Admin API application needs
+   * "Grant administrators - Read" and "Grant resource - Read"
+   * @param configId
+   * @return custom role id to role name, built-in roles are not included
+   */
+  public static Map<String, String> retrieveDuoCustomAdminRoles(String configId) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveDuoCustomAdminRoles");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      Map<String, String> results = new LinkedHashMap<String, String>();
+
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveDuoCustomAdminRoles", "GET", configId, "/admin_roles",
+          GrouperUtil.toSet(200), new int[] { -1 }, null, null, "v1");
+      
+      ArrayNode rolesArray = (ArrayNode) jsonNode.get("response");
+
+      for (int i = 0; i < (rolesArray == null ? 0 : rolesArray.size()); i++) {
+        JsonNode roleNode = rolesArray.get(i);
+        if (GrouperUtil.jsonJacksonGetBoolean(roleNode, "is_custom", false)) {
+          results.put(GrouperUtil.jsonJacksonGetString(roleNode, "role_id"), GrouperUtil.jsonJacksonGetString(roleNode, "name"));
+        }
+      }
+      debugMap.put("size", GrouperClientUtils.length(results));
+
+      return results;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDuoRoleLog.duoLog(debugMap, startTime);
+    }
+
+  }
+
   public static List<GrouperDuoRoleUser> retrieveDuoAdministrators(String configId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();

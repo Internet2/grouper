@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.app.duo.role;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,6 +107,53 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
   
   private static boolean mockTablesThere = false;
   
+  /**
+   * custom admin roles the mock Duo has, role id to name (built-in roles come from GrouperDuoRoleResolver)
+   */
+  public static final Map<String, String> MOCK_CUSTOM_ROLE_ID_TO_NAME;
+  
+  static {
+    Map<String, String> customRoles = new LinkedHashMap<String, String>();
+    customRoles.put("RLMOCKTIER2SUPPORT01", "Tier 2 Support");
+    customRoles.put("RLMOCKAUDITOR0000001", "Auditor");
+    MOCK_CUSTOM_ROLE_ID_TO_NAME = Collections.unmodifiableMap(customRoles);
+  }
+  
+  /**
+   * resolver that knows the built-in roles and the mock custom roles, used to validate role_id and 
+   * to return the role name like Duo does
+   * @return the resolver
+   */
+  private static GrouperDuoRoleResolver mockRoleResolver() {
+    GrouperDuoRoleResolver grouperDuoRoleResolver = new GrouperDuoRoleResolver(null, null);
+    grouperDuoRoleResolver.assignCustomRoles(MOCK_CUSTOM_ROLE_ID_TO_NAME);
+    return grouperDuoRoleResolver;
+  }
+  
+  /**
+   * resolve the role_id param (or legacy role param, built-in names only like Duo) to a known role id
+   * @param mockServiceRequest
+   * @return the role id, or null if the role is not valid or not passed in
+   */
+  private static String mockRoleIdFromRequest(MockServiceRequest mockServiceRequest) {
+    String roleId = mockServiceRequest.getHttpServletRequest().getParameter("role_id");
+    String role = mockServiceRequest.getHttpServletRequest().getParameter("role");
+    GrouperDuoRoleResolver grouperDuoRoleResolver = mockRoleResolver();
+    if (StringUtils.isNotBlank(roleId)) {
+      // role ids are case sensitive and must exist
+      return grouperDuoRoleResolver.roleName(roleId) == null ? null : roleId;
+    }
+    if (StringUtils.isNotBlank(role)) {
+      // the legacy role param only supports built-in role names, not custom roles
+      for (String builtInRoleId : GrouperDuoRoleResolver.BUILT_IN_ROLE_ID_TO_NAME.keySet()) {
+        if (StringUtils.equals(GrouperDuoRoleResolver.BUILT_IN_ROLE_ID_TO_NAME.get(builtInRoleId), role)) {
+          return builtInRoleId;
+        }
+      }
+    }
+    return null;
+  }
+  
   @Override
   public void handleRequest(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     
@@ -138,6 +187,10 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
       }
       if ("admins".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         getAdmin(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("admin_roles".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
+        getAdminRoles(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -182,6 +235,20 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     ensureDuoRoleMockTables();
   }
   
+  /**
+   * return 401 with the reason in the body, so the caller's exception says why auth failed
+   * (e.g. integration key or hmac mismatch, or mock config missing in this JVM)
+   * @param mockServiceRequest
+   * @param mockServiceResponse
+   * @param e
+   */
+  private static void unauthorized(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse, Exception e) {
+    mockServiceRequest.getDebugMap().put("authError", e.getMessage());
+    mockServiceResponse.setResponseCode(401);
+    mockServiceResponse.setContentType("text/plain");
+    mockServiceResponse.setResponseBody("Mock Duo auth failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+  }
+
   public void checkAuthorization(MockServiceRequest mockServiceRequest) {
     String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
     if (!bearerToken.startsWith("Basic ")) {
@@ -262,7 +329,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
       return;
     }
 
@@ -325,7 +392,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
       return;
     }
 
@@ -363,7 +430,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
       return;
     }
 
@@ -381,7 +448,8 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
       return;
     }
     
-    String role = mockServiceRequest.getHttpServletRequest().getParameter("role");
+    // role_id (or legacy built-in role name), Duo defaults to owner but require it so a missing role is caught
+    String role = mockRoleIdFromRequest(mockServiceRequest);
     
     if (StringUtils.isBlank(role)) {
       mockServiceResponse.setResponseCode(400);
@@ -427,7 +495,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
       return;
     }
 
@@ -452,8 +520,14 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     
     String name = mockServiceRequest.getHttpServletRequest().getParameter("name");
     String email = mockServiceRequest.getHttpServletRequest().getParameter("email");
-    String role = mockServiceRequest.getHttpServletRequest().getParameter("role");
-    
+    boolean rolePassedIn = StringUtils.isNotBlank(mockServiceRequest.getHttpServletRequest().getParameter("role_id"))
+        || StringUtils.isNotBlank(mockServiceRequest.getHttpServletRequest().getParameter("role"));
+    String role = mockRoleIdFromRequest(mockServiceRequest);
+    if (rolePassedIn && StringUtils.isBlank(role)) {
+      mockServiceRequest.getDebugMap().put("invalidRole", true);
+      mockServiceResponse.setResponseCode(400);
+      return;
+    }
     
     GrouperDuoRoleUser grouperDuoRoleUser = grouperDuoRoleUsers.get(0);
 
@@ -587,11 +661,56 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     
   }
 
+  /**
+   * GET /admin/v1/admin_roles, the built-in roles plus the mock custom roles
+   * @param mockServiceRequest
+   * @param mockServiceResponse
+   */
+  public void getAdminRoles(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    
+    try {      
+      checkAuthorization(mockServiceRequest);
+    } catch (Exception e) {
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
+      return;
+    }
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+    resultNode.put("stat", "OK");
+    
+    for (String roleId : GrouperDuoRoleResolver.BUILT_IN_ROLE_ID_TO_NAME.keySet()) {
+      valueNode.add(toRoleJson(roleId, GrouperDuoRoleResolver.BUILT_IN_ROLE_ID_TO_NAME.get(roleId), false));
+    }
+    for (String roleId : MOCK_CUSTOM_ROLE_ID_TO_NAME.keySet()) {
+      valueNode.add(toRoleJson(roleId, MOCK_CUSTOM_ROLE_ID_TO_NAME.get(roleId), true));
+    }
+    resultNode.set("response", valueNode);
+    
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+  
+  /**
+   * @param roleId
+   * @param name
+   * @param isCustom
+   * @return the role json like Duo returns it
+   */
+  private static ObjectNode toRoleJson(String roleId, String name, boolean isCustom) {
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
+    GrouperUtil.jsonJacksonAssignString(result, "role_id", roleId);
+    GrouperUtil.jsonJacksonAssignString(result, "name", name);
+    result.put("is_custom", isCustom);
+    return result;
+  }
+
   public void deleteAdmins(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
+      unauthorized(mockServiceRequest, mockServiceResponse, e);
       return;
     }
 
@@ -627,7 +746,9 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
   
     GrouperUtil.jsonJacksonAssignString(result, "email", grouperDuoRoleUser.getEmail());
     GrouperUtil.jsonJacksonAssignString(result, "name", grouperDuoRoleUser.getName());
-    GrouperUtil.jsonJacksonAssignString(result, "role", grouperDuoRoleUser.getRole());
+    // the mock stores the role id, Duo returns both the legacy role name and the role_id
+    GrouperUtil.jsonJacksonAssignString(result, "role", mockRoleResolver().roleName(grouperDuoRoleUser.getRole()));
+    GrouperUtil.jsonJacksonAssignString(result, "role_id", grouperDuoRoleUser.getRole());
     GrouperUtil.jsonJacksonAssignString(result, "admin_id", grouperDuoRoleUser.getId());
     
     return result;
