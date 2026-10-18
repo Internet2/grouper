@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.duo.role;
 import java.util.Collection;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningValidationIssue;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -32,5 +34,27 @@ public class DuoRoleProvisoningConfigurationValidation extends GrouperProvisioni
     return true;
   }
 
+
+  /**
+   * also validate the role priority JSON so a typo shows on save instead of failing the sync
+   */
+  @Override
+  public void validateFromSuffixValueMap() {
+    super.validateFromSuffixValueMap();
+    validateRolePriority();
+  }
+
+  /**
+   * rolePriority must be a JSON object of role id or name to integer priority
+   */
+  public void validateRolePriority() {
+    try {
+      GrouperDuoRoleResolver.parseRolePriorityJson(this.getSuffixToConfigValue().get("rolePriority"));
+    } catch (RuntimeException re) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(
+          GrouperTextContainer.textOrNull("provisioning.configuration.validation.duoRolePriorityInvalid") + " " + re.getMessage())
+          .assignJqueryHandle("rolePriority"));
+    }
+  }
 
 }

@@ -30,6 +30,10 @@ public class GrouperDuoRoleUser {
   
   private String name;
   
+  /** 
+   * Duo role_id, e.g. help_desk, service_manager (Administrator), or a custom role id.  
+   * The legacy role name is only used if Duo does not return a role_id
+   */
   private String role;
   
   private String id; // admin_id
@@ -98,7 +102,8 @@ public class GrouperDuoRoleUser {
         roles.add(GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get("role").getDefaultValue());
       }
       
-      grouperDuoUser.setRole(GrouperDuoRoleProvisioner.pickHighestPriorityRoleName(roles));
+      // values can be role ids or names, this resolves them to role ids and picks by priority
+      grouperDuoUser.setRole(GrouperDuoRoleResolver.retrieveCurrent().pickHighestPriorityRoleId(roles));
     }
     
     return grouperDuoUser;
@@ -162,7 +167,14 @@ public class GrouperDuoRoleUser {
   public static GrouperDuoRoleUser fromJson(JsonNode entityNode) {
     GrouperDuoRoleUser grouperDuoRoleUser = new GrouperDuoRoleUser();
     
-    grouperDuoRoleUser.role = GrouperUtil.jsonJacksonGetString(entityNode, "role");
+    // compare on role_id, fall back to resolving the legacy role name if role_id is not returned
+    grouperDuoRoleUser.role = GrouperUtil.jsonJacksonGetString(entityNode, "role_id");
+    if (StringUtils.isBlank(grouperDuoRoleUser.role)) {
+      grouperDuoRoleUser.role = GrouperDuoRoleResolver.retrieveCurrent().resolveRoleId(GrouperUtil.jsonJacksonGetString(entityNode, "role"));
+    } else {
+      // e.g. integration_manager -> application_manager
+      grouperDuoRoleUser.role = GrouperDuoRoleResolver.retrieveCurrent().resolveRoleId(grouperDuoRoleUser.role);
+    }
     grouperDuoRoleUser.name = GrouperUtil.jsonJacksonGetString(entityNode, "name");
     grouperDuoRoleUser.email = GrouperUtil.jsonJacksonGetString(entityNode, "email");
     grouperDuoRoleUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "admin_id");

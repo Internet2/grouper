@@ -147,13 +147,14 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       
       String memberId = grouperTargetEntity.getProvisioningEntityWrapper().getGrouperProvisioningEntity().getId();
 
-      Set<String> possibleRoleNames = (Set<String>)(Object)grouperTargetEntity.retrieveAttributeValueSet("role");
-      if (GrouperUtil.length(possibleRoleNames) == 0) {
-        possibleRoleNames = GrouperUtil.toSet("Read-only");
+      // role ids or names, resolved to the highest priority role id
+      Set<String> possibleRoles = (Set<String>)(Object)grouperTargetEntity.retrieveAttributeValueSet("role");
+      if (GrouperUtil.length(possibleRoles) == 0) {
+        possibleRoles = GrouperUtil.toSet("read_only");
       }
-      String roleNameToBeSet = GrouperDuoRoleProvisioner.pickHighestPriorityRoleName(possibleRoleNames);
+      String roleIdToBeSet = ((GrouperDuoRoleProvisioner)this.getGrouperProvisioner()).retrieveDuoRoleResolver().pickHighestPriorityRoleId(possibleRoles);
       GrouperDuoRoleUser createdDuoUser = GrouperDuoRoleApiCommands.createDuoAdministrator(
-          duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, roleNameToBeSet);
+          duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, roleIdToBeSet);
 
       grouperTargetEntity.setId(createdDuoUser.getId());
       grouperTargetEntity.setProvisioned(true);

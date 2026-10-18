@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
-import java.util.Collection;
-
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeManipulation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
@@ -9,9 +7,13 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.util.GrouperUtil; 
 
+/**
+ * Duo admin role provisioner: provisions Duo administrators and their admin role (role_id) based on
+ * which role groups they are in
+ */
 public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   
   
@@ -49,37 +51,26 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
     return DuoRoleSyncObjectMetadata.class;
   }
 
-  public static String pickHighestPriorityRoleName(Collection<String> roleNames) {
-    
-    if (GrouperUtil.length(roleNames) == 0 || (roleNames.size() == 1 && roleNames.iterator().next() == null)) {
-      return null;
-    }
-    
-    roleNames = GrouperUtil.nonNull(roleNames);
-    if (roleNames.contains("Owner")) {
-      return "Owner";
-    } else if (roleNames.contains("Administrator")) {
-      return "Administrator";
-    } else if (roleNames.contains("Application Manager")) {
-      return "Application Manager";
-    } else if (roleNames.contains("User Manager")) {
-      return "User Manager";
-    } else if (roleNames.contains("Security Analyst")) {
-      return "Security Analyst";
-    } else if (roleNames.contains("Help Desk")) {
-      return "Help Desk";
-    } else if (roleNames.contains("Billing")) {
-      return "Billing";
-//    } else if (roleNames.contains("Phishing Manager")) {
-//      return "Phishing Manager";
-    } else if (roleNames.contains("Read-only")) {
-      return "Read-only";
-    }
-        
-    throw new RuntimeException("Invalid role names: " + GrouperUtil.toStringForLog(roleNames));
+  @Override
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+    return GrouperDuoRoleTranslator.class;
   }
-  
-  
-  
+
+  /**
+   * resolves role names and ids to Duo role_id values, and caches custom roles for this run
+   */
+  private GrouperDuoRoleResolver grouperDuoRoleResolver = null;
+
+  /**
+   * @return the role resolver for this provisioner run
+   */
+  public GrouperDuoRoleResolver retrieveDuoRoleResolver() {
+    if (this.grouperDuoRoleResolver == null) {
+      GrouperDuoRoleConfiguration duoRoleConfiguration = (GrouperDuoRoleConfiguration)this.retrieveGrouperProvisioningConfiguration();
+      this.grouperDuoRoleResolver = new GrouperDuoRoleResolver(duoRoleConfiguration.getDuoExternalSystemConfigId(), 
+          duoRoleConfiguration.getRolePriority());
+    }
+    return this.grouperDuoRoleResolver;
+  }
 
 }
