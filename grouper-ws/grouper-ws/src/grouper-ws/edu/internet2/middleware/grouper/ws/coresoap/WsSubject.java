@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -24,10 +25,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -276,6 +280,19 @@ public class WsSubject implements Comparable<WsSubject> {
      }
    }
 
+  /** client version where subject attribute values are multivalued and encoded (GRP-5430) */
+  private static final GrouperVersion MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION = GrouperVersion.valueOfIgnoreCase("v7_9_000");
+
+  /**
+   * if the client version gets all values of multivalued subject attributes, encoded with
+   * GrouperClientUtils.wsSubjectAttributeValuesEncode (GRP-5430).  If no client version (not a WS request), then no
+   * @return true if encoding
+   */
+  static boolean encodeMultivaluedAttributeValues() {
+    GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    return clientVersion != null && clientVersion.greaterOrEqualToArg(MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION);
+  }
+
   /**
    * assign subject data
    * @param subject to assign from , can be null
@@ -327,28 +344,48 @@ public class WsSubject implements Comparable<WsSubject> {
     // if getting the subject data (extra queries)
     if (attributesLength > 0) {
 
+      // GRP-5430: client version v7_9_000+ gets all values of multivalued attributes, encoded (see
+      // GrouperClientUtils.wsSubjectAttributeValuesEncode), older clients get the first value unencoded as before
+      boolean encodeMultivalued = encodeMultivaluedAttributeValues();
+
       //extended means add description or name (or custom)
       this.attributeValues = new String[attributesLength];
       int index = 0;
       for (String attributeName : subjectAttributeNames) {
+        String attributeValue = null;
+        Set<String> multipleValues = null;
+        if (encodeMultivalued) {
+          // sort so the order is the same each call (sources often store values in a HashSet)
+          multipleValues = new TreeSet<String>();
+          for (String value : GrouperUtil.nonNull(subject.getAttributeValues(attributeName))) {
+            if (value != null) {
+              multipleValues.add(value);
+            }
+          }
+        } else {
+          attributeValue = subject.getAttributeValue(attributeName);
+        }
+
+        // type, description, and name might be in getter (note, this might go away in next subject api)
+        boolean noValue = encodeMultivalued ? multipleValues.size() == 0 : StringUtils.isBlank(attributeValue);
+        if (noValue) {
+          if (StringUtils.equals(TYPE, attributeName)) {
+            attributeValue = subject.getType().getName();
+          } else if (StringUtils.equals(DESCRIPTION, attributeName)) {
+            attributeValue = subject.getDescription();
+          } else if (StringUtils.equals(NAME, attributeName)) {
+            attributeValue = subject.getName();
+          }
+          if (encodeMultivalued && attributeValue != null) {
+            multipleValues.add(attributeValue);
+          }
+        }
+        if (encodeMultivalued) {
+          attributeValue = GrouperClientUtils.wsSubjectAttributeValuesEncode(multipleValues);
+        }
+
         //NOTE: dont send nulls, it might mess up XML, only send empty string if not there
-        this.attributeValues[index] = StringUtils.defaultString(subject.getAttributeValue(attributeName));
-        //type might be in getter
-        if (StringUtils.equals(TYPE, attributeName)
-            && StringUtils.isBlank(this.attributeValues[index])) {
-          //note, this might go away in next subject api
-          this.attributeValues[index] = StringUtils.defaultString(subject.getType().getName());
-        }
-        if (StringUtils.equals(DESCRIPTION, attributeName)
-            && StringUtils.isBlank(this.attributeValues[index])) {
-          //note, this might go away in next subject api
-          this.attributeValues[index] = StringUtils.defaultString(subject.getDescription());
-        }
-        if (StringUtils.equals(NAME, attributeName)
-            && StringUtils.isBlank(this.attributeValues[index])) {
-          //note, this might go away in next subject api
-          this.attributeValues[index] = StringUtils.defaultString(subject.getName());
-        }
+        this.attributeValues[index] = StringUtils.defaultString(attributeValue);
         index++;
       }
     }

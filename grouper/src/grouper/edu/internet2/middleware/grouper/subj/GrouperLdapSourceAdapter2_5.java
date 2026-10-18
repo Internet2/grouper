@@ -94,8 +94,12 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
     }
     
     String multivaluedLdapAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".multivaluedLdapAttributes");
-    Set<String> multivaluedLdapAttributesSet = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(multivaluedLdapAttributes, ","));
-    
+    Set<String> multivaluedLdapAttributesSet = new HashSet<String>();
+    // GRP-5430: ldap attribute names are lowercased below, so lowercase the config too (e.g. eduPersonAffiliation)
+    for (String multivaluedLdapAttribute : GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(multivaluedLdapAttributes, ","))) {
+      multivaluedLdapAttributesSet.add(multivaluedLdapAttribute.toLowerCase());
+    }
+
     for (LdapAttribute attribute: GrouperUtil.nonNull(entry.getAttributes())) {
       String attributeName = attribute.getName().toLowerCase();
       
