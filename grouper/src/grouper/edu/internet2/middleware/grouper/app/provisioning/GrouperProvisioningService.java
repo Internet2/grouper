@@ -614,7 +614,9 @@ public class GrouperProvisioningService {
     if (one == null && two == null) return false;
     if (one == null || two == null) return true;
     
-    if (!StringUtils.equals(StringUtils.defaultIfBlank(one.getStemScopeString(), "sub"), StringUtils.defaultIfBlank(two.getStemScopeString(), "sub"))) {
+    // compare the raw scope, a blank scope is not the same as sub since calculateProvisioningAttributes treats blank like one,
+    // so re-saving a blank scope folder as sub needs to write sub (GRP-7498)
+    if (!StringUtils.equalsIgnoreCase(StringUtils.defaultString(one.getStemScopeString()), StringUtils.defaultString(two.getStemScopeString()))) {
       return true;
     }
     

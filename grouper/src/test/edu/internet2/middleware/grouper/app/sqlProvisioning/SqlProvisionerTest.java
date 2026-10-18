@@ -6509,4 +6509,161 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(4, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
   }
   
+  /**
+   * GRP-7498: a do not provision folder saved with a blank scope (the UI hid the folder scope for do not
+   * provision from 2022 until GRP-7498) is treated like scope one by the provisioning calculation, so groups
+   * deeper than its direct children still inherit provisioning from a provisioned ancestor.  Re-saving the
+   * folder with scope sub (the UI default now) has to write sub, and then those groups are removed.
+   *
+   * <pre>
+   * test                       provision, scope sub
+   *   test:g0                  provisioned
+   *   test:dnpBlank            do not provision, blank scope
+   *     test:dnpBlank:g1       not provisioned (direct child)
+   *     test:dnpBlank:sub:g2   provisioned until the folder is re-saved with scope sub
+   *   test:dnpSub              do not provision, scope sub
+   *     test:dnpSub:g3         not provisioned
+   *     test:dnpSub:sub:g4     not provisioned
+   * </pre>
+   */
+  public void testDoNotProvisionFolderScope() {
+
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+    );
+
+    Stem test = new StemSave(this.grouperSession).assignName("test").save();
+    Stem dnpBlank = new StemSave(this.grouperSession).assignName("test:dnpBlank").save();
+    Stem dnpSub = new StemSave(this.grouperSession).assignName("test:dnpSub").save();
+
+    // one group at each level, each with a member so it shows up in the membership table
+    for (String groupName : new String[] {"test:g0", "test:dnpBlank:g1", "test:dnpBlank:sub:g2",
+        "test:dnpSub:g3", "test:dnpSub:sub:g4"}) {
+      Group group = new GroupSave(this.grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+    }
+
+    assertTrue(saveFolderProvisioningSettings(test, "sqlProvTest", "sub", null));
+    assertTrue(saveFolderProvisioningSettings(dnpBlank, null, null, null));
+    assertTrue(saveFolderProvisioningSettings(dnpSub, null, "sub", null));
+
+    fullProvision();
+
+    Set<String> provisionedGroupNames = retrieveProvisionedGroupNamesMship0();
+
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:g0"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpBlank:g1"));
+    // blank scope only covers the direct children, so this inherits from the test folder
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpBlank:sub:g2"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpSub:g3"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpSub:sub:g4"));
+
+    // re-save like the UI does with the folder scope dropdown on its default, blank to sub must be a change and get written
+    assertTrue(saveFolderProvisioningSettings(dnpBlank, null, "sub", null));
+    assertEquals("sub", GrouperProvisioningService.getProvisioningAttributeValue(dnpBlank, "sqlProvTest").getStemScopeString());
+
+    // saving the same thing again is not a change
+    assertFalse(saveFolderProvisioningSettings(dnpBlank, null, "sub", null));
+
+    fullProvision();
+
+    provisionedGroupNames = retrieveProvisionedGroupNamesMship0();
+
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:g0"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpBlank:g1"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("test:dnpBlank:sub:g2"));
+  }
+
+  /**
+   * GRP-7339: provisioning folder regex override looked like it overrode a direct do not provision on a subfolder.
+   * It is the blank scope from GRP-7498: deeper than a direct child the blank scope folder is skipped, and the
+   * ancestor (with the regex) applies.  With scope sub the do not provision wins.
+   *
+   * <pre>
+   * app:google                                             provision, scope sub, regex override groupExtension matches ^authorized$
+   *   app:google:other:authorized                          provisioned
+   *   app:google:grouper                                   do not provision, blank scope
+   *     app:google:grouper:authorized                      not provisioned (direct child)
+   *     app:google:grouper:directory:admins:authorized     provisioned until the folder is re-saved with scope sub
+   *   app:google:grouperSub                                do not provision, scope sub
+   *     app:google:grouperSub:directory:admins:authorized  not provisioned
+   * </pre>
+   */
+  public void testDoNotProvisionFolderScopeWithRegexOverride() {
+
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+        .addExtraConfig("allowProvisionableRegexOverride", "true")
+    );
+
+    Stem google = new StemSave(this.grouperSession).assignName("app:google").assignCreateParentStemsIfNotExist(true).save();
+    Stem grouper = new StemSave(this.grouperSession).assignName("app:google:grouper").save();
+    Stem grouperSub = new StemSave(this.grouperSession).assignName("app:google:grouperSub").save();
+
+    for (String groupName : new String[] {"app:google:other:authorized", "app:google:grouper:authorized",
+        "app:google:grouper:directory:admins:authorized", "app:google:grouperSub:directory:admins:authorized"}) {
+      Group group = new GroupSave(this.grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+    }
+
+    // app:google only provisions groups named authorized, as a folder override
+    Map<String, Object> metadata = new HashMap<String, Object>();
+    metadata.put("md_grouper_allowProvisionableRegexOverride", "groupExtension matches ^authorized$");
+    assertTrue(saveFolderProvisioningSettings(google, "sqlProvTest", "sub", metadata));
+
+    assertTrue(saveFolderProvisioningSettings(grouper, null, null, null));
+    assertTrue(saveFolderProvisioningSettings(grouperSub, null, "sub", null));
+
+    fullProvision();
+
+    Set<String> provisionedGroupNames = retrieveProvisionedGroupNamesMship0();
+
+    // the regex override on app:google works
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:other:authorized"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:grouper:authorized"));
+    // blank scope: app:google and its regex apply
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:grouper:directory:admins:authorized"));
+    // scope sub: the do not provision wins over the regex
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:grouperSub:directory:admins:authorized"));
+
+    // re-save like the UI does now
+    assertTrue(saveFolderProvisioningSettings(grouper, null, "sub", null));
+
+    fullProvision();
+
+    provisionedGroupNames = retrieveProvisionedGroupNamesMship0();
+
+    assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:other:authorized"));
+    assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:grouper:directory:admins:authorized"));
+  }
+
+  /**
+   * save direct provisioning settings on a folder for sqlProvTest, the same call the UI makes
+   * @param stem
+   * @param doProvision sqlProvTest to provision, null for do not provision
+   * @param stemScope sub, one, or null to leave it blank
+   * @param metadata folder metadata, or null for none
+   * @return true if something changed
+   */
+  private static boolean saveFolderProvisioningSettings(Stem stem, String doProvision, String stemScope, Map<String, Object> metadata) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(doProvision);
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString(stemScope);
+    attributeValue.setMetadataNameValues(metadata);
+    return GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  }
+
+  /**
+   * @return the distinct group names in testgrouper_prov_mship0
+   */
+  private static Set<String> retrieveProvisionedGroupNamesMship0() {
+    return new HashSet<String>(new GcDbAccess().sql("select distinct group_name from testgrouper_prov_mship0").selectList(String.class));
+  }
+
 }

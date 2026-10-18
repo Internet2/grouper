@@ -54,10 +54,9 @@
                             </td>
                           </tr> 
                           
+                          <%-- show folder scope for provision and do not provision, a do not provision with a blank scope only applies to the direct children --%>
                           <c:if test="${ObjectType == 'Folder' }">
-                          
-                           <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision}">
-                           
+
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisioningStemScopeId">${textContainer.text['provisioningStemScopeLabel']}</label></strong></td>
                               <td>
@@ -69,9 +68,7 @@
                                 <span class="description">${textContainer.text['provisioningStemScopeHint']}</span>
                               </td>
                             </tr>
-                           
-                           </c:if>
-                          
+
                           </c:if>
                           
                           <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision}">
