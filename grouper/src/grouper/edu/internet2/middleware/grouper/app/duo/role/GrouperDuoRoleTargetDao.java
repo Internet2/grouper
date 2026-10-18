@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -31,6 +32,9 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperDuoRoleTargetDao.class);
 
   @Override
   public boolean loggingStart() {
@@ -113,7 +117,13 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       GrouperDuoRoleUser grouperDuoUser = GrouperDuoRoleUser.fromProvisioningEntity(targetEntity, null);
-      GrouperDuoRoleApiCommands.updateDuoAdministrator(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, fieldNamesToUpdate);
+      try {
+        GrouperDuoRoleApiCommands.updateDuoAdministrator(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, fieldNamesToUpdate);
+      } catch (RuntimeException re) {
+        failClosedToReadOnly(duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, fieldNamesToUpdate, re);
+        // still an error on this admin so it is visible and retried
+        throw re;
+      }
 
       targetEntity.setProvisioned(true);
 
@@ -134,6 +144,39 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
+  /**
+   * Fail closed: if a role change was rejected (e.g. a custom role name could not be resolved because
+   * GET /admin/v1/admin_roles failed, so Duo got an invalid role_id), the administrator would otherwise
+   * keep their previous, possibly higher, role.  Set them to read_only instead.  If that fails too, the
+   * original error is still thrown by the caller.
+   * @param duoExternalSystemConfigId
+   * @param grouperDuoUser
+   * @param fieldNamesToUpdate
+   * @param originalException
+   */
+  private void failClosedToReadOnly(String duoExternalSystemConfigId, GrouperDuoRoleUser grouperDuoUser, 
+      Set<String> fieldNamesToUpdate, RuntimeException originalException) {
+    
+    if (fieldNamesToUpdate != null && !fieldNamesToUpdate.contains("role")) {
+      return;
+    }
+    if (StringUtils.isBlank(grouperDuoUser.getId()) || StringUtils.equals("read_only", grouperDuoUser.getRole())) {
+      return;
+    }
+    String rejectedRole = grouperDuoUser.getRole();
+    try {
+      GrouperDuoRoleUser readOnlyDuoUser = new GrouperDuoRoleUser();
+      readOnlyDuoUser.setId(grouperDuoUser.getId());
+      readOnlyDuoUser.setRole("read_only");
+      GrouperDuoRoleApiCommands.updateDuoAdministrator(duoExternalSystemConfigId, readOnlyDuoUser, GrouperUtil.toSet("role"));
+      LOG.error("Duo admin '" + grouperDuoUser.getEmail() + "' (" + grouperDuoUser.getId() + ") role update to '" 
+          + rejectedRole + "' failed, set to read_only (fail closed)", originalException);
+    } catch (RuntimeException re2) {
+      LOG.error("Duo admin '" + grouperDuoUser.getEmail() + "' (" + grouperDuoUser.getId() + ") role update to '" 
+          + rejectedRole + "' failed, and setting read_only also failed", re2);
+    }
+  }
+
   @Override
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
     long startNanos = System.nanoTime();

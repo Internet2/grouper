@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.morphString.Morph;
 
@@ -266,7 +267,13 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(colonIndex != -1, "Need to pass in integrationKey and password in Authorization header");
     String integrationKey = credentials.substring(0, colonIndex).trim();
     
-    String configId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.duo.mock.configId");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.duo.mock.configId");
+    if (StringUtils.isBlank(configId)) {
+      // the test stores this in the database config just before calling the mock, and this (separate)
+      // JVM can still have config cached from before that, so refresh once
+      ConfigPropertiesCascadeBase.clearCache();
+      configId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.duo.mock.configId");
+    }
     String expectedIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminIntegrationKey");
     String adminDomainName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminDomainName");
     if (!StringUtils.equals(expectedIntegrationKey, integrationKey)) {
