@@ -656,7 +656,47 @@ public class GrouperServiceJ2ee implements Filter {
   public static Map<String, Object> retrieveDebugMap() {
     return GrouperWsRequestContext.retrieveDebugMap();
   }
-  
+
+  /**
+   * request attribute the tomcat access log valve reads with %{grouperRemoteUser}r (the container
+   * pattern uses it since %u is not set for bearer token or grouper db basic auth).  the UI sets it
+   * in GrouperUiFilter, this sets it for WS and MCP
+   */
+  public static final String GROUPER_REMOTE_USER_ATTRIBUTE = "grouperRemoteUser";
+
+  /**
+   * assign the remote user request attribute for the tomcat access log if it is not already set.
+   * the access log valve runs after the filter chain returns, so this is called at the end of the
+   * request once WS or MCP has authenticated the caller.  uses the REMOTE_USER request attribute
+   * (set for JWT, OIDC, OAuth, basic auth, etc), then the container remote user or principal
+   * @param httpServletRequest request
+   */
+  public static void assignRemoteUserForAccessLog(HttpServletRequest httpServletRequest) {
+    // never let access log bookkeeping break a request
+    try {
+      if (httpServletRequest == null
+          || httpServletRequest.getAttribute(GROUPER_REMOTE_USER_ATTRIBUTE) != null) {
+        return;
+      }
+      String remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+      // token auth (JWT, OIDC, OAuth) sets sourceId::::subjectId, just log the subjectId so it reads like the UI
+      if (StringUtils.contains(remoteUser, "::::")) {
+        remoteUser = GrouperUtil.prefixOrSuffix(remoteUser, "::::", false);
+      }
+      if (StringUtils.isBlank(remoteUser)) {
+        remoteUser = httpServletRequest.getRemoteUser();
+      }
+      if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
+        remoteUser = httpServletRequest.getUserPrincipal().getName();
+      }
+      if (!StringUtils.isBlank(remoteUser)) {
+        httpServletRequest.setAttribute(GROUPER_REMOTE_USER_ATTRIBUTE, StringUtils.trim(remoteUser));
+      }
+    } catch (RuntimeException re) {
+      LOG.debug("error assigning remote user for access log", re);
+    }
+  }
+
   /**
    * time format in logs
    */
@@ -701,6 +741,8 @@ public class GrouperServiceJ2ee implements Filter {
         try {
           filterChain.doFilter(request, response);
         } finally {
+          // MCP servlet sets REMOTE_USER when it authenticates, copy for the access log
+          assignRemoteUserForAccessLog((HttpServletRequest) request);
           threadLocalRequest.remove();
           GrouperWsRequestContext.clearThreadLocals();
         }
@@ -773,9 +815,11 @@ public class GrouperServiceJ2ee implements Filter {
             String userIdLoggedIn = wsAuthentication.retrieveLoggedInSubjectId((HttpServletRequest) request);
             if (StringUtils.isBlank(userIdLoggedIn)) {
               ((HttpServletResponse) response).setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
-              ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+              ((HttpServletResponse) response).sendError(401, "Unauthorized");
               return;
             }
+            // custom auth does not set REMOTE_USER (and should not, that changes who is logged in), so log it directly
+            request.setAttribute(GROUPER_REMOTE_USER_ATTRIBUTE, userIdLoggedIn);
           }
         }
         
@@ -830,7 +874,10 @@ public class GrouperServiceJ2ee implements Filter {
       handleException(re);
       throw re;
     } finally {
-      
+
+      // so the tomcat access log can log who called (JWT, OIDC, basic, container auth)
+      assignRemoteUserForAccessLog((HttpServletRequest) request);
+
       GrouperWsLog.wsLog(debugMap, start);
       GrouperWsLongRunningLog.wsLog(debugMap, start);
       
