@@ -278,6 +278,42 @@ bump:
   Confirm `apache-tomcat-<version>.tar.gz` is present there (use a ranged GET --
   the mirror may 404 on HEAD but serve 206 on GET).
 
+## 3a. Third-party jar vulnerability scan (before the tag)
+
+Tomcat is not the only thing that ships. Scan every jar in the PREVIOUS release's
+image (the poms usually have not changed, so it is what this release would ship)
+against OSV, which covers transitive jars the poms never name. Do it before the
+tag so the bumps ship in this release. No scanner needs to be installed:
+
+1. List each jar's Maven coordinates from `META-INF/maven/*/pom.properties` inside
+   the image (`podman run --rm --entrypoint bash i2incommon/grouper:<prev> -c 'cd
+   /opt/grouper/grouperWebapp/WEB-INF/lib; ...unzip -p ... pom.properties'`). About a
+   quarter of the jars have no pom.properties; guess groupId from the file name for
+   the important ones (bouncycastle, c3p0, postgresql, mysql, hibernate, groovy).
+2. `POST https://api.osv.dev/v1/querybatch` with `{"queries":[{"package":
+   {"ecosystem":"Maven","name":"g:a"},"version":"v"}...]}`, then
+   `GET /v1/vulns/<id>` for severity (`database_specific.severity`) and the fixed
+   versions. Skip withdrawn advisories.
+3. For each hit, the fix is usually one property in `grouper-parent/pom.xml`
+   (`jackson.version`, `jsoup.version`, `log4j.version`, `amqp-client.version`...).
+   `git grep` that nothing else pins the old version.
+
+Rules learned on 7.8.0:
+
+- **Confirm the fixed version is on Maven Central before using it.** The advisory
+  for amqp-client said "fixed in 5.36.1", which was never published (Central had
+  5.36.0 and 5.37.0); check `maven-metadata.xml` and the exact `.pom` URL.
+- **One GRP Jira per library**, titled `Upgrade <lib> to <ver> for security`
+  (Improvement, fixVersion set at create), listing the advisory ids. The user
+  commits each bump separately and the highlight line is
+  `Security improvements: upgrade <a>lib</a>, <a>lib</a>, ...`.
+- **Patch bumps are low risk; misaligned transitive families are not.** Netty came
+  in at three versions (4.1.72 from qpid-jms-client, 4.1.135, 4.2.17), most
+  advisories server-side (Grouper only uses netty as a client). The fix there is a
+  `netty-bom` import in grouper-parent AND the three container poms (they do not
+  inherit grouper-parent, same as GRP-7453 for Jackson) -- a separate, tested
+  change, not a release-day bump.
+
 ## 4. Confirm DDL / upgrade tasks since the last release
 
 Determines the `Upgrade tasks` cell (usually `None` for a patch release).
@@ -349,6 +385,12 @@ only `6.4.0` and `4.25.0`, so the security highlight silently omitted it.
 Jira's search index lags a write by a few seconds -- if a count looks unchanged
 right after a fixVersion edit, re-query before concluding anything.
 
+**Re-run check 1 right before the mirror refresh**, after `git fetch`. Other
+developers push during a release: on 7.8.0 `GRP-7450` landed mid-release, and the
+fixes from the 0-review step plus the security bumps added six more Jiras after the
+row was first written. Each time the count changes, update the `<N> Jiras` link
+text on the row (the JQL link itself does not change).
+
 ## 7. Smoke-test the published image with a local quickstart
 
 Run the published container locally before writing the release-notes row. This is
@@ -378,6 +420,12 @@ curl -s -o /dev/null -w 'HTTP %{http_code}  digest: %header{docker-content-diges
   -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
   -I "https://registry-1.docker.io/v2/i2incommon/grouper/manifests/<version>"
 ```
+
+Rather than checking by hand, run that manifest HEAD in a background loop (a new
+token each pass, `sleep 60`, stop on HTTP 200, give up after ~90 minutes) so the
+session is notified when it lands. The 7.8.0 image took about 22 minutes after
+the container branch was pushed. The jars publish separately: Maven Central has
+`.../grouper/<version>/grouper-<version>.pom` well before the image.
 
 ### Compose file
 
@@ -476,6 +524,31 @@ FROM the database, so a refused connection surfaces as `Problem reading config:
 `CommonServletContainerInitializer` and then the whole context. Read to the LAST
 `Caused by` -- that one names the actual port or database problem.
 
+On a fresh schema the log has a burst of `ERROR ... relation "grouper_members"
+does not exist`, `grouper_ddl ... does not exist` and `Script was executed
+successfully` lines. That is the DDL install logging at ERROR level, not a failure;
+expect `Skipping upgrade due to new install to version V<n>` and then
+`Server startup in [...] milliseconds`.
+
+### What to check once it is up (v6/v7)
+
+The v7 quickstart runs UI, WS and daemon in ONE webapp, so everything is under
+`/grouper` (there is no `/grouper-ws` context; it 404s):
+
+- `https://localhost:8443/grouper/status?diagnosticType=db` -> `SUCCESS` and the
+  version.
+- WS: `POST /grouper/servicesRest/v4_0_000/stems` as GrouperSystem (basic auth)
+  with a `WsRestFindStemsRequest` `FIND_BY_STEM_NAME_APPROXIMATE` for `etc` ->
+  `SUCCESS` and the etc folders.
+- MCP: `POST /grouper/mcp` answers with a JSON-RPC error saying `grouper.ws.url`
+  and `grouper.ui.url` are not configured. That refusal is correct (GRP-7238); a
+  404 or a stack trace is not.
+- DDL: `grouper_ddl` row `Grouper` is at the expected version, and any tables or
+  columns this release's upgrade task adds exist
+  (`psql -h localhost -p 5433 -U postgres`).
+- UI pages return 200 but need JavaScript, so curl only proves they render a shell.
+  Click through in a browser if the release changed UI screens.
+
 ### Rocky and Corretto without the image (for step 0)
 
 The Rocky minor can not be read off the Dockerfile or the image labels: the base
@@ -559,7 +632,9 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
 
 ### Table columns (storage order)
 
-1. **Date / Status** -- date in a `<p>`, then the status `<p>`(s) below. If the
+1. **Date / Status** -- date in a `<p>`, then the status `<p>`(s) below. The date
+   is the TAG date. The row is written before the tag (step 0), so if the tag lands
+   on a later day, fix the date when pasting the sha256. If the
    release has a known bug that a later release fixes, add a second `<p>` with the
    `GRP-####` link under the status (as 7.3.0 carries GRP-7119, 7.3.1 carries
    GRP-7132).
@@ -610,7 +685,11 @@ Navigation include). Insert the new `<tr>` ABOVE the current first data row.
 5. **Enhancements and bugs fixed / known issues** -- first `<p>` is the
    `<N> Jiras` link (the fixVersion JQL from step 6). Second `<p>` is the
    highlight list: **sentence case**, each linked to its GRP issue (or a wiki page
-   when one exists), separated by `<br>`. Keep it curated -- not every issue.
+   when one exists), separated by `<br>`. Keep it curated -- not every issue; aim
+   for about five lines (7.8.0 shipped 19 Jiras in 5 lines), folding related fixes
+   into one line and leaving build-only or developer-only changes to the Jiras link.
+   Propose the lines to the user before writing them. Say "institutions", not
+   "orgs".
    **Security items go FIRST** -- vulnerability fixes, then third-party jar
    upgrades -- so a site deciding whether to upgrade sees them without reading the
    whole cell. New features and bug fixes follow. Related items can share one line
