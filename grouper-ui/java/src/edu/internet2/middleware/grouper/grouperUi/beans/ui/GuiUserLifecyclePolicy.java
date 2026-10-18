@@ -57,7 +57,9 @@ public class GuiUserLifecyclePolicy {
     guiUserLifecyclePolicy.setConfigId(userLifecyclePolicyConfiguration.getConfigId());
     guiUserLifecyclePolicy.setPolicyName(userLifecyclePolicyConfiguration.retrieveAttributeValueFromConfig("name", true));
     guiUserLifecyclePolicy.setDescription(userLifecyclePolicyConfiguration.retrieveAttributeValueFromConfig("description", true));
-    guiUserLifecyclePolicy.setIndex(GrouperUtil.intObjectValue(userLifecyclePolicyConfiguration.retrieveAttributeValueFromConfig("index", true), true));
+    // index is optional here: policies created before the index setting existed don't have one,
+    // and a blank index sorts to the bottom of the list (see GroupContainer)
+    guiUserLifecyclePolicy.setIndex(GrouperUtil.intObjectValue(userLifecyclePolicyConfiguration.retrieveAttributeValueFromConfig("index", false), true));
     
     return guiUserLifecyclePolicy;
   }
