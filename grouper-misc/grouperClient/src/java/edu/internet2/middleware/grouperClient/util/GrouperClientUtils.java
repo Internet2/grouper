@@ -22,6 +22,7 @@ import java.lang.reflect.Array;
 import java.nio.charset.UnsupportedCharsetException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -1297,6 +1298,61 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       return firstResource;
     }
     return null;
+  }
+
+  /** separator between values in a multivalued WS subject attribute value */
+  public static final String WS_SUBJECT_ATTRIBUTE_VALUE_SEPARATOR = ", ";
+
+  /**
+   * encode subject attribute values into one string for the WS subject attributeValues (GRP-5430, client version v7_9_000+).
+   * Values are joined with ", ".  A comma in a value is encoded as U+002C, and the U of a literal U+ in a value is
+   * encoded as U+0055 (so U+002C in a value becomes U+0055+002C), so decoding is exact.
+   * Values without a comma or U+ are unchanged.
+   * @param values in the order to join, null values are skipped
+   * @return the encoded string, or null if there are no values
+   * @see #wsSubjectAttributeValuesDecode(String)
+   */
+  public static String wsSubjectAttributeValuesEncode(Collection<String> values) {
+    if (values == null) {
+      return null;
+    }
+    StringBuilder result = null;
+    for (String value : values) {
+      if (value == null) {
+        continue;
+      }
+      if (result == null) {
+        result = new StringBuilder();
+      } else {
+        result.append(WS_SUBJECT_ATTRIBUTE_VALUE_SEPARATOR);
+      }
+      // order matters: escape the escape first so the U+002C we add next is not escaped
+      String encoded = StringUtils.replace(value, "U+", "U+0055+");
+      encoded = StringUtils.replace(encoded, ",", "U+002C");
+      result.append(encoded);
+    }
+    return result == null ? null : result.toString();
+  }
+
+  /**
+   * decode a WS subject attributeValues string encoded with {@link #wsSubjectAttributeValuesEncode(Collection)}
+   * (GRP-5430, client version v7_9_000+) back into its values
+   * @param encoded string from the WS, can be null
+   * @return the values, empty list if null or empty string
+   */
+  public static List<String> wsSubjectAttributeValuesDecode(String encoded) {
+    List<String> result = new ArrayList<String>();
+    if (StringUtils.isEmpty(encoded)) {
+      return result;
+    }
+    // encoded values never contain a raw comma, so splitting on the separator is safe.  keep empty tokens
+    for (String token : StringUtils.splitByWholeSeparatorPreserveAllTokens(encoded, WS_SUBJECT_ATTRIBUTE_VALUE_SEPARATOR)) {
+      // order matters: commas first, then the escaped U, else U+0055+002C would decode to a comma
+      String value = StringUtils.replace(token, "U+002C", ",");
+      value = StringUtils.replace(value, "U+0055", "U");
+      result.add(value);
+    }
+    return result;
   }
 
 }
