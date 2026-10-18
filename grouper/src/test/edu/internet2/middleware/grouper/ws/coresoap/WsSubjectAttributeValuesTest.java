@@ -18,7 +18,7 @@ import junit.textui.TestRunner;
 
 /**
  * GRP-5430: WS subject attributeValues return all values of multivalued attributes for client version
- * v7_9_000+, joined with ", " where a comma in a value is U+002C and the U of a literal U+ is U+0055.
+ * v6_7_000 to 6.x or v7_9_000+ (v6 and v7 only, not v4), joined with ", " where a comma in a value is U+002C and the U of a literal U+ is U+0055.
  * Older clients get the first value unencoded.  No database needed
  */
 public class WsSubjectAttributeValuesTest extends TestCase {
@@ -117,23 +117,44 @@ public class WsSubjectAttributeValuesTest extends TestCase {
   }
 
   /**
-   * only client version v7_9_000 and later get encoded multivalued values
+   * assert if a client version encodes multivalued values
+   * @param clientVersion
+   * @param expected
+   */
+  private static void assertEncode(String clientVersion, boolean expected) {
+    GrouperWsVersionUtils.currentClientVersion.set(GrouperVersion.valueOfIgnoreCase(clientVersion));
+    assertEquals(clientVersion, expected, WsSubject.encodeMultivaluedAttributeValues());
+  }
+
+  /**
+   * only client versions 6.7 to 6.x and 7.9+ get encoded multivalued values (v6 and v7 only, not v4)
    */
   public void testClientVersionGate() {
     GrouperWsVersionUtils.removeCurrentClientVersion();
     assertFalse("not a ws request", WsSubject.encodeMultivaluedAttributeValues());
 
-    GrouperWsVersionUtils.currentClientVersion.set(GrouperVersion.valueOfIgnoreCase("v4_9_000"));
-    assertFalse(WsSubject.encodeMultivaluedAttributeValues());
+    // v4 and v5 never
+    assertEncode("v2_4_000", false);
+    assertEncode("v4_9_000", false);
+    assertEncode("v4_28_000", false);
+    assertEncode("v5_21_000", false);
 
-    GrouperWsVersionUtils.currentClientVersion.set(GrouperVersion.valueOfIgnoreCase("v7_8_000"));
-    assertFalse(WsSubject.encodeMultivaluedAttributeValues());
+    // v6 starting at 6.7
+    assertEncode("v6_6_000", false);
+    assertEncode("v6_6_9", false);
+    assertEncode("v6_7_000", true);
+    assertEncode("v6_9_000", true);
+    assertEncode("v6_99_000", true);
 
-    GrouperWsVersionUtils.currentClientVersion.set(GrouperVersion.valueOfIgnoreCase("v7_9_000"));
-    assertTrue(WsSubject.encodeMultivaluedAttributeValues());
+    // v7 starting at 7.9
+    assertEncode("v7_0_000", false);
+    assertEncode("v7_8_000", false);
+    assertEncode("v7_8_5", false);
+    assertEncode("v7_9_000", true);
+    assertEncode("v7_10_000", true);
 
-    GrouperWsVersionUtils.currentClientVersion.set(GrouperVersion.valueOfIgnoreCase("v8_0_000"));
-    assertTrue(WsSubject.encodeMultivaluedAttributeValues());
+    // later majors
+    assertEncode("v8_0_000", true);
   }
 
   /**
