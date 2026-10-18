@@ -280,17 +280,32 @@ public class WsSubject implements Comparable<WsSubject> {
      }
    }
 
-  /** client version where subject attribute values are multivalued and encoded (GRP-5430) */
-  private static final GrouperVersion MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION = GrouperVersion.valueOfIgnoreCase("v7_9_000");
+  /** v6 client version where subject attribute values are multivalued and encoded (GRP-5430) */
+  private static final GrouperVersion MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION_V6 = GrouperVersion.valueOfIgnoreCase("v6_7_000");
+
+  /** v7 starts here, 7.0 to 7.8 clients do not encode */
+  private static final GrouperVersion CLIENT_VERSION_V7 = GrouperVersion.valueOfIgnoreCase("v7_0_000");
+
+  /** v7 client version where subject attribute values are multivalued and encoded (GRP-5430) */
+  private static final GrouperVersion MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION_V7 = GrouperVersion.valueOfIgnoreCase("v7_9_000");
 
   /**
    * if the client version gets all values of multivalued subject attributes, encoded with
-   * GrouperClientUtils.wsSubjectAttributeValuesEncode (GRP-5430).  If no client version (not a WS request), then no
+   * GrouperClientUtils.wsSubjectAttributeValuesEncode (GRP-5430).  This is in v6 and v7 only (not v4), so the client
+   * versions are 6.7 up to (not including) 7.0, and 7.9+.  The same range is in the v6 and v7 branches so a client gets
+   * the same format from either server.  If no client version (not a WS request), then no
    * @return true if encoding
    */
   static boolean encodeMultivaluedAttributeValues() {
     GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
-    return clientVersion != null && clientVersion.greaterOrEqualToArg(MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION);
+    if (clientVersion == null) {
+      return false;
+    }
+    if (clientVersion.greaterOrEqualToArg(MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION_V7)) {
+      return true;
+    }
+    return clientVersion.greaterOrEqualToArg(MULTIVALUED_ATTRIBUTE_VALUES_CLIENT_VERSION_V6)
+        && clientVersion.lessThanArg(CLIENT_VERSION_V7);
   }
 
   /**
@@ -344,7 +359,7 @@ public class WsSubject implements Comparable<WsSubject> {
     // if getting the subject data (extra queries)
     if (attributesLength > 0) {
 
-      // GRP-5430: client version v7_9_000+ gets all values of multivalued attributes, encoded (see
+      // GRP-5430: client version 6.7 to 6.x or 7.9+ gets all values of multivalued attributes, encoded (see
       // GrouperClientUtils.wsSubjectAttributeValuesEncode), older clients get the first value unencoded as before
       boolean encodeMultivalued = encodeMultivaluedAttributeValues();
 

@@ -1304,7 +1304,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   public static final String WS_SUBJECT_ATTRIBUTE_VALUE_SEPARATOR = ", ";
 
   /**
-   * encode subject attribute values into one string for the WS subject attributeValues (GRP-5430, client version v7_9_000+).
+   * encode subject attribute values into one string for the WS subject attributeValues (GRP-5430, client version v6_7_000 to 6.x, or v7_9_000+).
    * Values are joined with ", ".  A comma in a value is encoded as U+002C, and the U of a literal U+ in a value is
    * encoded as U+0055 (so U+002C in a value becomes U+0055+002C), so decoding is exact.
    * Values without a comma or U+ are unchanged.
@@ -1336,7 +1336,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
 
   /**
    * decode a WS subject attributeValues string encoded with {@link #wsSubjectAttributeValuesEncode(Collection)}
-   * (GRP-5430, client version v7_9_000+) back into its values
+   * (GRP-5430, client version v6_7_000 to 6.x, or v7_9_000+) back into its values
    * @param encoded string from the WS, can be null
    * @return the values, empty list if null or empty string
    */

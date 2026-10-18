@@ -74,19 +74,22 @@ public class WsSubjectAttributeValuesLogicTest extends GrouperTest {
   }
 
   /**
-   * old client versions get the value as is, v7_9_000+ get it encoded and it decodes back
+   * old client versions get the value as is, v6_7_000 to 6.x and v7_9_000+ get it encoded and it decodes back
    */
   public void testGetSubjectsClientVersion() {
 
     RegistrySubject.add(GrouperSession.staticGrouperSession(), "testCommaName", "person", "Anderson, Bob");
 
-    // old clients: unchanged
+    // old clients: unchanged (v4 never encodes, v6 before 6.7, v7 before 7.9)
     assertEquals("Anderson, Bob", retrieveNameAttributeValue("v4_9_000"));
+    assertEquals("Anderson, Bob", retrieveNameAttributeValue("v6_6_000"));
     assertEquals("Anderson, Bob", retrieveNameAttributeValue("v7_8_000"));
 
     // new clients: comma encoded
-    String encoded = retrieveNameAttributeValue("v7_9_000");
-    assertEquals("AndersonU+002C Bob", encoded);
-    assertEquals(Arrays.asList("Anderson, Bob"), GrouperClientUtils.wsSubjectAttributeValuesDecode(encoded));
+    for (String clientVersion : new String[] {"v6_7_000", "v7_9_000"}) {
+      String encoded = retrieveNameAttributeValue(clientVersion);
+      assertEquals(clientVersion, "AndersonU+002C Bob", encoded);
+      assertEquals(clientVersion, Arrays.asList("Anderson, Bob"), GrouperClientUtils.wsSubjectAttributeValuesDecode(encoded));
+    }
   }
 }
