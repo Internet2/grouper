@@ -70,6 +70,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -1743,6 +1744,51 @@ public class UiV2ProvisionerConfiguration {
   
   
   /**
+   * if a full or incremental sync job for this provisioner is running (or waiting to run), show an error
+   * and return true so the caller does not clear cache/state out from under it.  Full and incremental
+   * coordinate via heartbeats in grouper_sync_job; if state is cleared mid-run the jobs can no longer
+   * see each other and a running job keeps working off in-memory sync data that no longer matches the
+   * DB, which can cause mass deletes in the target.
+   * @param gcGrouperSync sync row for the provisioner, may be null
+   * @param guiResponseJs
+   * @return true if a job is running and the clear should be aborted
+   */
+  private static boolean deleteCacheAbortIfJobRunning(GcGrouperSync gcGrouperSync, GuiResponseJs guiResponseJs) {
+
+    // provisioner has never run, nothing to protect
+    if (gcGrouperSync == null) {
+      return false;
+    }
+
+    List<String> runningSyncTypes = new ArrayList<String>();
+
+    // go to the db (not the dao cache) since the job rows are updated by the daemon in another jvm
+    for (GcGrouperSyncJob gcGrouperSyncJob : GrouperUtil.nonNull(gcGrouperSync.getGcGrouperSyncJobDao().internal_jobRetrieveFromDbAll())) {
+
+      if (gcGrouperSyncJob.getJobState() != GcGrouperSyncJobState.running && gcGrouperSyncJob.getJobState() != GcGrouperSyncJobState.pending) {
+        continue;
+      }
+
+      // same 90 second staleness rule the jobs use with each other: a job that died without
+      // cleaning up its state should not block the clear forever
+      if (gcGrouperSyncJob.getHeartbeat() == null || System.currentTimeMillis() - gcGrouperSyncJob.getHeartbeat().getTime() > 90000) {
+        continue;
+      }
+
+      runningSyncTypes.add(gcGrouperSyncJob.getSyncType());
+    }
+
+    if (runningSyncTypes.size() == 0) {
+      return false;
+    }
+
+    String message = TextContainer.retrieveFromRequest().getText().get("provisionerConfigCacheDeleteJobRunning");
+    message = StringUtils.replace(message, "$$syncTypes$$", GrouperUtil.xmlEscape(StringUtils.join(runningSyncTypes, ", ")));
+    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
+    return true;
+  }
+
+  /**
    * delete group member cache for a given provisioner
    * @param request
    * @param response
@@ -1774,6 +1820,11 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
       grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
       
+      // dont clear cache while a full or incremental is running, it would be working off stale data
+      if (deleteCacheAbortIfJobRunning(grouperProvisioner.getGcGrouperSync(), guiResponseJs)) {
+        return;
+      }
+
       // there may not be a sync row yet (e.g. provisioner has never run), in which case there is no cache to clear
       if (grouperProvisioner.getGcGrouperSync() != null) {
         
@@ -1846,6 +1897,12 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
       grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
       
+      // dont delete the sync state (including the grouper_sync_job rows that keep full and incremental
+      // from running at the same time) while a job is running
+      if (deleteCacheAbortIfJobRunning(grouperProvisioner.getGcGrouperSync(), guiResponseJs)) {
+        return;
+      }
+
       // there may not be a sync row yet (e.g. provisioner has never run), in which case there is no cache/state to clear
       if (grouperProvisioner.getGcGrouperSync() != null) {
         grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteAll(true);
