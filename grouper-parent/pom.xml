@@ -52,6 +52,9 @@
 
         <!-- Plugin Versions -->
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <!-- checkstyle engine used by maven-checkstyle-plugin; the plugin bundles an older one by default, and
+             checkstyle.xml needs 10.22+ (JavadocVariable accessModifiers). GRP-7505 -->
+        <checkstyle.version>10.22.0</checkstyle.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
         <maven-source-plugin.version>2.3</maven-source-plugin.version>
@@ -1034,6 +1037,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
+                    <dependencies>
+                        <!-- override the plugin's bundled checkstyle, see checkstyle.version. GRP-7505 -->
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
