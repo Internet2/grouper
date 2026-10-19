@@ -19,32 +19,37 @@
                 <div class="row-fluid">
                   <div class="span1">
                     
-                    <br /><br /><a id="miscAttestationLink" href="?operation=UiV2Attestation.attestationOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
-                      >${textContainer.text['miscAttestationLink'] }</a>
-                      
-                    <br /><br /><a id="miscCustomUiLink" href="?operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll');" style="white-space: nowrap;"
-                      >${textContainer.text['customUiMiscLinkUser'] }</a>
-                      
-                    <br /><br /><a href="?operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;"
-                      >${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
-                      
-                      
-                    <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
-                      <br /><br /><a href="?operation=UiV2Deprovisioning.deprovisioningMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningMain');" style="white-space: nowrap;"
-                      >${textContainer.text['deprovisioningMainLink'] }</a>
-                    </c:if>
-                    
-                      <br /><br /><a id="miscFormsLink" href="?operation=UiV2GrouperWorkflow.forms" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.forms');" style="white-space: nowrap;"
-                      >${textContainer.text['workflowMiscFormsLink'] }</a>
-
-                    <c:if test="${grouperRequestContainer.mcpContainer.canSeeMcpLink}">
-                      <br /><br /><a id="miscMcpLink" href="?operation=UiV2Mcp.mcpInfo" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Mcp.mcpInfo');" style="white-space: nowrap;"
-                        >${textContainer.text['miscMcpLink'] }</a>
-                    </c:if>
 
                     <c:if test="${grouperRequestContainer.aiAgentContainer.canSeeAiAgentLink}">
                       <br /><br /><a id="miscAiAgentLink" href="?operation=UiV2AiAgent.aiAgent" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AiAgent.aiAgent');" style="white-space: nowrap;"
                         >${textContainer.text['miscAiAgentLink'] }</a>
+                    </c:if>
+
+                    <br /><br /><a id="miscAttestationLink" href="?operation=UiV2Attestation.attestationOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
+                      >${textContainer.text['miscAttestationLink'] }</a>
+
+                    <br /><br /><a id="miscCustomUiLink" href="?operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll');" style="white-space: nowrap;"
+                      >${textContainer.text['customUiMiscLinkUser'] }</a>
+
+                    <br /><br /><a href="?operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;"
+                      >${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
+
+                    <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
+                      <br /><br /><a href="?operation=UiV2Deprovisioning.deprovisioningMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningMain');" style="white-space: nowrap;"
+                      >${textContainer.text['deprovisioningMainLink'] }</a>
+                    </c:if>
+
+                      <br /><br /><a id="miscFormsLink" href="?operation=UiV2GrouperWorkflow.forms" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.forms');" style="white-space: nowrap;"
+                      >${textContainer.text['workflowMiscFormsLink'] }</a>
+
+                    <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
+                      <br /><br /><a id="miscInheritedPrivilegesLink" href="?operation=UiV2Main.globalInheritedPrivileges" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
+                      >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
+                    </c:if>
+
+                    <c:if test="${grouperRequestContainer.adminContainer.instrumentationShow}">
+                      <br /><br /><a  id="miscPanelInstrumentationLink" href="?operation=UiV2Admin.instrumentation" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.instrumentation');" style="white-space: nowrap;"
+                      >${textContainer.text['adminInstrumentationLink'] }</a>
                     </c:if>
 
                     <%-- shown to recipe administrators and to anybody who owns the content of a
@@ -57,20 +62,16 @@
                         >${textContainer.text['miscAdminMcpRecipesLink'] }</a>
                     </c:if>
 
-                    <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
-                      <br /><br /><a id="miscInheritedPrivilegesLink" href="?operation=UiV2Main.globalInheritedPrivileges" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
-                      >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
+                    <c:if test="${grouperRequestContainer.mcpContainer.canSeeMcpLink}">
+                      <br /><br /><a id="miscMcpLink" href="?operation=UiV2Mcp.mcpInfo" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Mcp.mcpInfo');" style="white-space: nowrap;"
+                        >${textContainer.text['miscMcpLink'] }</a>
                     </c:if>
-                    <c:if test="${grouperRequestContainer.adminContainer.instrumentationShow}">
-                      <br /><br /><a  id="miscPanelInstrumentationLink" href="?operation=UiV2Admin.instrumentation" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.instrumentation');" style="white-space: nowrap;"
-                      >${textContainer.text['adminInstrumentationLink'] }</a>
-                    </c:if>
-                    
+
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
                       <br /><br /><a id="miscProvisioningLink"href="?operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                         ${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
                     </c:if>
-                    
+
                     <c:if test="${grouperRequestContainer.rulesContainer.canViewAllRules}">
                       <br /><br /><a href="?operation=UiV2Rules.viewAllRules" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Rules.viewAllRules');" style="white-space: nowrap;">
                         ${textContainer.text['adminRulesConfigurationsLink'] }</a>
@@ -78,7 +79,7 @@
 
                     <br /><br /><a id="miscellaneousUserLifecycleEventsLink" href="?operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents');" style="white-space: nowrap;"
                     >${textContainer.text['miscellaneousUserLifecycleEventsLink'] }</a>
-                    
+
                   </div>
                 </div>
                 
@@ -88,14 +89,14 @@
                 	     Bumped to h2, size-preserved via grouper-heading-as-h4 so it looks unchanged. --%>
                 	<h2 class="grouper-heading-as-h4" style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h2>
                 		
-                	 <c:if test="${grouperRequestContainer.authenticationContainer.canViewAuthentication}">
-                      <br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
-                        ${textContainer.text['adminAuthenticationLink'] }</a>
-                    </c:if>
-                	
                 	 <c:if test="${grouperRequestContainer.aiAgentContainer.canSeeUsageReportLink}">
-                      <br /><br /><a id="miscAiAgentUsageReportLink" href="?operation=UiV2AiAgent.aiAgentUsageReport" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AiAgent.aiAgentUsageReport');" style="white-space: nowrap;">
+                      <br /><a id="miscAiAgentUsageReportLink" href="?operation=UiV2AiAgent.aiAgentUsageReport" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AiAgent.aiAgentUsageReport');" style="white-space: nowrap;">
                         ${textContainer.text['miscAiAgentUsageReportLink'] }</a>
+                    </c:if>
+
+                	 <c:if test="${grouperRequestContainer.authenticationContainer.canViewAuthentication}">
+                      <br /><br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
+                        ${textContainer.text['adminAuthenticationLink'] }</a>
                     </c:if>
 
                 	 <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
