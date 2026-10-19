@@ -1274,7 +1274,14 @@ public class UiV2Provisioning {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
         addProvisioningAttribute = true;
       }
-      
+
+      // GRP-7498: a blank scope means one (direct children only), so a new assignment (nothing stored, or only inherited)
+      // defaults the dropdown to all subfolders explicitly.  A stored direct assignment keeps its scope (blank shows as one)
+      if ((addProvisioningAttribute || !provisioningAttributeValue.isDirectAssignment())
+          && StringUtils.isBlank(provisioningAttributeValue.getStemScopeString())) {
+        provisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
+      }
+
       String configurationType = request.getParameter("provisioningHasConfigurationName");
       if (StringUtils.isNotBlank(configurationType)) {
         boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
@@ -1475,7 +1482,9 @@ public class UiV2Provisioning {
       GrouperProvisioningAttributeValue provisioningAttributeValue = new GrouperProvisioningAttributeValue();
       provisioningAttributeValue.setDirectAssignment(true);
       provisioningAttributeValue.setDoProvision(targetName);
-      
+      // GRP-7498: a blank scope means one (direct children only), new assignments default to all subfolders
+      provisioningAttributeValue.setStemScopeString(Stem.Scope.SUB.name().toLowerCase());
+
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(provisioningAttributeValue);
       provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue);
 
