@@ -232,7 +232,8 @@ because both hosts are verified in the same Search Console account.
    with the wiki sync (do not auto-push).
 2. Replace the file on the server that hosts `grouperdemo.internet2.edu` --
    the Internet2 box **i2midev6**, at **`/var/www/html/sitemap.xml`**:
-   `scp wikiMirror/sitemap.xml i2midev6:/var/www/html/sitemap.xml`
+   `scp /Users/mchyzer/git/grouper_v7/grouper-misc/grouper-docs/wikiMirror/sitemap.xml internet2_demo:/var/www/html/sitemap.xml`
+   (`internet2_demo` is the maintainer's ssh alias for i2midev6, reached via login.internet2.edu)
 3. Confirm it serves as XML:
    `curl -sI https://grouperdemo.internet2.edu/sitemap.xml` (expect `200` and
    `content-type: ... xml`).

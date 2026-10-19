@@ -143,7 +143,7 @@ python3 -m venv /tmp/wikivenv && /tmp/wikivenv/bin/pip install -q beautifulsoup4
   login.internet2.edu (the maintainer's ssh alias is `internet2_demo`):
 
   ```bash
-  scp grouper-misc/grouper-docs/wikiMirror/sitemap.xml internet2_demo:/var/www/html/sitemap.xml
+  scp /Users/mchyzer/git/grouper_v7/grouper-misc/grouper-docs/wikiMirror/sitemap.xml internet2_demo:/var/www/html/sitemap.xml   # the maintainer's exact command (v7 checkout)
   curl -sI https://grouperdemo.internet2.edu/sitemap.xml   # expect 200, xml content-type
   ```
 
