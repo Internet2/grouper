@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -33,6 +35,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * MCP tool handler for looking up Grouper subjects.
@@ -327,7 +330,18 @@ public class GrouperMcpGetSubjects {
       ObjectNode attributesNode = objectMapper.createObjectNode();
       for (int i = 0; i < attributeNames.length && i < attributeValues.length; i++) {
         if (StringUtils.isNotBlank(attributeValues[i])) {
-          attributesNode.put(attributeNames[i], attributeValues[i]);
+          // GRP-5430: MCP calls the WS logic with the current version, so values are encoded (all values of a
+          // multivalued attribute joined with ", ", a comma in a value is U+002C).  Decode so the AI client gets
+          // clean values: a string for one value, an array for several
+          List<String> values = GrouperClientUtils.wsSubjectAttributeValuesDecode(attributeValues[i]);
+          if (values.size() == 1) {
+            attributesNode.put(attributeNames[i], values.get(0));
+          } else if (values.size() > 1) {
+            ArrayNode valuesNode = attributesNode.putArray(attributeNames[i]);
+            for (String value : values) {
+              valuesNode.add(value);
+            }
+          }
         }
       }
       if (attributesNode.size() > 0) {
