@@ -222,8 +222,11 @@ public class GrouperProvisioningAttributeValue {
    * @return the scope
    */
   public Scope getStemScope() {
+    // GRP-7498: a blank scope is calculated as one (direct children only) in GrouperProvisioningService.calculateProvisioningAttributes,
+    // so report it as one here too, otherwise the UI shows all subfolders for a folder that only applies to its direct children.
+    // Saves always write an explicit scope, blanks are only in older data (e.g. do not provision folders before GRP-7498)
     if (StringUtils.isBlank(this.stemScopeString)) {
-      return Scope.SUB;
+      return Scope.ONE;
     }
     return Scope.valueOfIgnoreCase(this.stemScopeString, true);
   }
