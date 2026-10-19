@@ -2,8 +2,8 @@
 title: "Grouper developers coding standards"
 space: GrIntDev
 pageId: 48792568
-version: 64
-lastUpdated: 2026-10-07T15:07:58.785Z
+version: 65
+lastUpdated: 2026-10-15T19:37:54.854Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards
 ---
 
@@ -173,6 +173,7 @@ Intellij
   
   - Only share externalized text keys if you expect it to always be tied together
 - We have a look and feel using tables and alternating rows and bold labels on left and more info before the form elements. We should try to use that when possible
+- Follow the [Grouper UI accessibility standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/303038468/Grouper+UI+accessibility+standards) (WCAG 2.2 AA) for all UI changes, including its pull request checklist
 - Be consistent with accessibility using "for" tags with labels and aria tags when applicable
 - Use `<button>` for actions and `<a href>` only for navigation — never `<a href="#">` as a fake button; it breaks screen-reader roles and keyboard support.
 - Pages should have breadcrumbs underneath the parent page so it can be navigated back

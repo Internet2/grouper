@@ -2,8 +2,8 @@
 title: "Grouper Duo Administrator Role Provisioner"
 space: Grouper
 pageId: 28555002
-version: 7
-lastUpdated: 2026-07-01T05:39:10.098Z
+version: 9
+lastUpdated: 2026-10-18T04:43:21.098Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555002/Grouper+Duo+Administrator+Role+Provisioner
 ---
 
@@ -28,11 +28,39 @@ Note the credential on the Duo side needs "Grant administrators" and "Grant read
   - Prod: users use their EPPN with SSO: [loginid@example.com](mailto:loginid@example.com)
   - Non-prod: users use their IT email address without SSO: [login@example.com](mailto:login@example.com)
 - Its possible if you do not have a standard email address to set that with entity metadata (i.e. set it in the provisioning settings for a subject in grouper)
-- The role name can be the display extension of the group, or could be metadata. It must match exactly the role in Duo
-- If someone is in multiple roles in Grouper, the provisioner will select the most important role and use that (since they can only have one)
+- The role can be the display extension of the group, or could be metadata. It can be a Duo role name (case insensitive) or role id, including custom admin roles. See roles and custom roles
+- If someone is in multiple roles in Grouper, the provisioner will select the highest priority role and use that (since they can only have one)
 - If someone doesnt have a role, and entities are set to be deleted, then their account will be deleted in Duo
 
 Manage administrators in Duo
+
+## Roles and custom roles
+
+v7.9.0+, v6.7.0+, v4.28.0+ (GRP-7497): the provisioner sends Duo the role_id, not the legacy role name which Duo is deprecating. This allows custom admin roles. It is backwards compatible: existing role names keep working, no config change is needed.
+
+- The role attribute value can be a role name (case insensitive) or a role id
+- Custom role names are looked up with GET /admin/v1/admin_roles, which needs "Grant read resource" on the Duo credential. Without it, built-in role names and any role id (including a custom role id) still work
+- Get a custom role id from the role in the Duo admin panel (Users, Administrators, Admin Roles)
+- An unknown value is sent as a role id, and Duo rejects that administrator if it is not valid
+
+Built-in roles
+
+| Role name | Role id | Default priority |
+| --- | --- | --- |
+| Owner | owner | 800 |
+| Administrator | service_manager | 700 |
+| Application Manager | application_manager | 600 |
+| User Manager | user_manager | 500 |
+| Security Analyst | security_analyst | 400 |
+| Help Desk | help_desk | 300 |
+| Billing | billing | 200 |
+| Read-only | read_only | 100 |
+
+Priority: if someone is in several role groups, the highest priority role wins. Custom roles default to 150 (above Read-only only). Ties go to the alphabetically first role id. Override any priority with the optional "Role priority" setting, JSON of role name or role id to integer:
+
+```
+provisioner.duoAdminRoleTest.rolePriority = {"Tier 2 Support": 350, "RLU6PE8ICYDAWJY30ZJ2": 750}
+```
 
 ## Attributes
 
@@ -40,13 +68,13 @@ Group fields and attributes
 
 | Grouper name | Type | Required | Description |
 | --- | --- | --- | --- |
-| role | String | required | role name |
+| role | String | required | role name or role id |
 
 Entity fields and attributes
 
 | Grouper name | Type | Required | Description |
 | --- | --- | --- | --- |
-| role | String | required | role name. Check this [doc](https://duo.com/docs/adminapi#create-administrator) for most recent available roles. e.g.   Owner, Administrator, Application Manager, User Manager, Help Desk, Billing, or Read-only |
+| role | String | required | role name or role id. Sent to Duo as role_id. Check this [doc](https://duo.com/docs/adminapi#create-administrator) for most recent available roles. e.g.   Owner, Administrator, Application Manager, User Manager, Security Analyst, Help Desk, Billing, or Read-only |
 | id | String | required | admin id |
 | name | String | required | name of the admin |
 | email | String | required | unique email address of the admin |

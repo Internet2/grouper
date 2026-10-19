@@ -2,8 +2,8 @@
 title: "Grouper CSV generator"
 space: Grouper
 pageId: 28544662
-version: 11
-lastUpdated: 2026-07-12T15:26:26.086Z
+version: 12
+lastUpdated: 2026-10-16T22:34:44.240Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544662/Grouper+CSV+generator
 ---
 
@@ -37,6 +37,11 @@ otherJob.csvJobId.csvReport.query = select USER_ID, USER_NAME, EMAIL_ADDRESS, AU
 # {valueType: "string", regex: "^otherJob\\.([^.]+)\\.csvReport\\.database$"}
 otherJob.csvJobId.csvReport.database = pennCommunity
 
+# failsafe: minimum number of rows the query must return.  If fewer rows are returned, the job errors
+# and the file is not created or sent.  Blank or 0 means no minimum
+# {valueType: "integer", regex: "^otherJob\\.([^.]+)\\.csvReport\\.minRows$"}
+# otherJob.csvJobId.csvReport.minRows =
+
 # remove underscores and capitalize headers, go from USER_NAME to UserName
 # {valueType: "string", regex: "^otherJob\\.([^.]+)\\.csvReport\\.removeUnderscoresAndCapitalizeHeaders$"}
 otherJob.csvJobId.csvReport.removeUnderscoresAndCapitalizeHeaders = false
@@ -59,6 +64,10 @@ otherJob.csvJobId.csvReport.sftp.fileNameRemote = /data01/whatever/MyFile.csv
 # otherJob.csvJobId.csvReport.deleteFile = true
 
 ```
+
+## Failsafe
+
+Set `otherJob.csvJobId.csvReport.minRows` so a query that returns too few rows (e.g. an empty or partially loaded view) errors the job instead of creating and sending a short file. Blank or 0 means no minimum. This is in Grouper 7.9.0, 6.6.0, and 4.27.0 and newer (GRP-7494).
 
 ## Logging
 

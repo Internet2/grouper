@@ -2,8 +2,8 @@
 title: "Dropbox provisioner developer notes"
 space: GrIntDev
 pageId: 48792475
-version: 9
-lastUpdated: 2026-07-12T17:02:35.893Z
+version: 10
+lastUpdated: 2026-10-17T19:37:34.823Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792475/Dropbox+provisioner+developer+notes
 ---
 
@@ -40,7 +40,7 @@ Base path: `[https://api.dropboxapi.com/2/team/](https://api.dropboxapi.com/2/te
 
 ## Shared object shapes
 
-TeamMemberProfile: { "team_member_id": "dbmid:abc123", "email": "jsmith@example.com", "external_id": "jsmith", "account_id": "dbid:xyz789", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } } TeamMemberRole: { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } GroupFullInfo: { "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 4, "members": [ GroupMemberInfo, ... ] } GroupMemberInfo: { "profile": TeamMemberProfile, "access_type": { ".tag": "member" } } GroupSelector (by group_id): { ".tag": "group_id", "group_id": "g:abc123" } UserSelectorArg (by team_member_id): { ".tag": "team_member_id", "team_member_id": "dbmid:abc123" } also accepts { ".tag": "email", "email": ".." } and { ".tag": "external_id", "external_id": ".." }
+TeamMemberProfile: { "team_member_id": "dbmid:abc123", "email": "jsmith@example.com", "external_id": "jsmith", "persistent_id": "jsmith@example.com", "account_id": "dbid:xyz789", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } } TeamMemberRole: { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } GroupFullInfo: { "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 4, "members": [ GroupMemberInfo, ... ] } GroupMemberInfo: { "profile": TeamMemberProfile, "access_type": { ".tag": "member" } } GroupSelector (by group_id): { ".tag": "group_id", "group_id": "g:abc123" } UserSelectorArg (by team_member_id): { ".tag": "team_member_id", "team_member_id": "dbmid:abc123" } also accepts { ".tag": "email", "email": ".." } and { ".tag": "external_id", "external_id": ".." }
 
 ## List groups
 
@@ -158,7 +158,7 @@ POST /2/team/members/add_v2
 
 Body new_members holds DropboxUser.toAddJson() entries. Returns either a synchronous complete result with per-member outcomes, or an async_job_id to poll via /2/team/members/add/job_status/get_v2. A success entry contains the new TeamMemberProfile (with the assigned team_member_id).
 
-POST $SERVICE_URL$/2/team/members/add_v2 { "new_members": [ { "member_email": "jsmith@example.com", "member_given_name": "John", "member_surname": "Smith", "member_external_id": "jsmith", "send_welcome_email": false } ], "force_async": false } 200 { ".tag": "complete", "complete": [ { ".tag": "success", "success": { "profile": { "team_member_id": "dbmid:new", "email": "jsmith@example.com", "status": { ".tag": "active" } }, "role": ".." } } ] } -- or -- { ".tag": "async_job_id", "async_job_id": "job-789" }
+POST $SERVICE_URL$/2/team/members/add_v2 { "new_members": [ { "member_email": "jsmith@example.com", "member_given_name": "John", "member_surname": "Smith", "member_external_id": "jsmith", "member_persistent_id": "jsmith@example.com", "send_welcome_email": false } ], "force_async": false } 200 { ".tag": "complete", "complete": [ { ".tag": "success", "success": { "profile": { "team_member_id": "dbmid:new", "email": "jsmith@example.com", "status": { ".tag": "active" } }, "role": ".." } } ] } -- or -- { ".tag": "async_job_id", "async_job_id": "job-789" }
 
 ## Add member job status
 
@@ -172,9 +172,9 @@ POST $SERVICE_URL$/2/team/members/add/job_status/get_v2 { "async_job_id": "job-7
 
 POST /2/team/members/set_profile_v2
 
-Body is DropboxUser.toSetProfileJson(fieldNames): the member is selected by team_member_id; only supplied new_* fields change. Returns a TeamMemberInfoV2 wrapping the updated profile.
+Body is DropboxUser.toSetProfileJson(fieldNames): the member is selected by team_member_id; only supplied new_* fields change (new_persistent_id is sent only when the persistentId changed). Returns a TeamMemberInfoV2 wrapping the updated profile.
 
-POST $SERVICE_URL$/2/team/members/set_profile_v2 { "user": { ".tag": "team_member_id", "team_member_id": "dbmid:abc" }, "new_email": "jsmith@example.com", "new_external_id": "jsmith", "new_given_name": "John", "new_surname": "Smith" } 200 { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } } }
+POST $SERVICE_URL$/2/team/members/set_profile_v2 { "user": { ".tag": "team_member_id", "team_member_id": "dbmid:abc" }, "new_email": "jsmith@example.com", "new_external_id": "jsmith", "new_persistent_id": "jsmith@example.com", "new_given_name": "John", "new_surname": "Smith" } 200 { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } } }
 
 ## Remove member
 

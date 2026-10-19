@@ -2,8 +2,8 @@
 title: "Grouper provisioning in UI"
 space: Grouper
 pageId: 28548587
-version: 23
-lastUpdated: 2026-07-12T15:26:55.851Z
+version: 24
+lastUpdated: 2026-10-19T01:48:37.637Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548587/Grouper+provisioning+in+UI
 ---
 
@@ -57,7 +57,7 @@ Assigning a target to a folder
 | provisioningTarget | provisioningValueDef | Related to a config in grouper-loader.properties which links this provisioner to entend the class GrouperProvisionerBase |
 | provisioningDirectAssign | provisioningValueDef | if this is directly assigned or inherited |
 | provisioningOwnerStemId | provisioningValueDef | if this is not a direct assignment, then this is the stem id where it is inherited from |
-| provisioningStemScope | provisioningValueDef | If folder provisioning applies to only this folder or this folder and subfolders. one\|sub |
+| provisioningStemScope | provisioningValueDef | If folder provisioning applies to only this folder or this folder and subfolders. one\|sub. Blank (older data) means one. New assignments in the UI default to sub (v7.9.0+, [GRP-7498](https://grouper.atlassian.net/browse/GRP-7498)) |
 | provisioningDoProvision | provisioningValueDef | If you should provisioning (default to true) |
 | provisioningLastFullMillisSince1970 | provisioningValueDef | Millis since 1970 that this was last full provisioned |
 | provisioningLastIncrementalMillisSince1970 | provisioningValueDef | Millis since 1970 that this was last incremental provisioned. Even if the incremental did not change the target |

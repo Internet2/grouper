@@ -2,14 +2,16 @@
 title: "Circular Memberships"
 space: Grouper
 pageId: 206635009
-version: 2
-lastUpdated: 2026-09-28T07:39:09.941Z
+version: 3
+lastUpdated: 2026-10-19T01:48:37.065Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/206635009/Circular+Memberships
 ---
 
 ## Summary
 
 A group cannot be a member of itself, either directly or through other groups. As of Grouper v7.6.0 ([GRP-7291](https://grouper.atlassian.net/browse/GRP-7291)), Grouper blocks any membership that would create a loop, at any depth.
+
+As of v7.9.0 ([GRP-7403](https://grouper.atlassian.net/browse/GRP-7403)), you can temporarily turn this check off with `groups.member.circularMembershipCheck.enabled = false` in grouper.properties, e.g. while cleaning up circular memberships from a loader source. Circular memberships are not supported long term, and a group can never be a direct member of itself.
 
 For example, if group A is a member of group B, you cannot add group B as a member of group A. If you try, Grouper shows an error and the member is not added. The error is: *The group can't be added because it would create a circular membership.*
 

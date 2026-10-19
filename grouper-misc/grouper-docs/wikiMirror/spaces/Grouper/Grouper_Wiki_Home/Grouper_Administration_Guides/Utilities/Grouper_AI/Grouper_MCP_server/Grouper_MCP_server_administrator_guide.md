@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 24
-lastUpdated: 2026-10-11T04:10:53.594Z
+version: 27
+lastUpdated: 2026-10-14T05:04:38.506Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -17,41 +17,49 @@ For a high-level introduction to the Grouper MCP server, see the [overview](http
 
 The MCP server and OAuth authentication are controlled by two separate configuration properties in `grouper.hibernate.properties`:
 
-- `**[grouper.is](http://grouper.is).mcp**` – Enables the MCP protocol.
+- [**grouper.is**](http://grouper.is)`.mcp` – Enables the MCP protocol.
   
-  - **On a WS environment** (`[grouper.is.ws](http://grouper.is.ws) = true`): loads the MCP protocol servlet.
-  - **On a UI environment** (`[grouper.is](http://grouper.is).ui = true`): enables the MCP info page.
-- `**[grouper.is](http://grouper.is).oauth**` – Enables OAuth 2.1 with PKCE authentication.
   
-  - **On a WS environment** (`[grouper.is.ws](http://grouper.is.ws) = true`): loads the OAuth token and registration servlets.
-  - **On a UI environment** (`[grouper.is](http://grouper.is).ui = true`): enables the OAuth consent page.
+  
+  - **On a WS environment** ([grouper.is.ws](http://grouper.is.ws)`= true`): loads the MCP protocol servlet.
+  - **On a UI environment** ([grouper.is](http://grouper.is)`.ui = true`): enables the MCP info page.
+- [**grouper.is**](http://grouper.is)`.oauth` – Enables OAuth 2.1 with PKCE authentication.
+  
+  
+  
+  - **On a WS environment** ([grouper.is.ws](http://grouper.is.ws)`= true`): loads the OAuth token and registration servlets.
+  - **On a UI environment** ([grouper.is](http://grouper.is)`.ui = true`): enables the OAuth consent page.
 
-Both properties must be set to `true` on both the **WS** and **UI** containers for full MCP-with-OAuth functionality. If you only need MCP with WS authentication (HTTP Basic or container auth) and no OAuth, you can enable `[grouper.is](http://grouper.is).mcp` alone on the WS container.
+Both properties must be set to `true` on both the **WS** and **UI** containers for full MCP-with-OAuth functionality. If you only need MCP with WS authentication (HTTP Basic or container auth) and no OAuth, you can enable [grouper.is](http://grouper.is)`.mcp` alone on the WS container.
 
 To enable MCP with OAuth, set the following in your Grouper configuration or as environment variables:
 
-`# In grouper.hibernate.properties (set on both UI and WS containers) grouper.is.mcp = true grouper.is.oauth = true`Or via environment variables (which the EL config expressions read automatically):
+`# In grouper.hibernate.properties (set on both UI and WS containers) grouper.is.mcp = true grouper.is.oauth = true`
 
-`GROUPER_MCP=true GROUPER_OAUTH=true`The MCP protocol servlet requires `[grouper.is.ws](http://grouper.is.ws) = true` because it is registered inside the WS servlet initialization block. The OAuth servlets also require `[grouper.is.ws](http://grouper.is.ws) = true`. Both the WS module and the UI module must be running for the OAuth flow to work (WS handles token exchange; UI handles user authentication and consent). If using normal WS authentication (HTTP Basic or container auth) instead of OAuth, only the WS module with `[grouper.is](http://grouper.is).mcp = true` is required.
+Or via environment variables (which the EL config expressions read automatically):
+
+`GROUPER_MCP=true GROUPER_OAUTH=true`
+
+The MCP protocol servlet requires [grouper.is.ws](http://grouper.is.ws)`= true` because it is registered inside the WS servlet initialization block. The OAuth servlets also require [grouper.is.ws](http://grouper.is.ws)`= true`. Both the WS module and the UI module must be running for the OAuth flow to work (WS handles token exchange; UI handles user authentication and consent). If using normal WS authentication (HTTP Basic or container auth) instead of OAuth, only the WS module with [grouper.is](http://grouper.is)`.mcp = true` is required.
 
 ## Configuration
 
 ### grouper.hibernate.properties
 
-| Property | Default | Description |
+| **Property** | **Default** | **Description** |
 | --- | --- | --- |
-| `[grouper.is](http://grouper.is).mcp` | false (via `GROUPER_MCP` env var) | Enable MCP. On a WS environment this loads the MCP protocol servlet. On a UI environment this enables the MCP info page. |
-| `[grouper.is](http://grouper.is).oauth` | false (via `GROUPER_OAUTH` env var) | Enable OAuth 2.1 with PKCE authentication. On a WS environment this loads the OAuth token and registration servlets. On a UI environment this enables the OAuth consent page. |
+| [grouper.is](http://grouper.is)`.mcp` | false (via `GROUPER_MCP` env var) | Enable MCP. On a WS environment this loads the MCP protocol servlet. On a UI environment this enables the MCP info page. |
+| [grouper.is](http://grouper.is)`.oauth` | false (via `GROUPER_OAUTH` env var) | Enable OAuth 2.1 with PKCE authentication. On a WS environment this loads the OAuth token and registration servlets. On a UI environment this enables the OAuth consent page. |
 
 ### MCP settings (grouper.properties)
 
-| Property | Default | Description |
+| **Property** | **Default** | **Description** |
 | --- | --- | --- |
 | `grouper.mcp.auth.oauth` | true | Allow OAuth JWT Bearer authentication for MCP. |
-| `grouper.mcp.auth.httpBasic` | false | Allow HTTP Basic authentication for MCP. Requires `[grouper.is.ws](http://grouper.is.ws).basicAuthn = true` in `grouper.hibernate.properties`. |
+| `grouper.mcp.auth.httpBasic` | false | Allow HTTP Basic authentication for MCP. Requires [grouper.is.ws](http://grouper.is.ws)`.basicAuthn = true` in `grouper.hibernate.properties`. |
 | `grouper.mcp.auth.container` | false | Allow container-managed authentication for MCP (e.g. Tomcat valve, Apache module). |
 | `grouper.mcp.auth.customAuthClass` | false | Allow custom authentication class for MCP (`ws.security.non-rampart.authentication.class`). |
-| `[grouper.ws](http://grouper.ws).url` | (blank) | Base URL of the WS (used for MCP and other WS operations), e.g. `[https://grouper.example.edu/grouper-ws](https://grouper.example.edu/grouper-ws)`. Displayed on the MCP info page in the UI. Configured at the top of grouper.base.properties below grouper.ui.url. The MCP endpoint URL will be this value with `/mcp` appended. |
+| [grouper.ws](http://grouper.ws)`.url` | (blank) | Base URL of the WS (used for MCP and other WS operations), e.g. [https://grouper.example.edu/grouper-ws](https://grouper.example.edu/grouper-ws). Displayed on the MCP info page in the UI. Configured at the top of grouper.base.properties below grouper.ui.url. The MCP endpoint URL will be this value with `/mcp` appended. |
 | `grouper.mcp.logClientErrors` | false | Log MCP client errors at WARN level. Enable when debugging MCP connection issues. |
 | `grouper.mcp.sqlGrouperExternalSystem` | grouper | The database connection name used when the AI queries the Grouper database (i.e. when `externalSystemId` is `"grouper"` or not specified). Defaults to `grouper` (the main Grouper database connection). Administrators can set this to a different external system that points to a read-only database user or a read replica for additional security. The external system must be configured under `grouperClient.jdbc.{name}.*` in `grouper.client.properties`. |
 | `grouper.mcp.tools.allow` | (empty) | Comma-separated list of MCP tool names to allow. If blank (the default), all tools are allowed (subject to the user's group membership and consent scopes). If set, only the listed tools are available. Deny list takes precedence over allow list (effective tools = allow minus deny). Example: `group_find, group_get_members, group_has_member, group_save` |
@@ -63,7 +71,7 @@ To enable MCP with OAuth, set the following in your Grouper configuration or as 
 
 These properties control the OAuth 2.1 token lifecycle used by MCP clients that authenticate via the OAuth flow.
 
-| Property | Default | Description |
+| **Property** | **Default** | **Description** |
 | --- | --- | --- |
 | `grouper.oauth.accessToken.expirationSeconds` | 14400 (4 hours) | JWT access token lifetime in seconds |
 | `grouper.oauth.authorizationCode.expirationSeconds` | 600 (10 minutes) | Authorization code lifetime in seconds |
@@ -74,7 +82,7 @@ These properties control the OAuth 2.1 token lifecycle used by MCP clients that 
 
 These properties control how MCP clients register as OAuth clients via dynamic client registration (RFC 7591). Registration is anonymous (no authentication required) and is protected by the redirect URI allowlist, IP-based rate limiting, and the fact that registration alone grants zero access — the user must still complete the OAuth consent flow and be in the proper MCP authorization groups.
 
-| Property | Default | Description |
+| **Property** | **Default** | **Description** |
 | --- | --- | --- |
 | `grouper.oauth.registration.enabled` | true | If false, dynamic client registration is disabled entirely. The `/mcp/oauth/register` endpoint returns 403. |
 | `grouper.oauth.registration.rateLimitPerIpPerHour` | 20 | Maximum number of registration requests allowed per IP address per hour. Set to 0 to disable rate limiting. |
@@ -92,7 +100,7 @@ See the Authorization groups section below for the full list of MCP authorizatio
 
 The following properties are automatically generated and stored in the database-backed `grouper.properties` configuration. They should not normally be set manually.
 
-| Property | Description |
+| **Property** | **Description** |
 | --- | --- |
 | `grouper.oauth.signingKey.privateKey` | RSA private key (Base64-encoded, auto-encrypted by Morph framework) |
 | `grouper.oauth.signingKey.publicKey` | RSA public key (Base64-encoded) |
@@ -101,7 +109,7 @@ The following properties are automatically generated and stored in the database-
 
 MCP access is controlled by Grouper groups that are autocreated at startup. Membership in these groups determines what each user can do via MCP. Note that wheel group membership does **not** automatically grant MCP access — users must be explicitly added to the appropriate MCP groups.
 
-| Property | Default Group | Purpose |
+| **Property** | **Default Group** | **Purpose** |
 | --- | --- | --- |
 | `grouper.mcp.users.wsAuthnAllowed` | `etc:mcp:mcpUsersWsAuthnAllowed` | Members can use MCP via WS authentication (HTTP Basic, container auth). Not required for OAuth users. |
 | `grouper.mcp.users.readonly` | `etc:mcp:mcpUsersReadonly` | Members can use MCP tools with read-only access |
@@ -123,7 +131,7 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 
 ### Summary of tool access for authorization groups
 
-| Tool name | mcpUsersAdminReadWrite | mcpUsersAdminReadonly | mcpUsersCanRunSqlReadonly | mcpUsersReadonly | mcpUsersReadwrite |
+| **Tool name** | **mcpUsersAdminReadWrite** | **mcpUsersAdminReadonly** | **mcpUsersCanRunSqlReadonly** | **mcpUsersReadonly** | **mcpUsersReadwrite** |
 | --- | --- | --- | --- | --- | --- |
 | admin_config_search |  |  |  |  |  |
 | admin_daemon_job_message |  |  |  |  |  |
@@ -168,7 +176,7 @@ Recipes are managed in the UI under Miscellaneous, MCP recipes. Nobody can admin
 
 The MCP server includes SQL readonly tools that allow authorized users to explore the Grouper database schema (and other configured databases) and run read-only SQL queries. These tools are gated by the `grouper.mcp.users.canRunSqlReadonly` group (and the `grouper_sql_readonly` OAuth consent scope for OAuth-authenticated users).
 
-| Tool | Description |
+| **Tool** | **Description** |
 | --- | --- |
 | `sql_get_schema` | Database schema discovery with three actions: `listExternalSystems` returns the available database connections (always includes `"grouper"`); `listTables` returns table and view names for a given external system; `tableInfo` returns DDL or column metadata for a specific table. See [external database connections](#sql-external-systems) below. |
 | `sql_select` | Executes a read-only SQL SELECT query and returns the results as JSON. Results are paged with `pageSize` (default 500, max 5000) and `pageNumber` (1-based, default 1). Set `countOnly` to `true` to return just the row count without fetching data. Use `externalSystemId` to query a different database connection. |
@@ -193,7 +201,7 @@ Each external database must have a JDBC connection configured under `grouperClie
 
 #### Per-external-system configuration
 
-| Property | Description |
+| **Property** | **Description** |
 | --- | --- |
 | `grouper.mcp.sql.{id}.sqlTablesViews` | Comma-separated list of table or view names (optionally schema-qualified) that should be discoverable via `sql_get_schema` for this external system. Column metadata and comments (on PostgreSQL and Oracle) are retrieved from the database catalog and cached for 1 hour.   Example: `grouper.mcp.sql.hr_db.sqlTablesViews = hr.employees, hr.departments` |
 | `grouper.mcp.sql.{id}.sqlTablesViewsQuery` | A SQL query that returns table/view names as a single column. Executed against the external system's database. Results are cached for 1 hour. Can be used instead of (or in addition to) `sqlTablesViews`.   Example: `grouper.mcp.sql.hr_db.sqlTablesViewsQuery = select table_schema \|\| '.' \|\| table_name from information_schema.tables where table_schema = 'hr'` |
@@ -224,7 +232,7 @@ The tool is gated by the readonly authorization group (`grouper.mcp.users.readon
 
 Each document search source has a unique config ID. Multiple sources can be configured.
 
-| Property | Required | Description |
+| **Property** | **Required** | **Description** |
 | --- | --- | --- |
 | `grouper.mcp.docSearch.<configId>.externalSystemId` | No (default: grouper) | Database external system to query. Must match a `grouperClient.jdbc.<id>.*` connection. |
 | `grouper.mcp.docSearch.<configId>.query` | Yes | SQL query to retrieve documents. Must alias columns as `grouper_content` (required), `grouper_name` (required), and `grouper_url` (optional). Documents without a `grouper_name` value are skipped during indexing. |
@@ -257,7 +265,7 @@ The MCP server includes an LDAP search tool that allows the AI to query LDAP dir
 
 To make an LDAP external system available for MCP queries, the administrator must add at least one `grouper.mcp.ldap.<id>.*` configuration property. The external system ID must match an `ldap.<id>.*` connection configured in `grouper-loader.properties`.
 
-| Property | Description |
+| **Property** | **Description** |
 | --- | --- |
 | `grouper.mcp.ldap.<id>.baseDn` | Default base DN for LDAP searches when the AI does not specify one. Strongly recommended. Example: `dc=example,dc=edu` |
 | `grouper.mcp.ldap.<id>.documentationForAiClient` | Optional documentation string sent to the AI when it lists LDAP external systems. Helps the AI understand what data is in each LDAP directory (e.g., “Campus directory with people, groups, and service accounts”). |
@@ -282,23 +290,23 @@ The MCP server includes administrative tools for Grouper system administrators. 
 
 ### Admin readonly tools
 
-| Tool | Description |
+| **Tool** | **Description** |
 | --- | --- |
 | `admin_daemon_job_message` | Returns the job message for a specific daemon job log entry by its `id`. Returns the first 20,000 characters of the message (from `job_message` or `job_message_clob`). Also includes the job name, status, and start time for context. |
 | `admin_daemon_logs` | Returns information from `grouper_loader_log` for daemon job runs. Returns the most recent 100 rows ordered by start time descending. The job message is not returned (use `admin_daemon_job_message` for that). Filters: `jobName` (exact match), `status` (case-insensitive), `startedAfter`, `startedBefore` (format: yyyy-MM-dd or yyyy/MM/dd HH:mm:ss). At least one of `jobName` or `status` is required. |
 | `admin_config_search` | Searches Grouper configuration properties. Supports two search modes: `lucene` (default) for full-text search on config keys and values using a Lucene in-memory index, and `regex` for Java regex matching against config key names only. Sensitive values (passwords, secrets, private keys) are automatically masked as `*******`. Optionally filter by a specific config file (e.g., `grouper.properties`, `grouper-loader.properties`). Lucene results include metadata: where configured (base/override/database), default value, EL expression, comment, value type, and required flag. Returns up to 500 results. |
 | `admin_daemon_names` | Searches for distinct daemon job names in the `grouper_loader_log` table. Takes a search string that is split by whitespace into terms. Each term is matched against `job_name` using case-insensitive LIKE. Users can include `%` wildcards in each term; terms without wildcards are automatically wrapped with `%`. Returns up to 200 matching job names. |
-| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See [external system user lookup](#external-system-user-lookup) below for configuration details. |
+| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar, Smartsheet) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See [external system user lookup](#external-system-user-lookup) below for configuration details. |
 
 ### Admin readwrite tools
 
-| Tool | Description |
+| **Tool** | **Description** |
 | --- | --- |
 | `admin_daemon_job_run` | Triggers a daemon job to run on the Grouper daemon server. Takes a `jobName` parameter (the exact job name as it appears in `grouper_loader_log`). The job is triggered asynchronously via the Quartz scheduler on the daemon server. Returns a confirmation that the job was triggered. Use `admin_daemon_names` first to find valid job names, and `admin_daemon_logs` to check the status after triggering. |
 
 ## External system user lookup
 
-The MCP server includes an admin tool for looking up users in external systems configured in Grouper. This is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, or AssetSonar) directly through an AI agent.
+The MCP server includes an admin tool for looking up users in external systems configured in Grouper. This is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar, or Smartsheet) directly through an AI agent.
 
 The `admin_external_system_get` tool is an admin readonly tool gated by the `grouper.mcp.users.adminReadonly` group (and the `admin_readonly` OAuth consent scope for OAuth-authenticated users).
 
@@ -306,25 +314,25 @@ The tool works by:
 
 1. Resolving a Grouper subject from the provided subject ID or identifier.
 2. Translating the subject to the external system's user identifier using a configurable JEXL expression.
-3. Querying the external system API (Azure Graph, Duo Admin, SCIM 2.0, Box, Google Directory, Remedy, Digital Marketplace, TeamDynamix, FreshService, or AssetSonar) to retrieve the user record.
+3. Querying the external system API (Azure Graph, Duo Admin, SCIM 2.0, Box, Google Directory, Remedy, Digital Marketplace, TeamDynamix, FreshService, AssetSonar, or Smartsheet) to retrieve the user record.
 4. Returning the external system user data as JSON.
 
 ### Configuration
 
 For each external system that should be available for user lookups, the administrator must configure the following properties in `grouper.properties` (or the database configuration):
 
-| Property | Description |
+| **Property** | **Description** |
 | --- | --- |
 | `grouper.mcp.adminExternalSystem.<configId>.subjectIdTranslationJexl` | A JEXL expression that translates a Grouper `Subject` object to the external system's user identifier string. The expression receives a `subject` variable (of type `edu.internet2.middleware.subject.Subject`) and should return the string value to use for the lookup.   Example: `${subject.getAttributeValue('eppn')}` |
 | `grouper.mcp.adminExternalSystem.<configId>.externalSystemLookupField` | The field name in the external system to search by. The available fields depend on the external system type (see table below). |
-| `grouper.mcp.adminExternalSystem.<configId>.externalSystemType` | (Optional) Override the auto-detected external system type. Required when the connector class is ambiguous — for example, both SCIM and FreshService Requesters use `WsBearerTokenExternalSystem`. Valid values: `azure`, `duo`, `scim`, `box`, `google`, `remedy`, `remedyDigitalMarketplace`, `teamDynamix`, `freshserviceRequesters`. |
+| `grouper.mcp.adminExternalSystem.<configId>.externalSystemType` | (Optional) Override the auto-detected external system type. Required when the connector class is ambiguous — for example, both SCIM and FreshService Requesters use `WsBearerTokenExternalSystem`. Valid values: `azure`, `duo`, `scim`, `box`, `google`, `remedy`, `remedyDigitalMarketplace`, `teamDynamix`, `freshserviceRequesters`, `assetSonar`, `smartsheet`. |
 | `grouper.mcp.adminExternalSystem.<configId>.documentationForAiClient` | (Optional) A documentation string that is sent to the AI client when it lists external systems. Helps the AI understand what data is in each external system and when to use it.   Example: `Azure AD for campus users provisioned via Grouper` |
 
 The `<configId>` must match the config ID of a configured external system connector (e.g., the `myAzure` in `grouper.azureConnector.myAzure.*`).
 
 #### Available lookup fields by external system type
 
-| Type | Lookup fields | Notes |
+| **Type** | **Lookup fields** | **Notes** |
 | --- | --- | --- |
 | Azure | `userPrincipalName`, `id` | Uses Microsoft Graph API. The lookup field maps to the Azure user attribute used in the `$filter` query parameter or batch request. |
 | Duo | `username`, `id` | Uses Duo Admin API. `username` uses the `/admin/v1/users?username=` endpoint; `id` uses `/admin/v1/users/{id}`. |
@@ -336,8 +344,9 @@ The `<configId>` must match the config ID of a configured external system connec
 | Remedy Digital Marketplace | `loginName` | Uses BMC Remedy Digital Marketplace API. Looks up users by their login name. |
 | TeamDynamix | `externalId`, `username`, `id` | Uses TeamDynamix API. `id` uses direct resource path `/people/{id}`; `externalId` and `username` use the search endpoint with field name matching. |
 | AssetSonar | `email`, `id` | Uses the AssetSonar REST API (added in v7, GRP-7423). `id` uses `/members/{id}.api`; `email` uses `filter=email`, which also finds deactivated members (`status` 0). Returns a fixed set of member fields (names, employee ids, `role_id`/`role_name`, `status`, provenance and timestamps), never the full record, which contains secrets. Requires `externalSystemType = assetSonar` (it uses a WsBearerToken connector). |
+| Smartsheet | `email`, `id` | Uses the Smartsheet API 2.0 (added in v7.9.0, GRP-7488). `email` uses the `/2.0/users?email=` filter, checked against the result; `id` uses `/2.0/users/{id}`. Returns a fixed set of user fields (names, `status`, the account flags, `lastLogin`), never the full profile. If a Smartsheet provisioner on the same external system has `smartsheetPlanId`, the seat type (`seatType`, `provisionalExpirationDate`, `isInternal`) is included and `seatTypesIncluded` is true. The API token should belong to a System Admin. Requires `externalSystemType = smartsheet` (it uses a WsBearerToken connector). |
 
-**External system type detection.** The tool automatically detects the external system type by matching the `configId` against configured connectors. Azure connectors (`grouper.azureConnector.*`), Duo connectors (`grouper.duoConnector.*`), Box connectors (`grouperClient.boxConnector.*`), Google connectors (`grouper.googleConnector.*`), Remedy connectors (`grouper.remedyConnector.*`), Remedy Digital Marketplace connectors (`grouper.remedyDigitalMarketplaceConnector.*`), TeamDynamix connectors (`grouper.teamDynamix.*`), and WsBearerToken connectors (`grouper.wsBearerToken.*`, used for SCIM) are supported. For WsBearerToken-based systems where auto-detection is ambiguous (SCIM vs. FreshService Requesters vs. AssetSonar), set `externalSystemType` explicitly.
+**External system type detection.** The tool automatically detects the external system type by matching the `configId` against configured connectors. Azure connectors (`grouper.azureConnector.*`), Duo connectors (`grouper.duoConnector.*`), Box connectors (`grouperClient.boxConnector.*`), Google connectors (`grouper.googleConnector.*`), Remedy connectors (`grouper.remedyConnector.*`), Remedy Digital Marketplace connectors (`grouper.remedyDigitalMarketplaceConnector.*`), TeamDynamix connectors (`grouper.teamDynamix.*`), and WsBearerToken connectors (`grouper.wsBearerToken.*`, used for SCIM) are supported. For WsBearerToken-based systems where auto-detection is ambiguous (SCIM vs. FreshService Requesters vs. AssetSonar vs. Smartsheet), set `externalSystemType` explicitly.
 
 ### Tool reference
 
@@ -345,7 +354,7 @@ The `<configId>` must match the config ID of a configured external system connec
 
 Returns all external systems configured for MCP user lookups.
 
-| Parameter | Required | Description |
+| **Parameter** | **Required** | **Description** |
 | --- | --- | --- |
 | `action` | Yes | `"listExternalSystems"` |
 
@@ -357,7 +366,7 @@ Returns all external systems configured for MCP user lookups.
 
 Looks up a user in an external system by translating a Grouper subject.
 
-| Parameter | Required | Description |
+| **Parameter** | **Required** | **Description** |
 | --- | --- | --- |
 | `action` | Yes | `"getUser"` |
 | `externalSystemConfigId` | Yes | The external system config ID (from `listExternalSystems`). |
@@ -366,7 +375,9 @@ Looks up a user in an external system by translating a Grouper subject.
 
 **Example response (user found):**
 
-`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.com", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.com" } }`**Example response (user not found):**
+`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.com", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.com" } }`
+
+**Example response (user not found):**
 
 `{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.com", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : false }`
 
@@ -418,7 +429,13 @@ Note: `externalSystemType` must be set explicitly because FreshService Requester
 
 #### AssetSonar
 
-`grouper.mcp.adminExternalSystem.myAssetSonar.subjectIdTranslationJexl = ${subject.getAttributeValue('email')} grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemLookupField = email grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemType = assetSonar grouper.mcp.adminExternalSystem.myAssetSonar.documentationForAiClient = AssetSonar IT asset inventory members (status 1 active, 0 deactivated)`**Subject attributes.** The JEXL expression can use any method on the `Subject` interface, including `subject.getId()`, `subject.getName()`, `subject.getDescription()`, `subject.getAttributeValue('attributeName')`, and `subject.getSourceId()`. The available attributes depend on the subject source configuration.
+`grouper.mcp.adminExternalSystem.myAssetSonar.subjectIdTranslationJexl = ${subject.getAttributeValue('email')} grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemLookupField = email grouper.mcp.adminExternalSystem.myAssetSonar.externalSystemType = assetSonar grouper.mcp.adminExternalSystem.myAssetSonar.documentationForAiClient = AssetSonar IT asset inventory members (status 1 active, 0 deactivated)`
+
+#### Smartsheet
+
+`grouper.mcp.adminExternalSystem.smartsheetProd.subjectIdTranslationJexl = ${subject.getAttributeValue('email')} grouper.mcp.adminExternalSystem.smartsheetProd.externalSystemLookupField = email grouper.mcp.adminExternalSystem.smartsheetProd.externalSystemType = smartsheet grouper.mcp.adminExternalSystem.smartsheetProd.documentationForAiClient = Smartsheet organization users (status ACTIVE, PENDING, DECLINED or DEACTIVATED; seat type when the provisioner has a plan id)`
+
+**Subject attributes.** The JEXL expression can use any method on the `Subject` interface, including `subject.getId()`, `subject.getName()`, `subject.getDescription()`, `subject.getAttributeValue('attributeName')`, and `subject.getSourceId()`. The available attributes depend on the subject source configuration.
 
 ## Institutional tools (GSH templates)
 
@@ -455,17 +472,70 @@ For OAuth users, the appropriate consent scope (`readonly` or `readwrite`) must 
 
 To enable a GSH template for MCP, add the `mcpEnabled` property to the template's configuration (in the UI wizard, database, or properties file):
 
-`# Enable MCP access for this template grouperGshTemplate.myTemplateConfigId.mcpEnabled = true`Optionally, mark the template as readonly for MCP (so users with only readonly access can execute it):
+`# Enable MCP access for this template grouperGshTemplate.myTemplateConfigId.mcpEnabled = true`
+
+Optionally, mark the template as readonly for MCP (so users with only readonly access can execute it):
 
 `# Allow readonly MCP users to execute this template grouperGshTemplate.myTemplateConfigId.mcpReadonly = true`
+
+#### Calls which change nothing (mcpReadonlyWhen)
+
+*Grouper 7.8.1 and later*
+
+A GSH template exposed to MCP is either readonly for MCP (`mcpReadonly`) or not. A template which is not readonly is treated as a change on every call, whatever its inputs say. So in the AI assistant in the Grouper UI, every run of it waits for the user to approve it first, even a call which only looks something up.
+
+Many templates do both. For example, a template might have an action input whose value `get` only reads, or a two step design where a call without `confirm=true` only returns a plan of what would be done. Set `mcpReadonlyWhen` to say which calls change nothing:
+
+```
+grouperGshTemplate.<templateConfigId>.mcpReadonlyWhen = gsh_input_action=get, gsh_input_confirm=false
+```
+
+In the GSH template wizard this is **Calls which change nothing**, shown when **MCP enabled** is checked and **Template is readonly for MCP** is not.
+
+##### What it does
+
+A call which matches the setting:
+
+- runs straight away in the AI assistant in the UI, with no approval box
+- counts against the readonly throttle over MCP, and is logged as readonly in the MCP tool log
+
+It does **not** change who can run the template. A call which matches still needs MCP readwrite access: membership of the group named by `grouper.mcp.users.readwrite`, and a session or OAuth scope which includes readwrite. The template's own security (who may run it, and any checks in the script) still applies.
+
+##### How a call is matched
+
+- The value is a comma separated list of `input=value` pairs. The `gsh_input_` prefix on the input name is optional.
+- A call matches if **any one** pair matches.
+- An input the call leaves out, or leaves blank, is compared using the input's default value. A required input has no default, so leaving it out never matches.
+- Values are compared after converting them to the input's type, the same way the template receives them. So for a boolean, `false` also matches `f`, `no`, `off` and `n`, and for an integer, `7` matches `07`.
+- A string must match exactly, including case and spaces.
+- Anything which cannot be read does not match: an input the template does not have, a file input, a value which does not convert, or an input given twice (once with the `gsh_input_` prefix and once without). A call which does not match is treated as a change, so the worst a mistake in this setting can do is ask the user when it did not need to.
+
+##### What you are promising
+
+Listing a pair is a promise that **no call with that value changes anything**, for every action the template has now and any it is given later.
+
+- Because any one pair is enough, `gsh_input_confirm=false` covers every action. If you later add an action, or an input such as `force=true`, which writes without `confirm=true`, that promise stops being true, and those calls would run without approval in the UI.
+- The match reads each input's type, default and required setting from the template's configuration. A template's decorate code runs before its inputs are validated and can change those settings. It must not change them for any input listed in `mcpReadonlyWhen`.
+
+##### Example
+
+A template which creates, updates, deletes and gets records, where `create`, `update` and `delete` only return a plan unless `confirm=true` and a token from that plan are given:
+
+```
+grouperGshTemplate.myRecordCrud.mcpReadonlyWhen = gsh_input_action=get, gsh_input_confirm=false
+```
+
+In the UI assistant, getting a record and producing a plan run without asking. The call with `confirm=true` waits in the approval box, which lists every input it was given, one per line.
 
 #### Input scope restrictions
 
 For non-readonly templates, individual inputs can be configured to require authorization scope validation. This restricts the input values an AI agent can pass, limiting them to the user's approved readwrite scopes (as configured on the OAuth consent page).
 
-`# Require that the targetFolder input is within the user's approved folder scopes grouperGshTemplate.myTemplateConfigId.input.0.mcpScopeType = folders`The `mcpScopeType` dropdown offers three options:
+`# Require that the targetFolder input is within the user's approved folder scopes grouperGshTemplate.myTemplateConfigId.input.0.mcpScopeType = folders`
 
-| Value | Description |
+The `mcpScopeType` dropdown offers three options:
+
+| **Value** | **Description** |
 | --- | --- |
 | `folders` | Validates each value against the user's approved readwrite folder scopes (exact match or under an approved folder) |
 | `groups` | Validates each value against the user's approved readwrite group and folder scopes (exact group match or group under an approved folder) |
@@ -484,7 +554,9 @@ The `mcpScopeType` option only appears in the UI wizard when `mcpEnabled` is `tr
 
 ### Example configuration
 
-`# Enable a "Create Working Group" template for MCP (readwrite) grouperGshTemplate.createWorkingGroup.enabled = true grouperGshTemplate.createWorkingGroup.templateType = gsh grouperGshTemplate.createWorkingGroup.templateName = Create Working Group grouperGshTemplate.createWorkingGroup.templateDescription = Creates a new working group with standard structure grouperGshTemplate.createWorkingGroup.securityRunType = specifiedGroup grouperGshTemplate.createWorkingGroup.groupUuidCanRun = app:mcp:mcpTemplateRunners grouperGshTemplate.createWorkingGroup.mcpEnabled = true grouperGshTemplate.createWorkingGroup.runAsType = GrouperSystem grouperGshTemplate.createWorkingGroup.showOnFolders = true grouperGshTemplate.createWorkingGroup.folderShowType = allFolders grouperGshTemplate.createWorkingGroup.numberOfInputs = 2 grouperGshTemplate.createWorkingGroup.input.0.name = gsh_input_parentFolder grouperGshTemplate.createWorkingGroup.input.0.label = Parent Folder grouperGshTemplate.createWorkingGroup.input.0.description = The folder to create the group in grouperGshTemplate.createWorkingGroup.input.0.type = string grouperGshTemplate.createWorkingGroup.input.0.required = true grouperGshTemplate.createWorkingGroup.input.0.mcpScopeType = folders grouperGshTemplate.createWorkingGroup.input.1.name = gsh_input_groupExtension grouperGshTemplate.createWorkingGroup.input.1.label = Group Extension grouperGshTemplate.createWorkingGroup.input.1.description = The short name for the new group grouperGshTemplate.createWorkingGroup.input.1.type = string grouperGshTemplate.createWorkingGroup.input.1.required = true grouperGshTemplate.createWorkingGroup.input.1.validationType = regex grouperGshTemplate.createWorkingGroup.input.1.validationRegex = ^[a-zA-Z0-9_]+$ grouperGshTemplate.createWorkingGroup.input.1.validationMessage = Only letters, numbers, and underscores grouperGshTemplate.createWorkingGroup.gshTemplate = ... # Enable a readonly "List Group Members" template for MCP grouperGshTemplate.listGroupMembers.enabled = true grouperGshTemplate.listGroupMembers.templateType = gsh grouperGshTemplate.listGroupMembers.templateName = List Group Members grouperGshTemplate.listGroupMembers.templateDescription = Lists members of a group grouperGshTemplate.listGroupMembers.securityRunType = everyone grouperGshTemplate.listGroupMembers.mcpEnabled = true grouperGshTemplate.listGroupMembers.mcpReadonly = true grouperGshTemplate.listGroupMembers.runAsType = GrouperSystem grouperGshTemplate.listGroupMembers.showOnGroups = true grouperGshTemplate.listGroupMembers.numberOfInputs = 0 grouperGshTemplate.listGroupMembers.gshTemplate = ...`The `institutional_tools` tool can be included in or excluded from the `grouper.mcp.tools.allow` and `grouper.mcp.tools.deny` lists just like any other MCP tool. To disable it entirely, add `institutional_tools` to the deny list.
+`# Enable a "Create Working Group" template for MCP (readwrite) grouperGshTemplate.createWorkingGroup.enabled = true grouperGshTemplate.createWorkingGroup.templateType = gsh grouperGshTemplate.createWorkingGroup.templateName = Create Working Group grouperGshTemplate.createWorkingGroup.templateDescription = Creates a new working group with standard structure grouperGshTemplate.createWorkingGroup.securityRunType = specifiedGroup grouperGshTemplate.createWorkingGroup.groupUuidCanRun = app:mcp:mcpTemplateRunners grouperGshTemplate.createWorkingGroup.mcpEnabled = true grouperGshTemplate.createWorkingGroup.runAsType = GrouperSystem grouperGshTemplate.createWorkingGroup.showOnFolders = true grouperGshTemplate.createWorkingGroup.folderShowType = allFolders grouperGshTemplate.createWorkingGroup.numberOfInputs = 2 grouperGshTemplate.createWorkingGroup.input.0.name = gsh_input_parentFolder grouperGshTemplate.createWorkingGroup.input.0.label = Parent Folder grouperGshTemplate.createWorkingGroup.input.0.description = The folder to create the group in grouperGshTemplate.createWorkingGroup.input.0.type = string grouperGshTemplate.createWorkingGroup.input.0.required = true grouperGshTemplate.createWorkingGroup.input.0.mcpScopeType = folders grouperGshTemplate.createWorkingGroup.input.1.name = gsh_input_groupExtension grouperGshTemplate.createWorkingGroup.input.1.label = Group Extension grouperGshTemplate.createWorkingGroup.input.1.description = The short name for the new group grouperGshTemplate.createWorkingGroup.input.1.type = string grouperGshTemplate.createWorkingGroup.input.1.required = true grouperGshTemplate.createWorkingGroup.input.1.validationType = regex grouperGshTemplate.createWorkingGroup.input.1.validationRegex = ^[a-zA-Z0-9_]+$ grouperGshTemplate.createWorkingGroup.input.1.validationMessage = Only letters, numbers, and underscores grouperGshTemplate.createWorkingGroup.gshTemplate = ... # Enable a readonly "List Group Members" template for MCP grouperGshTemplate.listGroupMembers.enabled = true grouperGshTemplate.listGroupMembers.templateType = gsh grouperGshTemplate.listGroupMembers.templateName = List Group Members grouperGshTemplate.listGroupMembers.templateDescription = Lists members of a group grouperGshTemplate.listGroupMembers.securityRunType = everyone grouperGshTemplate.listGroupMembers.mcpEnabled = true grouperGshTemplate.listGroupMembers.mcpReadonly = true grouperGshTemplate.listGroupMembers.runAsType = GrouperSystem grouperGshTemplate.listGroupMembers.showOnGroups = true grouperGshTemplate.listGroupMembers.numberOfInputs = 0 grouperGshTemplate.listGroupMembers.gshTemplate = ...`
+
+The `institutional_tools` tool can be included in or excluded from the `grouper.mcp.tools.allow` and `grouper.mcp.tools.deny` lists just like any other MCP tool. To disable it entirely, add `institutional_tools` to the deny list.
 
 ## Protected resources
 
@@ -494,6 +566,8 @@ MCP write tools (`group_save`, `group_delete`, `folder_delete`, `folder_save`, `
 
 - **Everything under the built-in objects stem** (configured via `grouper.rootStemForBuiltinObjects`, default `etc`). Any group or stem whose fully qualified name starts with `etc:` (or equals `etc`) is protected. This includes all auto-created system groups, attribute folders, workflow configuration, provisioning settings, etc.
 - **Explicitly configured system groups** that may have been moved outside the `etc` stem by an administrator. The following config properties are checked, and their resolved values are protected regardless of location:
+  
+  
   
   - `groups.wheel.group` (sysadmin group)
   - `groups.wheel.viewonly.group` (sysadmin viewers)
@@ -505,10 +579,10 @@ MCP write tools (`group_save`, `group_delete`, `folder_delete`, `folder_save`, `
   - `grouper.mcp.users.adminReadonly`
   - `grouper.mcp.users.adminReadWrite`
   - `grouper.mcp.users.canRegisterConfidentialOAuthClient`
-  - `[security.show.all.folders.if.in](http://security.show.all.folders.if.in).group`
+  - [security.show.all.folders.if.in](http://security.show.all.folders.if.in)`.group`
   - `deprovisioning.admin.group`
   - `workflow.editorsGroup`
-  - `[ws.client.user.group.name](http://ws.client.user.group.name)` (if configured)
+  - [ws.client.user.group.name](http://ws.client.user.group.name) (if configured)
 
 ### Blocked operations
 
@@ -550,7 +624,7 @@ Every MCP tool call is logged to the `grouper_mcp_tool_log` database table. This
 
 ### Audit table columns
 
-| Column | Description |
+| **Column** | **Description** |
 | --- | --- |
 | `internal_id` | Auto-incrementing BIGINT primary key |
 | `oauth_client_internal_id` | Soft link to `grouper_oauth_client.internal_id` (nullable, not a FK, so audits survive if the registration is deleted) |
@@ -568,7 +642,7 @@ Every MCP tool call is logged to the `grouper_mcp_tool_log` database table. This
 
 Old audit log entries are automatically deleted by the `MAINTENANCE__cleanLogs` daemon. Configure the retention period in `grouper-loader.properties`:
 
-# days to retain MCP tool log rows. -1 = forever. default 365 loader.retain.db.mcp_tool_log.days = 365 
+`# days to retain MCP tool log rows. -1 = forever. default 365 loader.retain.db.mcp_tool_log.days = 365`
 
 ## Throttling
 
@@ -576,7 +650,7 @@ The MCP server enforces per-user, per-category rate limits to protect system per
 
 ### Tool categories and default limits
 
-| Category | Tools | Default (calls/min) | Config property |
+| **Category** | **Tools** | **Default (calls/min)** | **Config property** |
 | --- | --- | --- | --- |
 | `readonly` | group_find, folder_find, group_get_members, etc. | 200 | `grouper.mcp.throttle.readonly.defaultCallsPerMinute` |
 | `readwrite` | folder_delete, folder_save, group_add_member, group_delete, group_remove_member, group_save, etc. | 60 | `grouper.mcp.throttle.readwrite.defaultCallsPerMinute` |
@@ -590,7 +664,9 @@ Set any limit to `-1` to disable throttling for that category.
 
 Operators can override the default limits for specific users by adding properties in `grouper.properties`:
 
-# Override readonly limit for user jsmith to 500 calls/min grouper.mcp.throttle.override.jsmith.readonly.callsPerMinute = 500 # Override readwrite limit for user jsmith to 120 calls/min grouper.mcp.throttle.override.jsmith.readwrite.callsPerMinute = 120 # Disable throttling entirely for a service account grouper.mcp.throttle.override.svc_account.readonly.callsPerMinute = -1 Throttle counts are cached for 10 seconds per user+category to avoid querying the database on every request. In the worst case, a user could slightly exceed their limit during a cache window before the new count is loaded.
+`# Override readonly limit for user jsmith to 500 calls/min grouper.mcp.throttle.override.jsmith.readonly.callsPerMinute = 500 # Override readwrite limit for user jsmith to 120 calls/min grouper.mcp.throttle.override.jsmith.readwrite.callsPerMinute = 120 # Disable throttling entirely for a service account grouper.mcp.throttle.override.svc_account.readonly.callsPerMinute = -1`
+
+Throttle counts are cached for 10 seconds per user+category to avoid querying the database on every request. In the worst case, a user could slightly exceed their limit during a cache window before the new count is loaded.
 
 ## Registration security
 

@@ -2,8 +2,8 @@
 title: "Get Subjects"
 space: Grouper
 pageId: 28548291
-version: 11
-lastUpdated: 2026-07-01T05:44:54.630Z
+version: 13
+lastUpdated: 2026-10-18T08:30:24.765Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548291/Get+Subjects
 ---
 
@@ -21,6 +21,7 @@ Get subjects will retrieve subject objects by subject lookups (source (optional)
 - Can filter by list of sources for freeform search string
 - Can filter for member of group, though this is not exact, will get the list of subjects, then see which are in the group. If the number of subjects found is more than a limit, it will not allow the search
 - In 2.1.6+ you can search for members in a group that will be efficient since it uses a member search field. If you pass in the param SearchStringEnumZeroIndexed with a value of 0-4 (if there are 5 search fields), then that is the search field it will use, otherwise the default search field will be used
+- In v6.7+ and v7.9+, multivalued subject attributes return all values when the client version is v6_7_000 to 6.x, or v7_9_000 or later (not v4). See [Multivalued subject attributes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+Web+Services+FAQ)
 
 #### Get subjects Lite service
 

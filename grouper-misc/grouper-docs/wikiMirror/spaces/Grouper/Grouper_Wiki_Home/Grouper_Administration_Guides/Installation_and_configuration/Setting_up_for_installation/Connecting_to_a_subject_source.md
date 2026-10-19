@@ -2,8 +2,8 @@
 title: "Connecting to a subject source"
 space: Grouper
 pageId: 28548079
-version: 9
-lastUpdated: 2026-02-24T21:42:57.467Z
+version: 10
+lastUpdated: 2026-10-19T01:48:38.249Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548079/Connecting+to+a+subject+source
 ---
 
@@ -117,6 +117,6 @@ To add a subject source:
   7. **Throw error on find all failure**(Default: True)
   8. **Max page size**
   9. **Error on max results**(Default: True)
-  10. **multivaluedLdapAttributes** - comma-separated list of lower-cased attribute names
+  10. **multivaluedLdapAttributes** - comma-separated list of attribute names (case insensitive in v7.9.0+, lower-case before)
 9. Configure the Configuration Check and Subject Source Diagnostics. Optional, but useful in troubleshooting and initial configuration (TODO: Steps and Screenshots)
 10. Click Submit to save your configuration.

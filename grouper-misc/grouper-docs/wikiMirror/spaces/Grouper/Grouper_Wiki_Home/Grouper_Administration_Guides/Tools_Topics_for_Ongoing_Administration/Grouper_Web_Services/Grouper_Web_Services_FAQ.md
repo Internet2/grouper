@@ -2,8 +2,8 @@
 title: "Grouper Web Services FAQ"
 space: Grouper
 pageId: 28548546
-version: 10
-lastUpdated: 2026-07-01T05:44:13.967Z
+version: 12
+lastUpdated: 2026-10-18T08:30:24.288Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+Web+Services+FAQ
 ---
 
@@ -338,6 +338,30 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+We
     [mchyzer@flash pennGroupsClient-2.4.0]$ 
     ```
   - dsf
+- Multivalued subject attributes (v6.7+ and v7.9+)
+  
+  - If the client version is v6_7_000 to 6.x, or v7_9_000 or later, each entry in a subject's `attributeValues` holds all values of that attribute, sorted and joined with ", " (comma space). Older client versions get one value, as before. This is in v6 and v7 only, not v4, and 7.0 to 7.8 clients get one value.
+  - This applies to every service that returns subjects: get subjects, get members, get memberships, has member, add member, delete member, etc.
+  - The client version comes from the REST URL (e.g. `/servicesRest/v7_9_000/subjects`) or is the version of the grouperClient jar. Upgrading to a v6.7+ or v7.9+ grouperClient jar switches a client to this format.
+  - Commas and `U+` inside a value are encoded so the values can be split:
+    
+    - A comma in a value is sent as `U+002C`
+    - The `U` of a literal `U+` in a value is sent as `U+0055` (so `U+002C` in a value is sent as `U+0055+002C`)
+    - Values without a comma or `U+` are sent unchanged
+  - To decode, split on ", ", then replace `U+002C` with a comma, then replace `U+0055` with `U`. Java clients can call `GrouperClientUtils.wsSubjectAttributeValuesDecode()`
+    
+    
+    ```
+    values: A, C, D        sent as: A, C, D
+    value:  Anderson, Bob  sent as: AndersonU+002C Bob
+    ```
+  - An LDAP subject source keeps only the first value unless the attribute is listed as multivalued in subject.properties (case insensitive in v6.7+ and v7.9+)
+    
+    
+    ```
+    subjectApi.source.ldap.multivaluedLdapAttributes = eduPersonAffiliation
+    ```
+  - See [GRP-5430](https://todos.grouper.internet2.edu/browse/GRP-5430)
 
 - Which SOAP call should I use for getting the list of groups that group A is a member of?
 
