@@ -169,6 +169,7 @@
         <amqp-client.version>5.37.0</amqp-client.version>
         
         <jackson.version>2.22.3</jackson.version>
+        <netty.version>4.2.19.Final</netty.version>
         <jsoup.version>1.23.2</jsoup.version>
         <java-ipv6.version>0.17</java-ipv6.version>
         
@@ -257,6 +258,17 @@
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
                 <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- GRP-7504: import the netty BOM so every netty module resolves to one patched version. Without it
+            qpid-jms-client drags in netty 4.1.72 (7 HIGH advisories) alongside 4.1.135 (ldaptive) and 4.2.18
+            (amqp-client). Grouper only uses netty as a client. Smoke test qpid JMS when bumping this. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
