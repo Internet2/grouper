@@ -2409,6 +2409,20 @@ function guiSubmitFileForm(event, formJqueryHandle, operation) {
       // File upload seems to still work even if iframe is not set to true
       //iframe: true,
       dataType: "json",
+      // GRP-7465: a datetime-local with a date but no time (e.g. Firefox) serializes as blank, so send the
+      // incomplete marker instead (like guiAjaxFieldValues does for ajax()) so the server rejects it
+      // rather than treating it as no date (e.g. group import creating non-expiring memberships)
+      beforeSubmit: function(formData, $form) {
+        for (var i=0;i<formData.length;i++) {
+          var theField = $form.find('[name="' + formData[i].name + '"]')[0];
+          if (theField) {
+            if (guiAjaxFieldValues(theField) == "__incompleteDateTime__") {
+              formData[i].value = "__incompleteDateTime__";
+            }
+          }
+        }
+        return true;
+      },
       success:    function(json) { 
         guiProcessJsonResponse(json);
         $.unblockUI();
