@@ -67,7 +67,6 @@
         <maven-pmd-plugin.version>3.1</maven-pmd-plugin.version>
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-projectinfo-reports-plugin.version>3.9.0</maven-projectinfo-reports-plugin.version>
-        <maven-taglist-plugin.version>3.2.1</maven-taglist-plugin.version>
         <maven-versions-plugin.version>2.18.0</maven-versions-plugin.version>
         <maven-site-plugin.version>3.22.0</maven-site-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
@@ -1127,7 +1126,6 @@
                         <id>default</id>
                         <reports>
                             <report>javadoc</report>
-                            <report>test-javadoc</report>
                         </reports>
                     </reportSet>
                     <reportSet>
@@ -1165,7 +1163,6 @@
                     <inherited>false</inherited>
                     <reports>
                       <report>jxr</report>
-                      <report>test-jxr</report>
                     </reports>
                   </reportSet>
               </reportSets>
@@ -1178,16 +1175,10 @@
                   <reportSet>
                     <reports>
                       <report>dependency-updates-report</report>
-                      <report>plugin-updates-report</report>
                       <report>property-updates-report</report>
                     </reports>
                   </reportSet>
                 </reportSets>
-              </plugin>
-              <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>${maven-taglist-plugin.version}</version>
               </plugin>
               <plugin>
                 <groupId>org.owasp</groupId>
