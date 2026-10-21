@@ -17,6 +17,7 @@
 MVN=/opt/apache-maven-3.6.3/bin/mvn
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
+SUBDIR=stable
 CURRENT_BRANCH=GROUPER_7_BRANCH
 #CURRENT_BRANCH=GROUPER_RELEASE_5.4.0
 export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
@@ -53,9 +54,13 @@ echo $(date) "Checked out branch '$CURRENT_BRANCH' (exit $?)"
 cd $GP/grouper-parent
 rm -rf $SITE
 
+# Seed the site directory with the static doc content
+mkdir -p $SITE
+cp -a $GP/grouper/misc/grouperDocs/software.internet2.edu/grouper/doc/. $SITE/
+
 # Without installing packages, complains "Failure to find edu.internet2.middleware.grouper:grouperClient:jar:tests:7.0.0-SNAPSHOT in https://oss.sonatype.org/content/repositories/releases/"
 $MVN install
-$MVN clean site site-deploy -Dlicense.skip=true -DskipTests=true
+$MVN clean site site-deploy -Dlicense.skip=true -DskipTests=true -Dproject.site.deployDirectory=$SITE/$SUBDIR/grouper-parent
 
 echo $(date) "Built site (exit $?)"
 
