@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * https://docs.logicgate.com/
@@ -251,6 +252,8 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       logicGateCommands.reportEmails = GrouperConfig.retrieveConfig().propertyValueString(theProvisionerConfigIdPrefix + ".logicGateApi.reportEmails");
       logicGateCommands.threads = Math.max(1, GrouperConfig.retrieveConfig().propertyValueInt(theProvisionerConfigIdPrefix + ".logicGateApi.threads", 5));
       logicGateCommands.reverseLinkScanThreshold = GrouperConfig.retrieveConfig().propertyValueInt(theProvisionerConfigIdPrefix + ".logicGateApi.reverseLinkScanThreshold", 200);
+      logicGateCommands.linkMaxAgeHours = GrouperConfig.retrieveConfig().propertyValueInt(theProvisionerConfigIdPrefix + ".logicGateApi.linkMaxAgeHours", 24);
+      logicGateCommands.maxHeapPercent = GrouperConfig.retrieveConfig().propertyValueInt(theProvisionerConfigIdPrefix + ".logicGateApi.maxHeapPercent", 80);
       return logicGateCommands;
     }
   }
@@ -632,18 +635,45 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     
       GrouperHttpClient.logStart(grouperHttpCallLog);
       try {
-    
-        String tokenUsed = accessToken();
-        grouperHttpClient.addHeader("Authorization", "Bearer " + tokenUsed);
 
-        grouperHttpClient.executeRequest();
+        // LogicGate (behind an AWS load balancer) sometimes answers 502 / 503 / 504, or 429 when busy.  A single
+        // one used to fail a 7 hour full sync, so wait and retry.  A create is only retried on 429 (rejected
+        // before it was processed): after a 5xx it may have been created, and a retry would make a duplicate
+        boolean retryServerErrors = !Strings.CS.equals(operation, "recordCreate");
+        int[] waitSeconds = {2, 5, 15, 30, 60};
+        for (int attempt=0;;attempt++) {
 
-        // LogicGate invalidates a client's token when another token is issued for the same client (e.g. the
-        // incremental sync or another job authenticating), so on 401 get a new token and retry once
-        if (grouperHttpClient.getResponseCode() == 401) {
-          GrouperUtil.mapAddValue(this.debugMap, "reauthenticateOn401Count", 1);
-          grouperHttpClient.addHeader("Authorization", "Bearer " + refreshAccessToken(tokenUsed));
-          grouperHttpClient.executeRequest();
+          String tokenUsed = accessToken();
+          grouperHttpClient.addHeader("Authorization", "Bearer " + tokenUsed);
+
+          RuntimeException networkException = null;
+          try {
+            grouperHttpClient.executeRequest();
+
+            // LogicGate invalidates a client's token when another token is issued for the same client (e.g. the
+            // incremental sync or another job authenticating), so on 401 get a new token and retry once
+            if (grouperHttpClient.getResponseCode() == 401) {
+              GrouperUtil.mapAddValue(this.debugMap, "reauthenticateOn401Count", 1);
+              grouperHttpClient.addHeader("Authorization", "Bearer " + refreshAccessToken(tokenUsed));
+              grouperHttpClient.executeRequest();
+            }
+          } catch (RuntimeException re) {
+            // connection reset, timeout, ...
+            networkException = re;
+          }
+
+          int code = networkException == null ? grouperHttpClient.getResponseCode() : -1;
+          boolean transientError = code == 429 || (retryServerErrors && (networkException != null || code == 502 || code == 503 || code == 504));
+          if (!transientError || attempt >= waitSeconds.length) {
+            if (networkException != null) {
+              throw networkException;
+            }
+            break;
+          }
+          GrouperUtil.mapAddValue(this.debugMap, "logicGate_retries", 1);
+          LOG.warn("LogicGate " + operation + " got " + (networkException != null ? networkException.getMessage() : ("HTTP " + code))
+              + ", retry " + (attempt + 1) + " in " + waitSeconds[attempt] + "s");
+          GrouperUtil.sleep(waitSeconds[attempt] * 1000L);
         }
 
         GrouperUtil.mapAddValue(this.debugMap, operation + "Millis", (long)((System.nanoTime()-start)/1000000L));
@@ -1794,7 +1824,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
 
     /**
-     * One LogicGate contact record as read from the v2 list
+     * One LogicGate contact record, as loaded from prov_logicgate_record_work (or read for an incremental delete)
      */
     public static class LogicGateRecord {
 
@@ -1813,10 +1843,10 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       /** user attribute values in userAttributes order */
       private String[] attributeValues;
 
-      /** small json of the record for the audit snapshot */
-      private ObjectNode snapshot;
+      /** JSON string of the record for the audit snapshot, null if not loaded */
+      private String snapshot;
 
-      /** direct links as [linked record id, linked workflow id], null if not looked up yet */
+      /** direct links as [linked record id, linked workflow id], null if not looked up */
       private List<String[]> links;
 
       public String getId() {
@@ -1828,126 +1858,120 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       }
     }
 
+    // ===================== table driven full sync =====================
+    // Everything goes through prov_logicgate_record_work so memory stays at about one page of records:
+    //   1. read every step page by page and upsert each page into the table
+    //   2. look up the direct links of the records of people who need work, write them to the table
+    //   3. per batch of people: load their rows, decide what to keep, move links, delete, write the result back
+    //   4. return the live record of every person from the table
+    // Progress counters and heap use go into the provisioner debug map, which is the job message while it runs.
+
+    /** do not use links looked up longer ago than this, look them up again */
+    private int linkMaxAgeHours = 24;
+
+    /** stop the run (cleanly, with an error) if the heap is fuller than this percent */
+    private int maxHeapPercent = 80;
+
+    /** people fixed per batch */
+    private static final int KEY_BATCH_SIZE = 500;
+
     /**
-     * Retrieve all contact records and fix them up so LogicGate has one live record per person and no inactive
-     * records, then return the live record of each person for the provisioner to match on Penn ID.
-     *
-     * Records are read with the v2 list per step (fields inline, no GET per record).  Per Penn ID:
+     * Read every contact record into prov_logicgate_record_work, fix people with more than one record or with
+     * inactive records (keep one live record, move links to it, delete the rest), and return the live record of
+     * each person for the provisioner to match on Penn ID.
      * <ul>
-     * <li>one live record (active or create step) is kept: the one with the most direct links, then the oldest.
-     * If the person has no live record but is provisionable in Grouper, the best inactive record is moved back to
-     * active (reactivate) instead of having the provisioner create a new one</li>
-     * <li>every other record of that person is deleted, after its direct links (contact groups and workflow records
-     * like action plans) are added to the kept record</li>
-     * <li>a person who is not provisionable and has only inactive records left: the records are deleted.  Their
-     * workflow links are audited and reported, since nobody is left to move them to</li>
+     * <li>the kept record is the live one (active or create step) with the most direct links, then the oldest.  A
+     * provisionable person with only inactive records gets the best inactive one reactivated instead</li>
+     * <li>every other record of the person is deleted, after its direct links (contact groups and workflow records)
+     * are added to the kept record</li>
+     * <li>a person who is not provisionable and has only inactive records: the records are deleted; workflow links
+     * are audited and reported, since nobody is left to move them to</li>
      * </ul>
-     * Every change is written to prov_logicgate_audit with a snapshot.  If the provisioner is readOnly nothing is
-     * changed and the audit rows are written with read_only = 'T'.  Records with no Penn ID (external contacts) are
-     * left alone.
+     * Every change is audited in prov_logicgate_audit.  readOnly: nothing is changed in LogicGate, the plan is written
+     * to the work table and the audit table with read only markers.  Records with no Penn ID are left alone.
      *
      * @param provisionableKeys Penn IDs that are provisionable in Grouper (should have a live record)
      * @return record id to user attribute values (userAttributes order), one record per Penn ID
      */
     public Map<String, String[]> recordRetrieveAllV2(Set<String> provisionableKeys) {
 
-      long startMillis = System.currentTimeMillis();
+      java.sql.Timestamp runStart = new java.sql.Timestamp(System.currentTimeMillis());
 
-      // read every step, live steps first
-      List<LogicGateRecord> allRecords = new ArrayList<LogicGateRecord>();
-      allRecords.addAll(readStepV2(stepIdActiveContacts));
-      allRecords.addAll(readStepV2(stepIdCreateContact));
-      allRecords.addAll(readStepV2(stepIdDeleteContact));
-      debugMap.put("readRecordsMillis", System.currentTimeMillis() - startMillis);
-
-      // group by key, external contacts (no Penn ID) are not ours to clean up
-      Map<String, List<LogicGateRecord>> keyToRecords = new HashMap<String, List<LogicGateRecord>>();
-      for (LogicGateRecord logicGateRecord : allRecords) {
-        if (StringUtils.isBlank(logicGateRecord.key)) {
-          GrouperUtil.mapAddValue(debugMap, "recordCountWithNoKey", 1);
-          continue;
-        }
-        List<LogicGateRecord> records = keyToRecords.get(logicGateRecord.key);
-        if (records == null) {
-          records = new ArrayList<LogicGateRecord>();
-          keyToRecords.put(logicGateRecord.key, records);
-        }
-        records.add(logicGateRecord);
+      // 1. read every step into the table, live steps first
+      debugPut("logicGatePhase", "read");
+      for (String stepId : new String[] {stepIdActiveContacts, stepIdCreateContact, stepIdDeleteContact}) {
+        readStepIntoTable(stepId, runStart);
       }
+      // records not seen this run are gone from LogicGate
+      int gone = new GcDbAccess().sql("delete from prov_logicgate_record_work where config_id = ? and last_seen < ?")
+          .addBindVar(this.configId).addBindVar(runStart).executeSql();
+      debugPut("workRowsGone", gone);
+      debugPut("readMillis", System.currentTimeMillis() - runStart.getTime());
+      checkHeap();
 
-      // people that need work: more than one record, or any inactive record
-      List<String> keysToFix = new ArrayList<String>();
-      List<LogicGateRecord> recordsNeedingLinks = new ArrayList<LogicGateRecord>();
-      for (String key : keyToRecords.keySet()) {
-        List<LogicGateRecord> records = keyToRecords.get(key);
-        boolean hasInactive = false;
-        for (LogicGateRecord logicGateRecord : records) {
-          hasInactive = hasInactive || !isLiveStep(logicGateRecord.stepId);
-        }
-        if (records.size() > 1 || hasInactive) {
-          keysToFix.add(key);
-          recordsNeedingLinks.addAll(records);
-        }
-      }
-      debugMap.put("keysToFix", keysToFix.size());
+      // people who need work: more than one record, or any inactive record
+      String fixKeysSql = "select key_value from prov_logicgate_record_work where config_id = ? and key_value is not null "
+          + "group by key_value having count(*) > 1 or sum(case when step_id = ? then 1 else 0 end) > 0";
+      List<String> keysToFix = new GcDbAccess().sql(fixKeysSql + " order by key_value")
+          .addBindVar(this.configId).addBindVar(stepIdDeleteContact).selectList(String.class);
+      debugPut("keysToFix", keysToFix.size());
 
-      // look up direct links of every record that might be kept or removed
-      long linksStartMillis = System.currentTimeMillis();
-      loadLinks(recordsNeedingLinks);
-      debugMap.put("loadLinksMillis", System.currentTimeMillis() - linksStartMillis);
+      // clear the plan of the last run
+      new GcDbAccess().sql("update prov_logicgate_record_work set planned_action = null, kept_record_id = null, "
+          + "action_status = null, action_message = null where config_id = ?").addBindVar(this.configId).executeSql();
 
-      // record id to attributes of the live record of each person, what the provisioner matches on
-      Map<String, String[]> recordIdToAttributes = new java.util.concurrent.ConcurrentHashMap<String, String[]>();
+      // 2. links of the records of those people
+      debugPut("logicGatePhase", "links");
+      long linksStart = System.currentTimeMillis();
+      loadLinksIntoTable(fixKeysSql, runStart);
+      debugPut("linksMillis", System.currentTimeMillis() - linksStart);
+      checkHeap();
 
-      // people with nothing to fix: their one live record
-      Set<String> keysToFixSet = new HashSet<String>(keysToFix);
-      for (String key : keyToRecords.keySet()) {
-        if (!keysToFixSet.contains(key)) {
-          LogicGateRecord logicGateRecord = keyToRecords.get(key).get(0);
-          recordIdToAttributes.put(logicGateRecord.id, logicGateRecord.attributeValues);
-        }
-      }
-
-      // fix the others on a few threads, one person at a time per thread
-      long fixStartMillis = System.currentTimeMillis();
-      java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors.newFixedThreadPool(this.threads);
-      try {
-        List<java.util.concurrent.Future<?>> futures = new ArrayList<java.util.concurrent.Future<?>>();
-        for (final String key : keysToFix) {
-          final List<LogicGateRecord> records = keyToRecords.get(key);
-          final boolean provisionable = provisionableKeys.contains(key);
-          futures.add(executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-              LogicGateRecord kept = fixPerson(key, records, provisionable);
-              if (kept != null) {
-                recordIdToAttributes.put(kept.id, kept.attributeValues);
-              }
+      // 3. fix people in batches
+      debugPut("logicGatePhase", "fix");
+      long fixStart = System.currentTimeMillis();
+      final Map<String, String[]> keptLive = new java.util.concurrent.ConcurrentHashMap<String, String[]>();
+      for (int i=0; i<keysToFix.size(); i+=KEY_BATCH_SIZE) {
+        List<String> batchKeys = keysToFix.subList(i, Math.min(keysToFix.size(), i + KEY_BATCH_SIZE));
+        final Map<String, List<LogicGateRecord>> keyToRecords = loadRecords(batchKeys);
+        runOnThreads(new ArrayList<String>(keyToRecords.keySet()), new java.util.function.Consumer<String>() {
+          @Override
+          public void accept(String key) {
+            LogicGateRecord kept = fixPerson(key, keyToRecords.get(key), provisionableKeys.contains(key));
+            if (kept != null) {
+              keptLive.put(kept.id, kept.attributeValues);
             }
-          }));
-        }
-        for (java.util.concurrent.Future<?> future : futures) {
-          future.get();
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("Error fixing LogicGate records", e);
-      } finally {
-        executorService.shutdown();
+          }
+        });
+        debugPut("keysFixed", Math.min(keysToFix.size(), i + KEY_BATCH_SIZE));
+        checkHeap();
       }
-      debugMap.put("fixPeopleMillis", System.currentTimeMillis() - fixStartMillis);
+      debugPut("fixMillis", System.currentTimeMillis() - fixStart);
+
+      // 4. the live record of every person who needed nothing, plus the kept ones
+      debugPut("logicGatePhase", "done");
+      Map<String, String[]> recordIdToAttributes = new HashMap<String, String[]>(keptLive);
+      List<Object[]> rows = new GcDbAccess().sql("select record_id, attribute_values from prov_logicgate_record_work "
+          + "where config_id = ? and key_value is not null and step_id in (?, ?) and key_value not in (" + fixKeysSql + ")")
+          .addBindVar(this.configId).addBindVar(stepIdActiveContacts).addBindVar(stepIdCreateContact)
+          .addBindVar(this.configId).addBindVar(stepIdDeleteContact)
+          .selectList(Object[].class);
+      for (Object[] row : rows) {
+        recordIdToAttributes.put((String)row[0], attributeValuesFromJson((String)row[1]));
+      }
 
       auditRetention();
       sendReport();
 
-      debugMap.put("recordCountNonDupeTarget", recordIdToAttributes.size());
+      debugPut("recordCountNonDupeTarget", recordIdToAttributes.size());
       return recordIdToAttributes;
     }
 
     /**
-     * Fix one person: keep one live record, move the links of the others to it, delete the others.  Errors are
-     * audited and do not stop the other people
+     * Fix one person: keep one live record, move the links of the others to it, delete the others.  The result is
+     * written to the work table.  Errors are audited and do not stop the other people
      * @param key Penn ID
-     * @param records all records of the person
+     * @param records all records of the person, with links
      * @param provisionable true if the person should have a live record
      * @return the live record to give the provisioner, or null if none
      */
@@ -1973,6 +1997,10 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
 
       try {
 
+        if (kept != null) {
+          workUpdate(kept.id, liveKept != null ? "keep" : "reactivate", null, this.readOnly ? "report_only" : "pending", null);
+        }
+
         // a provisionable person with only inactive records: bring the best one back instead of creating one
         if (kept != null && liveKept == null) {
           if (this.readOnly) {
@@ -1980,8 +2008,12 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
           } else {
             recordMove(kept.id, stepIdActiveContacts);
             audit("reactivate", "ok", kept, null, null, "provisionable, only inactive records", null);
+            new GcDbAccess().sql("update prov_logicgate_record_work set step_id = ?, action_status = 'ok' where config_id = ? and record_id = ?")
+              .addBindVar(stepIdActiveContacts).addBindVar(this.configId).addBindVar(kept.id).executeSql();
+            kept.stepId = stepIdActiveContacts;
             liveKept = kept;
           }
+          debugAdd(this.readOnly ? "reactivatesReadOnly" : "reactivates", 1);
         }
 
         // every other record: move its links to the kept record, then delete it
@@ -1993,7 +2025,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         }
 
       } catch (RuntimeException re) {
-        GrouperUtil.mapAddValue(debugMap, "fixPersonErrors", 1);
+        debugAdd("fixPersonErrors", 1);
         audit("error", "error", kept, null, null, "fixing person " + key, GrouperUtil.getFullStackTrace(re));
         this.reportLines.add("ERROR fixing Penn ID " + key + ": " + re.getMessage());
         LOG.error("Error fixing LogicGate records for " + key, re);
@@ -2015,6 +2047,9 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       }
 
       int workflowLinkCount = workflowLinkCount(logicGateRecord);
+      String keptId = kept == null ? null : kept.id;
+
+      workUpdate(logicGateRecord.id, "delete", keptId, this.readOnly ? "report_only" : "pending", null);
 
       // move the links
       if (kept != null) {
@@ -2033,11 +2068,13 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
             } catch (RuntimeException re) {
               // do not delete a record whose link could not be moved, it would lose the link
               audit("link", "error", kept, link[0], link[1], reason, GrouperUtil.getFullStackTrace(re));
+              workUpdate(logicGateRecord.id, "delete", keptId, "error", "could not move link " + link[0] + ": " + re.getMessage());
               this.reportLines.add("ERROR linking " + this.linkWorkflowIdToName.get(link[1]) + " record " + link[0]
                   + " to kept record " + kept.id + " (Penn ID " + kept.key + "), " + logicGateRecord.id + " was not deleted: " + re.getMessage());
               return;
             }
           }
+          debugAdd(this.readOnly ? "linksMovedReadOnly" : "linksMoved", 1);
         }
       }
 
@@ -2045,15 +2082,18 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
 
       // delete
       if (this.readOnly) {
-        audit("delete", "report_only", logicGateRecord, kept == null ? null : kept.id, null, reason, null);
+        audit("delete", "report_only", logicGateRecord, keptId, null, reason, null);
       } else if (!reserveDelete()) {
-        audit("delete", "skipped_limit", logicGateRecord, kept == null ? null : kept.id, null, reason, null);
+        audit("delete", "skipped_limit", logicGateRecord, keptId, null, reason, null);
+        workUpdate(logicGateRecord.id, "delete", keptId, "skipped_limit", null);
         return;
       } else {
         recordDelete(logicGateRecord.id);
-        audit("delete", "ok", logicGateRecord, kept == null ? null : kept.id, null, reason, null);
+        audit("delete", "ok", logicGateRecord, keptId, null, reason, null);
+        new GcDbAccess().sql("delete from prov_logicgate_record_work where config_id = ? and record_id = ?")
+          .addBindVar(this.configId).addBindVar(logicGateRecord.id).executeSql();
       }
-      GrouperUtil.mapAddValue(debugMap, this.readOnly ? "deletesReadOnly" : "deletes", 1);
+      debugAdd(this.readOnly ? "deletesReadOnly" : "deletes", 1);
 
       // workflow links of a person who left are not moved anywhere, someone should know
       if (kept == null && workflowLinkCount > 0) {
@@ -2066,11 +2106,29 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
 
     /**
+     * write the plan / result of one record to the work table
+     * @param recordId
+     * @param plannedAction keep, delete, reactivate
+     * @param keptRecordId
+     * @param actionStatus pending, ok, error, report_only, skipped_limit
+     * @param actionMessage
+     */
+    private void workUpdate(String recordId, String plannedAction, String keptRecordId, String actionStatus, String actionMessage) {
+      new GcDbAccess().sql("update prov_logicgate_record_work set planned_action = ?, kept_record_id = ?, action_status = ?, "
+          + "action_message = ? where config_id = ? and record_id = ?")
+        .addBindVar(plannedAction).addBindVar(keptRecordId).addBindVar(actionStatus)
+        .addBindVar(StringUtils.abbreviate(actionMessage, 4000)).addBindVar(this.configId).addBindVar(recordId).executeSql();
+    }
+
+    /**
      * @param logicGateRecord
      * @return name, Penn ID and record id for a report line
      */
     private String recordLabel(LogicGateRecord logicGateRecord) {
-      String name = logicGateRecord.snapshot == null ? null : GrouperUtil.jsonJacksonGetString(logicGateRecord.snapshot, "name");
+      String name = null;
+      if (logicGateRecord.snapshot != null) {
+        name = GrouperUtil.jsonJacksonGetString(GrouperUtil.jsonJacksonNode(logicGateRecord.snapshot), "name");
+      }
       return StringUtils.defaultString(name) + " (Penn ID " + logicGateRecord.key + ", record " + logicGateRecord.id + ")";
     }
 
@@ -2108,7 +2166,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
      * @return true if links from this workflow are contact group memberships
      */
     private boolean isContactGroupWorkflow(String workflowId) {
-      return this.contactGroupWorkflowNames.contains(this.linkWorkflowIdToName.get(workflowId));
+      return this.linkWorkflowIdToName != null && this.contactGroupWorkflowNames.contains(this.linkWorkflowIdToName.get(workflowId));
     }
 
     /**
@@ -2156,16 +2214,22 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
 
     /**
-     * read every record in a step with the v2 list (field values inline).  Fails if fewer records came back than
-     * LogicGate says are there: a short read would make people look missing
+     * read every record in a step with the v2 list (field values inline) and upsert each page into the work table.
+     * Links already in the table are kept.  Fails if fewer records came back than LogicGate says are there: a short
+     * read would make people look missing
      * @param stepId
-     * @return the records
+     * @param runStart stamped on each row as last_seen
      */
-    private List<LogicGateRecord> readStepV2(String stepId) {
+    private void readStepIntoTable(String stepId, java.sql.Timestamp runStart) {
 
-      List<LogicGateRecord> result = new ArrayList<LogicGateRecord>();
       Set<String> recordIdsThisStep = new HashSet<String>();
       long totalElements = -1;
+      String upsertSql = "insert into prov_logicgate_record_work (config_id, record_id, key_value, step_id, created_millis, "
+          + "attribute_values, snapshot, last_seen, run_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+          + "on conflict (config_id, record_id) do update set key_value = excluded.key_value, step_id = excluded.step_id, "
+          + "created_millis = excluded.created_millis, attribute_values = excluded.attribute_values, snapshot = excluded.snapshot, "
+          + "last_seen = excluded.last_seen, run_id = excluded.run_id";
+
       for (int page=0;page<10000;page++) {
 
         GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
@@ -2184,23 +2248,25 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         if (contentNode == null || contentNode.size() == 0) {
           break;
         }
+        List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
         for (int i=0;i<contentNode.size();i++) {
           JsonNode recordNode = contentNode.get(i);
           if (this.applicationId == null) {
             this.applicationId = GrouperUtil.jsonJacksonGetString(GrouperUtil.jsonJacksonGetNode(recordNode, "application"), "id");
           }
-          LogicGateRecord logicGateRecord = new LogicGateRecord();
-          logicGateRecord.id = GrouperUtil.jsonJacksonGetString(recordNode, "id");
-          logicGateRecord.stepId = stepId;
-          logicGateRecord.attributeValues = recordV2attributes(recordNode);
-          logicGateRecord.key = logicGateRecord.attributeValues[0];
-          Long created = GrouperUtil.jsonJacksonGetLong(GrouperUtil.jsonJacksonGetNode(recordNode, "dates"), "created");
-          logicGateRecord.created = created == null ? Long.MAX_VALUE : created;
-          logicGateRecord.snapshot = snapshotV2(recordNode);
-          if (recordIdsThisStep.add(logicGateRecord.id)) {
-            result.add(logicGateRecord);
+          String recordId = GrouperUtil.jsonJacksonGetString(recordNode, "id");
+          if (!recordIdsThisStep.add(recordId)) {
+            continue;
           }
+          String[] attributeValues = recordV2attributes(recordNode);
+          Long created = GrouperUtil.jsonJacksonGetLong(GrouperUtil.jsonJacksonGetNode(recordNode, "dates"), "created");
+          batchBindVars.add(GrouperUtil.toList((Object)this.configId, recordId, StringUtils.trimToNull(attributeValues[0]), stepId,
+              created, attributeValuesToJson(attributeValues), GrouperUtil.jsonJacksonToString(snapshotV2(recordNode)), runStart, this.runId));
         }
+        if (batchBindVars.size() > 0) {
+          new GcDbAccess().sql(upsertSql).batchBindVars(batchBindVars).executeBatchSql();
+        }
+        debugPut("recordCountStep_" + stepId, recordIdsThisStep.size());
         if (page + 1 >= GrouperUtil.jsonJacksonGetLong(pageNode, "totalPages", 0L)) {
           break;
         }
@@ -2209,7 +2275,111 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         throw new RuntimeException("Only retrieved " + recordIdsThisStep.size() + " of " + totalElements
             + " records in step " + stepId + ", not continuing");
       }
-      GrouperUtil.mapAddValue(debugMap, "recordCountStep_" + stepId, recordIdsThisStep.size());
+    }
+
+    /**
+     * @param attributeValues
+     * @return JSON array string
+     */
+    private static String attributeValuesToJson(String[] attributeValues) {
+      ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+      for (String attributeValue : attributeValues) {
+        arrayNode.add(attributeValue);
+      }
+      return GrouperUtil.jsonJacksonToString(arrayNode);
+    }
+
+    /**
+     * @param json JSON array string
+     * @return the values
+     */
+    private static String[] attributeValuesFromJson(String json) {
+      ArrayNode arrayNode = (ArrayNode)GrouperUtil.jsonJacksonNode(json);
+      String[] result = new String[arrayNode.size()];
+      for (int i=0;i<arrayNode.size();i++) {
+        result[i] = arrayNode.get(i).isNull() ? "" : arrayNode.get(i).asText();
+      }
+      return result;
+    }
+
+    /**
+     * @param links [linked record id, workflow id]
+     * @return JSON array string
+     */
+    private static String linksToJson(List<String[]> links) {
+      ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+      for (String[] link : links) {
+        ArrayNode linkNode = GrouperUtil.jsonJacksonArrayNode();
+        linkNode.add(link[0]);
+        linkNode.add(link[1]);
+        arrayNode.add(linkNode);
+      }
+      return GrouperUtil.jsonJacksonToString(arrayNode);
+    }
+
+    /**
+     * @param json JSON array of [linked record id, workflow id], null if not looked up
+     * @return the links or null
+     */
+    private static List<String[]> linksFromJson(String json) {
+      if (json == null) {
+        return null;
+      }
+      ArrayNode arrayNode = (ArrayNode)GrouperUtil.jsonJacksonNode(json);
+      List<String[]> result = new ArrayList<String[]>();
+      for (int i=0;i<arrayNode.size();i++) {
+        result.add(new String[] {arrayNode.get(i).get(0).asText(), arrayNode.get(i).get(1).asText()});
+      }
+      return result;
+    }
+
+    /**
+     * write the links of one record to the work table
+     * @param recordId
+     * @param links
+     */
+    private void writeLinks(String recordId, List<String[]> links) {
+      int workflowLinks = 0;
+      for (String[] link : links) {
+        if (!isContactGroupWorkflow(link[1])) {
+          workflowLinks++;
+        }
+      }
+      new GcDbAccess().sql("update prov_logicgate_record_work set links = ?, link_count = ?, workflow_link_count = ?, links_checked = ? "
+          + "where config_id = ? and record_id = ?")
+        .addBindVar(linksToJson(links)).addBindVar(links.size()).addBindVar(workflowLinks)
+        .addBindVar(new java.sql.Timestamp(System.currentTimeMillis())).addBindVar(this.configId).addBindVar(recordId).executeSql();
+    }
+
+    /**
+     * load the rows of these people from the work table
+     * @param keys Penn IDs
+     * @return key to records (with links and snapshot)
+     */
+    private Map<String, List<LogicGateRecord>> loadRecords(List<String> keys) {
+      Map<String, List<LogicGateRecord>> result = new LinkedHashMap<String, List<LogicGateRecord>>();
+      if (keys.size() == 0) {
+        return result;
+      }
+      StringBuilder sql = new StringBuilder("select record_id, key_value, step_id, created_millis, attribute_values, snapshot, links "
+          + "from prov_logicgate_record_work where config_id = ? and key_value in (");
+      GrouperClientUtils.appendQuestions(sql, keys.size());
+      sql.append(")");
+      GcDbAccess gcDbAccess = new GcDbAccess().sql(sql.toString()).addBindVar(this.configId);
+      for (String key : keys) {
+        gcDbAccess.addBindVar(key);
+      }
+      for (Object[] row : gcDbAccess.selectList(Object[].class)) {
+        LogicGateRecord logicGateRecord = new LogicGateRecord();
+        logicGateRecord.id = (String)row[0];
+        logicGateRecord.key = (String)row[1];
+        logicGateRecord.stepId = (String)row[2];
+        logicGateRecord.created = row[3] == null ? Long.MAX_VALUE : GrouperUtil.longValue(row[3]);
+        logicGateRecord.attributeValues = attributeValuesFromJson((String)row[4]);
+        logicGateRecord.snapshot = (String)row[5];
+        logicGateRecord.links = linksFromJson((String)row[6]);
+        result.computeIfAbsent(logicGateRecord.key, k -> new ArrayList<LogicGateRecord>()).add(logicGateRecord);
+      }
       return result;
     }
 
@@ -2266,33 +2436,49 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         }
       }
       this.linkWorkflowIdToName = result;
-      debugMap.put("linkWorkflowCount", result.size());
+      debugPut("linkWorkflowCount", result.size());
     }
 
     /**
-     * Look up the direct links of these records.  Asking per record costs one call per linking workflow, so for a
-     * lot of records (the first cleanup) it is far cheaper to go the other way: read every record of the linking
-     * workflows and ask each which contacts it links to
-     * @param records
+     * Look up the direct links of the records of the people that need work, unless looked up within linkMaxAgeHours,
+     * and write them to the work table.  Asking per record costs one call per linking workflow, so for a lot of
+     * records (the first cleanup) it is far cheaper to go the other way: read every record of the linking workflows
+     * and ask each which contacts it links to.  That only keeps the (few) linked contacts in memory
+     * @param fixKeysSql sql selecting the Penn IDs of people who need work (binds: config id, inactive step id)
+     * @param runStart
      */
-    private void loadLinks(List<LogicGateRecord> records) {
-      if (records.size() == 0) {
-        return;
-      }
+    private void loadLinksIntoTable(String fixKeysSql, java.sql.Timestamp runStart) {
       findLinkWorkflows();
-      if (records.size() > this.reverseLinkScanThreshold) {
-        Map<String, List<String[]>> contactIdToLinks = reverseLinkScan();
-        for (LogicGateRecord logicGateRecord : records) {
-          logicGateRecord.links = GrouperUtil.nonNull(contactIdToLinks.get(logicGateRecord.id));
-        }
-        debugMap.put("linkLookup", "reverseScan");
+      java.sql.Timestamp staleBefore = new java.sql.Timestamp(System.currentTimeMillis() - this.linkMaxAgeHours * 60L * 60 * 1000);
+      String needLinksSql = "from prov_logicgate_record_work where config_id = ? and (links_checked is null or links_checked < ?) "
+          + "and key_value in (" + fixKeysSql + ")";
+      int needLinks = new GcDbAccess().sql("select count(*) " + needLinksSql).addBindVar(this.configId).addBindVar(staleBefore)
+          .addBindVar(this.configId).addBindVar(stepIdDeleteContact).select(int.class);
+      debugPut("recordsNeedingLinks", needLinks);
+      if (needLinks == 0) {
         return;
       }
-      debugMap.put("linkLookup", "perRecord");
-      runOnThreads(records, new java.util.function.Consumer<LogicGateRecord>() {
+      if (needLinks > this.reverseLinkScanThreshold) {
+        debugPut("linkLookup", "reverseScan");
+        Map<String, List<String[]>> contactIdToLinks = reverseLinkScan();
+        // everyone who needed links starts with none, then the linked ones get theirs
+        new GcDbAccess().sql("update prov_logicgate_record_work set links = '[]', link_count = 0, workflow_link_count = 0, links_checked = ? "
+            + needLinksSql.substring("from prov_logicgate_record_work ".length()))
+          .addBindVar(new java.sql.Timestamp(System.currentTimeMillis()))
+          .addBindVar(this.configId).addBindVar(staleBefore).addBindVar(this.configId).addBindVar(stepIdDeleteContact).executeSql();
+        for (String contactId : contactIdToLinks.keySet()) {
+          writeLinks(contactId, contactIdToLinks.get(contactId));
+        }
+        return;
+      }
+      debugPut("linkLookup", "perRecord");
+      List<String> recordIds = new GcDbAccess().sql("select record_id " + needLinksSql).addBindVar(this.configId).addBindVar(staleBefore)
+          .addBindVar(this.configId).addBindVar(stepIdDeleteContact).selectList(String.class);
+      runOnThreads(recordIds, new java.util.function.Consumer<String>() {
         @Override
-        public void accept(LogicGateRecord logicGateRecord) {
-          logicGateRecord.links = directLinks(logicGateRecord.id);
+        public void accept(String recordId) {
+          writeLinks(recordId, directLinks(recordId));
+          debugAdd("recordsLinksLookedUp", 1);
         }
       });
     }
@@ -2365,12 +2551,18 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
 
     /**
-     * read every record of every linking workflow and ask which contacts it directly links to
-     * @return contact record id to its direct links as [linked record id, workflow id]
+     * Read every record of every linking workflow and ask which contacts it directly links to.  Each answer is
+     * written to prov_logicgate_link_scan as soon as it is fetched, and a linking record scanned within
+     * linkMaxAgeHours is not asked again, so a run that fails part way resumes where it stopped
+     * @return contact record id to its direct links as [linked record id, workflow id]; only linked contacts
      */
     private Map<String, List<String[]>> reverseLinkScan() {
-      final Map<String, List<String[]>> result = new java.util.concurrent.ConcurrentHashMap<String, List<String[]>>();
-      List<String[]> linkingRecords = new ArrayList<String[]>();
+
+      java.sql.Timestamp scanStart = new java.sql.Timestamp(System.currentTimeMillis());
+      java.sql.Timestamp staleBefore = new java.sql.Timestamp(System.currentTimeMillis() - this.linkMaxAgeHours * 60L * 60 * 1000);
+
+      // list the linking records and stamp them in the scan table (new ones get a row with no contacts yet)
+      int linkingRecordCount = 0;
       for (String workflowId : this.linkWorkflowIdToName.keySet()) {
         for (int page=0;page<10000;page++) {
           GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
@@ -2380,23 +2572,65 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
           executeRequest(grouperHttpClient, 200, -1, "linkingRecordList");
           JsonNode resultNode = GrouperUtil.jsonJacksonNode(grouperHttpClient.getResponseBody());
           ArrayNode contentNode = (ArrayNode)GrouperUtil.jsonJacksonGetNode(resultNode, "content");
+          List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
           for (int i=0;contentNode != null && i<contentNode.size();i++) {
-            linkingRecords.add(new String[] {GrouperUtil.jsonJacksonGetString(contentNode.get(i), "id"), workflowId});
+            batchBindVars.add(GrouperUtil.toList((Object)this.configId, GrouperUtil.jsonJacksonGetString(contentNode.get(i), "id"), workflowId, scanStart));
+          }
+          if (batchBindVars.size() > 0) {
+            new GcDbAccess().sql("insert into prov_logicgate_link_scan (config_id, linking_record_id, linking_workflow_id, last_seen) "
+                + "values (?, ?, ?, ?) on conflict (config_id, linking_record_id) do update set "
+                + "linking_workflow_id = excluded.linking_workflow_id, last_seen = excluded.last_seen")
+              .batchBindVars(batchBindVars).executeBatchSql();
+            linkingRecordCount += batchBindVars.size();
           }
           if (contentNode == null || page + 1 >= GrouperUtil.jsonJacksonGetLong(GrouperUtil.jsonJacksonGetNode(resultNode, "page"), "totalPages", 0L)) {
             break;
           }
         }
       }
-      debugMap.put("reverseLinkScanRecords", linkingRecords.size());
-      runOnThreads(linkingRecords, new java.util.function.Consumer<String[]>() {
+      // linking records gone from LogicGate
+      new GcDbAccess().sql("delete from prov_logicgate_link_scan where config_id = ? and last_seen < ?")
+        .addBindVar(this.configId).addBindVar(scanStart).executeSql();
+      debugPut("reverseLinkScanRecords", linkingRecordCount);
+
+      // the ones not scanned recently: ask each which contacts it links to, write the answer right away
+      List<Object[]> toScan = new GcDbAccess().sql("select linking_record_id, linking_workflow_id from prov_logicgate_link_scan "
+          + "where config_id = ? and (scanned is null or scanned < ?)").addBindVar(this.configId).addBindVar(staleBefore)
+          .selectList(Object[].class);
+      debugPut("reverseLinkScanToDo", toScan.size());
+      final java.util.concurrent.atomic.AtomicInteger done = new java.util.concurrent.atomic.AtomicInteger();
+      runOnThreads(toScan, new java.util.function.Consumer<Object[]>() {
         @Override
-        public void accept(String[] linkingRecord) {
-          for (String contactId : linkedRecordIds(linkingRecord[0], contactsWorkflowId)) {
-            result.computeIfAbsent(contactId, k -> java.util.Collections.synchronizedList(new ArrayList<String[]>())).add(linkingRecord);
+        public void accept(Object[] linkingRecord) {
+          List<String> contactIds = linkedRecordIds((String)linkingRecord[0], contactsWorkflowId);
+          ArrayNode contactIdsNode = GrouperUtil.jsonJacksonArrayNode();
+          for (String contactId : contactIds) {
+            contactIdsNode.add(contactId);
+          }
+          new GcDbAccess().sql("update prov_logicgate_link_scan set contact_ids = ?, scanned = ? where config_id = ? and linking_record_id = ?")
+            .addBindVar(GrouperUtil.jsonJacksonToString(contactIdsNode)).addBindVar(new java.sql.Timestamp(System.currentTimeMillis()))
+            .addBindVar(LogicGateCommands.this.configId).addBindVar((String)linkingRecord[0]).executeSql();
+          int doneCount = done.incrementAndGet();
+          if (doneCount % 500 == 0) {
+            debugPut("reverseLinkScanDone", doneCount);
+            checkHeap();
           }
         }
       });
+      debugPut("reverseLinkScanDone", done.get());
+
+      // contact id to its links, from the whole table (this run's answers and the recent ones it skipped)
+      final Map<String, List<String[]>> result = new HashMap<String, List<String[]>>();
+      List<Object[]> rows = new GcDbAccess().sql("select linking_record_id, linking_workflow_id, contact_ids from prov_logicgate_link_scan "
+          + "where config_id = ? and contact_ids is not null and contact_ids <> '[]'").addBindVar(this.configId).selectList(Object[].class);
+      for (Object[] row : rows) {
+        String[] linkingRecord = new String[] {(String)row[0], (String)row[1]};
+        ArrayNode contactIdsNode = (ArrayNode)GrouperUtil.jsonJacksonNode((String)row[2]);
+        for (int i=0;i<contactIdsNode.size();i++) {
+          result.computeIfAbsent(contactIdsNode.get(i).asText(), k -> new ArrayList<String[]>()).add(linkingRecord);
+        }
+      }
+      debugPut("reverseLinkScanLinkedContacts", result.size());
       return result;
     }
 
@@ -2467,8 +2701,9 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         String snapshot = null;
         Integer groupLinkCount = null;
         Integer workflowLinkCount = null;
-        if (logicGateRecord != null && logicGateRecord.snapshot != null) {
-          ObjectNode snapshotNode = logicGateRecord.snapshot.deepCopy();
+        if (logicGateRecord != null && (logicGateRecord.snapshot != null || logicGateRecord.links != null)) {
+          ObjectNode snapshotNode = logicGateRecord.snapshot == null ? GrouperUtil.jsonJacksonNode()
+              : (ObjectNode)GrouperUtil.jsonJacksonNode(logicGateRecord.snapshot);
           if (logicGateRecord.links != null) {
             ArrayNode linksNode = GrouperUtil.jsonJacksonArrayNode();
             for (String[] link : logicGateRecord.links) {
@@ -2504,7 +2739,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
           .executeSql();
       } catch (RuntimeException re) {
         LOG.error("Could not write prov_logicgate_audit row: " + action + ", " + (logicGateRecord == null ? null : logicGateRecord.id), re);
-        GrouperUtil.mapAddValue(debugMap, "auditErrors", 1);
+        debugAdd("auditErrors", 1);
       }
     }
 
@@ -2520,7 +2755,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
           .addBindVar(this.configId)
           .addBindVar(new java.sql.Timestamp(System.currentTimeMillis() - this.auditRetentionDays * 24L * 60 * 60 * 1000))
           .executeSql();
-        debugMap.put("auditRowsPurged", count);
+        debugPut("auditRowsPurged", count);
       } catch (RuntimeException re) {
         LOG.error("Could not purge prov_logicgate_audit", re);
       }
@@ -2551,7 +2786,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
         new GrouperEmail().setTo(this.reportEmails)
           .setSubject((this.readOnly ? "[read only] " : "") + "LogicGate contacts sync: " + lines.size() + " change(s) to review")
           .setBody(body.toString()).send();
-        debugMap.put("reportLines", lines.size());
+        debugPut("reportLines", lines.size());
       } catch (RuntimeException re) {
         LOG.error("Could not send LogicGate report", re);
       }
@@ -2561,10 +2796,57 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     /**
      * @param readOnly1 true if the provisioner is readOnly
      * @param runId1 provisioner instance id
+     * @param provisionerDebugMap the provisioner debug map (it is the job message while the job runs), null to keep
+     * the commands' own map
      */
-    public void assignRunState(boolean readOnly1, String runId1) {
+    public void assignRunState(boolean readOnly1, String runId1, Map<String, Object> provisionerDebugMap) {
       this.readOnly = readOnly1;
       this.runId = runId1;
+      if (provisionerDebugMap != null) {
+        this.debugMap = provisionerDebugMap;
+      }
+    }
+
+    /**
+     * put a progress value in the debug map (shared with threads)
+     * @param key
+     * @param value
+     */
+    private void debugPut(String key, Object value) {
+      synchronized (this.debugMap) {
+        this.debugMap.put("logicGate_" + key, value);
+      }
+    }
+
+    /**
+     * add to a progress count in the debug map (shared with threads)
+     * @param key
+     * @param amount
+     */
+    private void debugAdd(String key, int amount) {
+      synchronized (this.debugMap) {
+        GrouperUtil.mapAddValue(this.debugMap, "logicGate_" + key, amount);
+      }
+    }
+
+    /**
+     * fail the run cleanly if the heap is too full, instead of taking the daemon down
+     */
+    private void checkHeap() {
+      Runtime runtime = Runtime.getRuntime();
+      long usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+      long maxMb = runtime.maxMemory() / (1024 * 1024);
+      debugPut("heapUsedMb", usedMb);
+      if (this.maxHeapPercent > 0 && usedMb * 100 > maxMb * this.maxHeapPercent) {
+        // one gc before giving up, used memory includes garbage
+        System.gc();
+        usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+        debugPut("heapUsedMb", usedMb);
+        if (usedMb * 100 > maxMb * this.maxHeapPercent) {
+          throw new RuntimeException("Heap " + usedMb + "MB of " + maxMb + "MB is over logicGateApi.maxHeapPercent ("
+              + this.maxHeapPercent + "), stopping the LogicGate cleanup");
+        }
+      }
     }
 
     /**
@@ -2575,12 +2857,11 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
 
     /**
-     * build a record from a v1 GET (for incremental deletes), with its direct links
+     * build a record from a v2 GET (for incremental deletes), with its direct links
      * @param recordId
      * @return the record
      */
     public LogicGateRecord recordForAudit(String recordId) {
-      // v2 GET has the same shape as the v2 list (fields inline, application), so the snapshot matches the full sync's
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       grouperHttpClient.assignUrl(this.url + "/v2/records/" + recordId);
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
@@ -2595,7 +2876,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       logicGateRecord.stepId = GrouperUtil.jsonJacksonGetString(GrouperUtil.jsonJacksonGetNode(recordNode, "currentStep"), "id");
       Long created = GrouperUtil.jsonJacksonGetLong(GrouperUtil.jsonJacksonGetNode(recordNode, "dates"), "created");
       logicGateRecord.created = created == null ? Long.MAX_VALUE : created;
-      logicGateRecord.snapshot = snapshotV2(recordNode);
+      logicGateRecord.snapshot = GrouperUtil.jsonJacksonToString(snapshotV2(recordNode));
       if (this.applicationId == null) {
         this.applicationId = GrouperUtil.jsonJacksonGetString(GrouperUtil.jsonJacksonGetNode(recordNode, "application"), "id");
       }
@@ -2690,8 +2971,10 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     this.logicGateCommands = this.theState.initTheState(this.getGrouperProvisioner().getConfigId());
 
     // readOnly: change nothing in LogicGate, only write audit rows with read_only = 'T'
+    // the provisioner debug map is the job message while the job runs, so progress shows up live
     this.logicGateCommands.assignRunState(
-        grouperProvisioner.retrieveGrouperProvisioningConfiguration().isReadOnly(), grouperProvisioner.getInstanceId());
+        grouperProvisioner.retrieveGrouperProvisioningConfiguration().isReadOnly(), grouperProvisioner.getInstanceId(),
+        grouperProvisioner.getDebugMap());
   }
 
   @Override
@@ -2932,13 +3215,35 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
 
   }
   
+  /**
+   * READ ONLY test of the full sync cleanup against the LogicGate configured for config id logicGateContacts (in
+   * grouper.properties logicGateContacts.logicGateApi.*).  Never changes LogicGate: runs with readOnly forced on.
+   * Writes prov_logicgate_record_work and prov_logicgate_audit rows (read_only = 'T') in the database Grouper is
+   * configured for, so both tables need to exist there.  Prints the progress counters and heap use at the end; run
+   * with a small heap (e.g. -Xmx4g) and watch it in VisualVM to see memory per phase.
+   * @param args optional: a file with one Penn ID per line to treat as provisionable (people who should have a live
+   * record).  Without it nobody is provisionable, so people with only inactive records are planned as deletes
+   */
   public static void main(String[] args) {
-    
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("logicGateContacts");
-    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
-    LogicGateRecordsProvisionerDao logicGateRecordsProvisionerDao = (LogicGateRecordsProvisionerDao) grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao();
-    logicGateRecordsProvisionerDao.initDao();
-    TargetDaoRetrieveAllEntitiesResponse allEntities = logicGateRecordsProvisionerDao.retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
-    System.out.println(allEntities);
-  }  
+
+    long start = System.currentTimeMillis();
+    Set<String> provisionableKeys = new HashSet<String>();
+    if (args.length > 0) {
+      provisionableKeys.addAll(GrouperUtil.splitFileLines(GrouperUtil.readFileIntoString(new java.io.File(args[0]))));
+      provisionableKeys.remove("");
+    }
+
+    TheState theState = new TheState();
+    LogicGateCommands logicGateCommands = theState.initTheState("logicGateContacts");
+    // read only: no change in LogicGate, audit rows marked read only
+    logicGateCommands.assignRunState(true, "mainTest" + System.currentTimeMillis(), null);
+    // do not email from a test
+    logicGateCommands.reportEmails = null;
+
+    Map<String, String[]> live = logicGateCommands.recordRetrieveAllV2(provisionableKeys);
+
+    System.out.println("live records returned: " + live.size() + ", took " + (System.currentTimeMillis() - start) / 1000 + "s");
+    System.out.println("report lines: " + logicGateCommands.getReportLines().size());
+    System.out.println(GrouperUtil.mapToString(theState.debugMap));
+  }
 }
