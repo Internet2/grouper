@@ -642,14 +642,114 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
-      
+
     } finally {
-      
+
     }
 
   }
-  
-  
+
+  /**
+   * whoCanDiscoverGroup ('who can see group' in the google UI) and whoCanViewGroup ALL_OWNERS_CAN_VIEW
+   * are sent to google from group metadata, on insert and on update (GRP-7516)
+   */
+  public void testFullSyncGoogleWhoCanDiscoverGroup() {
+
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+
+    // add whoCanDiscoverGroup as a 7th group attribute driven by metadata, like whoCanViewGroup is
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput()
+        .addExtraConfig("numberOfGroupAttributes", "7")
+        .addExtraConfig("targetGroupAttribute.6.name", "whoCanDiscoverGroup")
+        .addExtraConfig("targetGroupAttribute.6.translateExpressionType", "translationScript")
+        .addExtraConfig("targetGroupAttribute.6.translateExpression",
+            "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_whoCanDiscoverGroup'), 'ALL_IN_DOMAIN_CAN_DISCOVER')}")
+        .addExtraConfig("whoCanDiscoverGroup", "true"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    // this will create (or recreate) the mock tables
+    GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    // provision the folder with both settings in metadata
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myGoogleProvisioner");
+    attributeValue.setTargetName("myGoogleProvisioner");
+    attributeValue.setStemScopeString("sub");
+
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_whoCanViewGroup", "ALL_OWNERS_CAN_VIEW");
+    metadataNameValues.put("md_grouper_whoCanDiscoverGroup", "ALL_MEMBERS_CAN_DISCOVER");
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+    // the metadata dropdown is there with google's three values
+    assertTrue(grouperProvisioner.retrieveGrouperProvisioningObjectMetadata()
+        .getGrouperProvisioningObjectMetadataItemsByName().containsKey("md_grouper_whoCanDiscoverGroup"));
+
+    List<GrouperGoogleGroup> grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class);
+    assertEquals(1, grouperGoogleGroups.size());
+    assertEquals("ALL_OWNERS_CAN_VIEW", grouperGoogleGroups.get(0).getWhoCanViewGroup());
+    assertEquals("ALL_MEMBERS_CAN_DISCOVER", grouperGoogleGroups.get(0).getWhoCanDiscoverGroup());
+
+    // change the setting on the group, full sync should update google
+    attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myGoogleProvisioner");
+    attributeValue.setTargetName("myGoogleProvisioner");
+
+    metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_whoCanViewGroup", "ALL_OWNERS_CAN_VIEW");
+    metadataNameValues.put("md_grouper_whoCanDiscoverGroup", "ANYONE_CAN_DISCOVER");
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
+
+    fullProvision();
+
+    grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class);
+    assertEquals(1, grouperGoogleGroups.size());
+    assertEquals("ALL_OWNERS_CAN_VIEW", grouperGoogleGroups.get(0).getWhoCanViewGroup());
+    assertEquals("ANYONE_CAN_DISCOVER", grouperGoogleGroups.get(0).getWhoCanDiscoverGroup());
+
+    // remove the metadata, the translation default applies
+    attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myGoogleProvisioner");
+    attributeValue.setTargetName("myGoogleProvisioner");
+    attributeValue.setMetadataNameValues(new HashMap<String, Object>());
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
+
+    fullProvision();
+
+    grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class);
+    assertEquals("ALL_IN_DOMAIN_CAN_DISCOVER", grouperGoogleGroups.get(0).getWhoCanDiscoverGroup());
+    assertEquals("ALL_IN_DOMAIN_CAN_VIEW", grouperGoogleGroups.get(0).getWhoCanViewGroup());
+
+  }
+
+
   /**
    * verifies that when skipIfTargetGroupExists is on and a target group already exists on first encounter,
    * Grouper skips it (no insert, no membership sync), the grouper_sync_group row gets the SKP error code,

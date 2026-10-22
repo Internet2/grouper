@@ -42,6 +42,7 @@
     <property name="whoCanJoin" column="who_can_join" />
     <property name="whoCanViewMembership" column="who_can_view_membership" />
     <property name="whoCanViewGroup" column="who_can_view_group" />
+    <property name="whoCanDiscoverGroup" column="who_can_discover_group" />
     <property name="whoCanInvite" column="who_can_invite" />
     <property name="whoCanModerateMembers" column="who_can_moderate_members" />
     <property name="whoCanPostMessage" column="who_can_post_message" />

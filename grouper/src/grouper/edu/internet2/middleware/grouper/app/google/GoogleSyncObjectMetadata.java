@@ -151,7 +151,30 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       valuesAndLabels.add(new MultiKey("ALL_IN_DOMAIN_CAN_VIEW", "ALL_IN_DOMAIN_CAN_VIEW"));
       valuesAndLabels.add(new MultiKey("ALL_MEMBERS_CAN_VIEW", "ALL_MEMBERS_CAN_VIEW"));
       valuesAndLabels.add(new MultiKey("ALL_MANAGERS_CAN_VIEW", "ALL_MANAGERS_CAN_VIEW"));
-      
+      valuesAndLabels.add(new MultiKey("ALL_OWNERS_CAN_VIEW", "ALL_OWNERS_CAN_VIEW"));
+
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+    }
+
+    // whoCanDiscoverGroup is "who can see group" in the google UI (whoCanViewGroup is "who can view conversations")
+    if (((GrouperGoogleConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isWhoCanDiscoverGroup() &&
+        !this.containsMetadataItemByName("md_grouper_whoCanDiscoverGroup")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataWhoCanDiscoverGroupDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanDiscoverGroupLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanDiscoverGroup");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+
+      valuesAndLabels.add(new MultiKey("ANYONE_CAN_DISCOVER", "ANYONE_CAN_DISCOVER"));
+      valuesAndLabels.add(new MultiKey("ALL_IN_DOMAIN_CAN_DISCOVER", "ALL_IN_DOMAIN_CAN_DISCOVER"));
+      valuesAndLabels.add(new MultiKey("ALL_MEMBERS_CAN_DISCOVER", "ALL_MEMBERS_CAN_DISCOVER"));
+
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
     }
 

@@ -62,7 +62,20 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
    * 
    */
   public static void ensureGoogleMockTables() {
-    
+
+    // the create table methods only run if the table is missing, so if mock_google_group predates
+    // a newer column (e.g. who_can_discover_group), drop the mock tables so they are recreated below
+    try {
+      new GcDbAccess().sql("select count(*) from mock_google_group").select(int.class);
+      try {
+        new GcDbAccess().sql("select count(who_can_discover_group) from mock_google_group").select(int.class);
+      } catch (Exception e) {
+        dropGoogleMockTables();
+      }
+    } catch (Exception e) {
+      // table not there, it will be created below
+    }
+
     try {
       new GcDbAccess().sql("select count(*) from mock_google_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_google_user").select(int.class);
@@ -897,30 +910,64 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     String groupSettingsJson = mockServiceRequest.getRequestBody();
     JsonNode groupSettingsJsonNode = GrouperUtil.jsonJacksonNode(groupSettingsJson);
-    grouperGoogleGroup.populateGroupSettings(groupSettingsJsonNode);
 
+    // PATCH semantics like google: only fields in the request body change, everything else keeps its value.
+    // (populating the stored group directly would null out every setting not in the body)
+    GrouperGoogleGroup patch = new GrouperGoogleGroup();
+    patch.populateGroupSettings(groupSettingsJsonNode);
 
-    /* whoCanAdd is deprecated and ignored */
-    //if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanAdd())) {
-    //  grouperGoogleGroup.setWhoCanAdd(grouperGoogleGroup.getWhoCanAdd());
-    //}
-    grouperGoogleGroup.setWhoCanAdd("ALL_MANAGERS_CAN_ADD");
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanJoin())) {
-      grouperGoogleGroup.setWhoCanJoin(grouperGoogleGroup.getWhoCanJoin());
+    if (groupSettingsJsonNode.has("defaultMessageDenyNotificationText")) {
+      grouperGoogleGroup.setDefaultMessageDenyNotificationText(patch.getDefaultMessageDenyNotificationText());
     }
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanViewMembership())) {
-      grouperGoogleGroup.setWhoCanViewMembership(grouperGoogleGroup.getWhoCanViewMembership());
+    if (groupSettingsJsonNode.has("messageModerationLevel")) {
+      grouperGoogleGroup.setMessageModerationLevel(patch.getMessageModerationLevel());
     }
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanViewGroup())) {
-      grouperGoogleGroup.setWhoCanViewGroup(grouperGoogleGroup.getWhoCanViewGroup());
+    if (groupSettingsJsonNode.has("replyTo")) {
+      grouperGoogleGroup.setReplyTo(patch.getReplyTo());
     }
-    /* whoCanInvite is deprecated and ignored */
-    //if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanInvite())) {
-    //  grouperGoogleGroup.setWhoCanInvite(grouperGoogleGroup.getWhoCanInvite());
-    //}
-    grouperGoogleGroup.setWhoCanInvite("ALL_MANAGERS_CAN_INVITE");
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanModerateMembers())) {
-      grouperGoogleGroup.setWhoCanModerateMembers(grouperGoogleGroup.getWhoCanModerateMembers());
+    if (groupSettingsJsonNode.has("spamModerationLevel")) {
+      grouperGoogleGroup.setSpamModerationLevel(patch.getSpamModerationLevel());
+    }
+    if (groupSettingsJsonNode.has("whoCanJoin")) {
+      grouperGoogleGroup.setWhoCanJoin(patch.getWhoCanJoin());
+    }
+    if (groupSettingsJsonNode.has("whoCanViewMembership")) {
+      grouperGoogleGroup.setWhoCanViewMembership(patch.getWhoCanViewMembership());
+    }
+    if (groupSettingsJsonNode.has("whoCanViewGroup")) {
+      grouperGoogleGroup.setWhoCanViewGroup(patch.getWhoCanViewGroup());
+    }
+    if (groupSettingsJsonNode.has("whoCanDiscoverGroup")) {
+      grouperGoogleGroup.setWhoCanDiscoverGroup(patch.getWhoCanDiscoverGroup());
+    }
+    if (groupSettingsJsonNode.has("whoCanPostMessage")) {
+      grouperGoogleGroup.setWhoCanPostMessage(patch.getWhoCanPostMessage());
+    }
+    if (groupSettingsJsonNode.has("allowExternalMembers")) {
+      grouperGoogleGroup.setAllowExternalMembers(patch.getAllowExternalMembers());
+    }
+    if (groupSettingsJsonNode.has("allowWebPosting")) {
+      grouperGoogleGroup.setAllowWebPosting(patch.getAllowWebPosting());
+    }
+    if (groupSettingsJsonNode.has("allowGoogleCommunication")) {
+      grouperGoogleGroup.setAllowGoogleCommunication(patch.getAllowGoogleCommunication());
+    }
+    if (groupSettingsJsonNode.has("sendMessageDenyNotification")) {
+      grouperGoogleGroup.setSendMessageDenyNotification(patch.getSendMessageDenyNotification());
+    }
+    if (groupSettingsJsonNode.has("archiveOnly")) {
+      grouperGoogleGroup.setArchiveOnly(patch.getArchiveOnly());
+    }
+
+    /* whoCanAdd and whoCanInvite are deprecated and ignored, google derives them from whoCanModerateMembers */
+    if (StringUtils.isBlank(grouperGoogleGroup.getWhoCanAdd())) {
+      grouperGoogleGroup.setWhoCanAdd("ALL_MANAGERS_CAN_ADD");
+    }
+    if (StringUtils.isBlank(grouperGoogleGroup.getWhoCanInvite())) {
+      grouperGoogleGroup.setWhoCanInvite("ALL_MANAGERS_CAN_INVITE");
+    }
+    if (groupSettingsJsonNode.has("whoCanModerateMembers") && StringUtils.isNotBlank(patch.getWhoCanModerateMembers())) {
+      grouperGoogleGroup.setWhoCanModerateMembers(patch.getWhoCanModerateMembers());
 
       switch (grouperGoogleGroup.getWhoCanModerateMembers()) {
         case "NONE":
@@ -944,23 +991,11 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       }
 
     }
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanPostMessage())) {
-      grouperGoogleGroup.setWhoCanPostMessage(grouperGoogleGroup.getWhoCanPostMessage());
-    }
-    if (grouperGoogleGroup.getAllowExternalMembers() != null) {
-      grouperGoogleGroup.setAllowExternalMembers(grouperGoogleGroup.getAllowExternalMembers());
-    }
-    if (grouperGoogleGroup.getAllowWebPosting() != null) {
-      grouperGoogleGroup.setAllowWebPosting(grouperGoogleGroup.getAllowWebPosting());
-    }
 
     HibernateSession.byObjectStatic().saveOrUpdate(grouperGoogleGroup);
-    
-//    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-//    resultNode.put("stat", "OK");
-//    ObjectNode objectNode = toGroupJson(grouperGoogleGroup);
-    ObjectNode objectNode = grouperGoogleGroup.toJsonGroupOnly(null);
+
+    // google returns the full settings resource from a settings PATCH
+    ObjectNode objectNode = grouperGoogleGroup.toJsonGroupSettings(null);
     
 //    resultNode.set("response", objectNode);
     

@@ -52,6 +52,7 @@ public class GrouperGoogleGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_join", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_membership", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_group", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_discover_group", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_invite", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_moderate_members", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_post_message", Types.VARCHAR, "40", false, false);
@@ -81,6 +82,7 @@ public class GrouperGoogleGroup {
     targetGroup.assignAttributeValue("whoCanJoin", this.whoCanJoin);
     targetGroup.assignAttributeValue("whoCanViewMembership", this.whoCanViewMembership);
     targetGroup.assignAttributeValue("whoCanViewGroup", this.whoCanViewGroup);
+    targetGroup.assignAttributeValue("whoCanDiscoverGroup", this.whoCanDiscoverGroup);
     targetGroup.assignAttributeValue("whoCanInvite", this.whoCanInvite);
     targetGroup.assignAttributeValue("whoCanModerateMembers", this.whoCanModerateMembers);
     targetGroup.assignAttributeValue("whoCanPostMessage", this.whoCanPostMessage);
@@ -149,7 +151,11 @@ public class GrouperGoogleGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanViewGroup")) {      
       grouperGoogleGroup.setWhoCanViewGroup(targetGroup.retrieveAttributeValueString("whoCanViewGroup"));
     }
-    
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanDiscoverGroup")) {
+      grouperGoogleGroup.setWhoCanDiscoverGroup(targetGroup.retrieveAttributeValueString("whoCanDiscoverGroup"));
+    }
+
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanInvite")) {      
       grouperGoogleGroup.setWhoCanInvite(targetGroup.retrieveAttributeValueString("whoCanInvite"));
     }
@@ -248,6 +254,9 @@ public class GrouperGoogleGroup {
   private String whoCanJoin;
   private String whoCanViewMembership;
   private String whoCanViewGroup;
+
+  /** who can find the group in the directory, "who can see group" in the google UI (replaces deprecated showInGroupDirectory) */
+  private String whoCanDiscoverGroup;
   private String whoCanInvite;
   private String whoCanModerateMembers;
   private Boolean allowExternalMembers;
@@ -435,6 +444,16 @@ public class GrouperGoogleGroup {
   }
 
 
+  public String getWhoCanDiscoverGroup() {
+    return whoCanDiscoverGroup;
+  }
+
+
+  public void setWhoCanDiscoverGroup(String whoCanDiscoverGroup) {
+    this.whoCanDiscoverGroup = whoCanDiscoverGroup;
+  }
+
+
   public String getWhoCanInvite() {
     return whoCanInvite;
   }
@@ -557,6 +576,7 @@ public class GrouperGoogleGroup {
     this.whoCanJoin = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanJoin");
     this.whoCanViewMembership = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanViewMembership");
     this.whoCanViewGroup = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanViewGroup");
+    this.whoCanDiscoverGroup = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanDiscoverGroup");
     this.whoCanInvite = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanInvite");
     this.whoCanModerateMembers = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanModerateMembers");
     this.allowExternalMembers = GrouperUtil.jsonJacksonGetBoolean(groupSettingsNode, "allowExternalMembers");
@@ -612,6 +632,9 @@ public class GrouperGoogleGroup {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanViewGroup")) {      
       result.put("whoCanViewGroup", this.whoCanViewGroup);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanDiscoverGroup")) {
+      result.put("whoCanDiscoverGroup", this.whoCanDiscoverGroup);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanInvite")) { 
       result.put("whoCanInvite", this.whoCanInvite);

@@ -17,6 +17,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   private boolean whoCanJoin;
   private boolean whoCanViewMembership;
   private boolean whoCanViewGroup;
+  private boolean whoCanDiscoverGroup;
   private boolean whoCanInvite;
   private boolean whoCanModerateMembers;
   private boolean allowExternalMembers;
@@ -74,6 +75,16 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   
   public void setWhoCanViewGroup(boolean whoCanViewGroup) {
     this.whoCanViewGroup = whoCanViewGroup;
+  }
+
+
+  public boolean isWhoCanDiscoverGroup() {
+    return whoCanDiscoverGroup;
+  }
+
+
+  public void setWhoCanDiscoverGroup(boolean whoCanDiscoverGroup) {
+    this.whoCanDiscoverGroup = whoCanDiscoverGroup;
   }
 
   
@@ -217,6 +228,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     this.whoCanJoin = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanJoin", false), false);
     this.whoCanViewMembership = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanViewMembership", false), false);
     this.whoCanViewGroup = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanViewGroup", false), false);
+    this.whoCanDiscoverGroup = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanDiscoverGroup", false), false);
     this.whoCanInvite = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanInvite", false), false);
     this.whoCanModerateMembers = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanModerateMembers", false), false);
     this.allowExternalMembers = GrouperUtil.booleanValue(this.retrieveConfigString("allowExternalMembers", false), false);
@@ -241,7 +253,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     super.configureAfterMetadata();
     
     for (String attributeName : new String[] {"whoCanAdd", "whoCanJoin",
-        "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite", "whoCanModerateMembers",
+        "whoCanViewMembership", "whoCanViewGroup", "whoCanDiscoverGroup", "whoCanInvite", "whoCanModerateMembers",
         "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
       
       // if metadata exists
