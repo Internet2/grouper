@@ -733,8 +733,8 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
       //System.out.println(GrouperUtil.jsonJacksonGetString(jsonNode, "access_token"));
       String accessToken = GrouperUtil.jsonJacksonGetString(jsonNode, "access_token");
       
-      GrouperUtil.mapAddValue(debugMap, "authenticateMillis", (long)((System.nanoTime()-start)/1000000L));
-      GrouperUtil.mapAddValue(debugMap, "authenticateCount", 1);
+      GrouperUtil.mapAddValue(this.debugMap, "authenticateMillis", (long)((System.nanoTime()-start)/1000000L));
+      GrouperUtil.mapAddValue(this.debugMap, "authenticateCount", 1);
       
       return accessToken;
     
@@ -2813,9 +2813,8 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
      * @param value
      */
     private void debugPut(String key, Object value) {
-      synchronized (this.debugMap) {
-        this.debugMap.put("logicGate_" + key, value);
-      }
+      // the provisioner debug map is a synchronized map, put is thread safe on its own
+      this.debugMap.put("logicGate_" + key, value);
     }
 
     /**
@@ -2824,10 +2823,9 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
      * @param amount
      */
     private void debugAdd(String key, int amount) {
-      synchronized (this.debugMap) {
-        GrouperUtil.mapAddValue(this.debugMap, "logicGate_" + key, amount);
-      }
+      GrouperUtil.mapAddValue(this.debugMap, "logicGate_" + key, amount);
     }
+
 
     /**
      * fail the run cleanly if the heap is too full, instead of taking the daemon down
