@@ -105,29 +105,6 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
         }
         
       }
-      
-      Set<String> owners = (Set<String>)grouperProvisioningGroup.retrieveAttributeValueSet("groupOwners");
-      
-      if (GrouperUtil.length(owners) > 0) {
-        boolean needsAdjustment = false;
-        for (String owner: owners) {
-          if (StringUtils.startsWith(owner, "http")) {
-            needsAdjustment = true;
-            break;
-          }
-        }
-        if (needsAdjustment) {
-          Set<String> adjustedOwners = new HashSet<String>();
-          for (String owner: owners) {
-            if (StringUtils.startsWith(owner, "http")) {
-              String uuid = GrouperUtil.suffixAfterChar(owner, '/');
-              adjustedOwners.add(uuid);
-            } else {
-              adjustedOwners.add(owner);
-            }
-          }
-        }
-      }
     }
     return grouperTargetGroups;
     
