@@ -15501,22 +15501,22 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public synchronized static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
     if (map == null) {
       return;
     }
-    
-    Object currentValue = map.get(key);
-    
-    if (currentValue == null) {
-      
-      currentValue = 0L;
+    // lock the map, not the GrouperUtil class (this used to be static synchronized).  A class lock is shared by
+    // every caller in the JVM and deadlocks with a caller that already holds the map's lock, e.g. a
+    // Collections.synchronizedMap, whose own methods lock the map itself.  Locking the map keeps the get and put
+    // together and only ever takes that one lock
+    synchronized (map) {
+      Object currentValue = map.get(key);
+      if (currentValue == null) {
+        currentValue = 0L;
+      }
+      long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+      map.put(key, newValue);
     }
-
-    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
-    
-    map.put(key, newValue);
-    
   }
 
   /**
@@ -15525,22 +15525,23 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public synchronized static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
+  public static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
     if (map == null) {
       return -1;
     }
-    
-    Object currentValue = map.get(key);
-    
-    if (currentValue == null) {
-      
-      currentValue = 0L;
+    // lock the map, not the GrouperUtil class (this used to be static synchronized).  A class lock is shared by
+    // every caller in the JVM and deadlocks with a caller that already holds the map's lock, e.g. a
+    // Collections.synchronizedMap, whose own methods lock the map itself.  Locking the map keeps the get and put
+    // together and only ever takes that one lock
+    synchronized (map) {
+      Object currentValue = map.get(key);
+      if (currentValue == null) {
+        currentValue = 0L;
+      }
+      long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+      map.put(key, newValue);
+      return newValue;
     }
-
-    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
-    
-    map.put(key, newValue);
-    return newValue;
   }
 
   /**
@@ -15549,22 +15550,22 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd int
    */
-  public synchronized static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
     if (map == null) {
       return;
     }
-    
-    Object currentValue = map.get(key);
-    
-    if (currentValue == null) {
-      
-      currentValue = 0;
+    // lock the map, not the GrouperUtil class (this used to be static synchronized).  A class lock is shared by
+    // every caller in the JVM and deadlocks with a caller that already holds the map's lock, e.g. a
+    // Collections.synchronizedMap, whose own methods lock the map itself.  Locking the map keeps the get and put
+    // together and only ever takes that one lock
+    synchronized (map) {
+      Object currentValue = map.get(key);
+      if (currentValue == null) {
+        currentValue = 0;
+      }
+      int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+      map.put(key, newValue);
     }
-
-    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
-    
-    map.put(key, newValue);
-
   }
 
   /**
@@ -15574,22 +15575,23 @@ public class GrouperUtil {
    * @param numberToAdd int
    * @return new count
    */
-  public synchronized static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
+  public static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
     if (map == null) {
       return -1;
     }
-    
-    Object currentValue = map.get(key);
-    
-    if (currentValue == null) {
-      
-      currentValue = 0;
+    // lock the map, not the GrouperUtil class (this used to be static synchronized).  A class lock is shared by
+    // every caller in the JVM and deadlocks with a caller that already holds the map's lock, e.g. a
+    // Collections.synchronizedMap, whose own methods lock the map itself.  Locking the map keeps the get and put
+    // together and only ever takes that one lock
+    synchronized (map) {
+      Object currentValue = map.get(key);
+      if (currentValue == null) {
+        currentValue = 0;
+      }
+      int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+      map.put(key, newValue);
+      return newValue;
     }
-
-    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
-    
-    map.put(key, newValue);
-    return newValue;
   }
 
   /**
