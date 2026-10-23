@@ -469,7 +469,8 @@ public class UiV2AiAgent extends UiServiceLogicBase {
   }
 
   /**
-   * save what the agent may do in this session
+   * save what the agent may do in this session.  called each time a scope box changes, since the
+   * screen has no Save button
    * @param request
    * @param response
    */
@@ -492,11 +493,17 @@ public class UiV2AiAgent extends UiServiceLogicBase {
       Set<GrouperToolCategory> allowed = GrouperUiAgentToolRunner.retrieveCategoriesAllowedByMembership(
           GrouperUiAgentCaller.fromRequest());
       Set<GrouperToolCategory> chosen = new LinkedHashSet<GrouperToolCategory>();
+      boolean droppedOne = false;
       for (String value : parameterValues(request, "aiAgentScope")) {
+        boolean kept = false;
         for (GrouperToolCategory category : allowed) {
           if (StringUtils.equals(category.name(), value)) {
             chosen.add(category);
+            kept = true;
           }
+        }
+        if (!kept) {
+          droppedOne = true;
         }
       }
 
@@ -514,10 +521,17 @@ public class UiV2AiAgent extends UiServiceLogicBase {
       sessionContainer.setAiAgentToolScope(chosen);
       sessionContainer.storeToSession();
 
-      populateScope();
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#aiAgentScopeDivId",
-          "/WEB-INF/grouperUi2/aiAgent/aiAgentScope.jsp"));
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, text("aiAgentScopeSaved")));
+      // the boxes are left alone, so keyboard focus stays on the one just changed.  they are only
+      // redrawn when a box was not saved, e.g. the user's groups no longer allow it, so the screen
+      // shows what was saved.  the status line is outside the boxes, so it is there either way
+      if (droppedOne) {
+        populateScope();
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#aiAgentScopeDivId",
+            "/WEB-INF/grouperUi2/aiAgent/aiAgentScope.jsp"));
+      }
+      // green check like mcpInfo.jsp.  hidden from screen readers, which read just the text
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#aiAgentScopeStatusId",
+          "<i aria-hidden=\"true\" class=\"fa fa-check\" style=\"color: green;\"></i> " + text("aiAgentScopeSaved")));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

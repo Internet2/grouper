@@ -1,8 +1,9 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- only the categories the user's groups allow are offered.  the saved choice can only narrow
-     what the groups allow, never add to it --%>
-<form id="aiAgentScopeFormId" onsubmit="ajax('../app/UiV2AiAgent.aiAgentScopeSubmit', {formIds: 'aiAgentScopeFormId'}); return false;">
+     what the groups allow, never add to it.  there is no Save button: each box saves when it
+     changes.  ajax blocks the page until the answer comes back, so saves do not overlap --%>
+<form id="aiAgentScopeFormId" onsubmit="aiAgentScopeSave(); return false;">
   <fieldset>
     <legend style="font-size: 1.1em; margin-bottom: 0.25em;">${textContainer.text['aiAgentScopeHeader'] }</legend>
     <c:choose>
@@ -14,13 +15,19 @@
           <c:set var="aiAgentScopeTextKey" value="aiAgentScope_${scopeOption.category}" />
           <label class="checkbox">
             <input type="checkbox" name="aiAgentScope" id="aiAgentScope_${grouper:escapeHtml(scopeOption.category)}"
-              value="${grouper:escapeHtml(scopeOption.category)}" onchange="aiAgentScopeSyncImplied();"
+              value="${grouper:escapeHtml(scopeOption.category)}" onchange="aiAgentScopeSyncImplied(); aiAgentScopeSave();"
               <c:if test="${scopeOption.selected}">checked="checked"</c:if> />
             ${textContainer.text[aiAgentScopeTextKey] }
           </label>
         </c:forEach>
-        <input type="submit" class="btn" aria-controls="aiAgentScopeDivId" value="${textContainer.text['aiAgentScopeSubmit'] }" />
         <script type="text/javascript">
+          // the status is cleared first, so a save which fails does not leave an earlier one's
+          // "Saved" showing
+          function aiAgentScopeSave() {
+            $('#aiAgentScopeStatusId').empty();
+            ajax('../app/UiV2AiAgent.aiAgentScopeSubmit', {formIds: 'aiAgentScopeFormId'});
+          }
+
           // read and write includes read-only, and admin read and write includes admin read-only, as
           // on the OAuth consent screen: while the larger one is checked, the one it includes is
           // checked and disabled.  a disabled box is not sent, so the server adds it when saving
