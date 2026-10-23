@@ -295,11 +295,11 @@ public class GrouperToolRegistration {
         return GrouperToolResultBound.boundedByConfig;
       }
       public GrouperToolCategory category(JsonNode arguments) {
-        // schema, running a template marked mcpReadonly, and a call matching a template's
-        // mcpReadonlyWhen, are reads.  running any other template can change anything the script
+        // schema, running a template marked mcpReadonly, and a call a template's mcpReadonlyJexl
+        // is true for, are reads.  running any other template can change anything the script
         // does, so it is a write: it needs readwrite, counts against the readwrite throttle, and
-        // the AI agent in the UI asks the user first.  a call matching mcpReadonlyWhen still needs
-        // readwrite, since executeTemplate checks that against the whole template
+        // the AI agent in the UI asks the user first.  a call mcpReadonlyJexl is true for still
+        // needs readwrite, since executeTemplate checks that against the whole template
         return GrouperMcpInstitutionalTools.isExecuteOfReadwriteTemplate(arguments)
             ? GrouperToolCategory.readwrite : GrouperToolCategory.readonly;
       }

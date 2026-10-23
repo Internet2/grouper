@@ -648,16 +648,17 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
   }
 
   /**
-   * a call matching a readwrite template's mcpReadonlyWhen is a read, read from the template's
-   * config the way the template reads its inputs: an optional input left out takes its default,
-   * and a required input has none, even if one is configured
+   * a call a readwrite template's mcpReadonlyJexl is true for is a read, with the inputs read from
+   * the template's config the way the template reads them: an optional input left out takes its
+   * default, and a required input has none, even if one is configured.  anything but true, such as
+   * an error or a result which is not a boolean, is a write
    */
-  public void testCategoryOfExecuteReadonlyWhen() {
+  public void testCategoryOfExecuteReadonlyJexl() {
 
     String configPrefix = "grouperGshTemplate.mcpCategoryWhen.";
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyWhen",
-        "gsh_input_action=get, gsh_input_confirm=false, gsh_input_dryRun=true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_action == 'get' || gsh_input_confirm != true || gsh_input_dryRun == true}");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "3");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_action");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.type", "string");
@@ -695,15 +696,90 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
     assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
     assertNotNull(grouperTool.confirmationSummary(arguments));
 
-    // dryRun given does match
+    // dryRun given makes it true
     inputs.put("dryRun", "true");
     assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
 
-    // the same template with no mcpReadonlyWhen is a write whatever the inputs
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(configPrefix + "mcpReadonlyWhen");
+    // a confirm which does not convert is a write, whatever the expression says
+    inputs.removeAll();
+    inputs.put("action", "get");
+    inputs.put("confirm", "maybe");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // and works too: only a get with confirm off
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_action == 'get' && gsh_input_confirm != true}");
+    inputs.removeAll();
+    inputs.put("action", "get");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    inputs.put("confirm", "true");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // a misspelled input is an error, not null, so a write
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_actoin != 'create'}");
     inputs.removeAll();
     inputs.put("action", "get");
     assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // a result which is not a boolean is a write
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_action}");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // an input with no value is null, and != works on it, as the documentation says to use.
+    // dryRun is required, so its configured default is ignored and left out it is null
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_dryRun != true}");
+    inputs.removeAll();
+    inputs.put("action", "create");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+    inputs.put("dryRun", "true");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+
+    // the same template with no mcpReadonlyJexl is a write whatever the inputs
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(configPrefix + "mcpReadonlyJexl");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+  }
+
+  /**
+   * mcpReadonlyJexl sees an input trimmed only if the template trims it, read from the input's
+   * trimWhitespace config, which defaults to true.  otherwise a value the template does not take as
+   * a get could be let through as one
+   */
+  public void testCategoryOfExecuteReadonlyJexlTrimWhitespace() {
+
+    String configPrefix = "grouperGshTemplate.mcpCategoryTrim.";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl",
+        "${gsh_input_action == 'get'}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_action");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.type", "string");
+
+    GrouperTool grouperTool = GrouperToolRegistry.find("institutional_tools");
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", "execute");
+    arguments.put("configId", "mcpCategoryTrim");
+    ObjectNode inputs = arguments.putObject("inputs");
+
+    // trimWhitespace not set: trimmed, as the template trims it
+    inputs.put("action", " get ");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+
+    // trimWhitespace off: the template gets " get ", which is not a get
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.trimWhitespace", "false");
+    assertEquals(GrouperToolCategory.readwrite, grouperTool.category(arguments));
+    assertNotNull(grouperTool.confirmationSummary(arguments));
+
+    inputs.put("action", "get");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
+
+    // trimWhitespace on, set explicitly
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.trimWhitespace", "true");
+    inputs.put("action", " get ");
+    assertEquals(GrouperToolCategory.readonly, grouperTool.category(arguments));
   }
 
   /**
@@ -778,12 +854,12 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
   }
 
   /**
-   * a call matching mcpReadonlyWhen is a read, so it gets past the tool layer's readonly gate, but
+   * a call mcpReadonlyJexl is true for is a read, so it gets past the tool layer's readonly gate, but
    * the template still needs readwrite: a user with readonly only, or with readwrite but a readonly
    * scope, is refused and the script does not run.  a readwrite user with no scope limit runs it,
    * so the refusals are not just the template failing
    */
-  public void testReadonlyWhenCallStillNeedsReadwrite() {
+  public void testReadonlyJexlCallStillNeedsReadwrite() {
 
     String configPrefix = "grouperGshTemplate.mcpWhenExecTemplate.";
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "enabled", "true");
@@ -793,7 +869,7 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateDescription", "Get is a read");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "securityRunType", "everyone");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyWhen", "gsh_input_action=get");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpReadonlyJexl", "${gsh_input_action == 'get'}");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");

@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,9 +82,9 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>{@code mcpEnabled} - boolean, default false. Enables MCP for this template.</li>
  *   <li>{@code mcpReadonly} - boolean, default false. If true, readonly MCP users can execute
  *       this template. Only shown when mcpEnabled is true.</li>
- *   <li>{@code mcpReadonlyWhen} - comma separated input=value pairs, for a template which is not
- *       mcpReadonly.  A call matching any one of them changes nothing, so the AI agent in the UI
- *       runs it without asking first.  It still needs readwrite.</li>
+ *   <li>{@code mcpReadonlyJexl} - a JEXL expression over the inputs, like an input's showEl, for a
+ *       template which is not mcpReadonly.  A call it is true for changes nothing, so the AI agent
+ *       in the UI runs it without asking first.  It still needs readwrite.</li>
  *   <li>{@code input.N.mcpScopeType} - dropdown (folders, groups, subjects). Restricts this
  *       input to approved readwrite scopes. Only shown when mcpEnabled is true and mcpReadonly
  *       is false.</li>
@@ -340,7 +341,7 @@ public class GrouperMcpInstitutionalTools {
   /**
    * whether a call runs a template which can make changes: an execute of any template other than
    * one which is MCP enabled and marked mcpReadonly, the same test {@link #executeTemplate} uses to
-   * require readwrite, unless the call matches the template's mcpReadonlyWhen.  that is the
+   * require readwrite, unless the template's mcpReadonlyJexl is true for the call.  that is the
    * template author saying which calls change nothing, such as a get, or a plan which is only
    * shown before it is confirmed.  it decides the category only: it does not change the readwrite
    * access {@link #executeTemplate} requires.  read straight from config the way
@@ -375,15 +376,16 @@ public class GrouperMcpInstitutionalTools {
         return false;
       }
 
-      String readonlyWhen = grouperConfig.propertyValueString(configPrefix + "mcpReadonlyWhen");
-      if (StringUtils.isBlank(readonlyWhen)) {
+      String readonlyJexl = grouperConfig.propertyValueString(configPrefix + "mcpReadonlyJexl");
+      if (StringUtils.isBlank(readonlyJexl)) {
         return true;
       }
 
-      // each input's type and default, read the way GshTemplateConfig reads them.  a required input
-      // has no default there, so it has none here either
+      // each input's type, default and trimming, read the way GshTemplateConfig reads them.  a
+      // required input has no default there, so it has none here either
       Map<String, GshTemplateInputType> inputTypes = new HashMap<String, GshTemplateInputType>();
       Map<String, String> inputDefaults = new HashMap<String, String>();
+      Set<String> inputsNotTrimmed = new HashSet<String>();
       int numberOfInputs = grouperConfig.propertyValueInt(configPrefix + "numberOfInputs", 0);
       for (int i = 0; i < numberOfInputs; i++) {
         String inputPrefix = configPrefix + "input." + i + ".";
@@ -399,41 +401,53 @@ public class GrouperMcpInstitutionalTools {
             inputDefaults.put(inputName, defaultValue);
           }
         }
+        if (!grouperConfig.propertyValueBoolean(inputPrefix + "trimWhitespace", true)) {
+          inputsNotTrimmed.add(inputName);
+        }
       }
 
-      return !isReadonlyCall(readonlyWhen, inputTypes, inputDefaults, arguments.get("inputs"));
+      Map<String, Object> variableMap = readonlyJexlVariables(inputTypes, inputDefaults,
+          inputsNotTrimmed, arguments.get("inputs"));
+      if (variableMap == null) {
+        return true;
+      }
+
+      // evaluated like an input's showEl, and not lenient, so a variable the template does not
+      // have is an error rather than null.  only true is a read: false, blank, an error, and
+      // anything which is not a boolean all mean the user is asked
+      Object result = GrouperUtil.substituteExpressionLanguageScript(readonlyJexl, variableMap,
+          true, false, false);
+      return !Boolean.TRUE.equals(GrouperUtil.booleanObjectValue(result));
     } catch (RuntimeException re) {
-      LOG.error("Error reading whether template '" + configId + "' is mcpReadonly, treating it as a write", re);
+      LOG.error("Error reading whether template '" + configId + "' is mcpReadonly or its mcpReadonlyJexl"
+          + " is true, treating the call as a write", re);
       return true;
     }
   }
 
   /**
-   * whether a call's inputs match any one of a template's mcpReadonlyWhen pairs.  values are taken
-   * the way {@link GshTemplateExec} takes them, so this compares what the template will actually
-   * get: inputs named with or without the gsh_input_ prefix, a blank value replaced by the input's
-   * default, and both sides converted to the input's type, so a boolean false matches f or no.
-   * values are not trimmed: the template trims most inputs, so " get " may well run as a get, but
-   * not matching only means the user is asked, which is the safe way to be wrong.  anything this
-   * cannot read does not match: a pair naming an input the template does not have, a file input,
-   * and a value which does not convert.  an input given twice, with and without the prefix, makes
-   * the call a write, since which of the two the template gets depends on the order they came in.
-   * the types and defaults come from config, so this relies on the template's decorate code, which
-   * runs before validation and may change input configs, leaving the listed inputs alone.  that is
-   * the template author's to keep, like the promise that a listed value changes nothing, and the
-   * documentation of mcpReadonlyWhen says so
-   * @param readonlyWhen the template's mcpReadonlyWhen, comma separated input=value pairs
+   * the variables a template's mcpReadonlyJexl is evaluated with: every input of the template by
+   * its full name, holding the value the template will get when it runs.  read the way
+   * {@link GshTemplateExec} reads them: inputs named with or without the gsh_input_ prefix, a
+   * blank value replaced by the input's default, trimmed unless the input turns trimming off, and
+   * converted to the input's type, so a boolean is a Boolean, and f or no is false.  an input the
+   * call leaves out which has no default is null, as is a file input, whose value is not something
+   * to compare.  an input the template does not have is left out: the template refuses the call
+   * for it anyway.  null means the call cannot be read, so it is a write: an input given twice,
+   * with and without the prefix, since which of the two the template gets depends on the order
+   * they came in, and a value which does not convert, which the template refuses anyway.  the
+   * types, defaults and trimming come from config, so this relies on the template's decorate code,
+   * which runs before validation and may change input configs, leaving the inputs the expression
+   * reads alone.  that is the template author's to keep, like the promise that a call the
+   * expression is true for changes nothing, and the documentation of mcpReadonlyJexl says so
    * @param inputTypes the type of each of the template's inputs, by full input name
    * @param inputDefaults the default of each optional input which has one, by full input name
+   * @param inputsNotTrimmed the inputs configured with trimWhitespace false, by full input name
    * @param inputsNode the call's inputs argument, or null if it had none
-   * @return true if the call matches a pair, so it changes nothing
+   * @return the variables by full input name, or null if the call cannot be read
    */
-  static boolean isReadonlyCall(String readonlyWhen, Map<String, GshTemplateInputType> inputTypes,
-      Map<String, String> inputDefaults, JsonNode inputsNode) {
-
-    if (StringUtils.isBlank(readonlyWhen)) {
-      return false;
-    }
+  static Map<String, Object> readonlyJexlVariables(Map<String, GshTemplateInputType> inputTypes,
+      Map<String, String> inputDefaults, Set<String> inputsNotTrimmed, JsonNode inputsNode) {
 
     // named the way executeTemplate names them, and the value read the same way
     Map<String, String> callInputs = new HashMap<String, String>();
@@ -443,51 +457,42 @@ public class GrouperMcpInstitutionalTools {
         String fieldName = fieldNames.next();
         String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
         if (callInputs.containsKey(inputName)) {
-          return false;
+          return null;
         }
         callInputs.put(inputName, inputsNode.get(fieldName).asText());
       }
     }
 
-    for (String pair : GrouperUtil.splitTrim(readonlyWhen, ",")) {
-      int equalsIndex = pair.indexOf('=');
-      if (equalsIndex <= 0) {
-        continue;
-      }
-      String name = pair.substring(0, equalsIndex).trim();
-      String value = pair.substring(equalsIndex + 1).trim();
-      if (StringUtils.isBlank(value)) {
-        continue;
-      }
-      String inputName = name.startsWith("gsh_input_") ? name : "gsh_input_" + name;
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    for (String inputName : inputTypes.keySet()) {
 
       GshTemplateInputType inputType = inputTypes.get(inputName);
-      if (inputType == null || inputType == GshTemplateInputType.FILE) {
+      if (inputType == GshTemplateInputType.FILE) {
+        variableMap.put(inputName, null);
         continue;
       }
 
-      String callValue = callInputs.get(inputName);
-      if (StringUtils.isBlank(callValue)) {
-        callValue = inputDefaults.get(inputName);
+      // the default goes in before trimming, the order GshTemplateValidationService does it in
+      String value = callInputs.get(inputName);
+      if (StringUtils.isBlank(value)) {
+        value = inputDefaults.get(inputName);
       }
-      if (StringUtils.isBlank(callValue)) {
+      if (value != null && !inputsNotTrimmed.contains(inputName)) {
+        value = value.trim();
+      }
+      if (StringUtils.isBlank(value)) {
+        variableMap.put(inputName, null);
         continue;
       }
 
-      Object callTyped;
-      Object valueTyped;
       try {
-        callTyped = inputType.convertToType(callValue);
-        valueTyped = inputType.convertToType(value);
+        variableMap.put(inputName, inputType.convertToType(value));
       } catch (RuntimeException re) {
         // the template refuses a value it cannot convert, so this call runs nothing either way
-        continue;
-      }
-      if (callTyped != null && callTyped.equals(valueTyped)) {
-        return true;
+        return null;
       }
     }
-    return false;
+    return variableMap;
   }
 
   /**
@@ -768,7 +773,7 @@ public class GrouperMcpInstitutionalTools {
 
     // if user only has readonly access, they can only execute readonly templates
     if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
-      // a call matching mcpReadonlyWhen is a read, so it gets past the scope check to here.  if the
+      // a call mcpReadonlyJexl is true for is a read, so it gets past the scope check to here.  if the
       // caller has readwrite and only this session's scope leaves it out, say so, so the user is
       // pointed at the scope rather than told they have no access
       if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeReadwrite()
