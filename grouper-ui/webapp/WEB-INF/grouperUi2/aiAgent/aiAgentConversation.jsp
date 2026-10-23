@@ -1,7 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- everything shown here came from the user, the model or Grouper data, so all of it is
-     escaped, and shown as plain text: the model's answers are not rendered as markup.
+     escaped, and shown as plain text, except the model's answers: their markdown is rendered and
+     the HTML cleaned to an allowlist of formatting tags, see GrouperUiMarkdown.
      secondary text is #767676, the lightest grey with enough contrast on white (GRP-7210), not
      bootstrap's muted, which has too little --%>
 <c:set var="aiAgentContainer" value="${grouperRequestContainer.aiAgentContainer}" />
@@ -25,7 +26,7 @@
     <c:when test="${guiMessage.type == 'assistant'}">
       <div style="margin: 0.5em 0 1em 0;">
         <strong>${textContainer.text['aiAgentAssistant'] }</strong>
-        <div style="white-space: pre-wrap; word-wrap: break-word;">${grouper:escapeHtml(guiMessage.text)}</div>
+        <div style="word-wrap: break-word;">${guiMessage.textHtml}</div>
       </div>
     </c:when>
     <c:otherwise>
