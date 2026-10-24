@@ -46,7 +46,7 @@ public class GrouperFailsafeTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(new GrouperFailsafeTest("testAssignFailedReturnsTrueOnlyOnTransition"));
+    TestRunner.run(new GrouperFailsafeTest("testAssignFailsafePassedUsesUpApproveOnce"));
 
   }
 
@@ -100,6 +100,30 @@ public class GrouperFailsafeTest extends GrouperTest {
     // removing the failure also re-arms the notification for the next episode
     GrouperFailsafe.removeFailure(JOB_NAME);
     assertFalse(GrouperFailsafe.isFailsafeIssue(JOB_NAME));
+    assertTrue(GrouperFailsafe.assignFailed(JOB_NAME));
+  }
+
+  /**
+   * GRP-7525: passing the failsafe check uses up an approve once and clears the issue, without recording a success
+   */
+  public void testAssignFailsafePassedUsesUpApproveOnce() {
+
+    // no row: nothing to clear and no row inserted
+    GrouperFailsafe.assignFailsafePassed(JOB_NAME);
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_failsafe where name = ?").addBindVar(JOB_NAME).select(int.class).intValue());
+
+    assertTrue(GrouperFailsafe.assignFailed(JOB_NAME));
+    GrouperFailsafe.assignApproveNextRun(JOB_NAME);
+    assertTrue(GrouperFailsafe.isApproved(JOB_NAME));
+    assertTrue(GrouperFailsafe.isFailsafeIssue(JOB_NAME));
+
+    GrouperFailsafe.assignFailsafePassed(JOB_NAME);
+
+    assertFalse(GrouperFailsafe.isApproved(JOB_NAME));
+    assertFalse(GrouperFailsafe.isFailsafeIssue(JOB_NAME));
+    assertNull(new GcDbAccess().sql("select last_success from grouper_failsafe where name = ?").addBindVar(JOB_NAME).select(Long.class));
+
+    // the next issue is a new episode, so it notifies
     assertTrue(GrouperFailsafe.assignFailed(JOB_NAME));
   }
 
