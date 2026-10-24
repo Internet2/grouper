@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -6041,7 +6042,22 @@ public class GrouperProvisioningLogic {
     // GRP-7501: without the job name the failsafe setup is skipped and the provisioner failsafe settings are not applied.
     // Use the incremental job name so a trip is recorded on (and blocks) the incremental that is applying these changes
     grouperProvisionerFullSync.setJobName(this.getGrouperProvisioner().getJobName());
-    grouperProvisionerFullSync.setGcGrouperSyncHeartbeat(this.getGrouperProvisioner().getGcGrouperSyncHeartbeat());
+    // GRP-7524: the full sync gets its own heartbeat.  The incremental heartbeat was ended above and cannot be restarted,
+    // so the full sync row would never get a heartbeat and would look dead to other jobs.  Keep updating the caller's loader log
+    final GrouperProvisioningOutput grouperProvisioningOutput = this.getGrouperProvisioner().retrieveGrouperProvisioningOutput();
+    final Hib3GrouperLoaderLog hib3GrouperLoaderLog = grouperProvisioningOutput.getHib3GrouperLoaderLog();
+    // only a real job log (e.g. the change log consumer), not the default unsaved one
+    if (hib3GrouperLoaderLog != null && !StringUtils.isBlank(hib3GrouperLoaderLog.getJobName())) {
+      grouperProvisionerFullSync.getGcGrouperSyncHeartbeat().addHeartbeatLogic(new Runnable() {
+
+        @Override
+        public void run() {
+          grouperProvisioningOutput.copyToHib3LoaderLog();
+          hib3GrouperLoaderLog.store();
+        }
+
+      });
+    }
     Map<String, Object> newDebugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
     newDebugMap.put("incrementalDebugMap", GrouperUtil.mapToString(this.getGrouperProvisioner().getDebugMap()) + "\n\n");
     
