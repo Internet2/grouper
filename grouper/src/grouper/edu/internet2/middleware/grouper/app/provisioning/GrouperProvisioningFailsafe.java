@@ -80,6 +80,11 @@ public class GrouperProvisioningFailsafe {
 
     processFailsafesMinManagedGroups();
 
+    // GRP-7525: all checks passed, so use up an approve once and clear the failsafe issue now, not only if the whole run succeeds
+    if (this.grouperFailsafeBean.isUseFailsafe() && !StringUtils.isBlank(this.grouperFailsafeBean.getJobName())) {
+      GrouperFailsafe.assignFailsafePassed(this.grouperFailsafeBean.getJobName());
+    }
+
     // GRP-7013: if none of the above tripped (no OtherJobException thrown),
     // write the passing summary.  Trip paths write their own summary before
     // throwing.
