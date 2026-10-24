@@ -150,7 +150,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testMembershipGroupNameSubjectIdWithDataFieldFull"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalConvertToFullSyncFailsafe"));
 //    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
@@ -4901,6 +4901,110 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(50, memberships.size());
+  
+  }
+
+  /**
+   * GRP-7501: failsafeMaxOverallPercentGroupsRemove applies without failsafeMinManagedGroups
+   */
+  public void testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeMaxOverallPercentGroupsRemoveOnly() {
+    
+    setupFailsafeJob();
+    
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    fullProvision();
+    
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+    
+    List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
+    
+    // failsafeMinManagedGroups stays -1 from the failsafe defaults
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentGroupsRemove").value("25").store();
+    
+    for (int i=0;i<5;i++) {
+      failsafeGroups.get(i).delete();
+    }
+    try {
+      GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+      fail();
+    } catch(Exception e) {
+    }
+    
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+  
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
+    
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentGroupsRemove").value("60").store();
+  
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+  
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(5, groups.size());
+    
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(50, memberships.size());
+  
+  }
+
+  /**
+   * GRP-7501: when the incremental converts to a full sync (scoreConvertToFullSyncThreshold) the provisioner
+   * failsafes still apply, and the trip is recorded on the incremental job
+   */
+  public void testIncrementalConvertToFullSyncFailsafe() {
+    
+    setupFailsafeJob();
+    
+    String incrementalJobName = "CHANGE_LOG_consumer_provisioner_incremental_sqlProvTest";
+    
+    fullProvision();
+    incrementalProvision();
+    
+    List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
+    
+    assertFalse(GrouperFailsafe.isFailsafeIssue(incrementalJobName));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
+    // any change converts the incremental to a full sync
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.scoreConvertToFullSyncThreshold").value("1").store();
+    
+    for (int i=0;i<5;i++) {
+      failsafeGroups.get(i).delete();
+    }
+    
+    incrementalProvision("sqlProvTest", true, true, true);
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertTrue(GrouperUtil.mapToString(grouperProvisioner.getDebugMap()), grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
+    
+    assertTrue(GrouperFailsafe.isFailsafeIssue(incrementalJobName));
+    
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
   
   }
 

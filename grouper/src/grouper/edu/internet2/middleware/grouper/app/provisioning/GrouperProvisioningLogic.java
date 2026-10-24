@@ -2341,6 +2341,9 @@ public class GrouperProvisioningLogic {
     
     // run a full sync
     GrouperProvisioner grouperProvisionerFullSync = GrouperProvisioner.retrieveProvisioner(this.getGrouperProvisioner().getConfigId());
+    // GRP-7501: without the job name the failsafe setup is skipped and the provisioner failsafe settings are not applied.
+    // Use the incremental job name so a trip is recorded on (and blocks) the incremental that is applying these changes
+    grouperProvisionerFullSync.setJobName(this.getGrouperProvisioner().getJobName());
     // GRP-7524: the full sync gets its own heartbeat.  The incremental heartbeat was ended above and cannot be restarted,
     // so the full sync row would never get a heartbeat and would look dead to other jobs.  Keep updating the caller's loader log
     final GrouperProvisioningOutput grouperProvisioningOutput = this.getGrouperProvisioner().retrieveGrouperProvisioningOutput();
