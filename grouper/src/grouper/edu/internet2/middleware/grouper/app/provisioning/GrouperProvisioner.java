@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -948,6 +949,10 @@ public abstract class GrouperProvisioner {
         hib3GrouperLoaderLogForWait.store();
       }
 
+      if (this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
+        this.failIfFullSyncAlreadyRunning();
+      }
+
       this.getGcGrouperSyncJob().waitForRelatedJobsToFinishThenRun(this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync());
 
       if (this.getGcGrouperSyncLog() == null) {
@@ -1016,6 +1021,39 @@ public abstract class GrouperProvisioner {
     }
   }
 
+  /**
+   * GRP-7524: true if this run did not start because another full sync owns the sync job row, so do not end that job
+   */
+  private boolean fullSyncAlreadyRunning = false;
+
+  /**
+   * GRP-7524: the related-job wait only waits on other sync types, and treats a running full sync row with a live
+   * heartbeat as its own.  So a second full sync (scheduled, manual, or an incremental converted to full, from any JVM)
+   * would run at the same time as the first.  Fail fast instead.  Read from the database since the row could have
+   * been changed by another JVM
+   */
+  private void failIfFullSyncAlreadyRunning() {
+    String gcGrouperSyncJobId = this.getGcGrouperSyncJob() == null ? null : this.getGcGrouperSyncJob().getId();
+    if (StringUtils.isBlank(gcGrouperSyncJobId)) {
+      return;
+    }
+    GcGrouperSyncJob gcGrouperSyncJobInDb = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select * from grouper_sync_job where id = ?").addBindVar(gcGrouperSyncJobId).select(GcGrouperSyncJob.class);
+    if (gcGrouperSyncJobInDb == null || !gcGrouperSyncJobInDb.isHeartBeatAlive()) {
+      return;
+    }
+    GcGrouperSyncJobState gcGrouperSyncJobState = gcGrouperSyncJobInDb.getJobState();
+    if (gcGrouperSyncJobState == GcGrouperSyncJobState.running || gcGrouperSyncJobState == GcGrouperSyncJobState.pending) {
+      this.fullSyncAlreadyRunning = true;
+      String message = "A full sync is already " + gcGrouperSyncJobState + " for provisioner '" + this.getConfigId()
+          + "' (heartbeat " + gcGrouperSyncJobInDb.getHeartbeat() + "), not starting another full sync.  "
+          + "This could be the scheduled or a manual full sync, or an incremental that converted to a full sync.";
+      this.getDebugMap().put("fullSyncAlreadyRunning", true);
+      LOG.warn(message);
+      throw new RuntimeException(message);
+    }
+  }
+
   public void provisionFinallyBlock() {
     // already did this
     if (this.done) {
@@ -1034,7 +1072,8 @@ public abstract class GrouperProvisioner {
     
     synchronized (this) {
       try {
-        if (this.gcGrouperSyncJob != null) {
+        // GRP-7524: the sync job row belongs to the full sync that is running, dont mark it not running
+        if (this.gcGrouperSyncJob != null && !this.fullSyncAlreadyRunning) {
           this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
         }
       } catch (RuntimeException re2) {

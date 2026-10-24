@@ -6666,4 +6666,43 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     return new HashSet<String>(new GcDbAccess().sql("select distinct group_name from testgrouper_prov_mship0").selectList(String.class));
   }
 
+  /**
+   * GRP-7524: a full sync does not start while another full sync for the provisioner is running, and does not
+   * mark the other run's sync job row not running
+   */
+  public void testFullSyncFailsIfFullSyncAlreadyRunning() {
+    
+    setupFailsafeJob();
+    
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    fullProvision();
+    
+    String sqlFullSyncJobRow = " from grouper_sync_job where sync_type = ? and grouper_sync_id = "
+        + "(select id from grouper_sync where provisioner_name = ?)";
+    
+    // pretend another full sync (e.g. an incremental converted to full) is running
+    new GcDbAccess().sql("update grouper_sync_job set job_state = ?, heartbeat = ? where sync_type = ? and grouper_sync_id = "
+        + "(select id from grouper_sync where provisioner_name = ?)")
+      .addBindVar("running").addBindVar(new Timestamp(System.currentTimeMillis()))
+      .addBindVar(GrouperProvisioningType.fullProvisionFull.name()).addBindVar("sqlProvTest").executeSql();
+    
+    try {
+      GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+      fail("expected full sync to not start");
+    } catch (Exception e) {
+      assertTrue(GrouperUtil.getFullStackTrace(e), GrouperUtil.getFullStackTrace(e).contains("A full sync is already running"));
+    }
+    
+    assertEquals("the running full sync row is not changed", "running", new GcDbAccess().sql("select job_state" + sqlFullSyncJobRow)
+        .addBindVar(GrouperProvisioningType.fullProvisionFull.name()).addBindVar("sqlProvTest").select(String.class));
+    
+    // once the other full sync is done, a full sync runs
+    new GcDbAccess().sql("update grouper_sync_job set job_state = ? where sync_type = ? and grouper_sync_id = "
+        + "(select id from grouper_sync where provisioner_name = ?)")
+      .addBindVar("notRunning").addBindVar(GrouperProvisioningType.fullProvisionFull.name()).addBindVar("sqlProvTest").executeSql();
+    
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    assertEquals("SUCCESS", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+  }
+
 }
