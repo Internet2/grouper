@@ -49,6 +49,11 @@ public class GrouperProvisioningFailsafe {
   private int groupsEvaluatedForPercentRemove = 0;
 
   /**
+   * GRP-7501: true if failsafeMaxOverallPercentGroupsRemove is set on the provisioner (not just the loader default)
+   */
+  private boolean maxOverallPercentGroupsRemoveConfigured = false;
+
+  /**
    * GRP-7071: record the failsafe failure and send the notification email only if this run is the one
    * that put the job into the failsafe state.  While the failsafe stays tripped every subsequent run
    * would otherwise send another email (an incremental provisioner runs every minute), so admins got a
@@ -161,7 +166,10 @@ public class GrouperProvisioningFailsafe {
    */
   public void processFailsafesMinManagedGroups() {
     
-    if (this.grouperFailsafeBean.getMinManagedGroups() != null && this.grouperFailsafeBean.getMinManagedGroups() > -1) {
+    // GRP-7501: failsafeMinManagedGroups is only the group count above which the check applies, so also run
+    // the check if failsafeMaxOverallPercentGroupsRemove is set on the provisioner without it
+    if ((this.grouperFailsafeBean.getMinManagedGroups() != null && this.grouperFailsafeBean.getMinManagedGroups() > -1)
+        || (this.maxOverallPercentGroupsRemoveConfigured && this.grouperFailsafeBean.getMaxOverallPercentGroupsRemove() != -1)) {
       this.processFailsafesSetupGroupTotals();
       this.processFailsafesSetupGroupCount();
       
@@ -576,6 +584,7 @@ public class GrouperProvisioningFailsafe {
     {
       Integer failsafeMaxOverallPercentGroupsRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxOverallPercentGroupsRemove", false);
       this.grouperFailsafeBean.assignMaxOverallPercentGroupsRemoveOverride(failsafeMaxOverallPercentGroupsRemove);
+      this.maxOverallPercentGroupsRemoveConfigured = failsafeMaxOverallPercentGroupsRemove != null;
     }
     {
       Integer failsafeMaxOverallPercentMembershipsRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxOverallPercentMembershipsRemove", false);

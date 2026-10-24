@@ -6038,6 +6038,9 @@ public class GrouperProvisioningLogic {
     
     // run a full sync
     GrouperProvisioner grouperProvisionerFullSync = GrouperProvisioner.retrieveProvisioner(this.getGrouperProvisioner().getConfigId());
+    // GRP-7501: without the job name the failsafe setup is skipped and the provisioner failsafe settings are not applied.
+    // Use the incremental job name so a trip is recorded on (and blocks) the incremental that is applying these changes
+    grouperProvisionerFullSync.setJobName(this.getGrouperProvisioner().getJobName());
     grouperProvisionerFullSync.setGcGrouperSyncHeartbeat(this.getGrouperProvisioner().getGcGrouperSyncHeartbeat());
     Map<String, Object> newDebugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
     newDebugMap.put("incrementalDebugMap", GrouperUtil.mapToString(this.getGrouperProvisioner().getDebugMap()) + "\n\n");
