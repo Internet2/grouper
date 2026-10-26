@@ -112,6 +112,19 @@ public interface GrouperTool {
   }
 
   /**
+   * whether any MCP access at all is enough to run this tool, rather than access to its own
+   * category (GRP-7528).  only for a tool which describes the caller to themselves and reaches
+   * nothing else, e.g. entity_whoami: somebody who can only run SQL or admin tools still needs
+   * to be able to ask who they are logged in as and what they can do.  the category is still
+   * used for the throttle and the tool log
+   * @return true if the caller only needs to be allowed in some category, see
+   * {@link GrouperToolAccess#isAllowedInAnyCategory(edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAuthUser)}
+   */
+  public default boolean allowedWithAnyMcpAccess() {
+    return false;
+  }
+
+  /**
    * whether there is any point offering this tool to this caller right now, beyond whether they
    * are allowed to use it.  a few tools have nothing to work on unless an institution has set
    * something up, or unless the caller's scope reaches the kind of thing they act on, and

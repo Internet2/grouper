@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAssignGrouperPrivileges
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAuthUser;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpDeleteMember;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpDocSearch;
+import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpEntityWhoami;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindAttributeDefNames;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindGroups;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindStems;
@@ -269,6 +270,26 @@ public class GrouperToolRegistration {
       }
       public ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
         return GrouperMcpGetSubjects.execute(arguments, authUser);
+      }
+    });
+
+    GrouperToolRegistry.register(new GrouperToolLegacyAdapter(GrouperMcpEntityWhoami.WHOAMI_TOOL_NAME,
+        GrouperToolCategory.readonly) {
+      public boolean allowedWithAnyMcpAccess() {
+        // it only describes the caller, so somebody who can only run sql or admin tools can still
+        // ask who they are logged in as (GRP-7528).  readonly is its category for the throttle
+        // and the tool log
+        return true;
+      }
+      public GrouperToolResultBound resultBound() {
+        // a description of the caller: their groups, the scopes of this login, the tool names
+        return GrouperToolResultBound.oneObject;
+      }
+      public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
+        return GrouperMcpEntityWhoami.toolDefinition();
+      }
+      public ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
+        return GrouperMcpEntityWhoami.execute(arguments, authUser);
       }
     });
 

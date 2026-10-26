@@ -132,9 +132,14 @@ public class GrouperToolExecutor {
               responseTextHolder[0] = "Unknown tool: " + toolName;
               return null;
 
-            } else if (!GrouperToolAccess.isAllowed(category, authUser)) {
+            } else if (grouperTool.allowedWithAnyMcpAccess()
+                ? !GrouperToolAccess.isAllowedInAnyCategory(authUser)
+                : !GrouperToolAccess.isAllowed(category, authUser)) {
+              // a tool which only describes the caller needs some MCP access, not its own
+              // category's (GRP-7528)
               resultHolder[0] = buildErrorResult("Access denied: user is not authorized for "
-                  + toolName + ". " + category.getDeniedDetail());
+                  + toolName + ". " + (grouperTool.allowedWithAnyMcpAccess()
+                      ? GrouperToolAccess.ANY_ACCESS_DENIED_DETAIL : category.getDeniedDetail()));
 
             } else if (!GrouperToolAccess.isAllowed(grouperTool, category, authUser)) {
               // allowed in the category, but only on its limited tier, and this tool has not

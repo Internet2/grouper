@@ -1007,7 +1007,7 @@ public class GrouperMcpAdminExternalSystemGet {
    * by scanning config for grouper.mcp.adminExternalSystem.&lt;id&gt;.subjectIdTranslationJexl
    * @return ordered set of config IDs
    */
-  private static Set<String> findConfiguredExternalSystemIds() {
+  static Set<String> findConfiguredExternalSystemIds() {
     Set<String> configIds = new LinkedHashSet<String>();
 
     Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();

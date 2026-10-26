@@ -65,6 +65,7 @@ public class GrouperMcpToolNames {
     toolNames.add("group_get_members");
     toolNames.add("memberships_get");
     toolNames.add("entity_get");
+    toolNames.add("entity_whoami");
     toolNames.add("group_has_member");
     toolNames.add("institutional_tools");
     toolNames.add("recipe");
