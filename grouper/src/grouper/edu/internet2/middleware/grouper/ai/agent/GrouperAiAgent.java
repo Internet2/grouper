@@ -4,10 +4,13 @@
  */
 package edu.internet2.middleware.grouper.ai.agent;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -533,7 +536,9 @@ public class GrouperAiAgent {
 
     stubOlderToolResults(conversation);
 
-    conversation.getMessages().add(GrouperAiAgentMessage.user(text));
+    GrouperAiAgentMessage userMessage = GrouperAiAgentMessage.user(text);
+    userMessage.setSentAt(sentAt(System.currentTimeMillis()));
+    conversation.getMessages().add(userMessage);
     conversation.setLlmCallsThisMessage(0);
 
     // the tool list is only refreshed here, where a new user turn starts
@@ -1114,7 +1119,8 @@ public class GrouperAiAgent {
   /**
    * the messages to send: the conversation, with the summary of older exchanges as a labelled
    * message in front of it.  the summary is not stored as a message, so the same text goes out on
-   * every call until the next summary.  for tools offered in full
+   * every call until the next summary.  each user message goes out as a copy with when it was
+   * sent in front.  for tools offered in full
    * @param conversation the conversation
    * @param userContext who the user is, null if not known
    * @return the messages
@@ -1135,7 +1141,8 @@ public class GrouperAiAgent {
 
   /**
    * the messages to send: the conversation, with the summary of older exchanges as a labelled
-   * message in front of it, and who the user is in front of that
+   * message in front of it, and who the user is in front of that.  each user message goes out as a
+   * copy with when it was sent in front ({@link #sentAt})
    * @param conversation the conversation
    * @param userContext who the user is, null if not known
    * @param toolDescribeOffered true if tools are offered compact, so the summary message says the
@@ -1145,7 +1152,17 @@ public class GrouperAiAgent {
   static List<GrouperAiAgentMessage> messagesForRequest(GrouperAiAgentConversation conversation,
       String userContext, boolean toolDescribeOffered) {
 
-    List<GrouperAiAgentMessage> messages = conversation.getMessages();
+    // each user message with when it was sent in front, so the model knows the date and time a
+    // request such as "the last 30 days" is from.  written when the message came in and never
+    // changed, so the history is sent the same every time
+    List<GrouperAiAgentMessage> messages = new ArrayList<GrouperAiAgentMessage>();
+    for (GrouperAiAgentMessage message : conversation.getMessages()) {
+      if (message.getRole() == GrouperAiAgentMessage.Role.user && !StringUtils.isBlank(message.getSentAt())) {
+        messages.add(GrouperAiAgentMessage.user("[sent " + message.getSentAt() + "]\n\n" + message.getText()));
+      } else {
+        messages.add(message);
+      }
+    }
 
     if (StringUtils.isBlank(conversation.getSummary()) && StringUtils.isBlank(userContext)) {
       return messages;
@@ -1166,6 +1183,17 @@ public class GrouperAiAgent {
     }
     result.addAll(messages);
     return result;
+  }
+
+  /**
+   * @param millis when a user message was sent
+   * @return the time to send in front of it, e.g. 2026/10/27 14:05:30 -04:00: in the time zone of the
+   * JVM, which is the one the tools read dates in, close to the format they take, with the offset so a
+   * time in another zone can be worked out.  to the second, so a range which ends when the user asked
+   * includes what happened earlier in that minute
+   */
+  static String sentAt(long millis) {
+    return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss XXX", Locale.ROOT).format(new Date(millis));
   }
 
   /** labels the message which says who the user is */
@@ -1390,7 +1418,12 @@ public class GrouperAiAgent {
     transcript.append("Conversation:\n");
     for (GrouperAiAgentMessage message : olderMessages) {
       if (message.getRole() == GrouperAiAgentMessage.Role.user) {
-        transcript.append("\nUser: ").append(message.getText()).append("\n");
+        transcript.append("\nUser");
+        // so a summarized "in the last hour" keeps when it was asked
+        if (!StringUtils.isBlank(message.getSentAt())) {
+          transcript.append(" (sent ").append(message.getSentAt()).append(")");
+        }
+        transcript.append(": ").append(message.getText()).append("\n");
       } else if (message.getRole() == GrouperAiAgentMessage.Role.assistant) {
         if (!StringUtils.isBlank(message.getText())) {
           transcript.append("\nAssistant: ").append(message.getText()).append("\n");
