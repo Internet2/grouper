@@ -262,8 +262,18 @@ public class GrouperAiAgentTest extends TestCase {
      * @see GrouperAiAgentToolExecution#retrieveToolDefinitions()
      */
     public ArrayNode retrieveToolDefinitions() {
+      this.retrieveToolDefinitionsCount++;
+      if (this.retrieveToolDefinitionsThrows) {
+        throw new RuntimeException("test failure building the tool definitions");
+      }
       return this.toolDefinitions;
     }
+
+    /** how many times the tool definitions were built */
+    private int retrieveToolDefinitionsCount = 0;
+
+    /** if building the tool definitions fails */
+    private boolean retrieveToolDefinitionsThrows = false;
 
     /**
      * @see GrouperAiAgentToolExecution#isWrite(String, JsonNode)
@@ -329,7 +339,10 @@ public class GrouperAiAgentTest extends TestCase {
       ObjectNode tool = result.addObject();
       tool.put("name", name);
       tool.put("description", "the " + name + " tool");
-      tool.putObject("inputSchema").put("type", "object");
+      ObjectNode inputSchema = tool.putObject("inputSchema");
+      inputSchema.put("type", "object");
+      // the argument readCall sends, so a tool with parameters, which is offered compact
+      inputSchema.putObject("properties").putObject("name").put("type", "string");
     }
     return result;
   }
@@ -391,8 +404,49 @@ public class GrouperAiAgentTest extends TestCase {
     this.toolExecution = new FakeToolExecution();
     this.settings = new GrouperAiAgentSettings();
     this.settings.setModel("fake-model");
+    // the tools as the fake offers them.  the compact tests turn it on
+    this.settings.setCompactToolDefinitions(false);
     this.agent = new GrouperAiAgent(this.llmClient, this.toolExecution, this.settings);
     this.conversation = new GrouperAiAgentConversation();
+  }
+
+  /**
+   * a write with an argument its tool does not take is refused before the user is asked to approve
+   * it, and the model gets the refusal, rather than the user approving a call which then fails.  a
+   * read is refused the same way rather than run
+   */
+  public void testUnknownArgumentRefusedBeforeApproval() {
+
+    this.settings.setCompactToolDefinitions(true);
+
+    // the write tool takes groupName and subjects, the read tool groupName
+    ObjectNode writeProperties = ((ObjectNode)this.toolExecution.toolDefinitions.get(1).path("inputSchema"))
+        .putObject("properties");
+    writeProperties.putObject("groupName").put("type", "string");
+    writeProperties.putObject("subjects").put("type", "array");
+    ((ObjectNode)this.toolExecution.toolDefinitions.get(0).path("inputSchema"))
+        .putObject("properties").putObject("groupName").put("type", "string");
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, writeCall("c1"), readCall("c2")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "I will describe it first"));
+
+    GrouperAiAgentTurnResult result = this.agent.sendUserMessage(this.conversation, "add jsmith");
+
+    assertEquals(GrouperAiAgentTurnResult.Status.answered, result.getStatus());
+    assertEquals(0, result.getPendingConfirmations().size());
+    assertEquals(0, this.toolExecution.executed.size());
+    assertEquals(GrouperAiAgentTurnResult.ToolActivityStatus.failed, result.getToolActivity().get(0).getStatus());
+    assertEquals(GrouperAiAgentTurnResult.ToolActivityStatus.failed, result.getToolActivity().get(1).getStatus());
+
+    GrouperAiAgentToolResult toolResult = this.conversation.getMessages().get(2).getToolResults().get(0);
+    assertEquals("Not run: " + WRITE_TOOL + " has no parameters named 'group', 'subject'.  Call tool_describe "
+        + "with [\"" + WRITE_TOOL + "\"] for its parameters, then call it again.", toolResult.getContent());
+    assertTrue(toolResult.isError());
+
+    GrouperAiAgentToolResult readResult = this.conversation.getMessages().get(2).getToolResults().get(1);
+    assertTrue(readResult.getContent(), readResult.getContent().startsWith(
+        "Not run: " + READ_TOOL + " has no parameter named 'name'."));
+    assertTrue(readResult.isError());
   }
 
   /**
@@ -1274,6 +1328,12 @@ public class GrouperAiAgentTest extends TestCase {
     assertEquals(GrouperAiAgent.SUMMARY_LABEL + "SUMMARY", withSummary.get(1).getText());
     assertEquals("hello", withSummary.get(2).getText());
 
+    // with tools offered compact, the summary says the definitions read earlier are gone
+    List<GrouperAiAgentMessage> compactSummary = GrouperAiAgent.messagesForRequest(this.conversation,
+        GrouperAiAgent.userContext(this.toolExecution.user), true);
+    assertEquals(GrouperAiAgent.SUMMARY_LABEL + "SUMMARY" + GrouperAiAgent.SUMMARY_TOOL_DEFINITIONS_NOTE,
+        compactSummary.get(1).getText());
+
     // no user, no message
     assertNull(GrouperAiAgent.userContext(null));
   }
@@ -1638,6 +1698,324 @@ public class GrouperAiAgentTest extends TestCase {
     assertEquals("stripped:raw", this.conversation.getMessages().get(1).getRawJson());
     assertEquals("stripped:raw", this.conversation.getMessages().get(3).getRawJson());
     assertEquals("raw", this.conversation.getMessages().get(5).getRawJson());
+  }
+
+  /**
+   * @param id the call id
+   * @return a tool_describe call
+   */
+  private static GrouperAiAgentToolCall describeCall(String id) {
+    return new GrouperAiAgentToolCall(id, GrouperAiAgentToolCompaction.TOOL_DESCRIBE,
+        "{\"tools\":[\"" + READ_TOOL + "\"]}");
+  }
+
+  /**
+   * offered compact, the tools have their summaries and tool_describe is added, and the system
+   * prompt says to use it.  otherwise the tools and the system prompt are as the fake gives them
+   */
+  public void testCompactToolsSystemPrompt() {
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 1"));
+    this.agent.sendUserMessage(this.conversation, "question 1");
+    assertEquals(GrouperAiAgent.DEFAULT_SYSTEM_PROMPT, this.llmClient.requests.get(0).getSystemPrompt());
+    assertEquals(this.toolExecution.toolDefinitions, this.llmClient.requests.get(0).getToolDefinitions());
+
+    this.settings.setCompactToolDefinitions(true);
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 2"));
+    this.agent.sendUserMessage(this.conversation, "question 2");
+    assertEquals(GrouperAiAgent.DEFAULT_SYSTEM_PROMPT + GrouperAiAgent.COMPACT_TOOLS_PROMPT,
+        this.llmClient.requests.get(1).getSystemPrompt());
+
+    ArrayNode offered = this.llmClient.requests.get(1).getToolDefinitions();
+    assertEquals(3, offered.size());
+    assertEquals(GrouperAiAgentToolSummaries.summary(READ_TOOL) + " " + GrouperAiAgentToolCompaction.DESCRIBE_FIRST,
+        offered.get(0).path("description").asText());
+    assertEquals(GrouperAiAgentToolCompaction.TOOL_DESCRIBE, offered.get(2).path("name").asText());
+  }
+
+  /**
+   * tool_describe is answered by the agent from the full definitions, in any session scope, and
+   * not by the tool layer
+   */
+  public void testToolDescribeAnsweredByAgent() {
+
+    this.settings.setCompactToolDefinitions(true);
+    this.toolExecution.readInScope = false;
+    this.toolExecution.writeInScope = false;
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("c1")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "described"));
+    GrouperAiAgentTurnResult result = this.agent.sendUserMessage(this.conversation, "describe");
+
+    assertEquals(0, this.toolExecution.executed.size());
+    assertEquals(GrouperAiAgentTurnResult.ToolActivityStatus.ran, result.getToolActivity().get(0).getStatus());
+
+    GrouperAiAgentToolResult toolResult = this.conversation.getMessages().get(2).getToolResults().get(0);
+    assertFalse(toolResult.getContent(), toolResult.isError());
+    assertTrue(toolResult.getContent(), toolResult.getContent().contains("the " + READ_TOOL + " tool"));
+
+    // not offered compact, so tool_describe is not a tool, and goes to the tool layer like any other
+    this.settings.setCompactToolDefinitions(false);
+    this.toolExecution.readInScope = true;
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("c2")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "ran"));
+    this.agent.sendUserMessage(this.conversation, "describe again");
+    assertEquals(1, this.toolExecution.executed.size());
+  }
+
+  /**
+   * with tools offered in full, approving a change reuses the list offered and does not build the
+   * tool definitions again, as before compact tools: nothing would use them
+   */
+  public void testApprovalNotCompactDoesNotRebuildTools() {
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, writeCall("w1")));
+    this.agent.sendUserMessage(this.conversation, "add jsmith");
+    assertEquals(1, this.toolExecution.retrieveToolDefinitionsCount);
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "Added"));
+    Set<String> approved = new HashSet<String>();
+    approved.add("w1");
+    GrouperAiAgentTurnResult result = this.agent.resolvePendingToolCalls(this.conversation, approved);
+
+    assertEquals(GrouperAiAgentTurnResult.Status.answered, result.getStatus());
+    assertEquals(1, this.toolExecution.retrieveToolDefinitionsCount);
+  }
+
+  /**
+   * after the user approves a change, the model still has the compact list it was offered, so
+   * tool_describe is still answered and arguments still checked, even if compacting was turned off
+   * in between
+   */
+  public void testToolDescribeAfterApproval() {
+
+    this.settings.setCompactToolDefinitions(true);
+
+    // the write tool takes what writeCall sends
+    ObjectNode writeProperties = ((ObjectNode)this.toolExecution.toolDefinitions.get(1).path("inputSchema"))
+        .putObject("properties");
+    writeProperties.putObject("group").put("type", "string");
+    writeProperties.putObject("subject").put("type", "string");
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, writeCall("w1")));
+    GrouperAiAgentTurnResult result = this.agent.sendUserMessage(this.conversation, "add jsmith");
+    assertEquals(GrouperAiAgentTurnResult.Status.needsConfirmation, result.getStatus());
+
+    // turned off while the change waits
+    this.settings.setCompactToolDefinitions(false);
+    int retrieveCountBeforeApproval = this.toolExecution.retrieveToolDefinitionsCount;
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("d1"),
+        new GrouperAiAgentToolCall("r1", READ_TOOL, "{\"guessed\":\"x\"}")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "Added"));
+
+    Set<String> approved = new HashSet<String>();
+    approved.add("w1");
+    result = this.agent.resolvePendingToolCalls(this.conversation, approved);
+
+    assertEquals(GrouperAiAgentTurnResult.Status.answered, result.getStatus());
+    // the full definitions were read again, for describing and checking
+    assertEquals(retrieveCountBeforeApproval + 1, this.toolExecution.retrieveToolDefinitionsCount);
+
+    // the write, and not tool_describe or the read with the guessed argument
+    assertEquals(1, this.toolExecution.executed.size());
+    assertEquals(WRITE_TOOL, this.toolExecution.executed.get(0));
+
+    // the same compact list was sent after the approval
+    assertEquals(this.llmClient.requests.get(0).getToolDefinitions(), this.llmClient.requests.get(1).getToolDefinitions());
+
+    List<GrouperAiAgentToolResult> results = this.conversation.getMessages().get(4).getToolResults();
+    assertFalse(results.get(0).getContent(), results.get(0).isError());
+    assertTrue(results.get(0).getContent(), results.get(0).getContent().contains("the " + READ_TOOL + " tool"));
+    assertTrue(results.get(1).getContent(), results.get(1).getContent().contains("Call tool_describe"));
+  }
+
+  /**
+   * a tool_describe result is not cut by the limit on a tool result, since half a definition could
+   * leave out the parameter the model needs
+   */
+  public void testToolDescribeResultNotCut() {
+
+    this.settings.setCompactToolDefinitions(true);
+    this.settings.setMaxToolResultChars(10);
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("c1")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "described"));
+    this.agent.sendUserMessage(this.conversation, "describe");
+
+    String content = this.conversation.getMessages().get(2).getToolResults().get(0).getContent();
+    assertTrue(content, content.length() > 10);
+    assertFalse(content, content.contains("cut off"));
+  }
+
+  /**
+   * a tool_describe result from an earlier exchange is kept however long, so the model does not
+   * describe the same tools again at every message
+   */
+  public void testToolDescribeResultNotStubbed() {
+
+    this.settings.setCompactToolDefinitions(true);
+
+    StringBuilder longText = new StringBuilder();
+    for (int i = 0; i < GrouperAiAgent.STUB_OLDER_TOOL_RESULTS_OVER_CHARS + 1; i++) {
+      longText.append('x');
+    }
+    ((ObjectNode)this.toolExecution.toolDefinitions.get(0)).put("description", longText.toString());
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("c1")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "described"));
+    this.agent.sendUserMessage(this.conversation, "describe");
+
+    String content = this.conversation.getMessages().get(2).getToolResults().get(0).getContent();
+    assertTrue(content.contains(longText.toString()));
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "OK"));
+    this.agent.sendUserMessage(this.conversation, "thanks");
+
+    assertEquals(content, this.conversation.getMessages().get(2).getToolResults().get(0).getContent());
+  }
+
+  /**
+   * a summary is never written from tool definitions: the model can describe the tools again
+   */
+  public void testSummaryLeavesOutToolDescribe() {
+
+    this.settings.setCompactToolDefinitions(true);
+    this.settings.setVerbatimExchanges(2);
+
+    ((ObjectNode)this.toolExecution.toolDefinitions.get(0)).put("description", "SECRET_DEFINITIONS");
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("c1")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 1"));
+    this.agent.sendUserMessage(this.conversation, "question 1");
+
+    for (int i = 2; i <= 4; i++) {
+      this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer " + i));
+      this.agent.sendUserMessage(this.conversation, "question " + i);
+    }
+
+    // the summary call, then the answer to the fifth question
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "SUMMARY"));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 5"));
+    this.agent.sendUserMessage(this.conversation, "question 5");
+
+    String transcript = null;
+    for (GrouperAiLlmRequest request : this.llmClient.requests) {
+      if (GrouperAiAgent.SUMMARY_SYSTEM_PROMPT.equals(request.getSystemPrompt())) {
+        transcript = request.getMessages().get(0).getText();
+      }
+    }
+    assertNotNull(transcript);
+    assertTrue(transcript, transcript.contains("question 1"));
+    assertFalse(transcript, transcript.contains("SECRET_DEFINITIONS"));
+    assertTrue(transcript, transcript.contains("tool_describe returned the definitions"));
+  }
+
+  /**
+   * a failed tool_describe is not tool definitions, so it is in the summary like any other failure
+   */
+  public void testSummaryKeepsToolDescribeError() {
+
+    this.settings.setCompactToolDefinitions(true);
+    this.settings.setVerbatimExchanges(2);
+
+    // no tools named, which is an error
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null,
+        new GrouperAiAgentToolCall("c1", GrouperAiAgentToolCompaction.TOOL_DESCRIBE, "{}")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 1"));
+    this.agent.sendUserMessage(this.conversation, "question 1");
+
+    for (int i = 2; i <= 4; i++) {
+      this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer " + i));
+      this.agent.sendUserMessage(this.conversation, "question " + i);
+    }
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "SUMMARY"));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "answer 5"));
+    this.agent.sendUserMessage(this.conversation, "question 5");
+
+    String transcript = null;
+    for (GrouperAiLlmRequest request : this.llmClient.requests) {
+      if (GrouperAiAgent.SUMMARY_SYSTEM_PROMPT.equals(request.getSystemPrompt())) {
+        transcript = request.getMessages().get(0).getText();
+      }
+    }
+    assertNotNull(transcript);
+    assertTrue(transcript, transcript.contains("tool_describe failed: tools is required"));
+    assertFalse(transcript, transcript.contains("tool_describe returned the definitions"));
+  }
+
+  /**
+   * a long tool_describe result is kept at the next message, but a long failed one is stubbed like
+   * any other result
+   */
+  public void testToolDescribeErrorStubbed() {
+
+    StringBuilder longText = new StringBuilder();
+    for (int i = 0; i < GrouperAiAgent.STUB_OLDER_TOOL_RESULTS_OVER_CHARS + 1; i++) {
+      longText.append('x');
+    }
+
+    List<GrouperAiAgentToolResult> toolResults = new ArrayList<GrouperAiAgentToolResult>();
+    toolResults.add(new GrouperAiAgentToolResult("d1", GrouperAiAgentToolCompaction.TOOL_DESCRIBE, longText.toString(), false));
+    toolResults.add(new GrouperAiAgentToolResult("d2", GrouperAiAgentToolCompaction.TOOL_DESCRIBE, longText.toString(), true));
+    this.conversation.getMessages().add(GrouperAiAgentMessage.toolResults(toolResults));
+
+    this.agent.stubOlderToolResults(this.conversation);
+
+    List<GrouperAiAgentToolResult> stubbed = this.conversation.getMessages().get(0).getToolResults();
+    assertEquals(longText.toString(), stubbed.get(0).getContent());
+    assertEquals(GrouperAiAgent.OLDER_TOOL_RESULT_STUB, stubbed.get(1).getContent());
+    assertTrue(stubbed.get(1).isError());
+  }
+
+  /**
+   * tool_describe is a look-up, so it counts toward the look-ups run in one step
+   */
+  public void testToolDescribeCountsAsLookup() {
+
+    this.settings.setCompactToolDefinitions(true);
+    this.settings.setMaxLookupsPerStep(1);
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, describeCall("d1"), readCall("r1")));
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.endTurn, "described"));
+    GrouperAiAgentTurnResult result = this.agent.sendUserMessage(this.conversation, "describe and find");
+
+    assertEquals(GrouperAiAgentTurnResult.ToolActivityStatus.ran, result.getToolActivity().get(0).getStatus());
+    assertEquals(GrouperAiAgentTurnResult.ToolActivityStatus.tooManyLookups, result.getToolActivity().get(1).getStatus());
+    assertEquals(0, this.toolExecution.executed.size());
+  }
+
+  /**
+   * with tools offered compact, the full definitions are read before the approved changes run, so
+   * if reading them fails nothing runs and the changes are still waiting
+   */
+  public void testApprovalToolDefinitionsReadBeforeWritesRun() {
+
+    this.settings.setCompactToolDefinitions(true);
+
+    // the write tool takes what writeCall sends
+    ObjectNode writeProperties = ((ObjectNode)this.toolExecution.toolDefinitions.get(1).path("inputSchema"))
+        .putObject("properties");
+    writeProperties.putObject("group").put("type", "string");
+    writeProperties.putObject("subject").put("type", "string");
+
+    this.llmClient.responses.add(response(GrouperAiLlmStopReason.toolUse, null, writeCall("w1")));
+    GrouperAiAgentTurnResult result = this.agent.sendUserMessage(this.conversation, "add jsmith");
+    assertEquals(GrouperAiAgentTurnResult.Status.needsConfirmation, result.getStatus());
+
+    this.toolExecution.retrieveToolDefinitionsThrows = true;
+
+    Set<String> approved = new HashSet<String>();
+    approved.add("w1");
+    try {
+      this.agent.resolvePendingToolCalls(this.conversation, approved);
+      fail("expected the failure building the tool definitions");
+    } catch (RuntimeException re) {
+      assertEquals("test failure building the tool definitions", re.getMessage());
+    }
+
+    assertEquals(0, this.toolExecution.executed.size());
+    assertEquals(1, this.conversation.getPendingToolCalls().size());
   }
 
 }

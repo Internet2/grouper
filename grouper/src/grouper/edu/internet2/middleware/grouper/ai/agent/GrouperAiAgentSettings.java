@@ -143,6 +143,12 @@ public class GrouperAiAgentSettings {
   /** the system prompt, blank for the built in one */
   private String systemPrompt;
 
+  /** true to offer tools compact, with tool_describe */
+  private boolean compactToolDefinitions = true;
+
+  /** comma separated names of tools offered in full even when the rest are compact */
+  private String alwaysFullToolNames;
+
   /**
    * read the settings from grouper.properties
    * @return the settings
@@ -184,6 +190,10 @@ public class GrouperAiAgentSettings {
     settings.openAiIncludeReasoningContent = grouperConfig.propertyValueBoolean(
         "grouper.ai.agent.openai.includeReasoningContent", true);
     settings.systemPrompt = grouperConfig.propertyValueString("grouper.ai.agent.systemPrompt");
+    settings.compactToolDefinitions = grouperConfig.propertyValueBoolean(
+        "grouper.ai.agent.toolDefinitions.compact", true);
+    settings.alwaysFullToolNames = grouperConfig.propertyValueString(
+        "grouper.ai.agent.toolDefinitions.alwaysFull");
 
     return settings;
   }
@@ -572,6 +582,35 @@ public class GrouperAiAgentSettings {
    */
   public void setSystemPrompt(String systemPrompt1) {
     this.systemPrompt = systemPrompt1;
+  }
+
+  /**
+   * @return true to offer tools compact, with tool_describe (GrouperAiAgentToolCompaction)
+   */
+  public boolean isCompactToolDefinitions() {
+    return this.compactToolDefinitions;
+  }
+
+  /**
+   * @param compactToolDefinitions1 true to offer tools compact
+   */
+  public void setCompactToolDefinitions(boolean compactToolDefinitions1) {
+    this.compactToolDefinitions = compactToolDefinitions1;
+  }
+
+  /**
+   * @return comma separated names of tools offered in full even when the rest are compact, may be
+   * blank
+   */
+  public String getAlwaysFullToolNames() {
+    return this.alwaysFullToolNames;
+  }
+
+  /**
+   * @param alwaysFullToolNames1 comma separated names of tools offered in full
+   */
+  public void setAlwaysFullToolNames(String alwaysFullToolNames1) {
+    this.alwaysFullToolNames = alwaysFullToolNames1;
   }
 
 }

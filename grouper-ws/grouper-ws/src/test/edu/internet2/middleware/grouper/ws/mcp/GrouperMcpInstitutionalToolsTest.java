@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolCompaction;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolSummaries;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -1025,6 +1027,103 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
       } catch (Exception e) {
         fail("Failed to parse result JSON: " + e.getMessage());
       }
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * @param configId the template config id
+   * @param name its name
+   * @param securityRunType who can run it
+   */
+  private static void configureSchemaTemplate(String configId, String name, String securityRunType) {
+    String prefix = "grouperGshTemplate." + configId + ".";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "templateType", "gsh");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "templateVersion", "V1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "templateName", name);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "templateDescription", name + " template");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "securityRunType", securityRunType);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "mcpReadonly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "runAsType", "GrouperSystem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "showOnFolders", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "numberOfInputs", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(prefix + "gshTemplate",
+        "gsh_builtin_gshTemplateOutput.addOutputLine(\"ok\");");
+  }
+
+  /**
+   * the description names each visible template with its configId, schema with a configId returns
+   * just that template, and a configId the caller cannot see is refused the same as one which does
+   * not exist.  schema without a configId returns them all, as before
+   */
+  public void testSchemaForOneTemplate() {
+
+    configureSchemaTemplate("mcpOneA", "One A", "everyone");
+    configureSchemaTemplate("mcpOneB", "One B", "everyone");
+    // only wheel can see this one
+    configureSchemaTemplate("mcpOneWheel", "One Wheel", "wheel");
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode definition = GrouperMcpInstitutionalTools.toolDefinition(authUser, true);
+      String description = definition.get("description").asText();
+      assertTrue(description, description.contains(GrouperMcpInstitutionalTools.AVAILABLE_TEMPLATES));
+
+      // the UI agent's compact form keeps the list of templates, since it is this institution's routing
+      String compactDescription = GrouperAiAgentToolCompaction.compactToolDefinition(
+          "institutional_tools", definition).get("description").asText();
+      assertTrue(compactDescription, compactDescription.startsWith(
+          GrouperAiAgentToolSummaries.summary("institutional_tools") + " " + GrouperAiAgentToolCompaction.DESCRIBE_FIRST));
+      assertTrue(compactDescription, compactDescription.contains(GrouperMcpInstitutionalTools.AVAILABLE_TEMPLATES));
+      assertTrue(compactDescription, compactDescription.contains("mcpOneA (One A)"));
+      assertTrue(compactDescription, compactDescription.contains("mcpOneB (One B)"));
+      assertFalse(compactDescription, compactDescription.contains("mcpOneWheel"));
+      assertTrue(description, description.contains("mcpOneA (One A)"));
+      assertTrue(description, description.contains("mcpOneB (One B)"));
+      assertFalse(description, description.contains("mcpOneWheel"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "schema");
+      arguments.put("configId", "mcpOneA");
+
+      ObjectNode result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertFalse(result.toString(), result.get("isError").asBoolean());
+      JsonNode tools = objectMapper.readTree(result.get("content").get(0).get("text").asText()).get("tools");
+      assertEquals(1, tools.size());
+      assertEquals("mcpOneA", tools.get(0).get("configId").asText());
+
+      // a template the caller cannot see, and one which does not exist, are refused alike
+      arguments.put("configId", "mcpOneWheel");
+      ObjectNode hiddenResult = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      arguments.put("configId", "mcpOneNotThere");
+      ObjectNode missingResult = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertTrue(hiddenResult.get("isError").asBoolean());
+      assertTrue(missingResult.get("isError").asBoolean());
+      assertEquals(hiddenResult.get("content").get(0).get("text").asText().replace("mcpOneWheel", "X"),
+          missingResult.get("content").get(0).get("text").asText().replace("mcpOneNotThere", "X"));
+      assertFalse(hiddenResult.toString(), hiddenResult.toString().contains("One Wheel"));
+
+      // no configId: every visible one, as before
+      arguments.remove("configId");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      tools = objectMapper.readTree(result.get("content").get(0).get("text").asText()).get("tools");
+      boolean foundA = false;
+      boolean foundB = false;
+      for (JsonNode tool : tools) {
+        foundA = foundA || "mcpOneA".equals(tool.get("configId").asText());
+        foundB = foundB || "mcpOneB".equals(tool.get("configId").asText());
+        assertFalse("mcpOneWheel".equals(tool.get("configId").asText()));
+      }
+      assertTrue(foundA);
+      assertTrue(foundB);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     } finally {
       GrouperSession.stopQuietly(session);
     }

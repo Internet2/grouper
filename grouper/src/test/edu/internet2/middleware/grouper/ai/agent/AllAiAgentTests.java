@@ -31,6 +31,7 @@ public class AllAiAgentTests {
     TestSuite suite = new TestSuite("Test for the AI agent in the UI and the shared tool layer");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperAiAgentTest.class);
+    suite.addTestSuite(GrouperAiAgentToolCompactionTest.class);
     suite.addTestSuite(GrouperAiAnthropicClientTest.class);
     suite.addTestSuite(GrouperAiOpenAiClientTest.class);
     suite.addTestSuite(GrouperToolConfirmationSummariesTest.class);
