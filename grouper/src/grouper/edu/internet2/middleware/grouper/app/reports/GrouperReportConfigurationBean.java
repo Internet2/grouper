@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -228,6 +230,38 @@ public class GrouperReportConfigurationBean {
    */
   public void setGshTemplateConfigId(String gshTemplateConfigId1) {
     this.gshTemplateConfigId = gshTemplateConfigId1;
+  }
+
+  /** gsh source type: the GSH report runs an interpreted script from the textarea */
+  public static final String GSH_SOURCE_TYPE_SCRIPT = "script";
+
+  /** gsh source type: the GSH report runs a compiled GSH report template by config id */
+  public static final String GSH_SOURCE_TYPE_COMPILED_TEMPLATE = "compiledTemplate";
+
+  /**
+   * for GSH reports, where the logic comes from: script or compiledTemplate.  This is not
+   * stored, it is a UI choice.  If not set it is derived from whether a compiled template
+   * config id is assigned, so existing configs need no upgrade
+   */
+  private String gshSourceType;
+
+  /**
+   * for GSH reports, where the logic comes from: script or compiledTemplate
+   * @return the gsh source type, derived from the template config id if not set
+   */
+  public String getGshSourceType() {
+    if (!StringUtils.isBlank(this.gshSourceType)) {
+      return this.gshSourceType;
+    }
+    return StringUtils.isBlank(this.gshTemplateConfigId) ? GSH_SOURCE_TYPE_SCRIPT : GSH_SOURCE_TYPE_COMPILED_TEMPLATE;
+  }
+
+  /**
+   * for GSH reports, where the logic comes from: script or compiledTemplate
+   * @param gshSourceType1
+   */
+  public void setGshSourceType(String gshSourceType1) {
+    this.gshSourceType = gshSourceType1;
   }
 
   /**

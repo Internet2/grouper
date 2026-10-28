@@ -253,26 +253,51 @@
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'GSH'}">
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigScriptId">${textContainer.text['grouperReportConfigScriptLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigGshSourceTypeId">${textContainer.text['grouperReportConfigGshSourceTypeLabel']}</label></strong></td>
                             <td>
-                              <span style="white-space: nowrap;">
-                              <textarea id="grouperReportConfigScriptId" name="grouperReportConfigScript" rows="10" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigScript)}</textarea>
+                              <select name="grouperReportConfigGshSourceType" id="grouperReportConfigGshSourceTypeId" style="width: 30em"
+                                onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Add', {formIds: 'addReportConfigFormId'}); return false;">
+                                <option value="script" ${grouperRequestContainer.grouperReportContainer.configBean.gshSourceType == 'script' ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigGshSourceTypeScriptLabel']}</option>
+                                <option value="compiledTemplate" ${grouperRequestContainer.grouperReportContainer.configBean.gshSourceType == 'compiledTemplate' ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigGshSourceTypeCompiledTemplateLabel']}</option>
+                              </select>
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-                              </span>
                               <br />
-                              <span class="description">${textContainer.text['grouperReportConfigScriptHint']}</span>
+                              <span class="description">${textContainer.text['grouperReportConfigGshSourceTypeHint']}</span>
                             </td>
                           </tr>
-                          <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigGshTemplateConfigIdId">${textContainer.text['grouperReportConfigGshTemplateConfigIdLabel']}</label></strong></td>
-                            <td>
-                              <input type="text" id="grouperReportConfigGshTemplateConfigIdId" name="grouperReportConfigGshTemplateConfigId" class="input-block-level"
-                                value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.gshTemplateConfigId)}" />
-                              <br />
-                              <span class="description">${textContainer.text['grouperReportConfigGshTemplateConfigIdHint']}</span>
-                            </td>
-                          </tr>
+                          <c:choose>
+                            <c:when test="${grouperRequestContainer.grouperReportContainer.configBean.gshSourceType == 'compiledTemplate'}">
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigGshTemplateConfigIdId">${textContainer.text['grouperReportConfigGshTemplateConfigIdLabel']}</label></strong></td>
+                                <td>
+                                  <span style="white-space: nowrap;">
+                                  <input type="text" id="grouperReportConfigGshTemplateConfigIdId" name="grouperReportConfigGshTemplateConfigId" style="width: 30em"
+                                    aria-required="true" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.gshTemplateConfigId)}" />
+                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                                  </span>
+                                  <br />
+                                  <span class="description">${textContainer.text['grouperReportConfigGshTemplateConfigIdHint']}</span>
+                                </td>
+                              </tr>
+                            </c:when>
+                            <c:otherwise>
+                              <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigScriptId">${textContainer.text['grouperReportConfigScriptLabel']}</label></strong></td>
+                                <td>
+                                  <span style="white-space: nowrap;">
+                                  <textarea id="grouperReportConfigScriptId" name="grouperReportConfigScript" rows="10" cols="40" class="input-block-level"
+                                    aria-required="true">${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigScript)}</textarea>
+                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                                  </span>
+                                  <br />
+                                  <span class="description">${textContainer.text['grouperReportConfigScriptHint']}</span>
+                                </td>
+                              </tr>
+                            </c:otherwise>
+                          </c:choose>
                         </c:if>
 
                       </c:if>

@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
@@ -1616,12 +1617,21 @@ public class UiV2GrouperReport {
     String reportConfigQuery = request.getParameter("grouperReportConfigQuery");
     bean.setReportConfigQuery(reportConfigQuery);
     
-    String reportConfigScript = request.getParameter("grouperReportConfigScript");
-    bean.setReportConfigScript(reportConfigScript);
+    // a GSH report runs either an interpreted script or a compiled GSH report template (GRP-7031).
+    // only keep the field for the chosen source so a stale value in the other is not saved
+    String reportConfigGshSourceType = request.getParameter("grouperReportConfigGshSourceType");
+    bean.setGshSourceType(reportConfigGshSourceType);
 
-    // GRP-7031: optional compiled GSH report template config id
+    String reportConfigScript = request.getParameter("grouperReportConfigScript");
     String reportConfigGshTemplateConfigId = request.getParameter("grouperReportConfigGshTemplateConfigId");
-    bean.setGshTemplateConfigId(reportConfigGshTemplateConfigId);
+
+    if (StringUtils.equals(GrouperReportConfigurationBean.GSH_SOURCE_TYPE_COMPILED_TEMPLATE, reportConfigGshSourceType)) {
+      reportConfigScript = null;
+    } else if (StringUtils.equals(GrouperReportConfigurationBean.GSH_SOURCE_TYPE_SCRIPT, reportConfigGshSourceType)) {
+      reportConfigGshTemplateConfigId = null;
+    }
+    bean.setReportConfigScript(reportConfigScript);
+    bean.setGshTemplateConfigId(StringUtils.trimToNull(reportConfigGshTemplateConfigId));
 
     {
       String reportConfigStoreWithNoData = request.getParameter("grouperReportConfigStoreWithNoData");
@@ -1773,15 +1783,49 @@ public class UiV2GrouperReport {
       return false;
     }
     
-    // GRP-7031: a GSH report needs either an interpreted script or a compiled template config id
-    if (bean.getReportConfigType() == ReportConfigType.GSH && StringUtils.isBlank(bean.getReportConfigScript())
-        && StringUtils.isBlank(bean.getGshTemplateConfigId())) {
-      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
-          "#grouperReportConfigScriptId",
-          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigScriptBlankError")));
-      return false;
+    // a GSH report needs the field for its source: an interpreted script or a compiled template config id
+    if (bean.getReportConfigType() == ReportConfigType.GSH) {
+
+      if (StringUtils.equals(GrouperReportConfigurationBean.GSH_SOURCE_TYPE_COMPILED_TEMPLATE, bean.getGshSourceType())) {
+
+        if (StringUtils.isBlank(bean.getGshTemplateConfigId())) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#grouperReportConfigGshTemplateConfigIdId",
+              TextContainer.retrieveFromRequest().getText().get("grouperReportConfigGshTemplateConfigIdBlankError")));
+          return false;
+        }
+
+        // catch a typo now rather than at the first scheduled run
+        String templateType = GrouperConfig.retrieveConfig().propertyValueString(
+            "grouperGshTemplate." + bean.getGshTemplateConfigId() + ".templateType");
+        String templateMode = GrouperConfig.retrieveConfig().propertyValueString(
+            "grouperGshTemplate." + bean.getGshTemplateConfigId() + ".templateMode");
+        if (!StringUtils.equals("report", templateType) || !StringUtils.equals("compiled", templateMode)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#grouperReportConfigGshTemplateConfigIdId",
+              TextContainer.retrieveFromRequest().getText().get("grouperReportConfigGshTemplateConfigIdNotFoundError")));
+          return false;
+        }
+
+      } else {
+
+        if (StringUtils.isBlank(bean.getReportConfigScript())) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#grouperReportConfigScriptId",
+              TextContainer.retrieveFromRequest().getText().get("grouperReportConfigScriptBlankError")));
+          return false;
+        }
+
+        // attribute values are limited to 4000 chars, a longer script fails with a database error on save
+        if (bean.getReportConfigScript().length() > 4000) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#grouperReportConfigScriptId",
+              TextContainer.retrieveFromRequest().getText().get("grouperReportConfigScriptTooLongError")));
+          return false;
+        }
+      }
     }
-    
+
     return true;
   }
   
