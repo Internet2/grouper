@@ -1251,6 +1251,121 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
   }
 
   /**
+   * configure a template with one groups scoped input, gsh_input_targetGroup, which prints it
+   * @param configId the template config id
+   */
+  private static void configureTargetGroupTemplate(String configId) {
+    String configPrefix = "grouperGshTemplate." + configId + ".";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateType", "gsh");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateVersion", "V1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateName", "Target Template");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateDescription", "Target");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "securityRunType", "everyone");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_targetGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.label", "Target Group");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.description", "Group to operate on");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.type", "string");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.validationType", "none");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.mcpScopeType", "groups");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "allowWsFromNoOwner", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "gshTemplate",
+        "gsh_builtin_gshTemplateOutput.addOutputLine(\"processed \" + gsh_input_targetGroup);");
+  }
+
+  /**
+   * create approved:folder:testGroup and outside:folder:otherGroup
+   */
+  private static void createScopeTestGroups() {
+    GrouperSession rootSession = GrouperSession.staticGrouperSession();
+    new GroupSave(rootSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("approved:folder:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(rootSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("outside:folder:otherGroup").assignCreateParentStemsIfNotExist(true).save();
+  }
+
+  /**
+   * @return SUBJ0 with readwrite consent restricted to folder approved:folder
+   */
+  private static GrouperMcpAuthUser approvedFolderAuthUser() {
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+    authUser.setConsentReadwriteScopeRestricted(true);
+    java.util.List<String> approvedFolders = new java.util.ArrayList<String>();
+    approvedFolders.add("approved:folder");
+    authUser.setConsentReadwriteFolders(approvedFolders);
+    return authUser;
+  }
+
+  /**
+   * the same input under its full and short name must not let an out of scope value through, in
+   * either order, and is refused.  one input given once, by either name, still runs and is scope
+   * checked
+   */
+  public void testDuplicateInputNamesDoNotBypassScope() {
+
+    configureTargetGroupTemplate("mcpDupTemplate");
+    createScopeTestGroups();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = approvedFolderAuthUser();
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("action", "execute");
+      arguments.put("configId", "mcpDupTemplate");
+      ObjectNode inputs = arguments.putObject("inputs");
+      // the full name would pass the scope check, the short name was added after it
+      inputs.put("gsh_input_targetGroup", "approved:folder:testGroup");
+      inputs.put("targetGroup", "outside:folder:otherGroup");
+
+      ObjectNode result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("was given twice"));
+      assertFalse(result.toString(), result.toString().contains("processed outside:folder:otherGroup"));
+
+      // the other order
+      inputs = arguments.putObject("inputs");
+      inputs.put("targetGroup", "outside:folder:otherGroup");
+      inputs.put("gsh_input_targetGroup", "approved:folder:testGroup");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("was given twice"));
+
+      // once by its short name: in scope runs, out of scope is refused
+      inputs = arguments.putObject("inputs");
+      inputs.put("targetGroup", "approved:folder:testGroup");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertFalse(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("processed approved:folder:testGroup"));
+
+      inputs.put("targetGroup", "outside:folder:otherGroup");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("is not within the approved groups readwrite scope"));
+
+      // once by its full name: the same
+      inputs = arguments.putObject("inputs");
+      inputs.put("gsh_input_targetGroup", "approved:folder:testGroup");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertFalse(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("processed approved:folder:testGroup"));
+
+      inputs.put("gsh_input_targetGroup", "outside:folder:otherGroup");
+      result = GrouperMcpInstitutionalTools.execute(arguments, authUser, true);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("is not within the approved groups readwrite scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
    * test that schema advertises mcpScopeType for inputs
    */
   public void testSchemaMcpScopeTypeInInputs() {

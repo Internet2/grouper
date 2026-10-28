@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -461,6 +462,34 @@ public class GrouperMcpInstitutionalTools {
   }
 
   /**
+   * the inputs of a call by full input name (gsh_input_...), a field named without the prefix
+   * getting it.  the one place they are read, so whether the call is read only, the scope check,
+   * and the template run all see the same values
+   * @param inputsNode the call's inputs argument, may be null
+   * @param duplicatedInputName if not null, gets the full name of an input given twice
+   * @return the inputs by full name, in the order given, or null if an input is given twice, with
+   * and without the prefix
+   */
+  static Map<String, String> callInputsByFullName(JsonNode inputsNode, List<String> duplicatedInputName) {
+    Map<String, String> callInputs = new LinkedHashMap<String, String>();
+    if (inputsNode != null && inputsNode.isObject()) {
+      Iterator<String> fieldNames = inputsNode.fieldNames();
+      while (fieldNames.hasNext()) {
+        String fieldName = fieldNames.next();
+        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
+        if (callInputs.containsKey(inputName)) {
+          if (duplicatedInputName != null) {
+            duplicatedInputName.add(inputName);
+          }
+          return null;
+        }
+        callInputs.put(inputName, inputsNode.get(fieldName).asText());
+      }
+    }
+    return callInputs;
+  }
+
+  /**
    * the variables a template's mcpReadonlyJexl is evaluated with: every input of the template by
    * its full name, holding the value the template will get when it runs.  read the way
    * {@link GshTemplateExec} reads them: inputs named with or without the gsh_input_ prefix, a
@@ -469,12 +498,12 @@ public class GrouperMcpInstitutionalTools {
    * call leaves out which has no default is null, as is a file input, whose value is not something
    * to compare.  an input the template does not have is left out: the template refuses the call
    * for it anyway.  null means the call cannot be read, so it is a write: an input given twice,
-   * with and without the prefix, since which of the two the template gets depends on the order
-   * they came in, and a value which does not convert, which the template refuses anyway.  the
-   * types, defaults and trimming come from config, so this relies on the template's decorate code,
-   * which runs before validation and may change input configs, leaving the inputs the expression
-   * reads alone.  that is the template author's to keep, like the promise that a call the
-   * expression is true for changes nothing, and the documentation of mcpReadonlyJexl says so
+   * with and without the prefix, which executeTemplate refuses anyway, and a value which does not
+   * convert, which the template refuses anyway.  the types, defaults and trimming come from config,
+   * so this relies on the template's decorate code, which runs before validation and may change
+   * input configs, leaving the inputs the expression reads alone.  that is the template author's
+   * to keep, like the promise that a call the expression is true for changes nothing, and the
+   * documentation of mcpReadonlyJexl says so
    * @param inputTypes the type of each of the template's inputs, by full input name
    * @param inputDefaults the default of each optional input which has one, by full input name
    * @param inputsNotTrimmed the inputs configured with trimWhitespace false, by full input name
@@ -484,18 +513,10 @@ public class GrouperMcpInstitutionalTools {
   static Map<String, Object> readonlyJexlVariables(Map<String, GshTemplateInputType> inputTypes,
       Map<String, String> inputDefaults, Set<String> inputsNotTrimmed, JsonNode inputsNode) {
 
-    // named the way executeTemplate names them, and the value read the same way
-    Map<String, String> callInputs = new HashMap<String, String>();
-    if (inputsNode != null && inputsNode.isObject()) {
-      Iterator<String> fieldNames = inputsNode.fieldNames();
-      while (fieldNames.hasNext()) {
-        String fieldName = fieldNames.next();
-        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
-        if (callInputs.containsKey(inputName)) {
-          return null;
-        }
-        callInputs.put(inputName, inputsNode.get(fieldName).asText());
-      }
+    // read the way executeTemplate reads them
+    Map<String, String> callInputs = callInputsByFullName(inputsNode, null);
+    if (callInputs == null) {
+      return null;
     }
 
     Map<String, Object> variableMap = new HashMap<String, Object>();
@@ -807,20 +828,23 @@ public class GrouperMcpInstitutionalTools {
       }
     }
 
-    // inputs
-    JsonNode inputsNode = arguments.has("inputs") ? arguments.get("inputs") : null;
-    if (inputsNode != null && inputsNode.isObject()) {
-      java.util.Iterator<String> fieldNames = inputsNode.fieldNames();
-      while (fieldNames.hasNext()) {
-        String fieldName = fieldNames.next();
-        // auto-prepend gsh_input_ if not already present
-        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
-        String fieldValue = inputsNode.get(fieldName).asText();
-        GshTemplateInput input = new GshTemplateInput();
-        input.assignName(inputName);
-        input.assignValue(fieldValue);
-        exec.addGshTemplateInput(input);
-      }
+    // the inputs, by full name (gsh_input_...), read once, so the value scope checked below is the
+    // value the template runs with.  an input given under both its full and its short name is
+    // refused rather than one of them quietly winning
+    List<String> duplicatedInputName = new ArrayList<String>();
+    Map<String, String> callInputs = callInputsByFullName(
+        arguments.has("inputs") ? arguments.get("inputs") : null, duplicatedInputName);
+    if (callInputs == null) {
+      String inputName = duplicatedInputName.get(0);
+      String shortName = inputName.substring("gsh_input_".length());
+      return buildErrorResult("Input '" + shortName + "' was given twice, as '" + inputName
+          + "' and '" + shortName + "'.  Give it once.");
+    }
+    for (Map.Entry<String, String> callInput : callInputs.entrySet()) {
+      GshTemplateInput input = new GshTemplateInput();
+      input.assignName(callInput.getKey());
+      input.assignValue(callInput.getValue());
+      exec.addGshTemplateInput(input);
     }
 
     // validate MCP scope restrictions on inputs for non-readonly templates
@@ -833,14 +857,8 @@ public class GrouperMcpInstitutionalTools {
         // find the matching input value
         String inputName = inputConfig.getName();
         String shortName = inputName.startsWith("gsh_input_") ? inputName.substring("gsh_input_".length()) : inputName;
-        String inputValue = null;
-        if (inputsNode != null && inputsNode.isObject()) {
-          if (inputsNode.has(inputName)) {
-            inputValue = inputsNode.get(inputName).asText();
-          } else if (inputsNode.has(shortName)) {
-            inputValue = inputsNode.get(shortName).asText();
-          }
-        }
+        // the value the template runs with, from callInputs above
+        String inputValue = callInputs.get("gsh_input_" + shortName);
         if (StringUtils.isBlank(inputValue)) {
           continue;
         }
