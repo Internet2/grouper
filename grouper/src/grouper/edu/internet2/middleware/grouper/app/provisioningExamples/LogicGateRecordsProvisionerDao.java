@@ -163,7 +163,7 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
    * find the record id for an entity by its key attribute (Penn ID) in prov_logicgate_record, the local copy
    * of the LogicGate records written by the last full sync (and by inserts since)
    * @param targetEntity
-   * @return the record id or null if not loading to the table or not found or not unique
+   * @return the record id or null if not loading to the table or not found
    */
   private String recordIdFromGrouperTable(ProvisioningEntity targetEntity) {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGrouperTable()) {
@@ -176,11 +176,13 @@ public class LogicGateRecordsProvisionerDao extends GrouperProvisionerTargetDaoB
     }
     String keyColumnName = keyAttribute.replaceAll("[^A-Za-z0-9]", "_");
     List<String> recordIds = new GcDbAccess().sql("select id from prov_logicgate_record where config_id = ? and "
-        + keyColumnName + " = ?")
+        + keyColumnName + " = ? order by id")
       .addBindVar(this.getGrouperProvisioner().getConfigId())
       .addBindVar(keyValue)
       .selectList(String.class);
-    return GrouperUtil.length(recordIds) == 1 ? recordIds.get(0) : null;
+    // more than one means the person already has duplicate records (the full sync merges them).  Returning
+    // null here made the incremental insert yet another record every run, so use one of them
+    return GrouperUtil.length(recordIds) == 0 ? null : recordIds.get(0);
   }
 
   /**
