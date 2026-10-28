@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.github.GithubMockServiceHandler;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
+import edu.internet2.middleware.grouper.app.freshServiceAgent.FreshAgentMockServiceHandler;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.okta.OktaMockServiceHandler;
@@ -66,6 +67,7 @@ public class MockServiceServlet extends HttpServlet {
       "box", BoxMockServiceHandler.class.getName(),
       "datadog", DatadogMockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
+      "freshAgent", FreshAgentMockServiceHandler.class.getName(),
       "freshRequester", FreshRequesterMockServiceHandler.class.getName(),
       "duoRole", DuoRoleMockServiceHandler.class.getName(),
       "githubScim", GithubScim2MockServiceHandler.class.getName(),

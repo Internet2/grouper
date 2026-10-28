@@ -1,0 +1,342 @@
+package edu.internet2.middleware.grouper.app.freshServiceAgent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeUser;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+/**
+ * FreshServiceAgent-specific {@link GrouperProvisioningTargetNativeSync}: builds native target
+ * reporting beans for sync-back to the generic grouper_prov_group / grouper_prov_user tables.
+ *
+ * <p>Both <b>groups</b> and <b>users</b> are captured from the raw Freshservice JSON (JSON Pointer
+ * paths, like SCIM / Adobe / Google / Duo), hooked at the API-commands seam
+ * ({@code FreshAgentApiCommands.retrieveAgentGroups}/{@code retrieveAgentGroup} and the
+ * {@code retrieveAgentUsers}/{@code retrieveAgentUserById}/{@code retrieveAgentUserByEmail}/
+ * {@code retrieveAgentUserByAttribute} read methods) where the full per-object JSON node is in
+ * scope. This avoids losing any Freshservice field that the {@link FreshAgentGroup} /
+ * {@link FreshAgentUser} typed beans do not model; operators can capture any JSON field via
+ * {@code nativeAttributesGroups} / {@code nativeAttributesEntities} with a {@code name} and optional
+ * JSON-Pointer {@code path}.
+ *
+ * <p>The captured node is the <b>inner</b> object of the Freshservice envelope -- the read methods
+ * unwrap {@code {"group": {...}}} / {@code {"agent": {...}}} / the elements of
+ * {@code {"groups":[...]}} / {@code {"agents":[...]}} -- so the default JSON pointers
+ * below are relative to that inner object (e.g. {@code /name}, {@code /email}, and the
+ * target-id at {@code /id}), exactly the shape {@code FreshAgentGroup.fromJson} /
+ * {@code FreshAgentUser.fromJson} parse.
+ *
+ * <p>Memberships are still group-centric: derived from the agent group's "members" array as typed
+ * {@link FreshAgentUser} beans (id only) during DAO translation ({@link #captureMembershipsForGroup}) --
+ * the same situation as Adobe -- so only the group/user object capture is JSON-based; membership
+ * capture is unchanged.
+ */
+public class FreshAgentProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
+
+  /**
+   * Default per-attribute capture list for FreshAgent users when {@code nativeAttributesEntities}
+   * is not configured. JSON-Pointer based (reads the raw Freshservice agent JSON, inner of the
+   * envelope). Excludes {@code id} (already the target_user_id column). Operators can capture any other
+   * Freshservice agent JSON field (first_name, last_name, job_title, department_ids, ...) via
+   * {@code nativeAttributesEntities} with a {@code name} and optional {@code path}.
+   */
+  private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_ENTITY_ATTRS =
+      Collections.unmodifiableList(Arrays.asList(
+          attrConfig("email"),
+          attrConfig("active")));
+
+  /**
+   * Default per-attribute capture list for FreshAgent groups when {@code nativeAttributesGroups}
+   * is not configured. JSON-Pointer based (the group path reads the raw Freshservice agent-group
+   * JSON, inner of the envelope). Excludes {@code id} (already the target_group_id column). The
+   * Freshservice group JSON field is {@code name}, matching the old {@code getName()} getter.
+   * Operators can configure any other Freshservice group JSON field (e.g. description) via
+   * {@code nativeAttributesGroups} with a {@code name} (and optional {@code path}).
+   */
+  private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_GROUP_ATTRS =
+      Collections.unmodifiableList(Arrays.asList(
+          attrConfig("name")));
+
+  private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
+    return attrConfigWithPath(name, null);
+  }
+
+  /**
+   * Build a native-attribute config with an explicit JSON Pointer {@code path}. When {@code path}
+   * is null the JSON path defaults to {@code "/" + name} (see {@link #populateAttributesFromJson}).
+   */
+  private static GrouperProvisioningNativeAttributeConfig attrConfigWithPath(String name, String path) {
+    GrouperProvisioningNativeAttributeConfig cfg = new GrouperProvisioningNativeAttributeConfig();
+    cfg.setName(name);
+    cfg.setPath(path);
+    return cfg;
+  }
+
+  @Override
+  protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsEntities() {
+    return DEFAULT_ENTITY_ATTRS;
+  }
+
+  @Override
+  protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsGroups() {
+    return DEFAULT_GROUP_ATTRS;
+  }
+
+  // ----- build (raw Freshservice JSON -> native-reporting bean) ------------------------
+
+  /**
+   * Build a native group bean from the raw Freshservice agent-group JSON (inner of the
+   * {@code agent_group}/{@code agent_groups} envelope). {@code targetId} is read from
+   * {@code /id} -- the same field {@link FreshAgentGroup#fromJson} used for the bean id; the
+   * attributes map is populated for each entry in {@link #effectiveNativeAttributeConfigsGroups()}
+   * (operator-configured or default) by JSON Pointer. Returns null when the JSON is missing or has
+   * no {@code id}.
+   */
+  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromJson(JsonNode groupNode) {
+    if (groupNode == null || groupNode.isMissingNode()) {
+      return null;
+    }
+    String targetId = resolveScalarAsString(groupNode, "/id");
+    if (targetId == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeGroup bean = new GrouperProvisioningTargetNativeGroup();
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), groupNode, effectiveNativeAttributeConfigsGroups());
+    return bean;
+  }
+
+  /**
+   * Build a native user bean from the raw Freshservice agent JSON (inner of the
+   * {@code agent}/{@code agents} envelope). {@code targetId} is read from {@code /id} -- the
+   * same field {@link FreshAgentUser#fromJson} used for the bean id; the attributes map is
+   * populated for each entry in {@link #effectiveNativeAttributeConfigsEntities()}
+   * (operator-configured or default) by JSON Pointer. Returns null when the JSON is missing or has
+   * no {@code id}.
+   */
+  public GrouperProvisioningTargetNativeUser buildNativeUserFromJson(JsonNode userNode) {
+    if (userNode == null || userNode.isMissingNode()) {
+      return null;
+    }
+    String targetId = resolveScalarAsString(userNode, "/id");
+    if (targetId == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), userNode, effectiveNativeAttributeConfigsEntities());
+    return bean;
+  }
+
+  /**
+   * For each attribute config, resolve its JSON Pointer ({@code path}, or {@code "/" + name})
+   * against the raw Freshservice JSON (group or user) and put the coerced value under
+   * {@code cfg.getName()}. Missing / null nodes are skipped (no attribute row written).
+   */
+  private static void populateAttributesFromJson(
+      Map<String, Object> destinationAttributes,
+      JsonNode resourceNode,
+      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
+    if (destinationAttributes == null || resourceNode == null) {
+      return;
+    }
+    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
+      // JSON Pointer per RFC 6901: explicit path wins, else "/" + name (e.g. /name, /active)
+      String pointer = StringUtils.defaultIfBlank(cfg.getPath(), "/" + cfg.getName());
+      JsonNode node = resourceNode.at(pointer);
+      if (node == null || node.isMissingNode() || node.isNull()) {
+        continue;
+      }
+      Object value = coerceJsonValue(node, cfg.getType());
+      if (value != null) {
+        destinationAttributes.put(cfg.getName(), value);
+      }
+    }
+  }
+
+  private static String resolveScalarAsString(JsonNode resourceNode, String jsonPointer) {
+    if (resourceNode == null) {
+      return null;
+    }
+    JsonNode node = resourceNode.at(jsonPointer);
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
+    }
+    return node.asText();
+  }
+
+  /**
+   * Coerce a JsonNode to a scalar Object for storage in the attribute map. The declared type
+   * ({@code "string"|"integer"|"boolean"|"timestamp"}) wins when present; otherwise the node's
+   * intrinsic JSON type drives the choice.
+   */
+  private static Object coerceJsonValue(JsonNode node, String declaredType) {
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "integer")) {
+      return Long.valueOf(node.asLong());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "boolean")) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "timestamp")) {
+      // store as the source string; downstream coercion handled by the dictionary path
+      return node.asText();
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "string")) {
+      return node.asText();
+    }
+    // auto-detect by intrinsic JSON type
+    if (node.isBoolean()) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (node.isIntegralNumber()) {
+      return Long.valueOf(node.asLong());
+    }
+    if (node.isNumber()) {
+      return Double.valueOf(node.asDouble());
+    }
+    return node.asText();
+  }
+
+  // ----- capture convenience (build + record) -----------------------------------------
+
+  /** Build + record a FreshAgent group from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureGroupJson(JsonNode groupNode) {
+    this.recordTargetNativeGroup(this.buildNativeGroupFromJson(groupNode));
+  }
+
+  /** Build + record a FreshAgent user from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureUserJson(JsonNode userNode) {
+    this.recordTargetNativeUser(this.buildNativeUserFromJson(userNode));
+  }
+
+  /**
+   * Translate a list of FreshAgent users known to be members of {@code targetGroupId} into
+   * native membership beans, and record them. No-op when sync-back is off or input is empty.
+   *
+   * <p>Unchanged by the move to raw-JSON object capture: Freshservice memberships are group-centric
+   * (the per-group member listing returns the member users), so they are still derived from the
+   * typed {@link FreshAgentUser} beans the DAO already has in hand -- the same situation as
+   * Adobe's user-{@code groups} derivation.
+   */
+  public void captureMembershipsForGroup(String targetGroupId, List<FreshAgentUser> members) {
+    if (targetGroupId == null || members == null || members.isEmpty()) {
+      return;
+    }
+    List<GrouperProvisioningTargetNativeMembership> memberships =
+        new ArrayList<GrouperProvisioningTargetNativeMembership>();
+    for (FreshAgentUser freshAgentUser : members) {
+      if (freshAgentUser == null || freshAgentUser.getId() == null) {
+        continue;
+      }
+      GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
+      membership.setTargetGroupId(targetGroupId);
+      membership.setTargetUserId(String.valueOf(freshAgentUser.getId()));
+      memberships.add(membership);
+    }
+    this.recordTargetNativeMemberships(memberships);
+  }
+
+  // ----- static dispatchers (called from FreshAgentApiCommands read seams) ---------
+
+  /**
+   * Capture a FreshAgent group (from its raw inner JSON) against the current provisioner's sync.
+   * No-op if there's no current provisioner or the active provisioner isn't a FreshAgent one.
+   * Called from the commands read seams ({@code retrieveAgentGroups}/{@code retrieveAgentGroup})
+   * where the per-group JSON node is in scope.
+   */
+  public static void captureGroupJsonFromCurrentProvisioner(JsonNode groupNode) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.captureGroupJson(groupNode);
+  }
+
+  /**
+   * Capture a FreshAgent user (from its raw inner JSON) against the current provisioner's sync.
+   * No-op if there's no current provisioner or the active provisioner isn't a FreshAgent one.
+   * Called from the commands read seams ({@code retrieveAgentUsers}/{@code retrieveAgentUserById}/
+   * {@code retrieveAgentUserByEmail}/{@code retrieveAgentUserByAttribute}).
+   */
+  public static void captureUserJsonFromCurrentProvisioner(JsonNode userNode) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.captureUserJson(userNode);
+  }
+
+  /**
+   * Capture memberships for the given target group id against the current provisioner's sync.
+   * Group-centric (see {@link #captureMembershipsForGroup}); unchanged by the JSON object-capture move.
+   */
+  public static void captureMembershipsForGroupForCurrentProvisioner(
+      String targetGroupId, List<FreshAgentUser> members) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.captureMembershipsForGroup(targetGroupId, members);
+  }
+
+  /**
+   * Write-track a successful FreshAgent membership add ({@code addGroupMembership}) against the
+   * current provisioner: record {@code (groupTargetId, userTargetId)} in the native membership map so
+   * the end-of-run flush keeps grouper_prov_mship current (GRP-7048 "memberships from sync-back
+   * cache" relies on this). Unlike groups/users, memberships are tracked purely from our own
+   * successful write here -- never re-read -- so this must be called only on the DAO success path.
+   * No-op out of cycle, for a non-FreshAgent provisioner, or when membership sync-back is off
+   * (the underlying {@code recordTargetNativeMembershipInsert} is guarded).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful FreshAgent membership remove ({@code removeGroupMembership}) against
+   * the current provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership
+   * map so the end-of-run flush deletes its grouper_prov_mship row. Must be called only on the DAO
+   * success path. No-op out of cycle, for a non-FreshAgent provisioner, or when membership
+   * sync-back is off (the underlying {@code recordTargetNativeMembershipDelete} is guarded).
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
+  private static FreshAgentProvisioningTargetNativeSync freshAgentSyncForCurrentProvisioner() {
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    if (provisioner == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeSync sync = provisioner.retrieveGrouperProvisioningTargetNativeSync();
+    if (sync instanceof FreshAgentProvisioningTargetNativeSync) {
+      return (FreshAgentProvisioningTargetNativeSync) sync;
+    }
+    return null;
+  }
+
+}

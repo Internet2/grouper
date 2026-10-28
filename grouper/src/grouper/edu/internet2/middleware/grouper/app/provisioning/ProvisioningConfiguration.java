@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobProvisio
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonProvisioningIncrementalSyncConfiguration;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.freshServiceAgent.FreshAgentProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.genericProvisioner.GenericProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguration;
@@ -117,6 +118,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(CCureProvisioningConfiguration.class.getName());
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
+    configClassNamesList.add(FreshAgentProvisionerConfiguration.class.getName());
     configClassNamesList.add(FreshRequesterProvisionerConfiguration.class.getName());
     configClassNamesList.add(GenericProvisionerConfiguration.class.getName());
     configClassNamesList.add(GshTemplateProvisionerConfiguration.class.getName());

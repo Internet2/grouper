@@ -1,0 +1,556 @@
+package edu.internet2.middleware.grouper.app.freshServiceAgent;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
+public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
+  
+  @Override
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
+  }
+
+  @Override
+  public String loggingStop() {
+    return GrouperHttpClient.logEnd();
+  }
+  
+  @Override
+  public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
+    List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
+    long startNanos = System.nanoTime();
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      List<FreshAgentGroup> agentGroups = FreshAgentApiCommands.retrieveAgentGroups(freshserviceConfiguration.getFreshserviceExternalSystemConfigId());
+      
+      for (FreshAgentGroup agentGroup : agentGroups) {
+        ProvisioningGroup targetGroup = agentGroup.toProvisioningGroup();
+        results.add(targetGroup);
+        // generic provisioner sync back: the native group is now captured from the raw JSON at the
+        // FreshAgentApiCommands read seam (full fidelity, not the lossy typed bean), so no
+        // capture is needed here.
+      }
+      return new TargetDaoRetrieveAllGroupsResponse(results);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllGroups", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoRetrieveGroupResponse retrieveGroup(TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
+    long startNanos = System.nanoTime();
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+        FreshAgentGroup agentGroup = FreshAgentApiCommands.retrieveAgentGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            GrouperUtil.longValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
+        ProvisioningGroup targetGroup = agentGroup == null ? null : agentGroup.toProvisioningGroup();
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and
+        // incremental). The native group is now captured from the raw JSON at the
+        // FreshAgentApiCommands read seam, so no capture is needed here.
+        return new TargetDaoRetrieveGroupResponse(targetGroup);
+      } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+        List<FreshAgentGroup> agentGroups = FreshAgentApiCommands.retrieveAgentGroups(freshserviceConfiguration.getFreshserviceExternalSystemConfigId());
+        for (FreshAgentGroup agentGroup : agentGroups) {
+          if (StringUtils.equals(agentGroup.getName(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()))) {
+            ProvisioningGroup targetGroup = agentGroup == null ? null : agentGroup.toProvisioningGroup();
+            // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and
+            // incremental). The native group is now captured from the raw JSON at the
+            // FreshAgentApiCommands read seam, so no capture is needed here.
+            return new TargetDaoRetrieveGroupResponse(targetGroup);
+          }
+        }
+      } else {
+        throw new RuntimeException("id or name is required as a group search attribute");
+      }
+      return new TargetDaoRetrieveGroupResponse();
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveGroup", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshAgentGroup grouperAgentGroup = FreshAgentGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshAgentGroup createdGroup = FreshAgentApiCommands.createAgentGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentGroup);
+
+      targetGroup.setId(String.valueOf(createdGroup.getId()));
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertGroup", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      // collect the field names and actions that need to be updated from the provisioning object changes
+      Map<String, ProvisioningObjectChangeAction> fieldsToUpdate = new LinkedHashMap<String, ProvisioningObjectChangeAction>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        fieldsToUpdate.put(fieldName, provisioningObjectChange.getProvisioningObjectChangeAction());
+      }
+
+      FreshAgentGroup grouperAgentGroup = FreshAgentGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshAgentApiCommands.updateAgentGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentGroup, fieldsToUpdate);
+
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      // sync-back: FreshAgent captures group OBJECTS on the read path only, so an attribute
+      // update does not refresh grouper_prov_group under groups-from-cache. Mark this updated group
+      // for the end-of-run sync-back drain re-read so the native mirror converges on the write pass.
+      // No-op internally when sync-back (isLoadGroupsToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+
+      return new TargetDaoUpdateGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshAgentGroup grouperAgentGroup = FreshAgentGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshAgentApiCommands.deleteAgentGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentGroup.getId());
+
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
+    List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
+    long startNanos = System.nanoTime();
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      List<FreshAgentUser> agents = FreshAgentApiCommands.retrieveAgentUsers(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), false);
+      for (FreshAgentUser agent : agents) {
+        ProvisioningEntity targetEntity = agent.toProvisioningEntity();
+        results.add(targetEntity);
+        // generic provisioner sync back: the native user is now captured from the raw JSON at the
+        // FreshAgentApiCommands read seam (full fidelity, not the lossy typed bean), so no
+        // capture is needed here.
+      }
+      return new TargetDaoRetrieveAllEntitiesResponse(results);
+    }
+    finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoRetrieveEntityResponse retrieveEntity(TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest) {
+    long startNanos = System.nanoTime();
+    
+    FreshAgentUser agent = null;
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      agent = FreshAgentApiCommands.retrieveAgentUserByAttribute(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+          targetDaoRetrieveEntityRequest.getSearchAttribute(),
+          targetDaoRetrieveEntityRequest.getSearchAttributeValue());
+      
+      ProvisioningEntity targetEntity = agent == null ? null : agent.toProvisioningEntity();
+
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and
+      // incremental). The native user is now captured from the raw JSON at the
+      // FreshAgentApiCommands read seam, so no capture is needed here.
+
+      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
+      if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
+        targetDaoRetrieveEntityResponse.setTargetNativeEntity(agent);
+      }
+      return targetDaoRetrieveEntityResponse;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshAgentUser grouperAgentUser = FreshAgentUser.fromProvisioningEntity(targetEntity, null);
+
+      // Freshservice requires a role when an agent is created, so use the configured default role
+      if (freshserviceConfiguration.getDefaultAgentRoleId() != null) {
+        grouperAgentUser.assignRole(freshserviceConfiguration.getDefaultAgentRoleId(),
+            freshserviceConfiguration.getDefaultAgentRoleAssignmentScope());
+      }
+
+      FreshAgentUser createdUser = FreshAgentApiCommands.createAgentUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentUser,
+          freshserviceConfiguration.isReactivateAsFullTime());
+
+      targetEntity.setId(String.valueOf(createdUser.getId()));
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      // collect the field names that need to be updated from the provisioning object changes
+      Set<String> fieldNamesToUpdate = new HashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        fieldNamesToUpdate.add(fieldName);
+      }
+
+      FreshAgentUser grouperAgentUser = FreshAgentUser.fromProvisioningEntity(targetEntity, null);
+
+      FreshAgentApiCommands.updateAgentUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentUser, fieldNamesToUpdate);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      // sync-back: FreshAgent captures user OBJECTS on the read path only, so an attribute
+      // update does not refresh grouper_prov_user under users-from-cache. Mark this updated user
+      // for the end-of-run sync-back drain re-read so the native mirror converges on the write pass.
+      // No-op internally when sync-back (isLoadEntitiesToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
+
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshAgentUser grouperAgentUser = FreshAgentUser.fromProvisioningEntity(targetEntity, null);
+
+      // deactivate (soft delete) the agent user
+      FreshAgentApiCommands.deactivateAgentUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperAgentUser.getId());
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      FreshAgentApiCommands.addGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
+          GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+
+      targetMembership.setProvisioned(true);
+      // sync-back: on success only, write-track the added membership into the native mirror so the
+      // end-of-run flush keeps grouper_prov_mship current (GRP-7048). Same group + user target ids
+      // just passed to the Freshservice add API above.
+      FreshAgentProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+      return new TargetDaoInsertMembershipResponse();
+    } catch(Exception e) {
+      targetMembership.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMembership", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest.getTargetMembership();
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      FreshAgentApiCommands.removeGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
+          GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+
+      targetMembership.setProvisioned(true);
+      // sync-back: on success only, drop the removed membership from the native mirror so the
+      // end-of-run flush deletes its grouper_prov_mship row (GRP-7048). Same group + user target ids
+      // just passed to the Freshservice remove API above.
+      FreshAgentProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+      return new TargetDaoDeleteMembershipResponse();
+    } catch(Exception e) {
+      targetMembership.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMembership", startNanos));
+    }
+  }
+  
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
+    
+    String targetGroupId = resolveTargetGroupId(targetGroup, this.getGrouperProvisioner());
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
+    
+    if (StringUtils.isBlank(targetGroupId)) {
+      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+    }
+    
+    try {
+      FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+      
+      List<FreshAgentUser> agents = FreshAgentApiCommands.retrieveMembershipsByGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+          GrouperUtil.longValue(targetGroupId));
+      
+      for(FreshAgentUser agent : agents) {
+        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        targetMembership.setProvisioningGroupId(targetGroupId);
+        targetMembership.setProvisioningEntityId(agent.getId() == null ? null : Long.toString(agent.getId()));
+        provisioningMemberships.add(targetMembership);
+      }
+
+      // generic provisioner sync back: capture memberships for this group while the typed
+      // user beans are in scope. memberships in FreshAgent come back per-group via the
+      // membership listing endpoint, so capture here is the natural seam.
+      FreshAgentProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+          targetGroupId, agents);
+
+      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+      
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
+    }
+  }
+  
+  public String resolveTargetGroupId(ProvisioningGroup targetGroup, GrouperProvisioner grouperProvisioner) {
+    if (targetGroup == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetGroup.getId())) {
+      return targetGroup.getId();
+    }
+    
+    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest();
+    targetDaoRetrieveGroupsRequest.setTargetGroups(GrouperUtil.toList(targetGroup));
+    targetDaoRetrieveGroupsRequest.setIncludeAllMembershipsIfApplicable(false);
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(
+        targetDaoRetrieveGroupsRequest);
+
+    if (targetDaoRetrieveGroupsResponse == null || GrouperUtil.length(targetDaoRetrieveGroupsResponse.getTargetGroups()) == 0) {
+      return null;
+    }
+    
+    return targetDaoRetrieveGroupsResponse.getTargetGroups().get(0).getId();
+  }
+  
+
+  @Override
+  public void registerGrouperProvisionerDaoCapabilities(
+      GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
+    grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
+    grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    // read path captures groups/users from the raw Freshservice JSON at the FreshAgentApiCommands
+    // read seams (full fidelity, not the lossy typed bean); memberships are captured group-centric
+    // from this DAO via FreshAgentProvisioningTargetNativeSync.captureMembershipsForGroup*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+
+  }
+
+}

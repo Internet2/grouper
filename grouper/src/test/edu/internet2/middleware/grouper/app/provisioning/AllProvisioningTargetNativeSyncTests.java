@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.app.ccure.CCureProvisioningTargetNativeS
 import edu.internet2.middleware.grouper.app.datadog.DatadogProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.dropbox.DropboxProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioningTargetNativeSyncTest;
+import edu.internet2.middleware.grouper.app.freshServiceAgent.FreshAgentProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.github.GithubProvisioningTargetNativeSyncTest;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisioningTargetNativeSyncTest;
@@ -79,6 +80,7 @@ public class AllProvisioningTargetNativeSyncTests {
     suite.addTestSuite(GrouperBoxProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(DatadogProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(GrouperDuoProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(FreshAgentProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(FreshRequesterProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(GrouperGoogleProvisioningTargetNativeSyncTest.class);
     suite.addTestSuite(GrouperOktaProvisioningTargetNativeSyncTest.class);
