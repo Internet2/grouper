@@ -2024,12 +2024,22 @@ public class GrouperAzureApiCommands {
           ArrayNode ownerValues = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
           
           List<String> ownerIds = new ArrayList<String>();
-          
+
           if (ownerValues != null && ownerValues.size() > 0) {
+            String ownerResourceEndpoint = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
+                "grouper.azureConnector." + configId + ".resourceEndpoint", "https://graph.microsoft.com/v1.0/"));
+
             for (int k=0; k<ownerValues.size(); k++) {
               JsonNode singleOwnerNode = ownerValues.get(k);
               String ownerId = GrouperUtil.jsonJacksonGetString(singleOwnerNode, "id");
-              ownerIds.add(ownerId);
+              String odataType = GrouperUtil.jsonJacksonGetString(singleOwnerNode, "@odata.type");
+              // service principals are configured as a full reference (resourceEndpoint/directoryObjects/id), so
+              // return the same form here to match; users remain bare ids
+              if (StringUtils.equals(odataType, "#microsoft.graph.servicePrincipal")) {
+                ownerIds.add(ownerResourceEndpoint + "/directoryObjects/" + ownerId);
+              } else {
+                ownerIds.add(ownerId);
+              }
             }
           }
           
@@ -2526,9 +2536,16 @@ public class GrouperAzureApiCommands {
     Map<Integer, Pair<String, String>> indexToPairForThrottling = new HashMap<Integer, Pair<String,String>>();
     for (Pair<String, String> groupIdOwnerId: twentyGroupIdOwnerId) {
       
+      // service principal owners are held as a full reference, but the delete url needs only the object id
+      // e.g. https://graph.microsoft.com/beta/directoryObjects/685ec840-715a-43b9-b4d9-xxxxxxxxxxxx -> 685ec840-715a-43b9-b4d9-xxxxxxxxxxxx
+      String ownerId = groupIdOwnerId.getRight();
+      if (StringUtils.startsWith(ownerId, "http")) {
+        ownerId = GrouperUtil.suffixAfterChar(ownerId, '/');
+      }
+
       ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
       innerRequestNode.put("id", String.valueOf(index));
-      innerRequestNode.put("url", "/groups/"+groupIdOwnerId.getLeft()+"/owners/"+groupIdOwnerId.getRight()+"/$ref"); // https://graph.microsoft.com/v1.0/groups/{id}/owners/{id}/$ref
+      innerRequestNode.put("url", "/groups/"+groupIdOwnerId.getLeft()+"/owners/"+ownerId+"/$ref"); // https://graph.microsoft.com/v1.0/groups/{id}/owners/{id}/$ref
       innerRequestNode.put("method", "DELETE");
       
       ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();

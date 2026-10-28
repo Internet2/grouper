@@ -26,6 +26,9 @@ ${grouper:title('aiAgentBreadcrumb')}
     <div id="aiAgentScopeDivId">
       <%@ include file="aiAgentScope.jsp"%>
     </div>
+    <%-- says a scope change was saved.  outside the scope, which is sometimes redrawn, so this
+         stays put and screen readers hear it --%>
+    <p id="aiAgentScopeStatusId" role="status"></p>
   </div>
 </div>
 

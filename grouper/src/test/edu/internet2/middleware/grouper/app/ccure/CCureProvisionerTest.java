@@ -13,10 +13,12 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureGroup;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureMembership;
 import edu.internet2.middleware.grouper.app.ccure.CCureTargetDao.CCureUser;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -54,7 +56,7 @@ public class CCureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int CLEARANCE_ID_1 = 2002;
 
   public static void main(String[] args) {
-    TestRunner.run(new CCureProvisionerTest("testRetrieveGroups"));
+    TestRunner.run(new CCureProvisionerTest("testFullSyncFailsafeApproveOnceUsedUpWhenRunHasObjectError"));
     System.exit(0);
   }
 
@@ -917,6 +919,82 @@ public class CCureProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("and Grouper must not have created Personnel",
         Integer.valueOf(1), new GcDbAccess().connectionName("grouper")
             .sql("select count(1) from mock_ccure_personnel").select(int.class));
+  }
+
+  /**
+   * GRP-7525: a failsafe approved once is used up when the approved run gets past the failsafe check,
+   * even if that run ends in error (here a member with no Personnel).  Otherwise approved_once stayed
+   * 'T' and silently approved the next failsafe issue.
+   */
+  public void testFullSyncFailsafeApproveOnceUsedUpWhenRunHasObjectError() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(ccureProvisionerConfig()
+        .addExtraConfig("showFailsafe", "true")
+        .addExtraConfig("failsafeUse", "true")
+        .addExtraConfig("failsafeSendEmail", "false")
+        .addExtraConfig("failsafeMinGroupSize", "1")
+        .addExtraConfig("failsafeMaxPercentRemove", "40")
+        .addExtraConfig("failsafeMaxOverallPercentGroupsRemove", "-1")
+        .addExtraConfig("failsafeMaxOverallPercentMembershipsRemove", "-1")
+        .addExtraConfig("failsafeMinManagedGroups", "-1")
+        .addExtraConfig("failsafeMinOverallNumberOfMembers", "-1"));
+
+    String jobName = "OTHER_JOB_provisioner_full_" + PROVISIONER_CONFIG_ID;
+
+    insertMockPersonnelForTestSubjects();
+    insertMockClearance(CLEARANCE_ID_0, "testGroup");
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+
+    attachProvisioningAttribute(stem);
+
+    fullProvision();
+    assertEquals(3, countPairs());
+
+    // remove 2 of 3 (66%), trips the failsafe
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+    testGroup.deleteMember(SubjectTestHelper.SUBJ2, false);
+
+    try {
+      fullProvision();
+      fail("expected failsafe");
+    } catch (RuntimeException e) {
+    }
+    assertEquals("ERROR_FAILSAFE", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals(3, countPairs());
+
+    // approve once, and add a member with no Personnel so the approved run ends in error
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    testGroup.addMember(SubjectTestHelper.SUBJ3, false);
+
+    fullProvisionExpectingObjectError();
+    assertEquals("approved removes were applied", 1, countPairs());
+
+    assertFalse("approve once is used up even though the run had an error", GrouperFailsafe.isApproved(jobName));
+    assertFalse("failsafe passed so the issue is cleared", GrouperFailsafe.isFailsafeIssue(jobName));
+
+    // removing the last provisioned member (100%) trips again instead of being silently approved
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0, false);
+
+    try {
+      fullProvision();
+      fail("expected failsafe");
+    } catch (RuntimeException e) {
+    }
+    assertEquals("ERROR_FAILSAFE", Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName).getStatus());
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+    assertEquals(1, countPairs());
   }
 
   // =============================================

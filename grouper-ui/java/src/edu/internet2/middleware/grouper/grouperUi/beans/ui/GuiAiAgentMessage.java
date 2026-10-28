@@ -15,13 +15,14 @@ import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentConversation;
 import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentMessage;
 import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolCall;
 import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolResult;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiMarkdown;
 
 /**
  * one line of the AI agent conversation as the screen shows it: something the user said,
  * something the assistant said, or a tool the assistant used with what came back.
  *
  * <p>everything here came from the user, the model or Grouper data, so the JSP escapes all of
- * it.</p>
+ * it, except the assistant's text, which is shown through {@link #getTextHtml()}.</p>
  */
 public class GuiAiAgentMessage {
 
@@ -161,6 +162,13 @@ public class GuiAiAgentMessage {
    */
   public String getText() {
     return this.text;
+  }
+
+  /**
+   * @return what the assistant said, its markdown rendered as safe HTML for the JSP to show as is
+   */
+  public String getTextHtml() {
+    return GrouperUiMarkdown.toSafeHtml(this.text);
   }
 
   /**

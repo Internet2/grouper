@@ -4,10 +4,13 @@
  */
 package edu.internet2.middleware.grouper.ai.agent;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,8 +49,13 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>the model gets at most maxStepsPerMessage calls per user message or set of approvals</li>
  *   <li>at most maxLookupsPerStep of the look-ups in one step run.  the rest get an error result
  *   telling the model to ask again, so steps times look-ups times maxToolResultChars bounds what one
- *   message pulls in.  changes are not counted: each returns a short result and waits for approval,
- *   so all the changes asked for in one step are approved together</li>
+ *   message pulls in, apart from tool_describe results, which the tool list bounds.  changes are not
+ *   counted: each returns a short result and waits for approval, so all the changes asked for in one
+ *   step are approved together</li>
+ *   <li>tools are offered compact, unless that is turned off ({@link GrouperAiAgentToolCompaction}):
+ *   a summary and no parameters, with tool_describe, which the agent answers itself from the full
+ *   definitions and does not cut.  a call with an argument its tool does not take is refused before
+ *   it runs or is put in front of the user to approve</li>
  *   <li>when a new message starts, long tool results from earlier exchanges are replaced with a
  *   short stub, so only the latest exchange carries its full results</li>
  *   <li>older exchanges are summarized once there are enough of them, keeping the latest ones
@@ -131,6 +139,12 @@ public class GrouperAiAgent {
   /** what stands in for a long tool result from an earlier exchange */
   static final String OLDER_TOOL_RESULT_STUB = "[This result was removed to save space, since it is "
       + "from an earlier question.  Call the tool again if it is needed.]";
+
+  /**
+   * added to the system prompt when tool_describe is offered, i.e. the other tools are offered
+   * compact (GrouperAiAgentToolCompaction), with a summary and no parameters
+   */
+  static final String COMPACT_TOOLS_PROMPT = "\n- " + GrouperAiAgentToolCompaction.DESCRIBE_FIRST_INSTRUCTIONS;
 
   /** what a call outside the session scope tells the model.  the model cannot see the scope, so it
    * is told to try again when asked rather than assume the setting has not changed */
@@ -522,15 +536,20 @@ public class GrouperAiAgent {
 
     stubOlderToolResults(conversation);
 
-    conversation.getMessages().add(GrouperAiAgentMessage.user(text));
+    GrouperAiAgentMessage userMessage = GrouperAiAgentMessage.user(text);
+    userMessage.setSentAt(sentAt(System.currentTimeMillis()));
+    conversation.getMessages().add(userMessage);
     conversation.setLlmCallsThisMessage(0);
 
     // the tool list is only refreshed here, where a new user turn starts
-    ArrayNode toolDefinitions = this.toolExecution.retrieveToolDefinitions();
+    GrouperAiAgentToolCompaction toolCompaction = new GrouperAiAgentToolCompaction(
+        this.toolExecution.retrieveToolDefinitions(), this.settings.isCompactToolDefinitions(),
+        this.settings.getAlwaysFullToolNames());
+    ArrayNode toolDefinitions = toolCompaction.getToolDefinitionsToOffer();
     applyToolDefinitionsFingerprint(conversation, toolDefinitions);
     conversation.setToolDefinitionsJson(toolDefinitions == null ? null : toolDefinitions.toString());
 
-    return runLoop(conversation, toolDefinitions, result);
+    return runLoop(conversation, toolDefinitions, toolCompaction, result);
   }
 
   /**
@@ -559,26 +578,42 @@ public class GrouperAiAgent {
     // it carries on the message which asked for the writes, and a message is never stopped part
     // way through by a limit
 
+    // the same tools as when the calls were made, even if the user's tools changed while they were
+    // waiting.  the model's reasoning for the calls being answered was produced with that list, and
+    // stripping it in the middle of a tool round can be rejected.  a changed list is picked up at
+    // the next user message.  which tools are compact is read from that list too, not from the
+    // configuration, which may have changed in between
+    ArrayNode toolDefinitions = null;
+    if (!StringUtils.isBlank(conversation.getToolDefinitionsJson())) {
+      toolDefinitions = (ArrayNode)readJson(conversation.getToolDefinitionsJson());
+    }
+
+    // the full definitions, for tool_describe and for checking a call's arguments, so only for a
+    // list offered compact, or a new one.  read before the approved calls run, so a failure reading
+    // them leaves the calls waiting rather than run with an error after
+    ArrayNode fullToolDefinitions = null;
+    if (toolDefinitions == null || GrouperAiAgentToolCompaction.isToolDescribeOffered(toolDefinitions)) {
+      fullToolDefinitions = this.toolExecution.retrieveToolDefinitions();
+    }
+
     closePendingToolCalls(conversation, approvedToolCallIds == null ? new HashSet<String>() : approvedToolCallIds,
         DECLINED_BY_USER, result);
 
     // the user stepped in, so the model gets a fresh allowance of steps
     conversation.setLlmCallsThisMessage(0);
 
-    // the same tools as when the calls were made, even if the user's tools changed while they were
-    // waiting.  the model's reasoning for the calls being answered was produced with that list, and
-    // stripping it in the middle of a tool round can be rejected.  a changed list is picked up at
-    // the next user message
-    ArrayNode toolDefinitions = null;
-    if (!StringUtils.isBlank(conversation.getToolDefinitionsJson())) {
-      toolDefinitions = (ArrayNode)readJson(conversation.getToolDefinitionsJson());
+    GrouperAiAgentToolCompaction toolCompaction = null;
+    if (toolDefinitions != null) {
+      toolCompaction = new GrouperAiAgentToolCompaction(fullToolDefinitions, toolDefinitions);
     } else {
-      toolDefinitions = this.toolExecution.retrieveToolDefinitions();
+      toolCompaction = new GrouperAiAgentToolCompaction(fullToolDefinitions,
+          this.settings.isCompactToolDefinitions(), this.settings.getAlwaysFullToolNames());
+      toolDefinitions = toolCompaction.getToolDefinitionsToOffer();
       applyToolDefinitionsFingerprint(conversation, toolDefinitions);
       conversation.setToolDefinitionsJson(toolDefinitions == null ? null : toolDefinitions.toString());
     }
 
-    return runLoop(conversation, toolDefinitions, result);
+    return runLoop(conversation, toolDefinitions, toolCompaction, result);
   }
 
   /**
@@ -653,11 +688,12 @@ public class GrouperAiAgent {
    * call the model and run its tools until it answers, needs the user, or runs out of steps
    * @param conversation the conversation, which ends with a user message or tool results
    * @param toolDefinitions the tools to offer
+   * @param toolCompaction the tools in full, for answering tool_describe and checking arguments
    * @param result where to record what happened
    * @return the result
    */
   private GrouperAiAgentTurnResult runLoop(GrouperAiAgentConversation conversation,
-      ArrayNode toolDefinitions, GrouperAiAgentTurnResult result) {
+      ArrayNode toolDefinitions, GrouperAiAgentToolCompaction toolCompaction, GrouperAiAgentTurnResult result) {
 
     while (true) {
 
@@ -681,7 +717,8 @@ public class GrouperAiAgent {
       conversation.setLlmCallsThisMessage(conversation.getLlmCallsThisMessage() + 1);
 
       GrouperAiLlmRequest request = new GrouperAiLlmRequest(this.settings.getModel(),
-          systemPrompt(), messagesForRequest(conversation, userContext()), toolDefinitions,
+          systemPrompt(toolDefinitions), messagesForRequest(conversation, userContext(),
+              GrouperAiAgentToolCompaction.isToolDescribeOffered(toolDefinitions)), toolDefinitions,
           this.settings.getMaxOutputTokens());
 
       GrouperAiLlmResponse response = null;
@@ -804,17 +841,29 @@ public class GrouperAiAgent {
           continue;
         }
 
+        // tool_describe is answered here, not by the tool layer: it only describes the tools the
+        // model was offered, so it is a look-up in any scope
+        boolean isToolDescribe = toolCompaction.isToolDescribe(toolCall.getName());
+
         // the assistant turn is already in the conversation, so whatever goes wrong here has to end
         // in a result for this call, or the conversation is left with a call the provider expects
         // an answer to and rejects every later request
         boolean isWrite = false;
         boolean allowedInScope = true;
+        String unknownArgumentsError = null;
         String summary = null;
         try {
-          isWrite = this.toolExecution.isWrite(toolCall.getName(), arguments);
-          allowedInScope = this.toolExecution.isAllowedInScope(toolCall.getName(), arguments);
-          if (isWrite && allowedInScope) {
-            summary = this.toolExecution.confirmationSummary(toolCall.getName(), arguments);
+          if (!isToolDescribe) {
+            isWrite = this.toolExecution.isWrite(toolCall.getName(), arguments);
+            allowedInScope = this.toolExecution.isAllowedInScope(toolCall.getName(), arguments);
+            if (allowedInScope) {
+              // before a write is put in front of the user, so they are never asked to approve a
+              // call built on a guessed parameter
+              unknownArgumentsError = toolCompaction.unknownArgumentsError(toolCall.getName(), arguments);
+            }
+            if (isWrite && allowedInScope && unknownArgumentsError == null) {
+              summary = this.toolExecution.confirmationSummary(toolCall.getName(), arguments);
+            }
           }
         } catch (RuntimeException re) {
           LOG.error("Error checking tool call " + toolCall.getName() + " for the AI agent", re);
@@ -833,6 +882,14 @@ public class GrouperAiAgent {
           result.getToolActivity().add(new GrouperAiAgentTurnResult.ToolActivity(toolCall.getName(),
               toolCall.getArgumentsJson(), NOT_IN_SCOPE, true,
               GrouperAiAgentTurnResult.ToolActivityStatus.refusedByScope));
+          continue;
+        }
+
+        if (unknownArgumentsError != null) {
+          results.add(new GrouperAiAgentToolResult(toolCall.getId(), toolCall.getName(), unknownArgumentsError, true));
+          result.getToolActivity().add(new GrouperAiAgentTurnResult.ToolActivity(toolCall.getName(),
+              toolCall.getArgumentsJson(), unknownArgumentsError, true,
+              GrouperAiAgentTurnResult.ToolActivityStatus.failed));
           continue;
         }
 
@@ -881,7 +938,8 @@ public class GrouperAiAgent {
           continue;
         }
 
-        GrouperAiAgentToolResult toolResult = runTool(toolCall, arguments);
+        GrouperAiAgentToolResult toolResult = isToolDescribe ? describeTools(toolCall, arguments, toolCompaction)
+            : runTool(toolCall, arguments);
         results.add(toolResult);
         result.getToolActivity().add(new GrouperAiAgentTurnResult.ToolActivity(toolCall.getName(),
             toolCall.getArgumentsJson(), toolResult.getContent(), toolResult.isError(),
@@ -981,6 +1039,21 @@ public class GrouperAiAgent {
   }
 
   /**
+   * answer a tool_describe call.  not cut by maxToolResultChars: half a definition could leave out
+   * the parameter the model needs, and the result is bounded by the tool list anyway
+   * @param toolCall the call
+   * @param arguments its parsed arguments
+   * @param toolCompaction the tools offered, in full
+   * @return the result
+   */
+  private static GrouperAiAgentToolResult describeTools(GrouperAiAgentToolCall toolCall, JsonNode arguments,
+      GrouperAiAgentToolCompaction toolCompaction) {
+    ObjectNode toolResult = toolCompaction.describe(arguments);
+    return new GrouperAiAgentToolResult(toolCall.getId(), toolCall.getName(), resultText(toolResult),
+        toolResult.path("isError").asBoolean(false));
+  }
+
+  /**
    * the text of a tool result
    * @param toolResult {content: [{type: text, text}], isError}
    * @return the text
@@ -1030,23 +1103,66 @@ public class GrouperAiAgent {
   }
 
   /**
-   * @return the configured system prompt, or the built in one
+   * @param toolDefinitions the tools offered, may be null
+   * @return the configured system prompt, or the built in one, with {@link #COMPACT_TOOLS_PROMPT}
+   * when tool_describe is offered.  the same for a given tool list, so it stays in the provider's
+   * cache
    */
-  private String systemPrompt() {
-    return StringUtils.defaultIfBlank(this.settings.getSystemPrompt(), DEFAULT_SYSTEM_PROMPT);
+  private String systemPrompt(ArrayNode toolDefinitions) {
+    String systemPrompt = StringUtils.defaultIfBlank(this.settings.getSystemPrompt(), DEFAULT_SYSTEM_PROMPT);
+    if (GrouperAiAgentToolCompaction.isToolDescribeOffered(toolDefinitions)) {
+      return systemPrompt + COMPACT_TOOLS_PROMPT;
+    }
+    return systemPrompt;
   }
 
   /**
    * the messages to send: the conversation, with the summary of older exchanges as a labelled
    * message in front of it.  the summary is not stored as a message, so the same text goes out on
-   * every call until the next summary
+   * every call until the next summary.  each user message goes out as a copy with when it was
+   * sent in front.  for tools offered in full
    * @param conversation the conversation
+   * @param userContext who the user is, null if not known
    * @return the messages
    */
   static List<GrouperAiAgentMessage> messagesForRequest(GrouperAiAgentConversation conversation,
       String userContext) {
+    return messagesForRequest(conversation, userContext, false);
+  }
 
-    List<GrouperAiAgentMessage> messages = conversation.getMessages();
+  /**
+   * after the summary of older exchanges when tools are offered compact: the tool_describe results
+   * in those exchanges went with them, and without this the model takes it that it still knows the
+   * tools and calls them without describing them again
+   */
+  static final String SUMMARY_TOOL_DEFINITIONS_NOTE = "\n\nTool definitions read earlier in the "
+      + "conversation were removed with it.  Call tool_describe again before using a tool listed "
+      + "without its parameters.";
+
+  /**
+   * the messages to send: the conversation, with the summary of older exchanges as a labelled
+   * message in front of it, and who the user is in front of that.  each user message goes out as a
+   * copy with when it was sent in front ({@link #sentAt})
+   * @param conversation the conversation
+   * @param userContext who the user is, null if not known
+   * @param toolDescribeOffered true if tools are offered compact, so the summary message says the
+   * definitions read earlier are gone ({@link #SUMMARY_TOOL_DEFINITIONS_NOTE})
+   * @return the messages
+   */
+  static List<GrouperAiAgentMessage> messagesForRequest(GrouperAiAgentConversation conversation,
+      String userContext, boolean toolDescribeOffered) {
+
+    // each user message with when it was sent in front, so the model knows the date and time a
+    // request such as "the last 30 days" is from.  written when the message came in and never
+    // changed, so the history is sent the same every time
+    List<GrouperAiAgentMessage> messages = new ArrayList<GrouperAiAgentMessage>();
+    for (GrouperAiAgentMessage message : conversation.getMessages()) {
+      if (message.getRole() == GrouperAiAgentMessage.Role.user && !StringUtils.isBlank(message.getSentAt())) {
+        messages.add(GrouperAiAgentMessage.user("[sent " + message.getSentAt() + "]\n\n" + message.getText()));
+      } else {
+        messages.add(message);
+      }
+    }
 
     if (StringUtils.isBlank(conversation.getSummary()) && StringUtils.isBlank(userContext)) {
       return messages;
@@ -1062,10 +1178,22 @@ public class GrouperAiAgent {
       result.add(GrouperAiAgentMessage.user(userContext));
     }
     if (!StringUtils.isBlank(conversation.getSummary())) {
-      result.add(GrouperAiAgentMessage.user(SUMMARY_LABEL + conversation.getSummary()));
+      result.add(GrouperAiAgentMessage.user(SUMMARY_LABEL + conversation.getSummary()
+          + (toolDescribeOffered ? SUMMARY_TOOL_DEFINITIONS_NOTE : "")));
     }
     result.addAll(messages);
     return result;
+  }
+
+  /**
+   * @param millis when a user message was sent
+   * @return the time to send in front of it, e.g. 2026/10/27 14:05:30 -04:00: in the time zone of the
+   * JVM, which is the one the tools read dates in, close to the format they take, with the offset so a
+   * time in another zone can be worked out.  to the second, so a range which ends when the user asked
+   * includes what happened earlier in that minute
+   */
+  static String sentAt(long millis) {
+    return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss XXX", Locale.ROOT).format(new Date(millis));
   }
 
   /** labels the message which says who the user is */
@@ -1234,7 +1362,10 @@ public class GrouperAiAgent {
    * in the HTTP session and sent on every call, so without this every result the limits allow
    * would stay in memory, and be sent again, for the length of the conversation.  the model's own
    * answers keep what it found, and it can call the tool again if it needs a result back.  short
-   * results are left alone, since they cost little and are often what a later question builds on
+   * results are left alone, since they cost little and are often what a later question builds on.
+   * a tool_describe result is left alone too: the model describes a tool before its first call, so
+   * stubbing it would have the model describe the same tools again at every message.  kept, the
+   * history holds the definitions of the tools the conversation used, until a summary replaces them
    * @param conversation the conversation, with no tool round open
    */
   void stubOlderToolResults(GrouperAiAgentConversation conversation) {
@@ -1251,7 +1382,8 @@ public class GrouperAiAgent {
       for (int j = 0; j < toolResults.size(); j++) {
         GrouperAiAgentToolResult toolResult = toolResults.get(j);
         String content = toolResult.getContent();
-        if (content != null && content.length() > STUB_OLDER_TOOL_RESULTS_OVER_CHARS) {
+        if (content != null && content.length() > STUB_OLDER_TOOL_RESULTS_OVER_CHARS
+            && (toolResult.isError() || !GrouperAiAgentToolCompaction.TOOL_DESCRIBE.equals(toolResult.getToolName()))) {
           toolResults.set(j, new GrouperAiAgentToolResult(toolResult.getToolCallId(), toolResult.getToolName(),
               OLDER_TOOL_RESULT_STUB, toolResult.isError()));
           if (firstChanged < 0) {
@@ -1286,7 +1418,12 @@ public class GrouperAiAgent {
     transcript.append("Conversation:\n");
     for (GrouperAiAgentMessage message : olderMessages) {
       if (message.getRole() == GrouperAiAgentMessage.Role.user) {
-        transcript.append("\nUser: ").append(message.getText()).append("\n");
+        transcript.append("\nUser");
+        // so a summarized "in the last hour" keeps when it was asked
+        if (!StringUtils.isBlank(message.getSentAt())) {
+          transcript.append(" (sent ").append(message.getSentAt()).append(")");
+        }
+        transcript.append(": ").append(message.getText()).append("\n");
       } else if (message.getRole() == GrouperAiAgentMessage.Role.assistant) {
         if (!StringUtils.isBlank(message.getText())) {
           transcript.append("\nAssistant: ").append(message.getText()).append("\n");
@@ -1297,6 +1434,11 @@ public class GrouperAiAgent {
         }
       } else {
         for (GrouperAiAgentToolResult toolResult : message.getToolResults()) {
+          // tool definitions are not conversation, and the model can describe the tools again
+          if (GrouperAiAgentToolCompaction.TOOL_DESCRIBE.equals(toolResult.getToolName()) && !toolResult.isError()) {
+            transcript.append("\ntool_describe returned the definitions of the tools asked for\n");
+            continue;
+          }
           transcript.append("\n").append(toolResult.getToolName())
             .append(toolResult.isError() ? " failed: " : " returned: ")
             .append(GrouperUtil.abbreviate(toolResult.getContent(), 2000)).append("\n");

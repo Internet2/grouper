@@ -281,6 +281,11 @@
                 <artifactId>flexmark-html2md-converter</artifactId>
                 <version>${flexmark.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.vladsch.flexmark</groupId>
+                <artifactId>flexmark-ext-tables</artifactId>
+                <version>${flexmark.version}</version>
+            </dependency>
 
             <!-- Apache Lucene for MCP document search (RAG) -->
             <dependency>

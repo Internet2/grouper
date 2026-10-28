@@ -71,6 +71,12 @@ public class GrouperUiAgentToolExecution implements GrouperAiAgentToolExecution 
       return true;
     }
     GrouperToolCategory category = grouperTool.category(arguments);
+    // e.g. entity_whoami, which any category in the session scope allows (GRP-7528).  the agent
+    // only runs for a user with some MCP access, so a refusal here is the scope
+    if (grouperTool.allowedWithAnyMcpAccess()) {
+      return GrouperToolAccess.isAllowed(grouperTool, category,
+          GrouperUiAgentToolRunner.retrieveAuthUser(this.caller));
+    }
     if (!GrouperUiAgentToolRunner.isAllowedByMembership(this.caller, category)) {
       return true;
     }

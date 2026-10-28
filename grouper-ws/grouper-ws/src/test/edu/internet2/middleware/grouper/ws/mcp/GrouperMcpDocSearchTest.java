@@ -27,6 +27,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolCompaction;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolSummaries;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -501,6 +503,30 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
     assertNotNull("Expected url property", properties.get("url"));
     assertNotNull("Expected chunkIndexes property", properties.get("chunkIndexes"));
     assertEquals("array", properties.get("chunkIndexes").get("type").asText());
+
+    // the sources come last, so the UI agent's compact form keeps them and nothing about parameters
+    int sourcesIndex = description.indexOf(GrouperMcpDocSearch.AVAILABLE_DOCUMENTATION_SOURCES);
+    assertTrue(description, sourcesIndex > 0);
+    assertEquals(GrouperAiAgentToolSummaries.summary("doc_search") + " "
+        + GrouperAiAgentToolCompaction.DESCRIBE_FIRST + " " + description.substring(sourcesIndex),
+        GrouperAiAgentToolCompaction.compactToolDefinition("doc_search", toolDef).get("description").asText());
+
+    // a source description which ends in a period does not get a second one.  the other sources
+    // are turned off so this one is last, where the period is added
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.grouperWiki.enable", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.dataDictionary.enable", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs.documentationForAiClient", "Docs ending in a period.");
+    String periodDescription = GrouperMcpDocSearch.toolDefinition().get("description").asText();
+    assertTrue(periodDescription, periodDescription.endsWith("testDocs - Docs ending in a period."));
+
+    // and one which does not gets one
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs.documentationForAiClient", "Docs with no period");
+    String noPeriodDescription = GrouperMcpDocSearch.toolDefinition().get("description").asText();
+    assertTrue(noPeriodDescription, noPeriodDescription.endsWith("testDocs - Docs with no period."));
   }
 
   /**

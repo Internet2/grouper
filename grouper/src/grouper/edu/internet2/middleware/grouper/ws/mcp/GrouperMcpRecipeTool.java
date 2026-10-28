@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -125,6 +126,33 @@ public class GrouperMcpRecipeTool {
   public static final String RECIPE_TOOL_NAME = "recipe";
 
   /**
+   * starts the list of recipes at the end of the tool description.  the compact form of this tool
+   * in the UI agent keeps the description from here on (GrouperAiAgentToolSummaries), so it has to
+   * stay last
+   */
+  public static final String AVAILABLE_RECIPES = "Available recipes: ";
+
+  /**
+   * starts each recipe pointer appended to a tool's description ({@link #appendRecipePointers}).
+   * the compact form of a tool in the UI agent keeps its pointers from the first one on
+   */
+  public static final String RECIPE_POINTER_START = " IMPORTANT: this institution has a recipe covering this tool - ";
+
+  /**
+   * starts the note appended to a tool's description when it has more recipes than are pointed at,
+   * before the count
+   */
+  public static final String FURTHER_RECIPES_START = " There are ";
+
+  /** the rest of that note, after the count */
+  public static final String FURTHER_RECIPES_END = " further recipes about this tool. List them with "
+      + "the recipe tool, action 'list', and read any which apply before using this tool.";
+
+  /** that note, with any count, kept in the compact form like the pointers */
+  public static final Pattern FURTHER_RECIPES_PATTERN = Pattern.compile(
+      Pattern.quote(FURTHER_RECIPES_START) + "\\d+" + Pattern.quote(FURTHER_RECIPES_END));
+
+  /**
    * whether a tool of this name is on the finished tool list
    * @param toolsArray the tools being advertised
    * @param toolName the name to look for
@@ -200,7 +228,7 @@ public class GrouperMcpRecipeTool {
     int maxSummaries = GrouperConfig.retrieveConfig().propertyValueInt(
         CONFIG_MAX_SUMMARIES, DEFAULT_MAX_SUMMARIES_IN_DESCRIPTION);
 
-    description.append("Available recipes: ");
+    description.append(AVAILABLE_RECIPES);
 
     boolean first = true;
     int count = 0;
@@ -414,17 +442,16 @@ public class GrouperMcpRecipeTool {
       for (GrouperMcpRecipe recipe : GrouperMcpRecipe.sortByPriority(recipesForTool)) {
 
         if (pointerCount >= maxPointersPerTool) {
-          description.append(" There are ").append(recipesForTool.size() - pointerCount)
-              .append(" further recipes about this tool. List them with the recipe tool, action "
-                  + "'list', and read any which apply before using this tool.");
+          description.append(FURTHER_RECIPES_START).append(recipesForTool.size() - pointerCount)
+              .append(FURTHER_RECIPES_END);
           break;
         }
 
-        description.append(" IMPORTANT: this institution has a recipe covering this tool - ")
+        description.append(RECIPE_POINTER_START)
             .append(recipe.getSummary())
-            .append(" Read it with the recipe tool, action 'get', name '")
+            .append(" You MUST read it with the recipe tool, action 'get', name '")
             .append(recipe.getName())
-            .append("', before using this tool for that case.");
+            .append("', before using this tool for that case, and follow it.");
 
         pointerCount++;
       }

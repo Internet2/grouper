@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAssignGrouperPrivileges
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpAuthUser;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpDeleteMember;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpDocSearch;
+import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpEntityWhoami;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindAttributeDefNames;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindGroups;
 import edu.internet2.middleware.grouper.ws.mcp.GrouperMcpFindStems;
@@ -272,6 +273,26 @@ public class GrouperToolRegistration {
       }
     });
 
+    GrouperToolRegistry.register(new GrouperToolLegacyAdapter(GrouperMcpEntityWhoami.WHOAMI_TOOL_NAME,
+        GrouperToolCategory.readonly) {
+      public boolean allowedWithAnyMcpAccess() {
+        // it only describes the caller, so somebody who can only run sql or admin tools can still
+        // ask who they are logged in as (GRP-7528).  readonly is its category for the throttle
+        // and the tool log
+        return true;
+      }
+      public GrouperToolResultBound resultBound() {
+        // a description of the caller: their groups, the scopes of this login, the tool names
+        return GrouperToolResultBound.oneObject;
+      }
+      public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
+        return GrouperMcpEntityWhoami.toolDefinition();
+      }
+      public ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
+        return GrouperMcpEntityWhoami.execute(arguments, authUser);
+      }
+    });
+
     GrouperToolRegistry.register(new GrouperToolLegacyAdapter("group_has_member",
         GrouperToolCategory.readonly) {
       public GrouperToolResultBound resultBound() {
@@ -295,11 +316,11 @@ public class GrouperToolRegistration {
         return GrouperToolResultBound.boundedByConfig;
       }
       public GrouperToolCategory category(JsonNode arguments) {
-        // schema, running a template marked mcpReadonly, and a call matching a template's
-        // mcpReadonlyWhen, are reads.  running any other template can change anything the script
+        // schema, running a template marked mcpReadonly, and a call a template's mcpReadonlyJexl
+        // is true for, are reads.  running any other template can change anything the script
         // does, so it is a write: it needs readwrite, counts against the readwrite throttle, and
-        // the AI agent in the UI asks the user first.  a call matching mcpReadonlyWhen still needs
-        // readwrite, since executeTemplate checks that against the whole template
+        // the AI agent in the UI asks the user first.  a call mcpReadonlyJexl is true for still
+        // needs readwrite, since executeTemplate checks that against the whole template
         return GrouperMcpInstitutionalTools.isExecuteOfReadwriteTemplate(arguments)
             ? GrouperToolCategory.readwrite : GrouperToolCategory.readonly;
       }

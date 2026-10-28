@@ -122,7 +122,16 @@ public class GrouperToolAccess {
   public static boolean isAllowed(GrouperTool grouperTool, GrouperToolCategory category,
       GrouperMcpAuthUser authUser) {
 
-    if (grouperTool == null || !isAllowed(category, authUser)) {
+    if (grouperTool == null) {
+      return false;
+    }
+
+    // a tool which only describes the caller to themselves (GRP-7528)
+    if (grouperTool.allowedWithAnyMcpAccess()) {
+      return isAllowedInAnyCategory(authUser);
+    }
+
+    if (!isAllowed(category, authUser)) {
       return false;
     }
 
@@ -308,6 +317,27 @@ public class GrouperToolAccess {
         // adding one without coming here fails closed
         return false;
     }
+  }
+
+  /** what a caller refused a tool which any MCP access allows is told, after the tool name */
+  public static final String ANY_ACCESS_DENIED_DETAIL = "Membership in at least one MCP access "
+      + "group is required, and for an OAuth client the matching scope must have been granted.";
+
+  /**
+   * whether this caller may run a tool in at least one category, each with its own group and
+   * scope check.  for the tools which describe the caller to themselves, see
+   * {@link GrouperTool#allowedWithAnyMcpAccess()}.  a caller on a limited tier counts, whether or
+   * not anything has been opened to them, since being told that is the point
+   * @param authUser the caller
+   * @return true if allowed in some category
+   */
+  public static boolean isAllowedInAnyCategory(GrouperMcpAuthUser authUser) {
+    for (GrouperToolCategory category : GrouperToolCategory.values()) {
+      if (isAllowed(category, authUser)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

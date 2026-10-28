@@ -53,6 +53,13 @@ public class GrouperMcpDocSearch {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
+  /**
+   * starts the list of sources at the end of the tool description.  the compact form of this tool
+   * in the UI agent keeps the description from here on (GrouperAiAgentToolSummaries), so it has to
+   * stay last
+   */
+  public static final String AVAILABLE_DOCUMENTATION_SOURCES = "Available documentation sources: ";
+
   /** default max results */
   static final int DEFAULT_MAX_RESULTS = 10;
 
@@ -80,14 +87,17 @@ public class GrouperMcpDocSearch {
         + "(useful for getting additional context around a search result). "
         + "Use action 'listSourceConfigIds' to list available documentation sources with descriptions. "
         + "Use action 'listNames' to list document names for a given sourceConfigId. "
-        + "If results contain 'url' attributes, display them to the user as links so they can navigate to the source document. ");
+        + "If results contain 'url' attributes, display them to the user as links so they can navigate to the source document. "
+        + "Use sourceConfigId to limit search to a specific source. ");
 
     // list every source id, with its description when the deployer configured one.  a source
     // with no description still has to be listed, otherwise the client cannot know it exists
-    // and cannot filter to it
+    // and cannot filter to it.  last, since the compact form of this tool in the UI agent keeps the
+    // description from here on (GrouperAiAgentToolSummaries), and nothing about parameters should
+    // come after it
     Set<String> configIds = GrouperMcpDocSearchIndex.getConfigIds();
     if (!configIds.isEmpty()) {
-      description.append("Available documentation sources: ");
+      description.append(AVAILABLE_DOCUMENTATION_SOURCES);
       boolean first = true;
       for (String configId : configIds) {
         if (!first) {
@@ -96,16 +106,19 @@ public class GrouperMcpDocSearch {
         description.append(configId);
         String docForAi = GrouperMcpDocSearchIndex.getDocumentationForAiClient(configId);
         if (StringUtils.isNotBlank(docForAi)) {
-          description.append(" - ").append(docForAi);
+          description.append(" - ").append(docForAi.trim());
         }
         first = false;
       }
-      description.append(". ");
+      // close the list with a period unless the last description already ended in sentence
+      // punctuation, which would leave ".." at the end
+      char lastChar = description.charAt(description.length() - 1);
+      if (lastChar != '.' && lastChar != '?' && lastChar != '!') {
+        description.append(".");
+      }
     }
 
-    description.append("Use sourceConfigId to limit search to a specific source.");
-
-    tool.put("description", description.toString());
+    tool.put("description", description.toString().trim());
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");

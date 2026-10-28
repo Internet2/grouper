@@ -16,7 +16,10 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfi
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +46,8 @@ public enum ServiceActionType {
         // CH put these on screen
         // serviceAction.getService().assignTypeToStem(stem);
         
+      } else {
+        PrivilegeHelper.dispatch(session, stem, session.getSubject(), NamingPrivilege.STEM_ADMIN);
       }
      
     }
@@ -78,6 +83,13 @@ public enum ServiceActionType {
 
       if (stem == null && group == null) {
         return;
+      }
+
+      // Check the caller's privileges before switching to the root session.
+      if (stem != null) {
+        PrivilegeHelper.dispatch(session, stem, session.getSubject(), NamingPrivilege.STEM_ADMIN);
+      } else {
+        PrivilegeHelper.dispatch(session, group, session.getSubject(), AccessPrivilege.ADMIN);
       }
       
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -122,6 +134,8 @@ public enum ServiceActionType {
       if (stem == null) {
         return;
       }
+
+      PrivilegeHelper.dispatch(session, stem, session.getSubject(), NamingPrivilege.STEM_ADMIN);
       
       Group group = GroupFinder.findByName(session, groupName, false);
       

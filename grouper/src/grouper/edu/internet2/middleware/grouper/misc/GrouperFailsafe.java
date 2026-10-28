@@ -100,6 +100,20 @@ public class GrouperFailsafe {
   }
 
   /**
+   * GRP-7525: the job got past its failsafe checks (on its own or because it was approved), so use up an approve once
+   * and clear the failsafe issue, even if the rest of the run ends in error (e.g. record errors).  Otherwise approved_once
+   * stays 'T' and silently approves later failsafe issues, and the issue keeps blocking incrementals.
+   * Does not set last_success.  No-op (no insert) if there is nothing to clear
+   * @param jobName
+   */
+  public static void assignFailsafePassed(String jobName) {
+    long now = System.currentTimeMillis();
+    new GcDbAccess().sql("update grouper_failsafe set approved_once = 'F', last_failsafe_issue_started = null, last_failsafe_issue = null, "
+        + "last_updated = ? where name = ? and (approved_once = 'T' or last_failsafe_issue is not null or last_failsafe_issue_started is not null)")
+      .addBindVar(now).addBindVar(jobName).executeSql();
+  }
+
+  /**
    * assign an failure to this job
    * @param jobName
    * @return true if this run is the one that transitioned the job into the failsafe state, false if the

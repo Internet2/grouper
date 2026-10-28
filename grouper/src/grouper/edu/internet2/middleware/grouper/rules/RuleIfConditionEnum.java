@@ -818,7 +818,7 @@ public enum RuleIfConditionEnum {
           Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
             .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
                 groupId, Group.getDefaultList(), 
-                GrouperUtil.toSet(memberId), "immediate", true);
+                GrouperUtil.toSet(memberId), "immediate", false);
 
           
           for (Membership membership : memberships) {

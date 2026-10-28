@@ -54,6 +54,13 @@ public class GrouperAiAgentMessage implements Serializable {
   private String rawProvider;
 
   /**
+   * for a user message, when it was sent, e.g. 2026/10/27 14:05:30 -04:00, written once so the
+   * message is sent the same every time.  sent to the model in front of the text, never shown to
+   * the user.  null for one from before this was kept
+   */
+  private String sentAt;
+
+  /**
    * @param text what the user typed
    * @return the entry
    */
@@ -149,6 +156,20 @@ public class GrouperAiAgentMessage implements Serializable {
    */
   public String getRawProvider() {
     return this.rawProvider;
+  }
+
+  /**
+   * @return for a user message, when it was sent, may be null
+   */
+  public String getSentAt() {
+    return this.sentAt;
+  }
+
+  /**
+   * @param sentAt1 for a user message, when it was sent
+   */
+  public void setSentAt(String sentAt1) {
+    this.sentAt = sentAt1;
   }
 
 }

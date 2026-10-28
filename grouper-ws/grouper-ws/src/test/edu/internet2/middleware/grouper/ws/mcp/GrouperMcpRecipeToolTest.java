@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolCompaction;
+import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolSummaries;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -1103,6 +1105,41 @@ public class GrouperMcpRecipeToolTest extends GrouperTest {
         description(tools, "group_save").contains("recipe-one"));
     assertFalse("a tool it does not name is untouched",
         description(tools, "group_delete").contains("recipe-one"));
+  }
+
+  /**
+   * the recipes come last in the recipe tool's description, and pointers last in a pointed tool's,
+   * so the UI agent's compact form keeps both
+   */
+  public void testCompactFormKeepsRecipes() {
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(this.subjectInAudience);
+
+    ObjectNode recipeDefinition = GrouperMcpRecipeTool.toolDefinition(authUser, false);
+    String description = recipeDefinition.get("description").asText();
+    int recipesIndex = description.indexOf(GrouperMcpRecipeTool.AVAILABLE_RECIPES);
+    assertTrue(description, recipesIndex > 0);
+    assertEquals(GrouperAiAgentToolSummaries.summary(GrouperMcpRecipeTool.RECIPE_TOOL_NAME) + " "
+        + GrouperAiAgentToolCompaction.DESCRIBE_FIRST + " " + description.substring(recipesIndex),
+        GrouperAiAgentToolCompaction.compactToolDefinition(GrouperMcpRecipeTool.RECIPE_TOOL_NAME,
+            recipeDefinition).get("description").asText());
+
+    ArrayNode tools = toolsArray("group_save", "recipe");
+    GrouperMcpRecipeTool.appendRecipePointers(tools, authUser);
+    String groupSaveDescription = description(tools, "group_save");
+    // the test tool's own description is blank, so its pointers are all of it
+    int pointerIndex = groupSaveDescription.indexOf(GrouperMcpRecipeTool.RECIPE_POINTER_START);
+    assertEquals(groupSaveDescription, 0, pointerIndex);
+
+    ObjectNode groupSave = null;
+    for (JsonNode tool : tools) {
+      if ("group_save".equals(tool.path("name").asText())) {
+        groupSave = (ObjectNode)tool;
+      }
+    }
+    assertEquals(GrouperAiAgentToolSummaries.summary("group_save") + " "
+        + GrouperAiAgentToolCompaction.DESCRIBE_FIRST + groupSaveDescription.substring(pointerIndex),
+        GrouperAiAgentToolCompaction.compactToolDefinition("group_save", groupSave).get("description").asText());
   }
 
   /**

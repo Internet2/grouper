@@ -15,8 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,9 +64,10 @@ import edu.internet2.middleware.subject.Subject;
  * MCP tool for discovering and executing institution-specific GSH templates
  * that have been flagged as MCP-enabled.  Supports two actions:
  * <ul>
- *   <li>{@code schema} - list MCP-enabled templates the user can see, with their metadata,
- *       input definitions (including mcpScopeType for scope-validated inputs), whether they
- *       execute on groups/folders, and whether they are readonly or readwrite</li>
+ *   <li>{@code schema} - list MCP-enabled templates the user can see, or with a configId just
+ *       that one, with their metadata, input definitions (including mcpScopeType for
+ *       scope-validated inputs), whether they execute on groups/folders, and whether they are
+ *       readonly or readwrite</li>
  *   <li>{@code execute} - execute an MCP-enabled template, enforcing:
  *     <ul>
  *       <li>MCP readonly vs readwrite access (templates with mcpReadonly=true can be run
@@ -81,9 +83,9 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>{@code mcpEnabled} - boolean, default false. Enables MCP for this template.</li>
  *   <li>{@code mcpReadonly} - boolean, default false. If true, readonly MCP users can execute
  *       this template. Only shown when mcpEnabled is true.</li>
- *   <li>{@code mcpReadonlyWhen} - comma separated input=value pairs, for a template which is not
- *       mcpReadonly.  A call matching any one of them changes nothing, so the AI agent in the UI
- *       runs it without asking first.  It still needs readwrite.</li>
+ *   <li>{@code mcpReadonlyJexl} - a JEXL expression over the inputs, like an input's showEl, for a
+ *       template which is not mcpReadonly.  A call it is true for changes nothing, so the AI agent
+ *       in the UI runs it without asking first.  It still needs readwrite.</li>
  *   <li>{@code input.N.mcpScopeType} - dropdown (folders, groups, subjects). Restricts this
  *       input to approved readwrite scopes. Only shown when mcpEnabled is true and mcpReadonly
  *       is false.</li>
@@ -106,11 +108,17 @@ public class GrouperMcpInstitutionalTools {
    */
   public static ObjectNode toolDefinition(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
 
-    // build a dynamic list of available tool names for this user
-    List<String> availableToolNames = retrieveAvailableToolNames(authUser, hasReadwriteAccess);
+    // the templates this user can see, the same list schema answers from
+    Map<String, GshTemplateConfig> visibleTemplates = null;
+    try {
+      visibleTemplates = retrieveVisibleTemplates(authUser, hasReadwriteAccess);
+    } catch (Exception e) {
+      LOG.error("Error retrieving available institutional tool names for tool description", e);
+      visibleTemplates = new LinkedHashMap<String, GshTemplateConfig>();
+    }
 
     // if no tools are available, don't advertise this tool at all
-    if (availableToolNames.isEmpty()) {
+    if (visibleTemplates.isEmpty()) {
       return null;
     }
 
@@ -120,19 +128,21 @@ public class GrouperMcpInstitutionalTools {
     StringBuilder description = new StringBuilder();
     description.append("Discover and execute institution-specific tools (GSH templates) that the deployer has made "
         + "available via MCP. ");
-    description.append("Available tools: ");
-    description.append(GrouperUtil.join(availableToolNames.iterator(), ", "));
-    description.append(". ");
 
-    description.append("Use action 'schema' to list available tools with their configId, name, "
+    description.append("Use action 'schema' with a template's configId to get its name, "
         + "description, input definitions (names, types, required, validation, mcpScopeType), "
-        + "whether they execute on a group name, folder name, or both, and whether they are "
-        + "mcpReadonly (accessible with readonly MCP access) or require readwrite MCP access. "
+        + "whether it executes on a group name, folder name, or both, and whether it is "
+        + "mcpReadonly (accessible with readonly MCP access) or requires readwrite MCP access. "
         + "Templates with securityRunType 'privilegeOnObject' are always listed but authorization "
         + "is checked at execution time based on the user's privilege on the specific group or folder. "
         + "Inputs with mcpScopeType (folders, groups, or subjects) are validated against the user's "
         + "approved readwrite scopes. "
-        + "Use action 'execute' to run a specific tool by configId, providing the required inputs.");
+        + "Use action 'execute' to run a template by configId, providing the required inputs. ");
+
+    // last, and starting with the same text, since the compact form of this tool in the UI agent
+    // keeps the description from here on (GrouperAiAgentToolSummaries): it is this institution's
+    // own list
+    description.append(AVAILABLE_TEMPLATES).append(describeTemplates(visibleTemplates)).append(".");
 
     tool.put("description", description.toString());
 
@@ -149,18 +159,16 @@ public class GrouperMcpInstitutionalTools {
     actionEnum.add("execute");
     actionProp.set("enum", actionEnum);
     actionProp.put("description",
-        "The action to perform. 'schema' returns available MCP-enabled tools with their "
-        + "configId, name, description, inputs (names, types, required, validation), "
-        + "and whether executeOnGroupName or executeOnFolderName or both are applicable. "
-        + "'execute' runs a specific tool.");
+        "'schema' returns a template's definition, or every available template's when no "
+        + "configId is given. 'execute' runs a template.");
     properties.set("action", actionProp);
 
     // configId
     ObjectNode configIdProp = objectMapper.createObjectNode();
     configIdProp.put("type", "string");
     configIdProp.put("description",
-        "The config ID of the template to execute. Required for 'execute' action. "
-        + "Use 'schema' action to discover available config IDs.");
+        "The config ID of the template, from the available templates in this description. "
+        + "Required for 'execute'. With 'schema', returns just that template.");
     properties.set("configId", configIdProp);
 
     // ownerType
@@ -222,322 +230,54 @@ public class GrouperMcpInstitutionalTools {
   }
 
   /**
-   * retrieve the names of MCP-enabled GSH templates that the authenticated user
-   * can see, respecting security (wheel, specifiedGroup, privilegeOnObject, everyone)
-   * and readonly/readwrite access.
+   * starts the list of templates at the end of the tool description.  the compact form of this tool
+   * in the UI agent keeps the description from here on (GrouperAiAgentToolSummaries), so it has to
+   * stay last
+   */
+  public static final String AVAILABLE_TEMPLATES = "Available templates: ";
+
+  /**
+   * @param visibleTemplates the templates the caller can see, by configId
+   * @return each one's configId with its name, e.g. "policyGroup (Policy group)", separated by
+   * semicolons, in order
+   */
+  static String describeTemplates(Map<String, GshTemplateConfig> visibleTemplates) {
+    StringBuilder result = new StringBuilder();
+    for (Map.Entry<String, GshTemplateConfig> entry : visibleTemplates.entrySet()) {
+      if (result.length() > 0) {
+        result.append("; ");
+      }
+      result.append(entry.getKey());
+      String name = entry.getValue().getTemplateNameForUi();
+      if (StringUtils.isNotBlank(name) && !Strings.CS.equals(name, entry.getKey())) {
+        result.append(" (").append(name).append(")");
+      }
+    }
+    return result.toString();
+  }
+
+  /**
+   * the MCP-enabled GSH templates the authenticated user can see, respecting security (wheel,
+   * specifiedGroup, privilegeOnObject, everyone), readonly/readwrite access and the readwrite
+   * scope.  the one place this is decided, for the tool description and for schema with and
+   * without a configId, so they cannot drift apart.  being listed is not permission to run against
+   * any object: executeTemplate keeps its own checks
    * @param authUser the authenticated user
    * @param hasReadwriteAccess true if the user has MCP readwrite access
-   * @return list of template display names (may be empty)
+   * @return the templates by configId, in order, may be empty
+   * @throws Exception if the templates cannot be read
    */
-  private static List<String> retrieveAvailableToolNames(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
+  static Map<String, GshTemplateConfig> retrieveVisibleTemplates(GrouperMcpAuthUser authUser,
+      boolean hasReadwriteAccess) throws Exception {
 
-    List<String> toolNames = new ArrayList<String>();
-
-    try {
-      List<GshTemplateConfiguration> allConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
-
-      Subject subject = authUser.getSubject();
-      boolean isWheelOrRoot = edu.internet2.middleware.grouper.privs.PrivilegeHelper.isWheelOrRoot(subject);
-
-      // pass 1: collect MCP-enabled templates and specifiedGroup groups for batch membership check
-      Map<String, GshTemplateConfig> mcpEnabledConfigs = new LinkedHashMap<String, GshTemplateConfig>();
-      MembershipFinder membershipFinder = null;
-
-      for (GshTemplateConfiguration gshTemplateConfiguration : allConfigs) {
-
-        if (!gshTemplateConfiguration.isEnabled()) {
-          continue;
-        }
-
-        String configId = gshTemplateConfiguration.getConfigId();
-
-        GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
-        templateConfig.populateConfiguration();
-
-        if (!templateConfig.isEnabled() || !templateConfig.isMcpEnabled()) {
-          continue;
-        }
-
-        GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
-
-        if (securityRunType == GshTemplateSecurityRunType.wheel && !isWheelOrRoot) {
-          continue;
-        }
-
-        mcpEnabledConfigs.put(configId, templateConfig);
-
-        if (securityRunType == GshTemplateSecurityRunType.specifiedGroup && !isWheelOrRoot) {
-          Group groupThatCanRun = templateConfig.getGroupThatCanRun();
-          if (groupThatCanRun != null) {
-            if (membershipFinder == null) {
-              membershipFinder = new MembershipFinder()
-                  .addSubject(subject)
-                  .addField(Group.getDefaultList())
-                  .assignEnabled(true)
-                  .assignCheckSecurity(false);
-            }
-            membershipFinder.addGroup(groupThatCanRun);
-          }
-        }
-      }
-
-      // batch membership check
-      MembershipResult membershipResult = null;
-      if (membershipFinder != null) {
-        membershipResult = membershipFinder.findMembershipResult();
-      }
-
-      // pass 2: filter by authorization and collect names
-      for (Map.Entry<String, GshTemplateConfig> entry : mcpEnabledConfigs.entrySet()) {
-
-        GshTemplateConfig templateConfig = entry.getValue();
-        GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
-
-        boolean canRun = false;
-        if (securityRunType == GshTemplateSecurityRunType.everyone
-            || securityRunType == GshTemplateSecurityRunType.privilegeOnObject) {
-          canRun = true;
-        } else if (securityRunType == GshTemplateSecurityRunType.wheel) {
-          canRun = true;
-        } else if (securityRunType == GshTemplateSecurityRunType.specifiedGroup) {
-          if (isWheelOrRoot) {
-            canRun = true;
-          } else {
-            Group groupThatCanRun = templateConfig.getGroupThatCanRun();
-            canRun = groupThatCanRun != null && membershipResult != null
-                && membershipResult.hasGroupMembership(groupThatCanRun.getName(), subject);
-          }
-        }
-
-        if (!canRun) {
-          continue;
-        }
-
-        if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
-          continue;
-        }
-
-        // check scope compatibility: if user is scope-restricted to subjects only,
-        // skip templates that require group/folder owners
-        if (!isTemplateCompatibleWithScopes(templateConfig, authUser)) {
-          continue;
-        }
-
-        String name = templateConfig.getTemplateNameForUi();
-        if (StringUtils.isNotBlank(name)) {
-          toolNames.add(name);
-        } else {
-          toolNames.add(entry.getKey());
-        }
-      }
-    } catch (Exception e) {
-      LOG.error("Error retrieving available institutional tool names for tool description", e);
-    }
-
-    return toolNames;
-  }
-
-  /**
-   * whether a call runs a template which can make changes: an execute of any template other than
-   * one which is MCP enabled and marked mcpReadonly, the same test {@link #executeTemplate} uses to
-   * require readwrite, unless the call matches the template's mcpReadonlyWhen.  that is the
-   * template author saying which calls change nothing, such as a get, or a plan which is only
-   * shown before it is confirmed.  it decides the category only: it does not change the readwrite
-   * access {@link #executeTemplate} requires.  read straight from config the way
-   * {@link GshTemplateConfig} reads it, rather than loading the whole template, since this is asked
-   * before every call.  a template which is missing or cannot be read counts as a write, so a call
-   * is never let through as a read because its template could not be checked; the tool refuses
-   * such a template anyway
-   * @param arguments the tool arguments
-   * @return true if the call runs a template which can make changes
-   */
-  public static boolean isExecuteOfReadwriteTemplate(JsonNode arguments) {
-
-    // read the way execute reads them
-    String action = arguments != null && arguments.has("action")
-        ? arguments.get("action").asText() : null;
-    if (!"execute".equals(action)) {
-      return false;
-    }
-
-    String configId = arguments.has("configId") ? arguments.get("configId").asText() : null;
-    if (StringUtils.isBlank(configId)) {
-      return true;
-    }
-
-    try {
-      String configPrefix = "grouperGshTemplate." + configId + ".";
-      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-      if (!grouperConfig.propertyValueBoolean(configPrefix + "mcpEnabled", false)) {
-        return true;
-      }
-      if (grouperConfig.propertyValueBoolean(configPrefix + "mcpReadonly", false)) {
-        return false;
-      }
-
-      String readonlyWhen = grouperConfig.propertyValueString(configPrefix + "mcpReadonlyWhen");
-      if (StringUtils.isBlank(readonlyWhen)) {
-        return true;
-      }
-
-      // each input's type and default, read the way GshTemplateConfig reads them.  a required input
-      // has no default there, so it has none here either
-      Map<String, GshTemplateInputType> inputTypes = new HashMap<String, GshTemplateInputType>();
-      Map<String, String> inputDefaults = new HashMap<String, String>();
-      int numberOfInputs = grouperConfig.propertyValueInt(configPrefix + "numberOfInputs", 0);
-      for (int i = 0; i < numberOfInputs; i++) {
-        String inputPrefix = configPrefix + "input." + i + ".";
-        String inputName = grouperConfig.propertyValueString(inputPrefix + "name");
-        if (StringUtils.isBlank(inputName)) {
-          continue;
-        }
-        inputTypes.put(inputName, GshTemplateInputType.valueOfIgnoreCase(
-            grouperConfig.propertyValueString(inputPrefix + "type", "string"), true));
-        if (!grouperConfig.propertyValueBoolean(inputPrefix + "required", false)) {
-          String defaultValue = grouperConfig.propertyValueString(inputPrefix + "defaultValue", null);
-          if (!StringUtils.isBlank(defaultValue)) {
-            inputDefaults.put(inputName, defaultValue);
-          }
-        }
-      }
-
-      return !isReadonlyCall(readonlyWhen, inputTypes, inputDefaults, arguments.get("inputs"));
-    } catch (RuntimeException re) {
-      LOG.error("Error reading whether template '" + configId + "' is mcpReadonly, treating it as a write", re);
-      return true;
-    }
-  }
-
-  /**
-   * whether a call's inputs match any one of a template's mcpReadonlyWhen pairs.  values are taken
-   * the way {@link GshTemplateExec} takes them, so this compares what the template will actually
-   * get: inputs named with or without the gsh_input_ prefix, a blank value replaced by the input's
-   * default, and both sides converted to the input's type, so a boolean false matches f or no.
-   * values are not trimmed: the template trims most inputs, so " get " may well run as a get, but
-   * not matching only means the user is asked, which is the safe way to be wrong.  anything this
-   * cannot read does not match: a pair naming an input the template does not have, a file input,
-   * and a value which does not convert.  an input given twice, with and without the prefix, makes
-   * the call a write, since which of the two the template gets depends on the order they came in.
-   * the types and defaults come from config, so this relies on the template's decorate code, which
-   * runs before validation and may change input configs, leaving the listed inputs alone.  that is
-   * the template author's to keep, like the promise that a listed value changes nothing, and the
-   * documentation of mcpReadonlyWhen says so
-   * @param readonlyWhen the template's mcpReadonlyWhen, comma separated input=value pairs
-   * @param inputTypes the type of each of the template's inputs, by full input name
-   * @param inputDefaults the default of each optional input which has one, by full input name
-   * @param inputsNode the call's inputs argument, or null if it had none
-   * @return true if the call matches a pair, so it changes nothing
-   */
-  static boolean isReadonlyCall(String readonlyWhen, Map<String, GshTemplateInputType> inputTypes,
-      Map<String, String> inputDefaults, JsonNode inputsNode) {
-
-    if (StringUtils.isBlank(readonlyWhen)) {
-      return false;
-    }
-
-    // named the way executeTemplate names them, and the value read the same way
-    Map<String, String> callInputs = new HashMap<String, String>();
-    if (inputsNode != null && inputsNode.isObject()) {
-      Iterator<String> fieldNames = inputsNode.fieldNames();
-      while (fieldNames.hasNext()) {
-        String fieldName = fieldNames.next();
-        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
-        if (callInputs.containsKey(inputName)) {
-          return false;
-        }
-        callInputs.put(inputName, inputsNode.get(fieldName).asText());
-      }
-    }
-
-    for (String pair : GrouperUtil.splitTrim(readonlyWhen, ",")) {
-      int equalsIndex = pair.indexOf('=');
-      if (equalsIndex <= 0) {
-        continue;
-      }
-      String name = pair.substring(0, equalsIndex).trim();
-      String value = pair.substring(equalsIndex + 1).trim();
-      if (StringUtils.isBlank(value)) {
-        continue;
-      }
-      String inputName = name.startsWith("gsh_input_") ? name : "gsh_input_" + name;
-
-      GshTemplateInputType inputType = inputTypes.get(inputName);
-      if (inputType == null || inputType == GshTemplateInputType.FILE) {
-        continue;
-      }
-
-      String callValue = callInputs.get(inputName);
-      if (StringUtils.isBlank(callValue)) {
-        callValue = inputDefaults.get(inputName);
-      }
-      if (StringUtils.isBlank(callValue)) {
-        continue;
-      }
-
-      Object callTyped;
-      Object valueTyped;
-      try {
-        callTyped = inputType.convertToType(callValue);
-        valueTyped = inputType.convertToType(value);
-      } catch (RuntimeException re) {
-        // the template refuses a value it cannot convert, so this call runs nothing either way
-        continue;
-      }
-      if (callTyped != null && callTyped.equals(valueTyped)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * execute the institutional_tools tool
-   * @param arguments the tool arguments from the MCP request
-   * @param authUser the authenticated user
-   * @param hasReadwriteAccess true if the user has MCP readwrite access
-   * @return the MCP tool result
-   */
-  public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
-
-    String action = arguments != null && arguments.has("action")
-        ? arguments.get("action").asText() : null;
-
-    if (StringUtils.isBlank(action)) {
-      return buildErrorResult("action is required. Use 'schema' or 'execute'.");
-    }
-
-    try {
-      if ("schema".equals(action)) {
-        return schema(authUser, hasReadwriteAccess);
-      }
-
-      if ("execute".equals(action)) {
-        return executeTemplate(arguments, authUser, hasReadwriteAccess);
-      }
-
-      return buildErrorResult("Unknown action '" + action + "'. Use 'schema' or 'execute'.");
-
-    } catch (Exception e) {
-      LOG.error("Error in institutional_tools", e);
-      return buildErrorResult("Error in institutional_tools: " + e.getMessage()
-          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
-    }
-  }
-
-  /**
-   * return schema information for all MCP-enabled GSH templates that the
-   * authenticated user is authorized to see.
-   * @param authUser the authenticated user
-   * @return the MCP tool result with template schemas
-   */
-  private static ObjectNode schema(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) throws Exception {
+    Map<String, GshTemplateConfig> visibleTemplates = new LinkedHashMap<String, GshTemplateConfig>();
 
     List<GshTemplateConfiguration> allConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
 
     Subject subject = authUser.getSubject();
     boolean isWheelOrRoot = edu.internet2.middleware.grouper.privs.PrivilegeHelper.isWheelOrRoot(subject);
 
-    // pass 1: collect MCP-enabled templates and the specifiedGroup groups we need to check
+    // pass 1: collect MCP-enabled templates and specifiedGroup groups for batch membership check.
     // use a linked map to preserve order
     Map<String, GshTemplateConfig> mcpEnabledConfigs = new LinkedHashMap<String, GshTemplateConfig>();
     MembershipFinder membershipFinder = null;
@@ -553,11 +293,7 @@ public class GrouperMcpInstitutionalTools {
       GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
       templateConfig.populateConfiguration();
 
-      if (!templateConfig.isEnabled()) {
-        continue;
-      }
-
-      if (!templateConfig.isMcpEnabled()) {
+      if (!templateConfig.isEnabled() || !templateConfig.isMcpEnabled()) {
         continue;
       }
 
@@ -592,16 +328,12 @@ public class GrouperMcpInstitutionalTools {
       membershipResult = membershipFinder.findMembershipResult();
     }
 
-    // pass 2: build the schema output, filtering by authorization
-    ArrayNode toolsArray = objectMapper.createArrayNode();
-
+    // pass 2: filter by authorization
     for (Map.Entry<String, GshTemplateConfig> entry : mcpEnabledConfigs.entrySet()) {
 
-      String configId = entry.getKey();
       GshTemplateConfig templateConfig = entry.getValue();
       GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
 
-      // check authorization
       boolean canRun = false;
       if (securityRunType == GshTemplateSecurityRunType.everyone
           || securityRunType == GshTemplateSecurityRunType.privilegeOnObject) {
@@ -634,6 +366,245 @@ public class GrouperMcpInstitutionalTools {
       if (!isTemplateCompatibleWithScopes(templateConfig, authUser)) {
         continue;
       }
+
+      visibleTemplates.put(entry.getKey(), templateConfig);
+    }
+
+    return visibleTemplates;
+  }
+
+  /**
+   * whether a call runs a template which can make changes: an execute of any template other than
+   * one which is MCP enabled and marked mcpReadonly, the same test {@link #executeTemplate} uses to
+   * require readwrite, unless the template's mcpReadonlyJexl is true for the call.  that is the
+   * template author saying which calls change nothing, such as a get, or a plan which is only
+   * shown before it is confirmed.  it decides the category only: it does not change the readwrite
+   * access {@link #executeTemplate} requires.  read straight from config the way
+   * {@link GshTemplateConfig} reads it, rather than loading the whole template, since this is asked
+   * before every call.  a template which is missing or cannot be read counts as a write, so a call
+   * is never let through as a read because its template could not be checked; the tool refuses
+   * such a template anyway
+   * @param arguments the tool arguments
+   * @return true if the call runs a template which can make changes
+   */
+  public static boolean isExecuteOfReadwriteTemplate(JsonNode arguments) {
+
+    // read the way execute reads them
+    String action = arguments != null && arguments.has("action")
+        ? arguments.get("action").asText() : null;
+    if (!"execute".equals(action)) {
+      return false;
+    }
+
+    String configId = arguments.has("configId") ? arguments.get("configId").asText() : null;
+    if (StringUtils.isBlank(configId)) {
+      return true;
+    }
+
+    try {
+      String configPrefix = "grouperGshTemplate." + configId + ".";
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      if (!grouperConfig.propertyValueBoolean(configPrefix + "mcpEnabled", false)) {
+        return true;
+      }
+      if (grouperConfig.propertyValueBoolean(configPrefix + "mcpReadonly", false)) {
+        return false;
+      }
+
+      String readonlyJexl = grouperConfig.propertyValueString(configPrefix + "mcpReadonlyJexl");
+      if (StringUtils.isBlank(readonlyJexl)) {
+        return true;
+      }
+
+      // each input's type, default and trimming, read the way GshTemplateConfig reads them.  a
+      // required input has no default there, so it has none here either
+      Map<String, GshTemplateInputType> inputTypes = new HashMap<String, GshTemplateInputType>();
+      Map<String, String> inputDefaults = new HashMap<String, String>();
+      Set<String> inputsNotTrimmed = new HashSet<String>();
+      int numberOfInputs = grouperConfig.propertyValueInt(configPrefix + "numberOfInputs", 0);
+      for (int i = 0; i < numberOfInputs; i++) {
+        String inputPrefix = configPrefix + "input." + i + ".";
+        String inputName = grouperConfig.propertyValueString(inputPrefix + "name");
+        if (StringUtils.isBlank(inputName)) {
+          continue;
+        }
+        inputTypes.put(inputName, GshTemplateInputType.valueOfIgnoreCase(
+            grouperConfig.propertyValueString(inputPrefix + "type", "string"), true));
+        if (!grouperConfig.propertyValueBoolean(inputPrefix + "required", false)) {
+          String defaultValue = grouperConfig.propertyValueString(inputPrefix + "defaultValue", null);
+          if (!StringUtils.isBlank(defaultValue)) {
+            inputDefaults.put(inputName, defaultValue);
+          }
+        }
+        if (!grouperConfig.propertyValueBoolean(inputPrefix + "trimWhitespace", true)) {
+          inputsNotTrimmed.add(inputName);
+        }
+      }
+
+      Map<String, Object> variableMap = readonlyJexlVariables(inputTypes, inputDefaults,
+          inputsNotTrimmed, arguments.get("inputs"));
+      if (variableMap == null) {
+        return true;
+      }
+
+      // evaluated like an input's showEl, and not lenient, so a variable the template does not
+      // have is an error rather than null.  only true is a read: false, blank, an error, and
+      // anything which is not a boolean all mean the user is asked
+      Object result = GrouperUtil.substituteExpressionLanguageScript(readonlyJexl, variableMap,
+          true, false, false);
+      return !Boolean.TRUE.equals(GrouperUtil.booleanObjectValue(result));
+    } catch (RuntimeException re) {
+      LOG.error("Error reading whether template '" + configId + "' is mcpReadonly or its mcpReadonlyJexl"
+          + " is true, treating the call as a write", re);
+      return true;
+    }
+  }
+
+  /**
+   * the variables a template's mcpReadonlyJexl is evaluated with: every input of the template by
+   * its full name, holding the value the template will get when it runs.  read the way
+   * {@link GshTemplateExec} reads them: inputs named with or without the gsh_input_ prefix, a
+   * blank value replaced by the input's default, trimmed unless the input turns trimming off, and
+   * converted to the input's type, so a boolean is a Boolean, and f or no is false.  an input the
+   * call leaves out which has no default is null, as is a file input, whose value is not something
+   * to compare.  an input the template does not have is left out: the template refuses the call
+   * for it anyway.  null means the call cannot be read, so it is a write: an input given twice,
+   * with and without the prefix, since which of the two the template gets depends on the order
+   * they came in, and a value which does not convert, which the template refuses anyway.  the
+   * types, defaults and trimming come from config, so this relies on the template's decorate code,
+   * which runs before validation and may change input configs, leaving the inputs the expression
+   * reads alone.  that is the template author's to keep, like the promise that a call the
+   * expression is true for changes nothing, and the documentation of mcpReadonlyJexl says so
+   * @param inputTypes the type of each of the template's inputs, by full input name
+   * @param inputDefaults the default of each optional input which has one, by full input name
+   * @param inputsNotTrimmed the inputs configured with trimWhitespace false, by full input name
+   * @param inputsNode the call's inputs argument, or null if it had none
+   * @return the variables by full input name, or null if the call cannot be read
+   */
+  static Map<String, Object> readonlyJexlVariables(Map<String, GshTemplateInputType> inputTypes,
+      Map<String, String> inputDefaults, Set<String> inputsNotTrimmed, JsonNode inputsNode) {
+
+    // named the way executeTemplate names them, and the value read the same way
+    Map<String, String> callInputs = new HashMap<String, String>();
+    if (inputsNode != null && inputsNode.isObject()) {
+      Iterator<String> fieldNames = inputsNode.fieldNames();
+      while (fieldNames.hasNext()) {
+        String fieldName = fieldNames.next();
+        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
+        if (callInputs.containsKey(inputName)) {
+          return null;
+        }
+        callInputs.put(inputName, inputsNode.get(fieldName).asText());
+      }
+    }
+
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    for (String inputName : inputTypes.keySet()) {
+
+      GshTemplateInputType inputType = inputTypes.get(inputName);
+      if (inputType == GshTemplateInputType.FILE) {
+        variableMap.put(inputName, null);
+        continue;
+      }
+
+      // the default goes in before trimming, the order GshTemplateValidationService does it in
+      String value = callInputs.get(inputName);
+      if (StringUtils.isBlank(value)) {
+        value = inputDefaults.get(inputName);
+      }
+      if (value != null && !inputsNotTrimmed.contains(inputName)) {
+        value = value.trim();
+      }
+      if (StringUtils.isBlank(value)) {
+        variableMap.put(inputName, null);
+        continue;
+      }
+
+      try {
+        variableMap.put(inputName, inputType.convertToType(value));
+      } catch (RuntimeException re) {
+        // the template refuses a value it cannot convert, so this call runs nothing either way
+        return null;
+      }
+    }
+    return variableMap;
+  }
+
+  /**
+   * execute the institutional_tools tool
+   * @param arguments the tool arguments from the MCP request
+   * @param authUser the authenticated user
+   * @param hasReadwriteAccess true if the user has MCP readwrite access
+   * @return the MCP tool result
+   */
+  public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
+
+    String action = arguments != null && arguments.has("action")
+        ? arguments.get("action").asText() : null;
+
+    if (StringUtils.isBlank(action)) {
+      return buildErrorResult("action is required. Use 'schema' or 'execute'.");
+    }
+
+    try {
+      if ("schema".equals(action)) {
+        // hasNonNull, so a configId sent as JSON null means all of them, not a template named "null"
+        String configId = arguments.hasNonNull("configId") ? arguments.get("configId").asText() : null;
+        return schema(authUser, hasReadwriteAccess, configId);
+      }
+
+      if ("execute".equals(action)) {
+        return executeTemplate(arguments, authUser, hasReadwriteAccess);
+      }
+
+      return buildErrorResult("Unknown action '" + action + "'. Use 'schema' or 'execute'.");
+
+    } catch (Exception e) {
+      LOG.error("Error in institutional_tools", e);
+      return buildErrorResult("Error in institutional_tools: " + e.getMessage()
+          + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
+    }
+  }
+
+  /**
+   * return schema information for the MCP-enabled GSH templates that the authenticated user is
+   * authorized to see: the one asked for, or all of them when no configId is given, as before.
+   * asking for one saves the tokens of every other template's inputs, which would otherwise stay in
+   * the conversation
+   * @param authUser the authenticated user
+   * @param hasReadwriteAccess true if the user has MCP readwrite access
+   * @param configIdRequested the template to describe, or blank for all of them
+   * @return the MCP tool result with template schemas
+   */
+  private static ObjectNode schema(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess,
+      String configIdRequested) throws Exception {
+
+    // the same list as the tool description, so schema never shows a template the description
+    // would not, and never misses one it would
+    Map<String, GshTemplateConfig> visibleTemplates = retrieveVisibleTemplates(authUser, hasReadwriteAccess);
+
+    // just the template asked for.  one the caller cannot see is refused the same as one which
+    // does not exist, so this cannot be used to find out which templates exist
+    if (!StringUtils.isBlank(configIdRequested)) {
+      GshTemplateConfig requestedTemplate = visibleTemplates.get(configIdRequested);
+      if (requestedTemplate == null) {
+        // cut short, since it is echoed back and a caller could send anything
+        return buildErrorResult("No institutional tool with configId '"
+            + GrouperUtil.abbreviate(configIdRequested, 100) + "' is available to you."
+            + (visibleTemplates.isEmpty() ? "" : " The available ones are: "
+                + describeTemplates(visibleTemplates) + "."));
+      }
+      visibleTemplates = new LinkedHashMap<String, GshTemplateConfig>();
+      visibleTemplates.put(configIdRequested, requestedTemplate);
+    }
+
+    ArrayNode toolsArray = objectMapper.createArrayNode();
+
+    for (Map.Entry<String, GshTemplateConfig> entry : visibleTemplates.entrySet()) {
+
+      String configId = entry.getKey();
+      GshTemplateConfig templateConfig = entry.getValue();
+      GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
 
       ObjectNode toolNode = objectMapper.createObjectNode();
       toolNode.put("configId", configId);
@@ -768,7 +739,7 @@ public class GrouperMcpInstitutionalTools {
 
     // if user only has readonly access, they can only execute readonly templates
     if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
-      // a call matching mcpReadonlyWhen is a read, so it gets past the scope check to here.  if the
+      // a call mcpReadonlyJexl is true for is a read, so it gets past the scope check to here.  if the
       // caller has readwrite and only this session's scope leaves it out, say so, so the user is
       // pointed at the scope rather than told they have no access
       if (authUser.isConsentScopeEnforced() && !authUser.isConsentScopeReadwrite()
