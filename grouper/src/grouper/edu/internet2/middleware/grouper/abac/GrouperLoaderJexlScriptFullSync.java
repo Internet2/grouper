@@ -266,7 +266,30 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    */
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
       Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds, boolean buildVisualization) {
-    
+    return analyzeJexlScriptHtml(grouperDataEngine, jexlScript, subject, loggedInSubject, readOnly,
+        effectiveSourceIds, buildVisualization, true);
+  }
+
+  /**
+   * analyze a jexl script and return the analysis with counts and subject checks
+   * @param grouperDataEngine
+   * @param jexlScript
+   * @param subject
+   * @param loggedInSubject
+   * @param readOnly - true if only analyzing; false if about to save the script
+   * @param effectiveSourceIds - the effective subject source IDs to use for the count query, or null for global defaults
+   * @param buildVisualization - true if this is being called to build visualization
+   * @param countParts - true to count every part of the script, false to count only the first
+   * part, which is the whole script.  each part is a query of its own, which on a big script is
+   * most of the time this takes.  the privilege checks and warnings are made on every part either
+   * way, so leaving the counts out cannot leave a check out.  parts not counted have a population
+   * count of -1, and containsSubject false because it was not checked
+   * @return the analysis
+   */
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
+      Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds, boolean buildVisualization,
+      boolean countParts) {
+
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
@@ -318,8 +341,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroups, sqlCacheDependencies);
     }
     
+    int partIndex = -1;
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
-      
+
+      partIndex++;
+
+      // the first part is the whole script, which is always counted
+      boolean countThisPart = countParts || partIndex == 0;
+
       GcDbAccess gcDbAccess = new GcDbAccess();
       String whereClause = grouperJexlScriptPart.getWhereClause().toString();
       int argumentIndex = 0;
@@ -499,8 +528,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   //    System.out.println(script);
   //    System.out.println(sql);
 
-      int count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
-      grouperJexlScriptPart.setPopulationCount(count);
+      if (countThisPart) {
+        int count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
+        grouperJexlScriptPart.setPopulationCount(count);
+      }
 
       if (partsHaveMissingGroup) {
         StringBuilder newDescription = new StringBuilder(grouperJexlScriptPart.getDisplayDescription());
@@ -514,10 +545,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         grouperJexlScriptPart.setDisplayDescription(newDescription);
       }
 
-      if (subject != null) {
+      if (subject != null && countThisPart) {
         sql += " and gm.id = ?";
         allBindVars.add(member.getId());
-        count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
+        int count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
         grouperJexlScriptPart.setContainsSubject(count>0);
       }
       

@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.criterion.Criterion;
@@ -54,6 +55,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptedGroup;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
@@ -110,6 +112,7 @@ import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -981,13 +984,9 @@ public class UiV2GrouperLoader {
             throw new RuntimeException("Not enough privileges");
           }
 
-          AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
-              .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
-          
-          if (grouperJexlScript != null) {
-            group.getAttributeDelegate().removeAttribute(grouperJexlScript);
-
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          // the members are left as they are
+          if (GrouperAbacScriptedGroup.internal_removeScript(group) == SaveResultType.DELETE) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderJexlScriptEditRemoved")));
           }
 
@@ -1210,40 +1209,23 @@ public class UiV2GrouperLoader {
           GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
           
           grouperDataEngine.loadFieldsAndRows(grouperConfig);
-          
 
-          String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), grouperDataEngine);
-          if (!StringUtils.isBlank(errorMessage)) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
-                + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
-            hasError = true;
-          }
           Set<String> saveSourceIds = grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds();
           if (saveSourceIds == null || saveSourceIds.isEmpty()) {
             saveSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
           }
-          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false, saveSourceIds, false);
-          if (jexlScriptAnalysis != null &&
-              (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
-            throw new RuntimeException("not allowed");
-          }
 
-          // enforce the configured max ABAC membership size for the editing user, so people
+          // the checks in core, so any other way of saving a script makes the same ones.  this
+          // includes the configured max ABAC membership size for the editing user, so people
           // cannot configure oversized scripted groups that would overwhelm Grouper
-          if (!hasError && jexlScriptAnalysis != null && jexlScriptAnalysis.getGrouperJexlScriptParts() != null
-              && !jexlScriptAnalysis.getGrouperJexlScriptParts().isEmpty()) {
-            Integer maxAbacMembershipSize = GrouperAbac.maxAbacMembershipSizeForSubject(loggedInSubject);
-            if (maxAbacMembershipSize != null) {
-              int populationCount = jexlScriptAnalysis.getGrouperJexlScriptParts().get(0).getPopulationCount();
-              if (populationCount > maxAbacMembershipSize.intValue()) {
-                String maxSizeMessage = TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptMaxSizeExceeded")
-                    .replace("##count##", String.valueOf(populationCount))
-                    .replace("##max##", String.valueOf(maxAbacMembershipSize.intValue()));
-                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, maxSizeMessage));
-                hasError = true;
-              }
-            }
+          GrouperAbacScriptedGroup.SaveCheck saveCheck = GrouperAbacScriptedGroup.checkScriptForSave(grouperDataEngine,
+              group, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), saveSourceIds, loggedInSubject);
+
+          // already worded with the UI's text, as plain text
+          if (!saveCheck.isAllowed()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                Strings.CS.replace(GrouperUtil.xmlEscape(StringUtils.defaultString(saveCheck.getErrorMessage())), "\n", "<br />")));
+            hasError = true;
           }
         }
 
@@ -1647,24 +1629,11 @@ public class UiV2GrouperLoader {
 
           //if not jexl script is picked, and used to be jexl script, then remove jexl script
           if (!StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperJexlScriptLoader()) {
-            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-              
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                
-                //first, get the attribute def name
-                AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
-                    .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
-                
-                if (grouperJexlScript != null) {
-                  group.getAttributeDelegate().removeAttribute(grouperJexlScript);
-
-                  guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                      TextContainer.retrieveFromRequest().getText().get("grouperLoaderJexlScriptEditRemoved")));
-                }
-                return null;
-              }
-            });
+            // the members are left as they are
+            if (GrouperAbacScriptedGroup.internal_removeScript(group) == SaveResultType.DELETE) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderJexlScriptEditRemoved")));
+            }
           }
 
           if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
@@ -1680,46 +1649,10 @@ public class UiV2GrouperLoader {
 //              
 //            }
 
-            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-              
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                
-                //first, get the attribute def name
-                AttributeDefName grouperJexlScriptMarker = GrouperDAOFactory.getFactory().getAttributeDefName()
-                    .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
-                
-                if (grouperJexlScriptMarker == null) {
-                  throw new RuntimeException("Cant find jexl script attribute!");
-                }
-                AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, grouperJexlScriptMarker, false, false);
-
-                if (attributeAssign == null) {
-                  attributeAssign = group.getAttributeDelegate().assignAttribute(grouperJexlScriptMarker).getAttributeAssign();
-                }
-
-                attributeAssign.getAttributeValueDelegate().assignValue(
-                    GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
-                
-                {
-                  String jexlScriptSubjectSourceIdsAttributeDefName = GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS;
-                  Set<String> editSourceIds = grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds();
-                  Set<String> globalDefaults = GrouperAbac.globalDefaultSubjectSourceIds();
-                  // if null or matches defaults, remove the attribute
-                  if (editSourceIds == null || editSourceIds.equals(globalDefaults)) {
-                    if (!StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(jexlScriptSubjectSourceIdsAttributeDefName))) {
-                      attributeAssign.getAttributeDelegate().removeAttributeByName(jexlScriptSubjectSourceIdsAttributeDefName);
-                    }
-                  } else {
-                    // store alphabetically sorted comma-separated
-                    String sortedSourceIds = GrouperUtil.join(new TreeSet<String>(editSourceIds).iterator(), ", ");
-                    attributeAssign.getAttributeValueDelegate().assignValue(
-                        jexlScriptSubjectSourceIdsAttributeDefName, sortedSourceIds);
-                  }
-                }                
-                return null;
-              }
-            });
+            // the marker, the script and the subject sources in one transaction.  sources which
+            // match the defaults are not kept.  canEditAbacLoader was checked with the script above
+            GrouperAbacScriptedGroup.internal_saveScript(group, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(),
+                grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds());
 
           }
           
