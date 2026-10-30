@@ -47,6 +47,7 @@ import org.apache.commons.jexl3.parser.ASTSubNode;
 import org.apache.commons.jexl3.parser.ASTUnaryMinusNode;
 import org.apache.commons.jexl3.parser.JexlNode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
@@ -276,7 +277,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param jexlScript
    * @param subject
    * @param loggedInSubject
-   * @param readOnly - true if only analyzing; false if about to save the script
+   * @param readOnly - true if only analyzing; false if about to save the script.  false is stricter
+   * about data fields, but it does not refuse a group the user cannot see, which is treated as
+   * missing so as not to show it exists.  a save has to use
+   * GrouperAbacScriptedGroup.checkScriptForSave, which refuses those, not this on its own
    * @param effectiveSourceIds - the effective subject source IDs to use for the count query, or null for global defaults
    * @param buildVisualization - true if this is being called to build visualization
    * @param countParts - true to count every part of the script, false to count only the first
@@ -327,6 +331,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         groupNamesAndFieldNames.add(new MultiKey(groupName, "members"));
       }
       
+      // this runs before the privilege checks below, so it also starts keeping history for a
+      // recentMemberOf group the user cannot read.  that should be fixed but accepted for now: the history is only used
+      // inside the cache tables and never shown, and the nightly full sync deletes a dependency
+      // no saved script needs once it is two hours old, after which SqlCacheHistoryFullSyncDaemon
+      // deletes the history rows.  checking privileges here as well was judged not worth it
       Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNamesAndFieldNames).values();
       
       SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
@@ -341,6 +350,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroups, sqlCacheDependencies);
     }
     
+    // the whole script's where clause and its bind variables, without the source ones, as the loop
+    // below built them for the first part.  the unresolvable subjects check uses these rather than
+    // generateJexlSql, which binds every group's real members: here a group the user cannot see is
+    // bound as empty, so that check cannot list its members or show that it exists
+    String wholeScriptWhereClause = null;
+    List<Object> wholeScriptBindVars = null;
+
     int partIndex = -1;
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
 
@@ -369,35 +385,50 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
           // if group not found, consider it empty
           long sqlCacheGroupInternalId = -1;
-          boolean hasRead = false;
           if (GrouperUtil.length(sqlCacheGroups) == 1) {
-            sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
-            
-            hasRead = (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-              
+
+            // READ to use the group, VIEW to be told it cannot be read.  a group the user cannot
+            // even VIEW is treated as missing, the same as one that does not exist, so the analysis
+            // does not tell anybody whether a group they cannot see exists.  this lookup and these
+            // checks take a little longer than a group the cache does not have, so timing many
+            // analyses could still hint at it.  that is accepted: it is far weaker than the
+            // message this replaces
+            String access = (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
               @Override
               public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
                 Group group = GroupFinder.findByName(grouperSession, groupName, false);
-                if (group != null) {
-                  return group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
+                if (group == null) {
+                  return "none";
                 }
-                return false;
+                if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+                  return "read";
+                }
+                if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
+                  return "view";
+                }
+                return "none";
               }
             });
-            if (!hasRead) {
+            if (Strings.CS.equals(access, "view")) {
               String errorMessage = GrouperTextContainer.textOrNull(
                   "grouperLoaderEditJexlScriptAnalysisUserNotAllowedToReadGroup");
               grouperJexlScriptAnalysis
                   .setErrorMessage(errorMessage + " '" + groupName + "'");
               return grouperJexlScriptAnalysis;
             }
-            
+            if (Strings.CS.equals(access, "read")) {
+              sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
+            } else {
+              // bound as -1 like a missing group, so no count says anything about its members
+              partsHaveMissingGroup = true;
+            }
+
           } else {
             // note non-existent group
             partsHaveMissingGroup = true;
           }
           gcDbAccess.addBindVar(sqlCacheGroupInternalId);
-          //TODO are we considering group READ like we do with attributes below?
         } else if (StringUtils.equals(argumentString, "attribute")) {
           String attributeAlias = (String)argument.getKey(1);
           GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
@@ -523,6 +554,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         allBindVars.addAll(gcDbAccess.getBindVars());
       }
 
+      if (partIndex == 0) {
+        wholeScriptWhereClause = whereClause;
+        wholeScriptBindVars = new ArrayList<Object>(GrouperUtil.nonNull(gcDbAccess.getBindVars()));
+      }
+
       String sql = "select count(1) from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
 
   //    System.out.println(script);
@@ -555,9 +591,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
 
     // check for unresolvable or deleted subjects matching the overall script
-    {
-      GcDbAccess gcDbAccessUnresolvable = new GcDbAccess();
-      GrouperJexlScriptSql grouperJexlScriptSqlUnresolvable = generateJexlSql(grouperDataEngine, gcDbAccessUnresolvable, grouperJexlScriptAnalysis);
+    if (wholeScriptWhereClause != null) {
 
       MultiKey sourceInClauseUnresolvable = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
       String sourceInSqlUnresolvable = (String)sourceInClauseUnresolvable.getKey(0);
@@ -565,13 +599,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       List<Object> allBindVarsUnresolvable = new ArrayList<Object>();
       allBindVarsUnresolvable.addAll(sourceBindVarsUnresolvable);
-      if (gcDbAccessUnresolvable.getBindVars() != null) {
-        allBindVarsUnresolvable.addAll(gcDbAccessUnresolvable.getBindVars());
-      }
+      allBindVarsUnresolvable.addAll(wholeScriptBindVars);
 
       String unresolvableSql = "select count(1) from grouper_members gm where " + sourceInSqlUnresolvable
           + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
-          + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+          + " and ( " + wholeScriptWhereClause + " )";
 
       int unresolvableCount = new GcDbAccess().bindVars(allBindVarsUnresolvable).sql(unresolvableSql).select(Integer.class);
 
@@ -579,13 +611,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         // get up to 10 example subject IDs
         String exampleSql = "select gm.subject_id from grouper_members gm where " + sourceInSqlUnresolvable
             + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
-            + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+            + " and ( " + wholeScriptWhereClause + " )";
 
-        List<Object> exampleBindVars = new ArrayList<Object>();
-        exampleBindVars.addAll(sourceBindVarsUnresolvable);
-        if (gcDbAccessUnresolvable.getBindVars() != null) {
-          exampleBindVars.addAll(gcDbAccessUnresolvable.getBindVars());
-        }
+        List<Object> exampleBindVars = new ArrayList<Object>(allBindVarsUnresolvable);
 
         List<String> unresolvableSubjectIds = new GcDbAccess().bindVars(exampleBindVars).sql(exampleSql).selectList(String.class);
         int exampleCount = Math.min(unresolvableSubjectIds.size(), 10);

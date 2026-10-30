@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -21,10 +22,13 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -97,10 +101,14 @@ public class GrouperAbacScriptedGroup {
   /**
    * the checks the UI makes before it saves a script, in its order: a script is given,
    * GrouperAbac.validScript finds nothing wrong, the analysis in save mode gives no error and no
-   * warning, and it selects no more members than the user is allowed.  the errors cover READ on
-   * each group it uses and update on each data field's privacy realm.  in save mode the only
-   * warning is that unresolvable or deleted entities match the script, which has always refused
-   * a save.  it stops at the first, and
+   * warning, every group the script uses exists by that name and the user can READ it
+   * (groupNotFoundMessage), and it selects no more members than the user is allowed.  the
+   * analysis errors cover a group the user can see but not read, and a data field whose privacy
+   * realm they cannot update.  a group they cannot see, or one which is not there, the analysis
+   * treats as empty, and groupNotFoundMessage refuses.  in save mode the only warning is that
+   * unresolvable or deleted entities match the script, which has always refused a save.  a group
+   * just made and not in the sql cache yet counts as empty for the size check until the cache
+   * has it, which is accepted, since that is a minute or so.  it stops at the first, and
    * words it the way the analysis words its own messages.  only the whole script is counted, since
    * the size check is all a save needs
    * @param grouperDataEngine loaded data engine
@@ -133,8 +141,9 @@ public class GrouperAbacScriptedGroup {
         grouperDataEngine, script, null, loggedInSubject, false, effectiveSourceIds, false, false);
     saveCheck.grouperJexlScriptAnalysis = grouperJexlScriptAnalysis;
 
-    // e.g. a group in the script the user cannot read, or a data field whose privacy realm they
-    // cannot update
+    // e.g. a group in the script the user can see but not read, or a data field whose privacy
+    // realm they cannot update.  a group they cannot see is not an error here: the analysis treats
+    // it as missing, and groupNotFoundMessage refuses it below
     if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getErrorMessage())) {
       saveCheck.allowed = false;
       saveCheck.errorMessage = plainText(grouperJexlScriptAnalysis.getErrorMessage());
@@ -143,6 +152,13 @@ public class GrouperAbacScriptedGroup {
     if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getWarningMessage())) {
       saveCheck.allowed = false;
       saveCheck.errorMessage = plainText(grouperJexlScriptAnalysis.getWarningMessage());
+      return saveCheck;
+    }
+
+    String groupNotFoundMessage = groupNotFoundMessage(grouperJexlScriptAnalysis, loggedInSubject);
+    if (groupNotFoundMessage != null) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = groupNotFoundMessage;
       return saveCheck;
     }
 
@@ -160,6 +176,53 @@ public class GrouperAbacScriptedGroup {
     }
 
     return saveCheck;
+  }
+
+  /**
+   * every group a script uses has to exist by that exact name, and the user has to be able to
+   * READ it.  the analysis checks READ only on a group it finds in the sql cache, and treats any
+   * other as empty: one which does not exist yet, one not cached yet because it was just made, or
+   * one named by its old (alternate) name.  saved like that, a group made or renamed to that name
+   * later would put its members in this one with nobody having checked READ on it.  one message
+   * for all of these, so it does not tell anybody whether a group they cannot see exists.  an
+   * existing group takes a little longer to check than a missing one, which is accepted as far
+   * weaker than a message saying so
+   * @param grouperJexlScriptAnalysis an analyzed script
+   * @param loggedInSubject who is saving it
+   * @return what is wrong, naming the group, or null if every group is there and readable
+   */
+  public static String groupNotFoundMessage(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
+      final Subject loggedInSubject) {
+
+    final Set<String> groupNames = new TreeSet<String>(GrouperUtil.nonNull(grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()));
+    for (GrouperJexlScriptPart grouperJexlScriptPart : GrouperUtil.nonNull(grouperJexlScriptAnalysis.getGrouperJexlScriptParts())) {
+      for (MultiKey argument : GrouperUtil.nonNull(grouperJexlScriptPart.getArguments())) {
+        if (Strings.CS.equals("group", (String)argument.getKey(0))) {
+          groupNames.add((String)argument.getKey(2));
+        }
+      }
+    }
+
+    // as root, so a group the user cannot see is found, and then refused for READ, rather than
+    // reading as not there.  the message is the same either way
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        for (String groupName : groupNames) {
+          // not from the finder's caches, which on another node can still hold a group under a name
+          // it no longer has
+          Group referencedGroup = GroupFinder.findByName(grouperSession, groupName, false,
+              new QueryOptions().secondLevelCache(false));
+          // the finder also matches an old name, and on some databases a name in other case
+          if (referencedGroup == null || !Strings.CS.equals(referencedGroup.getName(), groupName)
+              || !referencedGroup.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            String message = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptGroupNotFound");
+            return message + " '" + groupName + "'";
+          }
+        }
+        return null;
+      }
+    });
   }
 
   /**
