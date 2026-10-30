@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -40,6 +42,20 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
+
+  private static final Pattern HTTP_HEADER_NAME = Pattern.compile("^[!#$%&'*+.^_`|~0-9A-Za-z-]+$");
+
+  private static String additionalHeaderNameError(String name, String httpHeader, String apiKeyHeaderName) {
+    if (StringUtils.isBlank(name) || !HTTP_HEADER_NAME.matcher(name).matches()) {
+      return "grouperConfigurationValidationAdditionalHeaderName";
+    }
+    if (name.equalsIgnoreCase(StringUtils.defaultIfBlank(StringUtils.trimToNull(httpHeader), "Authorization"))
+        || name.equalsIgnoreCase("Authorization")
+        || name.equalsIgnoreCase(StringUtils.trimToNull(apiKeyHeaderName))) {
+      return "grouperConfigurationValidationAdditionalHeaderAuthentication";
+    }
+    return null;
+  }
 
   public static String authenticateMockUser(HttpServletRequest httpServletRequest) {
 
@@ -425,7 +441,32 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     } else {
       throw new RuntimeException("Invalid authentication type: grouper-loader.properties: 'grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType' = '" + httpAuthnType + "'");
     }
-    
+
+    String configPrefix = "grouper.wsBearerToken." + externalSystemConfigId + ".";
+    int numberOfAdditionalHeaders = grouperLoaderConfig.propertyValueInt(configPrefix + "numberOfAdditionalHeaders", 0);
+    if (numberOfAdditionalHeaders < 0 || numberOfAdditionalHeaders > 5) {
+      throw new RuntimeException(configPrefix + "numberOfAdditionalHeaders must be between 0 and 5");
+    }
+    for (int i = 0; i < numberOfAdditionalHeaders; i++) {
+      String headerPrefix = configPrefix + "additionalHeader." + i + ".";
+      String name = grouperLoaderConfig.propertyValueStringRequired(headerPrefix + "name");
+      String nameError = additionalHeaderNameError(name,
+          grouperLoaderConfig.propertyValueString(configPrefix + "httpHeader"),
+          grouperLoaderConfig.propertyValueString(configPrefix + "apiKeyHeaderName"));
+      if (nameError != null) {
+        throw new RuntimeException("Invalid or authentication header configured in " + headerPrefix + "name");
+      }
+      String value = grouperLoaderConfig.propertyValueStringRequired(headerPrefix + "value");
+      if (StringUtils.containsAny(value, '\r', '\n')) {
+        throw new RuntimeException("HTTP header values must not contain newlines: " + headerPrefix + "value");
+      }
+      if (grouperLoaderConfig.propertyValueBoolean(headerPrefix + "valueIsSecret", false)) {
+        grouperHttpClient.addDoNotLogHeader(name);
+      }
+      // Authorization is refreshed on retries; these defaults must not replace caller overrides.
+      grouperHttpClient.addHeaderIfAbsent(name, value);
+    }
+
     String proxyUrl = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".proxyUrl");
     String proxyType = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".proxyType");
     
@@ -471,6 +512,28 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
   @Override
   public String getConfigIdThatIdentifiesThisConfig() {
     return "myWsBearerToken";
+  }
+
+  @Override
+  public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {
+    boolean loadingFromConfig = this.attributeCache == null;
+    Map<String, GrouperConfigurationModuleAttribute> attributes = super.retrieveAttributes();
+    for (int i = 0; i < 5; i++) {
+      String headerPrefix = "additionalHeader." + i + ".";
+      GrouperConfigurationModuleAttribute valueAttribute = attributes.get(headerPrefix + "value");
+      GrouperConfigurationModuleAttribute secretAttribute = attributes.get(headerPrefix + "valueIsSecret");
+      if (valueAttribute != null && secretAttribute != null) {
+        boolean secret = GrouperUtil.booleanValue(secretAttribute.getValueOrExpressionEvaluationValue(), false);
+        valueAttribute.setPassword(secret);
+        valueAttribute.setFormElement(secret && !valueAttribute.isExpressionLanguage()
+            ? ConfigItemFormElement.PASSWORD : ConfigItemFormElement.TEXT);
+        if (loadingFromConfig && secret && !valueAttribute.isExpressionLanguage()
+            && StringUtils.isNotBlank(valueAttribute.getValue())) {
+          valueAttribute.setValue(GrouperConfigHibernate.ESCAPED_PASSWORD);
+        }
+      }
+    }
+    return attributes;
   }
 
   /**
@@ -578,7 +641,35 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
-    
+
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    GrouperConfigurationModuleAttribute countAttribute = attributes.get("numberOfAdditionalHeaders");
+    if (validationErrorsToDisplay.containsKey(countAttribute.getHtmlForElementIdHandle())) {
+      return;
+    }
+    int numberOfAdditionalHeaders = GrouperUtil.intValue(
+        StringUtils.defaultIfBlank(countAttribute.getValueOrExpressionEvaluationValue(), "0"));
+    if (numberOfAdditionalHeaders < 0 || numberOfAdditionalHeaders > 5) {
+      validationErrorsToDisplay.put(countAttribute.getHtmlForElementIdHandle(),
+          GrouperTextContainer.textOrNull("grouperConfigurationValidationAdditionalHeaderCount"));
+      return;
+    }
+    String httpHeader = attributes.get("httpHeader").getValueOrExpressionEvaluationValue();
+    String apiKeyHeaderName = attributes.get("apiKeyHeaderName").getValueOrExpressionEvaluationValue();
+    for (int i = 0; i < numberOfAdditionalHeaders; i++) {
+      String headerPrefix = "additionalHeader." + i + ".";
+      GrouperConfigurationModuleAttribute nameAttribute = attributes.get(headerPrefix + "name");
+      String nameError = additionalHeaderNameError(nameAttribute.getValueOrExpressionEvaluationValue(), httpHeader, apiKeyHeaderName);
+      if (nameError != null) {
+        validationErrorsToDisplay.put(nameAttribute.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull(nameError));
+      }
+      GrouperConfigurationModuleAttribute valueAttribute = attributes.get(headerPrefix + "value");
+      if (StringUtils.containsAny(valueAttribute.getValueOrExpressionEvaluationValue(), '\r', '\n')) {
+        validationErrorsToDisplay.put(valueAttribute.getHtmlForElementIdHandle(),
+            GrouperTextContainer.textOrNull("grouperConfigurationValidationAdditionalHeaderValue"));
+      }
+    }
+
     GrouperConfigurationModuleAttribute endpointAttribute = this.retrieveAttributes().get("endpoint");
 
     if (endpointAttribute != null && StringUtils.startsWithIgnoreCase(endpointAttribute.getValueOrExpressionEvaluationValue(), "https://api.github.com/scim/")) {

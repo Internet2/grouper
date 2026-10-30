@@ -11,6 +11,7 @@ public class AllExternalSystemTests extends TestCase {
     TestSuite suite = new TestSuite(AllExternalSystemTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperExternalSystemTest.class);
+    suite.addTestSuite(WsBearerTokenExternalSystemTest.class);
     suite.addTestSuite(GrouperConfigurationModuleAttributeTest.class);
     suite.addTestSuite(GrouperConfigurationModuleExpressionLanguageTest.class);
     //$JUnit-END$

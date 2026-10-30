@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
 import javax.net.ssl.HostnameVerifier;
@@ -515,9 +516,19 @@ public class GrouperHttpClient {
    */
   public GrouperHttpClient addHeader(String key, String value) {
     if (this.headers == null){
-      this.headers = new HashMap<String, String>();
+      this.headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
     }
     this.headers.put(key, value);
+    return this;
+  }
+
+  /**
+   * Adds a default header without replacing a caller's case-insensitive override.
+   */
+  public GrouperHttpClient addHeaderIfAbsent(String key, String value) {
+    if (this.headers == null || !this.headers.containsKey(key)) {
+      this.addHeader(key, value);
+    }
     return this;
   }
 
@@ -1504,7 +1515,7 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.responseHeaders).keySet()) {
             theLog.append("HTTP response header: ").append(key).append(": ");
             if (!key.toLowerCase().contains("cookie")
-                && !this.getDoNotLogHeaders().contains(key)
+                && !this.isDoNotLogHeader(key)
                 && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.responseHeaders.get(key));
             } else {
