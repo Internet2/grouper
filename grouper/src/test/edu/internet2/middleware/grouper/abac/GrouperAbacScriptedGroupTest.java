@@ -4,14 +4,19 @@
  */
 package edu.internet2.middleware.grouper.abac;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
@@ -227,6 +232,111 @@ public class GrouperAbacScriptedGroupTest extends GrouperTest {
     assertNotNull(viewOnly.getErrorMessage());
     assertTrue(viewOnly.getErrorMessage(), viewOnly.getErrorMessage().contains("test:viewOnly"));
     assertFalse(checkAsSubj0("entity.memberOf('test:viewOnly')").isAllowed());
+  }
+
+  /**
+   * a script which uses the group it is for is refused: on its own it does nothing, with or it only
+   * ever grows, and with a not its members flip on every sync
+   */
+  public void testRefersToItself() {
+    createGroups();
+
+    String refersToItselfMessage = text("grouperLoaderEditJexlScriptRefersToItself");
+    for (String script : new String[] {"entity.memberOf('test:target')",
+        "entity.memberOf('test:readable') || entity.memberOf('test:target')",
+        "!entity.memberOf('test:target')",
+        "entity.memberOfAny(['test:readable', 'test:target'])",
+        "entity.recentMemberOf('test:target', '2 days')",
+        "'test:target'",
+        "${entity.memberOf('test:target')}"}) {
+      GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0(script);
+      assertFalse(script, saveCheck.isAllowed());
+      assertEquals(script, refersToItselfMessage, saveCheck.getErrorMessage());
+    }
+  }
+
+  /**
+   * @param key a text key the checks use
+   * @return its text, which has to be there, or a comparison with a missing message would pass
+   */
+  private static String text(String key) {
+    String text = GrouperTextContainer.textOrNull(key);
+    assertNotNull(key, text);
+    return text;
+  }
+
+  /**
+   * a script longer than the column it is kept in is refused before anything else is done with it
+   */
+  public void testTooLong() {
+    createGroups();
+
+    String script = "entity.memberOf('test:readable')";
+    String tooLongMessage = text("grouperLoaderEditJexlScriptTooLong");
+
+    // exactly the limit fits
+    String fits = script + StringUtils.repeat(" ", GrouperAbacScriptedGroup.MAX_SCRIPT_BYTES - script.length());
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0(fits);
+    assertTrue(saveCheck.getErrorMessage(), saveCheck.isAllowed());
+
+    saveCheck = checkAsSubj0(fits + " ");
+    assertFalse(saveCheck.isAllowed());
+    assertEquals(tooLongMessage, saveCheck.getErrorMessage());
+
+    // counted in bytes, not characters: about 2060 characters, but over 4000 bytes
+    String multiByte = script + " || entity.memberOf('" + StringUtils.repeat("\u00e9", 2000) + "')";
+    assertTrue(multiByte.length() < GrouperAbacScriptedGroup.MAX_SCRIPT_BYTES);
+    saveCheck = checkAsSubj0(multiByte);
+    assertFalse(saveCheck.isAllowed());
+    assertEquals(tooLongMessage, saveCheck.getErrorMessage());
+  }
+
+  /**
+   * a script which cannot be parsed gets the invalid message with the parser's error, rather than
+   * an exception
+   */
+  public void testCannotBeParsed() {
+    createGroups();
+
+    String invalidMessage = text("grouperLoaderEditJexlScriptInvalid");
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.memberOf(");
+    assertFalse(saveCheck.isAllowed());
+    assertTrue(saveCheck.getErrorMessage(), saveCheck.getErrorMessage().startsWith(invalidMessage + "\n"));
+    assertTrue(saveCheck.getErrorMessage(), saveCheck.getErrorMessage().length() > invalidMessage.length() + 1);
+    // not where in Grouper the parser was called from
+    assertFalse(saveCheck.getErrorMessage(), saveCheck.getErrorMessage().contains("GrouperLoaderJexlScriptFullSync"));
+  }
+
+  /**
+   * a script which parses but cannot be built into parts, e.g. one using a data field which does
+   * not exist, still fails the way it always has, with an exception for the log.  its message says
+   * whether a data field exists, before the privacy realm checks, so it is not shown to the user
+   */
+  public void testOtherFailureNotShown() {
+    createGroups();
+
+    try {
+      GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.hasAttribute('noSuchDataField')");
+      fail("expected an exception, got: " + saveCheck.getErrorMessage());
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("noSuchDataField"));
+    }
+  }
+
+  /**
+   * a composite cannot be a scripted group: its members come from its factors, and the sync adds
+   * and removes members directly, which fails on a composite
+   */
+  public void testComposite() {
+    createGroups();
+
+    this.target.addCompositeMember(CompositeType.COMPLEMENT,
+        GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:readable", true),
+        GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:viewOnly", true));
+
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.memberOf('test:readable')");
+    assertFalse(saveCheck.isAllowed());
+    assertEquals(text("grouperLoaderEditJexlScriptComposite"), saveCheck.getErrorMessage());
   }
 
   /**

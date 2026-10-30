@@ -4,9 +4,12 @@
  */
 package edu.internet2.middleware.grouper.abac;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.jexl3.JexlException;
+import org.apache.commons.jexl3.JexlInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
@@ -44,6 +47,12 @@ import edu.internet2.middleware.subject.Subject;
  * checking anything start with internal_, so a call with no check before it stands out.</p>
  */
 public class GrouperAbacScriptedGroup {
+
+  /**
+   * a script is kept in an attribute value, which is a varchar(4000) column.  counted in UTF-8
+   * bytes, since that is how oracle counts it
+   */
+  public static final int MAX_SCRIPT_BYTES = 4000;
 
   /**
    * what checkScriptForSave found
@@ -99,18 +108,20 @@ public class GrouperAbacScriptedGroup {
   }
 
   /**
-   * the checks the UI makes before it saves a script, in its order: a script is given,
-   * GrouperAbac.validScript finds nothing wrong, the analysis in save mode gives no error and no
-   * warning, every group the script uses exists by that name and the user can READ it
-   * (groupNotFoundMessage), and it selects no more members than the user is allowed.  the
-   * analysis errors cover a group the user can see but not read, and a data field whose privacy
-   * realm they cannot update.  a group they cannot see, or one which is not there, the analysis
-   * treats as empty, and groupNotFoundMessage refuses.  in save mode the only warning is that
-   * unresolvable or deleted entities match the script, which has always refused a save.  a group
-   * just made and not in the sql cache yet counts as empty for the size check until the cache
-   * has it, which is accepted, since that is a minute or so.  it stops at the first, and
-   * words it the way the analysis words its own messages.  only the whole script is counted, since
-   * the size check is all a save needs
+   * the checks the UI makes before it saves a script, in its order: a script is given, it fits in
+   * MAX_SCRIPT_BYTES, the group is not a composite, GrouperAbac.validScript finds nothing wrong
+   * and the script can be parsed, the script does not use the group it is for, the analysis in
+   * save mode gives no error and no warning, every group the script uses exists by that name and
+   * the user can READ it (groupNotFoundMessage), and it selects no more members than the user is
+   * allowed.  the analysis errors cover a group the user can see but not read, and a data field
+   * whose privacy realm they cannot update.  a group they cannot see, or one which is not there,
+   * the analysis treats as empty, and groupNotFoundMessage refuses.  in save mode the only warning
+   * is that unresolvable or deleted entities match the script, which has always refused a save.
+   * a group just made and not in the sql cache yet counts as empty for the size check until the
+   * cache has it, which is accepted, since that is a minute or so.  it stops at the first, and
+   * words it the way the analysis words its own messages.  only the whole script is counted,
+   * since the size check is all a save needs.  only direct self reference is refused: a script
+   * using a group which itself contains this one still feeds back into it
    * @param grouperDataEngine loaded data engine
    * @param group the group the script is for
    * @param script the script
@@ -129,11 +140,56 @@ public class GrouperAbacScriptedGroup {
       return saveCheck;
     }
 
+    // the script is kept in a varchar(4000) column, which oracle counts in bytes
+    if (script.getBytes(StandardCharsets.UTF_8).length > MAX_SCRIPT_BYTES) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptTooLong");
+      return saveCheck;
+    }
+
+    // a composite's members come from its factors.  the sync adds and removes members directly,
+    // which a composite cannot have
+    if (group.isHasComposite()) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptComposite");
+      return saveCheck;
+    }
+
+    // the script has to parse.  only the parser's own error is shown.  the rest of building the
+    // script's parts can fail too, with messages about data fields (whether one exists, its type,
+    // whether the global group has values for it) before the privacy realm checks run, or with a
+    // database error, so those propagate as they always have: to the log and a generic error
+    GrouperJexlScriptAnalysis parsedScript = null;
     String invalidMessage = GrouperAbac.validScript(script, grouperDataEngine);
+    if (StringUtils.isBlank(invalidMessage)) {
+      try {
+        parsedScript = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine, script);
+      } catch (JexlException jexlException) {
+        // JEXL starts its message with where it was called from in Grouper and a line and column,
+        // e.g. GrouperLoaderJexlScriptFullSync.analyzeJexlScript:685@1:17.  the place in Grouper
+        // is the same for every script, and the line and column count from the script after it
+        // was trimmed and joined onto one line, so neither helps the user find the problem.  just
+        // the parser's description is shown
+        invalidMessage = jexlException.getMessage();
+        JexlInfo jexlInfo = jexlException.getInfo();
+        if (invalidMessage != null && jexlInfo != null) {
+          invalidMessage = StringUtils.trim(Strings.CS.removeStart(invalidMessage, jexlInfo.toString()));
+        }
+        invalidMessage = StringUtils.defaultIfBlank(invalidMessage, jexlException.getClass().getSimpleName());
+      }
+    }
     if (!StringUtils.isBlank(invalidMessage)) {
       saveCheck.allowed = false;
       saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptInvalid")
           + "\n" + invalidMessage;
+      return saveCheck;
+    }
+
+    // before the analysis, which counts every part.  a group made of its own members either does
+    // nothing, only ever grows, or with a not flips its members on every sync
+    if (refersToGroup(parsedScript, group)) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptRefersToItself");
       return saveCheck;
     }
 
@@ -176,6 +232,29 @@ public class GrouperAbacScriptedGroup {
     }
 
     return saveCheck;
+  }
+
+  /**
+   * @param grouperJexlScriptAnalysis an analyzed script
+   * @param group a group
+   * @return true if the script uses the group, by memberOf, memberOfAny, recentMemberOf or a bare
+   * group name
+   */
+  public static boolean refersToGroup(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, Group group) {
+    for (String groupName : GrouperUtil.nonNull(grouperJexlScriptAnalysis.getRecentMemberOfGroupNames())) {
+      if (Strings.CS.equals(groupName, group.getName())) {
+        return true;
+      }
+    }
+    for (GrouperJexlScriptPart grouperJexlScriptPart : GrouperUtil.nonNull(grouperJexlScriptAnalysis.getGrouperJexlScriptParts())) {
+      for (MultiKey argument : GrouperUtil.nonNull(grouperJexlScriptPart.getArguments())) {
+        if (Strings.CS.equals("group", (String)argument.getKey(0))
+            && Strings.CS.equals(group.getName(), (String)argument.getKey(2))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
