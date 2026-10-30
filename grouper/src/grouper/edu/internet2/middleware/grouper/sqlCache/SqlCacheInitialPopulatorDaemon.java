@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
@@ -141,8 +142,16 @@ public class SqlCacheInitialPopulatorDaemon extends OtherJobBase {
       }
       pitAttributeDefsData = null;
       LOG.info("Done retrieving data from grouper_pit_attribute_def");
-  
-      
+
+      // STEP 0 - find active PIT groups/stems/attribute defs that cannot be cached: the PIT id is still null after
+      //        the backfill above or the live object no longer exists (PIT is out of sync).  These are skipped in
+      //        STEP 3 so the rest of the sync can complete, and the job ends in ERROR at the end so someone fixes the PIT data
+      long pitOwnersCannotCacheCount = 0;
+      pitOwnersCannotCacheCount += findPitOwnersCannotCache("pitGroups", "grouper_pit_groups", "source_internal_id", "grouper_groups", recentTimeMillis);
+      pitOwnersCannotCacheCount += findPitOwnersCannotCache("pitStems", "grouper_pit_stems", "source_id_index", "grouper_stems", recentTimeMillis);
+      pitOwnersCannotCacheCount += findPitOwnersCannotCache("pitAttributeDefs", "grouper_pit_attribute_def", "source_id_index", "grouper_attribute_def", recentTimeMillis);
+      LOG.info("Done checking for active PIT owners that cannot be cached, count=" + pitOwnersCannotCacheCount);
+
       // STEP 1 - find rows in grouper_sql_cache_group that should be disabled
       for (Field field : fields) {
         String sql = null;
@@ -216,17 +225,18 @@ public class SqlCacheInitialPopulatorDaemon extends OtherJobBase {
       
       // STEP 3 - find rows in grouper_sql_cache_group that need to be added
       //        - need to account for entities having limited access fields
+      //        - skip PIT owners with a null id or no live object (reported in STEP 0), else this would fail on a null id
       for (Field field : fields) {
         String sql = null;
         if (field.isEntityListField()) {
-          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg where gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
+          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg where gpg.active='T' and gpg.start_time < ? and gpg.source_internal_id is not null and exists (select 1 from grouper_groups gg where gg.id = gpg.source_id) and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
         } else if (field.isGroupAccessField() || field.getName().equals("members")) {
-          // make sure not an entity
-          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg, grouper_groups gg where gpg.source_id=gg.id and gg.type_of_group != 'entity' and gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
+          // make sure not an entity (the join to grouper_groups also skips PIT groups with no live group)
+          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg, grouper_groups gg where gpg.source_id=gg.id and gg.type_of_group != 'entity' and gpg.active='T' and gpg.start_time < ? and gpg.source_internal_id is not null and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
         } else if (field.isStemListField()) {
-          sql = "select gps.source_id_index, gps.start_time from grouper_pit_stems gps where gps.active='T' and gps.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ?)";
+          sql = "select gps.source_id_index, gps.start_time from grouper_pit_stems gps where gps.active='T' and gps.start_time < ? and gps.source_id_index is not null and exists (select 1 from grouper_stems gs where gs.id = gps.source_id) and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ?)";
         } else if (field.isAttributeDefListField()) {
-          sql = "select gpad.source_id_index, gpad.start_time from grouper_pit_attribute_def gpad where gpad.active='T' and gpad.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ?)";
+          sql = "select gpad.source_id_index, gpad.start_time from grouper_pit_attribute_def gpad where gpad.active='T' and gpad.start_time < ? and gpad.source_id_index is not null and exists (select 1 from grouper_attribute_def gad where gad.id = gpad.source_id) and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ?)";
         }
         
         if (sql != null) {
@@ -554,6 +564,20 @@ public class SqlCacheInitialPopulatorDaemon extends OtherJobBase {
           }
         }
         */
+      }
+
+      // STEP 7 - the rest of the sync is done, now end in ERROR if STEP 0 found PIT owners that could not be cached
+      if (pitOwnersCannotCacheCount > 0) {
+        String errorMessage = pitOwnersCannotCacheCount + " active PIT groups/stems/attributeDefs were skipped since the PIT id is null "
+            + "or the live object does not exist (PIT is out of sync, see pit*CannotCache in this message).  To fix: run "
+            + "loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\") until grouper_change_log_entry_temp is empty, then "
+            + "new SyncPITTables().showResults(true).syncAllPITTables(), then run this job again";
+        debugMap.put("error", errorMessage);
+        LOG.error(errorMessage);
+        if (theOtherJobInput != null) {
+          // OtherJobBase keeps an error status set here instead of changing it to SUCCESS
+          theOtherJobInput.getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
+        }
       }
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
@@ -1030,6 +1054,38 @@ public class SqlCacheInitialPopulatorDaemon extends OtherJobBase {
           new MultiKey(ownerInternalId, fieldInternalId, memberInternalId),
           flattenedAddTimeMicros);
     }
+  }
+
+  /**
+   * find active PIT owners (groups/stems/attribute defs) that cannot be put in the sql cache since the PIT id
+   * is null or the live object does not exist.  Objects with pending changes in grouper_change_log_entry_temp
+   * are in flight (e.g. a delete not processed yet) and are not counted.  Adds the count and a sample of names
+   * to the debug map.
+   * @param debugPrefix prefix for debug map keys, e.g. pitGroups
+   * @param pitTableName e.g. grouper_pit_groups
+   * @param pitIdColumnName e.g. source_internal_id
+   * @param liveTableName e.g. grouper_groups
+   * @param recentTimeMillis only look at PIT rows that started before this time
+   * @return the number of PIT owners that cannot be cached
+   */
+  private long findPitOwnersCannotCache(String debugPrefix, String pitTableName, String pitIdColumnName, String liveTableName, long recentTimeMillis) {
+
+    List<String> pitNames = new GcDbAccess().sql("select pit.name from " + pitTableName + " pit where pit.active='T' and pit.start_time < ?"
+        + " and (pit." + pitIdColumnName + " is null or not exists (select 1 from " + liveTableName + " live where live.id = pit.source_id))"
+        + " and not exists (select 1 from grouper_change_log_entry_temp temp where temp.string01 = pit.source_id)")
+      .addBindVar(recentTimeMillis * 1000L)
+      .selectList(String.class);
+
+    if (pitNames.size() > 0) {
+      debugMap.put(debugPrefix + "CannotCacheCount", pitNames.size());
+
+      // just log a sample so the job message does not get huge
+      List<String> pitNamesSample = pitNames.size() > 10 ? pitNames.subList(0, 10) : pitNames;
+      debugMap.put(debugPrefix + "CannotCacheSample", GrouperUtil.join(pitNamesSample.iterator(), ", "));
+      LOG.error("Active " + pitTableName + " rows that cannot be cached: " + pitNames.size() + ", sample: " + pitNamesSample);
+    }
+
+    return pitNames.size();
   }
 
   public static void runNowWithoutDaemon() {
