@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
@@ -52,7 +53,97 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
-  
+
+  /**
+   * roles are read-only in Freshservice (Grouper cannot change them), so cache them for this provisioning run
+   */
+  private List<FreshAgentRole> rolesCache = null;
+
+  /**
+   * role memberships are the roles array on each agent, so retrieving the members of a role needs all agents.
+   * Cache them for this provisioning run so each role does not retrieve all agents.  Cleared on any write that
+   * could change roles
+   */
+  private List<FreshAgentUser> agentsForRoleMembershipsCache = null;
+
+  /**
+   * get the configuration
+   * @return the configuration
+   */
+  private FreshAgentConfiguration freshAgentConfiguration() {
+    return (FreshAgentConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  }
+
+  /**
+   * get all roles (cached for this provisioning run)
+   * @return the roles
+   */
+  private List<FreshAgentRole> retrieveRolesCached() {
+    if (this.rolesCache == null) {
+      this.rolesCache = FreshAgentApiCommands.retrieveAgentRoles(this.freshAgentConfiguration().getFreshserviceExternalSystemConfigId());
+    }
+    return this.rolesCache;
+  }
+
+  /**
+   * a Grouper group provisions to an agent group or to an existing role.  The type comes from (in order):
+   * a role_ prefixed target id, the groupType target group attribute (if translated), the
+   * md_grouper_freshserviceGroupType metadata of the Grouper group, else agent group
+   * @param targetGroup
+   * @return true if role
+   */
+  private boolean isRole(ProvisioningGroup targetGroup) {
+    if (targetGroup == null || !this.freshAgentConfiguration().isProvisionRoles()) {
+      return false;
+    }
+    if (StringUtils.isNotBlank(targetGroup.getId())) {
+      return FreshAgentRole.isRoleTargetId(targetGroup.getId());
+    }
+    String groupType = targetGroup.retrieveAttributeValueString("groupType");
+    if (StringUtils.isBlank(groupType)) {
+      ProvisioningGroupWrapper provisioningGroupWrapper = targetGroup.getProvisioningGroupWrapper();
+      ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioningGroup();
+      groupType = grouperProvisioningGroup == null ? null
+          : grouperProvisioningGroup.retrieveAttributeValueString(FreshAgentSyncObjectMetadata.METADATA_GROUP_TYPE);
+    }
+    if (StringUtils.isBlank(groupType) || StringUtils.equals(FreshAgentRole.GROUP_TYPE_GROUP, groupType)) {
+      return false;
+    }
+    if (StringUtils.equals(FreshAgentRole.GROUP_TYPE_ROLE, groupType)) {
+      return true;
+    }
+    throw new RuntimeException("Invalid groupType: '" + groupType + "', expected '" + FreshAgentRole.GROUP_TYPE_GROUP
+        + "' or '" + FreshAgentRole.GROUP_TYPE_ROLE + "'");
+  }
+
+  /**
+   * find an existing role that matches a Grouper group: by id if the target group has one, else by name
+   * @param targetGroup
+   * @return the role or null if not found
+   */
+  private FreshAgentRole findRole(ProvisioningGroup targetGroup) {
+    String searchAttribute = StringUtils.isNotBlank(targetGroup.getId()) ? "id" : "name";
+    Object searchAttributeValue = StringUtils.isNotBlank(targetGroup.getId()) ? targetGroup.getId() : targetGroup.retrieveAttributeValueString("name");
+    for (FreshAgentRole freshAgentRole : GrouperUtil.nonNull(this.retrieveRolesCached())) {
+      if (freshAgentRole.matches(searchAttribute, searchAttributeValue)) {
+        return freshAgentRole;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * mark a group (and its changes) provisioned, roles are never changed in Freshservice, so a role
+   * "update" or "delete" is just marked done
+   * @param targetGroup
+   */
+  private static void markGroupProvisioned(ProvisioningGroup targetGroup) {
+    targetGroup.setProvisioned(true);
+    for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+      provisioningObjectChange.setProvisioned(true);
+    }
+  }
+
   @Override
   public boolean loggingStart() {
     return GrouperHttpClient.logStart(new GrouperHttpClientLog());
@@ -81,6 +172,13 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
         // FreshAgentApiCommands read seam (full fidelity, not the lossy typed bean), so no
         // capture is needed here.
       }
+
+      // roles are groups too if a Grouper group can provision to a role.  The target ids are role_ prefixed
+      if (freshserviceConfiguration.isProvisionRoles()) {
+        for (FreshAgentRole freshAgentRole : GrouperUtil.nonNull(this.retrieveRolesCached())) {
+          results.add(freshAgentRole.toProvisioningGroup());
+        }
+      }
       return new TargetDaoRetrieveAllGroupsResponse(results);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllGroups", startNanos));
@@ -94,6 +192,18 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
+
+      // a role is matched by role_ prefixed id, or by name if the Grouper group is a role
+      boolean roleById = StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())
+          && FreshAgentRole.isRoleTargetId(GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
+      if (freshserviceConfiguration.isProvisionRoles() && (roleById || this.isRole(targetDaoRetrieveGroupRequest.getTargetGroup()))) {
+        for (FreshAgentRole freshAgentRole : GrouperUtil.nonNull(this.retrieveRolesCached())) {
+          if (freshAgentRole.matches(targetDaoRetrieveGroupRequest.getSearchAttribute(), targetDaoRetrieveGroupRequest.getSearchAttributeValue())) {
+            return new TargetDaoRetrieveGroupResponse(freshAgentRole.toProvisioningGroup());
+          }
+        }
+        return new TargetDaoRetrieveGroupResponse();
+      }
       
       if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         FreshAgentGroup agentGroup = FreshAgentApiCommands.retrieveAgentGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
@@ -132,6 +242,20 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
 
+      // roles cannot be created in Freshservice, so link to the existing role, or fail just this group (the
+      // framework records the error on this group, keeps provisioning everything else, and the job ends in error)
+      if (this.isRole(targetGroup)) {
+        FreshAgentRole freshAgentRole = this.findRole(targetGroup);
+        if (freshAgentRole == null) {
+          throw new RuntimeException("Freshservice role '" + targetGroup.retrieveAttributeValueString("name")
+              + "' does not exist.  Roles cannot be created with the Freshservice API, create the role in Freshservice"
+              + " (with the same name), or change the group type of this group to '" + FreshAgentRole.GROUP_TYPE_GROUP + "'");
+        }
+        targetGroup.setId(FreshAgentRole.targetIdFromRoleId(freshAgentRole.getId()));
+        markGroupProvisioned(targetGroup);
+        return new TargetDaoInsertGroupResponse();
+      }
+
       FreshAgentGroup grouperAgentGroup = FreshAgentGroup.fromProvisioningGroup(targetGroup, null);
 
       FreshAgentGroup createdGroup = FreshAgentApiCommands.createAgentGroup(
@@ -164,6 +288,12 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
+
+      // roles are read-only in the Freshservice API, so a name or description change is not sent
+      if (this.isRole(targetGroup)) {
+        markGroupProvisioned(targetGroup);
+        return new TargetDaoUpdateGroupResponse();
+      }
 
       // collect the field names and actions that need to be updated from the provisioning object changes
       Map<String, ProvisioningObjectChangeAction> fieldsToUpdate = new LinkedHashMap<String, ProvisioningObjectChangeAction>();
@@ -210,6 +340,12 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
+
+      // roles cannot be deleted with the Freshservice API, the role is left there
+      if (this.isRole(targetGroup)) {
+        markGroupProvisioned(targetGroup);
+        return new TargetDaoDeleteGroupResponse();
+      }
 
       FreshAgentGroup grouperAgentGroup = FreshAgentGroup.fromProvisioningGroup(targetGroup, null);
 
@@ -312,6 +448,8 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
 
       targetEntity.setId(String.valueOf(createdUser.getId()));
       targetEntity.setProvisioned(true);
+      // a new agent gets the default role
+      this.agentsForRoleMembershipsCache = null;
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
@@ -417,8 +555,17 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
       
-      FreshAgentApiCommands.addGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
-          GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+      if (FreshAgentRole.isRoleTargetId(targetMembership.getProvisioningGroupId())) {
+        // role membership: add the role to the roles array of the agent
+        this.agentsForRoleMembershipsCache = null;
+        FreshAgentApiCommands.addAgentRole(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            GrouperUtil.longValue(targetMembership.getProvisioningEntityId()),
+            FreshAgentRole.roleIdFromTargetId(targetMembership.getProvisioningGroupId()),
+            freshserviceConfiguration.getDefaultAgentRoleAssignmentScope());
+      } else {
+        FreshAgentApiCommands.addGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
+            GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+      }
 
       targetMembership.setProvisioned(true);
       // sync-back: on success only, write-track the added membership into the native mirror so the
@@ -447,8 +594,18 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
       
-      FreshAgentApiCommands.removeGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
-          GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+      if (FreshAgentRole.isRoleTargetId(targetMembership.getProvisioningGroupId())) {
+        // role membership: remove the role from the roles array of the agent.  Agents need at least one role,
+        // so the last role is replaced with the default role (if configured and not this role)
+        this.agentsForRoleMembershipsCache = null;
+        FreshAgentApiCommands.removeAgentRole(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            GrouperUtil.longValue(targetMembership.getProvisioningEntityId()),
+            FreshAgentRole.roleIdFromTargetId(targetMembership.getProvisioningGroupId()),
+            freshserviceConfiguration.getDefaultAgentRoleId(), freshserviceConfiguration.getDefaultAgentRoleAssignmentScope());
+      } else {
+        FreshAgentApiCommands.removeGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
+            GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
+      }
 
       targetMembership.setProvisioned(true);
       // sync-back: on success only, drop the removed membership from the native mirror so the
@@ -484,8 +641,18 @@ public class FreshAgentTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshAgentConfiguration freshserviceConfiguration = (FreshAgentConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
       
-      List<FreshAgentUser> agents = FreshAgentApiCommands.retrieveMembershipsByGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
-          GrouperUtil.longValue(targetGroupId));
+      List<FreshAgentUser> agents = null;
+      if (FreshAgentRole.isRoleTargetId(targetGroupId)) {
+        // role members are the agents with the role in their roles array, retrieve all agents once per run
+        if (this.agentsForRoleMembershipsCache == null) {
+          this.agentsForRoleMembershipsCache = FreshAgentApiCommands.retrieveAgentUsers(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), false);
+        }
+        agents = FreshAgentApiCommands.retrieveMembershipsByRole(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            FreshAgentRole.roleIdFromTargetId(targetGroupId), this.agentsForRoleMembershipsCache);
+      } else {
+        agents = FreshAgentApiCommands.retrieveMembershipsByGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            GrouperUtil.longValue(targetGroupId));
+      }
       
       for(FreshAgentUser agent : agents) {
         ProvisioningMembership targetMembership = new ProvisioningMembership();

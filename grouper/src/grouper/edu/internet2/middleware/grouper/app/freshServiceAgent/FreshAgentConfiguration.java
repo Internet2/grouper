@@ -21,6 +21,12 @@ public class FreshAgentConfiguration extends GrouperProvisioningConfiguration {
    */
   private boolean reactivateAsFullTime;
 
+  /**
+   * if true, a Grouper group can provision to an existing Freshservice agent role instead of an agent group,
+   * based on the md_grouper_freshserviceGroupType metadata (or a groupType target group attribute)
+   */
+  private boolean provisionRoles;
+
   @Override
   public void configureSpecificSettings() {
     this.freshserviceExternalSystemConfigId = this.retrieveConfigString("freshserviceExternalSystemConfigId", true);
@@ -32,6 +38,8 @@ public class FreshAgentConfiguration extends GrouperProvisioningConfiguration {
     }
     Boolean reactivateAsFullTimeBoolean = this.retrieveConfigBoolean("reactivateAsFullTime", false);
     this.reactivateAsFullTime = reactivateAsFullTimeBoolean == null ? true : reactivateAsFullTimeBoolean;
+    Boolean provisionRolesBoolean = this.retrieveConfigBoolean("provisionRoles", false);
+    this.provisionRoles = provisionRolesBoolean == null ? false : provisionRolesBoolean;
   }
 
   /**
@@ -96,6 +104,23 @@ public class FreshAgentConfiguration extends GrouperProvisioningConfiguration {
    */
   public void setReactivateAsFullTime(boolean reactivateAsFullTime) {
     this.reactivateAsFullTime = reactivateAsFullTime;
+  }
+
+  /**
+   * if true, a Grouper group can provision to an existing Freshservice agent role instead of an agent group,
+   * based on the md_grouper_freshserviceGroupType metadata (or a groupType target group attribute)
+   * @return true if roles
+   */
+  public boolean isProvisionRoles() {
+    return provisionRoles;
+  }
+
+  /**
+   * if true, a Grouper group can provision to an existing Freshservice agent role instead of an agent group
+   * @param provisionRoles
+   */
+  public void setProvisionRoles(boolean provisionRoles) {
+    this.provisionRoles = provisionRoles;
   }
 
 }

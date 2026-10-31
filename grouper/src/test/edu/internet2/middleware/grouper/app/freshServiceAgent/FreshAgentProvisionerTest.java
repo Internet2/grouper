@@ -60,6 +60,17 @@ public class FreshAgentProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_membership").executeSql();
     new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_group").executeSql();
     new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_user").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_role").executeSql();
+  }
+
+  /**
+   * roles are read-only in Freshservice, so the mock roles are inserted with sql
+   * @param roleId
+   * @param name
+   */
+  private static void insertMockRole(long roleId, String name) {
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_freshagent_role (id, name, description) values (?, ?, ?)")
+        .addBindVar(roleId).addBindVar(name).addBindVar("role " + name).executeSql();
   }
 
   /**
@@ -3219,6 +3230,200 @@ public class FreshAgentProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("group attr catalog should stay deduped per (sync,name) after incremental", 0,
         dupGroupAttr);
+  }
+
+  /**
+   * roles are read-only in Freshservice: list and view only
+   */
+  public void testRetrieveAgentRoles() {
+
+    FreshAgentProvisionerTestUtils.setupFreshAgentExternalSystem();
+
+    insertMockRole(1L, "Default agent");
+    insertMockRole(101L, "Help desk");
+
+    List<FreshAgentRole> roles = FreshAgentApiCommands.retrieveAgentRoles("freshServiceDev");
+    assertEquals(2, roles.size());
+
+    FreshAgentRole role = FreshAgentApiCommands.retrieveAgentRole("freshServiceDev", 101L);
+    assertNotNull(role);
+    assertEquals("Help desk", role.getName());
+    assertEquals("role_101", role.toProvisioningGroup().getId());
+    assertEquals("role", role.toProvisioningGroup().retrieveAttributeValueString("groupType"));
+
+    assertNull(FreshAgentApiCommands.retrieveAgentRole("freshServiceDev", 999L));
+
+    assertTrue(FreshAgentRole.isRoleTargetId("role_101"));
+    assertFalse(FreshAgentRole.isRoleTargetId("101"));
+    assertEquals(new Long(101L), FreshAgentRole.roleIdFromTargetId("role_101"));
+  }
+
+  /**
+   * role memberships are the roles array on the agent: GET the agent, change the roles, PUT the roles back.
+   * Agents need at least one role, so the last role is replaced with the fallback (default) role
+   */
+  public void testAddRemoveAgentRole() {
+
+    FreshAgentProvisionerTestUtils.setupFreshAgentExternalSystem();
+
+    insertMockRole(1L, "Default agent");
+    insertMockRole(101L, "Help desk");
+
+    FreshAgentUser userToCreate = new FreshAgentUser();
+    userToCreate.setFirstName("John");
+    userToCreate.setLastName("Smith");
+    userToCreate.setEmail("jsmith@test.edu");
+    FreshAgentUser createdUser = createAgentUserWithRole(userToCreate);
+    Long userId = createdUser.getId();
+
+    // add a second role, the first is kept
+    FreshAgentApiCommands.addAgentRole("freshServiceDev", userId, 101L, "entire_helpdesk");
+    FreshAgentUser user = FreshAgentApiCommands.retrieveAgentUserById("freshServiceDev", userId, false);
+    assertTrue(user.hasRoleId(1L));
+    assertTrue(user.hasRoleId(101L));
+    assertEquals(1, FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 101L, null).size());
+
+    // adding again is a no-op
+    FreshAgentApiCommands.addAgentRole("freshServiceDev", userId, 101L, "entire_helpdesk");
+
+    // remove the default role, the other role is kept
+    FreshAgentApiCommands.removeAgentRole("freshServiceDev", userId, 1L, 1L, "entire_helpdesk");
+    user = FreshAgentApiCommands.retrieveAgentUserById("freshServiceDev", userId, false);
+    assertFalse(user.hasRoleId(1L));
+    assertTrue(user.hasRoleId(101L));
+
+    // remove the last role, it is replaced with the fallback role
+    FreshAgentApiCommands.removeAgentRole("freshServiceDev", userId, 101L, 1L, "entire_helpdesk");
+    user = FreshAgentApiCommands.retrieveAgentUserById("freshServiceDev", userId, false);
+    assertTrue(user.hasRoleId(1L));
+    assertFalse(user.hasRoleId(101L));
+    assertEquals(0, FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 101L, null).size());
+
+    // removing a role the agent does not have is a no-op
+    FreshAgentApiCommands.removeAgentRole("freshServiceDev", userId, 101L, 1L, "entire_helpdesk");
+
+    // cannot remove the last role if it is the fallback role
+    try {
+      FreshAgentApiCommands.removeAgentRole("freshServiceDev", userId, 1L, 1L, "entire_helpdesk");
+      fail("should not be able to remove the last role");
+    } catch (RuntimeException re) {
+      assertTrue(re.getMessage(), re.getMessage().contains("at least one role"));
+    }
+    user = FreshAgentApiCommands.retrieveAgentUserById("freshServiceDev", userId, false);
+    assertTrue(user.hasRoleId(1L));
+  }
+
+  /**
+   * a folder with group type metadata "role" provisions its groups to existing roles, another folder
+   * provisions to agent groups.  A role that does not exist is skipped with an error, everything else
+   * is provisioned, and the job ends in error
+   */
+  public void testFullSyncRoles() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    FreshAgentProvisionerTestUtils.setupFreshAgentExternalSystem();
+
+    FreshAgentProvisionerTestUtils.configureFreshAgentProvisioner(
+        new FreshAgentProvisionerTestConfigInput()
+            .assignConfigId("freshAgentProvisioner")
+            .addExtraConfig("provisionRoles", "true")
+    );
+
+    GrouperUtil.sleep(5000);
+
+    GrouperStartup.startup();
+
+    // this will create tables
+    FreshAgentApiCommands.retrieveAgentUsers("freshServiceDev", false);
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_user").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshagent_role").executeSql();
+
+    // role 1 is the defaultAgentRoleId of the test provisioner
+    insertMockRole(1L, "Default agent");
+    insertMockRole(101L, "roleGroup");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem rolesStem = new StemSave(grouperSession).assignName("test:roles").assignCreateParentStemsIfNotExist(true).save();
+    Stem groupsStem = new StemSave(grouperSession).assignName("test:groups").assignCreateParentStemsIfNotExist(true).save();
+
+    Group roleGroup = new GroupSave(grouperSession).assignName("test:roles:roleGroup").save();
+    Group missingRoleGroup = new GroupSave(grouperSession).assignName("test:roles:missingRole").save();
+    Group agentGroup = new GroupSave(grouperSession).assignName("test:groups:agentGroup").save();
+
+    roleGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    roleGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    missingRoleGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    agentGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    agentGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // the roles folder has group type role metadata
+    GrouperProvisioningAttributeValue rolesAttributeValue = new GrouperProvisioningAttributeValue();
+    rolesAttributeValue.setDirectAssignment(true);
+    rolesAttributeValue.setDoProvision("freshAgentProvisioner");
+    rolesAttributeValue.setTargetName("freshAgentProvisioner");
+    rolesAttributeValue.setStemScopeString("sub");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put(FreshAgentSyncObjectMetadata.METADATA_GROUP_TYPE, FreshAgentRole.GROUP_TYPE_ROLE);
+    rolesAttributeValue.setMetadataNameValues(metadataNameValues);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(rolesAttributeValue, rolesStem);
+
+    // the groups folder has no metadata so it is agent groups
+    GrouperProvisioningAttributeValue groupsAttributeValue = new GrouperProvisioningAttributeValue();
+    groupsAttributeValue.setDirectAssignment(true);
+    groupsAttributeValue.setDoProvision("freshAgentProvisioner");
+    groupsAttributeValue.setTargetName("freshAgentProvisioner");
+    groupsAttributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(groupsAttributeValue, groupsStem);
+
+    //
+    // first provision: the missing role is an error, everything else is provisioned
+    //
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision("freshAgentProvisioner", true);
+
+    assertTrue(grouperProvisioningOutput.getRecordsWithErrors() > 0);
+    assertEquals("ERROR", grouperProvisioningOutput.getHib3GrouperLoaderLog().getStatus());
+
+    // roles are never created, only the agent group was created
+    assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_role").select(int.class));
+    assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_group").select(int.class));
+    assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_membership").select(int.class));
+
+    // the role members have the role in their roles array, and keep the default role
+    List<FreshAgentUser> roleMembers = FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 101L, null);
+    assertEquals(2, roleMembers.size());
+    for (FreshAgentUser roleMember : roleMembers) {
+      assertTrue(roleMember.hasRoleId(1L));
+    }
+
+    //
+    // remove a role member, the agent loses the role and keeps the default role
+    //
+    roleGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+    fullProvision("freshAgentProvisioner", true);
+
+    assertEquals(1, FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 101L, null).size());
+    assertEquals(2, FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 1L, null).size());
+    assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_membership").select(int.class));
+
+    //
+    // create the missing role in Freshservice, now it links and there are no errors
+    //
+    insertMockRole(102L, "missingRole");
+
+    grouperProvisioningOutput = fullProvision();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    assertEquals(1, FreshAgentApiCommands.retrieveMembershipsByRole("freshServiceDev", 102L, null).size());
+    assertEquals(new Integer(3), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_role").select(int.class));
+    assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshagent_group").select(int.class));
   }
 
 }

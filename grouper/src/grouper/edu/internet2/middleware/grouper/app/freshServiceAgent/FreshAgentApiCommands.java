@@ -1234,7 +1234,239 @@ public class FreshAgentApiCommands {
 
     return results;
   }
-  
+
+  // Role methods.  Roles are read-only in the Freshservice API (list and view, no create, update, or
+  // delete), so a role must already exist.  Role memberships are the "roles" array on the agent
+
+  /**
+   * Get a list of all Freshservice agent roles
+   * @param configId the id of the external system
+   * @return the roles
+   */
+  public static List<FreshAgentRole> retrieveAgentRoles(String configId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "retrieveAgentRoles");
+
+    List<FreshAgentRole> results = new ArrayList<FreshAgentRole>();
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      boolean lastPage = false;
+      int page = 1;
+
+      while (!lastPage) {
+
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveAgentRoles", "GET", configId, "api/v2/roles",
+            GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
+
+        ArrayNode rolesArray = (ArrayNode) jsonNode.get("roles");
+
+        for (int i = 0; i < (rolesArray == null ? 0 : rolesArray.size()); i++) {
+          JsonNode roleNode = rolesArray.get(i);
+          results.add(FreshAgentRole.fromJson(roleNode));
+          // generic provisioner sync-back: register the role (as a group with a role_ target id) from
+          // the raw inner JSON while the node is in scope. No-op outside a FreshAgent provisioning cycle.
+          FreshAgentProvisioningTargetNativeSync.captureRoleJsonFromCurrentProvisioner(roleNode);
+        }
+
+        page++;
+
+        if (rolesArray == null || rolesArray.size() < GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
+          lastPage = true;
+        }
+
+      }
+
+      debugMap.put("roleCount", results.size());
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshAgentLog.freshserviceLog(debugMap, startTime);
+    }
+
+    return results;
+  }
+
+  /**
+   * Get a Freshservice agent role
+   * @param configId the id of the external system
+   * @param roleId the Freshservice role id (not the role_ prefixed target id)
+   * @return the role or null if not found
+   */
+  public static FreshAgentRole retrieveAgentRole(String configId, Long roleId) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveAgentRole");
+    debugMap.put("roleId", roleId);
+
+    long startTime = System.nanoTime();
+
+    try {
+      int[] returnCode = new int[] { -1 };
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveAgentRole", "GET", configId, "api/v2/roles/" + String.valueOf(roleId),
+          GrouperUtil.toSet(200, 404), returnCode, null, null, false, null);
+      if (returnCode[0] == 404) {
+        return null;
+      }
+
+      JsonNode roleNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "role");
+      if (roleNode == null) {
+        return null;
+      }
+
+      // generic provisioner sync-back, see retrieveAgentRoles
+      FreshAgentProvisioningTargetNativeSync.captureRoleJsonFromCurrentProvisioner(roleNode);
+
+      return FreshAgentRole.fromJson(roleNode);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshAgentLog.freshserviceLog(debugMap, startTime);
+    }
+  }
+
+  /**
+   * Retrieve the agents who have a role.  There is no role member endpoint, so this is the agents
+   * whose "roles" array has the role.  The returned users only need the id
+   * @param configId the id of the external system
+   * @param roleId the Freshservice role id
+   * @param agents all agents if the caller already has them (e.g. cached for a provisioning run), or null to retrieve them
+   * @return the agents with the role
+   */
+  public static List<FreshAgentUser> retrieveMembershipsByRole(String configId, Long roleId, List<FreshAgentUser> agents) {
+
+    if (agents == null) {
+      agents = retrieveAgentUsers(configId, false);
+    }
+    List<FreshAgentUser> results = new ArrayList<FreshAgentUser>();
+    for (FreshAgentUser agent : GrouperUtil.nonNull(agents)) {
+      if (agent.hasRoleId(roleId)) {
+        results.add(agent);
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Add a role to an agent: GET the agent, add the role to its current roles, and PUT the roles back
+   * @param configId the id of the external system
+   * @param userId the agent id
+   * @param roleId the Freshservice role id
+   * @param assignmentScope assignment_scope of the role, e.g. entire_helpdesk
+   */
+  public static void addAgentRole(String configId, Long userId, Long roleId, String assignmentScope) {
+    updateAgentRolesInternal(configId, userId, roleId, assignmentScope, true, null, null);
+  }
+
+  /**
+   * Remove a role from an agent: GET the agent, remove the role from its current roles, and PUT the roles
+   * back.  Freshservice agents need at least one role, so if this is the last role, then replace it with the
+   * fallback role (e.g. the default agent role) if there is one and it is not the role being removed
+   * @param configId the id of the external system
+   * @param userId the agent id
+   * @param roleId the Freshservice role id
+   * @param fallbackRoleId role to assign if the agent would have no roles, or null
+   * @param fallbackAssignmentScope assignment_scope of the fallback role
+   */
+  public static void removeAgentRole(String configId, Long userId, Long roleId, Long fallbackRoleId, String fallbackAssignmentScope) {
+    updateAgentRolesInternal(configId, userId, roleId, null, false, fallbackRoleId, fallbackAssignmentScope);
+  }
+
+  /**
+   * Shared implementation to add/remove a role to/from an agent.  The roles are an array on the agent,
+   * so GET the agent, change the roles, and PUT just the roles back (only if they changed).  Other roles
+   * are kept as-is (e.g. their assignment_scope and groups)
+   */
+  private static void updateAgentRolesInternal(String configId, Long userId, Long roleId, String assignmentScope,
+      boolean add, Long fallbackRoleId, String fallbackAssignmentScope) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "updateAgentRoles");
+    debugMap.put("add", add);
+    debugMap.put("userId", userId);
+    debugMap.put("roleId", roleId);
+
+    long startTime = System.nanoTime();
+
+    try {
+      if (userId == null) {
+        throw new RuntimeException("userId is null");
+      }
+      if (roleId == null) {
+        throw new RuntimeException("roleId is null");
+      }
+
+      int[] returnCode = new int[] { -1 };
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveAgentForRoles", "GET", configId, "api/v2/agents/" + String.valueOf(userId),
+          GrouperUtil.toSet(200, 404), returnCode, null, null, false, null);
+      JsonNode userNode = returnCode[0] == 404 ? null : GrouperUtil.jsonJacksonGetNode(jsonNode, "agent");
+      if (userNode == null) {
+        // agent is not there, nothing to remove
+        if (add) {
+          throw new RuntimeException("Cannot add role to agent that does not exist in target. id=" + userId);
+        }
+        return;
+      }
+
+      // copy the current roles, and drop the role being added or removed
+      ArrayNode currentRoles = GrouperUtil.jsonJacksonArrayNode();
+      boolean hadRole = false;
+      JsonNode rolesNode = GrouperUtil.jsonJacksonGetNode(userNode, "roles");
+      for (int i = 0; i < (rolesNode == null || !rolesNode.isArray() ? 0 : rolesNode.size()); i++) {
+        JsonNode roleNode = rolesNode.get(i);
+        Long currentRoleId = GrouperUtil.jsonJacksonGetLong(roleNode, "role_id");
+        if (currentRoleId != null && currentRoleId.longValue() == roleId.longValue()) {
+          hadRole = true;
+          continue;
+        }
+        currentRoles.add(roleNode.deepCopy());
+      }
+
+      boolean changed = add ? !hadRole : hadRole;
+      debugMap.put("changed", changed);
+      if (!changed) {
+        return;
+      }
+
+      if (add) {
+        ObjectNode roleNode = GrouperUtil.jsonJacksonNode();
+        roleNode.put("role_id", roleId.longValue());
+        roleNode.put("assignment_scope", StringUtils.defaultIfBlank(assignmentScope, "entire_helpdesk"));
+        currentRoles.add(roleNode);
+      } else if (currentRoles.size() == 0) {
+        // Freshservice requires at least one role on an agent
+        if (fallbackRoleId == null || fallbackRoleId.longValue() == roleId.longValue()) {
+          throw new RuntimeException("Cannot remove the last role " + roleId + " from agent " + userId
+              + ", Freshservice agents need at least one role.  Configure a defaultAgentRoleId that is not this role, or deactivate the agent");
+        }
+        debugMap.put("assignedFallbackRoleId", fallbackRoleId);
+        ObjectNode roleNode = GrouperUtil.jsonJacksonNode();
+        roleNode.put("role_id", fallbackRoleId.longValue());
+        roleNode.put("assignment_scope", StringUtils.defaultIfBlank(fallbackAssignmentScope, "entire_helpdesk"));
+        currentRoles.add(roleNode);
+      }
+
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+      jsonToSend.set("roles", currentRoles);
+
+      executeMethod(debugMap, "updateAgentRoles", "PUT", configId, "api/v2/agents/" + String.valueOf(userId),
+          GrouperUtil.toSet(200), new int[] { -1 }, GrouperUtil.jsonJacksonToString(jsonToSend), null, false, null);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshAgentLog.freshserviceLog(debugMap, startTime);
+    }
+  }
+
   /**
    * Deactivate (delete) an agent user in Freshservice.
    * Endpoint: DELETE /api/v2/agents/{id}

@@ -88,6 +88,8 @@ public class FreshAgentGroup {
     }
     targetGroup.assignAttributeValue("description", this.description);
     targetGroup.assignAttributeValue("name", this.name);
+    // a Grouper group can provision to an agent group or a role (FreshAgentRole), this is an agent group
+    targetGroup.assignAttributeValue("groupType", FreshAgentRole.GROUP_TYPE_GROUP);
     return targetGroup;
   }
   

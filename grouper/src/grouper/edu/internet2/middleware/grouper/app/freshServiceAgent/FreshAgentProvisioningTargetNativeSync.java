@@ -220,6 +220,20 @@ public class FreshAgentProvisioningTargetNativeSync extends GrouperProvisioningT
     this.recordTargetNativeGroup(this.buildNativeGroupFromJson(groupNode));
   }
 
+  /**
+   * Build + record a Freshservice agent role from its raw JSON as a native group.  The target id is the
+   * role_ prefixed id (see {@link FreshAgentRole#ROLE_TARGET_ID_PREFIX}) so it matches the provisioning
+   * target id and does not collide with an agent group id. No-op when sync-back is off or id-less.
+   */
+  public void captureRoleJson(JsonNode roleNode) {
+    GrouperProvisioningTargetNativeGroup bean = this.buildNativeGroupFromJson(roleNode);
+    if (bean == null) {
+      return;
+    }
+    bean.setTargetId(FreshAgentRole.ROLE_TARGET_ID_PREFIX + bean.getTargetId());
+    this.recordTargetNativeGroup(bean);
+  }
+
   /** Build + record a FreshAgent user from its raw JSON. No-op when sync-back is off or id-less. */
   public void captureUserJson(JsonNode userNode) {
     this.recordTargetNativeUser(this.buildNativeUserFromJson(userNode));
@@ -266,6 +280,19 @@ public class FreshAgentProvisioningTargetNativeSync extends GrouperProvisioningT
       return;
     }
     sync.captureGroupJson(groupNode);
+  }
+
+  /**
+   * Capture a Freshservice agent role (from its raw inner JSON) as a group against the current
+   * provisioner's sync. No-op if there's no current provisioner or the active provisioner isn't a
+   * FreshAgent one. Called from the commands read seams ({@code retrieveAgentRoles}/{@code retrieveAgentRole}).
+   */
+  public static void captureRoleJsonFromCurrentProvisioner(JsonNode roleNode) {
+    FreshAgentProvisioningTargetNativeSync sync = freshAgentSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.captureRoleJson(roleNode);
   }
 
   /**

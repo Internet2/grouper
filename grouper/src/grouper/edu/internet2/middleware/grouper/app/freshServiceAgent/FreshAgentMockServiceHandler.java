@@ -74,6 +74,7 @@ public class FreshAgentMockServiceHandler extends MockServiceHandler {
       new GcDbAccess().sql("select count(*) from mock_freshagent_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_freshagent_user").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_freshagent_membership").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_freshagent_role").select(int.class);
     } catch (Exception e) {
 
       //we need to delete the test table if it is there, and create a new one
@@ -87,6 +88,7 @@ public class FreshAgentMockServiceHandler extends MockServiceHandler {
           FreshAgentGroup.createTableFreshGroup(ddlVersionBean, database);
           FreshAgentUser.createTableFreshUser(ddlVersionBean, database);
           FreshAgentMembership.createTableFreshMembership(ddlVersionBean, database);
+          FreshAgentRole.createTableFreshRole(ddlVersionBean, database);
 
         }
       });
@@ -190,6 +192,81 @@ public class FreshAgentMockServiceHandler extends MockServiceHandler {
       resultArray.add(nodes.get(i));
     }
     return resultArray;
+  }
+
+  // ==================== Role operations ====================
+  // Freshservice roles are read-only in the API (list and view), so tests insert rows in mock_freshagent_role with sql
+
+  /**
+   * role json like Freshservice
+   * @param roleRow id, name, description
+   * @return the json
+   */
+  private static ObjectNode roleToJson(Object[] roleRow) {
+    ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+    objectNode.put("id", GrouperUtil.longValue(roleRow[0]));
+    objectNode.put("name", GrouperUtil.stringValue(roleRow[1]));
+    objectNode.put("description", GrouperUtil.stringValue(roleRow[2]));
+    objectNode.put("default", false);
+    objectNode.put("role_type", 2);
+    return objectNode;
+  }
+
+  /**
+   * GET /roles - retrieve all roles
+   */
+  public void getRoles(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {
+      checkAuthorization(mockServiceRequest);
+    } catch (RuntimeException e) {
+      mockServiceResponse.setResponseCode(401);
+      throw e;
+    }
+
+    List<Object[]> roleRows = new GcDbAccess().sql("select id, name, description from mock_freshagent_role order by id")
+        .selectList(Object[].class);
+
+    List<ObjectNode> roleNodes = new ArrayList<ObjectNode>();
+    for (Object[] roleRow : GrouperUtil.nonNull(roleRows)) {
+      roleNodes.add(roleToJson(roleRow));
+    }
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    resultNode.set("roles", pageResults(mockServiceRequest, roleNodes));
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+
+  /**
+   * GET /roles/{id} - retrieve a single role by id
+   */
+  public void getRole(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {
+      checkAuthorization(mockServiceRequest);
+    } catch (RuntimeException e) {
+      mockServiceResponse.setResponseCode(401);
+      throw e;
+    }
+
+    String roleIdString = mockServiceRequest.getPostMockNamePaths()[1];
+    mockServiceRequest.getDebugMap().put("roleId", roleIdString);
+
+    List<Object[]> roleRows = new GcDbAccess().sql("select id, name, description from mock_freshagent_role where id = ?")
+        .addBindVar(GrouperUtil.longValue(roleIdString)).selectList(Object[].class);
+
+    if (GrouperUtil.length(roleRows) == 0) {
+      mockServiceResponse.setResponseCode(404);
+      return;
+    }
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    resultNode.set("role", roleToJson(roleRows.get(0)));
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   }
 
   // ==================== Group operations ====================
@@ -716,6 +793,13 @@ public class FreshAgentMockServiceHandler extends MockServiceHandler {
 
     JsonNode rolesNode = GrouperUtil.jsonJacksonGetNode(userJsonNode, "roles");
     if (rolesNode != null && rolesNode.isArray()) {
+      // Freshservice agents need at least one role
+      if (rolesNode.size() == 0) {
+        mockServiceResponse.setResponseCode(400);
+        mockServiceResponse.setContentType("application/json");
+        mockServiceResponse.setResponseBody("{\"description\":\"Validation failed\",\"errors\":[{\"field\":\"roles\",\"message\":\"It should not be blank\"}]}");
+        return;
+      }
       freshAgentUser.setRolesJson(GrouperUtil.jsonJacksonToString(rolesNode));
     }
 
@@ -1078,6 +1162,16 @@ public class FreshAgentMockServiceHandler extends MockServiceHandler {
       // GET /groups/{id}
       if ("groups".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         getGroup(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      // GET /roles
+      if ("roles".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
+        getRoles(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      // GET /roles/{id}
+      if ("roles".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
+        getRole(mockServiceRequest, mockServiceResponse);
         return;
       }
       // GET /requesters?email=

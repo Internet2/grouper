@@ -166,6 +166,25 @@ public class FreshAgentUser {
   }
 
   /**
+   * see if this agent has a role in its roles array
+   * @param roleId Freshservice role id
+   * @return true if the agent has the role
+   */
+  public boolean hasRoleId(long roleId) {
+    if (GrouperUtil.isBlank(this.rolesJson)) {
+      return false;
+    }
+    JsonNode rolesNode = GrouperUtil.jsonJacksonNode(this.rolesJson);
+    for (int i = 0; i < (rolesNode == null || !rolesNode.isArray() ? 0 : rolesNode.size()); i++) {
+      Long currentRoleId = GrouperUtil.jsonJacksonGetLong(rolesNode.get(i), "role_id");
+      if (currentRoleId != null && currentRoleId == roleId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * assign a single role to this agent, e.g. a default role for a new agent since Freshservice
    * requires a role on create: [{"role_id": roleId, "assignment_scope": assignmentScope}]
    * @param roleId Freshservice role id
