@@ -164,9 +164,9 @@ public class GrouperDdlEngine {
   /** if everything is the right version */
   public static boolean everythingRightVersion = true;
 
-  private Thread heartbeatThread = null;
+  private volatile Thread heartbeatThread = null;
   
-  boolean done = false;
+  volatile boolean done = false;
   
   private String thisDdlDatabaseLockingUuid;
   
@@ -593,6 +593,28 @@ public class GrouperDdlEngine {
     return null;
   }
 
+  /**
+   * Acquire the DDL worker lock, or wait for its current owner to finish.
+   * Use a fresh engine for each attempt. False means this caller does not own the lock.
+   * @return true if the lock was acquired, with its heartbeat running
+   */
+  public boolean acquireDatabaseLock() {
+    this.done = false;
+    return waitForOtherJvmsOrLockInDatabase() == null;
+  }
+
+  /**
+   * Stop the heartbeat and wait until the database lock has been released.
+   * Safe to call when an acquisition did not obtain the lock.
+   */
+  public void releaseDatabaseLock() {
+    this.done = true;
+    Thread thread = this.heartbeatThread;
+    if (thread != null) {
+      GrouperUtil.threadJoin(thread);
+    }
+  }
+
   private Boolean waitForOtherJvmsOrLockInDatabase() {
     // we need to lock with the DB so two JVMs dont try to run DDL at the same time
     List<Hib3GrouperDdlWorker> grouperDdlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
@@ -768,13 +790,7 @@ public class GrouperDdlEngine {
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
       
-      // tell the heartbeat we are done
-      this.done=true;
-      
-      // wait for the heartbeat to return
-      if (heartbeatThread != null) {
-        GrouperUtil.threadJoin(heartbeatThread);
-      }
+      releaseDatabaseLock();
 
     }
   }
@@ -945,18 +961,15 @@ public class GrouperDdlEngine {
     this.done = false;
     GrouperDdlUtils.insideBootstrap = true;
     
-    Boolean hasResult = waitForOtherJvmsOrLockInDatabase();
-    if (hasResult != null) {
-      // some other jvm is going to run upgrade tasks
-      workToDo = UpgradeTasksJob.isThereWorkToDo(null);
-      if (workToDo) {
-        throw new RuntimeException("There are upgrade tasks to do that should have been done automatically but weren't run for some reason!!");
-      }
-      
-      
-      return;
-    }
     try {
+      if (!acquireDatabaseLock()) {
+        // some other jvm is going to run upgrade tasks
+        workToDo = UpgradeTasksJob.isThereWorkToDo(null);
+        if (workToDo) {
+          throw new RuntimeException("There are upgrade tasks to do that should have been done automatically but weren't run for some reason!!");
+        }
+        return;
+      }
       AttributeDef upgradeTasksAttributeDef = UpgradeTasksJob.grouperUpgradeTasksAttributeDef();
       if (!upgradeTasksAttributeDef.isMultiValued()) {
         int currentDbVersion = UpgradeTasksJob.getDBVersion();
@@ -991,13 +1004,7 @@ public class GrouperDdlEngine {
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
       
-      // tell the heartbeat we are done
-      this.done=true;
-      
-      // wait for the heartbeat to return
-      if (heartbeatThread != null) {
-        GrouperUtil.threadJoin(heartbeatThread);
-      }
+      releaseDatabaseLock();
 
     }
     
@@ -1144,13 +1151,7 @@ public class GrouperDdlEngine {
       GrouperDdlUtils.insideBootstrap = false;
       GrouperDdlUtils.isDropBeforeCreate = false;
       
-      // tell the heartbeat we are done
-      this.done=true;
-      
-      // wait for the heartbeat to return
-      if (heartbeatThread != null) {
-        GrouperUtil.threadJoin(heartbeatThread);
-      }
+      releaseDatabaseLock();
 
     }
     return false;

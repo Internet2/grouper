@@ -182,13 +182,25 @@ public class SqlCacheDependencyTypeDao {
    * note: names should be unique
    */
   public static void addDefaultSqlCacheDependencyTypesIfNecessary() {
+    addDefaultSqlCacheDependencyTypesIfNecessary(true);
+  }
+
+  /**
+   * Read-only work detection for startup's lazy database lock.
+   * @return true if any default dependency types are missing
+   */
+  public static boolean defaultSqlCacheDependencyTypesNeedChanges() {
+    return addDefaultSqlCacheDependencyTypesIfNecessary(false);
+  }
+
+  private static boolean addDefaultSqlCacheDependencyTypesIfNecessary(boolean makeChanges) {
     {
       List<SqlCacheDependencyType> sqlCacheDependencyTypes = null;
       try {
         sqlCacheDependencyTypes = retrieveAllFromDb();
       } catch (Exception e) {
         // table doesnt exist
-        return;
+        return false;
       }
       Set<String> names = new HashSet<String>();
       for (SqlCacheDependencyType sqlCacheDependencyType : sqlCacheDependencyTypes) {
@@ -254,9 +266,14 @@ public class SqlCacheDependencyTypeDao {
       }
       
       if (sqlCacheDependencyTypesToStore.size() > 0) {
+        if (!makeChanges) {
+          return true;
+        }
         SqlCacheDependencyTypeDao.store(sqlCacheDependencyTypesToStore);
         sqlCacheDependencyTypeExpirableCache.clear();
+        return true;
       }
     }
+    return false;
   }
 }

@@ -39,12 +39,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
@@ -63,6 +65,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -156,6 +160,7 @@ import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxH
 import edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
@@ -609,17 +614,7 @@ public class GrouperCheckConfig {
       //might as well try to init data at this point...
       GrouperStartup.initData(false);
       
-      checkFields();
-      
-      checkStems();
-      
-      checkGroups();
-      
-      checkAttributeDefs();
-
-      checkAttributeDefNames();
-
-      checkMisc();
+      checkObjects();
       
       postSteps();
       
@@ -778,7 +773,163 @@ public class GrouperCheckConfig {
 
   }
 
+  private enum ObjectCheckPhase {
+    FIELDS, STEMS, GROUPS, ATTRIBUTE_DEFS, ATTRIBUTE_DEF_NAMES, MISC
+  }
+
+  // Accessed only while holding the class monitor, including calls to individual phases.
+  private static ObjectCheckState objectCheckState;
+
+  private static boolean autoCreateSystemObjects() {
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
+  }
+
+  static class ObjectCheckControlException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+  }
+
+  static class ObjectCheckRestartException extends ObjectCheckControlException {
+    private static final long serialVersionUID = 1L;
+    final boolean restartAll;
+
+    ObjectCheckRestartException(boolean restartAll) {
+      this.restartAll = restartAll;
+    }
+  }
+
+  static class ObjectCheckDeferredException extends ObjectCheckControlException {
+    private static final long serialVersionUID = 1L;
+    final Set<String> work;
+
+    ObjectCheckDeferredException(Set<String> work) {
+      this.work = new TreeSet<String>(work);
+    }
+  }
+
+  static class ObjectCheckState {
+    private GrouperDdlEngine ddlEngine;
+    private boolean locked;
+    private int attempts;
+    private boolean deferChanges;
+
+    protected GrouperDdlEngine newDdlEngine() {
+      return new GrouperDdlEngine();
+    }
+
+    boolean shouldSave(Set<String> names, Set<String> foundNames) {
+      if (!autoCreateSystemObjects()) {
+        return false;
+      }
+      Set<String> missing = new TreeSet<String>(names);
+      missing.removeAll(foundNames);
+      if (!missing.isEmpty()) {
+        lockForChanges(missing);
+      }
+      return this.locked;
+    }
+
+    void lockForChanges(Set<String> work) {
+      if (this.locked) {
+        return;
+      }
+      if (this.deferChanges) {
+        throw new ObjectCheckDeferredException(work);
+      }
+      this.attempts++;
+      this.ddlEngine = newDdlEngine();
+      if (this.ddlEngine.acquireDatabaseLock()) {
+        this.locked = true;
+        return;
+      }
+      this.deferChanges = this.attempts == 2;
+      // After the second wait, re-read just this phase without attempting another lock.
+      throw new ObjectCheckRestartException(!this.deferChanges);
+    }
+
+    void close() {
+      if (this.ddlEngine != null) {
+        this.ddlEngine.releaseDatabaseLock();
+      }
+    }
+  }
+
+  private static void lockForObjectChange(String description) {
+    objectCheckState.lockForChanges(Collections.singleton(description));
+  }
+
+  private static synchronized void checkObjectPhases(ObjectCheckPhase... phases) {
+    if (objectCheckState != null) {
+      runObjectCheckPhases(phases);
+      return;
+    }
+    boolean wasInCheckConfig = inCheckConfig;
+    inCheckConfig = true;
+    objectCheckState = new ObjectCheckState();
+    try {
+      try {
+        runObjectCheckPhases(phases);
+      } catch (ObjectCheckRestartException e) {
+        // The other JVM may have used different config; restart once and allow one more attempt.
+        runObjectCheckPhases(phases);
+      }
+    } catch (ObjectCheckDeferredException e) {
+      LOG.error("Check config could not acquire the DDL worker lock after two attempts. "
+          + "Deferring changes until the next startup: " + e.work);
+    } finally {
+      try {
+        objectCheckState.close();
+      } finally {
+        objectCheckState = null;
+        inCheckConfig = wasInCheckConfig;
+      }
+    }
+  }
+
+  private static void runObjectCheckPhases(ObjectCheckPhase[] phases) {
+    for (ObjectCheckPhase phase : phases) {
+      try {
+        runObjectCheckPhase(phase);
+      } catch (ObjectCheckRestartException e) {
+        FieldFinder.clearCache();
+        if (e.restartAll) {
+          throw e;
+        }
+        // Do not build dependent save objects if their parents are still missing.
+        runObjectCheckPhase(phase);
+      }
+    }
+  }
+
+  private static void runObjectCheckPhase(ObjectCheckPhase phase) {
+    switch (phase) {
+      case FIELDS:
+        checkFieldsInternal();
+        break;
+      case STEMS:
+        checkStemsInternal();
+        break;
+      case GROUPS:
+        checkGroupsInternal();
+        break;
+      case ATTRIBUTE_DEFS:
+        checkAttributeDefsInternal();
+        break;
+      case ATTRIBUTE_DEF_NAMES:
+        checkAttributeDefNamesInternal();
+        break;
+      case MISC:
+        checkMisc();
+        break;
+      default:
+        throw new IllegalStateException("Unexpected object check phase: " + phase);
+    }
+  }
+
   public static void checkFields() {
+    checkObjectPhases(ObjectCheckPhase.FIELDS);
+  }
+
+  private static void checkFieldsInternal() {
     boolean wasInCheckConfig = inCheckConfig;
     if (!wasInCheckConfig) {
       inCheckConfig = true;
@@ -790,11 +941,14 @@ public class GrouperCheckConfig {
         //make sure stemViewers is there
         try {
           Field field = FieldFinder.find(Field.FIELD_NAME_STEM_VIEWERS, false);
-          if (field == null) {
+          if (field == null && autoCreateSystemObjects()) {
+            lockForObjectChange("field " + Field.FIELD_NAME_STEM_VIEWERS);
             // this will clear cache
             Field.internal_addField( grouperSession, Field.FIELD_NAME_STEM_VIEWERS, FieldType.NAMING, 
                 NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, null , null);
           }
+        } catch (ObjectCheckControlException e) {
+          throw e;
         } catch (Exception e) {
           // there could be an exception if another container is also adding this field
           FieldFinder.clearCache();
@@ -816,6 +970,10 @@ public class GrouperCheckConfig {
   
   
   public static void checkStems() {
+    checkObjectPhases(ObjectCheckPhase.STEMS);
+  }
+
+  private static void checkStemsInternal() {
     
     stemNameToStem.clear();
 
@@ -1096,9 +1254,19 @@ public class GrouperCheckConfig {
                 .assignName(membershipOneHookStemName));
 
           }
-          boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
+          Set<String> stemNames = new HashSet<String>();
+          for (StemSave stemSave : stemSaves) {
+            if (!StringUtils.isBlank(stemSave.getName())) {
+              stemNames.add(stemSave.getName());
+            }
+          }
+          Set<Stem> stems = new StemFinder().assignStemNames(stemNames)
+              .assignQueryOptions(new QueryOptions().secondLevelCache(false)).findStems();
+          for (Stem stem : GrouperUtil.nonNull(stems)) {
+            stemNameToStem.put(stem.getName(), stem);
+          }
 
-          if (autocreateSystemGroups) {
+          if (objectCheckState.shouldSave(stemNames, stemNameToStem.keySet())) {
             stemNameToStem = new StemSaveBatch().addStemSaves(stemSaves).assignMakeChangesIfExist(false).save();
             
             for (StemSave stemSave : stemSaves) {
@@ -1108,22 +1276,6 @@ public class GrouperCheckConfig {
               }
             }
             }
-          } else {
-            // just retrieve
-            Set<String> stemNames = new HashSet<String>();
-
-            for (StemSave stemSave : stemSaves) {
-              if (!StringUtils.isBlank(stemSave.getName())) {
-                stemNames.add(stemSave.getName());
-              }
-            }
-
-            Set<Stem> stems = new StemFinder().assignStemNames(stemNames).findStems();
-            
-            for (Stem stem : GrouperUtil.nonNull(stems)) {
-              stemNameToStem.put(stem.getName(), stem);
-            }
-            
           }
           
         } finally {
@@ -1150,6 +1302,10 @@ public class GrouperCheckConfig {
    * make sure configured groups are there 
    */
   public static void checkGroups() {
+    checkObjectPhases(ObjectCheckPhase.GROUPS);
+  }
+
+  private static void checkGroupsInternal() {
     
     groupNameToGroup.clear();
 
@@ -1552,9 +1708,19 @@ public class GrouperCheckConfig {
           }
         }
 
-        boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
+        Set<String> groupNames = new HashSet<String>();
+        for (GroupSave groupSave : groupSaves) {
+          if (!StringUtils.isBlank(groupSave.getName())) {
+            groupNames.add(groupSave.getName());
+          }
+        }
+        Set<Group> groups = new GroupFinder().assignGroupNames(groupNames)
+            .assignQueryOptions(new QueryOptions().secondLevelCache(false)).findGroups();
+        for (Group group : GrouperUtil.nonNull(groups)) {
+          groupNameToGroup.put(group.getName(), group);
+        }
 
-        if (autocreateSystemGroups) {
+        if (objectCheckState.shouldSave(groupNames, groupNameToGroup.keySet())) {
           groupNameToGroup = new GroupSaveBatch().addGroupSaves(groupSaves).assignMakeChangesIfExist(false).save();
           
           for (GroupSave groupSave : groupSaves) {
@@ -1565,22 +1731,6 @@ public class GrouperCheckConfig {
             }
           }
 
-        } else {
-          // just retrieve
-          Set<String> groupNames = new HashSet<String>();
-
-          for (GroupSave groupSave : groupSaves) {
-            if (!StringUtils.isBlank(groupSave.getName())) {
-              groupNames.add(groupSave.getName());
-            }
-          }
-
-          Set<Group> groups = new GroupFinder().assignGroupNames(groupNames).findGroups();
-          
-          for (Group group : GrouperUtil.nonNull(groups)) {
-            groupNameToGroup.put(group.getName(), group);
-          }
-          
         }
         
         for (Group group : groupNameToGroup.values()) {
@@ -1610,13 +1760,22 @@ public class GrouperCheckConfig {
         
               Group group = groupNameToGroup.get(groupName);
               //now the subjects
-              if (!StringUtils.isBlank(subjects)) {
+              if (autoCreateSystemObjects() && !StringUtils.isBlank(subjects)) {
                 String[] subjectArray = GrouperUtil.splitTrim(subjects, ",");
                 for (String subjectId : subjectArray) {
                   
                   try {
                     Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
-                    boolean added = group.addMember(subject, false);
+                    // Group.hasImmediateMember() can create a member during this read-only work check.
+                    Member member = MemberFinder.internal_findBySubject(
+                        subject, null, false, new QueryOptions().secondLevelCache(false));
+                    boolean added = false;
+                    if (member == null || GrouperDAOFactory.getFactory().getMembership()
+                        .findByGroupOwnerAndMemberAndFieldAndType(group.getUuid(), member.getUuid(),
+                            Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), false, false) == null) {
+                      lockForObjectChange("membership of " + subjectId + " in " + groupName);
+                      added = group.addMember(subject, false);
+                    }
                     if (added && wasInCheckConfig) {
                       String error = "auto-added subject " + subjectId + " to group: " + group.getName();
                       System.err.println("Grouper warning: " + error);
@@ -1636,6 +1795,8 @@ public class GrouperCheckConfig {
                 }
                   
               }
+            } catch (ObjectCheckControlException e) {
+              throw e;
             } catch (RuntimeException re) {
               GrouperUtil.injectInException(re, ", problem with auto-create group: " + groupName);
             }
@@ -2576,12 +2737,7 @@ public class GrouperCheckConfig {
    * call this to init data in grouper
    */
   public static void checkObjects() {
-    checkFields();
-    checkStems();
-    checkGroups();
-    checkAttributeDefs();
-    checkAttributeDefNames();
-    checkMisc();
+    checkObjectPhases(ObjectCheckPhase.values());
   }
   
   /**
@@ -2635,7 +2791,7 @@ public class GrouperCheckConfig {
               String grouperMessageTopicNameOfDef = GrouperBuiltinMessagingSystem.grouperMessageTopicNameOfDef();
               AttributeDef grouperMessageTopicDef = nameOfAttributeDefToAttributeDef.get(grouperMessageTopicNameOfDef); 
                   
-              grouperMessageTopicDef.getAttributeDefActionDelegate().configureActionList(GrouperBuiltinMessagingSystem.actionSendToTopic);
+              configureBuiltinActions(grouperMessageTopicDef, GrouperBuiltinMessagingSystem.actionSendToTopic);
             }
 
             {
@@ -2643,7 +2799,7 @@ public class GrouperCheckConfig {
               String grouperMessageQueueNameOfDef = GrouperBuiltinMessagingSystem.grouperMessageQueueNameOfDef();
               AttributeDef grouperMessageQueueDef = nameOfAttributeDefToAttributeDef.get(grouperMessageQueueNameOfDef); 
 
-              grouperMessageQueueDef.getAttributeDefActionDelegate().configureActionList(
+              configureBuiltinActions(grouperMessageQueueDef,
                   GrouperBuiltinMessagingSystem.actionSendToQueue + "," + GrouperBuiltinMessagingSystem.actionReceive);
             }
 
@@ -2656,13 +2812,18 @@ public class GrouperCheckConfig {
             String groupName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
             
             Group group = groupNameToGroup.get(groupName);
-            if (group != null) {
+            if (autoCreateSystemObjects() && group != null
+                && GrouperRecentMemberships.recentMembershipsLoaderJobNeedsChanges(group)) {
+              lockForObjectChange("recent memberships loader " + groupName);
               GrouperRecentMemberships.setupRecentMembershipsLoaderJob(group);
             }
 
           }
           
-          SqlCacheDependencyTypeDao.addDefaultSqlCacheDependencyTypesIfNecessary();
+          if (autoCreateSystemObjects() && SqlCacheDependencyTypeDao.defaultSqlCacheDependencyTypesNeedChanges()) {
+            lockForObjectChange("default SQL cache dependency types");
+            SqlCacheDependencyTypeDao.addDefaultSqlCacheDependencyTypesIfNecessary();
+          }
           
           AttributeAutoCreateHook.registerHookIfNecessary();
 
@@ -2680,7 +2841,25 @@ public class GrouperCheckConfig {
     
   }
 
+  private static void configureBuiltinActions(AttributeDef attributeDef, String actions) {
+    if (!autoCreateSystemObjects()) {
+      return;
+    }
+    Set<String> actionNames = new HashSet<String>();
+    for (String action : GrouperUtil.splitTrim(actions, ",")) {
+      actionNames.add(action);
+    }
+    if (!actionNames.equals(attributeDef.getAttributeDefActionDelegate().allowedActionStrings())) {
+      lockForObjectChange("actions of attribute definition " + attributeDef.getName());
+      attributeDef.getAttributeDefActionDelegate().configureActionList(actionNames);
+    }
+  }
+
   public static void checkAttributeDefs() {
+    checkObjectPhases(ObjectCheckPhase.ATTRIBUTE_DEFS);
+  }
+
+  private static void checkAttributeDefsInternal() {
     
     nameOfAttributeDefToAttributeDef.clear();
   
@@ -3538,9 +3717,19 @@ public class GrouperCheckConfig {
             
           }
           
-          boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
+          Set<String> namesOfAttributeDefs = new HashSet<String>();
+          for (AttributeDefSave attributeDefSave : attributeDefSaves) {
+            if (!StringUtils.isBlank(attributeDefSave.getName())) {
+              namesOfAttributeDefs.add(attributeDefSave.getName());
+            }
+          }
+          Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignNamesOfAttributeDefs(namesOfAttributeDefs)
+              .assignQueryOptions(new QueryOptions().secondLevelCache(false)).findAttributes();
+          for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+            nameOfAttributeDefToAttributeDef.put(attributeDef.getName(), attributeDef);
+          }
 
-          if (autocreateSystemGroups) {
+          if (objectCheckState.shouldSave(namesOfAttributeDefs, nameOfAttributeDefToAttributeDef.keySet())) {
             nameOfAttributeDefToAttributeDef = new AttributeDefSaveBatch().addAttributeDefSaves(attributeDefSaves).assignMakeChangesIfExist(false).save();
             
             for (AttributeDefSave attributeDefSave : attributeDefSaves) {
@@ -3551,22 +3740,6 @@ public class GrouperCheckConfig {
             }
             }
 
-          } else {
-            // just retrieve
-            Set<String> namesOfAttributeDefs = new HashSet<String>();
-
-            for (AttributeDefSave attributeDefSave : attributeDefSaves) {
-              if (!StringUtils.isBlank(attributeDefSave.getName())) {
-                namesOfAttributeDefs.add(attributeDefSave.getName());
-              }
-            }
-
-            Set<AttributeDef> attributeDefs = new AttributeDefFinder().assignNamesOfAttributeDefs(namesOfAttributeDefs).findAttributes();
-            
-            for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
-              nameOfAttributeDefToAttributeDef.put(attributeDef.getName(), attributeDef);
-            }
-            
           }
           
           for (AttributeDef attributeDef : GrouperUtil.nonNull(nameOfAttributeDefToAttributeDef).values()) {
@@ -3615,7 +3788,8 @@ public class GrouperCheckConfig {
             String provisioningDefName = grouperProvisioningUiRootStemName + ":" + GrouperProvisioningAttributeNames.PROVISIONING_DEF;
             AttributeDef provisioningDef = nameOfAttributeDefToAttributeDef.get(provisioningDefName); 
             
-            if (provisioningDef.isAssignToEffMembership() == false) {
+            if (autoCreateSystemObjects() && provisioningDef.isAssignToEffMembership() == false) {
+              lockForObjectChange("provisioning attribute definition " + provisioningDefName);
               provisioningDef.setAssignToEffMembership(true);
               provisioningDef.setAssignToMember(true);
               
@@ -3654,6 +3828,10 @@ public class GrouperCheckConfig {
   }
 
   public static void checkAttributeDefNames() {
+    checkObjectPhases(ObjectCheckPhase.ATTRIBUTE_DEF_NAMES);
+  }
+
+  private static void checkAttributeDefNamesInternal() {
     
     nameOfAttributeDefNameToAttributeDefName.clear();
   
@@ -4361,7 +4539,8 @@ public class GrouperCheckConfig {
             AttributeDef ruleAttrType = nameOfAttributeDefToAttributeDef.get(ruleAttrDefName); 
                 
             //if not configured properly, configure it properly
-            if (!ruleAttrType.isAssignToAttributeDefAssn()) {
+            if (autoCreateSystemObjects() && !ruleAttrType.isAssignToAttributeDefAssn()) {
+              lockForObjectChange("rule attribute definition " + ruleAttrDefName);
               ruleAttrType.setAssignToAttributeDefAssn(true);
               ruleAttrType.store();
             }
@@ -5175,9 +5354,19 @@ public class GrouperCheckConfig {
                 "put this attribute on a folder to ensure there is one membership only for any group in folder.  Must have the hook enabled", attributeDefNameSaves);
 
           }
-          boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
+          Set<String> namesOfAttributeDefNames = new HashSet<String>();
+          for (AttributeDefNameSave attributeDefNameSave : attributeDefNameSaves) {
+            if (!StringUtils.isBlank(attributeDefNameSave.getName())) {
+              namesOfAttributeDefNames.add(attributeDefNameSave.getName());
+            }
+          }
+          Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignNamesOfAttributeDefNames(namesOfAttributeDefNames)
+              .assignQueryOptions(new QueryOptions().secondLevelCache(false)).findAttributeNames();
+          for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
+            nameOfAttributeDefNameToAttributeDefName.put(attributeDefName.getName(), attributeDefName);
+          }
 
-          if (autocreateSystemGroups) {
+          if (objectCheckState.shouldSave(namesOfAttributeDefNames, nameOfAttributeDefNameToAttributeDefName.keySet())) {
             nameOfAttributeDefNameToAttributeDefName = new AttributeDefNameSaveBatch().addAttributeDefNameSaves(attributeDefNameSaves).assignMakeChangesIfExist(false).save();
             
             for (AttributeDefNameSave attributeDefNameSave : attributeDefNameSaves) {
@@ -5188,21 +5377,6 @@ public class GrouperCheckConfig {
             }
             }
 
-          } else {
-            // just retrieve
-            Set<String> namesOfAttributeDefNames = new HashSet<String>();
-
-            for (AttributeDefNameSave attributeDefNameSave : attributeDefNameSaves) {
-              if (!StringUtils.isBlank(attributeDefNameSave.getName())) {
-                namesOfAttributeDefNames.add(attributeDefNameSave.getName());
-              }
-            }
-
-            Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignNamesOfAttributeDefNames(namesOfAttributeDefNames).findAttributeNames();
-            
-            for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
-              nameOfAttributeDefNameToAttributeDefName.put(attributeDefName.getName(), attributeDefName);
-            }
           }
   
           for (AttributeDefName attributeDefName : GrouperUtil.nonNull(nameOfAttributeDefNameToAttributeDefName).values()) {
@@ -5455,7 +5629,8 @@ public class GrouperCheckConfig {
             } else {
 
               //if not configured properly, configure it properly
-              if (!ruleAttrType.isAssignToAttributeDefAssn()) {
+              if (autoCreateSystemObjects() && !ruleAttrType.isAssignToAttributeDefAssn()) {
+                lockForObjectChange("rule attribute definition " + ruleAttrDefName);
                 ruleAttrType.setAssignToAttributeDefAssn(true);
                 ruleAttrType.store();
               }

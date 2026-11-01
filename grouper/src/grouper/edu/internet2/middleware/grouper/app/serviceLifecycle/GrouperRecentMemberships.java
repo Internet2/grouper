@@ -198,6 +198,19 @@ public class GrouperRecentMemberships {
   static String query = "select group_name, subject_id, subject_source_id from grouper_recent_mships_load_v";
   
   public static void setupRecentMembershipsLoaderJob(Group group) {
+    setupRecentMembershipsLoaderJob(group, true);
+  }
+
+  /**
+   * Read-only work detection for startup's lazy database lock.
+   * @param group loader group
+   * @return true if configuring this loader would change it
+   */
+  public static boolean recentMembershipsLoaderJobNeedsChanges(Group group) {
+    return setupRecentMembershipsLoaderJob(group, false);
+  }
+
+  private static boolean setupRecentMembershipsLoaderJob(Group group, boolean makeChanges) {
     
     boolean recentMembershipsEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.recentMemberships.loaderJob.enable", true);
 
@@ -206,29 +219,51 @@ public class GrouperRecentMemberships {
     if (recentMembershipsEnabled) {
       
       if (!group.hasType(grouperLoaderType)) {
+        if (!makeChanges) {
+          return true;
+        }
         group.addType(grouperLoaderType);
+        hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_TYPE), "SQL_GROUP_LIST")) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
         hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME), "grouper")) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
         hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE), "CRON")) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
         hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON), "0 41 3 * * ?")) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 41 3 * * ?");
         hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_QUERY), query)) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, query);
         hasChange = true;
       }
       if (!StringUtils.equals(group.getAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY), groupQuery)) {
+        if (!makeChanges) {
+          return true;
+        }
         group.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY, groupQuery);
         hasChange = true;
       }
@@ -236,11 +271,14 @@ public class GrouperRecentMemberships {
     } else {
       
       if (group.hasType(grouperLoaderType)) {
+        if (!makeChanges) {
+          return true;
+        }
         group.deleteType(grouperLoaderType);
         hasChange = true;
       }
     }
-    
+    return hasChange;
   }
 
   /** logger */
