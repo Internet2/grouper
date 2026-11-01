@@ -66,6 +66,7 @@ public class AllMcpTests {
     suite.addTestSuite(GrouperMcpErrorUtilsTest.class);
     suite.addTestSuite(GrouperMcpProtectedFoldersTest.class);
     suite.addTestSuite(GrouperMcpLimitedAccessTest.class);
+    suite.addTestSuite(GrouperMcpEntityWhoamiTest.class);
     //$JUnit-END$
     return suite;
   }
