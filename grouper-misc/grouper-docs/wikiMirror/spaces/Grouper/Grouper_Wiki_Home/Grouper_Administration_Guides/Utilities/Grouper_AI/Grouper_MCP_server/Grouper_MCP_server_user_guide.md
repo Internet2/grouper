@@ -386,25 +386,6 @@ Find which groups a subject belongs to. Optionally filter by stem scope, members
 
 **Response:** Returns a JSON array of groups, each with `name`, `extension`, `displayExtension`, `description`, and `uuid`.
 
-### entity_whoami
-
-Tells you who you are logged in to Grouper as on this connection and what this login can do. Use it to check your MCP connection after signing in or re-authenticating, or to troubleshoot an access denied error, e.g. by asking your AI client "who am I logged in to Grouper as, and what can I do?". Takes no parameters. It only describes you, so any MCP access is enough to run it: membership in at least one MCP access group (readonly, readwrite, SQL readonly, admin readonly, admin readwrite, or one of the limited groups) and, for OAuth, a matching scope on the token.
-
-**Response:** Returns a JSON object with:
-
-| **Field** | **Description** |
-| --- | --- |
-| `subject` | The logged-in subject: `sourceId`, `subjectId`, `identifier`, `name`, and `memberId` |
-| `login` | How this login came in: `oauth` (with `tokenIssuedAt`), `wsAuthentication` (HTTP Basic, container auth), or `uiAssistant` (the AI assistant in the Grouper UI) |
-| `grouperSysadmin`, `grouperReadonlySysadmin` | Whether the subject is a Grouper sysadmin or readonly sysadmin |
-| `mcpAccessGroups` | Each MCP access group (readonly, readwrite, wsAuthnAllowed, SQL readonly, admin readonly, admin readwrite, and the limited SQL, admin readonly and admin readwrite groups), its config property and group name, and whether you are a `member` |
-| `limitedAccessGroups` | The `limitedAccessGroup`s you are in, per tool and per SQL, LDAP and admin external system. Only the ones you are in are listed |
-| `scopes` | The scopes of this login. For OAuth, what was consented to for the token: `readonly`, `readwrite`, `sqlReadonly`, `adminReadonly`, `adminReadwrite`, and with read-write the `readwriteLimits` (folders, groups and subjects). For the UI assistant, the scope chosen for the session. For web service authentication there are none (`enforced` is false) and only group membership applies |
-| `allowedToolCategories` | For each tool category, whether this login may use it: group membership and scope together |
-| `availableTools` | The names of the tools offered to this login, the same list `tools/list` returns |
-
-Group memberships are cached for up to 60 seconds on each Grouper server, so a change to an MCP access group can take a minute to show. The scopes of an OAuth token do not change until you sign in again.
-
 ### folder_delete
 
 Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.

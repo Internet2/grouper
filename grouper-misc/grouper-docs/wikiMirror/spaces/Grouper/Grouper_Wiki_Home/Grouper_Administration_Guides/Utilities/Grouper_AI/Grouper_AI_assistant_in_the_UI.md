@@ -58,14 +58,6 @@ For Anthropic:
 | `accessTokenPassword` | the API key |
 | `httpHeader` | `x-api-key` |
 | `prependBearerTokenPrefix` | `false` |
-| `testUrlSuffix` | `models` |
-| `numberOfAdditionalHeaders` | `1` |
-| `additionalHeader.0.name` | `anthropic-version` |
-| `additionalHeader.0.value` | `2023-06-01` |
-
-These settings make the external system **Test** button call `/v1/models` with the required version header as well as the API key. With a valid key that can access this endpoint, the test should pass; do not ignore a failure caused by a missing `anthropic-version` header. The assistant still sets its own API version header, which takes precedence over the external system default.
-
-Other providers and gateways can use the same additional-header settings for version, tenant, or `Accept` headers. For a secret header value, set `additionalHeader.<n>.valueIsSecret = true` and enter the value through the external system UI so it is encrypted in database configuration, masked in the UI, and excluded from HTTP header logs.
 
 For OpenAI:
 

@@ -149,7 +149,6 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | doc_search |  |  |  |  |  |
 | entity_get |  |  |  |  |  |
 | entity_get_groups |  |  |  |  |  |
-| entity_whoami |  |  |  |  |  |
 | folder_delete |  |  |  |  |  |
 | folder_find |  |  |  |  |  |
 | folder_save |  |  |  |  |  |
@@ -165,7 +164,7 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | privilege_assign |  |  |  |  |  |
 | privilege_get |  |  |  |  |  |
 
-An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `folder_save`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite. `entity_whoami` only describes the caller (who they are logged in as, their MCP access groups and limited access groups, the scopes of their login, and the tools available to them), so it is available to a member of any MCP access group, including the limited SQL, admin readonly and admin readwrite groups, as long as an OAuth token also has the matching scope. It counts against the `readonly` throttle. It only lists the limited access groups and external systems the caller is in, not everything that is configured.
+An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `folder_save`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
 
 ## Recipes
 
