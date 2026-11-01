@@ -34,6 +34,7 @@ public class AllMiscTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.misc");
     //$JUnit-BEGIN$
     suite.addTestSuite(FindBadGroupsUniqueExtensionInFolderDaemonTest.class);
+    suite.addTestSuite(GrouperCheckConfigTest.class);
     suite.addTestSuite(GrouperObjectFinderTest.class);
     suite.addTestSuite(GrouperReportTest.class);
     suite.addTestSuite(GrouperSessionTest.class);
