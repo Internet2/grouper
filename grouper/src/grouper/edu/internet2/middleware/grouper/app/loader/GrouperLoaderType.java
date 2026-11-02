@@ -1475,10 +1475,12 @@ public enum GrouperLoaderType {
         // treated as emptying/delete candidates or counted as skipped for missing loader metadata.
         groupNamesManaged.removeAll(GrouperUtil.nonNull(groupNamesFromGroupQuery));
         
-        // only act on groups that carry this loader's metadata (grouperLoaderMetadataGroupId matches this
-        // loader and grouperLoaderMetadataLoaded=true), so groups that merely match the like pattern but
-        // were never managed by this loader are left alone.  groupsNoLongerManagedByLoader was computed
-        // above from that metadata (scoped to this loader), before any loaded=false marking.
+        // Failsafe counts use the groups-like scope even when loader metadata is missing.
+        // Keep mutation candidates separate so the metadata ownership check still protects those groups.
+        Set<String> groupNamesForFailsafe = new LinkedHashSet<String>(groupNamesManaged);
+
+        // Only clear or delete groups carrying this loader's metadata group id, regardless of the
+        // loaded flag. Groups merely matching the like pattern are left alone.
         {
           Set<String> groupNamesManagedByThisLoader = new HashSet<String>();
           for (Group groupNoLongerManaged : GrouperUtil.nonNull(groupsNoLongerManagedByLoader)) {
@@ -1507,9 +1509,13 @@ public enum GrouperLoaderType {
           }
         }
         
+        if (grouperFailsafeBean == null || !grouperFailsafeBean.isUseFailsafe()) {
+          groupNamesForFailsafe.retainAll(groupNamesManaged);
+        }
+
         Boolean isIncludeExclude = null;
         
-        for (String groupNameEmpty : new LinkedHashSet<String>(groupNamesManaged)) {
+        for (String groupNameEmpty : groupNamesForFailsafe) {
           
           //if we need to figure this out
           if (isIncludeExclude == null) {

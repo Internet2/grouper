@@ -150,7 +150,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderGroupsLikeDeletesOnlyGroupsWithLoaderMetadata"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderGroupsLikeFailsafeWithoutLoaderMetadata"));
   }
 
   /**
@@ -3115,6 +3115,142 @@ public class GrouperLoaderTest extends GrouperTest {
   }
   
   
+  /**
+   * GRP-7538: the group-count failsafe must detect an empty source even when the populated groups
+   * matching the groups-like string have no loader metadata.
+   * @throws Exception
+   */
+  public void testLoaderGroupsLikeFailsafeWithoutLoaderMetadata() throws Exception {
+    checkLoaderGroupsLikeFailsafeWithoutLoaderMetadata(true);
+  }
+
+  /**
+   * GRP-7538: partial source loss must also count groups without loader metadata.
+   * @throws Exception
+   */
+  public void testLoaderGroupsLikeFailsafePartialSourceWithoutLoaderMetadata() throws Exception {
+    checkLoaderGroupsLikeFailsafeWithoutLoaderMetadata(false);
+  }
+
+  @SuppressWarnings("deprecation")
+  private void checkLoaderGroupsLikeFailsafeWithoutLoaderMetadata(boolean emptySource) throws Exception {
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("grouperLoader.updateLoaderMetadataAttributes", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.sendEmail", "false");
+
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader("test:loaderFailsafe:group0", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoader("test:loaderFailsafe:group1", SubjectTestHelper.SUBJ1_ID, null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null,
+        "test:loaderFailsafeOwner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    String membershipQuery = "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader";
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, membershipQuery);
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "test:loaderFailsafe:%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "30");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+
+    // Isolate the group-count failsafe so membership-based checks cannot mask the issue.
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Hib3GrouperLoaderLog initialLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertNotNull(initialLog);
+    assertEquals("SUCCESS", initialLog.getStatus());
+
+    Group group0 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group0", true);
+    Group group1 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group1", true);
+    assertEquals(1, group0.getImmediateMembers().size());
+    assertEquals(1, group1.getImmediateMembers().size());
+    assertTrue(group0.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
+    assertNull(loaderMetadataGroupIdForGroup(group0));
+    assertNull(loaderMetadataGroupIdForGroup(group1));
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+
+    // An already-empty group must not dilute the percentage of populated groups disappearing.
+    Group emptyGroup = new GroupSave(this.grouperSession).assignName("test:loaderFailsafe:empty").save();
+    assertEquals(0, emptyGroup.getImmediateMembers().size());
+
+    String sourceLossQuery = membershipQuery
+        + (emptySource ? " where 1 = 0" : " where col1 = 'test:loaderFailsafe:group0'");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, sourceLossQuery);
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    } catch (RuntimeException e) {
+      // Verify the persisted status below so an unrelated loader error cannot satisfy the test.
+    }
+
+    Hib3GrouperLoaderLog sourceLossLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertNotNull(sourceLossLog);
+    assertFalse("The source-loss run must create a new loader log", initialLog.getId().equals(sourceLossLog.getId()));
+
+    GrouperCacheUtils.clearAllCaches();
+    group0 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group0", true);
+    group1 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group1", true);
+    assertEquals(1, group0.getImmediateMembers().size());
+    assertEquals(1, group1.getImmediateMembers().size());
+    assertTrue(group0.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
+
+    assertEquals("Source loss must trigger the group-count failsafe without loader metadata",
+        "ERROR_FAILSAFE", sourceLossLog.getStatus());
+    assertTrue(sourceLossLog.getJobMessage().contains("Can't clear out " + (emptySource ? 2 : 1)
+        + " groups (totalManagedGroupsWithMembersCount: 2)"));
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+
+    // Approval bypasses the failsafe, not the metadata ownership protection.
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Hib3GrouperLoaderLog approvedLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertNotNull(approvedLog);
+    assertEquals("SUCCESS", approvedLog.getStatus());
+    assertEquals(0, approvedLog.getDeleteCount().intValue());
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+
+    GrouperCacheUtils.clearAllCaches();
+    group0 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group0", true);
+    group1 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group1", true);
+    assertTrue(group0.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
+    assertEquals(1, group0.getImmediateMembers().size());
+    assertEquals(1, group1.getImmediateMembers().size());
+    assertNotNull(GroupFinder.findByName(this.grouperSession, emptyGroup.getName(), false));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "F");
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Hib3GrouperLoaderLog disabledLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertNotNull(disabledLog);
+    assertEquals("SUCCESS", disabledLog.getStatus());
+    assertEquals(0, disabledLog.getDeleteCount().intValue());
+
+    GrouperCacheUtils.clearAllCaches();
+    group0 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group0", true);
+    group1 = GroupFinder.findByName(this.grouperSession, "test:loaderFailsafe:group1", true);
+    assertTrue(group0.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
+    assertEquals(1, group0.getImmediateMembers().size());
+    assertEquals(1, group1.getImmediateMembers().size());
+    assertNull(loaderMetadataGroupIdForGroup(group0));
+    assertNull(loaderMetadataGroupIdForGroup(group1));
+    assertNotNull(GroupFinder.findByName(this.grouperSession, emptyGroup.getName(), false));
+  }
+
   /**
    * GRP-7073: a SQL_GROUP_LIST loader with a grouperLoaderGroupsLike string should only delete groups
    * that carry this loader's metadata (grouperLoaderMetadataGroupId = this loader group and
