@@ -249,7 +249,8 @@ function guiProcessUrlForAjax(url) {
     }
   }
   if (foundOperation) {
-    ajax(ajaxUrl);    
+    // GRP-7503: the operation came from the browser URL, tell the server so it only runs screens (not actions)
+    ajax(ajaxUrl, {operationFromUrl: true});    
   }
 
 }
@@ -1067,6 +1068,11 @@ function ajax(theUrl, options) {
       && document.getElementsByName(owaspTokenName).length > 0
       && document.getElementsByName(owaspTokenName)[0] != null) {
     owaspCsrfTokenHeader[owaspTokenName] = document.getElementsByName(owaspTokenName)[0].value;
+  }
+  
+  // GRP-7503: see GrouperUiUrlOperationGuard
+  if (options.operationFromUrl === true) {
+    owaspCsrfTokenHeader['X-Grouper-Url-Operation'] = 'true';
   }
   
   //make sure combos have the right state

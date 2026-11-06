@@ -260,6 +260,17 @@ public class GrouperUiRestServlet extends HttpServlet {
         }
       }
       
+      // GRP-7503: an operation from the browser URL (bookmark, refresh, crafted link) may only show a screen
+      if (!GrouperUiUrlOperationGuard.allowRequest(request, classAndMethodName)) {
+        if (StringUtils.equals("app", urlStrings.get(0))) {
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain')"));
+        }
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("guiMiscUrlOperationNotAllowed")));
+        guiResponseJs.printToScreen();
+        return;
+      }
+      
       String className = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", true);
       String methodName = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", false);
       
