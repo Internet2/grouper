@@ -97,7 +97,7 @@ ${grouper:title('subjectSourcesPageTitle')}
 			                             </c:if>
 			                             
 			                             <c:if test="${source.editable}">
-			                             	<li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['subjectSourcesConfirmDeleteSource']}')) { return guiV2link('operation=UiV2SubjectSource.deleteSubjectSource&subjectSourceId=${source.id}');}">${textContainer.text['subjectSourcesDeleteActionOption'] }</a></li>
+			                             	<li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['subjectSourcesConfirmDeleteSource']}')) { ajax('../app/UiV2SubjectSource.deleteSubjectSource?subjectSourceId=${grouper:escapeUrl(source.id)}'); } return false;">${textContainer.text['subjectSourcesDeleteActionOption'] }</a></li>
 			                             </c:if>
 			                           </ul>
 			                         </div>

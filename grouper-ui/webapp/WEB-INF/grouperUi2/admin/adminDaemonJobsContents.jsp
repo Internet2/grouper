@@ -95,7 +95,7 @@
                                 <br />
                                 <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                                 <c:if test="${guiDaemonJob.multiple && guiDaemonJob.editable}">                        
-                                  <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { ajax('../app/UiV2Admin.deleteDaemon?jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}'); } return false;">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.showMoreActionsDisable}" >
                                   <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId', formIdsOptional: 'daemonJobsPagingFormId,daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</button></li>

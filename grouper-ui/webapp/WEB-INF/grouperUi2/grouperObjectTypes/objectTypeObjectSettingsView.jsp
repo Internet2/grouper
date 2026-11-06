@@ -14,7 +14,7 @@
 	                          <c:when test="${ObjectType == 'Folder'}">
 	                            
 	                            <a title="${textContainer.text['objectTypeTitleRemoveThisObjectType'] }" href="#" 
-	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { return guiV2link('operation=UiV2GrouperObjectTypes.removeObjectTypeFromFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&grouperObjectTypeName=${grouperObjectTypesAttributeValue.objectTypeName}'); } return false;"
+	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { ajax('../app/UiV2GrouperObjectTypes.removeObjectTypeFromFolder?stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}&grouperObjectTypeName=${grouper:escapeUrl(grouperObjectTypesAttributeValue.objectTypeName)}'); } return false;"
 	                                  >
 	                                  <span style="font-size: 14px; font-weight: normal;">${textContainer.text['objectTypeTextRemoveThisObjectType'] }</span>
 	                            </a>
@@ -22,7 +22,7 @@
 	                          <c:otherwise>
 	                          
 	                          <a title="${textContainer.text['objectTypeTitleRemoveThisObjectType'] }" href="#" 
-	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { return guiV2link('operation=UiV2GrouperObjectTypes.removeObjectTypeFromGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&grouperObjectTypeName=${grouperObjectTypesAttributeValue.objectTypeName}'); } return false;"
+	                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['objectTypeConfirmObjectTypeRemoval']}')) { ajax('../app/UiV2GrouperObjectTypes.removeObjectTypeFromGroup?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&grouperObjectTypeName=${grouper:escapeUrl(grouperObjectTypesAttributeValue.objectTypeName)}'); } return false;"
 	                                  >
 	                                  <span style="font-size: 14px; font-weight: normal;">${textContainer.text['objectTypeTextRemoveThisObjectType'] }</span>
 	                          </a>
