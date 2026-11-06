@@ -62,7 +62,7 @@ ${grouper:title('miscellaneousPrivacyRealmsBreadcrumb')}
                     <li><a href="?operation=UiV2EntityDataFields.editPrivacyRealmConfig&privacyRealmConfigId=${guiPrivacyRealmConfiguration.grouperPrivacyRealmConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editPrivacyRealmConfig&privacyRealmConfigId=${guiPrivacyRealmConfiguration.grouperPrivacyRealmConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
 
                     <li>&nbsp;</li>                                  
-                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['privacyRealmConfigsConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2EntityDataFields.deletePrivacyRealmConfig&privacyRealmConfigId=${guiPrivacyRealmConfiguration.grouperPrivacyRealmConfiguration.configId}');}">${textContainer.text['dataFieldsDeleteActionsOption'] }</a></li>
+                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['privacyRealmConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2EntityDataFields.deletePrivacyRealmConfig?privacyRealmConfigId=${grouper:escapeUrl(guiPrivacyRealmConfiguration.grouperPrivacyRealmConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</a></li>
                     
                     
                   </ul>
