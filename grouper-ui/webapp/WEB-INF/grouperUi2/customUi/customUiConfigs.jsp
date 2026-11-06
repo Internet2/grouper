@@ -61,11 +61,11 @@ ${grouper:title('customUiConfigsPageTitle')}
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
-                                <li><a href="?operation=UiV2CustomUiConfig.disableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.disableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableDisableActionOption'] }</a></li>
+                                <li><a href="#" onclick="ajax('../app/UiV2CustomUiConfig.disableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableDisableActionOption'] }</a></li>
                                </c:if>
                                
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == false}">
-                                <li><a href="?operation=UiV2CustomUiConfig.enableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.enableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEnableActionOption'] }</a></li>
+                                <li><a href="#" onclick="ajax('../app/UiV2CustomUiConfig.enableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableEnableActionOption'] }</a></li>
                                </c:if>
                                
                                <li><a href="?operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
@@ -75,7 +75,7 @@ ${grouper:title('customUiConfigsPageTitle')}
                                </c:if>
                            
                                <li>&nbsp;</li>                                  
-                               <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['customUiConfigsConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2CustomUiConfig.deleteCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');}">${textContainer.text['customUiConfigsTableDeleteDetailsActionOption'] }</a></li>
+                               <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['customUiConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2CustomUiConfig.deleteCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); } return false;">${textContainer.text['customUiConfigsTableDeleteDetailsActionOption'] }</a></li>
                                  </ul>
                                </div>
                          </td>
