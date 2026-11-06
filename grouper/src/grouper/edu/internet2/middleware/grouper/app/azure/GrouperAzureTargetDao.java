@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,15 +8,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCache;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheSource;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
@@ -57,6 +63,7 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -65,6 +72,197 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
    */
   private static ExpirableCache<Object, String> ownerIdentifierToOwnerUrl = new ExpirableCache<Object, String>(60);
 
+  private Map<String, GrouperAzureGroup> exchangeRoutingGroups = new ConcurrentHashMap<String, GrouperAzureGroup>();
+
+  private GrouperAzureConfiguration azureConfiguration() {
+    return (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  }
+
+  private GrouperAzureGroup existingGroupForExchangeRouting(String id, ProvisioningGroup group) {
+    GrouperAzureGroup result = this.exchangeRoutingGroups.get(id);
+    if (result != null) {
+      return result;
+    }
+    ProvisioningGroupWrapper wrapper = group == null ? null : group.getProvisioningGroupWrapper();
+    ProvisioningGroup selected = wrapper == null ? group : wrapper.getTargetProvisioningGroup();
+    if (selected != null && selected.retrieveAttributeValueBoolean("mailEnabled") != null
+        && selected.retrieveAttributeValueBoolean("groupTypeUnified") != null
+        && selected.retrieveAttributeValueBoolean("onPremisesSyncEnabled") != null) {
+      result = GrouperAzureGroup.fromProvisioningGroup(selected, null);
+    } else {
+      List<GrouperAzureGroup> groups = GrouperAzureApiCommands.retrieveAzureGroups(
+          azureConfiguration().getAzureExternalSystemConfigId(), GrouperUtil.toList(id), "id", false, new HashSet<String>());
+      if (groups.size() != 1) {
+        throw new RuntimeException("Cannot read Azure group " + id + " to route its write; retry after Graph replication");
+      }
+      result = groups.get(0);
+    }
+    this.exchangeRoutingGroups.put(id, result);
+    return result;
+  }
+
+  private static void groupResult(ProvisioningGroup group, Exception exception) {
+    group.setProvisioned(exception == null);
+    group.setException(exception);
+    for (ProvisioningObjectChange change : GrouperUtil.nonNull(group.getInternal_objectChanges())) {
+      change.setProvisioned(exception == null);
+    }
+  }
+
+  private boolean exchangeGroupWrite(ProvisioningGroup targetGroup, Set<String> fields, boolean create, boolean delete,
+      List<GcGrouperSyncGroup> syncGroupsToStore) {
+    if (!azureConfiguration().isExchangeOnlineEnabled()) {
+      return false;
+    }
+    GrouperAzureGroup desired = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
+    try {
+      GrouperAzureGroup existing = create ? desired : existingGroupForExchangeRouting(targetGroup.getId(), targetGroup);
+      if (!existing.isExchangeOnlineGroup()) {
+        return false;
+      }
+      if (existing.isOnPremisesSyncEnabled()) {
+        throw new RuntimeException("Group " + targetGroup.getId() + " is synchronized from on-premises; manage it in AD");
+      }
+      GrouperAzureExchangeOnline exchange = new GrouperAzureExchangeOnline(azureConfiguration());
+      if (create) {
+        ProvisioningGroupWrapper wrapper = targetGroup.getProvisioningGroupWrapper();
+        GcGrouperSyncGroup sync = wrapper == null ? null : wrapper.getGcGrouperSyncGroup();
+        if (recentlyInserted(sync)) {
+          throw new RuntimeException("Exchange group was recently created but is not yet readable in Graph; retry later");
+        }
+        GrouperProvisioningConfigurationAttributeDbCache idCache = exchangeIdCache();
+        String id = GrouperAzureExchangeOnline.createdGroupId(exchange.exoInvokeCommand("New-DistributionGroup",
+            GrouperAzureExchangeOnline.groupParameters(desired, fields, true)));
+        targetGroup.setId(id);
+        desired.setId(id);
+        this.exchangeRoutingGroups.put(id, desired);
+        if (sync != null) {
+          // Save the returned id before select-after-insert can fail on Graph's eventual consistency.
+          sync.assignField("groupAttributeValueCache" + idCache.getIndex(), id);
+          sync.setInTarget(true);
+          sync.setInTargetStart(new Timestamp(System.currentTimeMillis()));
+          sync.setInTargetInsertOrExists(true);
+          syncGroupsToStore.add(sync);
+        }
+      } else if (delete) {
+        Map<String, Object> parameters = new LinkedHashMap<String, Object>();
+        parameters.put("Identity", targetGroup.getId());
+        parameters.put("BypassSecurityGroupManagerCheck", true);
+        parameters.put("Confirm", false);
+        exchange.exoInvokeCommand("Remove-DistributionGroup", parameters);
+        this.exchangeRoutingGroups.remove(targetGroup.getId());
+      } else {
+        exchange.exoInvokeCommand("Set-DistributionGroup",
+            GrouperAzureExchangeOnline.groupParameters(desired, fields, false));
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+            .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+      }
+      groupResult(targetGroup, null);
+    } catch (Exception e) {
+      groupResult(targetGroup, e);
+    }
+    return true;
+  }
+
+  private GrouperProvisioningConfigurationAttributeDbCache exchangeIdCache() {
+    for (GrouperProvisioningConfigurationAttributeDbCache cache : azureConfiguration().getGroupAttributeDbCaches()) {
+      if (cache != null && cache.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target
+          && cache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute
+          && StringUtils.equals("id", cache.getAttributeName())) {
+        return cache;
+      }
+    }
+    throw new RuntimeException("Exchange Online requires a target group attribute value cache for id");
+  }
+
+  static boolean recentlyInserted(GcGrouperSyncGroup sync) {
+    return sync != null && sync.isInTargetInsertOrExists() && sync.getInTargetStart() != null
+        && System.currentTimeMillis() - sync.getInTargetStart().getTime() < 15 * 60 * 1000;
+  }
+
+  private void checkGraphReplication(List<GrouperAzureGroup> groups, List<ProvisioningGroup> requested) {
+    if (!azureConfiguration().isExchangeOnlineEnabled() || this.getGrouperProvisioner().getGcGrouperSync() == null) {
+      return;
+    }
+    GrouperProvisioningConfigurationAttributeDbCache cache = exchangeIdCache();
+    Set<String> foundIds = new HashSet<String>();
+    for (GrouperAzureGroup group : groups) {
+      foundIds.add(group.getId());
+    }
+    List<GcGrouperSyncGroup> syncGroups = new ArrayList<GcGrouperSyncGroup>();
+    if (requested == null) {
+      syncGroups.addAll(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll());
+    } else {
+      for (ProvisioningGroup group : requested) {
+        if (group.getProvisioningGroupWrapper() != null && group.getProvisioningGroupWrapper().getGcGrouperSyncGroup() != null) {
+          syncGroups.add(group.getProvisioningGroupWrapper().getGcGrouperSyncGroup());
+        }
+      }
+    }
+    for (GcGrouperSyncGroup sync : syncGroups) {
+      String id = (String) sync.retrieveField("groupAttributeValueCache" + cache.getIndex());
+      if (recentlyInserted(sync) && Boolean.TRUE.equals(sync.getInTarget()) && StringUtils.isNotBlank(id)
+          && !foundIds.contains(id)) {
+        Set<String> extensions = new HashSet<String>();
+        for (String attribute : azureConfiguration().getTargetGroupAttributeNameToConfig().keySet()) {
+          if (attribute.startsWith("extension_")) {
+            extensions.add(attribute);
+          }
+        }
+        List<GrouperAzureGroup> byId = GrouperAzureApiCommands.retrieveAzureGroups(
+            azureConfiguration().getAzureExternalSystemConfigId(), GrouperUtil.toList(id), "id",
+            azureConfiguration().getTargetGroupAttributeNameToConfig().containsKey("groupOwners"), extensions);
+        if (!byId.isEmpty()) {
+          if (requested == null) {
+            groups.addAll(byId);
+            foundIds.add(id);
+          }
+          continue;
+        }
+        // Fail before missing-object processing clears the durable id link and schedules another create.
+        throw new RuntimeException("Recently created Azure group " + id
+            + " is not yet visible in Graph; defer this sync and retry. Creation is protected for 15 minutes.");
+      }
+    }
+  }
+
+  private List<ProvisioningMembership> exchangeMembershipWrites(List<ProvisioningMembership> memberships, boolean insert) {
+    if (!azureConfiguration().isExchangeOnlineEnabled()) {
+      return memberships;
+    }
+    List<ProvisioningMembership> graphMemberships = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembership membership : memberships) {
+      try {
+        GrouperAzureGroup group = existingGroupForExchangeRouting(membership.getProvisioningGroupId(),
+            membership.getProvisioningGroup());
+        if (!group.isExchangeOnlineGroup()) {
+          graphMemberships.add(membership);
+          continue;
+        }
+        if (group.isOnPremisesSyncEnabled()) {
+          throw new RuntimeException("Group is synchronized from on-premises; manage membership in AD");
+        }
+        new GrouperAzureExchangeOnline(azureConfiguration()).membership(
+            membership.getProvisioningGroupId(), membership.getProvisioningEntityId(), insert);
+        membership.setProvisioned(true);
+        membership.setException(null);
+        if (insert) {
+          GrouperAzureProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+              membership.getProvisioningGroupId(), membership.getProvisioningEntityId());
+        } else {
+          GrouperAzureProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+              membership.getProvisioningGroupId(), membership.getProvisioningEntityId());
+        }
+      } catch (Exception e) {
+        membership.setProvisioned(false);
+        membership.setException(e);
+      }
+      for (ProvisioningObjectChange change : GrouperUtil.nonNull(membership.getInternal_objectChanges())) {
+        change.setProvisioned(Boolean.TRUE.equals(membership.getProvisioned()));
+      }
+    }
+    return graphMemberships;
+  }
 
   @Override
   public boolean loggingStart() {
@@ -102,6 +300,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
           .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), lookupOwners, extensionAttributeNames);
+      checkGraphReplication(grouperAzureGroups, null);
 
       // GRP-7048: marks that the bulk group pull ran this pass; absent when groups are served from
       // the sync-back cache (the adapter skips this call), which the from-cache tests assert on.
@@ -251,6 +450,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups(
           azureConfiguration.getAzureExternalSystemConfigId(), fieldValues, 
           targetDaoRetrieveGroupsRequest.getSearchAttribute(), lookupOwners, extensionAttributeNames);
+      checkGraphReplication(azureGroups, grouperTargetGroups);
       
       
       List<ProvisioningGroup> targetGroupsFromAzure = new ArrayList<>();
@@ -286,6 +486,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<GrouperAzureGroup, ProvisioningGroup> azureGroupToTargetGroup = new HashMap<>();
       
       Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert = new HashMap<>();
+      List<GcGrouperSyncGroup> exchangeSyncGroups = new ArrayList<GcGrouperSyncGroup>();
       
       for (ProvisioningGroup targetGroup: targetGroups) {
         GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
@@ -309,6 +510,10 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         
         if (grouperAzureGroup.isGroupTypeUnified()) {
           fieldNamesToInsert.add("groupTypeUnified");
+        }
+
+        if (exchangeGroupWrite(targetGroup, fieldNamesToInsert, true, false, exchangeSyncGroups)) {
+          continue;
         }
         
         if (GrouperUtil.length(grouperAzureGroup.getOwners()) > 0) {
@@ -359,6 +564,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       
+      if (!exchangeSyncGroups.isEmpty()) {
+        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().internal_groupStore(exchangeSyncGroups);
+      }
       Map<GrouperAzureGroup, Exception> groupToMaybeException = GrouperAzureApiCommands.createAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), groupToFieldNamesToInsert);
       
       for (GrouperAzureGroup grouperAzureGroup: groupToMaybeException.keySet()) {
@@ -407,6 +615,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+      targetMemberships = exchangeMembershipWrites(targetMemberships, true);
 
       // lets collate by group
       Map<String, List<String>> groupIdToUserIds = new LinkedHashMap<String, List<String>>();
@@ -487,6 +697,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
+      targetMemberships = exchangeMembershipWrites(targetMemberships, false);
+
       Map<ProvisioningMembership, Exception> targetMembershipsWithMaybeException = GrouperAzureApiCommands.deleteAzureMemberships(azureConfiguration.getAzureExternalSystemConfigId(), targetMemberships);
 
       for (ProvisioningMembership targetMembership: targetMembershipsWithMaybeException.keySet()) {
@@ -546,6 +758,13 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningGroup targetGroup: targetGroups) {
       GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
       if (StringUtils.isBlank(grouperAzureGroup.getId())) {
+        continue;
+      }
+      Set<String> exchangeFields = new HashSet<String>();
+      for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        exchangeFields.add(change.getAttributeName());
+      }
+      if (exchangeGroupWrite(targetGroup, exchangeFields, false, false, null)) {
         continue;
       }
       azureGroupToTargetGroup.put(grouperAzureGroup, targetGroup);
@@ -785,6 +1004,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningGroup targetGroup: targetGroups) {
         GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
         if (StringUtils.isBlank(grouperAzureGroup.getId())) {
+          continue;
+        }
+        if (exchangeGroupWrite(targetGroup, new HashSet<String>(), false, true, null)) {
           continue;
         }
         grouperAzureGroups.add(grouperAzureGroup);

@@ -33,6 +33,8 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
   /** Microsoft Graph scope (default audience for most Azure connectors). */
   public static final String SCOPE_GRAPH = "https://graph.microsoft.com/.default";
 
+  public static final String SCOPE_EXCHANGE_ONLINE = "https://outlook.office365.com/.default";
+
   /** Power BI service scope. Use against https://api.powerbi.com/v1.0/myorg/... */
   public static final String SCOPE_POWER_BI = "https://analysis.windows.net/powerbi/api/.default";
 

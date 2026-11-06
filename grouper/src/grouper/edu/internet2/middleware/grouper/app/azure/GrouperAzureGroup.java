@@ -115,6 +115,8 @@ public class GrouperAzureGroup {
     targetGroup.setId(this.id);
     targetGroup.assignAttributeValue("mailEnabled", this.mailEnabled);
     targetGroup.assignAttributeValue("mailNickname", this.mailNickname);
+    targetGroup.assignAttributeValue("primarySmtpAddress", this.primarySmtpAddress);
+    targetGroup.assignAttributeValue("onPremisesSyncEnabled", this.onPremisesSyncEnabled);
     targetGroup.assignAttributeValue("securityEnabled", this.securityEnabled);
     targetGroup.assignAttributeValue("isAssignableToRole", this.isAssignableToRole);
     targetGroup.assignAttributeValue("visibility", this.visibility);
@@ -148,7 +150,10 @@ public class GrouperAzureGroup {
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     ProvisioningGroupWrapper provisioningGroupWrapper = targetGroup.getProvisioningGroupWrapper();
     ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioningGroup();
-    String groupType = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.retrieveAttributeValueString("md_grouper_azureGroupType");
+    String groupType = targetGroup.retrieveAttributeValueString("groupType");
+    if (StringUtils.isBlank(groupType) && grouperProvisioningGroup != null) {
+      groupType = grouperProvisioningGroup.retrieveAttributeValueString("md_grouper_azureGroupType");
+    }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       grouperAzureGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
@@ -188,10 +193,14 @@ public class GrouperAzureGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {      
       grouperAzureGroup.setMailNickname(targetGroup.retrieveAttributeValueString("mailNickname"));
     }
+    grouperAzureGroup.setPrimarySmtpAddress(targetGroup.retrieveAttributeValueString("primarySmtpAddress"));
+    grouperAzureGroup.setOnPremisesSyncEnabled(Boolean.TRUE.equals(targetGroup.retrieveAttributeValueBoolean("onPremisesSyncEnabled")));
     if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {      
       Boolean securityEnabled = targetGroup.retrieveAttributeValueBoolean("securityEnabled");
       if (securityEnabled == null && StringUtils.equalsAny(groupType, "security", "securityMailEnabled", "unifiedSecurityEnabled")) {
         securityEnabled = true;
+      } else if (securityEnabled == null && ("distributionGroup".equals(groupType) || "unified".equals(groupType))) {
+        securityEnabled = false;
       }
       grouperAzureGroup.setSecurityEnabled(securityEnabled);
     }
@@ -272,7 +281,30 @@ public class GrouperAzureGroup {
   private AzureVisibility visibility;
   private Set<String> owners = new HashSet<String>();
 
-  public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions,groupOwners";
+  private String primarySmtpAddress;
+  private boolean onPremisesSyncEnabled;
+
+  public String getPrimarySmtpAddress() {
+    return this.primarySmtpAddress;
+  }
+
+  public void setPrimarySmtpAddress(String primarySmtpAddress) {
+    this.primarySmtpAddress = primarySmtpAddress;
+  }
+
+  public boolean isOnPremisesSyncEnabled() {
+    return this.onPremisesSyncEnabled;
+  }
+
+  public void setOnPremisesSyncEnabled(boolean onPremisesSyncEnabled) {
+    this.onPremisesSyncEnabled = onPremisesSyncEnabled;
+  }
+
+  public boolean isExchangeOnlineGroup() {
+    return this.mailEnabled && !this.groupTypeUnified;
+  }
+
+  public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,mail,onPremisesSyncEnabled,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions,groupOwners";
   
   
   public Set<String> getOwners() {
@@ -493,6 +525,8 @@ public class GrouperAzureGroup {
     grouperAzureGroup.mailEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "mailEnabled", false);
     grouperAzureGroup.isAssignableToRole = GrouperUtil.jsonJacksonGetBoolean(groupNode, "isAssignableToRole", false);
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
+    grouperAzureGroup.primarySmtpAddress = GrouperUtil.jsonJacksonGetString(groupNode, "mail");
+    grouperAzureGroup.onPremisesSyncEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "onPremisesSyncEnabled", false);
     grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", true);
     grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility", defaultVisibility));
     
@@ -556,6 +590,9 @@ public class GrouperAzureGroup {
    * @return the group
    */
   public ObjectNode toJson(Set<String> fieldNamesToSet, boolean isInsert) {
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("primarySmtpAddress")) {
+      throw new RuntimeException("primarySmtpAddress is writable only for Exchange Online groups with Exchange writes enabled");
+    }
     ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      

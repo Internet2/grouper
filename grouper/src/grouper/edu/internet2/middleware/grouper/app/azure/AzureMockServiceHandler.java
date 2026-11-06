@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
 
   private String configId;
+
+  // Mock-only Exchange properties not represented in the legacy mock table.
+  private static Map<String, ObjectNode> exchangeGroupProperties = new ConcurrentHashMap<String, ObjectNode>();
   /**
    * params to not log all of
    */
@@ -186,6 +190,22 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       this.configId = "myAzure";
     }
 
+    String[] paths = mockServiceRequest.getPostMockNamePaths();
+    if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())
+        && paths.length == 4 && StringUtils.equals(paths[0], "adminapi") && StringUtils.equals(paths[1], "beta")
+        && StringUtils.equals(paths[3], "InvokeCommand")) {
+      postExchangeCommand(mockServiceRequest, mockServiceResponse);
+      return;
+    }
+    if (StringUtils.equals("groups", paths[0]) && graphWriteToExchangeGroup(
+        mockServiceRequest.getHttpServletRequest().getMethod(), mockServiceRequest.getPostMockNamePath(),
+        StringUtils.isBlank(mockServiceRequest.getRequestBody()) ? null : GrouperUtil.jsonJacksonNode(mockServiceRequest.getRequestBody()))) {
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody("{\"error\":{\"message\":\"Mail-enabled non-Unified groups are read-only in Graph\"}}");
+      return;
+    }
+
     if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
         getGroups(mockServiceRequest, mockServiceResponse);
@@ -285,12 +305,136 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
   }
 
+  public void postExchangeCommand(MockServiceRequest request, MockServiceResponse response) {
+    checkAuthorization(request);
+    checkRequestContentType(request);
+    String tenant = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
+        "grouper.azureConnector." + this.configId + ".tenantId");
+    GrouperUtil.assertion(StringUtils.equals(tenant, request.getPostMockNamePaths()[2]), "Wrong Exchange tenant");
+    GrouperUtil.assertion(StringUtils.isNotBlank(request.getHttpServletRequest().getHeader("X-AnchorMailbox")),
+        "Exchange requires X-AnchorMailbox");
+    GrouperUtil.assertion(StringUtils.equals("json", request.getHttpServletRequest().getHeader("X-ResponseFormat")),
+        "Exchange mock requires JSON responses");
+    JsonNode input = GrouperUtil.jsonJacksonNode(request.getRequestBody()).path("CmdletInput");
+    String cmdlet = input.path("CmdletName").asText();
+    response.setContentType("application/json");
+    try {
+      response.setResponseBody(GrouperUtil.jsonJacksonToString(exchangeCommand(cmdlet, input.path("Parameters"))));
+      response.setResponseCode(200);
+    } catch (RuntimeException e) {
+      GrouperUtil.getLog(AzureMockServiceHandler.class).error("Exchange mock command failed: " + cmdlet, e);
+      ObjectNode error = GrouperUtil.jsonJacksonNode();
+      error.putObject("error").put("code", "BadRequest").put("message", e.getMessage());
+      response.setResponseCode(400);
+      response.setResponseBody(GrouperUtil.jsonJacksonToString(error));
+    }
+  }
+
+  JsonNode exchangeCommand(String cmdlet, JsonNode parameters) {
+    ObjectNode response = GrouperUtil.jsonJacksonNode();
+    ArrayNode values = response.putArray("value");
+    if (StringUtils.equals(cmdlet, "New-DistributionGroup")) {
+      GrouperUtil.assertion(StringUtils.isNotBlank(parameters.path("Name").asText()), "Name required");
+      GrouperUtil.assertion(StringUtils.isNotBlank(parameters.path("Alias").asText()), "Alias required");
+      List<GrouperAzureGroup> matches = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureGroup where mailNickname = :alias")
+          .setString("alias", parameters.path("Alias").asText()).list(GrouperAzureGroup.class);
+      GrouperUtil.assertion(matches.isEmpty(), "Exchange alias already exists");
+      GrouperAzureGroup group = newExchangeGroup(parameters);
+      applyExchangeGroupParameters(group, parameters);
+      HibernateSession.byObjectStatic().save(group);
+      ObjectNode properties = exchangeGroupProperties.get(group.getId());
+      properties.put("graphVisibleAfter", System.currentTimeMillis() + 1000L * GrouperConfig.retrieveConfig()
+          .propertyValueInt("grouperTest.azure.mock.exchangeGraphDelaySeconds", 0));
+      values.addObject().put("ExternalDirectoryObjectId", group.getId());
+      return response;
+    }
+    GrouperUtil.assertion(parameters.path("BypassSecurityGroupManagerCheck").asBoolean(),
+        "BypassSecurityGroupManagerCheck required");
+    String id = parameters.path("Identity").asText();
+    List<GrouperAzureGroup> groups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :id").setString("id", id).list(GrouperAzureGroup.class);
+    GrouperUtil.assertion(groups.size() == 1, "Exchange group not found");
+    GrouperAzureGroup group = groups.get(0);
+    GrouperUtil.assertion(group.isExchangeOnlineGroup(), "Not an Exchange distribution group");
+    if (StringUtils.equals(cmdlet, "Set-DistributionGroup")) {
+      applyExchangeGroupParameters(group, parameters);
+      HibernateSession.byObjectStatic().saveOrUpdate(group);
+    } else if (StringUtils.equals(cmdlet, "Remove-DistributionGroup")) {
+      deleteGroups(id);
+      exchangeGroupProperties.remove(id);
+    } else if (StringUtils.equalsAny(cmdlet, "Add-DistributionGroupMember", "Remove-DistributionGroupMember")) {
+      String memberId = parameters.path("Member").asText();
+      if (StringUtils.equals(cmdlet, "Add-DistributionGroupMember")) {
+        List<GrouperAzureUser> users = HibernateSession.byHqlStatic().createQuery(
+            "from GrouperAzureUser where id = :id").setString("id", memberId).list(GrouperAzureUser.class);
+        GrouperUtil.assertion(users.size() == 1 && StringUtils.isNotBlank(users.get(0).getMail()),
+            "Exchange recipient not found");
+        ObjectNode member = GrouperUtil.jsonJacksonNode();
+        member.put("@odata.id", GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig()
+            .propertyValueStringRequired("grouper.azureConnector." + this.configId + ".resourceEndpoint"))
+            + "/directoryObjects/" + memberId);
+        MultiKey result = postMembership(member, id);
+        GrouperUtil.assertion((Integer)result.getKey(0) != 400, "Recipient is already a member of the group");
+        GrouperUtil.assertion((Integer)result.getKey(0) == 204, "Exchange recipient not found");
+      } else {
+        MultiKey result = deleteMembership(memberId, id);
+        GrouperUtil.assertion((Integer)result.getKey(0) == 204, "Recipient is not a member of the group");
+      }
+    } else {
+      throw new RuntimeException("Unsupported Exchange mock cmdlet: " + cmdlet);
+    }
+    return response;
+  }
+
+  static GrouperAzureGroup newExchangeGroup(JsonNode parameters) {
+    GrouperAzureGroup group = new GrouperAzureGroup();
+    group.setId(GrouperUuid.getUuid());
+    group.setMailEnabled(true);
+    group.setSecurityEnabled("Security".equals(parameters.path("Type").asText()));
+    group.setAssignableToRole(false);
+    group.setVisibilityDb(GrouperAzureGroup.defaultVisibility);
+    return group;
+  }
+
+  private void applyExchangeGroupParameters(GrouperAzureGroup group, JsonNode parameters) {
+    if (parameters.has("DisplayName")) {
+      group.setDisplayName(parameters.path("DisplayName").asText());
+    }
+    if (parameters.has("Alias")) {
+      group.setMailNickname(parameters.path("Alias").asText());
+    }
+    if (parameters.has("Description")) {
+      group.setDescription(parameters.path("Description").isNull() ? null : parameters.path("Description").asText());
+    }
+    if (parameters.has("ManagedBy")) {
+      group.setOwners(GrouperUtil.jsonJacksonGetStringSet(parameters, "ManagedBy"));
+    }
+    ObjectNode properties = exchangeGroupProperties.get(group.getId());
+    if (properties == null) {
+      properties = GrouperUtil.jsonJacksonNode();
+      exchangeGroupProperties.put(group.getId(), properties);
+    }
+    if (parameters.has("PrimarySmtpAddress")) {
+      properties.put("mail", parameters.path("PrimarySmtpAddress").asText());
+    } else if (!properties.has("mail")) {
+      properties.put("mail", group.getMailNickname() + "@mock.onmicrosoft.com");
+    }
+  }
+
+  private boolean exchangeGraphVisible(String id) {
+    ObjectNode properties = exchangeGroupProperties.get(id);
+    return properties == null || properties.path("graphVisibleAfter").asLong() <= System.currentTimeMillis();
+  }
+
   public void checkAuthorization(MockServiceRequest mockServiceRequest) {
     String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
     if (!bearerToken.startsWith("Bearer ")) {
       throw new RuntimeException("Authorization token must start with 'Bearer '");
     }
     String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
+    boolean exchangeRequest = StringUtils.equals("adminapi", mockServiceRequest.getPostMockNamePaths()[0]);
+    GrouperUtil.assertion(exchangeRequest == authorizationToken.startsWith("exo_"), "Wrong token audience");
     
     List<GrouperAzureAuth> grouperAzureAuths = 
         HibernateSession.byHqlStatic().createQuery("from GrouperAzureAuth where accessToken = :theAccessToken").setString("theAccessToken", authorizationToken).list(GrouperAzureAuth.class);
@@ -378,6 +522,13 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       String httpMethod = GrouperUtil.jsonJacksonGetString(singleRequestNode, "method");
       String url = GrouperUtil.jsonJacksonGetString(singleRequestNode, "url");
       String id = GrouperUtil.jsonJacksonGetString(singleRequestNode, "id");
+      if (graphWriteToExchangeGroup(httpMethod, url, singleRequestNode.get("body"))) {
+        ObjectNode rejected = responsesNode.addObject();
+        rejected.put("id", id);
+        rejected.put("status", 400);
+        rejected.putObject("body").putObject("error").put("message", "Mail-enabled non-Unified groups are read-only in Graph");
+        continue;
+      }
       
       if (StringUtils.equalsIgnoreCase(httpMethod, "get")) {
         
@@ -672,6 +823,26 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   }
    
   
+  private boolean graphWriteToExchangeGroup(String method, String path, JsonNode body) {
+    if (StringUtils.equalsIgnoreCase("GET", method)) {
+      return false;
+    }
+    String[] parts = GrouperUtil.stripFirstSlashIfExists(path).split("/");
+    if (parts.length == 0 || !StringUtils.equals(parts[0], "groups")) {
+      return false;
+    }
+    if (parts.length == 1 && body != null) {
+      Set<String> types = GrouperUtil.jsonJacksonGetStringSet(body, "groupTypes");
+      return body.path("mailEnabled").asBoolean() && (types == null || !types.contains("Unified"));
+    }
+    if (parts.length > 1) {
+      List<GrouperAzureGroup> groups = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureGroup where id = :id").setString("id", parts[1]).list(GrouperAzureGroup.class);
+      return groups.size() == 1 && groups.get(0).isExchangeOnlineGroup();
+    }
+    return false;
+  }
+
   public MultiKey postGroups(JsonNode body) {
     
     JsonNode groupJsonNode = body;
@@ -1068,7 +1239,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
+      if (exchangeGraphVisible(grouperAzureGroup.getId())) {
+        valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
+      }
     }
     
     resultNode.set("value", valueNode);
@@ -1082,6 +1255,13 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     // field name), so the array is never emitted when a $select is present.  It also never includes "Dynamic".
     // Overlay the correct groupTypes array here rather than changing the shared GrouperAzureGroup.toJson.
     ObjectNode node = group.toJson(fieldsToRetrieve, true);
+    ObjectNode exchangeProperties = exchangeGroupProperties.get(group.getId());
+    if (exchangeProperties != null && (fieldsToRetrieve == null || fieldsToRetrieve.contains("mail"))) {
+      node.set("mail", exchangeProperties.path("mail"));
+    }
+    if (fieldsToRetrieve == null || fieldsToRetrieve.contains("onPremisesSyncEnabled")) {
+      node.put("onPremisesSyncEnabled", false);
+    }
     if (fieldsToRetrieve == null || fieldsToRetrieve.contains("groupTypes")) {
       List<String> types = new ArrayList<String>();
       if (group.isGroupTypeUnified()) {
@@ -1150,7 +1330,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
+      if (exchangeGraphVisible(grouperAzureGroup.getId())) {
+        valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
+      }
     }
     
     resultNode.set("value", valueNode);
@@ -1163,6 +1345,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   public MultiKey getGroup(String groupId, String fieldsToRetrieveString) {
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "id is required");
+    if (!exchangeGraphVisible(groupId)) {
+      return new MultiKey(404, null);
+    }
     
     List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup where id = :theId")
         .setString("theId", groupId).list(GrouperAzureGroup.class);
@@ -1208,6 +1393,10 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     checkRequestContentType(mockServiceRequest);
     
     String id = mockServiceRequest.getPostMockNamePaths()[1];
+    if (!exchangeGraphVisible(id)) {
+      mockServiceResponse.setResponseCode(404);
+      return;
+    }
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
@@ -1308,7 +1497,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         throw new RuntimeException("Invalid request! cert auth expecting: auth/<tenantId>/oauth2/v2.0/token");
       }
     } else {
-      if (!v1Path) {
+      if (!v1Path && !v2Path) {
         throw new RuntimeException("Invalid request! expecting: auth/<tenantId>/oauth2/token");
       }
     }
@@ -1318,12 +1507,14 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("Invalid request! client_credentials must equal 'grant_type'");
     }
 
-    if (useCertificate) {
+    boolean exchangeScope = false;
+    if (v2Path) {
       // v2.0 uses scope=<resource>/.default, not resource=
       String resourceConfig = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".resource", "https://graph.microsoft.com");
       String expectedScope = resourceConfig + (resourceConfig.endsWith("/") ? "" : "/") + ".default";
       String scopeHttp = mockServiceRequest.getHttpServletRequest().getParameter("scope");
-      if (StringUtils.isBlank(scopeHttp) || !StringUtils.equals(expectedScope, scopeHttp)) {
+      exchangeScope = StringUtils.equals(AzureGrouperExternalSystem.SCOPE_EXCHANGE_ONLINE, scopeHttp);
+      if (!StringUtils.equals(expectedScope, scopeHttp) && !exchangeScope) {
         throw new RuntimeException("Invalid request! scope: '" + scopeHttp + "' must equal '" + expectedScope + "'");
       }
     } else {
@@ -1341,14 +1532,14 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     //expires in a minute
     long expiresOnSeconds = System.currentTimeMillis()/1000 + 60;
 
-    if (useCertificate) {
+    if (v2Path) {
       // v2.0 returns expires_in (relative seconds), not expires_on
       resultNode.put("expires_in", 60);
     } else {
       resultNode.put("expires_on", expiresOnSeconds);
     }
 
-    String accessToken = GrouperUuid.getUuid();
+    String accessToken = (exchangeScope ? "exo_" : "") + GrouperUuid.getUuid();
     
     GrouperAzureAuth grouperAzureAuth = new GrouperAzureAuth();
     grouperAzureAuth.setConfigId(this.configId);

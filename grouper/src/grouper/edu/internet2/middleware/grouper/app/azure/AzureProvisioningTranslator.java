@@ -32,6 +32,9 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
         if (StringUtils.equals(attributeName, "assignableToRole")) {
           attributeName = "isAssignableToRole";
         }
+        if ("azureGroupType".equals(attributeName)) {
+          attributeName = "groupType";
+        }
         
         if (StringUtils.equals(attributeName, "visibility")) {
           

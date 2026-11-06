@@ -10,6 +10,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration {
 
   private String azureExternalSystemConfigId;
+
+  private boolean exchangeOnlineEnabled;
+
+  public boolean isExchangeOnlineEnabled() {
+    return this.exchangeOnlineEnabled;
+  }
+
+  public String getExchangeOnlineEndpoint() {
+    return this.retrieveConfigString("exchangeOnlineEndpoint", false);
+  }
+
+  public String getExchangeOnlineAnchorMailbox() {
+    return this.retrieveConfigString("exchangeOnlineAnchorMailbox", false);
+  }
   
   private boolean allowOnlyMembersToPost;
   private boolean assignableToRole;
@@ -78,6 +92,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   public void configureSpecificSettings() {
     
     this.azureExternalSystemConfigId = this.retrieveConfigString("azureExternalSystemConfigId", true);
+    this.exchangeOnlineEnabled = GrouperUtil.booleanValue(this.retrieveConfigString("exchangeOnlineEnabled", false), false);
     
     this.assignableToRole = GrouperUtil.booleanValue(this.retrieveConfigString("assignableToRole", false), false);
     this.azureGroupType = GrouperUtil.booleanValue(this.retrieveConfigString("azureGroupType", false), false);

@@ -76,6 +76,11 @@ public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisionin
       Collections.unmodifiableList(Arrays.asList(
           attrConfig("displayName"),
           attrConfig("mailNickname"),
+          attrConfig("mail"),
+          attrConfig("mailEnabled"),
+          attrConfig("securityEnabled"),
+          attrConfig("groupTypes"),
+          attrConfig("onPremisesSyncEnabled"),
           // description is a managed group attribute (Grouper writes/compares it), so capture it too
           // -- a cache-reconstructed group missing it would look changed and trigger a spurious
           // update every from-cache run. A deployment managing OTHER group attributes must add them
