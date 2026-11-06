@@ -61,11 +61,11 @@ ${grouper:title('sqlSyncConfigurationsPageTitle')}
                             <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                               
                           <c:if test="${guiSqlSyncConfiguration.sqlSyncConfiguration.enabled == true}">
-                           <li><a href="?operation=UiV2SqlSyncConfiguration.disableSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.disableSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}');">${textContainer.text['sqlSyncConfigsTableDisableActionOption'] }</a></li>
+                           <li><a href="#" onclick="ajax('../app/UiV2SqlSyncConfiguration.disableSqlSyncConfig?sqlSyncConfigId=${grouper:escapeUrl(guiSqlSyncConfiguration.sqlSyncConfiguration.configId)}'); return false;">${textContainer.text['sqlSyncConfigsTableDisableActionOption'] }</a></li>
                           </c:if>
                           
                           <c:if test="${guiSqlSyncConfiguration.sqlSyncConfiguration.enabled == false}">
-                           <li><a href="?operation=UiV2SqlSyncConfiguration.enableSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.enableSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}');">${textContainer.text['sqlSyncConfigsTableEnableActionOption'] }</a></li>
+                           <li><a href="#" onclick="ajax('../app/UiV2SqlSyncConfiguration.enableSqlSyncConfig?sqlSyncConfigId=${grouper:escapeUrl(guiSqlSyncConfiguration.sqlSyncConfiguration.configId)}'); return false;">${textContainer.text['sqlSyncConfigsTableEnableActionOption'] }</a></li>
                           </c:if>
                           
                           <li><a href="?operation=UiV2SqlSyncConfiguration.editSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.editSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}');">${textContainer.text['sqlSyncConfigsTableEditDetailsActionOption'] }</a></li>
@@ -75,7 +75,7 @@ ${grouper:title('sqlSyncConfigurationsPageTitle')}
                           </c:if> --%>
                       
                           <li>&nbsp;</li>                                  
-                          <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['sqlSyncConfigsConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2SqlSyncConfiguration.deleteSqlSyncConfig&sqlSyncConfigId=${guiSqlSyncConfiguration.sqlSyncConfiguration.configId}');}">${textContainer.text['sqlSyncConfigsTableDeleteDetailsActionOption'] }</a></li>
+                          <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['sqlSyncConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2SqlSyncConfiguration.deleteSqlSyncConfig?sqlSyncConfigId=${grouper:escapeUrl(guiSqlSyncConfiguration.sqlSyncConfiguration.configId)}'); } return false;">${textContainer.text['sqlSyncConfigsTableDeleteDetailsActionOption'] }</a></li>
                             </ul>
                         </div>
                        </td>
