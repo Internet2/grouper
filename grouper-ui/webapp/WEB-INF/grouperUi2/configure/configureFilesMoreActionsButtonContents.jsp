@@ -16,14 +16,14 @@
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
                             </li>
                              <li>
-                            <a href="#"
+                            <button type="button" class="grouper-menuitem"
                             onclick="ajax('../app/UiV2Configure.clearConfigCache', {requestParams: {configFile: $('#configListingForm').length ? $('#configFileSelect').val() : ''}}); return false;"
-                            >${textContainer.text['configurationFilesMenuClearCache'] }</a>
+                            >${textContainer.text['configurationFilesMenuClearCache'] }</button>
                             </li>
                              <li>
-                            <a href="#"
+                            <button type="button" class="grouper-menuitem"
                             onclick="ajax('../app/UiV2Configure.clearConfigCacheAllNodes', {requestParams: {configFile: $('#configListingForm').length ? $('#configFileSelect').val() : ''}}); return false;"
-                            >${textContainer.text['configurationFilesMenuClearCacheAllNodes'] }</a>
+                            >${textContainer.text['configurationFilesMenuClearCacheAllNodes'] }</button>
                             </li>
                              <li>
                             <a href="?operation=UiV2Configure.history"

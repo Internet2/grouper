@@ -100,11 +100,31 @@ public class UiV2ProvisionerConfiguration {
   }
 
   /**
-   * start diagnostics
+   * show the diagnostics settings screen.  GRP-7503: this is reached by navigation (it is in the url),
+   * so it only shows the form and never runs diagnostics.  The form runs them with diagnosticsSubmit
    * @param request
    * @param response
    */
   public void diagnostics(HttpServletRequest request, HttpServletResponse response) {
+    diagnosticsHelper(request, response, false);
+  }
+  
+  /**
+   * run diagnostics from the diagnostics settings form (ajax)
+   * @param request
+   * @param response
+   */
+  public void diagnosticsSubmit(HttpServletRequest request, HttpServletResponse response) {
+    diagnosticsHelper(request, response, true);
+  }
+  
+  /**
+   * show the diagnostics settings screen, or run diagnostics
+   * @param request
+   * @param response
+   * @param runDiagnostics true to run diagnostics with the settings from the form, false to only show the form
+   */
+  private void diagnosticsHelper(HttpServletRequest request, HttpServletResponse response, boolean runDiagnostics) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -152,7 +172,7 @@ public class UiV2ProvisionerConfiguration {
       provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
 
       String initted = request.getParameter("provisionerInitted");
-      if (!GrouperUtil.booleanValue(initted, false)) {
+      if (!runDiagnostics || !GrouperUtil.booleanValue(initted, false)) {
         
         grouperProvisioningDiagnosticsContainer.initFromConfiguration();
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

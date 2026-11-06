@@ -61,17 +61,17 @@ ${grouper:title('globalAttributeResolverConfigsPageTitle')}
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                    <c:if test="${guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.enabled == true}">
-                                      <li><a href="#" onclick="ajax('../app/UiV2GlobalAttributeResolverConfig.disableGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); return false;">${textContainer.text['globalAttributeResolverConfigsTableDisableActionOption'] }</a></li>
+                                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GlobalAttributeResolverConfig.disableGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); return false;">${textContainer.text['globalAttributeResolverConfigsTableDisableActionOption'] }</button></li>
                                    </c:if>
                                
                                <c:if test="${guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.enabled == false}">
-                                <li><a href="#" onclick="ajax('../app/UiV2GlobalAttributeResolverConfig.enableGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); return false;">${textContainer.text['globalAttributeResolverConfigsTableEnableActionOption'] }</a></li>
+                                <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GlobalAttributeResolverConfig.enableGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); return false;">${textContainer.text['globalAttributeResolverConfigsTableEnableActionOption'] }</button></li>
                                </c:if>
                                
                                <li><a href="?operation=UiV2GlobalAttributeResolverConfig.editGlobalAttributeResolverConfig&globalAttributeResolverConfigId=${guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GlobalAttributeResolverConfig.editGlobalAttributeResolverConfig&globalAttributeResolverConfigId=${guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
                                
                                   <li>&nbsp;</li>                                  
-                                   <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['globalAttributeResolverConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2GlobalAttributeResolverConfig.deleteGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); } return false;">${textContainer.text['globalAttributeResolverConfigsTableDeleteDetailsActionOption'] }</a></li>
+                                   <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['globalAttributeResolverConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2GlobalAttributeResolverConfig.deleteGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouper:escapeUrl(guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId)}'); } return false;">${textContainer.text['globalAttributeResolverConfigsTableDeleteDetailsActionOption'] }</button></li>
                                  </ul>
                                </div>
                          </td>

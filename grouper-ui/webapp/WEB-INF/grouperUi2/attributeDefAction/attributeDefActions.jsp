@@ -46,9 +46,9 @@
                               	 		onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
                               		${textContainer.text['attributeDefEditAttributeDefActionButton'] }</a>
                               	</li>                                	
-                                <li><a href="#"
-                                    onclick="ajax('../app/UiV2AttributeDefAction.deleteAttributeDefAction?attributeDefActionId=${grouper:escapeUrl(attributeAssignAction.id)}&attributeDefId=${grouper:escapeUrl(attributeAssignAction.attributeDefId)}'); return false;" class="actions-delete-attributeDefAction">
-                                  ${textContainer.text['attributeDefDeleteAttributeDefActionButton'] }</a></li>
+                                <li><button type="button" class="grouper-menuitem actions-delete-attributeDefAction"
+                                    onclick="ajax('../app/UiV2AttributeDefAction.deleteAttributeDefAction?attributeDefActionId=${grouper:escapeUrl(attributeAssignAction.id)}&attributeDefId=${grouper:escapeUrl(attributeAssignAction.attributeDefId)}'); return false;">
+                                  ${textContainer.text['attributeDefDeleteAttributeDefActionButton'] }</button></li>
                               </c:if>
                             </ul>
                           </div>

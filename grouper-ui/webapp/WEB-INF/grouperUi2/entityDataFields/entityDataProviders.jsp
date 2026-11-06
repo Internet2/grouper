@@ -62,7 +62,7 @@ ${grouper:title('miscellaneousDataProvidersBreadcrumb')}
                     <li><a href="?operation=UiV2EntityDataFields.editDataProviderConfig&dataProviderConfigId=${guiDataProviderConfiguration.grouperDataProviderConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editDataProviderConfig&dataProviderConfigId=${guiDataProviderConfiguration.grouperDataProviderConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
 
                     <li>&nbsp;</li>                                  
-                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['dataProviderConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2EntityDataFields.deleteDataProviderConfig?dataProviderConfigId=${grouper:escapeUrl(guiDataProviderConfiguration.grouperDataProviderConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</a></li>
+                    <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['dataProviderConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2EntityDataFields.deleteDataProviderConfig?dataProviderConfigId=${grouper:escapeUrl(guiDataProviderConfiguration.grouperDataProviderConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</button></li>
                     
                     
                   </ul>

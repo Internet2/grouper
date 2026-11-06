@@ -60,7 +60,7 @@ ${grouper:title('miscellaneousDataProviderChangeLogQueriesBreadcrumb')}
                     <li><a href="?operation=UiV2EntityDataFields.editDataProviderChangeLogQueryConfig&dataProviderChangeLogQueryConfigId=${guiDataProviderChangeLogQueryConfiguration.grouperDataProviderChangeLogQueryConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editDataProviderChangeLogQueryConfig&dataProviderChangeLogQueryConfigId=${guiDataProviderChangeLogQueryConfiguration.grouperDataProviderChangeLogQueryConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
 
                     <li>&nbsp;</li>                                  
-                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['dataProviderConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2EntityDataFields.deleteDataProviderChangeLogQueryConfig?dataProviderChangeLogQueryConfigId=${grouper:escapeUrl(guiDataProviderChangeLogQueryConfiguration.grouperDataProviderChangeLogQueryConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</a></li>
+                    <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['dataProviderConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2EntityDataFields.deleteDataProviderChangeLogQueryConfig?dataProviderChangeLogQueryConfigId=${grouper:escapeUrl(guiDataProviderChangeLogQueryConfiguration.grouperDataProviderChangeLogQueryConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</button></li>
                     
                     
                   </ul>

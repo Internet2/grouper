@@ -72,7 +72,7 @@ ${grouper:titleFromKeyAndText('stemEditPageTitle', grouperRequestContainer.stemC
                     </div>
                   </div>
                   <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.stemEditSubmit', {formIds: 'editStemForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</button> 
-                  <button type="button" onclick="return guiV2link('operation=UiV2Stem.viewStem?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" class="btn btn-cancel">${textContainer.text['stemCreateCancelButton'] }</button></div>
+                  <button type="button" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" class="btn btn-cancel">${textContainer.text['stemCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

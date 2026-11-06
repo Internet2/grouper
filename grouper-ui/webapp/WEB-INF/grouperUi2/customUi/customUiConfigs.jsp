@@ -61,11 +61,11 @@ ${grouper:title('customUiConfigsPageTitle')}
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
-                                <li><a href="#" onclick="ajax('../app/UiV2CustomUiConfig.disableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableDisableActionOption'] }</a></li>
+                                <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2CustomUiConfig.disableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableDisableActionOption'] }</button></li>
                                </c:if>
                                
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == false}">
-                                <li><a href="#" onclick="ajax('../app/UiV2CustomUiConfig.enableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableEnableActionOption'] }</a></li>
+                                <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2CustomUiConfig.enableCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); return false;">${textContainer.text['customUiConfigsTableEnableActionOption'] }</button></li>
                                </c:if>
                                
                                <li><a href="?operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
@@ -75,7 +75,7 @@ ${grouper:title('customUiConfigsPageTitle')}
                                </c:if>
                            
                                <li>&nbsp;</li>                                  
-                               <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['customUiConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2CustomUiConfig.deleteCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); } return false;">${textContainer.text['customUiConfigsTableDeleteDetailsActionOption'] }</a></li>
+                               <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['customUiConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2CustomUiConfig.deleteCustomUiConfig?customUiConfigId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.configId)}'); } return false;">${textContainer.text['customUiConfigsTableDeleteDetailsActionOption'] }</button></li>
                                  </ul>
                                </div>
                          </td>

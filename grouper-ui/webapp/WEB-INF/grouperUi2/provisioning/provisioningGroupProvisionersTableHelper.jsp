@@ -37,7 +37,7 @@
                            <c:if test="${grouperProvisioningAttributeValue.directAssignment == false && guiGrouperProvisioningAttributeValue.provisionable == false}">
                           
                            <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">         
-                             <li><a id="provisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" href="#" onclick="ajax('../app/UiV2Provisioning.provisioningToOnGroupSubmit?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</a></li>
+                             <li><button type="button" class="grouper-menuitem" id="provisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" onclick="ajax('../app/UiV2Provisioning.provisioningToOnGroupSubmit?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</button></li>
                            </c:if>
                           </c:if>
                           
@@ -49,12 +49,12 @@
                           </c:if>
 
                           <c:if test="${guiGrouperProvisioningAttributeValue.provisionable && guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
-                            <li><a href="#" onclick="ajax('../app/UiV2Provisioning.runGroupSync?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsRunGroupSync'] }</a></li>   
+                            <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Provisioning.runGroupSync?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsRunGroupSync'] }</button></li>   
                           </c:if>
                           
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment && guiGrouperProvisioningAttributeValue.provisionable && !guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                             <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
-                             <li><a id="doNotProvisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" href="#" onclick="ajax('../app/UiV2Provisioning.removeProvisioningOnGroup?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
+                             <li><button type="button" class="grouper-menuitem" id="doNotProvisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" onclick="ajax('../app/UiV2Provisioning.removeProvisioningOnGroup?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</button></li>
                            </c:if>
                           </c:if>
                           

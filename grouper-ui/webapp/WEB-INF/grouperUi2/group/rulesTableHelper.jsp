@@ -49,12 +49,12 @@
                           
                           <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
                             <li><br/></li>
-                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { ajax('../app/UiV2Group.deleteRuleOnGroup?groupId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.ownerGroupId)}&ruleId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.id)}'); } return false;">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { ajax('../app/UiV2Group.deleteRuleOnGroup?groupId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.ownerGroupId)}&ruleId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.id)}'); } return false;">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</button></li>
                           </c:if>
                           
                           <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
                             <li><br/></li>
-                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { ajax('../app/UiV2Stem.deleteRuleOnStem?stemId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.ownerStemId)}&ruleId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.id)}'); } return false;">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                            <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { ajax('../app/UiV2Stem.deleteRuleOnStem?stemId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.ownerStemId)}&ruleId=${grouper:escapeUrl(ruleDefinition.attributeAssignType.id)}'); } return false;">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</button></li>
                           </c:if>
                           
                          </ul>

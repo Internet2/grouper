@@ -60,17 +60,17 @@ ${grouper:title('miscellaneousWsTrustedJwtsOverallBreadcrumb')}
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                    <c:if test="${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.enabled == true}">
-                                      <li><a href="#" onclick="ajax('../app/UiV2AuthenticationConfig.disableWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); return false;">${textContainer.text['wsTrustedJwtTableDisableActionOption'] }</a></li>
+                                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2AuthenticationConfig.disableWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); return false;">${textContainer.text['wsTrustedJwtTableDisableActionOption'] }</button></li>
                                    </c:if>
                                
                                <c:if test="${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.enabled == false}">
-                                <li><a href="#" onclick="ajax('../app/UiV2AuthenticationConfig.enableWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); return false;">${textContainer.text['wsTrustedJwtTableEnableActionOption'] }</a></li>
+                                <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2AuthenticationConfig.enableWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); return false;">${textContainer.text['wsTrustedJwtTableEnableActionOption'] }</button></li>
                                </c:if>
                                
                                <li><a href="?operation=UiV2AuthenticationConfig.editWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.editWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
                                
                                   <li>&nbsp;</li>                                  
-                                   <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['wsTrustedJwtConfirmDeleteConfig']}')) { ajax('../app/UiV2AuthenticationConfig.deleteWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); } return false;">${textContainer.text['wsTrustedJwtTableDeleteDetailsActionOption'] }</a></li>
+                                   <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['wsTrustedJwtConfirmDeleteConfig']}')) { ajax('../app/UiV2AuthenticationConfig.deleteWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouper:escapeUrl(guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId)}'); } return false;">${textContainer.text['wsTrustedJwtTableDeleteDetailsActionOption'] }</button></li>
                                  </ul>
                                </div>
                          </td>

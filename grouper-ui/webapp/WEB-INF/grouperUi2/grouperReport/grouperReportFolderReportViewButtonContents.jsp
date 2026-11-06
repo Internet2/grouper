@@ -20,13 +20,13 @@
 	    <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports }">
 	      <c:choose>
 	        <c:when test="${configInstance.reportConfigBean.reportConfigEnabled}">
-	          <li><a href="#" onclick="ajax('../app/UiV2GrouperReport.changeReportConfigStatusForFolder?newStatus=disable&attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); return false;">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
+	          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GrouperReport.changeReportConfigStatusForFolder?newStatus=disable&attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); return false;">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</button></li>
 	        </c:when>
 	        <c:otherwise>
-	          <li><a href="#" onclick="ajax('../app/UiV2GrouperReport.changeReportConfigStatusForFolder?newStatus=enable&attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); return false;">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
+	          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GrouperReport.changeReportConfigStatusForFolder?newStatus=enable&attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); return false;">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</button></li>
 	        </c:otherwise>
 	      </c:choose>
-	      <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperReportConfigConfirmDeleteReportConfig']}')) { ajax('../app/UiV2GrouperReport.deleteReportConfigForFolder?attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); } return false;">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li>
+	      <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperReportConfigConfirmDeleteReportConfig']}')) { ajax('../app/UiV2GrouperReport.deleteReportConfigForFolder?attributeAssignmentMarkerId=${grouper:escapeUrl(configInstance.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}'); } return false;">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</button></li>
 	    </c:if>
     </ul>
 

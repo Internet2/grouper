@@ -194,7 +194,7 @@ ${grouper:title('miscellaneousGrouperProvisioningDiagnosticsBreadcrumb')}
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
                 <input type="hidden" name="provisionerInitted" value="true" />
                 <div class="form-actions"><button type="button" class="btn btn-primary"
-                  onclick="ajax('../app/UiV2ProvisionerConfiguration.diagnostics', {formIds: 'provisioningDiagnosticsForm'}); return false;"
+                  onclick="ajax('../app/UiV2ProvisionerConfiguration.diagnosticsSubmit', {formIds: 'provisioningDiagnosticsForm'}); return false;"
                 >${textContainer.text['provisioningDiagnosticsSubmitButton'] }</button>
                 &nbsp;
                 <a class="btn btn-cancel" role="button"

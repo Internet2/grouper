@@ -128,7 +128,7 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
                     </div>
                   </div>
                   <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupEditCompositeSubmit', {formIds: 'editGroupCompositeForm'}); return false;">${textContainer.text['groupCompositeSaveButton'] }</button> 
-                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCompositeCancelButton'] }</button></div>
+                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCompositeCancelButton'] }</button></div>
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.uuid}" />
                 </form>
               </div>

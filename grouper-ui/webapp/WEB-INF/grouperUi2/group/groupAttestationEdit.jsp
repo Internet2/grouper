@@ -197,7 +197,7 @@
           value="${textContainer.text['grouperAttestationEditButtonSave'] }"
           onclick="ajax('../app/UiV2Attestation.editGroupAttestationSave', {formIds: 'editGroupAttestationFormId'}); return false;">
           &nbsp; <a class="btn btn-cancel" role="button"
-          onclick="return guiV2link('operation=UiV2Attestation.groupAttestation?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['grouperAttestationEditButtonCancel'] }</a>
+          onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['grouperAttestationEditButtonCancel'] }</a>
         </td>
       </tr>
     </tbody>

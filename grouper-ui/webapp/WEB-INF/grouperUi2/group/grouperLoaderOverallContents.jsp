@@ -72,7 +72,7 @@
                         <li><a href="?operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
 
-                        <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
 
                         <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"

@@ -101,7 +101,7 @@ ${grouper:title('miscellaneousMcpRecipesBreadcrumb')}
                     <c:if test="${grouperRequestContainer.mcpContainer.canOperateOnMcpRecipeConfigs and guiMcpRecipeConfiguration.deletable}">
 
                       <li class="divider"></li>
-                      <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['mcpRecipesConfirmDeleteConfig']}')) { ajax('../app/UiV2Mcp.deleteMcpRecipe?mcpRecipeConfigId=${grouper:escapeUrl(mcpRecipeConfigId)}'); } return false;">${textContainer.text['mcpRecipesDeleteActionsOption'] }</a></li>
+                      <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['mcpRecipesConfirmDeleteConfig']}')) { ajax('../app/UiV2Mcp.deleteMcpRecipe?mcpRecipeConfigId=${grouper:escapeUrl(mcpRecipeConfigId)}'); } return false;">${textContainer.text['mcpRecipesDeleteActionsOption'] }</button></li>
                     </c:if>
 
                   </ul>

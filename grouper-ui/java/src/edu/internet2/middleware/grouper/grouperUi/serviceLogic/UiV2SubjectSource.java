@@ -1193,4 +1193,94 @@ public class UiV2SubjectSource {
     }
   }
   
+  /**
+   * enable subject source (sets subjectApi.source.&lt;configId&gt;.enabled to true)
+   * @param request
+   * @param response
+   */
+  public void enableSource(final HttpServletRequest request, final HttpServletResponse response) {
+    changeSourceStatus(request, true);
+  }
+  
+  /**
+   * disable subject source (sets subjectApi.source.&lt;configId&gt;.enabled to false)
+   * @param request
+   * @param response
+   */
+  public void disableSource(final HttpServletRequest request, final HttpServletResponse response) {
+    changeSourceStatus(request, false);
+  }
+  
+  /**
+   * GRP-7503: enable or disable an editable subject source, then go back to the subject source list
+   * @param request
+   * @param enable
+   */
+  private void changeSourceStatus(final HttpServletRequest request, boolean enable) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
+      
+      if (!subjectSourceContainer.isCanViewSubjectSources()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String subjectSourceId = request.getParameter("subjectSourceId");
+      
+      if (StringUtils.isBlank(subjectSourceId)) {
+        throw new RuntimeException("subjectSourceId cannot be blank");
+      }
+      
+      SubjectSourceConfiguration subjectSourceConfiguration = null;
+      
+      for (SubjectSourceConfiguration subjectSourceConfig: SubjectSourceConfiguration.retrieveAllSubjectSourceConfigurations()) {
+        GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = subjectSourceConfig.retrieveAttributes().get("id");
+        if (grouperConfigurationModuleAttribute != null 
+            && StringUtils.equals(subjectSourceId, grouperConfigurationModuleAttribute.getValueOrExpressionEvaluationValue())) {
+          subjectSourceConfiguration = subjectSourceConfig;
+          break;
+        }
+      }
+      
+      if (subjectSourceConfiguration == null) {
+        throw new RuntimeException("Could not find subject source config for source id "+subjectSourceId);
+      }
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      subjectSourceConfiguration.changeStatus(enable, message, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+        return;
+      }
+      
+      SourceManager.getInstance().reloadSource(subjectSourceId);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectSource.viewSubjectSources')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigChangeStatusSuccess")));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
 }
