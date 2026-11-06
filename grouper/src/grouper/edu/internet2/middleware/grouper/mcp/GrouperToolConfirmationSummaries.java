@@ -13,6 +13,12 @@ import org.apache.commons.lang3.Strings;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptedGroup;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+
 /**
  * what a user is shown before a write tool runs.  built by code from the arguments, never by the
  * model, so what the user approves is what is about to happen.
@@ -23,6 +29,10 @@ import com.fasterxml.jackson.databind.JsonNode;
  * the headline, so nothing that affects the call is left out, including arguments a tool gains
  * after this was written.  an institutional tool's inputs, which can be many, follow on lines of
  * their own, one per input.</p>
+ *
+ * <p>a scripted group's summary also shows the script it replaces and how many members stay, read
+ * from the group in the caller's session, and only when the caller may edit the group's script.
+ * with no session it is left out.</p>
  */
 public class GrouperToolConfirmationSummaries {
 
@@ -182,6 +192,25 @@ public class GrouperToolConfirmationSummaries {
       headline = "Add a provisioner to group " + group;
     } else if (StringUtils.equals("removeProvisioner", action)) {
       headline = "Remove a provisioner from group " + group;
+    } else if (Strings.CS.equals("setJexlScript", action)) {
+      return groupSaveSetJexlScript(arguments);
+    } else if (Strings.CS.equals("removeJexlScript", action)) {
+      // whether it is a scripted group and how many members stay, if the user may see the group's
+      // script settings
+      Group scriptedGroup = groupWhoseScriptCanBeEdited(argumentText(arguments, "groupName"));
+      group = scriptedGroupName(arguments, scriptedGroup);
+      // by the marker, as the tool decides, not by whether there is a script
+      if (scriptedGroup == null) {
+        // not known whether it is one, since the user may not see the group's script settings
+        headline = "Update group " + group + " to be a regular group, if it is a scripted group.  Its "
+            + "current members stay as direct members";
+      } else if (!GrouperAbacScriptedGroup.internal_isScriptedGroup(scriptedGroup)) {
+        headline = "Group " + group + " is not a scripted group, so nothing changes";
+      } else {
+        headline = "Update scripted group " + group + " to be a regular group.  Its "
+            + GrouperAbacScriptedGroup.internal_retrieveImmediateMemberCount(scriptedGroup)
+            + " current members stay as direct members";
+      }
     } else {
       headline = "Change group " + group + " with action " + quote(action);
     }
@@ -190,13 +219,95 @@ public class GrouperToolConfirmationSummaries {
   }
 
   /**
+   * the script is what decides the members, so it is the headline, and a change shows the script
+   * being replaced as well, since a small edit can add or remove many people
+   * @param arguments group_save arguments with action setJexlScript
+   * @return the summary
+   */
+  private static String groupSaveSetJexlScript(JsonNode arguments) {
+
+    // the tool reads a JSON null script as not given, and refuses the call
+    JsonNode scriptNode = arguments == null ? null : arguments.get("script");
+    String script = quoteScript(scriptNode == null || scriptNode.isNull() ? null : scriptNode.asText());
+
+    // only for a user who may edit the script, the same check the tool makes, so this shows nobody
+    // a script they could not see in the UI
+    Group scriptedGroup = groupWhoseScriptCanBeEdited(argumentText(arguments, "groupName"));
+    String currentScript = scriptedGroup == null ? null : GrouperAbacScriptedGroup.internal_retrieveScript(scriptedGroup);
+    String group = scriptedGroupName(arguments, scriptedGroup);
+
+    // whether it is a scripted group is decided by the marker, as removeJexlScript decides it, so a
+    // group with the marker but no script is not told it is being made one
+    String headline = null;
+    if (scriptedGroup == null) {
+      headline = "Update the script of group " + group + " to " + script;
+    } else if (!GrouperAbacScriptedGroup.internal_isScriptedGroup(scriptedGroup)) {
+      headline = "Update group " + group + " to be a scripted group, with script " + script;
+    } else if (currentScript == null) {
+      headline = "Update the script of scripted group " + group + " to " + script;
+    } else {
+      headline = "Update the script of scripted group " + group + " from " + quoteScript(currentScript)
+          + " to " + script;
+    }
+    // the tool refuses a composite and a group with another loader, so the approval does not promise
+    // member changes which will not happen.  said only to a user who may edit the script, as above
+    String otherLoaderType = scriptedGroup == null ? null : GrouperAbacScriptedGroup.internal_retrieveOtherLoaderType(scriptedGroup);
+    if (otherLoaderType != null) {
+      headline += ".  This will be refused: the group has a " + otherLoaderType;
+    } else if (scriptedGroup != null && scriptedGroup.isHasComposite()) {
+      headline += ".  This will be refused: the group is a composite";
+    } else {
+      headline += ".  Within about a minute, people the script selects are added, and direct "
+          + "members it doesn't select are removed";
+    }
+
+    return withOtherArguments(headline, arguments, "action", "groupName", "script");
+  }
+
+  /**
+   * the finder also matches a name the group used to have, and the tool acts on the group it finds,
+   * so the user is shown the name it has now
+   * @param arguments group_save arguments
+   * @param scriptedGroup the group found, or null
+   * @return the group's name, quoted, with the name given if that is different
+   */
+  private static String scriptedGroupName(JsonNode arguments, Group scriptedGroup) {
+    String groupName = argumentText(arguments, "groupName");
+    if (scriptedGroup == null || Strings.CS.equals(scriptedGroup.getName(), groupName)) {
+      return quote(groupName);
+    }
+    return quote(scriptedGroup.getName()) + " (given as " + quote(groupName) + ")";
+  }
+
+  /**
+   * @param groupName a group name from the arguments
+   * @return the group, if there is a session to look it up in and its user may edit its script,
+   * otherwise null
+   */
+  private static Group groupWhoseScriptCanBeEdited(String groupName) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null || StringUtils.isBlank(groupName)) {
+      return null;
+    }
+    Group group = GroupFinder.findByName(grouperSession, groupName, false);
+    if (group == null || !PrivilegeHelper.canEditAbacLoader(grouperSession.getSubject(), group)) {
+      return null;
+    }
+    return group;
+  }
+
+  /**
    * @param arguments attribute_assignment_save arguments
    * @return the summary
    */
   public static String attributeAssignmentSave(JsonNode arguments) {
     // which owner applies depends on attributeAssignType, so the owners are listed as given rather
-    // than one being picked here
-    String headline = "Change attribute assignments: " + quote(argumentText(arguments, "attributeAssignOperation"))
+    // than one being picked here.  left out, the tool picks the operation the way it says here
+    String operation = argumentText(arguments, "attributeAssignOperation");
+    String operationText = StringUtils.isBlank(operation)
+        ? "assign_attr (the default, or add_attr if the attribute can be assigned more than once)"
+        : quote(operation);
+    String headline = "Change attribute assignments: " + operationText
         + " attribute " + quote(argumentText(arguments, "attributeDefNameName"));
     return withOtherArguments(headline, arguments, "attributeAssignOperation", "attributeDefNameName");
   }
@@ -415,6 +526,39 @@ public class GrouperToolConfirmationSummaries {
       return "(not given)";
     }
     return "'" + escape(value, true) + "'";
+  }
+
+  /**
+   * a JEXL script, between backticks rather than single quotes: scripts are full of single quotes
+   * around group names, which quote() would show as \' everywhere.  a script almost never has a
+   * backtick, so the backtick and the backslash are escaped, which still keeps the model from
+   * closing the script early, and new lines and invisible characters are shown the way escape shows
+   * them
+   * @param script the script, may be null
+   * @return the script, between backticks and escaped, or (not given)
+   */
+  private static String quoteScript(String script) {
+    if (script == null) {
+      return "(not given)";
+    }
+    StringBuilder result = new StringBuilder(script.length() + 2);
+    result.append('`');
+    int i = 0;
+    while (i < script.length()) {
+      int codePoint = script.codePointAt(i);
+      int charCount = Character.charCount(codePoint);
+      if (codePoint == '`' || codePoint == '\\') {
+        result.append('\\').append((char)codePoint);
+      } else if (codePoint == '\n') {
+        result.append("\\n");
+      } else {
+        // escape() leaves quotes alone when told to, and shows the rest as it always does
+        result.append(escape(script.substring(i, i + charCount), false));
+      }
+      i += charCount;
+    }
+    result.append('`');
+    return result.toString();
   }
 
   /**

@@ -4,6 +4,10 @@
  */
 package edu.internet2.middleware.grouper.abac;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -18,6 +22,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -231,7 +236,12 @@ public class GrouperAbacScriptedGroupTest extends GrouperTest {
     GrouperJexlScriptAnalysis viewOnly = analyzeAsSubj0("entity.memberOf('test:viewOnly')");
     assertNotNull(viewOnly.getErrorMessage());
     assertTrue(viewOnly.getErrorMessage(), viewOnly.getErrorMessage().contains("test:viewOnly"));
-    assertFalse(checkAsSubj0("entity.memberOf('test:viewOnly')").isAllowed());
+    GrouperAbacScriptedGroup.SaveCheck viewOnlySave = checkAsSubj0("entity.memberOf('test:viewOnly')");
+    assertFalse(viewOnlySave.isAllowed());
+    assertTrue(viewOnlySave.getErrorMessage(), viewOnlySave.getErrorMessage().contains(
+        text("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToReadGroup")));
+    assertFalse(viewOnlySave.getErrorMessage(), viewOnlySave.getErrorMessage().contains(
+        text("grouperLoaderEditJexlScriptGroupNotFound")));
   }
 
   /**
@@ -308,19 +318,44 @@ public class GrouperAbacScriptedGroupTest extends GrouperTest {
   }
 
   /**
+   * analyzing a script with recentMemberOf starts keeping membership history only for the groups
+   * the user can READ.  starting it can run a full history sync of the group, so a group the user
+   * cannot read, or cannot see, gets no dependency
+   */
+  public void testRecentMemberOfHistoryOnlyForReadableGroups() {
+    createGroups();
+
+    analyzeAsSubj0("entity.recentMemberOf('test:readable', '2 days') || entity.recentMemberOf('test:viewOnly', '2 days') "
+        + "|| entity.recentMemberOf('secret:hidden', '2 days')");
+
+    assertTrue(hasMembershipHistoryAbacDependency("test:readable"));
+    assertFalse(hasMembershipHistoryAbacDependency("test:viewOnly"));
+    assertFalse(hasMembershipHistoryAbacDependency("secret:hidden"));
+  }
+
+  /**
+   * @param groupName a group name
+   * @return true if the group's members have the mshipHistory_abac cache dependency
+   */
+  private static boolean hasMembershipHistoryAbacDependency(String groupName) {
+    int count = new GcDbAccess().sql("select count(*) from grouper_sql_dependency_group_v "
+        + "where dependency_type_name = 'mshipHistory_abac' and owner_group_name = ? and owner_field_name = 'members'")
+        .addBindVar(groupName).select(int.class);
+    return count > 0;
+  }
+
+  /**
    * a script which parses but cannot be built into parts, e.g. one using a data field which does
-   * not exist, still fails the way it always has, with an exception for the log.  its message says
-   * whether a data field exists, before the privacy realm checks, so it is not shown to the user
+   * not exist, is refused with the generic invalid script message, and the detail goes to the log.
+   * its message says whether a data field exists, before the privacy realm checks, so it is not
+   * shown to the user
    */
   public void testOtherFailureNotShown() {
     createGroups();
 
-    try {
-      GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.hasAttribute('noSuchDataField')");
-      fail("expected an exception, got: " + saveCheck.getErrorMessage());
-    } catch (RuntimeException re) {
-      assertTrue(re.getMessage(), re.getMessage().contains("noSuchDataField"));
-    }
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.hasAttribute('noSuchDataField')");
+    assertFalse(saveCheck.isAllowed());
+    assertEquals(text("grouperLoaderEditJexlScriptInvalid"), saveCheck.getErrorMessage());
   }
 
   /**
@@ -337,6 +372,88 @@ public class GrouperAbacScriptedGroupTest extends GrouperTest {
     GrouperAbacScriptedGroup.SaveCheck saveCheck = checkAsSubj0("entity.memberOf('test:readable')");
     assertFalse(saveCheck.isAllowed());
     assertEquals(text("grouperLoaderEditJexlScriptComposite"), saveCheck.getErrorMessage());
+  }
+
+  /**
+   * checkScriptParses, which the save and both previews use: a script which parses comes back
+   * parsed, and one which does not is refused with the parser's message
+   */
+  public void testCheckScriptParses() {
+    createGroups();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperAbacScriptedGroup.SaveCheck parsed = GrouperAbacScriptedGroup.checkScriptParses(
+        grouperDataEngine, "entity.memberOf('test:readable')");
+    assertTrue(parsed.isAllowed());
+    assertNotNull(parsed.getGrouperJexlScriptAnalysis());
+
+    GrouperAbacScriptedGroup.SaveCheck notParsed = GrouperAbacScriptedGroup.checkScriptParses(
+        grouperDataEngine, "entity.memberOf(");
+    assertFalse(notParsed.isAllowed());
+    assertTrue(notParsed.getErrorMessage(), notParsed.getErrorMessage().startsWith(
+        text("grouperLoaderEditJexlScriptInvalid") + "\n"));
+  }
+
+  /**
+   * the save and remove: what each reports, and what is stored.  subject sources are kept only when
+   * they differ from the defaults, and removing leaves the members
+   */
+  public void testSaveAndRemoveScript() {
+    createGroups();
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.abac.globalDefaultSubjectSourceIds", "jdbc");
+    GrouperAbac.clearCaches();
+    try {
+
+      this.target.addMember(SubjectTestHelper.SUBJ3, false);
+
+      String script = "entity.memberOf('test:readable')";
+      assertEquals(SaveResultType.INSERT, GrouperAbacScriptedGroup.internal_saveScript(this.target, script, null));
+      assertTrue(GrouperAbacScriptedGroup.internal_isScriptedGroup(this.target));
+      assertEquals(script, GrouperAbacScriptedGroup.internal_retrieveScript(this.target));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(this.target));
+
+      assertEquals(SaveResultType.NO_CHANGE, GrouperAbacScriptedGroup.internal_saveScript(this.target, script, null));
+
+      String changedScript = "entity.memberOf('test:readable') && !entity.memberOf('test:viewOnly')";
+      assertEquals(SaveResultType.UPDATE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript, null));
+      assertEquals(changedScript, GrouperAbacScriptedGroup.internal_retrieveScript(this.target));
+
+      // stored sorted, so the same sources in another order are not a change
+      Set<String> sourceIds = new LinkedHashSet<String>();
+      sourceIds.add("jdbc");
+      sourceIds.add("grouperEntities");
+      assertEquals(SaveResultType.UPDATE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript, sourceIds));
+      assertEquals(sourceIds, new HashSet<String>(GrouperAbacScriptedGroup.internal_retrieveSourceIds(this.target)));
+
+      Set<String> otherOrder = new LinkedHashSet<String>();
+      otherOrder.add("grouperEntities");
+      otherOrder.add("jdbc");
+      assertEquals(SaveResultType.NO_CHANGE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript, otherOrder));
+
+      // the defaults, and an empty set, are not kept
+      assertEquals(SaveResultType.UPDATE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript,
+          new LinkedHashSet<String>(GrouperAbac.globalDefaultSubjectSourceIds())));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(this.target));
+
+      assertEquals(SaveResultType.UPDATE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript, sourceIds));
+      assertEquals(SaveResultType.UPDATE, GrouperAbacScriptedGroup.internal_saveScript(this.target, changedScript,
+          new LinkedHashSet<String>()));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(this.target));
+
+      assertEquals(SaveResultType.DELETE, GrouperAbacScriptedGroup.internal_removeScript(this.target));
+      assertFalse(GrouperAbacScriptedGroup.internal_isScriptedGroup(this.target));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(this.target));
+      assertTrue(this.target.hasImmediateMember(SubjectTestHelper.SUBJ3));
+
+      assertEquals(SaveResultType.NO_CHANGE, GrouperAbacScriptedGroup.internal_removeScript(this.target));
+
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.abac.globalDefaultSubjectSourceIds");
+      GrouperAbac.clearCaches();
+    }
   }
 
   /**

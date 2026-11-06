@@ -1967,6 +1967,22 @@ public class UiV2GrouperLoader {
         analyzeSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
       }
 
+      // a script too long to save is not parsed or counted, the same as on save
+      GrouperAbacScriptedGroup.SaveCheck lengthCheck = GrouperAbacScriptedGroup.checkScriptLength(grouperLoaderJexlScript);
+      if (!lengthCheck.isAllowed()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperLoaderJexlScriptId",
+            GrouperUtil.xmlEscape(StringUtils.defaultString(lengthCheck.getErrorMessage()))));
+        return;
+      }
+
+      // a script which cannot be parsed gets the same message as on save, rather than an exception
+      GrouperAbacScriptedGroup.SaveCheck parseCheck = GrouperAbacScriptedGroup.checkScriptParses(grouperDataEngine, grouperLoaderJexlScript);
+      if (!parseCheck.isAllowed()) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperLoaderJexlScriptId",
+            Strings.CS.replace(GrouperUtil.xmlEscape(StringUtils.defaultString(parseCheck.getErrorMessage())), "\n", "<br />")));
+        return;
+      }
+
       GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true, analyzeSourceIds, false);
 
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;

@@ -16,7 +16,11 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,24 +35,32 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptedGroup;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpGroupMembership;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
 
 /**
- * unit tests for GrouperMcpGroupSave (group_save MCP tool), renameGroup and moveGroup actions
+ * unit tests for GrouperMcpGroupSave (group_save MCP tool), renameGroup and moveGroup actions, and
+ * the scripted group actions setJexlScript, removeJexlScript and analyzeJexlScript
  *
  * @author mchyzer
  */
@@ -841,6 +853,509 @@ public class GrouperMcpGroupSaveTest extends GrouperTest {
     assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
     assertEquals("test:mcpMoveC11:mcpMoveGroup11",
         GroupFinder.findByName("test:mcpMoveB11:mcpMoveGroup11", true).getAlternateName());
+  }
+
+  /** a script for the scripted group tests: SUBJ1 is in a and not in b */
+  private static final String JEXL_SCRIPT = "entity.memberOf('test:mcpJexl:a') && !entity.memberOf('test:mcpJexl:b')";
+
+  /**
+   * groups for the scripted group tests: test:mcpJexl:target, which SUBJ0 is an admin of and which
+   * has SUBJ3 as a direct member, and the groups the script uses, test:mcpJexl:a with SUBJ1 and
+   * SUBJ2 and test:mcpJexl:b with SUBJ2, which SUBJ0 can read.  SUBJ0 has MCP readwrite.  the sql
+   * cache is synced, since that is what a script reads
+   * @return the target group
+   */
+  private Group createScriptedGroupTestGroups() {
+
+    Group target = createGroupForSubj0("test:mcpJexl:target", "target", "scripted group test");
+    target.addMember(SubjectTestHelper.SUBJ3, false);
+    // can see the group, but is not an admin of it
+    target.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ, false);
+
+    Group groupA = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:mcpJexl:a")
+        .assignCreateParentStemsIfNotExist(true).save();
+    groupA.addMember(SubjectTestHelper.SUBJ1, false);
+    groupA.addMember(SubjectTestHelper.SUBJ2, false);
+    groupA.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
+
+    Group groupB = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:mcpJexl:b")
+        .assignCreateParentStemsIfNotExist(true).save();
+    groupB.addMember(SubjectTestHelper.SUBJ2, false);
+    groupB.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
+
+    // SUBJ0 cannot see this one.  SUBJ1 is in it, so add and remove counts built from its real
+    // members would differ from ones which treat it as empty
+    Group secret = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:mcpJexl:secret")
+        .assignCreateParentStemsIfNotExist(true).save();
+    secret.addMember(SubjectTestHelper.SUBJ4, false);
+    secret.addMember(SubjectTestHelper.SUBJ1, false);
+
+    Group readwriteGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpJexlReadwriteUsers").assignCreateParentStemsIfNotExist(true).save();
+    readwriteGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperToolAccess.GROUP_READWRITE,
+        "test:mcpJexlReadwriteUsers");
+    GrouperMcpGroupMembership.clearCache();
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_sqlCacheFullSync");
+
+    return target;
+  }
+
+  /**
+   * undo the MCP readwrite setting createScriptedGroupTestGroups made
+   */
+  private void removeScriptedGroupTestAccess() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(GrouperToolAccess.GROUP_READWRITE);
+    GrouperMcpGroupMembership.clearCache();
+  }
+
+  /**
+   * @param action setJexlScript, removeJexlScript or analyzeJexlScript
+   * @param script the script, or null to leave it out
+   * @return group_save arguments for the target group
+   */
+  private ObjectNode jexlScriptArguments(String action, String script) {
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("action", action);
+    arguments.put("groupName", "test:mcpJexl:target");
+    if (script != null) {
+      arguments.put("script", script);
+    }
+    return arguments;
+  }
+
+  /**
+   * @param result a successful tool result
+   * @return its JSON
+   */
+  private JsonNode resultJson(ObjectNode result) {
+    assertFalse("Expected success, got: " + result.toString(), result.get("isError").asBoolean());
+    try {
+      return objectMapper.readTree(resultText(result));
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to parse result JSON: " + resultText(result), e);
+    }
+  }
+
+  /**
+   * preview, save, save again, preview the saved script, and remove.  the preview counts the whole
+   * script, what the sync would add and remove, and one person; a save changes no members; removing
+   * leaves the members
+   */
+  public void testJexlScriptAnalyzeSetRemove() {
+
+    Group target = createScriptedGroupTestGroups();
+    try {
+
+      ObjectNode arguments = jexlScriptArguments("analyzeJexlScript", JEXL_SCRIPT);
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ1.getId());
+      arguments.put("sourceId", "jdbc");
+      arguments.put("partCounts", true);
+      JsonNode analysis = resultJson(executeAsSubj0(arguments));
+      assertEquals(1, analysis.get("populationCount").asInt());
+      // SUBJ1 is added, SUBJ3 is removed
+      assertEquals(1, analysis.get("wouldAdd").asInt());
+      assertEquals(1, analysis.get("wouldRemove").asInt());
+      assertTrue(analysis.get("subject").get("selectedByScript").asBoolean());
+      assertTrue(analysis.get("parts").size() > 0);
+      assertNull(analysis.get("warnings"));
+      assertNull(analysis.get("cannotBeSaved"));
+
+      // without partCounts, only the whole script is counted
+      analysis = resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript", JEXL_SCRIPT)));
+      assertEquals(1, analysis.get("populationCount").asInt());
+      assertNull(analysis.get("parts"));
+      assertNotNull(analysis.get("wouldAdd"));
+
+      arguments = jexlScriptArguments("analyzeJexlScript", JEXL_SCRIPT);
+      arguments.put("membershipChanges", false);
+      analysis = resultJson(executeAsSubj0(arguments));
+      assertNull(analysis.get("wouldAdd"));
+
+      JsonNode saved = resultJson(executeAsSubj0(jexlScriptArguments("setJexlScript", JEXL_SCRIPT)));
+      assertEquals("INSERT", saved.get("resultCode").asText());
+      assertEquals(1, saved.get("populationCount").asInt());
+      assertEquals(JEXL_SCRIPT, GrouperAbacScriptedGroup.internal_retrieveScript(target));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target));
+      // the sync changes members, the save does not
+      assertTrue(target.hasImmediateMember(SubjectTestHelper.SUBJ3));
+      assertFalse(target.hasMember(SubjectTestHelper.SUBJ1));
+
+      saved = resultJson(executeAsSubj0(jexlScriptArguments("setJexlScript", JEXL_SCRIPT)));
+      assertEquals("NO_CHANGE", saved.get("resultCode").asText());
+
+      // the saved script is previewed when none is given
+      analysis = resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript", null)));
+      assertEquals(JEXL_SCRIPT, analysis.get("script").asText());
+
+      // but a blank one given is refused, not swapped for the saved script
+      for (String blankScript : new String[] {"", "   "}) {
+        ObjectNode blankResult = executeAsSubj0(jexlScriptArguments("analyzeJexlScript", blankScript));
+        assertTrue(blankResult.toString(), blankResult.get("isError").asBoolean());
+        assertTrue(resultText(blankResult), resultText(blankResult).contains("script is required"));
+      }
+
+      String changedScript = "entity.memberOf('test:mcpJexl:a')";
+      saved = resultJson(executeAsSubj0(jexlScriptArguments("setJexlScript", changedScript)));
+      assertEquals("UPDATE", saved.get("resultCode").asText());
+      assertEquals(changedScript, GrouperAbacScriptedGroup.internal_retrieveScript(target));
+
+      JsonNode removed = resultJson(executeAsSubj0(jexlScriptArguments("removeJexlScript", null)));
+      assertEquals("DELETE", removed.get("resultCode").asText());
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(target));
+      assertTrue(target.hasImmediateMember(SubjectTestHelper.SUBJ3));
+
+      removed = resultJson(executeAsSubj0(jexlScriptArguments("removeJexlScript", null)));
+      assertEquals("NO_CHANGE", removed.get("resultCode").asText());
+
+    } finally {
+      removeScriptedGroupTestAccess();
+    }
+  }
+
+  /**
+   * what saving or previewing a script is refused for, and that a refusal saves nothing
+   */
+  public void testJexlScriptRefused() {
+
+    Group target = createScriptedGroupTestGroups();
+    try {
+
+      // the group itself
+      ObjectNode result = executeAsSubj0(jexlScriptArguments("setJexlScript",
+          "entity.memberOf('test:mcpJexl:target')"));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("cannot refer to the group itself"));
+      assertTrue(resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript",
+          "entity.memberOf('test:mcpJexl:target')"))).get("cannotBeSaved").asBoolean());
+
+      // a group SUBJ0 cannot even see is refused with the same message as one which does not exist,
+      // and the preview counts nothing from it.  its member is made unresolvable, so the
+      // unresolvable subjects warning would list it if that check used the group's real members
+      new GcDbAccess().sql("update grouper_members set subject_resolution_resolvable = 'F' "
+          + "where subject_id = ? and subject_source = 'jdbc'")
+          .addBindVar(SubjectTestHelper.SUBJ4.getId()).executeSql();
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript", "entity.memberOf('test:mcpJexl:secret')"));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("test:mcpJexl:secret"));
+      assertTrue(resultText(result), resultText(result).contains("which you can read"));
+      JsonNode secretPreview = resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript",
+          "entity.memberOf('test:mcpJexl:secret')")));
+      assertEquals(0, secretPreview.get("populationCount").asInt());
+      assertNull(secretPreview.get("wouldAdd"));
+      assertTrue(secretPreview.get("warnings").toString().contains("which you can read"));
+      assertFalse(secretPreview.toString(), secretPreview.toString().contains("unresolvable"));
+      assertFalse(secretPreview.toString(), secretPreview.toString().contains(SubjectTestHelper.SUBJ4.getId()));
+
+      // a composite cannot be a scripted group, and the preview says so
+      Group composite = createGroupForSubj0("test:mcpJexl:composite", "composite", null);
+      composite.addCompositeMember(CompositeType.COMPLEMENT,
+          GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:mcpJexl:a", true),
+          GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:mcpJexl:b", true));
+      ObjectNode compositeArguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      compositeArguments.put("groupName", "test:mcpJexl:composite");
+      result = executeAsSubj0(compositeArguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("composite"));
+      compositeArguments.put("action", "analyzeJexlScript");
+      assertTrue(resultJson(executeAsSubj0(compositeArguments)).get("warnings").toString().contains("composite"));
+
+      // a group with another kind of loader is left alone
+      Group loaderGroup = createGroupForSubj0("test:mcpJexl:loaderGroup", "loaderGroup", null);
+      loaderGroup.getAttributeDelegate().assignAttributeByName(
+          GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc")
+          + ":legacy:attribute:legacyGroupType_grouperLoader");
+      ObjectNode loaderArguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      loaderArguments.put("groupName", "test:mcpJexl:loaderGroup");
+      result = executeAsSubj0(loaderArguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("SQL loader"));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(loaderGroup));
+
+      // the analysis says it cannot be saved there, but still counts what switching would do
+      loaderArguments.put("action", "analyzeJexlScript");
+      JsonNode loaderPreview = resultJson(executeAsSubj0(loaderArguments));
+      assertTrue(loaderPreview.toString(), loaderPreview.get("cannotBeSaved").asBoolean());
+      assertTrue(loaderPreview.get("warnings").toString().contains("SQL loader"));
+      assertTrue(loaderPreview.toString(), loaderPreview.has("populationCount"));
+
+      // too long to save is refused before it is parsed or counted, so a script which would not
+      // even parse gets the length message, not the parse error
+      String tooLong = text("grouperLoaderEditJexlScriptTooLong");
+      result = executeAsSubj0(jexlScriptArguments("analyzeJexlScript",
+          "entity.memberOf(" + StringUtils.repeat(" ", GrouperAbacScriptedGroup.MAX_SCRIPT_BYTES)));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains(tooLong));
+
+      // a group SUBJ0 can see but not read is refused as not readable, since they know it exists
+      Group viewOnly = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:mcpJexl:viewOnly")
+          .assignCreateParentStemsIfNotExist(true).save();
+      viewOnly.addMember(SubjectTestHelper.SUBJ4, false);
+      viewOnly.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_sqlCacheFullSync");
+      result = executeAsSubj0(jexlScriptArguments("analyzeJexlScript", "entity.memberOf('test:mcpJexl:viewOnly')"));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("test:mcpJexl:viewOnly"));
+      assertFalse(resultText(result), resultText(result).contains("which you can read"));
+
+      // a group which does not exist yet, which could later be made in a folder SUBJ0 cannot see
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript", "entity.memberOf('test:mcpJexl:notYet')"));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("test:mcpJexl:notYet"));
+      assertTrue(resultText(result), resultText(result).contains("which you can read"));
+      JsonNode preview = resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript",
+          "entity.memberOf('test:mcpJexl:notYet')")));
+      assertTrue(preview.toString(), preview.get("warnings").toString().contains("test:mcpJexl:notYet"));
+
+      // a group named by an old name it no longer has
+      Group renamed = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:mcpJexl:oldName")
+          .assignCreateParentStemsIfNotExist(true).save();
+      renamed.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
+      new GroupSave(GrouperSession.staticGrouperSession()).assignGroupNameToEdit("test:mcpJexl:oldName")
+          .assignName("test:mcpJexl:newName").assignSetAlternateNameIfRename(true)
+          .assignReplaceAllSettings(false).assignSaveMode(SaveMode.UPDATE).save();
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript", "entity.memberOf('test:mcpJexl:oldName')"));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("test:mcpJexl:oldName"));
+
+      // a script which cannot be parsed, for a save and for a preview
+      String invalid = text("grouperLoaderEditJexlScriptInvalid");
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript", "entity.memberOf("));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains(invalid));
+      result = executeAsSubj0(jexlScriptArguments("analyzeJexlScript", "entity.memberOf("));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains(invalid));
+      assertFalse(resultText(result), resultText(result).contains("GrouperLoaderJexlScriptFullSync"));
+
+      // longer than the column holds
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript",
+          JEXL_SCRIPT + StringUtils.repeat(" ", GrouperAbacScriptedGroup.MAX_SCRIPT_BYTES)));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains(tooLong));
+
+      // this Grouper does not let the sources be chosen
+      ObjectNode arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds").add("jdbc");
+      result = executeAsSubj0(arguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("subjectSourceIds"));
+
+      // a group which does not exist yet
+      arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.put("groupName", "test:mcpJexl:notThere");
+      result = executeAsSubj0(arguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("create it with createGroup"));
+
+      // SUBJ1 is not an admin of the group
+      GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ1);
+      try {
+        result = GrouperMcpGroupSave.execute(jexlScriptArguments("setJexlScript", JEXL_SCRIPT),
+            new GrouperMcpAuthUser(SubjectTestHelper.SUBJ1));
+      } finally {
+        GrouperSession.stopQuietly(session);
+      }
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("not allowed to edit the script"));
+
+      // outside the consented folders: the save is refused and the preview, a read, is not, but it
+      // says the save would be refused
+      GrouperMcpAuthUser outsideScope = oauthSubj0WithFolders("test:mcpJexlOther");
+      result = executeAsSubj0(jexlScriptArguments("setJexlScript", JEXL_SCRIPT), outsideScope);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      JsonNode outsidePreview = resultJson(executeAsSubj0(jexlScriptArguments("analyzeJexlScript", JEXL_SCRIPT), outsideScope));
+      assertTrue(outsidePreview.toString(), outsidePreview.get("cannotBeSaved").asBoolean());
+      assertTrue(outsidePreview.toString(), outsidePreview.has("populationCount"));
+
+      // nothing above was saved
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(target));
+
+      // the preview needs readwrite access, though it is a read
+      removeScriptedGroupTestAccess();
+      result = executeAsSubj0(jexlScriptArguments("analyzeJexlScript", JEXL_SCRIPT));
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("needs the same access as saving"));
+
+    } finally {
+      removeScriptedGroupTestAccess();
+    }
+  }
+
+  /**
+   * @param key a text key the checks use
+   * @return its text, which has to be there, or a comparison with a missing message would pass
+   */
+  private static String text(String key) {
+    String text = GrouperTextContainer.textOrNull(key);
+    assertNotNull(key, text);
+    return text;
+  }
+
+  /**
+   * a group cannot have its script set or removed by an alternate (old) name it has in a consented
+   * folder, or outside the built-in objects folder: execute() checks only the name as given, so these
+   * are caught by the checks on the group's real name
+   */
+  public void testJexlScriptByAlternateName() {
+
+    createScriptedGroupTestGroups();
+    try {
+
+      // its real name is outside the consented folder, its old name inside it
+      Group moved = createGroupForSubj0("test:mcpJexlSandbox:moved", "moved", null);
+      Stem hr = new StemSave(GrouperSession.staticGrouperSession())
+          .assignName("test:mcpJexlHr").assignCreateParentStemsIfNotExist(true).save();
+      new GroupMove(moved, hr).assignAlternateName(true).save();
+
+      GrouperMcpAuthUser sandboxScope = oauthSubj0WithFolders("test:mcpJexlSandbox");
+      for (String action : new String[] {"setJexlScript", "removeJexlScript"}) {
+        ObjectNode arguments = jexlScriptArguments(action, JEXL_SCRIPT);
+        arguments.put("groupName", "test:mcpJexlSandbox:moved");
+        ObjectNode result = executeAsSubj0(arguments, sandboxScope);
+        assertTrue(action + ": " + result.toString(), result.get("isError").asBoolean());
+        assertTrue(resultText(result), resultText(result).contains("test:mcpJexlHr:moved"));
+        assertTrue(resultText(result), resultText(result).contains("outside your consented read-write scope"));
+      }
+
+      // its real name is in the built-in objects folder
+      Group inEtc = createGroupForSubj0("test:mcpJexlOld:inEtc", "inEtc", null);
+      Stem etcFolder = new StemSave(GrouperSession.staticGrouperSession())
+          .assignName("etc:mcpJexlEtc").assignCreateParentStemsIfNotExist(true).save();
+      new GroupMove(inEtc, etcFolder).assignAlternateName(true).save();
+
+      for (String action : new String[] {"setJexlScript", "removeJexlScript"}) {
+        ObjectNode arguments = jexlScriptArguments(action, JEXL_SCRIPT);
+        arguments.put("groupName", "test:mcpJexlOld:inEtc");
+        ObjectNode result = executeAsSubj0(arguments);
+        assertTrue(action + ": " + result.toString(), result.get("isError").asBoolean());
+        assertTrue(resultText(result), resultText(result).contains("etc:mcpJexlEtc:inEtc"));
+      }
+
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(moved));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveScript(inEtc));
+
+    } finally {
+      removeScriptedGroupTestAccess();
+    }
+  }
+
+  /**
+   * where Grouper lets the subject sources be chosen: chosen sources are kept for the group, left
+   * out they stay as they are, the defaults or an empty array remove them, and a source which
+   * cannot be chosen is refused
+   */
+  public void testJexlScriptSubjectSourceIds() {
+
+    Group target = createScriptedGroupTestGroups();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.abac.allowUserOverrideSubjectSourceIds", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.abac.availableSubjectSourceIds", "jdbc, grouperEntities");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.abac.globalDefaultSubjectSourceIds", "jdbc");
+    GrouperAbac.clearCaches();
+    try {
+
+      Set<String> chosen = new HashSet<String>();
+      chosen.add("jdbc");
+      chosen.add("grouperEntities");
+
+      ObjectNode arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds").add("jdbc").add("grouperEntities");
+      JsonNode saved = resultJson(executeAsSubj0(arguments));
+      assertEquals("INSERT", saved.get("resultCode").asText());
+      assertEquals(chosen, new HashSet<String>(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target)));
+
+      // left out, the group keeps its sources
+      saved = resultJson(executeAsSubj0(jexlScriptArguments("setJexlScript", JEXL_SCRIPT)));
+      assertEquals("NO_CHANGE", saved.get("resultCode").asText());
+      assertEquals(chosen, new HashSet<String>(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target)));
+
+      // the same as the defaults, so nothing is kept for the group
+      arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds").add("jdbc");
+      saved = resultJson(executeAsSubj0(arguments));
+      assertEquals("UPDATE", saved.get("resultCode").asText());
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target));
+
+      // chosen again, then an empty array goes back to the defaults
+      arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds").add("grouperEntities").add("jdbc");
+      resultJson(executeAsSubj0(arguments));
+      assertEquals(chosen, new HashSet<String>(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target)));
+      arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds");
+      saved = resultJson(executeAsSubj0(arguments));
+      assertEquals("UPDATE", saved.get("resultCode").asText());
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target));
+
+      // not one of the sources which can be chosen
+      arguments = jexlScriptArguments("setJexlScript", JEXL_SCRIPT);
+      arguments.putArray("subjectSourceIds").add("jdbc").add("g:isa");
+      ObjectNode result = executeAsSubj0(arguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("cannot be chosen"));
+      assertNull(GrouperAbacScriptedGroup.internal_retrieveSourceIds(target));
+
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.abac.allowUserOverrideSubjectSourceIds");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.abac.availableSubjectSourceIds");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.abac.globalDefaultSubjectSourceIds");
+      GrouperAbac.clearCaches();
+      removeScriptedGroupTestAccess();
+    }
+  }
+
+  /**
+   * a JSON null script or sourceId is not given, rather than the text "null"
+   */
+  public void testJexlScriptNullInputs() {
+
+    createScriptedGroupTestGroups();
+    try {
+
+      ObjectNode arguments = jexlScriptArguments("setJexlScript", null);
+      arguments.putNull("script");
+      ObjectNode result = executeAsSubj0(arguments);
+      assertTrue(result.toString(), result.get("isError").asBoolean());
+      assertTrue(resultText(result), resultText(result).contains("script is required"));
+
+      resultJson(executeAsSubj0(jexlScriptArguments("setJexlScript", JEXL_SCRIPT)));
+
+      // the group's own script is previewed, and every source is searched for the person
+      arguments = jexlScriptArguments("analyzeJexlScript", null);
+      arguments.putNull("script");
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ1.getId());
+      arguments.putNull("sourceId");
+      JsonNode analysis = resultJson(executeAsSubj0(arguments));
+      assertEquals(JEXL_SCRIPT, analysis.get("script").asText());
+      assertTrue(analysis.get("subject").get("selectedByScript").asBoolean());
+
+    } finally {
+      removeScriptedGroupTestAccess();
+    }
+  }
+
+  /**
+   * the scripted group actions and their inputs are advertised
+   */
+  public void testToolDefinitionHasJexlScript() {
+
+    ObjectNode toolDef = GrouperMcpGroupSave.toolDefinition();
+    assertTrue(toolDef.get("description").asText().contains("analyzeJexlScript"));
+
+    JsonNode properties = toolDef.get("inputSchema").get("properties");
+    assertEquals("string", properties.get("script").get("type").asText());
+    assertEquals("array", properties.get("subjectSourceIds").get("type").asText());
+    assertEquals("boolean", properties.get("partCounts").get("type").asText());
+    assertEquals("boolean", properties.get("membershipChanges").get("type").asText());
+    assertNotNull(properties.get("subjectIdOrIdentifier"));
+
+    String actions = properties.get("action").get("enum").toString();
+    assertTrue(actions, actions.contains("\"setJexlScript\""));
+    assertTrue(actions, actions.contains("\"removeJexlScript\""));
+    assertTrue(actions, actions.contains("\"analyzeJexlScript\""));
   }
 
   /**

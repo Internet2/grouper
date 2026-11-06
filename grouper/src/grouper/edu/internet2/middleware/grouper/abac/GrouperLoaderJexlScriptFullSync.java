@@ -83,6 +83,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
@@ -326,16 +327,38 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
 
     if (GrouperUtil.length(grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) > 0) {
+
+      // history is kept only for a recentMemberOf group the user can READ.  starting it can run a full
+      // membership history sync of the group, in this request, so a group the user cannot read is
+      // left alone: the checks below treat it as missing or refuse it, and its counts would not use
+      // its history anyway
+      final Set<String> recentMemberOfGroupNames = grouperJexlScriptAnalysis.getRecentMemberOfGroupNames();
+      @SuppressWarnings("unchecked")
+      Set<String> readableGroupNames = (Set<String>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Set<String> readable = new HashSet<String>();
+          for (String groupName : recentMemberOfGroupNames) {
+            // found the way groupNotFoundMessage finds it: not from the finder's caches, which on
+            // another node can still hold a group under a name it no longer has, and by its current
+            // name only, since the finder also matches an old name
+            Group group = GroupFinder.findByName(grouperSession, groupName, false,
+                new QueryOptions().secondLevelCache(false));
+            if (group != null && Strings.CS.equals(group.getName(), groupName) && loggedInSubject != null
+                && group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+              readable.add(groupName);
+            }
+          }
+          return readable;
+        }
+      });
+
       Set<MultiKey> groupNamesAndFieldNames = new HashSet<>();
-      for (String groupName : grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) {
+      for (String groupName : readableGroupNames) {
         groupNamesAndFieldNames.add(new MultiKey(groupName, "members"));
       }
-      
-      // this runs before the privilege checks below, so it also starts keeping history for a
-      // recentMemberOf group the user cannot read.  that should be fixed but accepted for now: the history is only used
-      // inside the cache tables and never shown, and the nightly full sync deletes a dependency
-      // no saved script needs once it is two hours old, after which SqlCacheHistoryFullSyncDaemon
-      // deletes the history rows.  checking privileges here as well was judged not worth it
+
       Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNamesAndFieldNames).values();
       
       SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
@@ -356,6 +379,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     // bound as empty, so that check cannot list its members or show that it exists
     String wholeScriptWhereClause = null;
     List<Object> wholeScriptBindVars = null;
+
+    // the user's access to each group the script uses, "read", "view" or "none", looked up once per
+    // analysis: parts nest, so a group is in many of them.  only for this call, so a change to the
+    // group or its privileges is seen by the next analysis
+    Map<String, String> groupAccessByName = new HashMap<String, String>();
 
     int partIndex = -1;
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
@@ -393,23 +421,31 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             // checks take a little longer than a group the cache does not have, so timing many
             // analyses could still hint at it.  that is accepted: it is far weaker than the
             // message this replaces
-            String access = (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            String access = groupAccessByName.get(groupName);
+            if (access == null) {
+              access = (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                Group group = GroupFinder.findByName(grouperSession, groupName, false);
-                if (group == null) {
+                @Override
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  // not from the finder's caches, and by its current name only, as groupNotFoundMessage
+                  // does: a cached or old name could resolve to a readable group while the sql cache
+                  // row below, found by name, is another group's
+                  Group group = GroupFinder.findByName(grouperSession, groupName, false,
+                      new QueryOptions().secondLevelCache(false));
+                  if (group == null || !Strings.CS.equals(group.getName(), groupName)) {
+                    return "none";
+                  }
+                  if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+                    return "read";
+                  }
+                  if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
+                    return "view";
+                  }
                   return "none";
                 }
-                if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-                  return "read";
-                }
-                if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
-                  return "view";
-                }
-                return "none";
-              }
-            });
+              });
+              groupAccessByName.put(groupName, access);
+            }
             if (Strings.CS.equals(access, "view")) {
               String errorMessage = GrouperTextContainer.textOrNull(
                   "grouperLoaderEditJexlScriptAnalysisUserNotAllowedToReadGroup");
@@ -559,7 +595,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         wholeScriptBindVars = new ArrayList<Object>(GrouperUtil.nonNull(gcDbAccess.getBindVars()));
       }
 
-      String sql = "select count(1) from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
+      String sql = "select count(1) from grouper_members gm where " + scriptMemberCondition(sourceInSql, whereClause);
 
   //    System.out.println(script);
   //    System.out.println(sql);
@@ -1792,9 +1828,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * True when the given source id names a subject source that SourceManager knows about.
    * Used at analysis time to surface a "unknown subject source" warning next to the count
    * for a script referencing a mistyped or removed source id, matching how the memberOf
-   * handler flags a missing group.
+   * handler flags a missing group.  Also used by MCP analyzeJexlScript to refuse an unknown
+   * sourceId before looking up the person to check.
+   * @param sourceId the source id
+   * @return true if the source exists
    */
-  private static boolean subjectSourceExists(String sourceId) {
+  public static boolean subjectSourceExists(String sourceId) {
     if (StringUtils.isBlank(sourceId)) {
       return false;
     }
@@ -3200,15 +3239,15 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       allBindVars.addAll(gcDbAccess.getBindVars());
     }
 
-    String sql = "select id from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
+    String sql = "select id from grouper_members gm where " + scriptMemberCondition(sourceInSql, grouperJexlScriptSql.getWhereClause());
 
  //        System.out.println(script);
  //        System.out.println(sql);
 
     Set<String> memberIds = new HashSet<String>(gcDbAccess.bindVars(allBindVars).sql(sql).selectList(String.class));
     
-    Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
-        + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate'")
+    Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gms "
+        + "where " + IMMEDIATE_MEMBER_CONDITION)
         .addBindVar(attributeAssign.getOwnerGroupId())
         .addBindVar(Group.getDefaultList().getId())
         .selectList(String.class));
@@ -3317,6 +3356,77 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         debugMap.put("deleteExamples_count", index + 1);
       }
     }
+  }
+
+  /**
+   * the immediate memberships of a group's members list, as grouper_memberships gms, with the
+   * group id and then the members field id to bind.  the sync replaces these with who the script
+   * selects
+   */
+  static final String IMMEDIATE_MEMBER_CONDITION = "gms.owner_group_id = ? and gms.field_id = ? "
+      + "and gms.mship_type = 'immediate'";
+
+  /**
+   * what a grouper_members row, as gm, has to be to be selected by a script: from one of the
+   * script's subject sources, resolvable and not deleted, and matching the script.  the sync, the
+   * analysis counts and the membership change counts all use this, so they cannot disagree
+   * @param sourceInSql from GrouperAbac.subjectSourceInClause, its bind variables go first
+   * @param whereClause the script's where clause, its bind variables go after the source ones
+   * @return the condition
+   */
+  static String scriptMemberCondition(String sourceInSql, String whereClause) {
+    return sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( "
+        + whereClause + " )";
+  }
+
+  /**
+   * how many members the next sync would add to and remove from a group if it had this script:
+   * the same comparison the sync makes, the script's members against the group's immediate
+   * members, as two counts.  the script reads cached memberships, so this is an estimate until
+   * the sync runs.  this uses every group's real members, as the sync does, with no privilege
+   * check: the caller checks who may see the group, and that the user can READ every group the
+   * script uses (GrouperAbacScriptedGroup.groupNotFoundMessage), first
+   * @param grouperDataEngine loaded data engine
+   * @param grouperJexlScriptAnalysis the script, analyzed
+   * @param effectiveSourceIds the subject sources the script would use
+   * @param group the group
+   * @return the number that would be added, then the number that would be removed
+   */
+  public static int[] membershipChangeCounts(GrouperDataEngine grouperDataEngine,
+      GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, Set<String> effectiveSourceIds, Group group) {
+
+    GcDbAccess scriptBindVars = new GcDbAccess();
+    GrouperJexlScriptSql grouperJexlScriptSql = generateJexlSql(grouperDataEngine, scriptBindVars, grouperJexlScriptAnalysis);
+
+    MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+    String sourceInSql = (String)sourceInClause.getKey(0);
+    List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
+    String scriptCondition = scriptMemberCondition(sourceInSql, grouperJexlScriptSql.getWhereClause());
+
+    List<Object> scriptAndSourceBindVars = new ArrayList<Object>(sourceBindVars);
+    if (scriptBindVars.getBindVars() != null) {
+      scriptAndSourceBindVars.addAll(scriptBindVars.getBindVars());
+    }
+
+    // selected by the script, and not an immediate member now
+    List<Object> addBindVars = new ArrayList<Object>(scriptAndSourceBindVars);
+    addBindVars.add(group.getId());
+    addBindVars.add(Group.getDefaultList().getId());
+    int wouldAdd = new GcDbAccess().sql("select count(1) from grouper_members gm where " + scriptCondition
+        + " and not exists (select 1 from grouper_memberships gms where " + IMMEDIATE_MEMBER_CONDITION
+        + " and gms.member_id = gm.id)").bindVars(addBindVars).select(Integer.class);
+
+    // an immediate member now, and not selected by the script
+    List<Object> removeBindVars = new ArrayList<Object>();
+    removeBindVars.add(group.getId());
+    removeBindVars.add(Group.getDefaultList().getId());
+    removeBindVars.addAll(scriptAndSourceBindVars);
+    int wouldRemove = new GcDbAccess().sql("select count(1) from grouper_memberships gms where "
+        + IMMEDIATE_MEMBER_CONDITION + " and not exists (select 1 from grouper_members gm where "
+        + "gm.id = gms.member_id and " + scriptCondition + ")").bindVars(removeBindVars).select(Integer.class);
+
+    return new int[] {wouldAdd, wouldRemove};
   }
 
   public static GrouperJexlScriptSql generateJexlSql(GrouperDataEngine grouperDataEngine,

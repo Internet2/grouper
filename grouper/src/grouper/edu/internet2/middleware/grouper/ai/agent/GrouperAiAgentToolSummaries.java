@@ -108,7 +108,8 @@ public class GrouperAiAgentToolSummaries {
     summary("group_delete", "Permanently delete a group.");
 
     summary("group_save", "Create or change a group, its types, composite, eligibility "
-        + "requirements and provisioning, or rename or move it.  Only the fields given change.");
+        + "requirements and provisioning, or rename or move it.  Only the fields given change.  "
+        + "Also makes a group a scripted (JEXL) group, and previews a script first.");
 
     // sql
 

@@ -8,11 +8,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ai.agent.GrouperAiAgentToolExecution;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.mcp.GrouperTool;
 import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
 import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -86,12 +89,23 @@ public class GrouperUiAgentToolExecution implements GrouperAiAgentToolExecution 
   /**
    * @see GrouperAiAgentToolExecution#confirmationSummary(String, JsonNode)
    */
-  public String confirmationSummary(String toolName, JsonNode arguments) {
-    GrouperTool grouperTool = GrouperToolRegistry.find(toolName);
+  public String confirmationSummary(String toolName, final JsonNode arguments) {
+    final GrouperTool grouperTool = GrouperToolRegistry.find(toolName);
     if (grouperTool == null) {
       return null;
     }
-    return grouperTool.confirmationSummary(arguments);
+    // as the user, since a summary can look at what it changes, e.g. the script a scripted group
+    // has now, and must only show what the user may see
+    GrouperSession grouperSession = GrouperSession.start(this.caller.getSubject(), false);
+    try {
+      return (String)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          return grouperTool.confirmationSummary(arguments);
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /**

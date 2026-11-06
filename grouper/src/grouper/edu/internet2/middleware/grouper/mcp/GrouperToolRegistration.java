@@ -508,8 +508,16 @@ public class GrouperToolRegistration {
       public boolean availableFor(GrouperMcpAuthUser authUser) {
         return authUser.hasGroupOrFolderReadwriteScope();
       }
+      public GrouperToolCategory category(JsonNode arguments) {
+        // analyzeJexlScript previews a script and saves nothing, so the AI agent does not ask the
+        // user first.  it still needs readwrite access, which the tool checks itself
+        return GrouperMcpGroupSave.isAnalyzeJexlScript(arguments) ? GrouperToolCategory.readonly
+            : GrouperToolCategory.readwrite;
+      }
       public String confirmationSummary(JsonNode arguments) {
-        return GrouperToolConfirmationSummaries.groupSave(arguments);
+        // the same test as category, so exactly the calls which are writes get a summary
+        return GrouperMcpGroupSave.isAnalyzeJexlScript(arguments) ? null
+            : GrouperToolConfirmationSummaries.groupSave(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGroupSave.toolDefinition();

@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -34,18 +36,30 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptedGroup;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptPart;
+import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.app.grouperTypes.GdgTypeGroupSave;
 import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireConfigBean;
 import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireEngine;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignToGroupSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionableGroupSave;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * MCP tool handler for creating, updating, and managing Grouper groups.
@@ -76,6 +90,11 @@ import edu.internet2.middleware.subject.Subject;
  *   <li><b>removeEligibilityRequirement</b> - Remove an eligibility requirement from a group</li>
  *   <li><b>addProvisioner</b> - Enable provisioning of a group to a provisioning target</li>
  *   <li><b>removeProvisioner</b> - Disable provisioning of a group from a provisioning target</li>
+ *   <li><b>setJexlScript</b> - Make an existing group a scripted (JEXL) group, or change its script,
+ *       with the checks the UI's loader screen makes</li>
+ *   <li><b>removeJexlScript</b> - Stop a group being a scripted group, keeping its members</li>
+ *   <li><b>analyzeJexlScript</b> - Preview a script for a group without saving it.  A read, so it
+ *       skips the write checks, but it needs readwrite access and the same privilege as saving</li>
  * </ul>
  *
  * @author mchyzer
@@ -103,7 +122,15 @@ public class GrouperMcpGroupSave {
         + "addGroupType, removeGroupType, "
         + "addComposite, updateComposite, removeComposite, "
         + "addEligibilityRequirement, removeEligibilityRequirement, "
-        + "addProvisioner, removeProvisioner.");
+        + "addProvisioner, removeProvisioner, "
+        + "setJexlScript, removeJexlScript, analyzeJexlScript. "
+        + "A scripted (JEXL) group's members are whoever its script selects, e.g. "
+        + "entity.memberOf('a:faculty') && !entity.memberOf('a:onLeave'). setJexlScript makes an existing "
+        + "group a scripted group or changes its script; within about a minute the people the script "
+        + "selects are added and direct members it does not select are removed. Before "
+        + "setJexlScript, run analyzeJexlScript with the same script and show the user how many members "
+        + "it selects and how many would be added and removed. removeJexlScript stops a group being a "
+        + "scripted group and leaves its current members as direct members.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
@@ -128,6 +155,9 @@ public class GrouperMcpGroupSave {
     actionEnum.add("removeEligibilityRequirement");
     actionEnum.add("addProvisioner");
     actionEnum.add("removeProvisioner");
+    actionEnum.add("setJexlScript");
+    actionEnum.add("removeJexlScript");
+    actionEnum.add("analyzeJexlScript");
     actionProp.set("enum", actionEnum);
     actionProp.put("description",
         "The operation to perform. "
@@ -146,7 +176,12 @@ public class GrouperMcpGroupSave {
         + "addEligibilityRequirement = assign an eligibility requirement to restrict who can be a member. "
         + "removeEligibilityRequirement = remove an eligibility requirement from a group. "
         + "addProvisioner = enable provisioning of a group to a target. "
-        + "removeProvisioner = disable provisioning of a group from a target.");
+        + "removeProvisioner = disable provisioning of a group from a target. "
+        + "setJexlScript = make an existing group a scripted (JEXL) group, or change its script. "
+        + "removeJexlScript = stop a group being a scripted group, keeping its members. "
+        + "analyzeJexlScript = preview a script for a group without saving anything: how many members "
+        + "it selects, how many the next sync would add and remove, and optionally whether one person "
+        + "would be in it.");
     properties.set("action", actionProp);
 
     // --- groupName parameter (required for all actions) ---
@@ -297,6 +332,58 @@ public class GrouperMcpGroupSave {
         + "Used with addProvisioner and removeProvisioner.");
     properties.set("targetName", targetNameProp);
 
+    // --- parameters for setJexlScript and analyzeJexlScript ---
+    ObjectNode scriptProp = objectMapper.createObjectNode();
+    scriptProp.put("type", "string");
+    scriptProp.put("description",
+        "The JEXL script, e.g. entity.memberOf('a:faculty') && !entity.memberOf('a:onLeave'). Use single "
+        + "quotes around group names. A script cannot use the group it is for, and every group it uses "
+        + "has to exist by its current name and be readable by you. Required for setJexlScript. For "
+        + "analyzeJexlScript, defaults to the group's current script. At most 4000 bytes in UTF-8.");
+    scriptProp.put("maxLength", GrouperAbacScriptedGroup.MAX_SCRIPT_BYTES);
+    properties.set("script", scriptProp);
+
+    ObjectNode subjectSourceIdsProp = objectMapper.createObjectNode();
+    subjectSourceIdsProp.put("type", "array");
+    ObjectNode subjectSourceIdsItems = objectMapper.createObjectNode();
+    subjectSourceIdsItems.put("type", "string");
+    subjectSourceIdsProp.set("items", subjectSourceIdsItems);
+    subjectSourceIdsProp.put("description",
+        "The subject sources the script selects people from, where Grouper is set up to let them be "
+        + "chosen. Left out, the group keeps the sources it has, and a group which is not a scripted "
+        + "group yet gets the defaults. An empty array goes back to the defaults. Used with "
+        + "setJexlScript and analyzeJexlScript.");
+    properties.set("subjectSourceIds", subjectSourceIdsProp);
+
+    ObjectNode subjectIdOrIdentifierProp = objectMapper.createObjectNode();
+    subjectIdOrIdentifierProp.put("type", "string");
+    subjectIdOrIdentifierProp.put("description",
+        "A person to check: the result says whether the script selects them, and with partCounts "
+        + "which parts of the script they match. Used with analyzeJexlScript.");
+    properties.set("subjectIdOrIdentifier", subjectIdOrIdentifierProp);
+
+    ObjectNode sourceIdProp = objectMapper.createObjectNode();
+    sourceIdProp.put("type", "string");
+    sourceIdProp.put("description",
+        "The subject source of subjectIdOrIdentifier, if it could match more than one subject. Used "
+        + "with analyzeJexlScript.");
+    properties.set("sourceId", sourceIdProp);
+
+    ObjectNode partCountsProp = objectMapper.createObjectNode();
+    partCountsProp.put("type", "boolean");
+    partCountsProp.put("description",
+        "Whether to count each part of the script as well as the whole script. Each part is a query "
+        + "of its own, so this can take much longer on a big script; use it to find out why a count "
+        + "looks wrong. Defaults to false. Used with analyzeJexlScript.");
+    properties.set("partCounts", partCountsProp);
+
+    ObjectNode membershipChangesProp = objectMapper.createObjectNode();
+    membershipChangesProp.put("type", "boolean");
+    membershipChangesProp.put("description",
+        "Whether to count how many members the next sync would add and remove if the group had this "
+        + "script. Defaults to true. Used with analyzeJexlScript.");
+    properties.set("membershipChanges", membershipChangesProp);
+
     inputSchema.set("properties", properties);
 
     // both action and groupName are required for all operations
@@ -308,6 +395,36 @@ public class GrouperMcpGroupSave {
     tool.set("inputSchema", inputSchema);
 
     return tool;
+  }
+
+  /**
+   * @param arguments group_save arguments
+   * @return true if this is analyzeJexlScript, which saves nothing.  read the way execute reads the
+   * action, so the category and what runs cannot disagree
+   */
+  public static boolean isAnalyzeJexlScript(JsonNode arguments) {
+    String action = arguments != null && arguments.has("action")
+        ? arguments.get("action").asText() : null;
+    return Strings.CS.equals("analyzeJexlScript", action);
+  }
+
+  /**
+   * the error for an exception from setJexlScript, removeJexlScript or analyzeJexlScript.  the
+   * exception's message is not included: building a script's parts reads globalAttributeValue
+   * values and data field settings before the privacy realm checks run, so the message can carry
+   * what the caller may not see.  it is logged, and the stack trace goes only to those allowed to
+   * see stack traces
+   * @param action the action
+   * @param groupName the group name as given
+   * @param authUser the authenticated user
+   * @param e the exception
+   * @return the MCP error result
+   */
+  private static ObjectNode jexlScriptActionError(String action, String groupName,
+      GrouperMcpAuthUser authUser, Exception e) {
+    LOG.error("Error in group_save action '" + action + "' for group: " + groupName, e);
+    return buildErrorResult("Error in group_save action '" + action + "'.  The details are in the "
+        + "server log." + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
   }
 
   /**
@@ -338,6 +455,15 @@ public class GrouperMcpGroupSave {
     }
     if (StringUtils.isBlank(groupName)) {
       return buildErrorResult("groupName is required.");
+    }
+
+    // a read, so it is not held to the write checks below.  it has checks of its own
+    if (isAnalyzeJexlScript(arguments)) {
+      try {
+        return executeAnalyzeJexlScript(arguments, groupName, authUser);
+      } catch (Exception e) {
+        return jexlScriptActionError(action, groupName, authUser, e);
+      }
     }
 
     // block modifications to protected system groups and the etc stem
@@ -390,13 +516,21 @@ public class GrouperMcpGroupSave {
           return executeAddProvisioner(arguments, groupName);
         case "removeProvisioner":
           return executeRemoveProvisioner(arguments, groupName);
+        case "setJexlScript":
+          return executeSetJexlScript(arguments, groupName, authUser);
+        case "removeJexlScript":
+          return executeRemoveJexlScript(groupName, authUser);
         default:
           return buildErrorResult("Unknown action: " + action
               + ". Valid actions: createGroup, createOrUpdateGroup, updateGroupPart, renameGroup, "
               + "moveGroup, addGroupType, removeGroupType, addComposite, updateComposite, removeComposite, addEligibilityRequirement, "
-              + "removeEligibilityRequirement, addProvisioner, removeProvisioner.");
+              + "removeEligibilityRequirement, addProvisioner, removeProvisioner, setJexlScript, removeJexlScript, "
+              + "analyzeJexlScript.");
       }
     } catch (Exception e) {
+      if (Strings.CS.equals("setJexlScript", action) || Strings.CS.equals("removeJexlScript", action)) {
+        return jexlScriptActionError(action, groupName, authUser, e);
+      }
       LOG.error("Error in group_save action '" + action + "' for group: " + groupName, e);
       return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage()
           + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
@@ -1297,6 +1431,463 @@ public class GrouperMcpGroupSave {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
     return buildSuccessResult(resultText);
+  }
+
+  /**
+   * said with every saved script.  the save changes no members: the scripted group change log job,
+   * which runs every minute, sees the new script and recalculates the group, and the nightly full
+   * sync does it again
+   */
+  private static final String JEXL_SCRIPT_SAVED_NOTE = "Members change within about a minute, when "
+      + "the scripted group change log job runs: the people the script selects are added, and direct "
+      + "members it does not select are removed.";
+
+  /**
+   * Make an existing group a scripted (JEXL) group, or change its script.  The checks and the save
+   * are the ones the UI's loader screen uses, in GrouperAbacScriptedGroup, so a script one refuses
+   * the other refuses too.  A group with another kind of loader is refused, since switching loaders
+   * is done on the UI's loader screen.
+   *
+   * @param arguments the MCP request arguments
+   * @param groupName the fully qualified group name
+   * @param authUser the authenticated user
+   * @return the MCP tool result
+   */
+  private static ObjectNode executeSetJexlScript(JsonNode arguments, String groupName,
+      GrouperMcpAuthUser authUser) throws Exception {
+
+    String script = jexlScriptArgument(arguments, "script");
+    if (StringUtils.isBlank(script)) {
+      return buildErrorResult("script is required for setJexlScript.");
+    }
+
+    Group group = findGroupForJexlScript(groupName, authUser, true);
+    if (group == null) {
+      return jexlScriptGroupError(groupName, authUser, true);
+    }
+
+    String otherLoaderType = GrouperAbacScriptedGroup.internal_retrieveOtherLoaderType(group);
+    if (otherLoaderType != null) {
+      return buildErrorResult("Group '" + group.getName() + "' has a " + otherLoaderType + ".  A group "
+          + "has one loader, so change it to a scripted group on the group's loader screen in the UI.");
+    }
+
+    String[] sourceIdsError = new String[1];
+    Set<String> sourceIds = jexlScriptSourceIds(arguments, group, sourceIdsError);
+    if (sourceIdsError[0] != null) {
+      return buildErrorResult(sourceIdsError[0]);
+    }
+    Set<String> effectiveSourceIds = effectiveSourceIds(sourceIds);
+
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = GrouperAbacScriptedGroup.checkScriptForSave(
+        grouperDataEngine, group, script, effectiveSourceIds, subject);
+
+    if (!saveCheck.isAllowed()) {
+      return buildErrorResult("Cannot save the script for '" + group.getName() + "': "
+          + saveCheck.getErrorMessage());
+    }
+
+    SaveResultType saveResultType = GrouperAbacScriptedGroup.internal_saveScript(group, script, sourceIds);
+
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("action", "setJexlScript");
+    resultNode.put("resultCode", saveResultType.name());
+    resultNode.put("success", true);
+    resultNode.put("groupName", group.getName());
+    resultNode.put("script", script);
+    resultNode.set("subjectSourceIds", sourceIdsNode(effectiveSourceIds));
+    resultNode.put("populationCount", saveCheck.getPopulationCount());
+    resultNode.put("note", saveResultType == SaveResultType.NO_CHANGE
+        ? "The group already had this script and these subject sources, so nothing changed."
+        : JEXL_SCRIPT_SAVED_NOTE);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * Stop a group being a scripted group, as the UI's loader screen does: the marker is removed, and
+   * the script and subject sources with it.  The members are left as they are, as direct members.
+   *
+   * @param groupName the fully qualified group name
+   * @param authUser the authenticated user
+   * @return the MCP tool result
+   */
+  private static ObjectNode executeRemoveJexlScript(String groupName, GrouperMcpAuthUser authUser)
+      throws Exception {
+
+    Group group = findGroupForJexlScript(groupName, authUser, true);
+    if (group == null) {
+      return jexlScriptGroupError(groupName, authUser, true);
+    }
+
+    SaveResultType saveResultType = GrouperAbacScriptedGroup.internal_removeScript(group);
+
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("action", "removeJexlScript");
+    resultNode.put("resultCode", saveResultType.name());
+    resultNode.put("success", true);
+    resultNode.put("groupName", group.getName());
+    resultNode.put("note", saveResultType == SaveResultType.NO_CHANGE
+        ? "The group is not a scripted group, so nothing changed."
+        : "The group is no longer a scripted group.  Its members stay as direct members; remove any "
+          + "that should not stay with group_remove_member.");
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * Preview a script for a group without saving anything, the way the UI's Analyze button does:
+   * how many members the script selects, how many the next sync would add and remove, whether one
+   * person would be in it, and with partCounts the count of each part.  The analysis is read only,
+   * so it is not refused for a data field the user can read but not update.
+   *
+   * <p>This is a read, so it skips the protected resource and readwrite scope checks, but it needs
+   * MCP readwrite access, the same as saving a script, and it needs what saving needs on the group:
+   * the counts sum up groups and data fields in a way nothing else shows.</p>
+   *
+   * @param arguments the MCP request arguments
+   * @param groupName the fully qualified group name
+   * @param authUser the authenticated user
+   * @return the MCP tool result
+   */
+  private static ObjectNode executeAnalyzeJexlScript(JsonNode arguments, String groupName,
+      GrouperMcpAuthUser authUser) throws Exception {
+
+    // a read in category, so the tool layer let in a caller with readonly access only.  that is
+    // either not being in the readwrite group, or a session or token whose scope is readonly
+    if (!GrouperToolAccess.isAllowedReadwrite(authUser)) {
+      return buildErrorResult("Access denied: analyzeJexlScript needs the same access as saving a "
+          + "script: membership in the MCP readwrite group, and readwrite in the scope of this "
+          + "session or token.");
+    }
+
+    Group group = findGroupForJexlScript(groupName, authUser, false);
+    if (group == null) {
+      return jexlScriptGroupError(groupName, authUser, false);
+    }
+
+    // left out or null analyzes the group's current script.  a blank one is refused rather than
+    // quietly analyzing a different script than the one given
+    String script = jexlScriptArgument(arguments, "script");
+    if (script != null && StringUtils.isBlank(script)) {
+      return buildErrorResult("script is required for analyzeJexlScript.  Leave it out to analyze the "
+          + "group's current script.");
+    }
+    if (script == null) {
+      script = GrouperAbacScriptedGroup.internal_retrieveScript(group);
+      if (StringUtils.isBlank(script)) {
+        return buildErrorResult("Group '" + group.getName() + "' is not a scripted group, so give the "
+            + "script to analyze.");
+      }
+    }
+
+    // before anything is parsed or counted, so a script too long to save costs nothing to send
+    GrouperAbacScriptedGroup.SaveCheck lengthCheck = GrouperAbacScriptedGroup.checkScriptLength(script);
+    if (!lengthCheck.isAllowed()) {
+      return buildErrorResult(lengthCheck.getErrorMessage());
+    }
+
+    String[] sourceIdsError = new String[1];
+    Set<String> sourceIds = jexlScriptSourceIds(arguments, group, sourceIdsError);
+    if (sourceIdsError[0] != null) {
+      return buildErrorResult(sourceIdsError[0]);
+    }
+    Set<String> effectiveSourceIds = effectiveSourceIds(sourceIds);
+
+    // the person to check, found the way the UI's Analyze screen finds one
+    Subject subjectToCheck = null;
+    String subjectIdOrIdentifier = jexlScriptArgument(arguments, "subjectIdOrIdentifier");
+    String sourceId = jexlScriptArgument(arguments, "sourceId");
+    if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
+      // the finder throws for a source it does not know, rather than not finding the person
+      if (!StringUtils.isBlank(sourceId) && !GrouperLoaderJexlScriptFullSync.subjectSourceExists(sourceId)) {
+        return buildErrorResult("Unknown sourceId: '" + sourceId + "'.");
+      }
+      try {
+        subjectToCheck = StringUtils.isBlank(sourceId)
+            ? SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false)
+            : SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, false);
+      } catch (SubjectNotUniqueException snue) {
+        return buildErrorResult("'" + subjectIdOrIdentifier + "' matches more than one subject.  Give "
+            + "its sourceId as well.");
+      }
+      if (subjectToCheck == null) {
+        return buildErrorResult("Subject not found: '" + subjectIdOrIdentifier + "'.");
+      }
+    }
+
+    boolean partCounts = arguments.has("partCounts") && arguments.get("partCounts").asBoolean(false);
+    boolean membershipChanges = !arguments.has("membershipChanges")
+        || arguments.get("membershipChanges").asBoolean(true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperAbacScriptedGroup.SaveCheck parseCheck = GrouperAbacScriptedGroup.checkScriptParses(grouperDataEngine, script);
+    if (!parseCheck.isAllowed()) {
+      return buildErrorResult(parseCheck.getErrorMessage());
+    }
+
+    // this is a read, so the AI agent runs it without asking, but the analysis is the one behind the
+    // UI's Analyze button and writes two kinds of row, the same as that button always has.  this was
+    // decided on purpose, rather than changing the analysis: neither changes who is in any group or
+    // what anyone may do.  one is a grouper_members row for the person checked, if Grouper has not
+    // seen them before (MemberFinder.findBySubject with create true).  the other is a cache
+    // dependency for each group the script uses with recentMemberOf and the user can READ, so its
+    // membership history starts being kept for the cache (addMembershipHistoryAbacDependencies).
+    // that can run a full history sync of the group, so a group the user cannot read is left alone
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, subjectToCheck, subject, true, effectiveSourceIds, false, partCounts);
+
+    if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getErrorMessage())) {
+      return buildErrorResult("Cannot analyze the script for '" + group.getName() + "': "
+          + GrouperAbacScriptedGroup.plainText(grouperJexlScriptAnalysis.getErrorMessage()));
+    }
+
+    List<GrouperJexlScriptPart> parts = grouperJexlScriptAnalysis.getGrouperJexlScriptParts();
+    int populationCount = GrouperUtil.length(parts) > 0 ? parts.get(0).getPopulationCount() : 0;
+
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("action", "analyzeJexlScript");
+    resultNode.put("success", true);
+    resultNode.put("groupName", group.getName());
+    resultNode.put("script", script);
+    resultNode.set("subjectSourceIds", sourceIdsNode(effectiveSourceIds));
+    resultNode.put("populationCount", populationCount);
+
+    // what saving this script would be refused for, said here so it is not a surprise later.  the
+    // wording is the save's
+    ArrayNode warnings = objectMapper.createArrayNode();
+    // setJexlScript also refuses a protected group, and for OAuth one outside the readwrite scope, by
+    // the name given and by its real name.  analyze is a read, so it does not refuse these, but says so
+    if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)
+        || GrouperMcpProtectedResources.isProtectedGroupName(group.getName())) {
+      warnings.add(GrouperMcpProtectedResources.buildProtectedGroupError(group.getName()));
+    } else if (authUser.isOAuthAuthenticated()
+        && (!authUser.isGroupInReadwriteScope(groupName)
+            || !authUser.isGroupInReadwriteScope(group.getName(), group.getUuid()))) {
+      warnings.add(authUser.buildReadwriteScopeDeniedError("group", group.getName()));
+    }
+    // setJexlScript refuses a group with another loader.  the counts are still kept: they are what
+    // switching the group to this script on the UI's loader screen would do
+    String otherLoaderType = GrouperAbacScriptedGroup.internal_retrieveOtherLoaderType(group);
+    if (otherLoaderType != null) {
+      warnings.add("Group '" + group.getName() + "' has a " + otherLoaderType + ".  A group has one "
+          + "loader, so change it to a scripted group on the group's loader screen in the UI.");
+    }
+    if (group.isHasComposite()) {
+      warnings.add(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptComposite"));
+    }
+    if (GrouperAbacScriptedGroup.refersToGroup(grouperJexlScriptAnalysis, group)) {
+      warnings.add(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptRefersToItself"));
+    }
+    if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getWarningMessage())) {
+      warnings.add(GrouperAbacScriptedGroup.plainText(grouperJexlScriptAnalysis.getWarningMessage()));
+    }
+    String groupNotFoundMessage = GrouperAbacScriptedGroup.groupNotFoundMessage(grouperJexlScriptAnalysis, subject);
+    if (groupNotFoundMessage != null) {
+      warnings.add(groupNotFoundMessage);
+    }
+    Integer maxMembers = GrouperAbac.maxAbacMembershipSizeForSubject(subject);
+    if (maxMembers != null && populationCount > maxMembers.intValue()) {
+      warnings.add(GrouperAbacScriptedGroup.tooManyMembersMessage(populationCount, maxMembers.intValue()));
+    }
+    if (warnings.size() > 0) {
+      resultNode.put("cannotBeSaved", true);
+      resultNode.set("warnings", warnings);
+    }
+
+    if (subjectToCheck != null) {
+      ObjectNode subjectNode = objectMapper.createObjectNode();
+      subjectNode.put("subjectId", subjectToCheck.getId());
+      subjectNode.put("sourceId", subjectToCheck.getSourceId());
+      subjectNode.put("selectedByScript", GrouperUtil.length(parts) > 0 && parts.get(0).isContainsSubject());
+      resultNode.set("subject", subjectNode);
+    }
+
+    // not for a script using a group the user cannot use: the counts are built the way the sync
+    // builds them, with each group's real members, so they would count members of a group the
+    // analysis treated as empty because the user cannot see it
+    if (membershipChanges && groupNotFoundMessage == null) {
+      int[] changeCounts = GrouperLoaderJexlScriptFullSync.membershipChangeCounts(grouperDataEngine,
+          grouperJexlScriptAnalysis, effectiveSourceIds, group);
+      resultNode.put("wouldAdd", changeCounts[0]);
+      resultNode.put("wouldRemove", changeCounts[1]);
+    }
+
+    if (partCounts) {
+      // the rows the UI's analysis table shows, which leaves out a not inside a bigger part, since
+      // its count is of the part without the not
+      ArrayNode partsNode = objectMapper.createArrayNode();
+      for (GrouperJexlScriptPart part : GrouperUtil.nonNull(parts)) {
+        if (part.isHideFromAnalysisTable()) {
+          continue;
+        }
+        ObjectNode partNode = objectMapper.createObjectNode();
+        partNode.put("description", GrouperAbacScriptedGroup.plainText(part.getDisplayDescription().toString()));
+        partNode.put("populationCount", part.getPopulationCount());
+        if (subjectToCheck != null) {
+          partNode.put("subjectMatches", part.isContainsSubject());
+        }
+        partsNode.add(partNode);
+      }
+      resultNode.set("parts", partsNode);
+    }
+
+    resultNode.put("note", "Nothing was saved.  The script reads cached memberships, so the counts "
+        + "are an estimate until the group is next recalculated."
+        + (partCounts ? "" : "  Only the whole script was counted; give partCounts true for each part."));
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * Find the group for a scripted group action, as the authenticated user, and check that they may
+   * edit its script: wheel, or ADMIN on the group and membership in grouper.abac.edit.if.in.group
+   * if that is set.  For a write, the protected resource and readwrite scope checks execute() ran
+   * on the name as typed are run again on the group's real name, since the finder also matches a
+   * name the group used to have.
+   *
+   * @param groupName the name as given
+   * @param authUser the authenticated user
+   * @param write true for setJexlScript and removeJexlScript
+   * @return the group, or null if it was not found or any check failed; jexlScriptGroupError says why
+   */
+  private static Group findGroupForJexlScript(String groupName, GrouperMcpAuthUser authUser, boolean write) {
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+    if (group == null) {
+      return null;
+    }
+    if (write) {
+      if (GrouperMcpProtectedResources.isProtectedGroupName(group.getName())) {
+        return null;
+      }
+      if (authUser.isOAuthAuthenticated()
+          && !authUser.isGroupInReadwriteScope(group.getName(), group.getUuid())) {
+        return null;
+      }
+    }
+    if (!PrivilegeHelper.canEditAbacLoader(GrouperSession.staticGrouperSession().getSubject(), group)) {
+      return null;
+    }
+    return group;
+  }
+
+  /**
+   * @param groupName the name as given
+   * @param authUser the authenticated user
+   * @param write true for setJexlScript and removeJexlScript
+   * @return why findGroupForJexlScript gave null, checked in the same order
+   */
+  private static ObjectNode jexlScriptGroupError(String groupName, GrouperMcpAuthUser authUser, boolean write) {
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+    if (group == null) {
+      return buildErrorResult("Group '" + groupName + "' was not found, or you cannot see it.  A "
+          + "scripted group has to exist first: create it with createGroup.");
+    }
+    if (write && GrouperMcpProtectedResources.isProtectedGroupName(group.getName())) {
+      return buildErrorResult(GrouperMcpProtectedResources.buildProtectedGroupError(group.getName()));
+    }
+    if (write && authUser.isOAuthAuthenticated()
+        && !authUser.isGroupInReadwriteScope(group.getName(), group.getUuid())) {
+      return buildErrorResult(authUser.buildReadwriteScopeDeniedError("group", group.getName()));
+    }
+    return buildErrorResult("You are not allowed to edit the script of '" + group.getName() + "': "
+        + "that needs ADMIN on the group, and membership in the scripted group editors group if "
+        + "Grouper has one (grouper.abac.edit.if.in.group).");
+  }
+
+  /**
+   * Read subjectSourceIds.  Left out, the group's own sources are kept; an empty array is the
+   * defaults; otherwise each source has to be one Grouper lets people choose, as the UI's picker
+   * offers them.
+   *
+   * @param arguments the MCP request arguments
+   * @param group the group
+   * @param error set to what is wrong, if anything
+   * @return the sources to keep for the group, or null for the defaults
+   */
+  private static Set<String> jexlScriptSourceIds(JsonNode arguments, Group group, String[] error) {
+
+    if (!arguments.has("subjectSourceIds") || arguments.get("subjectSourceIds").isNull()) {
+      return GrouperAbacScriptedGroup.internal_retrieveSourceIds(group);
+    }
+
+    JsonNode sourceIdsNode = arguments.get("subjectSourceIds");
+    if (!sourceIdsNode.isArray()) {
+      error[0] = "subjectSourceIds must be an array of subject source ids.";
+      return null;
+    }
+    if (sourceIdsNode.size() == 0) {
+      return null;
+    }
+
+    Set<String> available = GrouperAbac.availableSubjectSourceIds();
+    if (!GrouperAbac.allowUserOverrideSubjectSourceIds() || GrouperUtil.length(available) == 0) {
+      error[0] = "This Grouper does not let the subject sources of a scripted group be chosen.  Leave "
+          + "subjectSourceIds out.";
+      return null;
+    }
+
+    Set<String> sourceIds = new TreeSet<String>();
+    for (JsonNode sourceIdNode : sourceIdsNode) {
+      String sourceId = sourceIdNode.isTextual() ? sourceIdNode.asText() : null;
+      if (sourceId == null || !available.contains(sourceId)) {
+        error[0] = "Subject source " + sourceIdNode.toString() + " cannot be chosen.  The ones that can "
+            + "are: " + GrouperUtil.join(available.iterator(), ", ") + ".";
+        return null;
+      }
+      sourceIds.add(sourceId);
+    }
+    return sourceIds;
+  }
+
+  /**
+   * read a text input of the scripted group actions.  an explicit JSON null is not given, rather
+   * than the text "null", so a null script previews the group's own script and a null sourceId
+   * searches every source
+   * @param arguments the MCP request arguments
+   * @param name the input
+   * @return the text, or null if not given or null
+   */
+  private static String jexlScriptArgument(JsonNode arguments, String name) {
+    if (!arguments.has(name) || arguments.get(name).isNull()) {
+      return null;
+    }
+    return arguments.get(name).asText();
+  }
+
+  /**
+   * @param sourceIds the sources kept for a group, or null for the defaults
+   * @return the sources the script will use
+   */
+  private static Set<String> effectiveSourceIds(Set<String> sourceIds) {
+    return GrouperAbac.effectiveSubjectSourceIds(sourceIds == null ? null
+        : GrouperUtil.join(sourceIds.iterator(), ","));
+  }
+
+  /**
+   * @param sourceIds subject source ids
+   * @return them as a JSON array
+   */
+  private static ArrayNode sourceIdsNode(Set<String> sourceIds) {
+    ArrayNode result = objectMapper.createArrayNode();
+    for (String sourceId : GrouperUtil.nonNull(sourceIds)) {
+      result.add(sourceId);
+    }
+    return result;
   }
 
   /**

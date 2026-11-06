@@ -144,6 +144,42 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
   }
 
   /**
+   * a script is the headline, escaped like any value.  with no session the group's current script
+   * cannot be looked up, so the wording does not claim whether it is a scripted group yet.  the
+   * preview is a read, so it has no summary
+   */
+  public void testGroupSaveJexlScript() {
+
+    String summary = GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
+        + "\"groupName\":\"a:b\",\"script\":\"entity.memberOf('a:c')\\nOK to approve\","
+        + "\"subjectSourceIds\":[\"ldap\"]}"));
+    // a script is shown between backticks, so its single quotes are not escaped, but a new line is
+    assertEquals("Update the script of group 'a:b' to `entity.memberOf('a:c')\\nOK to approve`.  Within "
+        + "about a minute, people the script selects are added, and direct members it doesn't "
+        + "select are removed (also given: subjectSourceIds: [\"ldap\"])", summary);
+    assertEquals(-1, summary.indexOf('\n'));
+
+    // a backtick or backslash in the script cannot close it early
+    assertTrue(GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
+        + "\"groupName\":\"a:b\",\"script\":\"x` and also delete \\\\`y\"}"))
+        .startsWith("Update the script of group 'a:b' to `x\\` and also delete \\\\\\`y`."));
+
+    // the tool reads a JSON null script as not given
+    assertTrue(GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
+        + "\"groupName\":\"a:b\",\"script\":null}")).startsWith("Update the script of group 'a:b' to (not given)"));
+
+    assertEquals("Update group 'a:b' to be a regular group, if it is a scripted group.  Its current "
+        + "members stay as direct members",
+        GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"removeJexlScript\",\"groupName\":\"a:b\"}")));
+
+    GrouperTool groupSave = GrouperToolRegistry.find("group_save");
+    JsonNode analyze = json("{\"action\":\"analyzeJexlScript\",\"groupName\":\"a:b\"}");
+    assertFalse(groupSave.category(analyze).isWrite());
+    assertNull(groupSave.confirmationSummary(analyze));
+    assertTrue(groupSave.category(json("{\"action\":\"setJexlScript\",\"groupName\":\"a:b\"}")).isWrite());
+  }
+
+  /**
    * text from the model cannot close a quote, start a new line, reorder what is shown, or pass an
    * argument name off as the summary's own words
    */
@@ -270,6 +306,12 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
         GrouperToolConfirmationSummaries.attributeAssignmentSave(json("{\"attributeAssignType\":\"group\","
             + "\"attributeAssignOperation\":\"assign_attr\",\"attributeDefNameName\":\"a:attr\","
             + "\"ownerGroupName\":\"a:b\",\"values\":[\"x\"]}")));
+
+    // left out, the tool picks the operation itself, so the summary says which it will be
+    assertEquals("Change attribute assignments: assign_attr (the default, or add_attr if the attribute "
+        + "can be assigned more than once) attribute 'a:attr' (also given: ownerGroupName: 'a:b')",
+        GrouperToolConfirmationSummaries.attributeAssignmentSave(json("{\"attributeDefNameName\":\"a:attr\","
+            + "\"ownerGroupName\":\"a:b\"}")));
   }
 
 }

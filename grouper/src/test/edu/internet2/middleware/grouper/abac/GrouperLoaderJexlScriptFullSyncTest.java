@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
@@ -535,6 +536,13 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
       assertTrue("expected message to mention globalAttributeValues plural, got: " + expected.getMessage(),
           expected.getMessage().contains("globalAttributeValues"));
     }
+
+    // the save and preview check refuses it with the generic message only: that message is built
+    // before the privacy realm checks, and messages like it can carry a global field's value
+    GrouperAbacScriptedGroup.SaveCheck parseCheck = GrouperAbacScriptedGroup.checkScriptParses(grouperDataEngine,
+        "entity.hasAttribute('jobNumber', globalAttributeValue('jobNumber'))");
+    assertFalse(parseCheck.isAllowed());
+    assertEquals(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptInvalid"), parseCheck.getErrorMessage());
 
     // globalAttributeValues on an unknown alias (not a configured data field) must throw at analysis time
     try {

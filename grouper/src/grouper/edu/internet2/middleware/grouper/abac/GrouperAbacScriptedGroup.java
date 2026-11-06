@@ -5,6 +5,8 @@
 package edu.internet2.middleware.grouper.abac;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,12 +14,16 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -32,6 +38,7 @@ import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -47,6 +54,9 @@ import edu.internet2.middleware.subject.Subject;
  * checking anything start with internal_, so a call with no check before it stands out.</p>
  */
 public class GrouperAbacScriptedGroup {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperAbacScriptedGroup.class);
 
   /**
    * a script is kept in an attribute value, which is a varchar(4000) column.  counted in UTF-8
@@ -108,6 +118,22 @@ public class GrouperAbacScriptedGroup {
   }
 
   /**
+   * check that a script fits in MAX_SCRIPT_BYTES.  the script is kept in a varchar(4000) column,
+   * which oracle counts in bytes.  the save and both Analyze paths (UI and MCP) call this before
+   * parsing, so a script too long to save is never parsed or counted
+   * @param script the script, not blank
+   * @return what was found
+   */
+  public static SaveCheck checkScriptLength(String script) {
+    SaveCheck saveCheck = new SaveCheck();
+    if (script.getBytes(StandardCharsets.UTF_8).length > MAX_SCRIPT_BYTES) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptTooLong");
+    }
+    return saveCheck;
+  }
+
+  /**
    * the checks the UI makes before it saves a script, in its order: a script is given, it fits in
    * MAX_SCRIPT_BYTES, the group is not a composite, GrouperAbac.validScript finds nothing wrong
    * and the script can be parsed, the script does not use the group it is for, the analysis in
@@ -140,11 +166,9 @@ public class GrouperAbacScriptedGroup {
       return saveCheck;
     }
 
-    // the script is kept in a varchar(4000) column, which oracle counts in bytes
-    if (script.getBytes(StandardCharsets.UTF_8).length > MAX_SCRIPT_BYTES) {
-      saveCheck.allowed = false;
-      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptTooLong");
-      return saveCheck;
+    SaveCheck lengthCheck = checkScriptLength(script);
+    if (!lengthCheck.isAllowed()) {
+      return lengthCheck;
     }
 
     // a composite's members come from its factors.  the sync adds and removes members directly,
@@ -155,39 +179,14 @@ public class GrouperAbacScriptedGroup {
       return saveCheck;
     }
 
-    // the script has to parse.  only the parser's own error is shown.  the rest of building the
-    // script's parts can fail too, with messages about data fields (whether one exists, its type,
-    // whether the global group has values for it) before the privacy realm checks run, or with a
-    // database error, so those propagate as they always have: to the log and a generic error
-    GrouperJexlScriptAnalysis parsedScript = null;
-    String invalidMessage = GrouperAbac.validScript(script, grouperDataEngine);
-    if (StringUtils.isBlank(invalidMessage)) {
-      try {
-        parsedScript = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine, script);
-      } catch (JexlException jexlException) {
-        // JEXL starts its message with where it was called from in Grouper and a line and column,
-        // e.g. GrouperLoaderJexlScriptFullSync.analyzeJexlScript:685@1:17.  the place in Grouper
-        // is the same for every script, and the line and column count from the script after it
-        // was trimmed and joined onto one line, so neither helps the user find the problem.  just
-        // the parser's description is shown
-        invalidMessage = jexlException.getMessage();
-        JexlInfo jexlInfo = jexlException.getInfo();
-        if (invalidMessage != null && jexlInfo != null) {
-          invalidMessage = StringUtils.trim(Strings.CS.removeStart(invalidMessage, jexlInfo.toString()));
-        }
-        invalidMessage = StringUtils.defaultIfBlank(invalidMessage, jexlException.getClass().getSimpleName());
-      }
-    }
-    if (!StringUtils.isBlank(invalidMessage)) {
-      saveCheck.allowed = false;
-      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptInvalid")
-          + "\n" + invalidMessage;
-      return saveCheck;
+    SaveCheck parseCheck = checkScriptParses(grouperDataEngine, script);
+    if (!parseCheck.isAllowed()) {
+      return parseCheck;
     }
 
-    // before the analysis, which counts every part.  a group made of its own members either does
+    // before the analysis, which runs count queries.  a group made of its own members either does
     // nothing, only ever grows, or with a not flips its members on every sync
-    if (refersToGroup(parsedScript, group)) {
+    if (refersToGroup(parseCheck.getGrouperJexlScriptAnalysis(), group)) {
       saveCheck.allowed = false;
       saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptRefersToItself");
       return saveCheck;
@@ -223,15 +222,96 @@ public class GrouperAbacScriptedGroup {
       Integer maxMembers = GrouperAbac.maxAbacMembershipSizeForSubject(loggedInSubject);
       if (maxMembers != null && saveCheck.populationCount > maxMembers.intValue()) {
         saveCheck.allowed = false;
-        String message = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptMaxSizeExceeded");
-        message = Strings.CS.replace(message, "##count##", String.valueOf(saveCheck.populationCount));
-        message = Strings.CS.replace(message, "##max##", String.valueOf(maxMembers.intValue()));
-        saveCheck.errorMessage = message;
+        saveCheck.errorMessage = tooManyMembersMessage(saveCheck.populationCount, maxMembers.intValue());
         return saveCheck;
       }
     }
 
     return saveCheck;
+  }
+
+  /**
+   * @param populationCount how many members a script selects
+   * @param maxMembers the most members the user may give a scripted group
+   * @return the refusal, in words
+   */
+  public static String tooManyMembersMessage(int populationCount, int maxMembers) {
+    String message = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptMaxSizeExceeded");
+    message = Strings.CS.replace(message, "##count##", String.valueOf(populationCount));
+    return Strings.CS.replace(message, "##max##", String.valueOf(maxMembers));
+  }
+
+  /**
+   * check that a script parses, for a save or a preview.  only the parser's own error is shown.
+   * the rest of building the script's parts can fail too, before the privacy realm checks run, and
+   * its messages can carry what the user may not be allowed to see: a globalAttributeValue is read
+   * while the parts are built, so a value which is not a number comes back as the text of a
+   * NumberFormatException, and others say whether a data field is multi-valued or assigned.  those
+   * go to the log, and the user gets the generic invalid script message.  a database error, a
+   * GrouperDAOException or anything with a SQLException as a cause, is thrown as it is, to the
+   * generic error, since it is not the script's fault
+   * @param grouperDataEngine loaded data engine
+   * @param script the script
+   * @return what was found, with the parsed script as the analysis if it parses
+   */
+  public static SaveCheck checkScriptParses(GrouperDataEngine grouperDataEngine, String script) {
+
+    SaveCheck saveCheck = new SaveCheck();
+
+    String invalidMessage = GrouperAbac.validScript(script, grouperDataEngine);
+    if (StringUtils.isBlank(invalidMessage)) {
+      try {
+        saveCheck.grouperJexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine, script);
+      } catch (JexlException jexlException) {
+        // JEXL starts its message with where it was called from in Grouper and a line and column,
+        // e.g. GrouperLoaderJexlScriptFullSync.analyzeJexlScript:685@1:17.  the place in Grouper
+        // is the same for every script, and the line and column count from the script after it
+        // was trimmed and joined onto one line, so neither helps the user find the problem.  just
+        // the parser's description is shown
+        invalidMessage = jexlException.getMessage();
+        JexlInfo jexlInfo = jexlException.getInfo();
+        if (invalidMessage != null && jexlInfo != null) {
+          invalidMessage = StringUtils.trim(Strings.CS.removeStart(invalidMessage, jexlInfo.toString()));
+        }
+        invalidMessage = StringUtils.defaultIfBlank(invalidMessage, jexlException.getClass().getSimpleName());
+      } catch (GrouperDAOException grouperDAOException) {
+        // a database failure is not the script's fault, so it is not called an invalid script
+        throw grouperDAOException;
+      } catch (RuntimeException runtimeException) {
+        // GcDbAccess wraps a database error in a plain RuntimeException, e.g. reading global values
+        if (causedBySqlException(runtimeException)) {
+          throw runtimeException;
+        }
+        // usually the user's mistake, e.g. a data field name which does not exist
+        LOG.warn("Error building the parts of a scripted group script", runtimeException);
+        saveCheck.allowed = false;
+        saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptInvalid");
+        return saveCheck;
+      }
+    }
+    if (!StringUtils.isBlank(invalidMessage)) {
+      saveCheck.allowed = false;
+      saveCheck.errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptInvalid")
+          + "\n" + invalidMessage;
+    }
+    return saveCheck;
+  }
+
+  /**
+   * @param throwable an exception
+   * @return true if a SQLException is in its cause chain, i.e. it is a database error and not the
+   * script's fault
+   */
+  private static boolean causedBySqlException(Throwable throwable) {
+    Throwable current = throwable;
+    // bounded, in case of a cause loop
+    for (int i = 0; current != null && i < 20; i++) {
+      if (current instanceof SQLException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   /**
@@ -407,6 +487,120 @@ public class GrouperAbacScriptedGroup {
         return SaveResultType.DELETE;
       }
     });
+  }
+
+  /**
+   * @param group a group
+   * @return true if it has the scripted group marker, which is what internal_removeScript removes,
+   * script or no script.  read as root, so check who may see it
+   */
+  public static boolean internal_isScriptedGroup(final Group group) {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return markerAssignment(group) != null;
+      }
+    });
+  }
+
+  /**
+   * @param group a group
+   * @return its script, or null if it is not a scripted group.  read as root, so check who may see it
+   */
+  public static String internal_retrieveScript(final Group group) {
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttributeAssign attributeAssign = markerAssignment(group);
+        if (attributeAssign == null) {
+          return null;
+        }
+        return attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
+      }
+    });
+  }
+
+  /**
+   * @param group a group
+   * @return the subject sources kept for it, or null if it uses the defaults or is not a scripted
+   * group.  read as root, so check who may see it
+   */
+  public static Set<String> internal_retrieveSourceIds(final Group group) {
+    return (Set<String>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttributeAssign attributeAssign = markerAssignment(group);
+        if (attributeAssign == null) {
+          return null;
+        }
+        String sourceIds = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+        if (StringUtils.isBlank(sourceIds)) {
+          return null;
+        }
+        return new LinkedHashSet<String>(GrouperUtil.splitTrimToList(sourceIds, ","));
+      }
+    });
+  }
+
+  /**
+   * @param group a group
+   * @return how many enabled immediate members it has, which are the members who stay when it stops
+   * being a scripted group.  not checked for privileges, so check who may see it
+   */
+  public static int internal_retrieveImmediateMemberCount(Group group) {
+    return new GcDbAccess().sql("select count(1) from grouper_memberships gms where "
+        + GrouperLoaderJexlScriptFullSync.IMMEDIATE_MEMBER_CONDITION + " and gms.enabled = 'T'")
+        .addBindVar(group.getId()).addBindVar(Group.getDefaultList().getId()).select(Integer.class);
+  }
+
+  /**
+   * @param group a group
+   * @return the other kind of loader the group has, e.g. "SQL loader", or null if none.  a group
+   * has one loader, and the UI's loader screen is where one is switched for another.  read as
+   * root, so check who may see it
+   */
+  public static String internal_retrieveOtherLoaderType(final Group group) {
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        AttributeDefName sqlLoader = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc")
+            + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+        if (sqlLoader != null && group.getAttributeDelegate().hasAttribute(sqlLoader)) {
+          return "SQL loader";
+        }
+
+        AttributeDefName ldapLoader = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            LoaderLdapUtils.grouperLoaderLdapName(), false);
+        if (ldapLoader != null && group.getAttributeDelegate().hasAttribute(ldapLoader)) {
+          return "LDAP loader";
+        }
+
+        AttributeDefName recentMemberships = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":"
+            + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, false);
+        if (recentMemberships != null && group.getAttributeDelegate().hasAttribute(recentMemberships)) {
+          return "recent memberships loader";
+        }
+
+        return null;
+      }
+    });
+  }
+
+  /**
+   * @param group a group
+   * @return the group's scripted group marker assignment, or null.  call as root
+   */
+  private static AttributeAssign markerAssignment(Group group) {
+    AttributeDefName marker = markerAttributeDefName();
+    if (marker == null) {
+      return null;
+    }
+    return group.getAttributeDelegate().retrieveAssignment(null, marker, false, false);
   }
 
   /**
