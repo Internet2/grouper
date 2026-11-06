@@ -29,7 +29,9 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -78,7 +80,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testGroupTargetIdChangePureRecreateNotDetectedIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testExchangeOnlineMixedGroupLifecycle"));
     //realAzureAddUsers();
   }
 
@@ -91,6 +93,143 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   public static boolean startTomcat = false;
+
+  private void setupExchangeOnline() {
+    AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
+        .assignGroupAttributeCount(3).assignEntityAttributeCount(2)
+        .addExtraConfig("azureGroupType", "true")
+        // Suppress the helper's granular update flags; use group-update and read-only-entity defaults.
+        .addExtraConfig("updateGroups", "")
+        .addExtraConfig("updateEntities", "")
+        .addExtraConfig("makeChangesToEntities", "false")
+        .addExtraConfig("groupMatchingAttributeCount", "2")
+        .addExtraConfig("groupMatchingAttribute0name", "id")
+        .addExtraConfig("groupMatchingAttribute1name", "displayName")
+        .addExtraConfig("exchangeOnlineEnabled", "true"));
+    String endpoint = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueStringRequired("grouper.azureConnector.myAzure.resourceEndpoint");
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.myAzureProvisioner.exchangeOnlineEndpoint")
+        .value(GrouperUtil.stripLastSlashIfExists(endpoint) + "/adminapi/beta").store();
+    ConfigPropertiesCascadeBase.clearCache();
+  }
+
+  private void markExchangeTestGroup(Group group, String type) {
+    GrouperProvisioningAttributeValue value = new GrouperProvisioningAttributeValue();
+    value.setDirectAssignment(true);
+    value.setDoProvision("myAzureProvisioner");
+    value.setTargetName("myAzureProvisioner");
+    Map<String, Object> metadata = new HashMap<String, Object>();
+    metadata.put("md_grouper_azureGroupType", type);
+    value.setMetadataNameValues(metadata);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(value, group);
+  }
+
+  public void testExchangeOnlineMixedGroupLifecycle() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    setupExchangeOnline();
+    GrouperSession session = GrouperSession.startRootSession();
+    new StemSave(session).assignName("test").save();
+    Group security = new GroupSave(session).assignName("test:security").save();
+    Group distribution = new GroupSave(session).assignName("test:distribution").save();
+    Group graph = new GroupSave(session).assignName("test:graph").save();
+    markExchangeTestGroup(security, "securityMailEnabled");
+    markExchangeTestGroup(distribution, "distributionGroup");
+    markExchangeTestGroup(graph, "security");
+    security.addMember(SubjectTestHelper.SUBJ0, false);
+    distribution.addMember(SubjectTestHelper.SUBJ0, false);
+    graph.addMember(SubjectTestHelper.SUBJ0, false);
+    GrouperAzureUser user = new GrouperAzureUser();
+    user.setId("exchange-test-user");
+    user.setUserPrincipalName(SubjectTestHelper.SUBJ0.getId());
+    user.setDisplayName("Exchange test user");
+    user.setMailNickname("exchange-test-user");
+    user.setMail("user@mock.onmicrosoft.com");
+    HibernateSession.byObjectStatic().save(user);
+
+    fullProvision();
+    assertEquals(3, countMockTable("mock_azure_group"));
+    assertEquals(3, countMockTable("mock_azure_membership"));
+    List<GrouperAzureGroup> selected = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false, new HashSet<String>());
+    Map<String, GrouperAzureGroup> byName = new HashMap<String, GrouperAzureGroup>();
+    for (GrouperAzureGroup group : selected) {
+      byName.put(group.getDisplayName(), group);
+    }
+    assertTrue(byName.get("test:security").isExchangeOnlineGroup());
+    assertTrue(byName.get("test:security").isSecurityEnabled());
+    assertTrue(byName.get("test:distribution").isExchangeOnlineGroup());
+    assertFalse(byName.get("test:distribution").isSecurityEnabled());
+    assertFalse(byName.get("test:graph").isExchangeOnlineGroup());
+
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    for (ProvisioningGroupWrapper wrapper : provisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+      assertEquals(wrapper.getGrouperProvisioningGroup().retrieveAttributeValueString("md_grouper_azureGroupType"),
+          wrapper.getGrouperTargetGroup().retrieveAttributeValueString("groupType"));
+    }
+    GrouperAzureTargetDao dao = new GrouperAzureTargetDao();
+    dao.setGrouperProvisioner(provisioner);
+    ProvisioningMembership duplicate = new ProvisioningMembership(false);
+    duplicate.setProvisioningGroupId(byName.get("test:security").getId());
+    duplicate.setProvisioningEntityId(user.getId());
+    ProvisioningMembership invalid = new ProvisioningMembership(false);
+    invalid.setProvisioningGroupId(byName.get("test:security").getId());
+    invalid.setProvisioningEntityId("not-an-exchange-recipient");
+    dao.insertMemberships(new TargetDaoInsertMembershipsRequest(GrouperUtil.toList(invalid, duplicate)));
+    assertEquals(Boolean.FALSE, invalid.getProvisioned());
+    assertNotNull(invalid.getException());
+    assertEquals(Boolean.TRUE, duplicate.getProvisioned());
+
+    GrouperAzureExchangeOnline exchange = new GrouperAzureExchangeOnline(
+        (GrouperAzureConfiguration)provisioner.retrieveGrouperProvisioningConfiguration());
+    exchange.membership(byName.get("test:security").getId(), user.getId(), false);
+    exchange.membership(byName.get("test:security").getId(), user.getId(), false);
+    fullProvision();
+    assertEquals(3, countMockTable("mock_azure_membership"));
+
+    security.setDisplayExtension("Renamed security");
+    security.store();
+    // Use displayName as the translated field to exercise Set-DistributionGroup without changing the alias.
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField")
+        .value("displayName").store();
+    ConfigPropertiesCascadeBase.clearCache();
+    fullProvision();
+    List<GrouperAzureGroup> renamed = GrouperAzureApiCommands.retrieveAzureGroups("myAzure",
+        GrouperUtil.toList(byName.get("test:security").getId()), "id", false, new HashSet<String>());
+    assertEquals(security.getDisplayName(), renamed.get(0).getDisplayName());
+
+    distribution.delete();
+    fullProvision();
+    assertEquals(2, countMockTable("mock_azure_group"));
+    assertEquals(2, countMockTable("mock_azure_membership"));
+  }
+
+  public void testExchangeOnlineGraphDelayDoesNotRecreateGroup() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    setupExchangeOnline();
+    GrouperSession session = GrouperSession.startRootSession();
+    new StemSave(session).assignName("test").save();
+    Group group = new GroupSave(session).assignName("test:delayed").save();
+    markExchangeTestGroup(group, "securityMailEnabled");
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.azure.mock.exchangeGraphDelaySeconds").value("120").store();
+    ConfigPropertiesCascadeBase.clearCache();
+    fullProvision("myAzureProvisioner", true);
+    assertEquals(1, countMockTable("mock_azure_group"));
+    GcGrouperSync sync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myAzureProvisioner");
+    GcGrouperSyncGroup syncGroup = sync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getUuid());
+    assertNotNull(syncGroup.getGroupAttributeValueCache2());
+    String createdId = syncGroup.getGroupAttributeValueCache2();
+    fullProvision("myAzureProvisioner", true);
+    assertEquals(1, countMockTable("mock_azure_group"));
+    sync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myAzureProvisioner");
+    assertEquals(createdId, sync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getUuid())
+        .getGroupAttributeValueCache2());
+  }
   
   public void setUp() {
     super.setUp();
