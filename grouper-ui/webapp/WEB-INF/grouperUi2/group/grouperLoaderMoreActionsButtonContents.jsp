@@ -14,15 +14,15 @@
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob != null  && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
                             <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob.showMoreActionsDisable}" >
-                              <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.disableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
-                                  >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
+                              <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GrouperLoader.disableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
+                                  >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</button></li>
                             </c:if>
                           </c:if>
                         </c:if>
                         
                         
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader or grouperRequestContainer.grouperLoaderContainer.canEditAbacOrRecentMembershipsLoader}" >
-                          <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
                         </c:if>
                         
@@ -31,21 +31,21 @@
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader && grouperRequestContainer.grouperLoaderContainer.failsafeIssue}" >
-                          <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.failsafeApprove?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
-                              >${textContainer.text['grouperLoaderFailsafeApprove'] }</a></li>
+                          <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GrouperLoader.failsafeApprove?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
+                              >${textContainer.text['grouperLoaderFailsafeApprove'] }</button></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob != null  && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
                             <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob.showMoreActionsEnable}" >
-                              <li><a href="#" onclick="ajax('../app/UiV2GrouperLoader.enableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
-                                  >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</a></li>
+                              <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2GrouperLoader.enableJob?groupId=${grouper:escapeUrl(grouperRequestContainer.groupContainer.guiGroup.group.id)}'); return false;"
+                                  >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</button></li>
                             </c:if>
                           </c:if>
                         </c:if>
                         
                          <c:if test="${!grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
-                          <li><a href="?operation=UiV2GrouperLoader.importLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.importLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperLoader.importLoaderConfig&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.importLoaderConfig&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['importLoaderConfig'] }</a></li>
                         </c:if>
 
@@ -71,7 +71,7 @@
                         </c:if>
                               
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
-                          <li><a href="?operation=UiV2Group.viewAllLoaderManagedGroups?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewAllLoaderManagedGroups?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2Group.viewAllLoaderManagedGroups&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewAllLoaderManagedGroups&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewAllLoaderManagedGroups'] }</a></li>
                         </c:if>
 

@@ -34,7 +34,7 @@
                          
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment && guiGrouperProvisioningAttributeValue.provisionable && !guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                              <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
-                              <li><a href="#" onclick="ajax('../app/UiV2Provisioning.removeProvisioningOnFolder?stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
+                              <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Provisioning.removeProvisioningOnFolder?stemId=${grouper:escapeUrl(grouperRequestContainer.stemContainer.guiStem.stem.id)}&provisioningTargetName=${grouper:escapeUrl(guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName)}'); return false;">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</button></li>
                              </c:if>
                            </c:if>
                            

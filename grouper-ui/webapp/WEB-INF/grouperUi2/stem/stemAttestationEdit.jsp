@@ -247,7 +247,7 @@
           value="${textContainer.text['grouperAttestationEditButtonSave'] }"
           onclick="ajax('../app/UiV2Attestation.editStemAttestationSave?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'editStemAttestationFormId'}); return false;">
           &nbsp; <a class="btn btn-cancel" role="button"
-          onclick="return guiV2link('operation=UiV2Attestation.stemAttestation?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['grouperAttestationEditButtonCancel'] }</a>
+          onclick="return guiV2link('operation=UiV2Attestation.stemAttestation&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['grouperAttestationEditButtonCancel'] }</a>
         </td>
       </tr>
     </tbody>

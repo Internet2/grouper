@@ -62,7 +62,7 @@
                   </div>
                   
                   <div class="form-actions"><button type="button" class="btn btn-primary" onclick="ajax('../app/UiV2GroupPermission.assignGroupPermissionSubmit', {formIds: 'assignPermissionGroupForm'}); return false;">${textContainer.text['groupAssignPermissionSaveButton'] }</button> 
-                  <button type="button" onclick="return guiV2link('operation=UiV2GroupPermission.groupPermission?groupId=${grouperRequestContainer.permissionContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupAssignPermissionCancelButton'] }</button></div>
+                  <button type="button" onclick="return guiV2link('operation=UiV2GroupPermission.groupPermission&groupId=${grouperRequestContainer.permissionContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupAssignPermissionCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

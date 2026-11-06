@@ -231,7 +231,8 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      if (!daemonJobsHelper(request, response)) {
+      // GRP-7503: this screen is reached by navigation (the url), so it never runs a job action
+      if (!daemonJobsHelper(request, response, false)) {
         return;
       }
       
@@ -269,7 +270,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilterShowExtendedResults", ""));
       
       //get the unfiltered jobs
-      if (!daemonJobsHelper(request, response)) {
+      if (!daemonJobsHelper(request, response, false)) {
         return;
       }
       
@@ -296,7 +297,7 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      if (!daemonJobsHelper(request, response)) {
+      if (!daemonJobsHelper(request, response, true)) {
         return;
       }
       
@@ -327,9 +328,11 @@ public class UiV2Admin extends UiServiceLogicBase {
    * show daemon jobs screen
    * @param request
    * @param response
+   * @param performAction true to run the action/jobName request params (run now, disable, enable, failsafe approve).
+   * Only daemonJobsSubmit (ajax) passes true, so a daemonJobs url with those params does not change anything
    * @return true if ok, false if not allowed
    */
-  private boolean daemonJobsHelper(HttpServletRequest request, HttpServletResponse response) {
+  private boolean daemonJobsHelper(HttpServletRequest request, HttpServletResponse response, boolean performAction) {
         
     //initialize the bean
     GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -347,7 +350,7 @@ public class UiV2Admin extends UiServiceLogicBase {
       {
         String action = request.getParameter("action");
         String jobName = request.getParameter("jobName");
-        if (!StringUtils.isEmpty(action) && !StringUtils.isEmpty(jobName)) {
+        if (performAction && !StringUtils.isEmpty(action) && !StringUtils.isEmpty(jobName)) {
           if (!isJobNameValid(jobName)) {
             throw new RuntimeException("Invalid job name '" + jobName + "'");
           }

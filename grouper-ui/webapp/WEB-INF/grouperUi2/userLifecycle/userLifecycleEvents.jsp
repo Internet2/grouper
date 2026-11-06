@@ -70,7 +70,7 @@ ${grouper:title('miscellaneousUserLifecycleEventsBreadcrumb')}
                     <li><a href="?operation=UiV2UserLifecycle.editUserLifecycleEventConfig&configId=${guiUserLifecycleEventConfig.userLifecycleEventConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.editUserLifecycleEventConfig&configId=${guiUserLifecycleEventConfig.userLifecycleEventConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
 
                     <li>&nbsp;</li>                                  
-                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['userLifecycleEventConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2UserLifecycle.deleteUserLifecycleEventConfig?configId=${grouper:escapeUrl(guiUserLifecycleEventConfig.userLifecycleEventConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</a></li>
+                    <li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['userLifecycleEventConfigsConfirmDeleteConfig']}')) { ajax('../app/UiV2UserLifecycle.deleteUserLifecycleEventConfig?configId=${grouper:escapeUrl(guiUserLifecycleEventConfig.userLifecycleEventConfiguration.configId)}'); } return false;">${textContainer.text['dataFieldsDeleteActionsOption'] }</button></li>
                     
                     
                   </ul>

@@ -86,18 +86,18 @@ ${grouper:title('subjectSourcesPageTitle')}
 			                             
 			                             <c:if test="${source.editable}">
 			                             
-				                             <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == true}">
-						                      <li><a href="?operation=UiV2SubjectSource.disableSource&subjectSourceId=${sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.disableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesDisableActionOption'] }</a></li>
+				                             <c:if test="${source.enabled}">
+						                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2SubjectSource.disableSource?subjectSourceId=${grouper:escapeUrl(source.id)}'); return false;">${textContainer.text['subjectSourcesDisableActionOption'] }</button></li>
 						                     </c:if>
 						                     
-						                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == false}">
-						                      <li><a href="?operation=UiV2SubjectSource.enableSource&subjectSourceId=${sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.enableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesEnableActionOption'] }</a></li>
+						                     <c:if test="${!source.enabled}">
+						                      <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2SubjectSource.enableSource?subjectSourceId=${grouper:escapeUrl(source.id)}'); return false;">${textContainer.text['subjectSourcesEnableActionOption'] }</button></li>
 						                     </c:if>
 			                             
 			                             </c:if>
 			                             
 			                             <c:if test="${source.editable}">
-			                             	<li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['subjectSourcesConfirmDeleteSource']}')) { ajax('../app/UiV2SubjectSource.deleteSubjectSource?subjectSourceId=${grouper:escapeUrl(source.id)}'); } return false;">${textContainer.text['subjectSourcesDeleteActionOption'] }</a></li>
+			                             	<li><button type="button" class="grouper-menuitem" onclick="if (confirm('${textContainer.textEscapeSingleDouble['subjectSourcesConfirmDeleteSource']}')) { ajax('../app/UiV2SubjectSource.deleteSubjectSource?subjectSourceId=${grouper:escapeUrl(source.id)}'); } return false;">${textContainer.text['subjectSourcesDeleteActionOption'] }</button></li>
 			                             </c:if>
 			                           </ul>
 			                         </div>
