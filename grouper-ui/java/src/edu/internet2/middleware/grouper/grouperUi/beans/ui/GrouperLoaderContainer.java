@@ -25,9 +25,11 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
+import edu.internet2.middleware.grouper.app.externalSystem.LdapGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -560,6 +562,29 @@ public class GrouperLoaderContainer {
     String databaseNameUrl = this.getSqlDatabaseNameUrl();
     return convertDatabaseUrlToText(databaseNameUrl);
 
+  }
+
+  /**
+   * @return true if the sql loader uses the grouper registry database, which is not an external system
+   */
+  public boolean isSqlDatabaseGrouperRegistry() {
+    return "grouper".equals(this.getSqlDatabaseName());
+  }
+
+  /**
+   * @return true if the sql loader database is a configured external system and the user can view external systems
+   */
+  public boolean isSqlDatabaseExternalSystemLinkable() {
+    return !this.isSqlDatabaseGrouperRegistry()
+        && !StringUtils.isBlank(this.getSqlDatabaseNameUrl())
+        && GrouperRequestContainer.retrieveFromRequestOrCreate().getExternalSystemContainer().isCanViewExternalSystems();
+  }
+
+  /**
+   * @return external system class name for sql loader databases
+   */
+  public String getSqlDatabaseExternalSystemType() {
+    return DatabaseGrouperExternalSystem.class.getName();
   }
 
   /**
@@ -1775,6 +1800,21 @@ public class GrouperLoaderContainer {
     String ldapUrl = this.getLdapServerIdUrl();
     return convertLdapUrlToDescription(ldapUrl);
 
+  }
+
+  /**
+   * @return true if the ldap loader server is a configured external system and the user can view external systems
+   */
+  public boolean isLdapServerExternalSystemLinkable() {
+    return !StringUtils.isBlank(this.getLdapServerIdUrl())
+        && GrouperRequestContainer.retrieveFromRequestOrCreate().getExternalSystemContainer().isCanViewExternalSystems();
+  }
+
+  /**
+   * @return external system class name for ldap loader servers
+   */
+  public String getLdapServerExternalSystemType() {
+    return LdapGrouperExternalSystem.class.getName();
   }
 
   /**

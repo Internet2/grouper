@@ -80,24 +80,49 @@
               <td style="padding-left: 0px;">
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperSqlLoader}">
                   <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageSqlLoadedGroup']}</li>
-                  <li style="margin-left: 12px;">${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType} loader</li>
+                  <li style="margin-left: 12px;">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlLoaderType)} loader</li>
+                  <c:set var="loaderSqlDatabaseName" value="${grouperRequestContainer.grouperLoaderContainer.sqlDatabaseName}" />
+                  <c:if test="${not empty loaderSqlDatabaseName}">
+                    <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageLoaderExternalSystem']}
+                      <c:choose>
+                        <c:when test="${grouperRequestContainer.grouperLoaderContainer.sqlDatabaseExternalSystemLinkable}">
+                          <c:set var="loaderExternalSystemParams" value="operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${grouper:escapeUrl(loaderSqlDatabaseName)}&externalSystemType=${grouperRequestContainer.grouperLoaderContainer.sqlDatabaseExternalSystemType}" />
+                          <a href="?${loaderExternalSystemParams}" onclick="return handleGuiV2LinkClick(event, '${loaderExternalSystemParams}');">${grouper:escapeHtml(loaderSqlDatabaseName)}</a>
+                        </c:when>
+                        <c:otherwise>${grouper:escapeHtml(loaderSqlDatabaseName)}</c:otherwise>
+                      </c:choose>
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.sqlDatabaseGrouperRegistry}">${textContainer.text['groupSummaryPageLoaderGrouperRegistryDatabase']}</c:if>
+                    </li>
+                  </c:if>
                   <li style="margin-left: 12px;">
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}">
-                    <pre>${grouperRequestContainer.grouperLoaderContainer.sqlQuery}</pre>
+                    <pre>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}</pre>
                   </c:if>
                   </li>
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperLdapLoader}">
                   <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageLdapLoadedGroup']}</li>
-                  <li style="margin-left: 12px;">${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType} loader</li>
+                  <li style="margin-left: 12px;">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapLoaderType)} loader</li>
+                  <c:set var="loaderLdapServerId" value="${grouperRequestContainer.grouperLoaderContainer.ldapServerId}" />
+                  <c:if test="${not empty loaderLdapServerId}">
+                    <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageLoaderExternalSystem']}
+                      <c:choose>
+                        <c:when test="${grouperRequestContainer.grouperLoaderContainer.ldapServerExternalSystemLinkable}">
+                          <c:set var="loaderExternalSystemParams" value="operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${grouper:escapeUrl(loaderLdapServerId)}&externalSystemType=${grouperRequestContainer.grouperLoaderContainer.ldapServerExternalSystemType}" />
+                          <a href="?${loaderExternalSystemParams}" onclick="return handleGuiV2LinkClick(event, '${loaderExternalSystemParams}');">${grouper:escapeHtml(loaderLdapServerId)}</a>
+                        </c:when>
+                        <c:otherwise>${grouper:escapeHtml(loaderLdapServerId)}</c:otherwise>
+                      </c:choose>
+                    </li>
+                  </c:if>
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter)}">
-                    <pre>${grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter}</pre>
+                    <pre>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter)}</pre>
                   </c:if> 
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}">
                   ${textContainer.text['groupSummaryPageJexlLoadedGroup']}<br /><br />
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript)}">
-                    <pre>${grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript}</pre>
+                    <pre>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript)}</pre>
                   </c:if> 
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}">
