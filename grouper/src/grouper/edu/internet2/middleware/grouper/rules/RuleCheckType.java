@@ -1666,7 +1666,7 @@ public enum RuleCheckType {
       
       switch (ruleIfConditionEnum) {
         
-        case groupHasNoImmediateEnabledMembership:
+        case groupHasNoImmediateEnabledMembership, groupHasNoEnabledMembership:
           
           switch (ruleThenEnum) {
             
@@ -1804,7 +1804,7 @@ public enum RuleCheckType {
       
       switch (ruleIfConditionEnum) {
         
-        case groupHasNoImmediateEnabledMembership:
+        case groupHasNoImmediateEnabledMembership, groupHasNoEnabledMembership:
           
           switch (ruleThenEnum) {
             
