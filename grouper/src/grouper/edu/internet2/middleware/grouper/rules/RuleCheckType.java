@@ -1381,6 +1381,10 @@ public enum RuleCheckType {
         Group group = rulesGroupBean.getGroup();
         variableMap.put("groupId", group.getId());
         variableMap.put("groupName", group.getName());
+        variableMap.put("groupDisplayName", group.getDisplayName());
+        variableMap.put("groupExtension", group.getExtension());
+        variableMap.put("groupDisplayExtension", group.getDisplayExtension());
+        variableMap.put("groupDescription", group.getDescription());
         if (hasAccessToElApi) {
           variableMap.put("group", group);
         }
