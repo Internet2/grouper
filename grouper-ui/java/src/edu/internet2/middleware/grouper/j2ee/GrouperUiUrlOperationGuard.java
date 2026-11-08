@@ -122,6 +122,7 @@ public class GrouperUiUrlOperationGuard {
       "UiV2AuthenticationConfig.editWsTrustedJwtConfig",
       "UiV2AuthenticationConfig.index",
       "UiV2AuthenticationConfig.viewWsTrustedJwts",
+      "UiV2ChangeLogMonitor.changeLogMonitor",
       "UiV2Configure.configurationFileAddConfig",
       "UiV2Configure.configurationFileImport",
       "UiV2Configure.configurationReview",

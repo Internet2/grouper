@@ -99,6 +99,11 @@
                         ${textContainer.text['adminAuthenticationLink'] }</a>
                     </c:if>
 
+                	 <c:if test="${grouperRequestContainer.changeLogMonitorContainer.canViewChangeLogMonitor}">
+                      <br /><br /><a id="miscChangeLogMonitorLink" href="?operation=UiV2ChangeLogMonitor.changeLogMonitor" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ChangeLogMonitor.changeLogMonitor');" style="white-space: nowrap;">
+                        ${textContainer.text['miscChangeLogMonitorLink'] }</a>
+                    </c:if>
+
                 	 <c:if test="${grouperRequestContainer.configurationContainer.configureShow}">
                       <br /><br /><a id="miscConfigureLink" href="?operation=UiV2Configure.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.index');" style="white-space: nowrap;">
                       	${textContainer.text['adminConfigureLink'] }</a>

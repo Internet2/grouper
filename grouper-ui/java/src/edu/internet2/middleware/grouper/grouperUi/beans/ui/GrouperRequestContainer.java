@@ -1146,6 +1146,22 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * container for the change log monitor screen
+   */
+  private ChangeLogMonitorContainer changeLogMonitorContainer;
+
+  /**
+   * container for the change log monitor screen
+   * @return the container
+   */
+  public ChangeLogMonitorContainer getChangeLogMonitorContainer() {
+    if (this.changeLogMonitorContainer == null) {
+      this.changeLogMonitorContainer = new ChangeLogMonitorContainer();
+    }
+    return this.changeLogMonitorContainer;
+  }
+
+  /**
    * container for OAuth consent page data
    */
   private OAuthContainer oauthContainer;
