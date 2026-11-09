@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmation;
+
 /**
  * what came of one user message (or one set of approvals): the answer, or the writes waiting for
  * the user, plus what the tools did along the way so the screen can show it
@@ -108,17 +110,35 @@ public class GrouperAiAgentTurnResult {
     private String summary;
 
     /**
+     * the same summary as lines, for a tool which shows a script, so the screen can show it in a
+     * code block.  empty, or null in a session from before this was kept, means the summary is
+     * shown as it is
+     */
+    private List<GrouperToolConfirmation.Line> summaryLines = new ArrayList<GrouperToolConfirmation.Line>();
+
+    /**
      * @param theToolCallId the tool call id
      * @param theToolName which tool
      * @param theArgumentsJson the arguments
      * @param theSummary what the user is shown
+     * @param theSummaryLines the same summary as lines, or null
      */
     public PendingConfirmation(String theToolCallId, String theToolName, String theArgumentsJson,
-        String theSummary) {
+        String theSummary, List<GrouperToolConfirmation.Line> theSummaryLines) {
       this.toolCallId = theToolCallId;
       this.toolName = theToolName;
       this.argumentsJson = theArgumentsJson;
       this.summary = theSummary;
+      if (theSummaryLines != null) {
+        this.summaryLines.addAll(theSummaryLines);
+      }
+    }
+
+    /**
+     * @return the summary as lines, empty or null if it is shown as it is
+     */
+    public List<GrouperToolConfirmation.Line> getSummaryLines() {
+      return this.summaryLines;
     }
 
     /**

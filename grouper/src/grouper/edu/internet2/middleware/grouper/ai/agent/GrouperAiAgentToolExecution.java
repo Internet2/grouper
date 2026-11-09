@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmation;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -56,9 +57,11 @@ public interface GrouperAiAgentToolExecution {
   /**
    * @param toolName which tool
    * @param arguments as the model supplied them
-   * @return what the user is shown before a write runs, built from the arguments by code, or null
+   * @return what the user is shown before a write runs, built from the arguments by code: the
+   * summary and, for a tool which shows a script, the same summary as lines for the approval
+   * screen.  null if there is none
    */
-  public String confirmationSummary(String toolName, JsonNode arguments);
+  public GrouperToolConfirmation confirmation(String toolName, JsonNode arguments);
 
   /**
    * run a tool as the user

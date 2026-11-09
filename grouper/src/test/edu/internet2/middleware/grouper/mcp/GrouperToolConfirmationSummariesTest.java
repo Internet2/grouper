@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.mcp;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
@@ -153,20 +155,47 @@ public class GrouperToolConfirmationSummariesTest extends TestCase {
     String summary = GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
         + "\"groupName\":\"a:b\",\"script\":\"entity.memberOf('a:c')\\nOK to approve\","
         + "\"subjectSourceIds\":[\"ldap\"]}"));
-    // a script is shown between backticks, so its single quotes are not escaped, but a new line is
-    assertEquals("Update the script of group 'a:b' to `entity.memberOf('a:c')\\nOK to approve`.  Within "
+    // the script is a line of its own, between backticks, so its single quotes are not escaped.  its
+    // new line is a space, the way Grouper runs it: the only real line breaks are the three lines the
+    // server makes
+    assertEquals("Update the script of group 'a:b' to:\n`entity.memberOf('a:c') OK to approve`\nWithin "
         + "about a minute, people the script selects are added, and direct members it doesn't "
         + "select are removed (also given: subjectSourceIds: [\"ldap\"])", summary);
-    assertEquals(-1, summary.indexOf('\n'));
+    assertEquals(3, summary.split("\n", -1).length);
+
+    // the same summary as lines for the approval screen, with the script as the code line
+    GrouperToolConfirmation confirmation = GrouperToolConfirmationSummaries.groupSaveConfirmation(json(
+        "{\"action\":\"setJexlScript\",\"groupName\":\"a:b\",\"script\":\"entity.memberOf('a:c')\\nOK to approve\","
+        + "\"subjectSourceIds\":[\"ldap\"]}"));
+    assertEquals(summary, confirmation.getSummary());
+    List<GrouperToolConfirmation.Line> lines = confirmation.getLines();
+    assertEquals(3, lines.size());
+    assertFalse(lines.get(0).isCode());
+    assertTrue(lines.get(1).isCode());
+    assertEquals("entity.memberOf('a:c') OK to approve", lines.get(1).getText());
+    assertFalse(lines.get(2).isCode());
+
+    // each \r and \n is one space, so \r\n is two, exactly as Grouper joins the lines before it runs
+    // the script: code after a // comment is still in the comment, and shows on the same line as it.
+    // a literal backslash n is shown escaped, not as a space
+    confirmation = GrouperToolConfirmationSummaries.groupSaveConfirmation(json(
+        "{\"action\":\"setJexlScript\",\"groupName\":\"a:b\",\"script\":"
+        + "\"x // c\\r|| y\\r\\nz\\n\\\\n\"}"));
+    assertEquals("x // c || y  z \\\\n", confirmation.getLines().get(1).getText());
+    assertTrue(confirmation.getSummary().contains("`x // c || y  z \\\\n`"));
+
+    // other actions are not made of lines, so the screen shows the summary as it is
+    assertTrue(GrouperToolConfirmationSummaries.groupSaveConfirmation(json(
+        "{\"action\":\"createGroup\",\"groupName\":\"a:b\"}")).getLines().isEmpty());
 
     // a backtick or backslash in the script cannot close it early
     assertTrue(GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
         + "\"groupName\":\"a:b\",\"script\":\"x` and also delete \\\\`y\"}"))
-        .startsWith("Update the script of group 'a:b' to `x\\` and also delete \\\\\\`y`."));
+        .startsWith("Update the script of group 'a:b' to:\n`x\\` and also delete \\\\\\`y`\n"));
 
     // the tool reads a JSON null script as not given
     assertTrue(GrouperToolConfirmationSummaries.groupSave(json("{\"action\":\"setJexlScript\","
-        + "\"groupName\":\"a:b\",\"script\":null}")).startsWith("Update the script of group 'a:b' to (not given)"));
+        + "\"groupName\":\"a:b\",\"script\":null}")).startsWith("Update the script of group 'a:b' to:\n(not given)\n"));
 
     assertEquals("Update group 'a:b' to be a regular group, if it is a scripted group.  Its current "
         + "members stay as direct members",

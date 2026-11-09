@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmation;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
@@ -292,16 +293,17 @@ public class GrouperAiAgentTest extends TestCase {
     }
 
     /**
-     * @see GrouperAiAgentToolExecution#confirmationSummary(String, JsonNode)
+     * @see GrouperAiAgentToolExecution#confirmation(String, JsonNode)
      */
-    public String confirmationSummary(String toolName, JsonNode arguments) {
+    public GrouperToolConfirmation confirmation(String toolName, JsonNode arguments) {
       if (this.summaryThrows) {
         throw new RuntimeException("test failure building the summary");
       }
       if (this.summaryNull) {
         return null;
       }
-      return "Add " + arguments.path("subject").asText() + " to " + arguments.path("group").asText();
+      return new GrouperToolConfirmation("Add " + arguments.path("subject").asText() + " to "
+          + arguments.path("group").asText());
     }
 
     /**

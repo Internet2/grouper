@@ -64,7 +64,10 @@
 <%-- the approval: the summary is what is being approved.  only the ids go back, and only ids of
      calls actually waiting are accepted.  pre-line keeps the summary's own line breaks, which an
      institutional tool's summary uses to put each input on a line; a value cannot add one, since
-     the summary shows a new line in a value as \n --%>
+     the summary shows a new line in a value as \n.  a summary which shows a script, e.g. a scripted
+     group's, comes as lines too: each is escaped, and a script line is shown in a code block, all on
+     one line with its line breaks as spaces, the way Grouper runs it.  nothing the model wrote is
+     markup --%>
 <c:if test="${!aiAgentContainer.running && !empty aiAgentContainer.pendingConfirmations}">
   <form id="aiAgentApproveFormId" onsubmit="return false;">
     <div class="alert alert-block">
@@ -75,18 +78,54 @@
              off a paragraph in an alert, so it is put back to keep the buttons off the text --%>
         <c:when test="${aiAgentContainer.pendingConfirmationCount == 1}">
           <c:forEach items="${aiAgentContainer.pendingConfirmations}" var="pendingConfirmation">
-            <p style="word-wrap: break-word; white-space: pre-line; margin-bottom: 10px;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
+            <c:choose>
+              <c:when test="${!empty pendingConfirmation.summaryLines}">
+                <div style="word-wrap: break-word; margin-bottom: 10px;">
+                  <c:forEach items="${pendingConfirmation.summaryLines}" var="summaryLine">
+                    <c:choose>
+                      <c:when test="${summaryLine.code}"><pre style="white-space: pre-wrap; word-break: normal; word-wrap: break-word; margin: 4px 0;">${grouper:escapeHtml(summaryLine.text)}</pre></c:when>
+                      <c:otherwise><div>${grouper:escapeHtml(summaryLine.text)}</div></c:otherwise>
+                    </c:choose>
+                  </c:forEach>
+                </div>
+              </c:when>
+              <c:otherwise>
+                <p style="word-wrap: break-word; white-space: pre-line; margin-bottom: 10px;">${grouper:escapeHtml(pendingConfirmation.summary)}</p>
+              </c:otherwise>
+            </c:choose>
           </c:forEach>
         </c:when>
         <c:otherwise>
           <%-- every change starts checked; unchecking one leaves it out.  the button says how many
                changes it makes, kept up to date as boxes change, so approving is still explicit --%>
-          <c:forEach items="${aiAgentContainer.pendingConfirmations}" var="pendingConfirmation">
-            <label class="checkbox" style="word-wrap: break-word;">
-              <input type="checkbox" name="aiAgentApprove" value="${grouper:escapeHtml(pendingConfirmation.toolCallId)}"
-                checked="checked" onchange="aiAgentApproveCountChanged();" />
-              <span style="white-space: pre-line;">${grouper:escapeHtml(pendingConfirmation.summary)}</span>
-            </label>
+          <c:forEach items="${aiAgentContainer.pendingConfirmations}" var="pendingConfirmation" varStatus="pendingConfirmationStatus">
+            <c:choose>
+              <c:when test="${!empty pendingConfirmation.summaryLines}">
+                <%-- not in a label: a label may only hold inline content, and clicking in the code
+                     block would tick or untick the change.  the script there is escaped, e.g. a
+                     backslash shows as \\, so it is for reading, not copying --%>
+                <div class="checkbox" style="word-wrap: break-word;">
+                  <input type="checkbox" name="aiAgentApprove" value="${grouper:escapeHtml(pendingConfirmation.toolCallId)}"
+                    checked="checked" onchange="aiAgentApproveCountChanged();"
+                    aria-labelledby="aiAgentApprovalLines${pendingConfirmationStatus.index}" />
+                  <div id="aiAgentApprovalLines${pendingConfirmationStatus.index}">
+                    <c:forEach items="${pendingConfirmation.summaryLines}" var="summaryLine">
+                      <c:choose>
+                        <c:when test="${summaryLine.code}"><pre style="white-space: pre-wrap; word-break: normal; word-wrap: break-word; margin: 4px 0;">${grouper:escapeHtml(summaryLine.text)}</pre></c:when>
+                        <c:otherwise><div>${grouper:escapeHtml(summaryLine.text)}</div></c:otherwise>
+                      </c:choose>
+                    </c:forEach>
+                  </div>
+                </div>
+              </c:when>
+              <c:otherwise>
+                <label class="checkbox" style="word-wrap: break-word;">
+                  <input type="checkbox" name="aiAgentApprove" value="${grouper:escapeHtml(pendingConfirmation.toolCallId)}"
+                    checked="checked" onchange="aiAgentApproveCountChanged();" />
+                  <span style="white-space: pre-line;">${grouper:escapeHtml(pendingConfirmation.summary)}</span>
+                </label>
+              </c:otherwise>
+            </c:choose>
           </c:forEach>
         </c:otherwise>
       </c:choose>

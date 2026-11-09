@@ -66,6 +66,18 @@ public interface GrouperTool {
   }
 
   /**
+   * the summary, and for a tool which shows a script, the same summary as lines so the approval
+   * screen can show the script in a code block.  by default just the summary
+   *
+   * @param arguments as the caller supplied them
+   * @return the confirmation, or null for a read
+   */
+  public default GrouperToolConfirmation confirmation(JsonNode arguments) {
+    String summary = confirmationSummary(arguments);
+    return summary == null ? null : new GrouperToolConfirmation(summary);
+  }
+
+  /**
    * for a tool which returns a list a page at a time, with a pageSize argument: how many it returns
    * when no pageSize is given, or 0 if it then returns everything.  the executor caps pageSize at
    * the limit for the front door the call came through (grouper.ai.agent.maxPageSize for the UI,

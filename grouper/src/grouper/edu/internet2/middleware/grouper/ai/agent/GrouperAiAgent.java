@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmation;
 import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmationSummaries;
 import edu.internet2.middleware.grouper.mcp.GrouperToolException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -852,6 +853,8 @@ public class GrouperAiAgent {
         boolean allowedInScope = true;
         String unknownArgumentsError = null;
         String summary = null;
+        // the same summary as lines, for a tool which shows a script, so the screen can show it as code
+        List<GrouperToolConfirmation.Line> summaryLines = null;
         try {
           if (!isToolDescribe) {
             isWrite = this.toolExecution.isWrite(toolCall.getName(), arguments);
@@ -862,7 +865,11 @@ public class GrouperAiAgent {
               unknownArgumentsError = toolCompaction.unknownArgumentsError(toolCall.getName(), arguments);
             }
             if (isWrite && allowedInScope && unknownArgumentsError == null) {
-              summary = this.toolExecution.confirmationSummary(toolCall.getName(), arguments);
+              GrouperToolConfirmation confirmation = this.toolExecution.confirmation(toolCall.getName(), arguments);
+              if (confirmation != null) {
+                summary = confirmation.getSummary();
+                summaryLines = confirmation.getLines();
+              }
             }
           }
         } catch (RuntimeException re) {
@@ -920,9 +927,10 @@ public class GrouperAiAgent {
             // the model wrote both, so escaped like a tool's own summary would be
             summary = "Run " + GrouperToolConfirmationSummaries.escape(toolCall.getName(), false)
                 + " with " + GrouperToolConfirmationSummaries.escape(arguments.toString(), false);
+            summaryLines = null;
           }
           result.getPendingConfirmations().add(new GrouperAiAgentTurnResult.PendingConfirmation(
-              toolCall.getId(), toolCall.getName(), toolCall.getArgumentsJson(), summary));
+              toolCall.getId(), toolCall.getName(), toolCall.getArgumentsJson(), summary, summaryLines));
           result.getToolActivity().add(new GrouperAiAgentTurnResult.ToolActivity(toolCall.getName(),
               toolCall.getArgumentsJson(), null, false,
               GrouperAiAgentTurnResult.ToolActivityStatus.awaitingConfirmation));

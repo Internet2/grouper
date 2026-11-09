@@ -515,9 +515,15 @@ public class GrouperToolRegistration {
             : GrouperToolCategory.readwrite;
       }
       public String confirmationSummary(JsonNode arguments) {
-        // the same test as category, so exactly the calls which are writes get a summary
+        // from confirmation, so the two cannot disagree about which calls are writes
+        GrouperToolConfirmation confirmation = confirmation(arguments);
+        return confirmation == null ? null : confirmation.getSummary();
+      }
+      public GrouperToolConfirmation confirmation(JsonNode arguments) {
+        // the same test as category, so exactly the calls which are writes get a summary.
+        // setJexlScript's summary is made of lines, so the screen can show the script as code
         return GrouperMcpGroupSave.isAnalyzeJexlScript(arguments) ? null
-            : GrouperToolConfirmationSummaries.groupSave(arguments);
+            : GrouperToolConfirmationSummaries.groupSaveConfirmation(arguments);
       }
       public ObjectNode toolDefinition(GrouperMcpAuthUser authUser) {
         return GrouperMcpGroupSave.toolDefinition();

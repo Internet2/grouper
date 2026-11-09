@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.mcp.GrouperTool;
 import edu.internet2.middleware.grouper.mcp.GrouperToolAccess;
 import edu.internet2.middleware.grouper.mcp.GrouperToolCategory;
+import edu.internet2.middleware.grouper.mcp.GrouperToolConfirmation;
 import edu.internet2.middleware.grouper.mcp.GrouperToolRegistry;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.subject.Subject;
@@ -87,9 +88,9 @@ public class GrouperUiAgentToolExecution implements GrouperAiAgentToolExecution 
   }
 
   /**
-   * @see GrouperAiAgentToolExecution#confirmationSummary(String, JsonNode)
+   * @see GrouperAiAgentToolExecution#confirmation(String, JsonNode)
    */
-  public String confirmationSummary(String toolName, final JsonNode arguments) {
+  public GrouperToolConfirmation confirmation(String toolName, final JsonNode arguments) {
     final GrouperTool grouperTool = GrouperToolRegistry.find(toolName);
     if (grouperTool == null) {
       return null;
@@ -98,9 +99,9 @@ public class GrouperUiAgentToolExecution implements GrouperAiAgentToolExecution 
     // has now, and must only show what the user may see
     GrouperSession grouperSession = GrouperSession.start(this.caller.getSubject(), false);
     try {
-      return (String)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      return (GrouperToolConfirmation)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          return grouperTool.confirmationSummary(arguments);
+          return grouperTool.confirmation(arguments);
         }
       });
     } finally {

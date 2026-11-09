@@ -4,8 +4,10 @@
  */
 package edu.internet2.middleware.grouper.mcp;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -193,7 +195,7 @@ public class GrouperToolConfirmationSummaries {
     } else if (StringUtils.equals("removeProvisioner", action)) {
       headline = "Remove a provisioner from group " + group;
     } else if (Strings.CS.equals("setJexlScript", action)) {
-      return groupSaveSetJexlScript(arguments);
+      return GrouperToolConfirmation.joinLines(groupSaveSetJexlScriptLines(arguments));
     } else if (Strings.CS.equals("removeJexlScript", action)) {
       // whether it is a scripted group and how many members stay, if the user may see the group's
       // script settings
@@ -219,16 +221,30 @@ public class GrouperToolConfirmationSummaries {
   }
 
   /**
-   * the script is what decides the members, so it is the headline, and a change shows the script
-   * being replaced as well, since a small edit can add or remove many people
-   * @param arguments group_save arguments with action setJexlScript
-   * @return the summary
+   * group_save's confirmation: the summary, which for setJexlScript is made of lines, so the
+   * approval screen can show its scripts in code blocks
+   * @param arguments group_save arguments
+   * @return the confirmation
    */
-  private static String groupSaveSetJexlScript(JsonNode arguments) {
+  public static GrouperToolConfirmation groupSaveConfirmation(JsonNode arguments) {
+    if (Strings.CS.equals("setJexlScript", argumentText(arguments, "action"))) {
+      return new GrouperToolConfirmation(groupSaveSetJexlScriptLines(arguments));
+    }
+    return new GrouperToolConfirmation(groupSave(arguments));
+  }
+
+  /**
+   * the script is what decides the members, so it gets a line of its own, and a change shows the
+   * script being replaced as well, since a small edit can add or remove many people.  the summary
+   * is these lines joined with new lines, and the screen shows the scripts in code blocks
+   * @param arguments group_save arguments with action setJexlScript
+   * @return the lines
+   */
+  private static List<GrouperToolConfirmation.Line> groupSaveSetJexlScriptLines(JsonNode arguments) {
 
     // the tool reads a JSON null script as not given, and refuses the call
     JsonNode scriptNode = arguments == null ? null : arguments.get("script");
-    String script = quoteScript(scriptNode == null || scriptNode.isNull() ? null : scriptNode.asText());
+    GrouperToolConfirmation.Line script = scriptLine(scriptNode == null || scriptNode.isNull() ? null : scriptNode.asText());
 
     // only for a user who may edit the script, the same check the tool makes, so this shows nobody
     // a script they could not see in the UI
@@ -236,32 +252,39 @@ public class GrouperToolConfirmationSummaries {
     String currentScript = scriptedGroup == null ? null : GrouperAbacScriptedGroup.internal_retrieveScript(scriptedGroup);
     String group = scriptedGroupName(arguments, scriptedGroup);
 
+    List<GrouperToolConfirmation.Line> lines = new ArrayList<GrouperToolConfirmation.Line>();
+
     // whether it is a scripted group is decided by the marker, as removeJexlScript decides it, so a
     // group with the marker but no script is not told it is being made one
-    String headline = null;
     if (scriptedGroup == null) {
-      headline = "Update the script of group " + group + " to " + script;
+      lines.add(new GrouperToolConfirmation.Line("Update the script of group " + group + " to:", false));
     } else if (!GrouperAbacScriptedGroup.internal_isScriptedGroup(scriptedGroup)) {
-      headline = "Update group " + group + " to be a scripted group, with script " + script;
+      lines.add(new GrouperToolConfirmation.Line("Update group " + group + " to be a scripted group, with script:", false));
     } else if (currentScript == null) {
-      headline = "Update the script of scripted group " + group + " to " + script;
+      lines.add(new GrouperToolConfirmation.Line("Update the script of scripted group " + group + " to:", false));
     } else {
-      headline = "Update the script of scripted group " + group + " from " + quoteScript(currentScript)
-          + " to " + script;
+      lines.add(new GrouperToolConfirmation.Line("Update the script of scripted group " + group + " from:", false));
+      lines.add(scriptLine(currentScript));
+      lines.add(new GrouperToolConfirmation.Line("to:", false));
     }
+    lines.add(script);
+
     // the tool refuses a composite and a group with another loader, so the approval does not promise
     // member changes which will not happen.  said only to a user who may edit the script, as above
+    String outcome = null;
     String otherLoaderType = scriptedGroup == null ? null : GrouperAbacScriptedGroup.internal_retrieveOtherLoaderType(scriptedGroup);
     if (otherLoaderType != null) {
-      headline += ".  This will be refused: the group has a " + otherLoaderType;
+      outcome = "This will be refused: the group has a " + otherLoaderType;
     } else if (scriptedGroup != null && scriptedGroup.isHasComposite()) {
-      headline += ".  This will be refused: the group is a composite";
+      outcome = "This will be refused: the group is a composite";
     } else {
-      headline += ".  Within about a minute, people the script selects are added, and direct "
-          + "members it doesn't select are removed";
+      outcome = "Within about a minute, people the script selects are added, and direct members it "
+          + "doesn't select are removed";
     }
+    lines.add(new GrouperToolConfirmation.Line(
+        withOtherArguments(outcome, arguments, "action", "groupName", "script"), false));
 
-    return withOtherArguments(headline, arguments, "action", "groupName", "script");
+    return lines;
   }
 
   /**
@@ -529,36 +552,41 @@ public class GrouperToolConfirmationSummaries {
   }
 
   /**
-   * a JEXL script, between backticks rather than single quotes: scripts are full of single quotes
-   * around group names, which quote() would show as \' everywhere.  a script almost never has a
-   * backtick, so the backtick and the backslash are escaped, which still keeps the model from
-   * closing the script early, and new lines and invisible characters are shown the way escape shows
-   * them
+   * a JEXL script as a line of the summary.  in the summary it is between backticks rather than
+   * single quotes: scripts are full of single quotes around group names, which quote() would show as
+   * \' everywhere.  a script almost never has a backtick, so the backtick and the backslash are
+   * escaped, which still keeps the model from closing the script early.
+   *
+   * <p>each \r and each \n is shown as a space, because that is how Grouper runs the script:
+   * GrouperLoaderJexlScriptFullSync.analyzeJexlScript replaces each of them with a space before
+   * parsing, so a // comment runs to the end of the whole script, not the end of its line.  showing
+   * the script's lines would make code after a comment look live when it is not.  if analyzeJexlScript
+   * ever keeps line breaks, show them here too.  every other control or invisible character, other
+   * line separators included, is shown the way escape shows it</p>
    * @param script the script, may be null
-   * @return the script, between backticks and escaped, or (not given)
+   * @return a code line with the script escaped, or a line saying it was not given
    */
-  private static String quoteScript(String script) {
+  private static GrouperToolConfirmation.Line scriptLine(String script) {
     if (script == null) {
-      return "(not given)";
+      return new GrouperToolConfirmation.Line("(not given)", false);
     }
-    StringBuilder result = new StringBuilder(script.length() + 2);
-    result.append('`');
+    StringBuilder result = new StringBuilder(script.length());
     int i = 0;
     while (i < script.length()) {
       int codePoint = script.codePointAt(i);
       int charCount = Character.charCount(codePoint);
       if (codePoint == '`' || codePoint == '\\') {
         result.append('\\').append((char)codePoint);
-      } else if (codePoint == '\n') {
-        result.append("\\n");
+      } else if (codePoint == '\n' || codePoint == '\r') {
+        // each one a space, exactly as analyzeJexlScript does, so \r\n is two
+        result.append(' ');
       } else {
         // escape() leaves quotes alone when told to, and shows the rest as it always does
         result.append(escape(script.substring(i, i + charCount), false));
       }
       i += charCount;
     }
-    result.append('`');
-    return result.toString();
+    return new GrouperToolConfirmation.Line(result.toString(), true);
   }
 
   /**
