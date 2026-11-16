@@ -926,22 +926,22 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetEntities;
     }
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache0 = 
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[0];
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[0];
     boolean hasEntityLinkAttributeValueCache0 = grouperProvisioningConfigurationAttributeDbCache0 != null
         && grouperProvisioningConfigurationAttributeDbCache0.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
 
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache1 = 
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[1];
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[1];
     boolean hasEntityLinkAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null
         && grouperProvisioningConfigurationAttributeDbCache1.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
 
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache2 = 
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[2];
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[2];
     boolean hasEntityLinkAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null
         && grouperProvisioningConfigurationAttributeDbCache2.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
 
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache3 = 
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[3];
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[3];
     boolean hasEntityLinkAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null
         && grouperProvisioningConfigurationAttributeDbCache3.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
 
@@ -949,6 +949,9 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetEntities;
     }
   
+    int refreshEntityLinkIfLessThanAmount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getRefreshEntityLinkIfLessThanAmount();
+    boolean refreshAll = GrouperUtil.length(provisioningEntityWrappers) <= refreshEntityLinkIfLessThanAmount;
+
     int retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks = 0;
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
@@ -957,9 +960,12 @@ public class GrouperProvisioningLinkLogic {
         continue;
       }
 
-      boolean hasChange = false;
+      boolean hasChange = refreshAll;
   
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      if (grouperTargetEntity == null) {
+        grouperTargetEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      }
       if (grouperTargetEntity == null) {
         continue;
       }
@@ -982,7 +988,7 @@ public class GrouperProvisioningLinkLogic {
         hasChange = true;
       }
       
-      if (hasEntityLinkAttributeValueCache1 && StringUtils.isBlank(gcGrouperSyncEntity.getEntityAttributeValueCache3())) {
+      if (hasEntityLinkAttributeValueCache3 && StringUtils.isBlank(gcGrouperSyncEntity.getEntityAttributeValueCache3())) {
         hasChange = true;
       }
       if (hasChange) {
@@ -1035,6 +1041,9 @@ public class GrouperProvisioningLinkLogic {
       return grouperTargetGroups;
     }
   
+    int refreshGroupLinkIfLessThanAmount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getRefreshGroupLinkIfLessThanAmount();
+    boolean refreshAll = GrouperUtil.length(provisioningGroupWrappers) <= refreshGroupLinkIfLessThanAmount;
+
     int retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks = 0;
   
     for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
@@ -1043,9 +1052,12 @@ public class GrouperProvisioningLinkLogic {
         continue;
       }
 
-      boolean hasChange = false;
+      boolean hasChange = refreshAll;
   
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      if (grouperTargetGroup == null) {
+        grouperTargetGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      }
       if (grouperTargetGroup == null) {
         continue;
       }
@@ -1068,7 +1080,7 @@ public class GrouperProvisioningLinkLogic {
         hasChange = true;
       }
       
-      if (hasGroupLinkAttributeValueCache1 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupAttributeValueCache3())) {
+      if (hasGroupLinkAttributeValueCache3 && StringUtils.isBlank(gcGrouperSyncGroup.getGroupAttributeValueCache3())) {
         hasChange = true;
       }
       
