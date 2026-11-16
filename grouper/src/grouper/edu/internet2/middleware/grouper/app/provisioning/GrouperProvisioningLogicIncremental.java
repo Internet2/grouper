@@ -2864,17 +2864,22 @@ public class GrouperProvisioningLogicIncremental {
         convertGroupsToRecalc++;
       }
     }
-    // we need to retrieve non recalc groups for entity attribute provisioning, if there is a group link and no data
-    // if there's cache, only pull the ones that we don't know about
-    // if not using cache, pull all of them
-    List<ProvisioningGroup> grouperTargetGroupsToRetrieveForLinks = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
-        .retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks(
-            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
-    for (ProvisioningGroup grouperTargetGroupToRetrieveForLinks : grouperTargetGroupsToRetrieveForLinks) {
-      if (grouperTargetGroupToRetrieveForLinks.getProvisioningGroupWrapper() != null) {
-        grouperTargetGroupToRetrieveForLinks.getProvisioningGroupWrapper().getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
-        convertGroupsToRecalc++;
+    if (!includeMemberships) {
+      // we need to retrieve non recalc groups for entity attribute provisioning, if there is a group link and no data
+      // if there's cache, only pull the ones that we don't know about
+      // if not using cache, pull all of them
+      List<ProvisioningGroup> grouperTargetGroupsToRetrieveForLinks = 
+          this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
+          .retrieveIncrementalNonRecalcTargetGroupsThatNeedLinks(
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+      for (ProvisioningGroup grouperTargetGroupToRetrieveForLinks : grouperTargetGroupsToRetrieveForLinks) {
+        if (grouperTargetGroupToRetrieveForLinks.getProvisioningGroupWrapper().getProvisioningStateGroup().isRecalcObject()) {
+          continue;
+        }
+        if (grouperTargetGroupToRetrieveForLinks.getProvisioningGroupWrapper() != null) {
+          grouperTargetGroupToRetrieveForLinks.getProvisioningGroupWrapper().getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
+          convertGroupsToRecalc++;
+        }
       }
     }
               
@@ -2927,18 +2932,20 @@ public class GrouperProvisioningLogicIncremental {
       }
     }
     
-    // we need to retrieve non recalc entities for entity attribute provisioning, if there is a entity link and no data
-    List<ProvisioningEntity> grouperTargetEntitiesToRetrieveForLinks = 
-        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
-        .retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks(
-            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
-    for (ProvisioningEntity grouperTargetEntityToRetrieveForLinks : grouperTargetEntitiesToRetrieveForLinks) {
-      if (grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper().getProvisioningStateEntity().isRecalcObject()) {
-        continue;
-      }
-      if (grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper() != null) {
-        grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper().getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
-        convertEntitiesToRecalc++;
+    if (!includeMemberships) {
+      // we need to retrieve non recalc entities for entity attribute provisioning, if there is a entity link and no data
+      List<ProvisioningEntity> grouperTargetEntitiesToRetrieveForLinks = 
+          this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic()
+          .retrieveIncrementalNonRecalcTargetEntitiesThatNeedLinks(
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+      for (ProvisioningEntity grouperTargetEntityToRetrieveForLinks : grouperTargetEntitiesToRetrieveForLinks) {
+        if (grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper().getProvisioningStateEntity().isRecalcObject()) {
+          continue;
+        }
+        if (grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper() != null) {
+          grouperTargetEntityToRetrieveForLinks.getProvisioningEntityWrapper().getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
+          convertEntitiesToRecalc++;
+        }
       }
     }
     
