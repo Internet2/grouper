@@ -5827,6 +5827,42 @@ public class GrouperProvisioningLogic {
     
   }
 
+  public boolean errorHandlingIsError(GcGrouperSyncErrorCode gcGrouperSyncErrorCode) {
+    if (gcGrouperSyncErrorCode == null) {
+      return false;
+    }
+    switch(gcGrouperSyncErrorCode) {
+      case DNE:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingTargetObjectDoesNotExistIsAnError();
+      case INV:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingInvalidDataIsAnError();
+      case LEN:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingLengthValidationIsAnError();
+      case MEM:
+        return false;
+      case REQ:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingRequiredValidationIsAnError();
+      case MAT:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingMatchingValidationIsAnError();
+      case SKP:
+        return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingSkipIfTargetGroupExistsIsAnError();
+      case ERR:
+        return true;
+      default:
+        throw new RuntimeException("Not expecting error code! " + gcGrouperSyncErrorCode);
+    }
+  }
+
+  public Set<String> errorHandlingErrorCodes() {
+    Set<String> errorCodes = new HashSet<String>();
+    for (GcGrouperSyncErrorCode gcGrouperSyncErrorCode : GcGrouperSyncErrorCode.values()) {
+      if (this.errorHandlingIsError(gcGrouperSyncErrorCode)) {
+        errorCodes.add(gcGrouperSyncErrorCode.name());
+      }
+    }
+    return errorCodes;
+  }
+
   /**
    * 
    * @param objectTypeErrorCodeToCount
@@ -5844,48 +5880,8 @@ public class GrouperProvisioningLogic {
     }
     
     // is this an error?
-    boolean errorCodeIsError = true;
-    boolean errorCodeIsLoggable = true;
-    switch(gcGrouperSyncErrorCode) {
-      case DNE:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingTargetObjectDoesNotExistIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case INV:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingInvalidDataIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case LEN:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingLengthValidationIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case MEM:
-        errorCodeIsError = false;
-        errorCodeIsLoggable = false;
-        break;
-      case REQ:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingRequiredValidationIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case MAT:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingMatchingValidationIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case SKP:
-        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingSkipIfTargetGroupExistsIsAnError()) {
-          errorCodeIsError = false;
-        }
-        break;
-      case ERR:
-        break;
-      default:
-        throw new RuntimeException("Not expecting error code! " + gcGrouperSyncErrorCode);
-    }
+    boolean errorCodeIsError = this.errorHandlingIsError(gcGrouperSyncErrorCode);
+    boolean errorCodeIsLoggable = gcGrouperSyncErrorCode != GcGrouperSyncErrorCode.MEM;
     
     if (!errorCodeIsError) {
       return false;

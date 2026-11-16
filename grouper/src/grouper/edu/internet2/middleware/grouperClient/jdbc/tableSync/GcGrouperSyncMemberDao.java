@@ -662,11 +662,27 @@ public class GcGrouperSyncMemberDao {
    * @return member ids
    */
   public List<String> retrieveMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    return retrieveMemberIdsWithErrorsAfterMillis(errorTimestampCheckFrom, null);
+  }
+
+  public List<String> retrieveMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom, Collection<String> errorCodes) {
     // don't pull errors unless the entity is in the target or the entity is provisionable or entity has at least one membership in a provsionable group 
+    if (errorCodes != null && errorCodes.isEmpty()) {
+      return new ArrayList<String>();
+    }
+    String errorCodeSql = "error_code is not null";
+    if (errorCodes != null) {
+      errorCodeSql = "error_code in ( " + GrouperClientUtils.appendQuestions(errorCodes.size()) + " )";
+    }
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql("select member_id from grouper_sync_member gsm where grouper_sync_id = ? and error_code is not null " + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ? and"
+        .sql("select member_id from grouper_sync_member gsm where grouper_sync_id = ? and " + errorCodeSql + " " + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ? and"
             + " (in_target = 'T' or provisionable = 'T' or exists (select 1 from grouper_sync_membership gsmem where gsmem.grouper_sync_member_id = gsm.id and gsmem.error_code is null ) )"))
         .addBindVar(this.getGcGrouperSync().getId());
+    if (errorCodes != null) {
+      for (String errorCode : errorCodes) {
+        gcDbAccess.addBindVar(errorCode);
+      }
+    }
     if (errorTimestampCheckFrom != null) {
       gcDbAccess.addBindVar(errorTimestampCheckFrom);
     }
