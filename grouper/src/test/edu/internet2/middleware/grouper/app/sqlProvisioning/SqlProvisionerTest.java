@@ -5246,6 +5246,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skippedEventsDueToFullSync"), 0) > 0);
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.errorHandlingShow").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.errorHandlingMatchingValidationIsAnError").value("false").store();
+
+    hib3GrouperLoaderLog = incrementalProvision(defaultConfigId(), true, true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));
     
 //    hib3GrouperLoaderLog = incrementalProvision();
 //    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());

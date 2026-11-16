@@ -663,10 +663,26 @@ public class GcGrouperSyncGroupDao {
    * @return group ids
    */
   public List<String> retrieveGroupIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    return retrieveGroupIdsWithErrorsAfterMillis(errorTimestampCheckFrom, null);
+  }
+
+  public List<String> retrieveGroupIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom, Collection<String> errorCodes) {
     // dont check invalids, just errors
+    if (errorCodes != null && errorCodes.isEmpty()) {
+      return new ArrayList<String>();
+    }
+    String errorCodeSql = "error_code is not null";
+    if (errorCodes != null) {
+      errorCodeSql = "error_code in ( " + GrouperClientUtils.appendQuestions(errorCodes.size()) + " )";
+    }
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql("select group_id from grouper_sync_group where grouper_sync_id = ? and error_code is not null " + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
+        .sql("select group_id from grouper_sync_group where grouper_sync_id = ? and " + errorCodeSql + " " + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
         .addBindVar(this.getGcGrouperSync().getId());
+    if (errorCodes != null) {
+      for (String errorCode : errorCodes) {
+        gcDbAccess.addBindVar(errorCode);
+      }
+    }
     if (errorTimestampCheckFrom != null) {
       gcDbAccess.addBindVar(errorTimestampCheckFrom);
     }

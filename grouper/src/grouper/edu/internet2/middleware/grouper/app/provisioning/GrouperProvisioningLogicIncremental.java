@@ -1535,9 +1535,14 @@ public class GrouperProvisioningLogicIncremental {
     
     long millisToCheckFrom = Math.max(millisToCheckFromJobLastRun, newMillisToCheckFromErrors);
   
+    Set<String> errorCodes = this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().errorHandlingErrorCodes();
+    if (errorCodes.isEmpty()) {
+      return;
+    }
+  
     Set<String> groupIdsSet = null;
     {
-      List<String> groupIds = gcGrouperSync.getGcGrouperSyncGroupDao().retrieveGroupIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null);
+      List<String> groupIds = gcGrouperSync.getGcGrouperSyncGroupDao().retrieveGroupIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null, errorCodes);
       groupIdsSet = new HashSet<String>(GrouperUtil.nonNull(groupIds));
       for (String groupId : GrouperUtil.nonNull(groupIds)) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(groupId,  this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()
@@ -1548,7 +1553,7 @@ public class GrouperProvisioningLogicIncremental {
     
     Set<String> memberIdsSet = null;
     {
-      List<String> memberIds = gcGrouperSync.getGcGrouperSyncMemberDao().retrieveMemberIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null);
+      List<String> memberIds = gcGrouperSync.getGcGrouperSyncMemberDao().retrieveMemberIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null, errorCodes);
       memberIdsSet = new HashSet<String>(GrouperUtil.nonNull(memberIds));
       for (String memberId : GrouperUtil.nonNull(memberIds)) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(memberId, 
@@ -1559,7 +1564,7 @@ public class GrouperProvisioningLogicIncremental {
     }
 
     {
-      List<Object[]> groupIdMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().retrieveGroupIdMemberIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null);
+      List<Object[]> groupIdMemberIds = gcGrouperSync.getGcGrouperSyncMembershipDao().retrieveGroupIdMemberIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null, errorCodes);
       
       for (Object[] groupIdMemberId : GrouperUtil.nonNull(groupIdMemberIds)) {
         String groupUuid = (String)groupIdMemberId[0];
