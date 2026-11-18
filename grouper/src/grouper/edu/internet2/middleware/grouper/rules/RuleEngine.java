@@ -460,8 +460,12 @@ public class RuleEngine {
         RuleSubjectActAs actAs = ruleDefinition.getActAs();
         Subject actAsSubject = actAs.subject(false);
         if (actAsSubject == null) {
-          LOG.error("Cant find subject for rule: " + ruleDefinition);
-          actAsSubject = SubjectFinder.findRootSubject();
+          // SECURITY: do not fall back to GrouperSystem.  The rule was validated (and is only
+          // allowed to run) as its act-as subject; if that subject cannot be resolved now (deleted,
+          // or its source is down), running the rule as GrouperSystem would give its then / if EL
+          // full privileges.  Skip it; the rules daemon marks it invalid at its next run
+          LOG.error("Cant find act as subject for rule, not firing it: " + ruleDefinition);
+          continue;
         }
         //lets get the currect subject and put it in the bean...
         GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);

@@ -172,6 +172,10 @@ public class GrouperServiceJ2ee implements Filter {
   public static Subject retrieveSubjectLoggedIn() {
     
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    // forget any header act-as state from an earlier call; set again below if the
+    // X-Grouper-actAs headers replace the authenticated caller (GrouperWsHeaderActAsGuard)
+    GrouperWsHeaderActAsGuard.clear();
     
     String authenticationClassName = GrouperWsConfig.getPropertyString(
         GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS,
@@ -281,6 +285,22 @@ public class GrouperServiceJ2ee implements Filter {
       }
 
       caller = retrieveSubjectGrouperActAsHelper(caller);
+
+      // the X-Grouper-actAs headers replaced the authenticated caller.  the authenticated caller
+      // must itself be a web service client (ws.client.user.group.name, checked here before the
+      // header subject is used for anything; the header subject is still checked later too), and
+      // is remembered so a request body actAsSubjectLookup cannot chain from the header subject
+      // to a third subject the header rule does not allow
+      if (caller != null && originalCaller != null
+          && !GrouperWsHeaderActAsGuard.sameSubject(caller, originalCaller)) {
+        if (!GrouperWsHeaderActAsGuard.isClientUserAdmitted(originalCaller)) {
+          LOG.error("user: '" + GrouperUtil.subjectToString(originalCaller)
+              + "' sent X-Grouper-actAs headers but is not a member of the group in grouper-ws.properties "
+              + "ws.client.user.group.name, and therefore is not authorized to use the web service");
+          throw new GrouperWsException("User is not authorized").assignLogStack(false);
+        }
+        GrouperWsHeaderActAsGuard.assignAuthenticatedSubject(originalCaller);
+      }
 
       if (caller != null && originalCaller != null && !StringUtils.equals(caller.getId(), originalCaller.getId())) {
         debugMap.put("userIdActAsSource", caller.getSourceId());
@@ -677,6 +697,13 @@ public class GrouperServiceJ2ee implements Filter {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+    // if the X-Grouper-actAs headers already replaced the authenticated caller with the logged in
+    // subject, a body actAs to a different subject would give the authenticated caller the header
+    // subject's own ws.act.as.group rights (chaining), so refuse it (GrouperWsHeaderActAsGuard)
+    if (GrouperWsHeaderActAsGuard.isChainedActAs(loggedInSubject, actAsSubject)) {
+      throw new WsInvalidQueryException(GrouperWsHeaderActAsGuard.chainedActAsMessage(loggedInSubject, actAsSubject));
+    }
+
     //see if same:
     if (StringUtils.equals(loggedInSubjectId, actAsSubject.getId())
         && StringUtils.equals(loggedInSubject.getSource().getId(), actAsSubject.getSource().getId())) {
@@ -1060,6 +1087,7 @@ public class GrouperServiceJ2ee implements Filter {
       GrouperLogger.clearGrouperLoggerState();
 
       threadLocalRequest.remove();
+      GrouperWsHeaderActAsGuard.clear();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
       threadLocalServlet.remove();

@@ -106,7 +106,7 @@
                                     </c:if>
                                     <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
                                     <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                      <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
+                                      <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouper:escapeUrl(guiMembershipSubjectContainer.guiSubject.subject.id)}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
                                     </c:if>
                                   </ul>
                                 </div>

@@ -92,7 +92,7 @@
         <charon.version>2.1.3</charon.version>
         <wink.client.version>1.4</wink.client.version>
         <!-- if changing this, change the container files in container_files/tier-support/log4j_fix -->
-        <log4j.version>2.26.0</log4j.version>
+        <log4j.version>2.26.1</log4j.version>
         <junit.version>4.13.2</junit.version>
         
         <antlr.version>2.7.7</antlr.version>
@@ -189,11 +189,12 @@
         <httpmime>4.5.13</httpmime>
         <geronimo-jms.version>1.1</geronimo-jms.version>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version>
-        <amqp-client.version>5.35.0</amqp-client.version>
+        <amqp-client.version>5.37.0</amqp-client.version>
         
         <!-- note, jackson version is also in grouper ws pom and should be adjusted accordingly -->
-        <jackson.databind>2.22.1</jackson.databind>        
-        <jsoup.version>1.23.1</jsoup.version>        
+        <jackson.databind>2.22.3</jackson.databind>
+        <netty.version>4.2.19.Final</netty.version>        
+        <jsoup.version>1.23.2</jsoup.version>        
         <java-ipv6.version>0.17</java-ipv6.version>
         
         <!-- grouper-ui -->
@@ -263,6 +264,17 @@
     <!-- Dependencies not required by every project module. Defines versions. -->
     <dependencyManagement>
         <dependencies>
+            <!-- GRP-7504: import the netty BOM so every netty module resolves to one patched version. Without it
+            qpid-jms-client drags in netty 4.1.72 (7 HIGH advisories) alongside 4.2.17 (amqp-client).
+            Grouper only uses netty as a client. Smoke test qpid JMS when bumping this. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Compile Dependencies -->
             <dependency>
                 <groupId>antlr</groupId>

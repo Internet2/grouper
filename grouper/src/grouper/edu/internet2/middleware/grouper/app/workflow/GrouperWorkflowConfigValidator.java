@@ -405,6 +405,15 @@ public class GrouperWorkflowConfigValidator {
     
     final Map<String, String> contentKeys = GrouperTextContainer.retrieveFromRequest().getText();
     
+    // the form is shown to initiators and (as an instance snapshot) to approvers, who may be
+    // wheel, so a workflow editor must not be able to save script, event handlers or other
+    // active content in it.  Reject instead of silently cleaning, so the editor sees why.
+    // (The UI also sanitizes at render time, which covers forms saved before this check.)
+    if (!GrouperWorkflowHtmlSanitizer.isSafe(config.getWorkflowConfigForm())) {
+      errors.add(contentKeys.get("workflowConfigInvalidConfigForm"));
+      return errors;
+    }
+
     try {
       Document document = Jsoup.parse(config.getWorkflowConfigForm());
       Elements inputElements = document.getElementsByTag("input");

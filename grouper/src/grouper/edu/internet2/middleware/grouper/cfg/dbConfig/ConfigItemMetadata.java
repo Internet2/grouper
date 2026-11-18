@@ -558,6 +558,11 @@ public class ConfigItemMetadata {
         throw new RuntimeException(this.metadataError);
       }
     }
+
+    // keys that hold secrets even if the shipped base properties metadata does not say so,
+    // e.g. the TeamDynamix webServicesKey (valueType string in older releases), are marked
+    // sensitive and password here, so they are encrypted when saved and masked when shown
+    GrouperConfigKnownSecretKeys.applyTo(this);
   }
   
   /** value in config file */

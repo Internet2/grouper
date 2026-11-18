@@ -27,5 +27,5 @@
                           <div class="data-table-bottom clearfix">
                             <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefContainer.guiPaging}" 
                               formName="subjectSearchAttributeDefPagingForm" ajaxFormIds="addAttributeDefSearchFormId"
-                              refreshOperation="../app/UiV2Subject.addAttributeDefSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
+                              refreshOperation="../app/UiV2Subject.addAttributeDefSearch?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" />
                           </div>

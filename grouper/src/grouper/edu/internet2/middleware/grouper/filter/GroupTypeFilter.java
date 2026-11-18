@@ -41,6 +41,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Query by {@link GroupType}.
@@ -92,8 +99,39 @@ public class GroupTypeFilter extends BaseQueryFilter {
       g = (Group) it.next();
       groups.add(g);
     }
-    return groups;
-  } 
+    // security: findAllByType is an unsecured lookup, keep only what the caller may see
+    return filterTypeAssignmentReadable(s, groups);
+  }
+
+  /**
+   * Keep only the groups where the caller may see the type assignment.  A legacy group type is an
+   * attribute assignment on the group, so this is the same rule as Group.getTypes(true) and the
+   * attribute query filters: ATTR_READ on the type's attribute definition, and GROUP_ATTR_READ (or
+   * ADMIN) on the group.  Root and wheel see everything.
+   * @param s session of the caller
+   * @param groups groups that have the type
+   * @return the groups the caller may see as having the type
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private Set filterTypeAssignmentReadable(GrouperSession s, Set groups) {
+    Subject subject = s.getSubject();
+    if (groups.size() == 0 || PrivilegeHelper.isWheelOrRoot(subject)) {
+      return groups;
+    }
+    final GroupType theType = this.type;
+    // the definition is looked up as root (the finder may check the caller), the privileges are checked for the caller
+    AttributeDef typeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        AttributeDefName typeName = theType.getAttributeDefName();
+        return typeName == null ? null : typeName.getAttributeDef();
+      }
+    });
+    if (typeDef == null || !PrivilegeHelper.canAttrRead(s, typeDef, subject)) {
+      return new LinkedHashSet();
+    }
+    return s.getAccessResolver().postHqlFilterGroups(groups, subject, AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+  }
 
 }
 

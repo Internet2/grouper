@@ -23,10 +23,12 @@ import com.unboundid.scim2.common.types.Meta;
 import com.unboundid.scim2.common.types.UserResource;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierGroupResource;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierMembershipResource;
@@ -40,7 +42,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Converts Grouper objects to SCIM 2 resources.
+ *
+ * <p>Subject identity data in a response (member refs, values and display names) is taken
+ * from the subject as resolved under the current (caller's) GrouperSession, never from the
+ * cached columns of the grouper_members row (Member.getName(), getSubjectId(), ...). The cached
+ * columns are filled from the unfiltered source record, so serializing them would bypass the
+ * configured SubjectCustomizer (which can hide or rewrite subjects for some callers).
+ * The SCIM providers start a GrouperSession as the logged-in subject before calling the
+ * converters, so the static session here is the caller's session.</p>
+ */
 public class TierScimUtil {
+
+  /**
+   * Resolve the subject of a member as the subject of the current GrouperSession, applying the
+   * SubjectCustomizer (SubjectFinder.findByIdAndSource filters per session subject, and its
+   * cache is keyed by the session subject, so a subject primed as root is not reused here).
+   * @param member the member to resolve, may be null
+   * @return the subject the caller may see, or null if the subject is hidden from the caller,
+   * no longer exists, or the source cannot resolve it (fail closed: callers must then emit
+   * no subject-derived data)
+   */
+  private static Subject visibleSubject(Member member) {
+    if (member == null) {
+      return null;
+    }
+    try {
+      return SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), false);
+    } catch (RuntimeException e) {
+      // source unavailable, not unique, etc: do not fall back to the cached member columns
+      return null;
+    }
+  }
 
   /**
    *
@@ -65,10 +99,17 @@ public class TierScimUtil {
 
     List<com.unboundid.scim2.common.types.Member> rsrcMembers = new ArrayList<>();
     for (Member member: group.getMembers()) {
+      // resolve as the caller; a member the caller may not see is left out of the list
+      // entirely (same as the SubjectCustomizer removing it from a subject search)
+      Subject subject = visibleSubject(member);
+      if (subject == null) {
+        continue;
+      }
       com.unboundid.scim2.common.types.Member rsrcMember = new com.unboundid.scim2.common.types.Member();
-      rsrcMember.setRef(URI.create("../Users/" + member.getSubjectId()));  // match existing behavior
+      rsrcMember.setRef(URI.create("../Users/" + subject.getId()));  // match existing behavior
       rsrcMember.setValue(member.getId());
-      rsrcMember.setDisplay(member.getName());
+      // display name as the caller sees it (the customizer may rewrite it), not the cached name
+      rsrcMember.setDisplay(subject.getName());
       rsrcMembers.add(rsrcMember);
     }
     groupResource.setMembers(rsrcMembers);
@@ -114,7 +155,10 @@ public class TierScimUtil {
 
     userResource.setId(subject.getId()); // better would be member uuid
     //userResource.setExternalId(member.getSubjectId());
-    userResource.setUserName(member.getSubjectIdentifier0()); // should the identifier to use be configurable?
+    // SECURITY (issue 92, 2026-11-10): userName comes from the subject as resolved for the caller (subject
+    // customizer and attribute rules applied), not from the member cache; omitted when hidden
+    String scimUserName = scimUserName(subject);
+    userResource.setUserName(scimUserName);
     userResource.setUserType(subject.getSourceId());
     userResource.setDisplayName(subject.getName());
     userResource.setActive(true);
@@ -129,7 +173,10 @@ public class TierScimUtil {
     entUserExtension.setEmployeeNumber(subject.getId());
     userResource.setExtension(entUserExtension);
 
-    Set<Group> groups = new GroupFinder().assignSubject(subject).assignFieldName("members").findGroups();
+    // SECURITY (issue 129, 2026-11-10): only groups the caller can READ.  Without privileges GroupFinder
+    // does not filter, so every group of the subject was listed, hidden ones included
+    Set<Group> groups = new GroupFinder().assignSubject(subject).assignFieldName("members")
+        .assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroups();
     List<com.unboundid.scim2.common.types.Group> rsrcGroups = new ArrayList<>();
     for (Group group: groups) {
       com.unboundid.scim2.common.types.Group rsrcGroup = new com.unboundid.scim2.common.types.Group();
@@ -143,7 +190,7 @@ public class TierScimUtil {
     String subjectAsString = member.getUuid() + "\0" +
             member.getSubjectSourceId() + "\0" +
             member.getSubjectId() + "\0" +
-            member.getSubjectIdentifier0();
+            (scimUserName == null ? "" : scimUserName);
 
     String version = DigestUtils.sha1Hex(subjectAsString);
     Meta meta = new Meta();
@@ -154,6 +201,28 @@ public class TierScimUtil {
 
     return userResource;
 
+  }
+
+  /**
+   * the SCIM userName: the subject's identifier attribute (the source's subjectIdentifierAttribute 0) as
+   * the caller sees it, or null if the source has none or the value is hidden from the caller
+   * @param subject resolved in the caller's session
+   * @return the user name or null
+   */
+  private static String scimUserName(Subject subject) {
+    try {
+      java.util.Map<Integer, String> identifierAttributes = subject.getSource() == null ? null
+          : subject.getSource().getSubjectIdentifierAttributes();
+      String attributeName = identifierAttributes == null ? null : identifierAttributes.get(0);
+      if (attributeName == null || attributeName.trim().length() == 0) {
+        return null;
+      }
+      String value = subject.getAttributeValue(attributeName);
+      return value == null || value.trim().length() == 0 ? null : value;
+    } catch (RuntimeException re) {
+      // fail closed: no user name rather than the cached one
+      return null;
+    }
   }
 
   public static TierMembershipResource convertGrouperMembershipToScimResource(Membership mship) {
@@ -169,10 +238,15 @@ public class TierScimUtil {
             .setValue(mship.getOwnerGroupId());
     resource.setOwner(group);
 
-    com.unboundid.scim2.common.types.Member member = new com.unboundid.scim2.common.types.Member()
-            .setRef(URI.create("../Users/" + mship.getMemberSubjectId()))
-            .setDisplay(mship.getMember().getName())
-            .setValue(mship.getMemberSubjectId());
+    // resolve the member as the caller; if it is hidden (or unresolvable) the member object
+    // carries no ref, value or display, so nothing from the cached member row is disclosed
+    com.unboundid.scim2.common.types.Member member = new com.unboundid.scim2.common.types.Member();
+    Subject memberSubject = visibleSubject(mship.getMember());
+    if (memberSubject != null) {
+      member.setRef(URI.create("../Users/" + memberSubject.getId()))
+            .setDisplay(memberSubject.getName())
+            .setValue(memberSubject.getId());
+    }
     resource.setMember(member);
 
     String hashable = mship.getUuid() + "\0" + mship.getType() + "\0" + mship.isEnabled();

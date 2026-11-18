@@ -45,6 +45,15 @@ public class CustomUiLdap extends CustomUiUserQueryBase {
     try {
       filter = CustomUiUtil.substituteExpressionLanguage(filter, group, null, null, subject, null);
       
+      // LdapSession.list evaluates a filter that starts with ${ and ends with } a second time,
+      // as a script with static classes allowed.  This filter is already the result of the
+      // custom UI expression, which can carry subject or group data, so a result that looks like
+      // an expression must not reach it (second-order expression injection): refuse it
+      if (filterIsExpression(filter)) {
+        throw new RuntimeException("Custom UI LDAP filter must be a plain LDAP filter after substitution, "
+            + "expression syntax (a filter starting with '${') is not allowed, configId: '" + configId + "'");
+      }
+      
       this.debugMapPut("ldapFilter", filter);
       
       List<String> value = LdapSessionUtils.ldapSession().list(String.class, configId, searchDn, LdapSearchScope.SUBTREE_SCOPE, 
@@ -78,6 +87,17 @@ public class CustomUiLdap extends CustomUiUserQueryBase {
     
   }
   
+  /**
+   * true if the LDAP session would evaluate this filter as an expression
+   * (LdaptiveSessionImpl.processSearchRequest trims it and checks for ${...}).  Only the start
+   * is checked, so a near miss is refused too.
+   * @param filter
+   * @return true if the filter starts with ${ after trimming
+   */
+  static boolean filterIsExpression(String filter) {
+    return filter != null && filter.trim().startsWith("${");
+  }
+
   /**
    * 
    * @param args

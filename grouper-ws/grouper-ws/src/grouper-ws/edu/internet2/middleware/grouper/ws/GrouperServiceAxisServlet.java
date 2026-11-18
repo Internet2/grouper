@@ -62,6 +62,18 @@ public class GrouperServiceAxisServlet extends AxisServlet {
     //stash in threadlocal, make sure this is first in this method!
     GrouperServiceJ2ee.assignHttpServlet(this);
 
+    // Axis2 runs an operation for a plain GET or HEAD (its "REST" support) with the query
+    // parameters as arguments, so refuse those unless they only ask for metadata (wsdl, xsd,
+    // listServices).  Real SOAP clients always POST.  See WsSoapHttpMethodValidator
+    // (security issue soapAxisRestGetWrites, the SOAP side of the REST servlet's GET rule)
+    if (!WsSoapHttpMethodValidator.allowRequest((HttpServletRequest)req, (HttpServletResponse)res)) {
+      HttpSession httpSession = ((HttpServletRequest)req).getSession(false);
+      if (httpSession != null) {
+        httpSession.invalidate();
+      }
+      return;
+    }
+
     //else pass to axis
     super.service(req, res);
     

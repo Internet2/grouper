@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptAllowlist;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
@@ -934,8 +935,27 @@ public class UiV2GrouperLoader {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
       editGrouperLoaderHelper(request, grouperLoaderContainer);
+      
+      // ${...} in loader SQL queries and LDAP filters / expressions runs as root in the loader
+      // daemon: only wheel or root may save it, or change a loader that already has it
+      edu.internet2.middleware.grouper.app.loader.GrouperLoaderExpressionAuthorization.assertUiSaveAllowed(
+          loggedInSubject, group, grouperLoaderContainer.isEditLoaderIsLoader(), grouperLoaderContainer.getEditLoaderType(),
+          new String[] {grouperLoaderContainer.getEditLoaderSqlQuery(), grouperLoaderContainer.getEditLoaderSqlGroupQuery()},
+          new String[] {grouperLoaderContainer.getEditLoaderLdapFilter(), grouperLoaderContainer.getEditLoaderLdapSubjectExpression(),
+            grouperLoaderContainer.getEditLoaderLdapGroupNameExpression(), grouperLoaderContainer.getEditLoaderLdapGroupDisplayNameExpression(),
+            grouperLoaderContainer.getEditLoaderLdapGroupDescriptionExpression(), grouperLoaderContainer.getEditLoaderLdapAttributeFilterExpression()});
 
       boolean hasError = false;
+
+      // a delegated (non-wheel) loader editor may only name groups (query results, and-groups, groups
+      // like) under folders they administer, needs READ on the and-groups, may not set the LDAP results
+      // transformation class or use the grouper database; also records who saved it for the run-time check
+      edu.internet2.middleware.grouper.app.loader.GrouperLoaderTargetAuthorization.assertUiSaveAllowedAndRecordEditor(
+          loggedInSubject, group, grouperLoaderContainer.isEditLoaderIsLoader(), grouperLoaderContainer.getEditLoaderType(),
+          grouperLoaderContainer.getEditLoaderSqlType(), grouperLoaderContainer.getEditLoaderSqlDatabaseName(),
+          grouperLoaderContainer.getEditLoaderSqlQuery(), grouperLoaderContainer.getEditLoaderSqlGroupQuery(),
+          grouperLoaderContainer.getEditLoaderLdapType(), grouperLoaderContainer.getEditLoaderGroupsLike(),
+          grouperLoaderContainer.getEditLoaderAndGroups(), grouperLoaderContainer.getEditLoaderLdapResultsTransformationClass());
       
       if (!grouperLoaderContainer.isEditLoaderIsLoader()) {
         if (grouperLoaderContainer.isGrouperLdapLoader()) {
@@ -1074,7 +1094,8 @@ public class UiV2GrouperLoader {
           
         }
         if (!hasError) {
-          String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
+          // allowlist and READ on every group the script names (non-wheel), before evaluating
+          String errorMessage = GrouperAbacScriptAllowlist.validScriptForEditor(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), loggedInSubject);
           if (!StringUtils.isBlank(errorMessage)) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
@@ -2035,7 +2056,9 @@ public class UiV2GrouperLoader {
           if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript())) {
             error = true;
           } else {
-            if (StringUtils.isNotBlank(GrouperAbac.validScript(grouperLoaderJexlScript))) {
+            // allowlist and READ on every group the script names (non-wheel), before evaluating;
+            // this runs on the form refresh too, and inside the root callback on save
+            if (StringUtils.isNotBlank(GrouperAbacScriptAllowlist.validScriptForEditor(grouperLoaderJexlScript, GrouperUiFilter.retrieveSubjectLoggedIn()))) {
               error = true;
             }
           }
@@ -2674,6 +2697,15 @@ public class UiV2GrouperLoader {
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
+
+      // security: a delegated (non-wheel) loader editor needs READ on every 'and group' before the
+      // diagnostics below look them up as root (else they tell whether a hidden group exists)
+      String andGroupsReadError = edu.internet2.middleware.grouper.app.loader.GrouperLoaderTargetAuthorization.checkDiagnostics(
+          loggedInSubject, group);
+      if (andGroupsReadError != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, GrouperUtil.xmlEscape(andGroupsReadError)));
+        return;
+      }
 
       GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
       
@@ -3808,7 +3840,10 @@ public class UiV2GrouperLoader {
       
       loaderReport.append("</pre>");
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#grouperLoaderDiagnosticsResults", loaderReport.toString()));
+      // the report holds loader settings, query rows, job messages and stack traces: escape all of it and
+      // keep only the report's own fixed label markup, so none of that data is read as html
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#grouperLoaderDiagnosticsResults",
+          GrouperLoaderDiagnosticsReportHtml.toSafeHtml(loaderReport.toString())));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -8,13 +8,13 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
               <div class="span12">
                 <div id="messages"></div>
 				        <ul class="nav nav-tabs">
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                   </c:if>
                   <li><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
-                  <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
-                  <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
+                  <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
+                  <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance}">
                     <%@ include file="subjectMoreTab.jsp" %>
                   </c:if>
@@ -23,7 +23,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                 <p class="lead">${textContainer.text['subjectAuditLogDescription'] }</p>
 
                 <form class="form-inline form-small form-filter" id="subjectFilterAuditFormId">
-                  <input type="hidden" name="auditType" value="${grouperRequestContainer.subjectContainer.auditType}" />
+                  <input type="hidden" name="auditType" value="${fn:escapeXml(grouperRequestContainer.subjectContainer.auditType)}" />
                   <label for="date-filter">${textContainer.text['subjectAuditLogFilterByDate'] }</label>&nbsp;
                   <select id="date-filter" class="span2" name="filterType">
                     <option value="all" selected="selected">${textContainer.text['subjectAuditLogFilterType_all']}</option>
@@ -40,7 +40,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectAuditLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['subjectAuditLogFilterFindEntriesButton']}</button>
                 </form>
 

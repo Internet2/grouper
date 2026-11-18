@@ -37,39 +37,39 @@
 		   <c:when test="${grouperRequestContainer.subjectContainer.favorite}">
 		     <li>
 		       <a href="#" 
-		         onclick="ajax('../app/UiV2Subject.removeFromMyFavorites?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+		         onclick="ajax('../app/UiV2Subject.removeFromMyFavorites?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
 		       >${textContainer.text['subjectViewMoreActionsRemoveFromMyFavorites'] }</a>
 		     </li>
 		   </c:when>
 		   <c:otherwise>
 		     <li>
 		       <a href="#" 
-		         onclick="ajax('../app/UiV2Subject.addToMyFavorites?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+		         onclick="ajax('../app/UiV2Subject.addToMyFavorites?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
 		       >${textContainer.text['subjectViewMoreActionsAddToMyFavorites']}</a>
 		     </li>
 		   </c:otherwise>
 		 </c:choose>
  
      <li class="divider"></li>
-     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2SubjectPermission.subjectPermission&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2SubjectPermission.subjectPermission&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
                               >${textContainer.text['subjectViewPermissionsButton'] }</a></li>
      
      <li class="divider"></li>
      <li>
-       <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.viewAttributeAssignments?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;">
+       <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.viewAttributeAssignments?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;">
          ${textContainer.text['subjectAttributeAssignmentsButton'] }
        </a>
      </li>
      <c:if test="${grouperRequestContainer.subjectContainer.canSeeAudits}">
      
        <li class="divider"></li>
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
            >${textContainer.text['subjectViewMembershipAuditButton'] }</a></li>
        
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions'); return false;"
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&auditType=actions'); return false;"
            >${textContainer.text['subjectViewActionAuditButton'] }</a></li>
        
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges'); return false;"
+       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&auditType=privileges'); return false;"
            >${textContainer.text['subjectViewPrivilegeAuditButton'] }</a></li>
            
      </c:if>
@@ -83,18 +83,18 @@
       </c:if>
 
      <li class="divider"></li>
-     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.subjectView&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
+     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Visualization.subjectView&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}'); return false;"
            >${textContainer.text['visualization.title'] }</a></li>
      
      <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForSubject}">      
 	   <li class="divider"></li>
-	   <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
+	   <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}'); return false;"
            >${textContainer.text['subjectViewProvisioningButton'] }</a></li>
      </c:if>
      
      <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.subjectContainer.canViewWsJwtKey }">
         <li class="divider"></li>
-        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
           >${textContainer.text['localEntityWsJwtKeyLocalEntityButton'] }</a></li>
       </c:if>
 

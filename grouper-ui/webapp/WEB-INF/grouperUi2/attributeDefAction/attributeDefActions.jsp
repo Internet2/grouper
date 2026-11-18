@@ -33,7 +33,7 @@
                             </label>
                           </td>
                         </c:if>
-                        <td>${attributeAssignAction.name}</td>
+                        <td>${grouper:escapeHtml(attributeAssignAction.name)}</td>
                         <td>
                           <div class="btn-group">
                           	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeActionActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 

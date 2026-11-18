@@ -1,13 +1,13 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <%-- for the new group or new stem button --%>
-<input type="hidden" name="objectStemId" value="${grouperRequestContainer.permissionContainer.guiGroup.group.parentUuid}" />
+<input type="hidden" name="objectStemId" value="${grouper:escapeHtml(grouperRequestContainer.permissionContainer.guiGroup.group.parentUuid)}" />
 
 <div class="row-fluid">
   <div class="span12">
     <form id="simplePermissionLimitValueEditForm" name="simplePermissionLimitValueEditFormName" class="form-horizontal">
-      <input name="limitAssignId" type="hidden" value="${permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
-      <input name="limitAssignValueId" type="hidden" value="${permissionUpdateRequestContainer.attributeAssignValue.id }" />
+      <input name="limitAssignId" type="hidden" value="${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id)}" />
+      <input name="limitAssignValueId" type="hidden" value="${grouper:escapeHtml(permissionUpdateRequestContainer.attributeAssignValue.id)}" />
       
       <div class="control-group">
         <c:set var="attributeAssignTypeLabelKey" value="${permissionUpdateRequestContainer.attributeAssignTypeLabelKey}"></c:set>
@@ -27,21 +27,21 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simplePermissionAssign.limitAction'] }</label>
         <div class="controls">
-          ${permissionUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignAction.name}
+          ${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignAction.name)}
         </div>
       </div>
       
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simplePermissionAssign.limitName'] }</label>
         <div class="controls">
-          ${permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.attributeDefName.displayName}
+          ${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.attributeDefName.displayName)}
         </div>
       </div>
       
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simplePermissionAssign.limitEditId'] }</label>
         <div class="controls">
-          ${permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id}
+          ${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id)}
         </div>
       </div>
       
@@ -49,7 +49,7 @@
         <label class="control-label">${textContainer.text['simpleAttributeUpdate.assignValueEdit'] }</label>
         <div class="controls">
           <input type="text" name="valueToEdit"  id="valueToEditId" 
-              value="${permissionUpdateRequestContainer.attributeAssignValue.valueFriendly}" />
+              value="${grouper:escapeHtml(permissionUpdateRequestContainer.attributeAssignValue.valueFriendly)}" />
         </div>
       </div>
       

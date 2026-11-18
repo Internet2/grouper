@@ -13,7 +13,7 @@
         <div class="row-fluid">
          <div id="wsJwtKey-create-download-block-container" class="well hide">
           <%-- <form id="wsJwtKeyCreateDownloadForm" class="form-horizontal">
-             <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
+             <input type="hidden" name="subjectId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
              <div class="control-group">
                <label class="control-label">${textContainer.text['subjectAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">

@@ -771,7 +771,43 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * jexl script test execute
    */
-  JEXL_TEST_EXEC(new AuditType("jexlTest", "jexlTestExec", null, "jexlTestExample", "script"))
+  JEXL_TEST_EXEC(new AuditType("jexlTest", "jexlTestExec", null, "jexlTestExample", "script")),
+
+  /**
+   * role inheritance added: members of the "if has" role also get the permissions of the "then has" role
+   */
+  ROLE_INHERITANCE_ADD(new AuditType("roleInheritance", "addRoleInheritance", null, "ifHasRoleId", 
+      "ifHasRoleName", "thenHasRoleId", "thenHasRoleName")),
+
+  /**
+   * role inheritance removed
+   */
+  ROLE_INHERITANCE_DELETE(new AuditType("roleInheritance", "deleteRoleInheritance", null, "ifHasRoleId", 
+      "ifHasRoleName", "thenHasRoleId", "thenHasRoleName")),
+
+  /**
+   * permission name implication added: holders of the "if has" name also hold the "then has" name
+   */
+  ATTRIBUTE_DEF_NAME_INHERITANCE_ADD(new AuditType("attributeDefNameInheritance", "addAttributeDefNameInheritance", null, 
+      "ifHasAttributeDefNameId", "ifHasAttributeDefNameName", "thenHasAttributeDefNameId", "thenHasAttributeDefNameName")),
+
+  /**
+   * permission name implication removed
+   */
+  ATTRIBUTE_DEF_NAME_INHERITANCE_DELETE(new AuditType("attributeDefNameInheritance", "deleteAttributeDefNameInheritance", null, 
+      "ifHasAttributeDefNameId", "ifHasAttributeDefNameName", "thenHasAttributeDefNameId", "thenHasAttributeDefNameName")),
+
+  /**
+   * action implication added: the "if has" action implies the "then has" action
+   */
+  ATTRIBUTE_DEF_ACTION_INHERITANCE_ADD(new AuditType("attributeDefActionInheritance", "addAttributeDefActionInheritance", null, 
+      "attributeDefId", "attributeDefName", "ifHasActionId", "ifHasActionName", "thenHasActionId", "thenHasActionName")),
+
+  /**
+   * action implication removed
+   */
+  ATTRIBUTE_DEF_ACTION_INHERITANCE_DELETE(new AuditType("attributeDefActionInheritance", "deleteAttributeDefActionInheritance", null, 
+      "attributeDefId", "attributeDefName", "ifHasActionId", "ifHasActionName", "thenHasActionId", "thenHasActionName"))
   ;
 
   /**

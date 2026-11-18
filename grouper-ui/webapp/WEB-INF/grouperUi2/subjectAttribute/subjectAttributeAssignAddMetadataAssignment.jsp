@@ -5,7 +5,7 @@
     
     <form id="simpleAttributeMetadataAddForm" name="simpleAttributeMetadataAddFormName" class="form-horizontal">
       
-      <input name="subjectId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}" />
+      <input name="subjectId" type="hidden" value="${grouper:escapeHtml(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}" />
       <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.id }" />
       
       <div class="control-group">
@@ -61,7 +61,7 @@
       
       <div class="form-actions">
         <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignMetadataAddSubmit', {formIds: 'simpleAttributeMetadataAddForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignAddValueSubmitButton'] }</a>
-        <a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}');"
+        <a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=${grouper:escapeUrl(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}');"
                            class="btn">${textContainer.text['simpleAttributeAssign.assignAddValueCancelButton']}</a> 
       </div>
       

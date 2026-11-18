@@ -70,7 +70,7 @@
                         <c:set var="guiPermissionEntryChecked" value="${guiPermissionEntry.immediate}" />
                         <c:set var="guiPermissionId" value="${guiPermissionEntryContainer.role.id}__${guiPermissionEntryContainer.memberId}__${guiPermissionEntryContainer.permissionResource.id}__${action}" />
                         <%-- keep the previous state so we know what the user changed --%>
-                        <input  name="previousState__${guiPermissionId}"
+                        <input  name="previousState__${grouper:escapeHtml(guiPermissionId)}"
                           type="hidden" value="${guiPermissionEntryChecked ? 'true' : 'false'}" />
                         <c:choose>
                           <c:when test="${guiPermissionEntry.immediate && !guiPermissionEntry.effective}"
@@ -79,11 +79,11 @@
                             ><c:set var="tooltipName" value="simplePermissionAssign.effectiveTooltip" /></c:when
                             ><c:otherwise><c:set var="tooltipName" value="simplePermissionAssign.immediateAndEffectiveTooltip" /></c:otherwise>
                         </c:choose>
-                        <input  style="margin-right: -3px" name="permissionCheckbox__${guiPermissionId}" value="true"
+                        <input  style="margin-right: -3px" name="permissionCheckbox__${grouper:escapeHtml(guiPermissionId)}" value="true"
                           type="checkbox" ${guiPermissionEntryChecked ? 'checked="checked"' : '' } 
                         />
                         <a href="#" style="margin-left: 5px"
-                        onclick="ajax('../app/UiV2SubjectPermission.permissionPanelImageClick?permissionAssignType=${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}&guiPermissionId=${guiPermissionId}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'}); return false;"
+                        onclick="ajax('../app/UiV2SubjectPermission.permissionPanelImageClick?permissionAssignType=${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}&guiPermissionId=${grouper:escapeUrl(guiPermissionId)}&allow=${guiPermissionEntryChecked ? 'false' : 'true'}', {formIds: 'attributePermissionsFormId'}); return false;"
                         ><c:choose><c:when test="${guiPermissionEntry.allowed}"
                           ><img src="../../grouperExternal/public/assets/images/accept.png" height="14px" border="0" 
                             onmouseover="Tip('${grouper:escapeJavascript(navMap[tooltipName])}')"
@@ -94,7 +94,7 @@
                             /></c:otherwise></c:choose></a>
                         <a class="permissionMenuButton" href="#"
                           ><img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                          id="permissionMenuButton_${guiPermissionId}__${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}" 
+                          id="permissionMenuButton_${grouper:escapeHtml(guiPermissionId)}__${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}" 
                           alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/></a>
                         
                       </c:if>
@@ -133,7 +133,7 @@
                         <c:otherwise><grouper:message key="simplePermissionUpdate.limitAction" /></c:otherwise>
                       </c:choose>
                       </span>
-                            ${guiPermissionLimitBeanContainer.actionsCommaSeparated}
+                            ${grouper:escapeHtml(guiPermissionLimitBeanContainer.actionsCommaSeparated)}
                     </td>
                     <td style="white-space: nowrap;">
                       <grouper:message value="${grouper:escapeHtml(guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.attributeDefName.displayExtension)}" 

@@ -27,16 +27,18 @@ import org.apache.commons.logging.Log;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
@@ -219,6 +221,69 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   private static final Log LOG = GrouperUtil.getLog(WsSubjectLookup.class);
 
   /**
+   * <pre>
+   * security (issue 48): the group the current web service operation resolved, as
+   * {grouperSessionId, groupUuid}.  WsGroupLookup.retrieveGroupIfNeeded() sets it every time it runs,
+   * so in addMember it holds the target group while the subject lookups run.  An external subject is
+   * only auto-created (addExternalSubjectIfNotFound) when the caller has UPDATE on this group.
+   * It holds strings, not the Group, so a pooled thread does not keep objects alive, and it is tied
+   * to the grouper session id so a value left over from an earlier request (new session) never counts.
+   * </pre>
+   */
+  private static final ThreadLocal<String[]> externalSubjectTargetGroup = new ThreadLocal<String[]>();
+
+  /**
+   * <pre>
+   * security (issue 48): remember the group a web service operation resolved, so that auto-creating
+   * an external subject in the same operation can require UPDATE on it.  Called by WsGroupLookup.
+   * Not a javabean property.
+   * </pre>
+   * @param grouperSession session that resolved the group
+   * @param group the group, or null to clear
+   */
+  public static void assignExternalSubjectTargetGroup(GrouperSession grouperSession, Group group) {
+    if (grouperSession == null || group == null) {
+      externalSubjectTargetGroup.remove();
+      return;
+    }
+    externalSubjectTargetGroup.set(new String[] {grouperSession.getSessionId(), group.getUuid()});
+  }
+
+  /**
+   * <pre>
+   * security (issue 48): see if the caller may auto-create an external subject.  Both are required:
+   * the caller may edit external users (wheel, or externalSubjects.groupAllowedForEdit), and the
+   * caller has UPDATE on the group this operation resolved.  Fails closed when the target group is
+   * not known.
+   * </pre>
+   * @return null if allowed, else the reason it is not allowed (for the log)
+   */
+  private static String externalSubjectCreateDeniedReason() {
+    GrouperSession callerSession = GrouperSession.staticGrouperSession(false);
+    if (callerSession == null || callerSession.getSubject() == null) {
+      return "there is no grouper session";
+    }
+    Subject caller = callerSession.getSubject();
+    if (!ExternalSubject.subjectCanEditExternalUser(caller)) {
+      return "caller cannot edit external subjects (externalSubjects.groupAllowedForEdit / externalSubjects.wheelOrRootCanEdit): "
+          + GrouperUtil.subjectToString(caller);
+    }
+    String[] sessionIdAndGroupUuid = externalSubjectTargetGroup.get();
+    if (sessionIdAndGroupUuid == null || !StringUtils.equals(sessionIdAndGroupUuid[0], callerSession.getSessionId())) {
+      return "the target group of this operation is not known";
+    }
+    // find as the caller: they resolved it in this operation, so they can see it
+    Group group = GroupFinder.findByUuid(callerSession, sessionIdAndGroupUuid[1], false);
+    if (group == null) {
+      return "the target group of this operation cannot be found: " + sessionIdAndGroupUuid[1];
+    }
+    if (!group.canHavePrivilege(caller, AccessPrivilege.UPDATE.getName(), false)) {
+      return "caller does not have UPDATE on group '" + group.getName() + "': " + GrouperUtil.subjectToString(caller);
+    }
+    return null;
+  }
+
+  /**
    * create if any not null, otherwise null
    * @param subjectId
    * @param sourceId
@@ -310,8 +375,13 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   
         //cant have source without type
         if (hasSubjectSource) {
-          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
-            this.subjectId, true);
+          // security (issue 95): go through SubjectFinder (not the source adapter directly) so
+          // requireGroupNameForView attribute filtering and the subject customizer apply
+          this.subject = SubjectFinder.findByIdAndSource(this.subjectId, this.subjectSourceId, true);
+          // a subject the customizer hides comes back null with no exception: not found, not success
+          if (this.subject == null) {
+            this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
+          }
           return;
         } 
         this.subject = SubjectFinder.findById(this.subjectId, true);
@@ -320,8 +390,13 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   
         //cant have source without type
         if (hasSubjectSource) {
-          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubjectByIdentifier(
-              this.subjectIdentifier, true);
+          // security (issue 95): go through SubjectFinder (not the source adapter directly) so
+          // requireGroupNameForView attribute filtering and the subject customizer apply
+          this.subject = SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.subjectSourceId, true);
+          // a subject the customizer hides comes back null with no exception: not found, not success
+          if (this.subject == null) {
+            this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
+          }
           return;
         }
         this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier, true);
@@ -364,15 +439,20 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
             return;
           }
           
-          //lets store this, without validation... as root
-          //send the invite as root
-          GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-            
-            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-              externalSubject.store(null, null, false, true, false);
-              return null;
-            }
-          });
+          // security (issue 48): this used to store as root, which skipped the external-user edit
+          // check, before the UPDATE check on the group.  Now nothing is created unless the caller
+          // may edit external users AND has UPDATE on the target group
+          String deniedReason = externalSubjectCreateDeniedReason();
+          if (deniedReason != null) {
+            LOG.warn("Not auto-creating external subject '" + loginId + "': " + deniedReason);
+            this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
+            this.cause = new InsufficientPrivilegeException("Not allowed to create external subject: " + deniedReason, snfe);
+            return;
+          }
+
+          // store as the caller (it passed the checks above) so the audit records the real actor.
+          // auto-add group assignments in ExternalSubject.store() still run as root
+          externalSubject.store(null, null, false, true, false);
           
           this.subject = SubjectFinder.findByIdAndSource(externalSubject.getUuid(), ExternalSubject.sourceId(), false);
           if (this.subject == null) {

@@ -5,7 +5,7 @@
     
     <form id="simpleAttributeAssignValueEditForm" name="simpleAttributeAssignValueEditFormName" class="form-horizontal" action="javascript:void(0);">
       
-      <input name="subjectId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}" />
+      <input name="subjectId" type="hidden" value="${grouper:escapeHtml(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}" />
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       </c:if>

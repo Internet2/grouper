@@ -5,7 +5,7 @@
                         <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningTargetNameLabel'] }</strong></td>
                             <td>
-                              ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.targetName}
+                              ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.targetName)}
                             </td>
                         </tr>
                         
@@ -50,7 +50,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsInTargetStart'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetStart}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetStart)}
                               <br />
                               <span class="description">${textContainer.text['privsioningConfigDetailsInTargetStartDescription']}</span>
                             </td>
@@ -59,7 +59,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsInTargetEnd'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetEnd}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTargetEnd)}
                               <br />
                               <span class="description">${textContainer.text['privsioningConfigDetailsInTargetEndDescription']}</span>
                             </td>
@@ -68,7 +68,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsLastUpdated'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.lastUpdated}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.lastUpdated)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsLastUpdatedDescription']}</span>
                             </td>
@@ -77,7 +77,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMetadataUpdated'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.metadataUpdated}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.metadataUpdated)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMetadataUpdatedDescription']}</span>
                             </td>
@@ -86,7 +86,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMembershipId'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.membershipId}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.membershipId)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMembershipIdDescription']}</span>
                             </td>
@@ -95,7 +95,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMembershipId2'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.membershipId2}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.membershipId2)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMembershipId2Description']}</span>
                             </td>
@@ -113,7 +113,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMembershipErrorTimestamp'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorTimestamp}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.errorTimestamp)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMembershipErrorTimestampDescription']}</span>
                             </td>
@@ -143,7 +143,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupErrorTimestamp'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncGroup.errorTimestamp}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncGroup.errorTimestamp)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsGroupErrorTimestampDescription']}</span>
                             </td>
@@ -173,7 +173,7 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsMemberErrorTimestamp'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncMember.errorTimestamp}
+                            ${grouper:escapeHtml(grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.grouperSyncMember.errorTimestamp)}
                             <br />
                             <span class="description">${textContainer.text['privsioningConfigDetailsMemberErrorTimestampDescription']}</span>
                             </td>

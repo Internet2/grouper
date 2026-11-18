@@ -35,27 +35,27 @@
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigIdLabel']}</label></strong></td>
-          <td>${workflowConfig.workflowConfigId}</td>
+          <td>${grouper:escapeHtml(workflowConfig.workflowConfigId)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigNameLabel']}</label></strong></td>
-          <td>${workflowConfig.workflowConfigName}</td>
+          <td>${grouper:escapeHtml(workflowConfig.workflowConfigName)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigDescriptionLabel']}</label></strong></td>
-          <td>${workflowConfig.workflowConfigDescription}</td>
+          <td>${grouper:escapeHtml(workflowConfig.workflowConfigDescription)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigApprovalsLabel']}</label></strong></td>
-          <td>${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig.workflowApprovalStates}</td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig.workflowApprovalStates)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperWorkflowConfigParamsLabel']}</label></strong></td>
-          <td>${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig.workflowConfigParams}</td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig.workflowConfigParams)}</td>
         </tr>
         
         <tr>

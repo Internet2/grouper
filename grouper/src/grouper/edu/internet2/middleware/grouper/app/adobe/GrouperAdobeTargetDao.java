@@ -179,8 +179,21 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   
-  private static ExpirableCache<Boolean, Map<String, GrouperAdobeGroup>> cacheGroupNameToGroup = new ExpirableCache<Boolean, Map<String, GrouperAdobeGroup>>(5);
-  private static ExpirableCache<Boolean, Map<Long, GrouperAdobeGroup>> cacheGroupIdToGroup = new ExpirableCache<Boolean, Map<Long, GrouperAdobeGroup>>(5);
+  private static ExpirableCache<String, Map<String, GrouperAdobeGroup>> cacheGroupNameToGroup = new ExpirableCache<String, Map<String, GrouperAdobeGroup>>(5);
+  private static ExpirableCache<String, Map<Long, GrouperAdobeGroup>> cacheGroupIdToGroup = new ExpirableCache<String, Map<Long, GrouperAdobeGroup>>(5);
+
+  /**
+   * Key for the static group caches in this class.  The caches are shared by every Adobe
+   * provisioner in the JVM, so they are keyed by the Adobe external system config id and the
+   * org id: a provisioner must never read (or link to) groups that were loaded from another
+   * Adobe system or org.
+   * @return the cache key, never null
+   */
+  private String groupCacheKey() {
+    GrouperAdobeConfiguration theAdobeConfiguration = (GrouperAdobeConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    return GrouperUtil.defaultString(theAdobeConfiguration.getAdobeExternalSystemConfigId())
+        + "__orgId__" + GrouperUtil.defaultString(theAdobeConfiguration.getOrgId());
+  }
   
   private void populateGroupCache(List<GrouperAdobeGroup> allAdobeGroups) {
     
@@ -190,8 +203,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       groupNameToGroup.put(currentAdobeGroup.getName(), currentAdobeGroup);
       groupIdToGroup.put(currentAdobeGroup.getId(), currentAdobeGroup);
     }
-    cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
-    cacheGroupIdToGroup.put(Boolean.TRUE, groupIdToGroup);
+    cacheGroupNameToGroup.put(this.groupCacheKey(), groupNameToGroup);
+    cacheGroupIdToGroup.put(this.groupCacheKey(), groupIdToGroup);
   }
   
   @Override
@@ -209,7 +222,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         String name = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
         if (StringUtils.isNotBlank(name)) {
           
-          Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+          Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
           
           grouperAdobeGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
           
@@ -218,7 +231,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
             
             populateGroupCache(allAdobeGroups);
             
-            groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+            groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
             grouperAdobeGroup = groupNameToGroup.get(name);
             
           }
@@ -231,7 +244,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
           
           grouperAdobeGroup = retrieveGroupById(id);
           
-          Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(Boolean.TRUE);
+          Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(this.groupCacheKey());
           
           grouperAdobeGroup = groupIdToGroup == null ? null : groupIdToGroup.get(id);
           
@@ -240,7 +253,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
             
             populateGroupCache(allAdobeGroups);
             
-            groupIdToGroup = cacheGroupIdToGroup.get(Boolean.TRUE);
+            groupIdToGroup = cacheGroupIdToGroup.get(this.groupCacheKey());
             grouperAdobeGroup = groupIdToGroup.get(id);
             
           }
@@ -287,7 +300,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       
       populateGroupCache(allAdobeGroups);
       
-      Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
       
       for (ProvisioningGroup targetGroup: groupsToInsert) {
         String name = targetGroup.getName();
@@ -467,7 +480,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     id = GrouperUtil.longValue(id);
     
-    Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(Boolean.TRUE);
+    Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(this.groupCacheKey());
     
     GrouperAdobeGroup grouperAdobeGroup = groupIdToGroup == null ? null : groupIdToGroup.get(id);
     
@@ -480,7 +493,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       
       populateGroupCache(allAdobeGroups);
       
-      groupIdToGroup = cacheGroupIdToGroup.get(Boolean.TRUE);
+      groupIdToGroup = cacheGroupIdToGroup.get(this.groupCacheKey());
       grouperAdobeGroup = groupIdToGroup.get(id);
       
     }
@@ -490,7 +503,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
   
   public GrouperAdobeGroup retrieveGroupByName(String name) {
     
-    Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+    Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
     
     GrouperAdobeGroup grouperAdobeGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
     
@@ -503,7 +516,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       
       populateGroupCache(allAdobeGroups);
       
-      groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
       grouperAdobeGroup = groupNameToGroup.get(name);
       
     }
@@ -560,11 +573,11 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       // delete the key based on the old group name from the group name cache
       // Add to the group name cache based on the new name
       
-      GrouperAdobeGroup grouperAdobeGroup = cacheGroupNameToGroup.get(Boolean.TRUE).get(oldGroupName);
+      GrouperAdobeGroup grouperAdobeGroup = cacheGroupNameToGroup.get(this.groupCacheKey()).get(oldGroupName);
       if (grouperAdobeGroup != null) {
         grouperAdobeGroup.setName(newGroupName);
-        cacheGroupNameToGroup.get(Boolean.TRUE).remove(oldGroupName);
-        cacheGroupNameToGroup.get(Boolean.TRUE).put(newGroupName, grouperAdobeGroup);
+        cacheGroupNameToGroup.get(this.groupCacheKey()).remove(oldGroupName);
+        cacheGroupNameToGroup.get(this.groupCacheKey()).put(newGroupName, grouperAdobeGroup);
       }
       
 
@@ -600,12 +613,12 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
       
-      Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      Map<String, GrouperAdobeGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
       if (groupNameToGroup != null) {
         groupNameToGroup.remove(grouperAdobeGroup.getName());
       } 
       
-      Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(Boolean.TRUE);
+      Map<Long, GrouperAdobeGroup> groupIdToGroup = cacheGroupIdToGroup.get(this.groupCacheKey());
       if (groupIdToGroup != null) {
         groupIdToGroup.remove(grouperAdobeGroup.getId());
       } 
@@ -646,7 +659,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       
       Set<String> groups = grouperAdobeUser.getGroups();
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
-      Map<String, GrouperAdobeGroup> theCacheGroupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      Map<String, GrouperAdobeGroup> theCacheGroupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
 
       if (theCacheGroupNameToGroup != null) {
         for (String groupName: GrouperUtil.nonNull(groups)) {
@@ -898,8 +911,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         Set<String> groupNames = GrouperUtil.nonNull(adobeUser.getGroups());
         
         for (String group: groupNames) {
-          if (cacheGroupNameToGroup.get(Boolean.TRUE).containsKey(group)) {
-            GrouperAdobeGroup grouperAdobeGroup = cacheGroupNameToGroup.get(Boolean.TRUE).get(group);
+          if (cacheGroupNameToGroup.get(this.groupCacheKey()).containsKey(group)) {
+            GrouperAdobeGroup grouperAdobeGroup = cacheGroupNameToGroup.get(this.groupCacheKey()).get(group);
             ProvisioningMembership targetMembership = new ProvisioningMembership(false);
             targetMembership.setProvisioningEntityId(adobeUser.getId());
             targetMembership.setProvisioningGroupId(grouperAdobeGroup.getId().toString());

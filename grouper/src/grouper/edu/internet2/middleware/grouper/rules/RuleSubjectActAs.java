@@ -385,9 +385,15 @@ public class RuleSubjectActAs {
               
               RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
               
-              if (ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId
-                  || ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId
-                  || ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) {
+              // SECURITY: this exemption lets a folder admin who is not wheel save a rule that runs
+              // as GrouperSystem, so it must only cover the plain inherited-privilege rule: the then
+              // enum must be the one for this check type, and there must be no EL (then or if) and
+              // no if condition other than the folder name pattern.  The rule daemon methods
+              // (RuleCheckType groupCreate / stemCreate / attributeDefCreate runDaemon) skip rules
+              // outside that shape, but real-time firing (RuleEngine.fireRule) does not, so an EL
+              // condition would otherwise be evaluated in a GrouperSystem session
+              if (inheritedPrivilegeThenMatchesCheck(ruleCheckType, ruleThenEnum)
+                  && inheritedPrivilegeRuleHasNoElOrOtherCondition(ruleDefinition)) {
                 //everything ok, allowed to act as grouper system
                 return true;
               }
@@ -405,6 +411,57 @@ public class RuleSubjectActAs {
     return false;
 
     
+  }
+
+  /**
+   * an inherited-privilege rule assigns the privilege type of the object its check creates:
+   * groupCreate assigns group privileges, stemCreate folder privileges, attributeDefCreate
+   * attribute def privileges
+   * @param ruleCheckType
+   * @param ruleThenEnum
+   * @return true if the then enum is the one for the check type
+   */
+  private static boolean inheritedPrivilegeThenMatchesCheck(RuleCheckType ruleCheckType, RuleThenEnum ruleThenEnum) {
+    if (ruleCheckType == RuleCheckType.groupCreate) {
+      return ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId;
+    }
+    if (ruleCheckType == RuleCheckType.stemCreate) {
+      return ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId;
+    }
+    if (ruleCheckType == RuleCheckType.attributeDefCreate) {
+      return ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId;
+    }
+    return false;
+  }
+
+  /**
+   * an inherited-privilege rule has no then EL, no if EL, and no if condition except the
+   * optional folder name pattern (nameMatchesSqlLikeString, which reads only the new object's
+   * name).  Same limits as the rule daemon methods for these check types, plus no if owner,
+   * since the name pattern condition does not use one.
+   * @param ruleDefinition
+   * @return true if the rule has that shape
+   */
+  private static boolean inheritedPrivilegeRuleHasNoElOrOtherCondition(RuleDefinition ruleDefinition) {
+    RuleThen ruleThen = ruleDefinition.getThen();
+    if (ruleThen == null || !StringUtils.isBlank(ruleThen.getThenEl())) {
+      return false;
+    }
+    RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
+    if (ruleIfCondition == null) {
+      return true;
+    }
+    if (!StringUtils.isBlank(ruleIfCondition.getIfConditionEl())) {
+      return false;
+    }
+    if (!StringUtils.isBlank(ruleIfCondition.getIfConditionEnum())
+        && ruleIfCondition.ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString) {
+      return false;
+    }
+    if (!StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) || !StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
+      return false;
+    }
+    return true;
   }
 
 //  /**

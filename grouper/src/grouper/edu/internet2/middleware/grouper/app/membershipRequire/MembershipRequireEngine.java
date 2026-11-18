@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -190,7 +191,9 @@ public class MembershipRequireEngine {
   }
 
   /**
-   * groups in stems that are eligible
+   * groups in stems that are eligible: every enabled group in the stems or in any folder below
+   * them (a folder requirement is inherited by the whole subtree, as in the membership hook).
+   * Loader groups are excluded.
    * @param stemNames
    * @return the set
    */
@@ -198,7 +201,12 @@ public class MembershipRequireEngine {
     Set<String> groupNames = new HashSet<String>();
     if (GrouperUtil.length(stemNames) > 0) {
       GcDbAccess gcDbAccess = new GcDbAccess();
-      StringBuilder sql = new StringBuilder("select distinct g.name from grouper_groups g, grouper_stems s where g.enabled = 'T' and g.parent_stem = s.id ");
+      // security fix: this used to join the group to its immediate parent folder only, so groups in
+      // subfolders of a requirement folder were never cleaned up by the full sync or change log.
+      // grouper_stem_set has a row for each (folder, ancestor or self) pair, so join through it to
+      // get the whole subtree.  Names are bind variables, no LIKE so no wildcard issues.
+      StringBuilder sql = new StringBuilder("select distinct g.name from grouper_groups g, grouper_stem_set gss, grouper_stems s "
+          + "where g.enabled = 'T' and g.parent_stem = gss.if_has_stem_id and gss.then_has_stem_id = s.id ");
       sql.append(" and not exists (select 1 from grouper_attr_asn_group_v gaagv2 where gaagv2.enabled = 'T' and g.name = gaagv2.group_name and gaagv2.attribute_def_name_name = ? ) ");
       gcDbAccess.addBindVar(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":etc:attribute:loaderMetadata:loaderMetadata");
       sql.append(" and ( ");
@@ -361,26 +369,27 @@ public class MembershipRequireEngine {
       return membershipRequireConfigBeans;
     }
 
-    List<String> stemNamesToQuery = new ArrayList<String>(GrouperUtil.findParentStemNames(stemName));
+    // security fix: the full root-to-leaf chain of folders.  Inherited requirements are propagated
+    // over ALL of these, not only the ones that were not cached, so the result for a folder does
+    // not depend on which ancestors happen to be in the cache (before, a cached ancestor was left
+    // out of the propagation and a nested group could get no requirement at all)
+    Set<String> stemChainSet = new LinkedHashSet<String>(GrouperUtil.findParentStemNames(stemName));
+    stemChainSet.add(stemName);
+    List<String> stemChain = new ArrayList<String>(stemChainSet);
 
     Map<String, Set<MembershipRequireConfigBean>> stemNameToConfigSet = new HashMap<String, Set<MembershipRequireConfigBean>>();
 
-    Iterator<String> iterator = stemNamesToQuery.iterator();
-    while (iterator.hasNext()) {
-      String parentStemName = iterator.next();
-      Set<MembershipRequireConfigBean> theList = stemNameToConfigBeanAssigned.get(parentStemName);
-      if (theList != null) {
-        stemNameToConfigSet.put(parentStemName, theList);
-        iterator.remove();
-      }
-    }
-    stemNamesToQuery.add(stemName);
-    
-    // init the results
-    for (String stemNameToQuery : stemNamesToQuery) {
-      Set<MembershipRequireConfigBean> theSet = stemNameToConfigSet.get(stemNameToQuery);
-      if (theSet == null) {
-        stemNameToConfigSet.put(stemNameToQuery, new HashSet<MembershipRequireConfigBean>());
+    // only the stems that are not cached need a database query
+    List<String> stemNamesToQuery = new ArrayList<String>();
+
+    for (String chainStemName : stemChain) {
+      Set<MembershipRequireConfigBean> cachedSet = stemNameToConfigBeanAssigned.get(chainStemName);
+      if (cachedSet != null) {
+        // copy, so adding inherited beans below never changes a cached entry for another stem
+        stemNameToConfigSet.put(chainStemName, new HashSet<MembershipRequireConfigBean>(cachedSet));
+      } else {
+        stemNameToConfigSet.put(chainStemName, new HashSet<MembershipRequireConfigBean>());
+        stemNamesToQuery.add(chainStemName);
       }
     }
     
@@ -417,15 +426,15 @@ public class MembershipRequireEngine {
       stemNameToConfigSet.get(currentStemName).addAll(GrouperUtil.nonNull(attributeBeans));
     }
     
-    // now we have the attribute configs for each stem, add all from parent stems
+    // now we have the attribute configs for each stem, add all from parent stems (cached or not)
     Set<MembershipRequireConfigBean> previousBeans = new HashSet<MembershipRequireConfigBean>();
-    for (String theStem : stemNamesToQuery) {
+    for (String theStem : stemChain) {
       Set<MembershipRequireConfigBean> theBeans = stemNameToConfigSet.get(theStem);
       theBeans.addAll(previousBeans);
       previousBeans = theBeans;
     }
     
-    // add the new ones
+    // add the new ones (cached entries are left as they are)
     for (String theStemName : stemNamesToQuery) {
       stemNameToConfigBeanAssigned.put(theStemName, stemNameToConfigSet.get(theStemName));
     }

@@ -1532,6 +1532,11 @@ public enum GrouperLoaderType {
         
     long startTimeLoadData = 0;
     boolean failsafeProblem = false;
+
+    // a group list loader saved by a delegated (non-wheel) loader editor may only write groups under
+    // folders that editor administers: stop before anything is written otherwise (security fix)
+    GrouperLoaderTargetAuthorization.assertRunAllowed(hib3GrouploaderLogOverall.getGroupUuid(),
+        grouperLoaderResultsetOverall.groupNames(), groupNamesFromGroupQuery, andGroups, groupLikeString);
     try {
     
       if (LOG.isDebugEnabled()) {

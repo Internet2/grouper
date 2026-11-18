@@ -442,8 +442,14 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
   public Group retrieveGroupIfNeeded(GrouperSession grouperSession,
       String invalidQueryReason) throws WsInvalidQueryException {
 
+    // security (issue 48): remember the group this operation resolved, so an external subject
+    // auto-created in the same operation (addMember) can require UPDATE on it.  Clear first so a
+    // failed lookup never leaves an older group in place
+    WsSubjectLookup.assignExternalSubjectTargetGroup(grouperSession, null);
+
     //see if we already retrieved
     if (this.groupFindResult != null) {
+      WsSubjectLookup.assignExternalSubjectTargetGroup(grouperSession, this.group);
       return this.group;
     }
 
@@ -506,6 +512,7 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
             + "', " + this, gnf);
       }
     }
+    WsSubjectLookup.assignExternalSubjectTargetGroup(grouperSession, this.group);
     return this.group;
   }
   

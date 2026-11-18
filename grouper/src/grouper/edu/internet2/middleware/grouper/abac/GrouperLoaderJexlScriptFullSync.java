@@ -8,8 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -69,8 +67,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       int groupsWithInvalidScripts = 0;
       
-      Pattern groupHasMemberPattern = Pattern.compile("entity\\.memberOf\\s*\\(\\s*'([^']+)'\\s*\\)");
-      
       Set<String> allGroupNamesInScript = new HashSet<String>();
       Set<String> allGroupIdOwners = new HashSet<String>();
       
@@ -89,15 +85,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
         String script = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
         
-        if (!StringUtils.isBlank(GrouperAbac.validScript(script))) {
+        // validScript refuses any script that is not entity.memberOf('...') with and / or / not
+        // and parentheses (GrouperAbacScriptAllowlist), so a stored script that would run code
+        // (saved before this check existed) is skipped here and never evaluated
+        String invalidScriptMessage = GrouperAbac.validScript(script);
+        if (!StringUtils.isBlank(invalidScriptMessage)) {
           groupsWithInvalidScripts++;
+          LOG.warn("Skipping scripted group (JEXL_SCRIPT) with owner group id " + attributeAssign.getOwnerGroupId() 
+              + ", its script is not allowed: " + invalidScriptMessage);
           continue;
         }
         
         // ${ entity.memberOf('test:testGroup0') }
-        Matcher groupHasMemberMatcher = groupHasMemberPattern.matcher(script);
-        while (groupHasMemberMatcher.find()) {
-          String groupName = groupHasMemberMatcher.group(1);
+        // the group names come from the same parser that evaluates the script
+        for (String groupName : GrouperAbacScriptAllowlist.groupNames(script)) {
           
           grouperLoaderJexlScriptGroup.getScriptContainsGroupNames().add(groupName);
           allGroupNamesInScript.add(groupName);
@@ -223,7 +224,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           variableMap.put("entity", grouperAbacEntity);
           
           try {
-            Object result = GrouperUtil.substituteExpressionLanguageScript(grouperLoaderJexlScriptGroup.getScript(), variableMap, true, false, true);
+            // evaluated by GrouperAbacScriptAllowlist (no JEXL, no class access)
+            Object result = GrouperAbac.runScriptStatic(grouperLoaderJexlScriptGroup.getScript(), variableMap);
             boolean shouldBeInGroup = GrouperUtil.booleanValue(result);
             boolean currentlyInGroup = memberIdsOfOwnerGroup.contains(memberId);
             if (shouldBeInGroup != currentlyInGroup) {

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -25,6 +25,11 @@ import edu.internet2.middleware.subject.Subject;
  * group that is a require group
  */
 public class RequireGroup {
+
+  /**
+   * logger
+   */
+  private static final Log LOG = GrouperUtil.getLog(RequireGroup.class);
 
   /**
    * name of require group
@@ -122,26 +127,37 @@ public class RequireGroup {
             RequireGroup requireGroup = new RequireGroup();
             requireGroup.setName(grouperConfig.propertyValueString(requireGroupNameKey));
 
-            if (StringUtils.isBlank(requireGroup.getName())) {
+            // GrouperUtil.isBlank instead of StringUtils so one file compiles on 5.x (shaded lang3) through 7.x
+            if (GrouperUtil.isBlank(requireGroup.getName())) {
               continue;
             }
             
             String requireAllowedGroupKey = "grouper.requireGroup.allowedToUse." + i;
             
             if (grouperConfig.containsKey(requireAllowedGroupKey)) {
-              final String requireGroupName = grouperConfig.propertyValueString(requireGroupNameKey);
+              // read the allowedToUse group name (this used to re-read the require group name by mistake,
+              // so the allowedToUse restriction was never applied)
+              final String allowedToUseGroupName = grouperConfig.propertyValueString(requireAllowedGroupKey);
               
               // if controlling who can use
-              if (!StringUtils.isBlank(requireGroupName)) {
+              if (!GrouperUtil.isBlank(allowedToUseGroupName)) {
                 if (subject != null && !PrivilegeHelper.isWheelOrRoot(subject)) {
-                  Group requireGroupAllowedToUse = GroupFinder.findByName(grouperSession, requireGroupName, true);
+                  Group requireGroupAllowedToUse = GroupFinder.findByName(grouperSession, allowedToUseGroupName, false);
                   
-                  //if the current subject is not in the group, then not allowed
+                  // fail closed: if the allowedToUse group is misconfigured, nobody but wheel/root can use this entry
+                  if (requireGroupAllowedToUse == null) {
+                    LOG.warn("Cannot find require group allowedToUse group '" + allowedToUseGroupName 
+                        + "' from config '" + requireAllowedGroupKey + "', so not allowing non-wheel subjects to use '" 
+                        + requireGroup.getName() + "'");
+                    continue;
+                  }
+                  
+                  //if the current subject is not in the allowedToUse group, then not allowed
                   if (!requireGroupAllowedToUse.hasMember(subject)) {
                     continue;
                   }
                 }
-                requireGroup.setAllowedToUseGroup(requireGroupName);
+                requireGroup.setAllowedToUseGroup(allowedToUseGroupName);
               }
             }
             Group requireGroupGroup = GroupFinder.findByName(grouperSession, requireGroup.getName(), true);

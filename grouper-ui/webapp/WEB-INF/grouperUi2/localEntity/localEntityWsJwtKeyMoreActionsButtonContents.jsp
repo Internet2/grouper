@@ -16,12 +16,12 @@
           <ul class="dropdown-menu dropdown-menu-right" id="wsJwtKey-more-options">
 
             <c:if test="${grouperRequestContainer.grouperPasswordContainer.guiGrouperPassword == null}" >
-              <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.createNewWsJwtKey&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+              <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.createNewWsJwtKey&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
                   >${textContainer.text['localEntityCreateWsJwtKeyButton'] }</a></li>
             </c:if>
 
             <c:if test="${grouperRequestContainer.grouperPasswordContainer.guiGrouperPassword != null}" >
-              <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.editWsJwtKey&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&grouperPasswordId=${grouperRequestContainer.grouperPasswordContainer.guiGrouperPassword.grouperPassword.id}'); return false;"
+              <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.editWsJwtKey&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&grouperPasswordId=${grouperRequestContainer.grouperPasswordContainer.guiGrouperPassword.grouperPassword.id}'); return false;"
                   >${textContainer.text['localEntityWsJwtKeyMoreActionsEditSettings'] }</a></li>
              
              <li>&nbsp;</li>     
@@ -32,22 +32,22 @@
              
              <li>
              
-             <%-- <a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.deleteWsJwtKey&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+             <%-- <a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.deleteWsJwtKey&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
              >${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKey'] }</a> --%>
              
              
              <a href="#"
-                        onclick="if (confirm('${textContainer.textEscapeSingleDouble['localEntityWsJwtKeyConfirmDeleteKey']}')) { return ajax('../app/UiV2LocalEntity.deleteWsJwtKey?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');}">${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKey'] }</a>
+                        onclick="if (confirm('${textContainer.textEscapeSingleDouble['localEntityWsJwtKeyConfirmDeleteKey']}')) { return ajax('../app/UiV2LocalEntity.deleteWsJwtKey?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');}">${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKey'] }</a>
              
              </li>
              
              <li>
              
-           <%--   <a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.deleteWsJwtKeyCreateNew&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+           <%--   <a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.deleteWsJwtKeyCreateNew&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
              >${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKeyAndCreateNew'] }</a> --%>
              
              <a href="#"
-                        onclick="if (confirm('${textContainer.textEscapeSingleDouble['localEntityWsJwtKeyConfirmDeleteAndCreateNewKey']}')) { return ajax('../app/UiV2LocalEntity.deleteWsJwtKeyCreateNew?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');}">${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKeyAndCreateNew'] }</a>
+                        onclick="if (confirm('${textContainer.textEscapeSingleDouble['localEntityWsJwtKeyConfirmDeleteAndCreateNewKey']}')) { return ajax('../app/UiV2LocalEntity.deleteWsJwtKeyCreateNew?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');}">${textContainer.text['localEntityWsJwtKeyMoreActionsDeleteKeyAndCreateNew'] }</a>
              
              </li>
             </c:if>

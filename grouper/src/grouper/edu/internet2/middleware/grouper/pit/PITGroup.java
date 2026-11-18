@@ -277,6 +277,29 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
       throw new IllegalArgumentException("fieldSourceId required.");
     }
     
+    // the caller must be allowed to read this membership list, same rules as getMembers(): an
+    // active group needs the field's read privilege, a deleted group or field needs wheel or root.
+    // (WS hasMember answered PIT membership questions for anyone who could VIEW the group.)
+    // Unlike getMembers(), which returns an empty set, throw: returning false would look like
+    // "not a member" and hide the denial
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+      if (!this.isActive()) {
+        throw new InsufficientPrivilegeException("Only wheel or root can check point in time memberships of a deleted group: " + this.getName());
+      }
+      Field field = FieldFinder.findById(fieldSourceId, false);
+      if (field == null) {
+        throw new InsufficientPrivilegeException("Only wheel or root can check point in time memberships of a deleted field: " + fieldSourceId);
+      }
+      // a group deleted but still active in point in time (until the PIT sync runs) is treated like a
+      // deleted group: fail closed with the same exception, not a GroupNotFoundException stack trace
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getSourceId(), false);
+      if (group == null) {
+        throw new InsufficientPrivilegeException("Only wheel or root can check point in time memberships of a deleted group: " + this.getName());
+      }
+      PrivilegeHelper.dispatch(grouperSession, group, grouperSession.getSubject(), field.getReadPriv());
+    }
+    
     Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldSourceId, true);
     PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(m.getUuid(), false);

@@ -63,7 +63,7 @@
       grouperRequestContainer.provisionerConfigurationContainer.showStartWithSection}">
       
       <input type="hidden" name="startWithSessionId"
-        value="${grouperRequestContainer.provisionerConfigurationContainer.startWithSessionId}" />
+        value="${fn:escapeXml(grouperRequestContainer.provisionerConfigurationContainer.startWithSessionId)}" />
       
       <tr>
         <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="provisionerConfigStartWithId">${textContainer.text['provisionerStartWithLabel']}</label></strong></td>

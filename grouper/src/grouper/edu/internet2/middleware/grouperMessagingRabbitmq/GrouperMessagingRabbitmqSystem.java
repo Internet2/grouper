@@ -22,6 +22,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.MessageProperties;
 
+import edu.internet2.middleware.grouper.messaging.GrouperMessagingExternalAuthorization;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -65,6 +66,11 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    */
   @Override
   public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageSendParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_SEND);
         
     if (grouperMessageSendParam.getGrouperMessageQueueParam() == null) {
       throw new IllegalArgumentException("grouperMessageQueueParam is required.");
@@ -119,6 +125,11 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    */
   @Override
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_ACKNOWLEDGE);
     return new GrouperMessageAcknowledgeResult();
   }
   
@@ -127,6 +138,11 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
    */
   @Override
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageReceiveParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_RECEIVE);
     
     final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "receive");

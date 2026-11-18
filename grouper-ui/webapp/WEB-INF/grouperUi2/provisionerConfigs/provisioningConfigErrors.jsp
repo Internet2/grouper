@@ -21,13 +21,13 @@
       
         <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.grouperProvisioningErrors}" var="error">
           <tr>
-            <td>${error.errorTimestamp}</td>
-            <td>${error.objectType}</td>
-            <td>${error.groupName}</td>
-            <td>${error.subjectId}</td>
-            <td>${error.subjectIdentifier}</td>
-            <td>${error.fatal}</td>
-            <td>${error.errorCode}</td>
+            <td>${grouper:escapeHtml(error.errorTimestamp)}</td>
+            <td>${grouper:escapeHtml(error.objectType)}</td>
+            <td>${grouper:escapeHtml(error.groupName)}</td>
+            <td>${grouper:escapeHtml(error.subjectId)}</td>
+            <td>${grouper:escapeHtml(error.subjectIdentifier)}</td>
+            <td>${grouper:escapeHtml(error.fatal)}</td>
+            <td>${grouper:escapeHtml(error.errorCode)}</td>
             <td style="white-space: nowrap"><grouper:abbreviateTextarea text="${error.errorDescription}" showCharCount="30" cols="20" rows="3"/></td>
           </tr>
         </c:forEach>

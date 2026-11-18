@@ -119,6 +119,8 @@ public class GuiPermissionLimitBeanContainer implements Serializable, Comparable
    * @return the tooltip
    */
   public String getAssignedToTooltip() {
+    // the tooltip is html (shown with Tip()), so every data value in it is html escaped: role,
+    // subject, action and permission names can be set by delegated admins (stored xss otherwise)
     StringBuilder result = new StringBuilder();
     
     //everything has a role
@@ -139,29 +141,29 @@ public class GuiPermissionLimitBeanContainer implements Serializable, Comparable
 
     Role role = limitAssign.getAttributeAssignType().isAssignmentOnAssignment() ? ownerAttributeAssign.getOwnerGroup() : limitAssign.getOwnerGroup();
     result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString("simplePermissionUpdate.limitAssignedToRoleLabel"), true));
-    result.append(" ").append(role.getDisplayName()).append("<br />");
+    result.append(" ").append(GrouperUiUtils.escapeHtml(role.getDisplayName(), true)).append("<br />");
 
     if (AttributeAssignType.any_mem == attributeAssignType) {
       GuiSubject guiSubject = new GuiSubject(limitAssign.getOwnerMember().getSubject());
       
       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString("simplePermissionUpdate.limitAssignedToEntityLabel"), true));
-      result.append(" ").append(guiSubject.getScreenLabel()).append("<br />");
+      result.append(" ").append(GrouperUiUtils.escapeHtml(guiSubject.getScreenLabel(), true)).append("<br />");
     }
 
     if (AttributeAssignType.any_mem_asgn == attributeAssignType) {
       GuiSubject guiSubject = new GuiSubject(ownerAttributeAssign.getOwnerMember().getSubject());
       
       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString("simplePermissionUpdate.limitAssignedToEntityLabel"), true));
-      result.append(" ").append(guiSubject.getScreenLabel()).append("<br />");
+      result.append(" ").append(GrouperUiUtils.escapeHtml(guiSubject.getScreenLabel(), true)).append("<br />");
     }
     
     if (limitAssign.getAttributeAssignType().isAssignmentOnAssignment()) {
       
       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString("simplePermissionUpdate.limitAssignedToPermissionActionLabel"), true));
-      result.append(" ").append(ownerAttributeAssign.getAttributeAssignAction().getName()).append("<br />");
+      result.append(" ").append(GrouperUiUtils.escapeHtml(ownerAttributeAssign.getAttributeAssignAction().getName(), true)).append("<br />");
       
       result.append(GrouperUiUtils.escapeHtml(TagUtils.navResourceString("simplePermissionUpdate.limitAssignedToPermissionNameLabel"), true));
-      result.append(" ").append(ownerAttributeAssign.getAttributeDefName().getDisplayName()).append("<br />");
+      result.append(" ").append(GrouperUiUtils.escapeHtml(ownerAttributeAssign.getAttributeDefName().getDisplayName(), true)).append("<br />");
       
     }
     

@@ -27,6 +27,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningMetadataItemAuthorization;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningMetadataAllowedValues;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
@@ -559,7 +561,7 @@ public class UiV2Provisioning {
               }
             }
             
-            provisioningContainer.setGrouperProvisioningObjectMetadataItems(itemsToShow);
+            provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.filterViewable(itemsToShow, loggedInSubject));
           }
           
           provisioningContainer.setGuiGrouperSyncObject(guiGrouperSyncObject);
@@ -593,7 +595,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: membership provisioning state and metadata are membership data; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
@@ -683,7 +686,7 @@ public class UiV2Provisioning {
               }
             }
             
-            provisioningContainer.setGrouperProvisioningObjectMetadataItems(itemsToShow);
+            provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.filterViewable(itemsToShow, loggedInSubject));
           }
           
           provisioningContainer.setGuiGrouperSyncObject(guiGrouperSyncObject);
@@ -717,7 +720,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: membership provisioning state and metadata are membership data; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
      
       if (group == null) {
         return;
@@ -846,7 +850,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: membership provisioning state and metadata are membership data; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
@@ -935,7 +940,7 @@ public class UiV2Provisioning {
               }
             }
             
-            provisioningContainer.setGrouperProvisioningObjectMetadataItems(itemsToShow);
+            provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.filterViewable(itemsToShow, loggedInSubject));
           }
           
           provisioningContainer.setGuiGrouperSyncObject(guiGrouperSyncObject);
@@ -971,7 +976,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: membership provisioning state and metadata are membership data; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
      
       if (group == null) {
         return;
@@ -1173,7 +1179,7 @@ public class UiV2Provisioning {
         guiGrouperProvisioningAttributeValue.setHasDirectSettings(true);
       }
       
-      guiGrouperProvisioningAttributeValue.setMetadataItems(itemsToShow);
+      guiGrouperProvisioningAttributeValue.setMetadataItems(GrouperProvisioningMetadataItemAuthorization.filterViewable(itemsToShow, loggedInSubject));
       
       GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(provisionerName);
       
@@ -1368,7 +1374,7 @@ public class UiV2Provisioning {
           }
         }
         
-        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       }
 
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
@@ -1533,7 +1539,7 @@ public class UiV2Provisioning {
         }
       }
       
-      provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+      provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
 
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
                   
@@ -1858,14 +1864,6 @@ public class UiV2Provisioning {
       
       if (StringUtils.isNotBlank(targetName)) {
         
-        GcGrouperSyncMembership gcGrouperSyncMembership = null;
-        
-        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
-        
-        if (gcGrouperSync != null) {
-          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
-        }
-        
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
@@ -1876,6 +1874,16 @@ public class UiV2Provisioning {
         boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
         if (!canAssignProvisioning) {
           throw new RuntimeException("Cannot access provisioning.");
+        }
+        
+        // only look at grouper_sync after the target is valid and the caller may edit it
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        // read only: a UI screen must not create a grouper_sync row (null if never synced)
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
         }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
@@ -1959,7 +1967,7 @@ public class UiV2Provisioning {
           return;
         }
         
-        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       }
       
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
@@ -2067,14 +2075,6 @@ public class UiV2Provisioning {
       
       if (StringUtils.isNotBlank(targetName)) {
         
-        GcGrouperSyncMembership gcGrouperSyncMembership = null;
-        
-        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
-        
-        if (gcGrouperSync != null) {
-          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
-        }
-        
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
@@ -2085,6 +2085,16 @@ public class UiV2Provisioning {
         boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
         if (!canAssignProvisioning) {
           throw new RuntimeException("Cannot access provisioning.");
+        }
+        
+        // only look at grouper_sync after the target is valid and the caller may edit it
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        // read only: a UI screen must not create a grouper_sync row (null if never synced)
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
         }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
@@ -2171,7 +2181,7 @@ public class UiV2Provisioning {
           return;
         }
         
-        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       }
       
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
@@ -2368,7 +2378,7 @@ public class UiV2Provisioning {
           return;
         }
         
-        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       }
       
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
@@ -2513,7 +2523,8 @@ public class UiV2Provisioning {
         
         GcGrouperSyncGroup gcGrouperSyncGroup = null;
         
-        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        // read only: a UI screen must not create a grouper_sync row (null if never synced)
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName);
         
         if (gcGrouperSync != null) {
           gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
@@ -2598,7 +2609,7 @@ public class UiV2Provisioning {
           }
         }
         
-        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       }
       
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
@@ -2713,7 +2724,8 @@ public class UiV2Provisioning {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = null;
       
-      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+      // read only: a UI screen must not create a grouper_sync row (null if never synced)
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, targetName);
       
       if (gcGrouperSync != null) {
         gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
@@ -2780,7 +2792,7 @@ public class UiV2Provisioning {
         }
       }
       
-      provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+      provisioningContainer.setGrouperProvisioningObjectMetadataItems(GrouperProvisioningMetadataItemAuthorization.restrictForEditForm(metadataItems, loggedInSubject));
       
       provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
             
@@ -2904,6 +2916,30 @@ public class UiV2Provisioning {
       }
 
 
+
+      // the options of a dropdown / radio button / checkbox item are the values a wheel admin allows
+      // delegated users to send to the target, so enforce them here and not only in the rendered form
+      if (!errors && !readonly) {
+        String notAllowedValue = GrouperProvisioningMetadataAllowedValues.firstDisallowedValue(metadataItem, value, values);
+        if (notAllowedValue != null) {
+          String labelKey = metadataItem.getLabelKey();
+          String label = GrouperTextContainer.textOrNull(labelKey);
+          if (StringUtils.isBlank(label)) {
+            label = labelKey;
+          }
+          if (StringUtils.isBlank(label)) {
+            label = name;
+          }
+          // the submitted value is not echoed back in the message
+          String errorMessage = GrouperTextContainer.textOrNull("provisioningMetadataValueNotAllowed");
+          if (StringUtils.isBlank(errorMessage)) {
+            errorMessage = "##metadataLabel## is not one of the allowed options";
+          }
+          errorMessage = errorMessage.replace("##metadataLabel##", label);
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
+          errors = true;
+        }
+      }
 
       if (!errors && StringUtils.isNotBlank(value)) {
         try {          
@@ -3074,7 +3110,9 @@ public class UiV2Provisioning {
           }
         });
         
-        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName(), databaseMetadataNameValues, isInsert[0] );
+        boolean errors = setMetadataValues(request, metadataNameValues, GrouperProvisioningMetadataItemAuthorization.filterUpdatable(metadataItemsForFolder, loggedInSubject), grouperProvisioner, stem.getName(), databaseMetadataNameValues, isInsert[0] );
+        // metadata items the caller may not update keep their stored value (groupIdThatCanUpdate)
+        GrouperProvisioningMetadataItemAuthorization.preserveRestrictedValuesOnGroupOrFolder(metadataNameValues, metadataItemsForFolder, loggedInSubject, stem, targetName);
         if (errors) {
           return;
         }
@@ -3285,7 +3323,9 @@ public class UiV2Provisioning {
         }
       });
 
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForSubject, provisioner, subject.getName(), databaseMetadataNameValues, isInsert[0]);
+      boolean errors = setMetadataValues(request, metadataNameValues, GrouperProvisioningMetadataItemAuthorization.filterUpdatable(metadataItemsForSubject, loggedInSubject), provisioner, subject.getName(), databaseMetadataNameValues, isInsert[0]);
+      // metadata items the caller may not update keep their stored value (groupIdThatCanUpdate)
+      GrouperProvisioningMetadataItemAuthorization.preserveRestrictedValuesOnSubject(metadataNameValues, metadataItemsForSubject, loggedInSubject, subject, targetName);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3314,7 +3354,8 @@ public class UiV2Provisioning {
         }
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=" + subject.getId() + "')"));
+      // subject id and source id come from the subject source and the browser evals this script: encode them
+      guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnSubject", "subjectId", subject.getId(), "sourceId", subject.getSourceId())));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
       
@@ -3397,7 +3438,8 @@ public class UiV2Provisioning {
       
       GrouperProvisioningTarget provisioningTarget = GrouperProvisioningSettings.getTargets(true).get(targetName);
       
-      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, null)) {
+      // pass the group (not null) so isTargetEditable checks the caller is ADMIN of the group
+      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, group)) {
         throw new RuntimeException("Not Allowed!!!");
       }
        
@@ -3449,7 +3491,9 @@ public class UiV2Provisioning {
       });
       
       //TODO should it be subject or group?
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+      boolean errors = setMetadataValues(request, metadataNameValues, GrouperProvisioningMetadataItemAuthorization.filterUpdatable(metadataItemsForMembership, loggedInSubject), provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+      // metadata items the caller may not update keep their stored value (groupIdThatCanUpdate)
+      GrouperProvisioningMetadataItemAuthorization.preserveRestrictedValuesOnMembership(metadataNameValues, metadataItemsForMembership, loggedInSubject, group, subject, targetName);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3481,7 +3525,8 @@ public class UiV2Provisioning {
         }
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&subjectId=" + subject.getId() + "&groupId="+GROUP.getId()+"')"));
+      // subject id and source id come from the subject source and the browser evals this script: encode them
+      guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnSubjectMembership", "subjectId", subject.getId(), "sourceId", subject.getSourceId(), "groupId", GROUP.getId())));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
       
@@ -3563,7 +3608,8 @@ public class UiV2Provisioning {
       
       GrouperProvisioningTarget provisioningTarget = GrouperProvisioningSettings.getTargets(true).get(targetName);
       
-      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, null)) {
+      // pass the group (not null) so isTargetEditable checks the caller is ADMIN of the group
+      if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, loggedInSubject, group)) {
         throw new RuntimeException("Not Allowed!!!");
       }
        
@@ -3616,7 +3662,9 @@ public class UiV2Provisioning {
       });
       
       //TODO should the last param be group or subject?
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+      boolean errors = setMetadataValues(request, metadataNameValues, GrouperProvisioningMetadataItemAuthorization.filterUpdatable(metadataItemsForMembership, loggedInSubject), provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+      // metadata items the caller may not update keep their stored value (groupIdThatCanUpdate)
+      GrouperProvisioningMetadataItemAuthorization.preserveRestrictedValuesOnMembership(metadataNameValues, metadataItemsForMembership, loggedInSubject, group, subject, targetName);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3647,7 +3695,8 @@ public class UiV2Provisioning {
         }
       });
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&subjectId=" + subject.getId() + "&groupId="+GROUP.getId()+"')"));
+      // subject id and source id come from the subject source and the browser evals this script: encode them
+      guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnGroupMembership", "subjectId", subject.getId(), "sourceId", subject.getSourceId(), "groupId", GROUP.getId())));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
       
@@ -3782,7 +3831,9 @@ public class UiV2Provisioning {
           }
         });
 
-        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+        boolean errors = setMetadataValues(request, metadataNameValues, GrouperProvisioningMetadataItemAuthorization.filterUpdatable(metadataItemsForGroup, loggedInSubject), provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
+        // metadata items the caller may not update keep their stored value (groupIdThatCanUpdate)
+        GrouperProvisioningMetadataItemAuthorization.preserveRestrictedValuesOnGroupOrFolder(metadataNameValues, metadataItemsForGroup, loggedInSubject, group, targetName);
         if (errors) return;
         
         Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -4022,7 +4073,8 @@ public class UiV2Provisioning {
       
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: a provisioning sync acts on the group's memberships; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
@@ -4142,7 +4194,8 @@ public class UiV2Provisioning {
           auditEntry.setDescription("Ran provisioner sync for "+targetName+" on " + GrouperUtil.subjectToString(subject));
           provisionerSaveAudit(auditEntry);
                     
-          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=" + subject.getId() + "')"));
+          // subject id and source id come from the subject source and the browser evals this script: encode them
+          guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnSubject", "subjectId", subject.getId(), "sourceId", subject.getSourceId())));
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
               TextContainer.retrieveFromRequest().getText().get("provisioningMemberSyncSuccess")));
           
@@ -4171,7 +4224,8 @@ public class UiV2Provisioning {
       
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: a membership sync acts on (and confirms) a membership; VIEW only shows the group exists
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
 
       if (group == null) {
         return;
@@ -4223,9 +4277,11 @@ public class UiV2Provisioning {
           provisionerSaveAudit(auditEntry);
                     
           if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
-            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&subjectId=" + subject.getId() + "&groupId=" + group.getId()+"')"));
+            // subject id and source id come from the subject source and the browser evals this script: encode them
+            guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnSubjectMembership", "subjectId", subject.getId(), "sourceId", subject.getSourceId(), "groupId", group.getId())));
           } else {
-            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&subjectId=" + subject.getId() + "&groupId=" + group.getId()+"')"));
+            // subject id and source id come from the subject source and the browser evals this script: encode them
+            guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2Provisioning.viewProvisioningOnGroupMembership", "subjectId", subject.getId(), "sourceId", subject.getSourceId(), "groupId", group.getId())));
           }
           
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
@@ -4273,7 +4329,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: this page shows the provisioned member count and sync logs of the group (membership data)
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
@@ -4381,7 +4438,8 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      // READ, not VIEW: this page shows the provisioned member count and sync logs of the group (membership data)
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;

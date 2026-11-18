@@ -11,8 +11,8 @@
     <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
 
    <form class="form-inline form-small form-filter" id="createLocalEntityWsJwtKeyFormId">
-       <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
-       <input type="hidden" name="sourceId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
+       <input type="hidden" name="subjectId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
+       <input type="hidden" name="sourceId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" />
        <table class="table table-condensed table-striped">
          <tbody>
            
@@ -47,7 +47,7 @@
                value="${textContainer.text['localEntityViewWsJwtKeySaveButton'] }"
                onclick="ajax('../app/UiV2LocalEntity.createWsJwtKeySubmit', {formIds: 'createLocalEntityWsJwtKeyFormId'}); return false;">
                &nbsp; <a class="btn btn-cancel" role="button"
-               onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+               onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;"
                >${textContainer.text['localEntityViewWsJwtKeyCancelButton'] }</a>
              </td>
            </tr>

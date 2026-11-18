@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -190,6 +191,13 @@ public class WsGroupToSave {
       Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
   
       String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
+  
+      // Security: nothing found, so this is (or will fail as) an insert: a caller-chosen uuid for a
+      // new group must be a safe identifier.  GroupSave checks this too at the insert; this gives
+      // the caller an INVALID_QUERY result first.  Existing groups can still be saved by uuid
+      if (groupLookedup == null && !GrouperObjectIdValidator.isValidNewId(this.getWsGroup().getUuid())) {
+        throw new WsInvalidQueryException(GrouperObjectIdValidator.invalidIdMessage("group", this.getWsGroup().getUuid()));
+      }
   
       GroupSave groupSave = new GroupSave(grouperSession);
       groupSave.assignTypeOfGroup(TypeOfGroup.valueOfIgnoreCase(this.getWsGroup().getTypeOfGroup(), false));

@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -27,7 +28,14 @@ public class GshTemplateValidationService {
 
   public boolean validate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
     
+    // check enabled, owner, and who can run it BEFORE the template's decorate logic runs.  Validation runs in a root
+    // session, and compiled templates are always V2 (GRP-7448), so decorate would otherwise run template code for
+    // a caller who is not allowed to run the template
+    if (!validateEnabledOwnerAndSecurity(templateConfig, gshTemplateExec, gshTemplateOutput)) {
+      return false;
+    }
     
+    // decorate before validating inputs since decorate can change the input configs
     if (StringUtils.equals("V2", templateConfig.getTemplateVersion())) {
       GshTemplateExec gshTemplateExec2 = new GshTemplateExec();
       gshTemplateExec2.assignConfigId(templateConfig.getConfigId());
@@ -64,12 +72,90 @@ public class GshTemplateValidationService {
       
     }
 
-    
+    return validateInputs(templateConfig, gshTemplateExec, gshTemplateOutput);
+  }
+  
+  /**
+   * The checks that must pass before any template code is loaded or run: the template is enabled, the owner
+   * (group or folder) exists and the template is allowed on it, and the current user satisfies the template's
+   * securityRunType.  Used by validate() (execution) and validatePreflight() (UI form render).
+   * @param templateConfig populated config
+   * @param gshTemplateExec has the current user and the owner
+   * @param gshTemplateOutput validation lines are added here
+   * @return true if the template may be used
+   */
+  private boolean validateEnabledOwnerAndSecurity(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
     boolean isValid = validateEnabled(templateConfig, gshTemplateOutput);
+    // who may run the template is checked before the owner is looked up (as root), when it does not depend on the
+    // owner (wheel, specifiedGroup, everyone): a caller who may not run the template at all learns nothing about
+    // whether a group or folder name exists or is in the template's scope.  privilegeOnObject needs the owner first.
+    boolean securityDependsOnOwner = templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.privilegeOnObject;
+    if (!securityDependsOnOwner) {
+      isValid = isValid && validateSecurityRunType(templateConfig, gshTemplateExec, gshTemplateOutput);
+    }
     isValid = isValid && validateOwnerType(templateConfig, gshTemplateExec, gshTemplateOutput);
-    isValid = isValid && validateSecurityRunType(templateConfig, gshTemplateExec, gshTemplateOutput);
-    isValid = isValid && validateInputs(templateConfig, gshTemplateExec, gshTemplateOutput);
+    if (securityDependsOnOwner) {
+      isValid = isValid && validateSecurityRunType(templateConfig, gshTemplateExec, gshTemplateOutput);
+    }
     return isValid;
+  }
+  
+  /**
+   * The owner group is looked up as root, so also require that the current user can VIEW it (the UI requires the
+   * same before showing the template): otherwise a WS caller could run an everyone or specifiedGroup template on a
+   * group they cannot see, or learn that it exists.  Wheel and root can see everything.
+   * @param ownerGroup found as root
+   * @param gshTemplateExec has the current user
+   * @return true if the current user can VIEW the owner group
+   */
+  private static boolean currentUserCanViewOwnerGroup(Group ownerGroup, GshTemplateExec gshTemplateExec) {
+    if (gshTemplateExec.getCurrentUser() == null) {
+      return false;
+    }
+    if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
+      return true;
+    }
+    return ownerGroup.canHavePrivilege(gshTemplateExec.getCurrentUser(), AccessPrivilege.VIEW.getName(), false);
+  }
+  
+  /**
+   * Check, before any template code is loaded or run, that the current user of the exec may use this template
+   * on the exec's owner: the template is enabled, the owner exists and the template is allowed on it, and the
+   * current user satisfies the securityRunType.  Callers that render a template form (and so load the V2 class
+   * and run decorateTemplateForUiDisplay) must call this first: the UI template dropdown only hides templates,
+   * it does not stop a direct request for a template id.
+   * <p>
+   * Runs in a root session, the same context validate() has under GshTemplateExec.execute(), so owner lookups
+   * and group membership checks do not depend on what the user can VIEW.  Fails closed: an exception from a
+   * check (e.g. the owner is not allowed for this template) counts as not allowed.
+   * </p>
+   * @param templateConfig populated config of the template
+   * @param gshTemplateExec has the current user, owner type and owner name assigned
+   * @param gshTemplateOutput validation lines (already html escaped) are added here when not allowed
+   * @return true if allowed
+   */
+  public boolean validatePreflight(final GshTemplateConfig templateConfig, final GshTemplateExec gshTemplateExec, final GshTemplateOutput gshTemplateOutput) {
+    
+    if (templateConfig == null || gshTemplateExec == null || gshTemplateExec.getCurrentUser() == null) {
+      gshTemplateOutput.addValidationLine(GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message"));
+      return false;
+    }
+    
+    try {
+      return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          return validateEnabledOwnerAndSecurity(templateConfig, gshTemplateExec, gshTemplateOutput);
+        }
+      });
+    } catch (RuntimeException re) {
+      // e.g. "ownerGroup x is not allowed to run this gsh template": deny, do not let it through
+      GrouperUtil.getLog(GshTemplateValidationService.class).warn("gsh template preflight denied: " + templateConfig.getConfigId(), re);
+      gshTemplateOutput.addValidationLine(GrouperUtil.escapeHtml(StringUtils.defaultIfBlank(re.getMessage(), 
+          "Not allowed to use this template"), true));
+      return false;
+    }
   }
   
   private boolean validateOwnerType(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
@@ -104,7 +190,8 @@ public class GshTemplateValidationService {
       
       
       Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, false);
-      if (ownerGroup == null) {
+      // a group the current user cannot VIEW gets the same message as a group that does not exist
+      if (ownerGroup == null || !currentUserCanViewOwnerGroup(ownerGroup, gshTemplateExec)) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerGroup.notFound.message");
         errorMessage = errorMessage.replace("$$ownerGroupName$$", ownerGroupString);
         gshTemplateOutput.addValidationLine(errorMessage);
@@ -190,6 +277,28 @@ public class GshTemplateValidationService {
       return true;
     }
     
+    GshTemplateSecurityRunType gshTemplateSecurityRunType = templateConfig.getGshTemplateSecurityRunType();
+
+    // Fail closed for provisioner templates and for a missing securityRunType.  Provisioner templates run as
+    // GrouperSystem and are meant to be invoked only by the provisioning framework, which runs them as the root
+    // subject (GshTemplateProvisionerFactory) and so took the early return above.  Their securityRunType is not
+    // configurable and is null, and null must never mean "everyone": without this, any caller of
+    // GshTemplateExec.execute() (e.g. the WS gshTemplateExec operation, with no owner) could run them as
+    // GrouperSystem.  Treat them as wheel only.
+    if (templateConfig.getGshTemplateType() == GshTemplateType.provisioner || gshTemplateSecurityRunType == null) {
+      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
+      if (StringUtils.isBlank(wheelGroupName)) {
+        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.wheelGroupMissing.message");
+        gshTemplateOutput.addValidationLine(errorMessage);
+        return false;
+      }
+      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.notMemberOfWheelGroup.message");
+      errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", gshTemplateExec.getCurrentUser().getId());
+      errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$groupName$$", wheelGroupName);
+      gshTemplateOutput.addValidationLine(errorMessage);
+      return false;
+    }
+    
     //Member currentUserMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), currentUser, true);
     // validate current user
     if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
@@ -269,8 +378,18 @@ public class GshTemplateValidationService {
         
       }
      
+    } else if (gshTemplateSecurityRunType != GshTemplateSecurityRunType.everyone) {
+
+      // a securityRunType this code does not know: refuse instead of falling through to "allowed"
+      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.notMemberOfWheelGroup.message");
+      errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", gshTemplateExec.getCurrentUser().getId());
+      errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$groupName$$", 
+          StringUtils.defaultString(GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group")));
+      gshTemplateOutput.addValidationLine(errorMessage);
+      return false;
     }
     
+    // everyone, or one of the checks above passed
     return true;
     
   }
@@ -349,7 +468,7 @@ public class GshTemplateValidationService {
           }
         } catch (RuntimeException re) {
           GrouperUtil.injectInException(re, ", script: '" + showElScript + "', ");
-          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(variableMap));
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(GshTemplateInputMask.variableMapForLog(templateConfig, variableMap)));
           throw re;
         }
 
@@ -529,7 +648,8 @@ public class GshTemplateValidationService {
   private boolean validateEnabled(GshTemplateConfig templateConfig, GshTemplateOutput gshTemplateOutput) {
     if (!templateConfig.isEnabled()) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.configId.notEnabled.message");
-      errorMessage = errorMessage.replace("$$configId$$", templateConfig.getConfigId());
+      // the config id can come from the request (UI templateType parameter), so escape it
+      errorMessage = errorMessage.replace("$$configId$$", GrouperUtil.escapeHtml(templateConfig.getConfigId(), true));
       gshTemplateOutput.addValidationLine(errorMessage);
       return false;
     }

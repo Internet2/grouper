@@ -109,7 +109,10 @@ public class UiV2ProvisionerConfiguration {
       
       ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
       
-      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+      // diagnostics runs the provisioner against its target with Grouper's credentials (and can write to it),
+      // so it needs the same wheel/root rule as runFullSync and the Diagnostics menu item, not just
+      // "can view some provisioner".  Check before the provisionerConfigId is read
+      if (!provisionerConfigurationContainer.isCanEditProvisionerConfiguration()) {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
@@ -310,7 +313,10 @@ public class UiV2ProvisionerConfiguration {
       
       ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
       
-      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration()) {
+      // diagnostics runs the provisioner against its target with Grouper's credentials (and can write to it),
+      // so it needs the same wheel/root rule as runFullSync and the Diagnostics menu item, not just
+      // "can view some provisioner".  Check before the provisionerConfigId is read
+      if (!provisionerConfigurationContainer.isCanEditProvisionerConfiguration()) {
         throw new RuntimeException("Not allowed!!!!!");
       }
       

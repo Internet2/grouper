@@ -2722,6 +2722,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     //if you have those you can essentially see if you are in the group or not due to optin / optout buttons
     Set<Privilege> inPrivSetInitial = (field.isGroupListField() && SubjectHelper.eq(subject, grouperSession.getSubject())) ? 
         AccessPrivilege.OPT_OR_READ_PRIVILEGES :  AccessPrivilege.READ_PRIVILEGES;
+
+    // security: someone else's privilege list (admins, updaters, ...) needs ADMIN on the group, not READ
+    inPrivSetInitial = edu.internet2.middleware.grouper.privs.AccessFieldReadPrivileges.groupsOfSubjectPrivileges(grouperSession,
+        field.isGroupAccessField(), SubjectHelper.eq(subject, grouperSession.getSubject()), inPrivSetInitial);
     
     Set<Privilege> inPrivSetFinal = new LinkedHashSet<Privilege>(inPrivSetInitial);
     

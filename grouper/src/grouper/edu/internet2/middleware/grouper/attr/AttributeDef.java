@@ -1552,6 +1552,16 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    */
   public void delete() {
 
+    // make sure subject is allowed to do this, before any side effect.  Deleting the attribute
+    // def names below checks ATTR_ADMIN too, but a def with no names reached no check at all, so
+    // a caller with only ATTR_VIEW (e.g. WS attributeDefDelete) could delete an empty def
+    // (and its assignments, which are removed as root)
+    final Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    if (!this.getPrivilegeDelegate().canAttrAdmin(subject)) {
+      throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
+          + " is not attrAdmin on attributeDef: " + this.getName());
+    }
+
               
 
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {

@@ -31,7 +31,7 @@
                 ${grouperRequestContainer.groupImportContainer.report}
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.groupImportContainer.subjectId}&sourceId=${grouperRequestContainer.groupImportContainer.sourceId}');"
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.groupImportContainer.subjectId)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.groupImportContainer.sourceId)}');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">

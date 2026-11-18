@@ -144,7 +144,7 @@ public abstract class EsbListenerBase {
     String encryptionKey = null;
     
     if (!StringUtils.isBlank(encryptionImplName)) {
-      encryptionKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + consumerName + ".encryptionKey");
+      encryptionKey = retrieveEncryptionKey(consumerName);
     }
 
     for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
@@ -194,6 +194,22 @@ public abstract class EsbListenerBase {
 
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(currentId);
     return provisioningSyncConsumerResult;
+  }
+
+  /**
+   * get the message encryption key for a change log consumer.  Prefer
+   * changeLog.consumer.&lt;name&gt;.encryptionKeySecret: the word secret in the name makes Grouper
+   * encrypt it when saved and mask it when shown, in every release.  Fall back to the old
+   * name changeLog.consumer.&lt;name&gt;.encryptionKey so existing configs keep working
+   * @param consumerName
+   * @return the key, required
+   */
+  public static String retrieveEncryptionKey(String consumerName) {
+    String encryptionKey = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName + ".encryptionKeySecret");
+    if (StringUtils.isBlank(encryptionKey)) {
+      encryptionKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + consumerName + ".encryptionKey");
+    }
+    return encryptionKey;
   }
 
   public String encryptMessage(String message, Class<GcEncryptionInterface> encryptionImplClass, String encryptionKey, boolean dontSendFirst4) {

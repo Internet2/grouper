@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -214,6 +215,22 @@ public class ExternalSubjectSave {
   }
   
   /**
+   * make sure the subject of this save's grouper session (or the static session if none was
+   * passed in) is allowed to edit external subjects (externalSubjects.wheelOrRootCanEdit,
+   * externalSubjects.groupAllowedForEdit); same rule as ExternalSubject.store()
+   * @throws InsufficientPrivilegeException if not allowed
+   */
+  private void assertCanEditExternalUsers() {
+    GrouperSession theGrouperSession = this.grouperSession != null ? this.grouperSession
+        : GrouperSession.staticGrouperSession();
+    Subject subject = theGrouperSession.getSubject();
+    if (!ExternalSubject.subjectCanEditExternalUser(subject)) {
+      throw new InsufficientPrivilegeException("Subject cannot edit external users (per grouper.properties): "
+          + GrouperUtil.subjectToString(subject));
+    }
+  }
+
+  /**
    * <pre>
    * create or update a external subject.
    * 
@@ -231,6 +248,13 @@ public class ExternalSubjectSave {
    * @throws InsufficientPrivilegeException
    */
   public ExternalSubject save() {
+
+    // authorize first: before the uuid load, the DAO read, the field compare and the transaction.
+    // The only editor check used to be in ExternalSubject.store(), which runs only when a field
+    // changed, so a caller who sent the stored values unchanged got the whole record back
+    // (WS SUCCESS_NO_CHANGES_NEEDED) without being allowed to see or edit external subjects.
+    // Authorization must not depend on whether a write is needed.  store() keeps its own check.
+    this.assertCanEditExternalUsers();
 
     //help with incomplete entries
     if (StringUtils.isBlank(this.identifier)) {

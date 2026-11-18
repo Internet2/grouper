@@ -204,9 +204,31 @@ public class GrouperZoomCommands {
   }
 
   /**
-   * store an encrypted bearer token
+   * store bearer tokens, keyed by zoom external system config id: each config is its own Zoom
+   * account and credentials, so a token must never be served to another config
    */
-  private static ExpirableCache<Boolean, String> bearerTokenCache = null;
+  private static ExpirableCache<String, String> bearerTokenCache = null;
+
+  /**
+   * @param configId zoom external system config id
+   * @return the bearer token cache key for this config
+   */
+  private static String bearerTokenCacheKey(String configId) {
+    return configId == null ? "" : configId;
+  }
+
+  /**
+   * how long a token may be served from the cache: one minute less than the shorter of the global
+   * cache setting and this config's token lifetime (a JWT is built to expire after
+   * zoom.configId.cacheJwtForMinutes), at least one minute
+   * @param configId zoom external system config id
+   * @return minutes
+   */
+  private static int bearerTokenCacheMinutes(String configId) {
+    int globalMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.zoom.cacheJwtForMinutes", 30);
+    int configMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".cacheJwtForMinutes", 30);
+    return Math.max(1, Math.min(globalMinutes, configMinutes) - 1);
+  }
   
   /**
    * get a cached or fresh bearer token
@@ -214,10 +236,11 @@ public class GrouperZoomCommands {
    * @return the bearer token
    */
   public static String retrieveBearerTokenFromCacheOrFresh(String configId) {
-    ExpirableCache<Boolean, String> theBearerTokenCache = bearerTokenCache();
+    ExpirableCache<String, String> theBearerTokenCache = bearerTokenCache();
+    String cacheKey = bearerTokenCacheKey(configId);
     
     if (theBearerTokenCache != null) {
-      String bearerToken = theBearerTokenCache.get(Boolean.TRUE);
+      String bearerToken = theBearerTokenCache.get(cacheKey);
       if (bearerToken != null) {
         return bearerToken;
       }
@@ -226,7 +249,7 @@ public class GrouperZoomCommands {
     String jwt = retrieveBearerTokenFresh(configId);
     
     if (theBearerTokenCache != null) {
-      theBearerTokenCache.put(Boolean.TRUE, jwt);
+      theBearerTokenCache.put(cacheKey, jwt, bearerTokenCacheMinutes(configId));
     }
     return jwt;
 
@@ -317,7 +340,7 @@ public class GrouperZoomCommands {
    * get the cache based on how long to cache.  Note this is used for oauth which expires in an hour... we can adjust this in future
    * @return the cache
    */
-  public static ExpirableCache<Boolean, String> bearerTokenCache() {
+  public static synchronized ExpirableCache<String, String> bearerTokenCache() {
     int cacheJwtForMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.zoom.cacheJwtForMinutes", 30);
     
     if (cacheJwtForMinutes == 1) {
@@ -326,8 +349,11 @@ public class GrouperZoomCommands {
     if (cacheJwtForMinutes <= 0) {
       return null;
     }
-    // cache for the number of minutes minus 1 so it doesnt expire
-    bearerTokenCache = new ExpirableCache<Boolean, String>(cacheJwtForMinutes-1);
+    // cache for the number of minutes minus 1 so it doesnt expire.  Create it once: it used to be
+    // replaced by a new, empty cache on every call, so no token was ever reused
+    if (bearerTokenCache == null) {
+      bearerTokenCache = new ExpirableCache<String, String>(cacheJwtForMinutes-1);
+    }
     return bearerTokenCache;
   }
   

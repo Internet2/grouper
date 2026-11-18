@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.audit.PermissionInheritanceAudit;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
@@ -155,8 +156,16 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @param newAttributeDefName
    * @return true if added, false if already there
    */
-  public boolean addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    return internal_addToAttributeDefNameSet(newAttributeDefName, null);
+  public boolean addToAttributeDefNameSet(final AttributeDefName newAttributeDefName) {
+    assertCanAdminAttributeDefs(newAttributeDefName);
+    // audit who added the implication: holders of this name now also hold the other one
+    return PermissionInheritanceAudit.attributeDefNameInheritance(true, this.attributeDefName, newAttributeDefName, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return internal_addToAttributeDefNameSet(newAttributeDefName, null);
+      }
+    });
   }
 
   /**
@@ -174,9 +183,17 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @param attributeDefNameToRemove
    * @return true if removed, false if already removed
    */
-  public boolean removeFromAttributeDefNameSet(AttributeDefName attributeDefNameToRemove) {
+  public boolean removeFromAttributeDefNameSet(final AttributeDefName attributeDefNameToRemove) {
     assertCanAdminAttributeDefs(attributeDefNameToRemove);
-    return GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(this.attributeDefName, attributeDefNameToRemove);
+    // audit who removed the implication
+    return PermissionInheritanceAudit.attributeDefNameInheritance(false, this.attributeDefName, attributeDefNameToRemove, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(AttributeDefNameSetDelegate.this.attributeDefName, 
+            attributeDefNameToRemove);
+      }
+    });
   }
 
   /**

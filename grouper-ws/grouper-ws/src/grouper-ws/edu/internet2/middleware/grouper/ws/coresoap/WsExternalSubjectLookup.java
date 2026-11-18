@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import edu.internet2.middleware.subject.Subject;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -97,6 +98,19 @@ public class WsExternalSubjectLookup implements GrouperWsToStringCompact {
       @Override
       public WsExternalSubjectDeleteResultCode convertToExternalSubjectDeleteResultCode() {
         return WsExternalSubjectDeleteResultCode.INVALID_QUERY;
+      }
+    },
+
+    /**
+     * the caller is not allowed to view or edit external subjects (externalSubjects.wheelOrRootCanEdit,
+     * externalSubjects.groupAllowedForEdit), so the record was not read.  Server side only (not
+     * serialized); maps to the existing delete result code INSUFFICIENT_PRIVILEGES
+     */
+    INSUFFICIENT_PRIVILEGES {
+
+      @Override
+      public WsExternalSubjectDeleteResultCode convertToExternalSubjectDeleteResultCode() {
+        return WsExternalSubjectDeleteResultCode.INSUFFICIENT_PRIVILEGES;
       }
     };
 
@@ -181,6 +195,24 @@ public class WsExternalSubjectLookup implements GrouperWsToStringCompact {
     if (this.externalSubjectFindResult != null) {
       return this.externalSubject;
     }
+
+    // authorize BEFORE the record is read.  Callers (externalSubjectDelete, externalSubjectSave)
+    // copy the found record into the WS response before the editor check in
+    // ExternalSubject.delete() / store() runs, so a non-editor could read any external subject
+    // (name, email, institution, attributes) through a denied delete, and could tell an existing
+    // identifier from a missing one.  A denied caller gets no record and the same answer for
+    // every identifier.  Same rule as findExternalSubjects and ExternalSubject.store().
+    if (!callerCanEditExternalSubjects(grouperSession)) {
+      this.externalSubject = null;
+      this.externalSubjectFindResult = ExternalSubjectFindResult.INSUFFICIENT_PRIVILEGES;
+      LOG.warn("Subject cannot view external users (per grouper.properties), not looking up: " + this);
+      if (!StringUtils.isBlank(invalidQueryReason)) {
+        throw new WsInvalidQueryException("Not allowed to view external subjects for '"
+            + invalidQueryReason + "', " + this);
+      }
+      return null;
+    }
+
     try {
       //assume success (set otherwise if there is a problem)
       this.externalSubjectFindResult = ExternalSubjectFindResult.SUCCESS;
@@ -220,6 +252,23 @@ public class WsExternalSubjectLookup implements GrouperWsToStringCompact {
     return this.externalSubject;
   }
   
+  /**
+   * see if the caller of the web service can view / edit external subjects.  Uses the subject of
+   * the passed in session (the authenticated or act-as WS caller), else the thread's static
+   * session.  Fails closed: no session or no subject means no access.
+   * @param grouperSession caller's session (may be null)
+   * @return true if allowed
+   */
+  private static boolean callerCanEditExternalSubjects(GrouperSession grouperSession) {
+    GrouperSession theGrouperSession = grouperSession != null ? grouperSession
+        : GrouperSession.staticGrouperSession(false);
+    Subject callerSubject = theGrouperSession == null ? null : theGrouperSession.getSubject();
+    if (callerSubject == null) {
+      return false;
+    }
+    return ExternalSubject.subjectCanEditExternalUser(callerSubject);
+  }
+
   /**
    * clear the attributeDef if a setter is called
    */

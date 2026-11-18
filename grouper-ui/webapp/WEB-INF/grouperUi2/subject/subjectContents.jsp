@@ -3,7 +3,7 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
-                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Subject.removeGroups?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['subjectRemoveSelectedGroupsButton'] }</a></td>
+                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Subject.removeGroups?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['subjectRemoveSelectedGroupsButton'] }</a></td>
                     </tr>
                     <tr>
                       <th>
@@ -61,16 +61,16 @@
                                   </c:if>
                                   <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate 
                                       && guiMembershipSubjectContainer.guiGroup.canUpdate }">
-                                    <li><a href="#" onclick="ajax('../app/UiV2Subject.removeGroup?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&groupId=${guiMembershipSubjectContainer.guiGroup.group.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['subjectViewRevokeMembershipButton'] }</a></li>
+                                    <li><a href="#" onclick="ajax('../app/UiV2Subject.removeGroup?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&groupId=${guiMembershipSubjectContainer.guiGroup.group.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['subjectViewRevokeMembershipButton'] }</a></li>
                                   </c:if>
                                   <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
                                   <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
+                                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouper:escapeUrl(guiMembershipSubjectContainer.guiSubject.subject.id)}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
                                   </c:if>
-                                  <li><a href="#"  onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;" class="actions-attribute-assignments">${textContainer.text['membershipAttributeAssignmentsButton'] }</a></li>
+                                  <li><a href="#"  onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;" class="actions-attribute-assignments">${textContainer.text['membershipAttributeAssignmentsButton'] }</a></li>
                                   
                                   <c:if test="${guiMembershipSubjectContainer.canReadProvisioningForMembership}">
-                                    <li><a href="#"  onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;" class="actions-attribute-assignments">${textContainer.text['subjectViewProvisioningButton'] }</a></li>
+                                    <li><a href="#"  onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}'); return false;" class="actions-attribute-assignments">${textContainer.text['subjectViewProvisioningButton'] }</a></li>
                                   </c:if>
                                 </ul>
                               </div>
@@ -84,5 +84,5 @@
                 </form>
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.guiPaging}" formName="groupPagingForm" ajaxFormIds="groupFilterFormId"
-                    refreshOperation="../app/UiV2Subject.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
+                    refreshOperation="../app/UiV2Subject.filter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" />
                 </div>

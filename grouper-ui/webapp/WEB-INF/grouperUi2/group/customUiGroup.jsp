@@ -120,14 +120,14 @@
                             var="customUiUserQueryDisplayBean" >
                       <c:if test="${grouperRequestContainer.customUiContainer.canSeeScreenState || !customUiUserQueryDisplayBean.forLoggedInUserBoolean }">
                         <tr>
-                          <td class="span5">${customUiUserQueryDisplayBean.label}</td>
-                          <td>${customUiUserQueryDisplayBean.variableValue}</td>
+                          <td class="span5">${grouper:escapeHtml(customUiUserQueryDisplayBean.label)}</td>
+                          <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.variableValue)}</td>
                           <td>${customUiUserQueryDisplayBean.description}</td>
                           <c:if test="${ grouperRequestContainer.customUiContainer.canSeeScreenState}">
-                            <td>${customUiUserQueryDisplayBean.variableName}</td>
-                            <td>${customUiUserQueryDisplayBean.variableType}</td>
-                            <td>${customUiUserQueryDisplayBean.userQueryType}</td>
-                            <td>${customUiUserQueryDisplayBean.forLoggedInUser}</td>
+                            <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.variableName)}</td>
+                            <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.variableType)}</td>
+                            <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.userQueryType)}</td>
+                            <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.forLoggedInUser)}</td>
                           </c:if>
                         </tr>
                       </c:if>
@@ -184,11 +184,11 @@
                         <td>${customUiTextResult.customUiTextType.name}</td>
                         <td>${customUiTextResult.customUiTextConfigBean.index}</td>
                         <td>${grouper:escapeHtml(customUiTextResult.customUiTextConfigBean.script)}</td>
-                        <td>${customUiTextResult.scriptResult}</td>
+                        <td>${grouper:escapeHtml(customUiTextResult.scriptResult)}</td>
                         <td><grouper:abbreviateTextarea text="${customUiTextResult.customUiTextConfigBean.text}" showCharCount="200" /></td>
                         <td><grouper:abbreviateTextarea text="${customUiTextResult.textResult}"  showCharCount="200"/></td>
-                        <td>${customUiTextResult.theDefault}</td>
-                        <td>${customUiTextResult.endIfMatches}</td>
+                        <td>${grouper:escapeHtml(customUiTextResult.theDefault)}</td>
+                        <td>${grouper:escapeHtml(customUiTextResult.endIfMatches)}</td>
                       </tr>
                     </c:forEach>
                     

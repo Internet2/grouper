@@ -2746,9 +2746,15 @@ public class MembershipFinder {
       }
       return null;
     }
-    if ( PrivilegeHelper.canViewMembership( grouperSession.internal_getRootSession(), membership ) ) {
+    // check visibility as the caller, not as root.  A root check here authorized nothing, and
+    // callers such as the SCIM membership GET / PUT / DELETE by id rely on this lookup as the gate
+    if ( PrivilegeHelper.canViewMembership( grouperSession, membership ) ) {
       return membership;
-    }   
+    }
+    // exists but not viewable: same result as not found
+    if (exceptionIfNotFound) {
+      throw new MembershipNotFoundException("Not allowed to view membership: " + uuid);
+    }
     return null;
   }
   

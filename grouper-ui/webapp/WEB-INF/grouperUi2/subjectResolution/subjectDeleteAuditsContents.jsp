@@ -24,16 +24,16 @@
                       <c:set var="auditEntry" value="${guiAuditEntry.auditEntry}" />
                       <tr>
                         <td>${guiAuditEntry.guiDate}</td>
-                        <td>${guiAuditEntry.grouperEngineLabel}</td>
+                        <td>${grouper:escapeHtml(guiAuditEntry.grouperEngineLabel)}</td>
                         <td>${guiAuditEntry.auditLine }</td>
                         <td style="white-space: nowrap">${guiAuditEntry.guiSubjectPerformedAction.shortLinkWithIcon}</td>
                         <c:if test="${grouperRequestContainer.subjectResolutionContainer.auditExtendedResults }" >
                           <td>${guiAuditEntry.durationLabel }</td>
-                          <td>${auditEntry.queryCount}</td>
-                          <td>${auditEntry.serverHost }</td>
-                          <td>${auditEntry.userIpAddress }</td>
-                          <td>${auditEntry.id }</td>
-                          <td style="white-space: nowrap">${auditEntry.description }</td>
+                          <td>${grouper:escapeHtml(auditEntry.queryCount)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.serverHost)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.userIpAddress)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.id)}</td>
+                          <td style="white-space: nowrap">${grouper:escapeHtml(auditEntry.description)}</td>
                         </c:if>
                       </tr>
                     </c:forEach>

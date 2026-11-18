@@ -131,6 +131,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -595,6 +596,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public AttributeDefName addChildAttributeDefName(AttributeDef attributeDef, String extension, String displayExtension, String uuid) 
     throws InsufficientPrivilegeException {
+    // Security: a caller-chosen uuid for a new attribute def name must be a safe identifier
+    GrouperObjectIdValidator.assertValidNewId("attributeDefName", StringUtils.trimToNull(uuid));
     return this.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(true), attributeDef,
         extension, displayExtension, StringUtils.trimToNull(uuid), null);
   }
@@ -621,6 +624,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Stem addChildStem(String extension, String displayExtension, String uuid, boolean failIfExists) 
     throws  InsufficientPrivilegeException,
             StemAddException {
+    // Security: a caller-chosen uuid for a new folder must be a safe identifier.  Checked even when
+    // the folder already exists and failIfExists is false (then nothing is created), so a bad id
+    // is refused the same way whatever is in the registry
+    GrouperObjectIdValidator.assertValidNewId("folder", uuid);
     return internal_addChildStem(GrouperSession.staticGrouperSession(), extension, displayExtension, uuid, true, failIfExists);
   } 
   
@@ -2589,6 +2596,18 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                   Stem.this, session.getSubject())) {
                 throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix);
               }
+              // Security: a new name in an attribute definition needs ATTR_ADMIN on that
+              // definition, not just CREATE on the folder (the UI and AttributeDefNameSave already
+              // require it; this covers the public Stem API, e.g. from GSH, for both
+              // addChildAttributeDefName overloads).  Checked before anything is written.  Root and
+              // wheel pass; XML import, GrouperCheckConfig and the loader run as root
+              if (attributeDef == null) {
+                throw new AttributeDefNameAddException("attributeDef is required" + errorMessageSuffix);
+              }
+              if (!PrivilegeHelper.canAttrAdmin(session, attributeDef, session.getSubject())) {
+                throw new InsufficientPrivilegeException("Subject cannot ATTR_ADMIN the attribute definition "
+                    + attributeDef.getName() + errorMessageSuffix);
+              }
               GrouperValidator v = AddAttributeDefNameValidator.validate(Stem.this, extension);
               if (v.isInvalid()) {
                 throw new AttributeDefNameAddException( v.getErrorMessage() + errorMessageSuffix );
@@ -2696,12 +2715,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                               
               //CH 20080220: this will start saving the attributeDef
               GrouperDAOFactory.getFactory().getStem().createChildAttributeDef( Stem.this, attributeDef );
-                
-              //default action
-              attributeDef.getAttributeDefActionDelegate().addAction("assign");
-              
-              //grant privs
+
+              //grant privs (before the default action, so the creator is ATTR_ADMIN when it is added)
               _grantDefaultPrivsUponCreate(attributeDef);
+
+              //default action.  internal_addAction since changing actions now needs ATTR_ADMIN
+              //(issue 32), and a creator whose ATTR_ADMIN comes from an inherited privilege rule
+              //only gets it when the attributeDefCreate rule fires below.  The creator was
+              //already authorized by the CREATE check above, and the definition is new.
+              attributeDef.getAttributeDefActionDelegate().internal_addAction("assign", null);
               
               //fire a rule
               RulesAttributeDefBean rulesAttributeDefBean = new RulesAttributeDefBean(attributeDef);

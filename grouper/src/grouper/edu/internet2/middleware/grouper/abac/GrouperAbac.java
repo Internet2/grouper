@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -61,17 +60,20 @@ public class GrouperAbac {
       return "script is null";
     }
     script = script.trim();
+
+    // the script is user-authored (loader editors): only entity.memberOf('...') with
+    // and / or / not and parentheses is allowed, checked before anything evaluates it,
+    // so no Java class or method can be reached (5.x+ translate the same shape to SQL)
+    String notAllowedMessage = GrouperAbacScriptAllowlist.allowlistErrorMessage(script);
+    if (notAllowedMessage != null) {
+      return notAllowedMessage;
+    }
     try {
       GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
       grouperAbacEntity.setMultiValuedGroupExtensionInFolder(new HashMap<String, Set<String>>());
       grouperAbacEntity.setSingleValuedGroupExtensionInFolder(new HashMap<String, String>());
       grouperAbacEntity.setMemberOfGroupNames(new HashSet<String>());
-      final JexlEngine jexlEngine = new JexlEngine();
-      jexlEngine.setSilent(false);
-      jexlEngine.setLenient(true);
 
-      jexlEngine.createScript(script.substring(2, script.length()-1));
-      
       Map<String, Object> variableMap = new HashMap<String, Object>();
       
       variableMap.put("entity", grouperAbacEntity);
@@ -95,8 +97,16 @@ public class GrouperAbac {
 
   }
   
+  /**
+   * evaluate a scripted group script.  Not JEXL: the script must pass the allowlist in
+   * GrouperAbacScriptAllowlist and is evaluated there against the 'entity' variable only
+   * (it used to run as JEXL with static classes, i.e. any Java as the caller)
+   * @param script
+   * @param variableMap needs 'entity' (GrouperAbacEntity)
+   * @return Boolean
+   */
   public static Object runScriptStatic(String script, Map<String, Object> variableMap) {
-    Object result = GrouperUtil.substituteExpressionLanguageScript(script, variableMap, true, false, true);
+    Object result = GrouperAbacScriptAllowlist.evaluate(script, variableMap);
     return result;
     
   }

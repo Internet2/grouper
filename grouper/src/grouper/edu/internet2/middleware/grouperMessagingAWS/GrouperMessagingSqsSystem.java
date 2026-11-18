@@ -29,6 +29,7 @@ import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
+import edu.internet2.middleware.grouper.messaging.GrouperMessagingExternalAuthorization;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -60,6 +61,11 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)
    */
   public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageSendParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_SEND);
         
     GrouperMessageSystemParam systemParam = grouperMessageSendParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageSendParam.getGrouperMessageQueueParam();
@@ -91,6 +97,11 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#acknowledge(edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam)
    */
   public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_ACKNOWLEDGE);
     
     GrouperMessageSystemParam systemParam = grouperMessageAcknowledgeParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam();
@@ -153,6 +164,11 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
    * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#receive(edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam)
    */
   public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam) {
+
+    // refuse callers who may not use this external messaging system, before connecting to the broker
+    // (the broker credentials are Grouper's own, so the caller must be checked here)
+    GrouperMessagingExternalAuthorization.assertAllowed(grouperMessageReceiveParam.getGrouperMessageSystemParam(),
+        GrouperMessagingExternalAuthorization.OPERATION_RECEIVE);
     
     GrouperMessageSystemParam systemParam = grouperMessageReceiveParam.getGrouperMessageSystemParam();
     GrouperMessageQueueParam queueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();

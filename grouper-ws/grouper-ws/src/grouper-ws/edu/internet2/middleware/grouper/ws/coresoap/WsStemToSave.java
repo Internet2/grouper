@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -152,6 +153,13 @@ public class WsStemToSave {
     Stem stemLookedup = this.getWsStemLookup().retrieveStem();
 
     String stemNameLookup = stemLookedup == null ? null : stemLookedup.getName();
+
+    // Security: nothing found, so this is (or will fail as) an insert: a caller-chosen uuid for a
+    // new folder must be a safe identifier.  StemSave checks this too at the insert; this gives
+    // the caller an INVALID_QUERY result first.  Existing folders can still be saved by uuid
+    if (stemLookedup == null && !GrouperObjectIdValidator.isValidNewId(this.getWsStem().getUuid())) {
+      throw new WsInvalidQueryException(GrouperObjectIdValidator.invalidIdMessage("folder", this.getWsStem().getUuid()));
+    }
 
     StemSave stemSave = new StemSave(grouperSession);
     stemSave.assignStemNameToEdit(stemNameLookup);

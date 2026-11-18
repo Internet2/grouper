@@ -31,11 +31,13 @@ public class GrouperWorkflowSettings {
   }
   
   /**
-   * if workflow is enabled
+   * if workflow is enabled.  Off unless workflow.enable is true in grouper.properties
+   * (or the configuration database): sites that do not use workflow do not expose its screens
+   * or config.  This default must match the defaultValue in grouper.base.properties.
    * @return if workflow is enabled
    */
   public static boolean workflowEnabled() {
-    return GrouperConfig.retrieveConfig().propertyValueBoolean("workflow.enable", true);
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("workflow.enable", false);
   }
   
   /**

@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGroupRestrictedFactor;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.MembershipGuiContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -944,7 +945,9 @@ public class UiV2Membership {
             
             //dont know what branch of the composite we are on... so 
             Group factor = membershipPathNode.getOtherFactor();
-            membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+            // security: the other factor is not on the allowed path, show it only if the user can VIEW it
+            membershipGuiContainer.setGuiGroupFactor(GuiGroupRestrictedFactor.guiGroupIfViewable(factor, 
+                GrouperSession.staticGrouperSession().getSubject()));
             
             if (factor != null) {
               if (factor.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), "read", false)) {
@@ -1224,7 +1227,9 @@ public class UiV2Membership {
             
             //dont know what branch of the composite we are on... so 
             Group factor = membershipPathNode.getOtherFactor();
-            membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+            // security: the other factor is not on the allowed path, show it only if the user can VIEW it
+            membershipGuiContainer.setGuiGroupFactor(GuiGroupRestrictedFactor.guiGroupIfViewable(factor, 
+                GrouperSession.staticGrouperSession().getSubject()));
             switch(membershipPathNode.getCompositeType()) {
               case UNION:
                 

@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ws.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
@@ -46,6 +45,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
+import edu.internet2.middleware.grouper.ws.rest.json.DefaultJsonConverter;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
@@ -116,6 +116,11 @@ public class GrouperRestServlet extends HttpServlet {
     WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.json;
 
     Map<String, String[]> parameterMap = null;
+    
+    // debug map
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    boolean logRestRequestDebugInfo = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.logRestRequestDebugInfo", false);
 
     try {
       
@@ -133,8 +138,15 @@ public class GrouperRestServlet extends HttpServlet {
       String contentType = request.getContentType();
       
       //get the body and convert to an object
-      String body = IOUtils.toString(request.getReader());
+      //read the body with a size limit (ws.restMaxRequestBodyBytes), over the limit is HTTP 413 (security issue 114)
+      String body = WsRestRequestBodyReader.readBody(request);
 
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        debugMap.put("request", requestDebugInfo(request));
+        debugMap.put("contentType", contentType);
+        debugMap.put("requestBody", body);
+      }
+      
       //get the enum
       WsRestRequestContentType wsRestRequestContentType = WsRestRequestContentType
         .findByContentType(contentType, body);
@@ -170,6 +182,12 @@ public class GrouperRestServlet extends HttpServlet {
           }
         } 
       }
+      //refuse a json wrapper that is not a plain javascript function name, before the operation runs,
+      //since the wrapper is printed verbatim in front of the response (security issue 66)
+      if (wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", true)) {
+        WsRestJsonResponseWrapper.assertValidWrapper(GrouperServiceJ2ee.parameterValue(parameterMap, request, WsRestJsonResponseWrapper.PARAM_NAME));
+      }
+
       //will get enum and validate
       String clientVersionString = null;
       if (urlStringsLength > 0) {
@@ -183,7 +201,8 @@ public class GrouperRestServlet extends HttpServlet {
       WsRequestBean requestObject = null;
 
       if (!StringUtils.isBlank(body)) {
-        requestObject = (WsRequestBean) wsRestRequestContentType.parseString(body,
+        //a body that does not parse is HTTP 400 with a short message, the body is not logged or returned (security issue 114)
+        requestObject = (WsRequestBean) WsRestRequestBodyReader.parseBody(wsRestRequestContentType, body,
             warnings);
       }
 
@@ -198,6 +217,9 @@ public class GrouperRestServlet extends HttpServlet {
       //get the method and validate (either from object, or HTTP method
       GrouperRestHttpMethod grouperRestHttpMethod = requestObject == null ? GrouperRestHttpMethod
           .valueOfIgnoreCase(request.getMethod(), true) : requestObject.retrieveRestHttpMethod();
+
+      //refuse a write (e.g. add member) sent with HTTP GET or HEAD, unless ws.rest.allowWritesWithGet (security issue 56)
+      WsRestHttpMethodValidator.assertHttpMethodAllowed(request, requestObject);
 
       wsResponseBean = grouperRestHttpMethod.service(clientVersion, urlStrings, requestObject);
 
@@ -214,7 +236,8 @@ public class GrouperRestServlet extends HttpServlet {
       LOG.error(error, glir);
 
       wsResultMeta.appendResultMessageError(error);
-      wsResultMeta.assignHttpStatusCode(400);
+      //413 if the body was over the size limit (security issue 114)
+      wsResultMeta.assignHttpStatusCode(glir instanceof WsRestRequestTooLarge ? 413 : 400);
       wsResultMeta.assignResultCode("INVALID_QUERY");
       wsResultMeta.assignSuccess("F");
 
@@ -265,7 +288,8 @@ public class GrouperRestServlet extends HttpServlet {
       if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", true)) {
         
         String grouperJsonResponseWrapper = GrouperServiceJ2ee.parameterValue(parameterMap, request, "grouperJsonResponseWrapper"); 
-        if (!StringUtils.isBlank(grouperJsonResponseWrapper)) {
+        //only print a plain javascript function name, never raw request text (an earlier error can skip the check above)
+        if (!StringUtils.isBlank(grouperJsonResponseWrapper) && WsRestJsonResponseWrapper.isValidWrapper(grouperJsonResponseWrapper)) {
           response.getWriter().print(grouperJsonResponseWrapper);
           response.getWriter().print("(");
           wrapJsonResponse = true;
@@ -273,6 +297,11 @@ public class GrouperRestServlet extends HttpServlet {
         
       }
       
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        debugMap.put("responseCode", wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
+        debugMap.put("resonseBody", new DefaultJsonConverter().convertToJson(wsResponseBean));
+      }
+
       wsRestResponseContentType.writeString(wsResponseBean, response.getWriter());
       
       if (wrapJsonResponse) {
@@ -284,6 +313,9 @@ public class GrouperRestServlet extends HttpServlet {
       LOG.error("Problem with request: " + requestDebugInfo(request), re);
     } finally {
 
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
       IOUtils.closeQuietly(response.getWriter());
       GrouperWsVersionUtils.removeCurrentClientVersion();
       restRequest.set(null);

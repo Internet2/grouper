@@ -30,6 +30,24 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * This class interacts with the Microsoft Graph API.
  */
 public class GrouperScim2ApiCommands {
+
+  /**
+   * provisioner setting that allows re-linking an entity to an existing account after an update conflict
+   * (issue 93): provisioner.&lt;configId&gt;.scim2UpdateConflictRelink, default false
+   */
+  public static final String UPDATE_CONFLICT_RELINK_SUFFIX = "scim2UpdateConflictRelink";
+
+  /**
+   * @return true if the current provisioner allows re-linking after an update conflict (default false)
+   */
+  public static boolean updateConflictRelinkAllowed() {
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    if (grouperProvisioner == null || grouperProvisioner.getConfigId() == null) {
+      return false;
+    }
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+        "provisioner." + grouperProvisioner.getConfigId() + "." + UPDATE_CONFLICT_RELINK_SUFFIX, false);
+  }
   
   
   public static void main(String[] args) {
@@ -723,23 +741,49 @@ public class GrouperScim2ApiCommands {
         debugMap.put("patchReturnedUniquenessConflict", true);
 
         // find the account that already holds the desired identity.  externalId is stable across a
-        // userName rename so try it first, then fall back to the (new) userName.  If neither matches,
-        // this is not a recoverable conflict, so rethrow.
+        // userName rename and is the only attribute trusted to prove identity (see
+        // GrouperScim2ConflictAnchor).  If no account has it, this is not a recoverable conflict, so rethrow.
         JsonNode existingUserNode = null;
 
         String externalId = grouperScim2User.getExternalId();
         if (StringUtils.isNotBlank(externalId)) {
           existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "externalId", externalId, scimSettings);
+          // security: only accept an account that really carries this exact externalId; a target's
+          // "eq" filter can be case-insensitive or loose, so do not trust the filter alone
+          existingUserNode = GrouperScim2ConflictAnchor.anchoredOrNull(existingUserNode, externalId);
+          // security: if the anchored account is the one we tried to rename, the 409 came from some
+          // other account holding the new userName; re-linking onto ourselves would dispose the real
+          // account, so treat it as unrecoverable
+          if (GrouperScim2ConflictAnchor.isSameAccount(existingUserNode, grouperScim2User.getId())) {
+            debugMap.put("conflictRecoveryAnchorIsSameAccount", true);
+            existingUserNode = null;
+          }
         }
 
         String userName = grouperScim2User.getUserName();
-        if (existingUserNode == null && StringUtils.isNotBlank(userName)) {
+        // security: do not fall back to the mutable userName.  Anyone who can create or rename a
+        // target account could pre-claim the userName and get this entity's access linked to it.
+        if (existingUserNode == null && StringUtils.isNotBlank(userName)
+            && GrouperScim2ConflictAnchor.allowUserNameFallback(configId, externalId)) {
           existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "userName", userName, scimSettings);
         }
 
         if (existingUserNode == null) {
-          throw new RuntimeException("SCIM update returned 409 uniqueness but no existing user matched externalId '"
-              + externalId + "' or userName '" + userName + "' to re-link");
+          // not provably the same identity: leave it as an object error for an administrator to
+          // reconcile (no re-link, and the old account is not deleted or disabled)
+          debugMap.put("conflictRecoveryRefusedNoAnchor", true);
+          throw new RuntimeException("SCIM update returned 409 but no existing user has the exact externalId '"
+              + externalId + "' (userName '" + userName + "' is not trusted to re-link)");
+        }
+
+        // SECURITY (issue 93, 2026-11-10): externalId can be set by anyone who can write the account at the
+        // target, so an update conflict must not move this entity onto another account (and dispose of
+        // the old one) unless the provisioner opts in.  Off by default: the entity becomes an object error
+        if (!updateConflictRelinkAllowed()) {
+          debugMap.put("conflictRecoveryRefusedRelinkOff", true);
+          throw new RuntimeException("SCIM update returned 409 and an existing account has externalId '" + externalId
+              + "', but re-linking on an update conflict is off for this provisioner (provisioner.<configId>."
+              + UPDATE_CONFLICT_RELINK_SUFFIX + "=true allows it)");
         }
 
         debugMap.put("stashedUpdateConflictForRelink", true);
@@ -1096,9 +1140,9 @@ public class GrouperScim2ApiCommands {
         // the "create" failed because the entity already exists.  Link the existing target object:
         // this is a fake create that has the same downstream effect as a real one, since the
         // captureUserInsertFromCurrentProvisioner hook below (not the returned object) is what
-        // registers the target id with the generic provisioner.  Match on externalId first since
-        // it is stable across userName renames, then fall back to userName.  If neither finds a
-        // match this is not a recoverable uniqueness conflict, so rethrow.
+        // registers the target id with the generic provisioner.  Match on externalId only, since it
+        // is stable across userName renames and is the trusted identity anchor (see
+        // GrouperScim2ConflictAnchor).  If nothing has it this is not a recoverable conflict, so rethrow.
         debugMap.put("createReturnedConflict", true);
 
         JsonNode existingUserNode = null;
@@ -1106,16 +1150,25 @@ public class GrouperScim2ApiCommands {
         String externalId = grouperScimUser.getExternalId();
         if (StringUtils.isNotBlank(externalId)) {
           existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "externalId", externalId, scimSettings);
+          // security: only accept an account that really carries this exact externalId; a target's
+          // "eq" filter can be case-insensitive or loose, so do not trust the filter alone
+          existingUserNode = GrouperScim2ConflictAnchor.anchoredOrNull(existingUserNode, externalId);
         }
 
         String userName = grouperScimUser.getUserName();
-        if (existingUserNode == null && StringUtils.isNotBlank(userName)) {
+        // security: do not fall back to the mutable userName.  Anyone who can create or rename a
+        // target account could pre-claim the userName and get this entity's access linked to it.
+        if (existingUserNode == null && StringUtils.isNotBlank(userName)
+            && GrouperScim2ConflictAnchor.allowUserNameFallback(configId, externalId)) {
           existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "userName", userName, scimSettings);
         }
 
         if (existingUserNode == null) {
-          throw new RuntimeException("SCIM create returned 409 but no existing user matched externalId '"
-              + externalId + "' or userName '" + userName + "' to link");
+          // not provably the same identity: leave it as an object error for an administrator to
+          // reconcile (no re-link, and the old account is not deleted or disabled)
+          debugMap.put("conflictRecoveryRefusedNoAnchor", true);
+          throw new RuntimeException("SCIM create returned 409 but no existing user has the exact externalId '"
+              + externalId + "' (userName '" + userName + "' is not trusted to link)");
         }
 
         debugMap.put("linkedExistingUserOnConflict", true);
@@ -1167,7 +1220,13 @@ public class GrouperScim2ApiCommands {
       return null;
     }
 
-    // a uniqueness conflict means a single canonical existing user; take the first match
+    // security: a uniqueness conflict means a single canonical existing user.  More than one match
+    // (e.g. a duplicated or loosely matched externalId) is ambiguous, so do not pick one: the caller
+    // then treats the conflict as unrecoverable
+    if (resourcesNode.size() > 1) {
+      debugMap.put("retrieveScimUserForConflictAmbiguous", resourcesNode.size());
+      return null;
+    }
     return resourcesNode.get(0);
   }
 

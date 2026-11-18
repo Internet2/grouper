@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -185,6 +186,14 @@ public class WsAttributeDefToSave {
 
     String attributeDefLookup = attributeDefLookedup == null ? null
         : attributeDefLookedup.getName();
+
+    // Security: nothing found, so this is (or will fail as) an insert: a caller-chosen uuid for a
+    // new attribute definition must be a safe identifier.  AttributeDefSave checks this too at the
+    // insert; this gives the caller an INVALID_QUERY result first.  Existing ones can still be
+    // saved by uuid
+    if (attributeDefLookedup == null && !GrouperObjectIdValidator.isValidNewId(this.getWsAttributeDef().getUuid())) {
+      throw new WsInvalidQueryException(GrouperObjectIdValidator.invalidIdMessage("attributeDef", this.getWsAttributeDef().getUuid()));
+    }
 
     AttributeDefType attributeDefType = AttributeDefType.valueOfIgnoreCase(this
         .getWsAttributeDef().getAttributeDefType(), true);

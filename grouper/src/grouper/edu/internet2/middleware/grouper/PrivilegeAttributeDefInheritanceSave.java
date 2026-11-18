@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.InheritedPrivilegeRuleOwnership;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.rules.RuleIfCondition;
 import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
@@ -452,6 +453,12 @@ public class PrivilegeAttributeDefInheritanceSave {
               for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(attributeDefRuleDefinitions)) {
 
                 AttributeAssign attributeAssign = ruleDefinition.getAttributeAssignType();
+
+                // the finder also returns rules owned by ancestor folders; only rules owned by this
+                // exact folder may be deleted or edited from it (by attributeAssignId or by subject)
+                if (!InheritedPrivilegeRuleOwnership.isAttributeAssignOwnedByStem(attributeAssign, stem.getId())) {
+                  continue;
+                }
                 if (deletingAttributeAssign && StringUtils.equals(attributeAssignId, attributeAssign.getId())) {
                   matchingDefinitions.add(ruleDefinition);
                   break;

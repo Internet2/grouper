@@ -241,4 +241,45 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     
   }
 
+  /**
+   * from the UI, only wheel or root may add a daemon type which carries code or runs SQL (script,
+   * change log script, generic job or consumer class, SQL query daemons), since daemons run as
+   * GrouperSystem.  members of uiV2.admin.daemonJobs.must.be.in.group may add the other types.
+   * see GrouperDaemonCodeAuthorization
+   */
+  @Override
+  public void insertConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
+    // checked before anything is saved; the errors stop UiV2Admin before it schedules the job
+    if (fromUi && !GrouperDaemonCodeAuthorization.checkInsertOrEditFromUi(this, true, errorsToDisplay)) {
+      return;
+    }
+    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
+  }
+
+  /**
+   * from the UI, only wheel or root may edit a daemon type which carries code or runs SQL, or
+   * change the class of any daemon.  see GrouperDaemonCodeAuthorization
+   */
+  @Override
+  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
+    if (fromUi && !GrouperDaemonCodeAuthorization.checkInsertOrEditFromUi(this, false, errorsToDisplay)) {
+      return;
+    }
+    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
+  }
+
+  /**
+   * from the UI, only wheel or root may delete a daemon type which carries code or runs SQL.
+   * throws InsufficientPrivilegeException otherwise.  see GrouperDaemonCodeAuthorization
+   */
+  @Override
+  public void deleteConfig(boolean fromUi) {
+    if (fromUi) {
+      GrouperDaemonCodeAuthorization.assertDeleteFromUiAllowed(this);
+    }
+    super.deleteConfig(fromUi);
+  }
+
 }

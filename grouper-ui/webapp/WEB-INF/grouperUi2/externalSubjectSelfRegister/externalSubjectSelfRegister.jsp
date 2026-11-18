@@ -33,7 +33,7 @@
                 <span><c:out value="${registerField.value}"></c:out></span>
               </c:when>
           	  <c:otherwise>
-                <input type="text" id="selfRegisterField_${loopStatus.index}" name="${registerField.paramName}" value="${registerField.value}" />
+                <input type="text" id="selfRegisterField_${loopStatus.index}" name="${grouper:escapeHtml(registerField.paramName)}" value="${grouper:escapeHtml(registerField.value)}" />
             	<span class="help-block">${registerField.tooltip }</span>
           	  </c:otherwise>
             </c:choose>

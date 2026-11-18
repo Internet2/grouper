@@ -106,6 +106,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.InheritedPrivilegeRuleOwnership;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
@@ -1123,6 +1124,14 @@ public class UiV2Stem {
               TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
           addedError = true;
   
+        } else if (!grouperRequestContainer.getStemContainer().isCanViewPrivileges()) {
+          // GRP-5409 (backport): the static StemFinder lookups above are not an authorization
+          // check, so a folder the user cannot see (no privilege on it and nothing visible
+          // inside it) gets the same "cant find" error as a missing folder.  Otherwise a direct
+          // link or a walked stemIndex shows a hidden folder's name, id and description.
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+          addedError = true;
         } else {
           result.setStem(stem);
           List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
@@ -1623,9 +1632,25 @@ public class UiV2Stem {
       {
         Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
         for (GuiRuleDefinition guiRuleDefinition : GrouperUtil.nonNull(guiRuleDefinitions)) {
+          // the finders also return ancestor folders' rules; only rules owned by this exact folder can be removed here
+          if (!InheritedPrivilegeRuleOwnership.isOwnedByStem(guiRuleDefinition.getRuleDefinition(), stem.getId())) {
+            continue;
+          }
           assignIdToGuiRuleDefinition.put(guiRuleDefinition.getRuleDefinition().getAttributeAssignType().getId(), guiRuleDefinition);
         }
       }
+
+      // all or nothing: if any requested id is not a rule owned by this folder, remove nothing
+      int unownedRuleIdCount = InheritedPrivilegeRuleOwnership.countUnownedRuleIds(ruleAttributeAssignIds, 
+          assignIdToGuiRuleDefinition.keySet(), stem.getId(), loggedInSubject);
+      if (unownedRuleIdCount > 0) {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(0);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(unownedRuleIdCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+        return;
+      }
+      final String ruleOwnerStemId = stem.getId();
       
       final Set<GuiRuleDefinition> guiRuleDefinitionsToDelete = new HashSet<GuiRuleDefinition>();
       
@@ -1644,6 +1669,9 @@ public class UiV2Stem {
                 continue;
               }
               
+              // re-check ownership from the database in the same root callback as the delete
+              InheritedPrivilegeRuleOwnership.assertAttributeAssignIdOwnedByStem(ruleAttributeAssignId, ruleOwnerStemId);
+
               guiRuleDefinitionsToDelete.add(guiRuleDefinition);
               guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
 

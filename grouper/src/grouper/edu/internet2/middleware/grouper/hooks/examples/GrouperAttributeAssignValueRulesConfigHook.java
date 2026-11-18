@@ -34,8 +34,10 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignValueBea
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEmailTemplateCheck;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleSubjectActAs;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
@@ -134,6 +136,22 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
             }
           }
           
+          // SECURITY: a sendEmail rule's recipient, subject and body run as JEXL when the rule fires
+          // (as its act-as subject), with ruleElUtils and the other rule helpers in scope.  A
+          // non-wheel session may only save one whose ${...} are all predefined variables (see
+          // RuleEmailTemplateCheck).  Checked on every insert or update of any value of the rule, so a
+          // non-wheel user cannot edit a rule in which a sysadmin wrote an expression.  Deletes are
+          // not checked.  Root returns at once: the rules UI saves in a root session and is checked in
+          // RuleService instead, against the logged in user.  Before the import skip, so
+          // AttributeAssignSave by a non-wheel session is checked too.  The veto rolls back the value
+          // that was just written.
+          if (!isDelete) {
+            String sendEmailError = RuleEmailTemplateCheck.sendEmailExpressionErrorForValue(runningSubject, attributeAssignValue);
+            if (sendEmailError != null) {
+              throw new HookVeto(RuleEmailTemplateCheck.HOOK_VETO_REASON_KEY, sendEmailError);
+            }
+          }
+
           //if we are importing, then dont validate
           if (AttributeAssignSave.inSaveThreadlocal()) {
             //there are issues with constraint violations here...

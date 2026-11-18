@@ -58,7 +58,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.lastFullSyncStartTimestamp}
+             		   	 	${grouper:escapeHtml(syncDetails.lastFullSyncStartTimestamp)}
              		   	   </td>
              		    </tr>
              		    
@@ -69,7 +69,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.lastFullSyncTimestamp}
+             		   	 	${grouper:escapeHtml(syncDetails.lastFullSyncTimestamp)}
              		   	   </td>
              		    </tr>
              		    
@@ -80,7 +80,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.lastIncrementalSyncTimestamp}
+             		   	 	${grouper:escapeHtml(syncDetails.lastIncrementalSyncTimestamp)}
              		   	   </td>
              		    </tr>
              		    
@@ -91,7 +91,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.lastFullMetadataSyncStartTimestamp}
+             		   	 	${grouper:escapeHtml(syncDetails.lastFullMetadataSyncStartTimestamp)}
              		   	   </td>
              		    </tr>
              		    
@@ -102,7 +102,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.lastFullMetadataSyncTimestamp}
+             		   	 	${grouper:escapeHtml(syncDetails.lastFullMetadataSyncTimestamp)}
              		   	   </td>
              		    </tr>
              		    
@@ -113,7 +113,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.groupCount}
+             		   	 	${grouper:escapeHtml(syncDetails.groupCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -124,7 +124,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.userCount}
+             		   	 	${grouper:escapeHtml(syncDetails.userCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -135,7 +135,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.membershipCount}
+             		   	 	${grouper:escapeHtml(syncDetails.membershipCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -146,7 +146,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.exceptionCount}
+             		   	 	${grouper:escapeHtml(syncDetails.exceptionCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -157,7 +157,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.targetErrorCount}
+             		   	 	${grouper:escapeHtml(syncDetails.targetErrorCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -168,7 +168,7 @@
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.validationErrorCount}
+             		   	 	${grouper:escapeHtml(syncDetails.validationErrorCount)}
              		   	   </td>
              		    </tr>
              		    
@@ -177,7 +177,7 @@
              		    <c:forEach items="${syncDetails.syncJobs}" var="syncJob">
              		    	<tr>
 	             		   		<th colspan="2">
-	             		   		  <h4>${textContainer.text['provisionerConfigsDetailsSyncJobSyncType']}: ${syncJob.gcGrouperSyncJob.syncType}</h4>
+	             		   		  <h4>${textContainer.text['provisionerConfigsDetailsSyncJobSyncType']}: ${grouper:escapeHtml(syncJob.gcGrouperSyncJob.syncType)}</h4>
 	             		   		</th>
              		   		</tr>
 	             		    <tr>
@@ -187,7 +187,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.lastUpdated}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.lastUpdated)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -197,7 +197,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.percentComplete}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.percentComplete)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -207,7 +207,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.lastSyncTimestamp}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.lastSyncTimestamp)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -217,7 +217,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.lastTimeWorkWasDone}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.lastTimeWorkWasDone)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -227,7 +227,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.heartbeat}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.heartbeat)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -237,7 +237,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.errorMessage}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.errorMessage)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -247,7 +247,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncJob.errorTimestamp}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncJob.errorTimestamp)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -257,7 +257,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.description}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.description)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -267,7 +267,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.grouperSyncOwnerId}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.grouperSyncOwnerId)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -277,7 +277,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.jobTookMillis}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.jobTookMillis)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -287,7 +287,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.lastUpdated}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.lastUpdated)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -297,7 +297,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.recordsChanged}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.recordsChanged)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -307,7 +307,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.recordsProcessed}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.recordsProcessed)}
 	             		   	   </td>
 	             		    </tr>
              		   		<tr>
@@ -317,7 +317,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.server}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.server)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -327,7 +327,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.statusDb}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.statusDb)}
 	             		   	   </td>
 	             		    </tr>
 	             		    <tr>
@@ -337,7 +337,7 @@
 	             		   		</label></strong>
 	             		   	  </td>
 	             		   	  <td>
-	             		   	 	${syncJob.gcGrouperSyncLog.syncTimestamp}
+	             		   	 	${grouper:escapeHtml(syncJob.gcGrouperSyncLog.syncTimestamp)}
 	             		   	   </td>
 	             		    </tr>
              		    </c:forEach>

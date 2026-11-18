@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.ui.NoUserAuthenticatedException;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiErrorDisplay;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -366,7 +367,10 @@ public class GrouperUiRestServlet extends HttpServlet {
         printToScreen = cd.isPrintGuiReponseJs();
         //do nothing, this is ok
       } catch (RuntimeException re) {
-        String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getFullStackTrace(re);
+        // short error id, shown to the user and written in the log with the full error, so an admin can find it
+        // (the raw exception message is no longer shown, it can leak names, ids and internal details)
+        String errorId = GrouperUiErrorDisplay.newErrorId();
+        String error = "Problem calling reflection from URL: " + className + "." + methodName + ", errorId: " + errorId + "\n\n" + ExceptionUtils.getFullStackTrace(re);
         if (uiv2 && GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
           LOG.debug(error);
         } else {
@@ -376,7 +380,7 @@ public class GrouperUiRestServlet extends HttpServlet {
           if (uiv2) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("guiMiscErrorPrefix")
-                + " " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+                + " " + GrouperUiErrorDisplay.screenMessage(re, errorId)));
           } else {
             //if adding text area for form file submits, make sure to do that in errors too
             boolean addTextArea = guiResponseJs.isAddTextAreaTag();
@@ -385,7 +389,7 @@ public class GrouperUiRestServlet extends HttpServlet {
             guiResponseJs = new GuiResponseJs();
             guiResponseJs.addAction(GuiScreenAction.newCloseModal());
             guiResponseJs.setAddTextAreaTag(addTextArea);
-            guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+            guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiErrorDisplay.screenMessage(re, errorId)));
           }  
         }
       }

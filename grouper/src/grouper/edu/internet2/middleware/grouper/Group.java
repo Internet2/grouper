@@ -141,6 +141,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
+import edu.internet2.middleware.grouper.hooks.examples.IncludeExcludeRenameAuthorization;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -8484,6 +8485,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, overallGroup);
         GrouperDAOFactory.getFactory().getGroup().update(overallGroup);
       } 
       
@@ -8527,6 +8530,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
         
       if(changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, systemOfRecordGroup);
         GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordGroup);
       }
       
@@ -8568,6 +8573,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, includeGroup);
         GrouperDAOFactory.getFactory().getGroup().update(includeGroup);
       }
       
@@ -8609,6 +8616,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, excludeGroup);
         GrouperDAOFactory.getFactory().getGroup().update(excludeGroup);
       }
       
@@ -8650,6 +8659,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, systemOfRecordAndIncludes);
         GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordAndIncludes);
       }
       

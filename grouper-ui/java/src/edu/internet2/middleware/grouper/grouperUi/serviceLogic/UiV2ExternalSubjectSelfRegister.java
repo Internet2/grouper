@@ -291,7 +291,7 @@ public class UiV2ExternalSubjectSelfRegister {
                 message = TagUtils.navResourceString(key);
                 
                 //note, there is a java way to do this... hmmm
-                message = StringUtils.replace(message, "{0}", identifier);
+                message = StringUtils.replace(message, "{0}", escapeForMessage(identifier));
                 guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
                 
               } else {
@@ -301,7 +301,7 @@ public class UiV2ExternalSubjectSelfRegister {
                 message = TagUtils.navResourceString(key);
                 
                 //note, there is a java way to do this... hmmm
-                message = StringUtils.replace(message, "{0}", identifier);
+                message = StringUtils.replace(message, "{0}", escapeForMessage(identifier));
                 guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, message));
         
               }
@@ -417,7 +417,7 @@ public class UiV2ExternalSubjectSelfRegister {
                     : "externalSubjectSelfRegister.invalidIdentifierButFound";
                 message = TagUtils.navResourceString(errorKey);
                 //note there is a java way to do this... hmmmm...
-                message = StringUtils.replace(message, "{0}", identifier);
+                message = StringUtils.replace(message, "{0}", escapeForMessage(identifier));
                 guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
                 message = null;
                 
@@ -515,7 +515,7 @@ public class UiV2ExternalSubjectSelfRegister {
                 message = TagUtils.navResourceString("externalSubjectSelfRegister.successEdited");
           
                 //note, there is a java way to do this... hmmm
-                message = StringUtils.replace(message, "{0}", identifier);
+                message = StringUtils.replace(message, "{0}", escapeForMessage(identifier));
               }
               
               message = processInvitedPerson(hibernateHandlerBean, identifier,
@@ -539,6 +539,19 @@ public class UiV2ExternalSubjectSelfRegister {
           }
         });
     
+  }
+
+  /**
+   * escape a value before it is substituted into an externalized message for the screen.
+   * The messages are sent with GuiScreenAction.newMessage, which shows them as HTML, and the
+   * values (group display names, the inviter's subject name, the identifier) are free text that
+   * other users control, so they must not be markup.  The message texts themselves (and the
+   * br separators added here) stay markup.
+   * @param value
+   * @return the escaped value, or null if null
+   */
+  static String escapeForMessage(String value) {
+    return value == null ? null : GrouperUtil.xmlEscape(value, true);
   }
 
   private String processInvitedPerson(HibernateHandlerBean hibernateHandlerBean,
@@ -604,7 +617,7 @@ public class UiV2ExternalSubjectSelfRegister {
               if (thisExternalSubjectInviteBean.isExpired()) {
                 //if there are groups, that is bad, if not, then dont worry...
                 String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
-                currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
+                currentMessage = StringUtils.replace(currentMessage, "{0}", escapeForMessage(nameWhoInvited));
                 messageBuilder.append(currentMessage + "<br /><br />");
                 continue;
               }
@@ -638,7 +651,8 @@ public class UiV2ExternalSubjectSelfRegister {
                           groupIds.append(", ");
                           groupNames.append(", ");
                         }
-                        allRoles.append(group.getDisplayExtension());
+                        // the roles list goes into an HTML message, and display names are free text
+                        allRoles.append(escapeForMessage(group.getDisplayExtension()));
                         
                         groupIds.append(group.getId());
                         
@@ -652,7 +666,7 @@ public class UiV2ExternalSubjectSelfRegister {
                     
                     String theMessage = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
                     //note, there is a java way to do this... hmmm
-                    theMessage = StringUtils.replace(theMessage, "{0}", NAME_WHO_INVITED);
+                    theMessage = StringUtils.replace(theMessage, "{0}", escapeForMessage(NAME_WHO_INVITED));
                     theMessage = StringUtils.replace(theMessage, "{1}", allRoles.toString());
                     messageBuilder.append(theMessage).append("<br /><br />");
     
@@ -670,7 +684,7 @@ public class UiV2ExternalSubjectSelfRegister {
           } catch (Exception e) {
             LOG.error("Problem with external subject invite for: " + identifier + ", " + thisExternalSubjectInviteBean, e);
             String currentMessage = TagUtils.navResourceString("externalSubjectSelfRegister.invalidInvite");
-            currentMessage = StringUtils.replace(currentMessage, "{0}", nameWhoInvited);
+            currentMessage = StringUtils.replace(currentMessage, "{0}", escapeForMessage(nameWhoInvited));
             messageBuilder.append(currentMessage + "<br /><br />");
           }
           try {
@@ -693,7 +707,7 @@ public class UiV2ExternalSubjectSelfRegister {
         } else {
           message = TagUtils.navResourceString("externalSubjectSelfRegister.inviteSuccess");
           //note, there is a java way to do this... hmmm
-          message = StringUtils.replace(message, "{0}", identifier);
+          message = StringUtils.replace(message, "{0}", escapeForMessage(identifier));
         }
       }
     }

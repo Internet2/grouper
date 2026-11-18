@@ -31,13 +31,13 @@
                   <div class="control-group">
                   	<label class="control-label">
                       <grouper:message key="attributeDeActionEditActionsThatImply">
-            					  <grouper:param>${attributeUpdateRequestContainer.action}</grouper:param>
+            					  <grouper:param>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}</grouper:param>
                       </grouper:message>
                   	</label>
                     <div class="controls">
                       <c:forEach items="${attributeUpdateRequestContainer.actionsThatImply}" var="actionThatImply">
                         <label class="inline">
-                            ${actionThatImply}
+                            ${grouper:escapeHtml(actionThatImply)}
                         </label>
                       </c:forEach> 
                     </div>
@@ -46,7 +46,7 @@
                   <div class="control-group">
                   	<label class="control-label">
                       <grouper:message key="attributeDeActionEditActionsThatImmediatelyImply">
-            					  <grouper:param>${attributeUpdateRequestContainer.action}</grouper:param>
+            					  <grouper:param>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}</grouper:param>
                       </grouper:message>
                   	</label>
                     <div class="controls">
@@ -59,8 +59,8 @@
                                 <c:set var="checked" value="true"></c:set>
                               </c:if>
                             </c:forEach>
-                            <input type="checkbox" name="actionsThatImmediatelyImply" value="${action}" ${checked ? 'checked="checked"' : '' }/>
-                              ${action}
+                            <input type="checkbox" name="actionsThatImmediatelyImply" value="${grouper:escapeHtml(action)}" ${checked ? 'checked="checked"' : '' }/>
+                              ${grouper:escapeHtml(action)}
                           </label>
                         </c:if>
                       </c:forEach>
@@ -70,13 +70,13 @@
                   <div class="control-group">
                   	<label class="control-label">
                       <grouper:message key="attributeDeActionEditActionsImpliedBy">
-            					  <grouper:param>${attributeUpdateRequestContainer.action}</grouper:param>
+            					  <grouper:param>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}</grouper:param>
                       </grouper:message>
                   	</label>
                     <div class="controls">
                       <c:forEach items="${attributeUpdateRequestContainer.actionsImpliedBy}" var="actionImpliedBy">
                         <label class="inline">
-	                        ${actionImpliedBy}
+	                        ${grouper:escapeHtml(actionImpliedBy)}
 	                      </label>
                       </c:forEach>
                     </div>
@@ -85,7 +85,7 @@
                   <div class="control-group">
                   	<label class="control-label">
                       <grouper:message key="attributeDeActionEditActionsImmediatelyImpliedBy">
-            					  <grouper:param>${attributeUpdateRequestContainer.action}</grouper:param>
+            					  <grouper:param>${grouper:escapeHtml(attributeUpdateRequestContainer.action)}</grouper:param>
                       </grouper:message>
                   	</label>
                     <div class="controls">
@@ -98,8 +98,8 @@
 	                              <c:set var="checked" value="true"></c:set>
 	                            </c:if>
 	                          </c:forEach>
-	                          <input type="checkbox" name="actionsImpliedByImmediate" value="${action}" ${checked ? 'checked="checked"' : '' }/>
-	                            ${action}
+	                          <input type="checkbox" name="actionsImpliedByImmediate" value="${grouper:escapeHtml(action)}" ${checked ? 'checked="checked"' : '' }/>
+	                            ${grouper:escapeHtml(action)}
                           </label>
                         </c:if>
                       </c:forEach>

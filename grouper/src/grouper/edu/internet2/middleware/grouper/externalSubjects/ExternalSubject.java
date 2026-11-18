@@ -871,6 +871,13 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       final boolean autoaddGroups,
       final boolean fromRecalcDaemon) {    
     
+    // external subjects off: no creates or changes.  The recalc daemon and the enabled/disabled
+    // daemon only maintain existing records (description, search string, disabled flag), so
+    // they keep working
+    if (!fromRecalcDaemon && !Boolean.TRUE.equals(housekeepingStore.get())) {
+      assertExternalSubjectsEnabled();
+    }
+
     this.assertCurrentUserCanEditExternalUsers();
     
     this.changeDynamicFields();
@@ -1095,6 +1102,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public void delete() {    
     
+    // external subjects off: no deletes
+    assertExternalSubjectsEnabled();
+
     assertCurrentUserCanEditExternalUsers();
     
     HibernateSession.callbackHibernateSession(
@@ -1145,9 +1155,15 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     //Set<ExternalSubject> externalSubjects = GrouperDAOFactory.getFactory().getExternalSubject().findAllDisabledMismatch();
     Set<ExternalSubject> externalSubjects = ExternalSubjectStorageController.findAllDisabledMismatch();
     
-    for (ExternalSubject externalSubject : externalSubjects) {
-      //store will fix the disabled flag
-      externalSubject.store();
+    // housekeeping: allowed even when external subjects are off, so expired ones are disabled
+    housekeepingStore.set(Boolean.TRUE);
+    try {
+      for (ExternalSubject externalSubject : externalSubjects) {
+        //store will fix the disabled flag
+        externalSubject.store();
+      }
+    } finally {
+      housekeepingStore.remove();
     }
     lastDisabledFixCount = externalSubjects.size();
     return externalSubjects.size();
@@ -1193,6 +1209,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return true if changed anything, false if not
    */
   public boolean assignAttribute(String attributeName, String attributeValue) {
+    // external subjects off: refuse before the attribute row is written (store() would refuse
+    // only afterwards)
+    assertExternalSubjectsEnabled();
     assertCurrentUserCanEditExternalUsers();
     
     if (StringUtils.isBlank(this.getUuid())) {
@@ -1290,6 +1309,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public boolean removeAttribute(String attributeName) {
     
+    // external subjects off: refuse before the attribute row is deleted
+    assertExternalSubjectsEnabled();
+
     assertCurrentUserCanEditExternalUsers();
 
     assertRequiredFieldsAreThere(null, attributeName);
@@ -1313,6 +1335,36 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
     if (!subjectCanEditExternalUser(currentSubject)) {
       throw new InsufficientPrivilegeException("Subject cannot edit external users (per grouper.properties): " + GrouperUtil.subjectToString(currentSubject));
+    }
+  }
+
+  /**
+   * set while the enabled/disabled daemon (internal_fixDisabled) re-stores existing records, so
+   * that housekeeping (disabling expired external subjects) keeps working when external subjects
+   * are off
+   */
+  private static final ThreadLocal<Boolean> housekeepingStore = new ThreadLocal<Boolean>();
+
+  /**
+   * if external subjects can be created, changed or deleted: externalSubjects.enabled in
+   * grouper.properties (or the configuration database), default false.  This default must match
+   * the defaultValue in grouper.base.properties.  Lookups of existing external subjects work
+   * either way.
+   * @return true if enabled
+   */
+  public static boolean externalSubjectsEnabled() {
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.enabled", false);
+  }
+
+  /**
+   * refuse a create, change or delete of an external subject while external subjects are off.
+   * Every writer (WS externalSubjectSave/Delete, UI register and invite, GSH) goes through
+   * store() or delete().
+   */
+  private static void assertExternalSubjectsEnabled() {
+    if (!externalSubjectsEnabled()) {
+      throw new RuntimeException("External subjects are disabled: set externalSubjects.enabled = true "
+          + "in grouper.properties (or the configuration database) to create, change or delete external subjects");
     }
   }
   

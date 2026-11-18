@@ -50,7 +50,7 @@ ${grouper:titleFromKeyAndText('stemReportConfigPageTitle', grouperRequestContain
                 <tr>
                    <td style="white-space: nowrap;">
                     <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">
-                    ${guiReportConfig.reportConfigBean.reportConfigName}</a>
+                    ${grouper:escapeHtml(guiReportConfig.reportConfigBean.reportConfigName)}</a>
                    </td>
                    <td style="white-space: nowrap;">
                      <c:choose>
@@ -94,9 +94,9 @@ ${grouper:titleFromKeyAndText('stemReportConfigPageTitle', grouperRequestContain
                    </td>
                    <td style="white-space: nowrap;">
                    
-                    ${guiReportConfig.reportConfigBean.reportConfigQuartzCron}
+                    ${grouper:escapeHtml(guiReportConfig.reportConfigBean.reportConfigQuartzCron)}
                     <br/>
-                    ${guiReportConfig.userFriendlyCron}
+                    ${grouper:escapeHtml(guiReportConfig.userFriendlyCron)}
                    </td>
                    <td>
                      <div class="btn-group">

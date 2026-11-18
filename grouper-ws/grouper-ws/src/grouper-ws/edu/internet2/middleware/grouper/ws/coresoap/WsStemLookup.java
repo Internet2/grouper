@@ -262,6 +262,12 @@ public class WsStemLookup implements GrouperWsToStringCompact {
         theStem = StemFinder.findByIdIndex(GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
       }
 
+      // security: the finders above are lookups, not authorization; a folder the caller may not see
+      // is reported the same as a folder that does not exist
+      if (theStem != null && !edu.internet2.middleware.grouper.privs.StemViewQueryAuthorization.canView(grouperSession, theStem)) {
+        throw new StemNotFoundException("Cant find stem: " + this);
+      }
+
       //make sure matches
       if ((hasUuid && !StringUtils.equals(this.uuid, theStem.getUuid()))
           || (hasName && !StringUtils.equals(this.stemName, theStem.getName()))

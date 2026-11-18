@@ -737,8 +737,10 @@ public class UiV2GroupImport {
               });
   
             if (!canUpdate) {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
                   TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate")));
+              // fail closed: do not import into a group the user cannot update
+              groupIterator.remove();
               continue;
             }
           }
@@ -1071,7 +1073,9 @@ public class UiV2GroupImport {
                 try {
                   overlappingMembership.setEnabledTime(startDate);
                   overlappingMembership.setDisabledTime(endDate);
-                  GrouperDAOFactory.getFactory().getMembership().update(overlappingMembership);
+                  // Membership.update() checks UPDATE as the logged in user and audits the date
+                  // change; the DAO update did neither
+                  overlappingMembership.update();
                   GrouperUtil.sleep(pauseBetweenRecordsMillis);
                   groupImportGroupSummary.groupCountUpdatedIncrement();
                 } catch (Exception e) {

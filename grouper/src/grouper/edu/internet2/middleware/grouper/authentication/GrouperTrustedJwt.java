@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.authentication;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -152,12 +153,27 @@ public class GrouperTrustedJwt {
         return null;
       }
       
-      final Set<String> subjectSourceIds = grouperTrustedJwtConfig.getSubjectSourceIds();
+      // work on copies: getSubjectSourceIds() is the live set of the cached config object, so
+      // changing it would push one token's claim onto every later token of this config until
+      // the config cache expires (and HashSet is not safe for concurrent requests)
+      final Set<String> configuredSubjectSourceIds = new HashSet<String>(GrouperUtil.nonNull(grouperTrustedJwtConfig.getSubjectSourceIds()));
+      final Set<String> subjectSourceIds = new HashSet<String>(configuredSubjectSourceIds);
       
       Claim claim = decodedJwt.getClaim("subjectSourceId");
       if (claim != null && !claim.isNull() && !StringUtils.isBlank(claim.asString())) {
+        String claimedSubjectSourceId = claim.asString();
+        // the configured grouper.jwt.trusted.<configId>.subjectSourceIds is a ceiling: a claim can
+        // narrow the lookup to one of those sources, but not name a source outside them (e.g. g:isa)
+        if (configuredSubjectSourceIds.size() > 0 && !configuredSubjectSourceIds.contains(claimedSubjectSourceId)) {
+          debugMap.put("subjectSourceClaimNotAllowed", StringUtils.abbreviate(claimedSubjectSourceId, 100));
+          LOG.error("Trusted JWT config '" + configId + "' refused a token whose subjectSourceId claim '" 
+              + StringUtils.abbreviate(claimedSubjectSourceId, 100) + "' is not in the configured subjectSourceIds " 
+              + configuredSubjectSourceIds);
+          this.grouperTrustedJwtResult = GrouperTrustedJwtResult.ERROR_TOKEN_INVALID;
+          return null;
+        }
         subjectSourceIds.clear();
-        subjectSourceIds.add(claim.asString());
+        subjectSourceIds.add(claimedSubjectSourceId);
       }
       
       debugMap.put("subjectSourceIds", subjectSourceIds);

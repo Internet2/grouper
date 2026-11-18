@@ -427,7 +427,8 @@ public class GrouperWorkflowInstanceService {
       if (!instance.getWorkflowInstanceState().equals(COMPLETE_STATE)) {
         GrouperWorkflowInstanceLogEntries logEntries = instance.getGrouperWorkflowInstanceLogEntries();
         for (GrouperWorkflowInstanceLogEntry entry: logEntries.getLogEntries()) {
-          if (entry.getAction().equals(INITIATE_ACTION) && entry.getSubjectId().equals(subject.getId())) {
+          // 101: match on source id and subject id, not subject id alone
+          if (entry.getAction().equals(INITIATE_ACTION) && GrouperWorkflowSubjectIdentity.matches(entry, subject)) {
             return true;
           }
         }
@@ -459,8 +460,8 @@ public class GrouperWorkflowInstanceService {
       grouperFile.setId(id);
       grouperFile.setValueToSave(encryptedContents);
       
-      String fileName = workflowConfig.getWorkflowConfigId()+
-          "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+      // 113: name holds the instance uuid so two instances saved in the same second do not collide
+      String fileName = GrouperWorkflowFileNames.fileName(workflowConfig, instance);
       
       grouperFile.setFileName(fileName);
       grouperFile.setFilePath(GROUPER_WORKFLOW_FILE_PATH_PREFIX + "/" + fileName);
@@ -511,7 +512,8 @@ public class GrouperWorkflowInstanceService {
             continue;
           }
           
-          if (subject.getId().equals(subjetWhoInitiated.getId())) {
+          // 101: same source and same id
+          if (GrouperWorkflowSubjectIdentity.sameSubject(subject, subjetWhoInitiated)) {
             instancesSubmitted.add(instance);
             attributeAssignIds.add(instance.getAttributeAssignId());
           }
@@ -531,12 +533,10 @@ public class GrouperWorkflowInstanceService {
    */
   public static Subject subjectWhoInitiatedWorkflow(GrouperWorkflowInstance instance) {
     
-    GrouperWorkflowInstanceLogEntry workflowInstanceLogEntry = instance.getGrouperWorkflowInstanceLogEntries()
-        .getLogEntryByActionName(INITIATE_ACTION);
-      
-    String subjetWhoInitiatedId = workflowInstanceLogEntry.getSubjectId();
-    Subject subjetWhoInitiated = SubjectFinder.findById(subjetWhoInitiatedId, true);
-    return subjetWhoInitiated;
+    // 101: resolve by source id and subject id from the initiate log entry, never by id alone,
+    // so a same-id subject from another source is never treated as the initiator.  Returns null
+    // if the subject is gone (or the entry has no source id); callers already handle null
+    return GrouperWorkflowSubjectIdentity.findInitiator(instance, false);
   }
    
   /**
@@ -593,7 +593,8 @@ public class GrouperWorkflowInstanceService {
     
     List<GrouperWorkflowInstanceLogEntry> logEntries = instance.getGrouperWorkflowInstanceLogEntries().getLogEntries();
     for (GrouperWorkflowInstanceLogEntry entry: logEntries) {
-      if (StringUtils.isNotBlank(entry.getSubjectId()) && entry.getSubjectId().equals(subject.getId())) {
+      // 101: source id and subject id must both match
+      if (GrouperWorkflowSubjectIdentity.matches(entry, subject)) {
         return true;
       }
     }
@@ -678,8 +679,11 @@ public class GrouperWorkflowInstanceService {
     
     String approverSubjectId = approvalState.getApproverSubjectId();
     if (StringUtils.isNotBlank(approverSubjectId)) {
-      Subject approverSubject = SubjectFinder.findById(approverSubjectId, false);
-      approvers.add(approverSubject);
+      // 101: the approver source id is stored with the id, resolve by both.  Skip if not found
+      Subject approverSubject = GrouperWorkflowSubjectIdentity.findApprover(approvalState);
+      if (approverSubject != null) {
+        approvers.add(approverSubject);
+      }
     }
     
     return approvers;
@@ -703,8 +707,8 @@ public class GrouperWorkflowInstanceService {
     
     GrouperWorkflowConfig workflowConfig = instance.getGrouperWorkflowConfig();
     
-    String fileName = workflowConfig.getWorkflowConfigId()+
-        "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+    // 113: name holds the instance uuid so two instances saved in the same second do not collide
+    String fileName = GrouperWorkflowFileNames.fileName(workflowConfig, instance);
     
     SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
     EncryptionMaterials encryptionMaterials = new EncryptionMaterials(encryptionKeySecret);
@@ -719,6 +723,12 @@ public class GrouperWorkflowInstanceService {
               .withCredentials(credentialsProvider)
               .withEncryptionMaterials(new StaticEncryptionMaterialsProvider(encryptionMaterials))
               .build();
+      
+      // 113: never overwrite another snapshot (best effort, the uuid in the name is the real guarantee)
+      if (s3Client.doesObjectExist(bucketName, fileName)) {
+        LOG.error("Workflow file already exists in S3, not overwriting. file name: "+fileName+" instance id: "+instance.getAttributeAssignId());
+        throw new RuntimeException("Workflow file already exists in S3");
+      }
       
       s3Client.putObject(bucketName, fileName, fileContents);
       
@@ -924,8 +934,8 @@ public class GrouperWorkflowInstanceService {
     
     SecretKey encryptionKeySecret = new SecretKeySpec(encryptionKey.getBytes(), "AES");
     
-    String fileName = workflowConfig.getWorkflowConfigId()+
-          "_"+instance.getWorkflowInstanceState()+"_"+new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+    // 113: name holds the instance uuid so two instances saved in the same second do not collide
+    String fileName = GrouperWorkflowFileNames.fileName(workflowConfig, instance);
     
     try {
       
@@ -937,7 +947,10 @@ public class GrouperWorkflowInstanceService {
       GrouperUtil.mkdirs(new File(baseDirectory));
        
       File outputFile = new File(baseDirectory+fileName);
-      GrouperUtil.fileCreateNewFile(outputFile);
+      // 113: createNewFile is atomic, false means the file is already there: never overwrite it
+      if (!outputFile.createNewFile()) {
+        throw new RuntimeException("workflow file already exists, not overwriting: "+fileName);
+      }
        
       FileOutputStream outputStream = new FileOutputStream(outputFile);
       outputStream.write(outputBytes);
@@ -1162,25 +1175,11 @@ public class GrouperWorkflowInstanceService {
   private static String appendAuditLine(String htmlForm, Subject subject, 
       String state, String action, Date date) {
     
-    StringBuilder htmlFormWithAudit = new StringBuilder(htmlForm);
-    
     String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
     
-    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
-    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
-    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
-    auditLine = auditLine.replace("$$buttonText$$", action);
-    auditLine = auditLine.replace("$$state$$", state);
-    
-    String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
-    
-    auditLine = auditLine.replace("$$timestamp$$", timestamp);
-    
-    htmlFormWithAudit.append("<div>");
-    htmlFormWithAudit.append(auditLine);
-    htmlFormWithAudit.append("</div>");
-    
-    return htmlFormWithAudit.toString();
+    // 99: the form is stored and later printed raw, so the subject source name, id, name, action
+    // and state are html escaped (they come from subject sources, not from trusted config)
+    return htmlForm + GrouperWorkflowAuditLine.auditLineHtml(auditLine, subject, state, action, date);
   }
 
 }

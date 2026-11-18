@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueBinding;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -187,6 +188,15 @@ public class UiV2AttributeDefName {
         return;
       }
   
+      // same UI policy as deleting one attribute name (deleteAttributeDefNameSubmit): when the site
+      // does not allow attribute names to be deleted in the UI, the bulk remove is refused too
+      if (GrouperUiConfig.retrieveConfig().propertyValueBoolean(PROPERTY_PREVENT_DELETE_IN_UI, false)) {
+        LOG.error("Attempted to delete attribute names of attribute def " + attributeDef.getName() 
+            + "; UI deletion disallowed per property " + PROPERTY_PREVENT_DELETE_IN_UI);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("attributeDefNameDeleteUiDisallowedText")));
+        return;
+      }
   
       Set<String> attributeDefNameIds = new HashSet<String>();
       
@@ -217,6 +227,14 @@ public class UiV2AttributeDefName {
               LOG.debug("Cant find attribute def name for id: " + attributeDefNameId + ", maybe it was already deleted");
             }
 
+            failures++;
+            
+          } else if (!StringUtils.equals(attributeDefName.getAttributeDefId(), attributeDef.getId())) {
+            
+            // the ids come from the request: only delete names of the attribute def on this screen
+            // (the one the user was authorized on above), never a name of another attribute def
+            LOG.warn("Attribute def name id " + attributeDefNameId + " is not a name of attribute def " 
+                + attributeDef.getId() + ", not deleting, user: " + loggedInSubject);
             failures++;
             
           } else {
@@ -911,7 +929,15 @@ public class UiV2AttributeDefName {
         throw new RuntimeException("Why is attributeAssignValueId blank???");
       }
   
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
       
@@ -1011,7 +1037,15 @@ public class UiV2AttributeDefName {
       
       final AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
             
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       attributeAssign.getValueDelegate().deleteValue(attributeAssignValue);
       
@@ -1067,7 +1101,15 @@ public class UiV2AttributeDefName {
         throw new RuntimeException("Why is attributeAssignValueId blank???");
       }
 
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       final AttributeDefName attributeDefName = retrieveAttributeDefNameHelper(httpServletRequest, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDefName();
       

@@ -17,6 +17,26 @@
       <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
   </repositories>
+  <properties>
+    <!-- keep in sync with netty.version in grouper-parent/pom.xml (GRP-7504) -->
+    <netty.version>4.2.19.Final</netty.version>
+  </properties>
+
+  <!-- GRP-7504: this pom does not inherit grouper-parent, and Maven does not apply the dependency management of a
+       dependency's pom to its transitives, so import the netty BOM here too.  Otherwise the image gets netty 4.1.72
+       (qpid-jms-client), 4.1.135 (ldaptive) and 4.2.18 (amqp-client) mixed together -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <!-- Pass in Maven command line parameter -Dgrouper.version=a.b.c ... -->
   <dependencies>
     <dependency>

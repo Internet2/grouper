@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
@@ -228,6 +229,21 @@ public class WsHasMemberResult implements ResultMetadataHolder {
    */
   public void assignResultCodeException(Exception e, WsSubjectLookup wsSubjectLookup) {
     this.assignResultCode(WsHasMemberResultCode.EXCEPTION);
+
+    // a denied membership read: report it plainly (resultCode2 INSUFFICIENT_PRIVILEGES, no stack
+    // trace), and never as IS_NOT_MEMBER, which would hide the denial
+    Throwable throwable = e;
+    for (int i = 0; throwable != null && i < 20; i++) {
+      if (throwable instanceof InsufficientPrivilegeException) {
+        this.getResultMetadata().setResultCode2("INSUFFICIENT_PRIVILEGES");
+        this.getResultMetadata().setResultMessage("Insufficient privileges to read the membership list: "
+            + throwable.getMessage());
+        LOG.warn(wsSubjectLookup + ", insufficient privileges: " + throwable.getMessage());
+        return;
+      }
+      throwable = throwable.getCause();
+    }
+
     this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
     LOG.error(wsSubjectLookup + ", " + e, e);
   }

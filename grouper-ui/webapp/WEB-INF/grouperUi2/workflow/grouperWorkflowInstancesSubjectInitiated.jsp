@@ -40,11 +40,11 @@
               <tr>
                 
                 <td style="white-space: nowrap;">
-                  ${instance.grouperWorkflowConfig.workflowConfigName}
+                  ${grouper:escapeHtml(instance.grouperWorkflowConfig.workflowConfigName)}
                 </td>
                 
                 <td style="white-space: nowrap;">
-                 ${instance.workflowInstanceState}
+                 ${grouper:escapeHtml(instance.workflowInstanceState)}
                 </td>
                    
                 <td style="white-space: nowrap;">

@@ -102,10 +102,14 @@ public class GroupTypeSecurityHook extends GroupTypeTupleHooks {
     if (resetCacheSettings()) {
       
       registeredSuccess = true;
-      LOG.debug("Registering hooks GroupTypeSecurityHook and AttributeSecurityFromTypeHook since configured in grouper.properties");
+      LOG.debug("Registering hooks GroupTypeSecurityHook, AttributeSecurityFromTypeHook and LegacyTypeAttributeAssignSecurityHook since configured in grouper.properties");
       //register this hooks
       GrouperHooksUtils.addHookManual(GrouperHookType.GROUP_TYPE_TUPLE.getPropertyFileKey(), GroupTypeSecurityHook.class);
       GrouperHooksUtils.addHookManual(GrouperHookType.ATTRIBUTE.getPropertyFileKey(), AttributeSecurityFromTypeHook.class);
+      // the legacy attribute hook above only sees values, also check the nested legacy attribute
+      // assignment itself (on the group type marker), so an empty one cannot be added or
+      // removed by a user who cannot edit the type
+      GrouperHooksUtils.addHookManual(GrouperHookType.ATTRIBUTE_ASSIGN.getPropertyFileKey(), LegacyTypeAttributeAssignSecurityHook.class);
     }
     
     registered = true;

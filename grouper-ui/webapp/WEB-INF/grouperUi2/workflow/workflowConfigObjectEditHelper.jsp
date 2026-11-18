@@ -2,7 +2,7 @@
                      
   <c:set  value="${grouperRequestContainer.workflowContainer.guiGrouperWorkflowConfig}" var="guiWorkflowConfig"/>
   
-  <input type="hidden" name="grouperWorkflowConfigId" value="${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}" />
+  <input type="hidden" name="grouperWorkflowConfigId" value="${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}" />
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigHasTypeId">${textContainer.text['grouperWorkflowConfigTypeLabel']}</label></strong></td>
     <td>
@@ -56,7 +56,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigApprovalsId">${textContainer.text['grouperWorkflowConfigApprovalsLabel']}</label></strong></td>
     <td>
-      <textarea id="grouperWorkflowConfigApprovalsId" name="grouperWorkflowConfigApprovals" rows="10" cols="60" class="input-block-level">${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigApprovalsString}</textarea>
+      <textarea id="grouperWorkflowConfigApprovalsId" name="grouperWorkflowConfigApprovals" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigApprovalsString)}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -68,7 +68,7 @@
   <tr>
     <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigParamsId">${textContainer.text['grouperWorkflowConfigParamsLabel']}</label></strong></td>
     <td>
-      <textarea id="grouperWorkflowConfigParamsId" name="grouperWorkflowConfigParams" rows="10" cols="60" class="input-block-level">${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigParamsString}</textarea>
+      <textarea id="grouperWorkflowConfigParamsId" name="grouperWorkflowConfigParams" rows="10" cols="60" class="input-block-level">${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigParamsString)}</textarea>
          
       <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
         data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>

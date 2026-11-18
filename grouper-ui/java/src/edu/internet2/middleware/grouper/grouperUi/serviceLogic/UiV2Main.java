@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
@@ -80,6 +81,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.StemViewAuthorization;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -315,6 +317,12 @@ public class UiV2Main extends UiServiceLogicBase {
           stemId = folderQueryString.substring(lastSlash+1, folderQueryString.length());
         }
         stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        // StemFinder.findByUuid is a lookup, not an authorization check: only show a folder the user can
+        // see (a naming privilege on it, or something inside it).  A denied folder prints nothing, the
+        // same as a uuid that does not exist, so this is not an existence oracle either
+        if (stem != null && !StemViewAuthorization.canView(loggedInSubject, stem)) {
+          stem = null;
+        }
       }
 
       //find some folders inside
@@ -498,6 +506,14 @@ public class UiV2Main extends UiServiceLogicBase {
         grouperObject = AttributeDefNameFinder.findByName(objectId, true);
       } else {
         throw new RuntimeException("Unable to find object id " + objectId + " with type " + objectType);
+      }
+
+      // the static stem finders are lookups, not authorization checks: a folder the user cannot see is
+      // answered exactly like a folder that does not exist (same error json), so the folder, its path
+      // and its existence are not disclosed.  Ancestors need no check: an ancestor of something the user
+      // can see is visible by the same rule.  Groups and attributes are already looked up securely
+      if (grouperObject instanceof Stem && !StemViewAuthorization.canView(loggedInSubject, (Stem)grouperObject)) {
+        throw new StemNotFoundException("Cant find stem: '" + objectId + "'");
       }
 
       GrouperUiUtils.printToScreen(GrouperUiUtils.pathArrayToCurrentObject(grouperSession, grouperObject), HttpContentType.APPLICATION_JSON, false, false);

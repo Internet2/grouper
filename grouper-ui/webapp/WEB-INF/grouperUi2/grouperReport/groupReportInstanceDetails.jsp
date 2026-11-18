@@ -37,12 +37,12 @@
 		        
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsConfigName']}</label></strong></td>
-		          <td>${guiReportInstance.reportConfigBean.reportConfigName}</td>
+		          <td>${grouper:escapeHtml(guiReportInstance.reportConfigBean.reportConfigName)}</td>
 		        </tr>
 		        
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsConfigDescription']}</label></strong></td>
-		          <td>${guiReportInstance.reportConfigBean.reportConfigDescription}</td>
+		          <td>${grouper:escapeHtml(guiReportInstance.reportConfigBean.reportConfigDescription)}</td>
 		        </tr>
 		        
 		        <tr>
@@ -59,7 +59,7 @@
 		        
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsFilename']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceFileName}</td>
+		          <td>${grouper:escapeHtml(guiReportInstance.reportInstance.reportInstanceFileName)}</td>
 		        </tr>
 		                
             <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">                    
@@ -80,7 +80,7 @@
 		        
 		        <tr>
 		          <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigInstanceDetailsErrorSubjects']}</label></strong></td>
-		          <td>${guiReportInstance.reportInstance.reportInstanceEmailToSubjectsError}</td>
+		          <td>${grouper:escapeHtml(guiReportInstance.reportInstance.reportInstanceEmailToSubjectsError)}</td>
 		        </tr>
 		        
 		        <c:if test="${grouperRequestContainer.grouperReportContainer.showPartialEncryptionKey}">

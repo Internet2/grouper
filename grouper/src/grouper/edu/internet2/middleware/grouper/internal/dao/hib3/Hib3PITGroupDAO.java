@@ -350,6 +350,12 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     Member member = MemberFinder.findByUuid(grouperSession, pitMember.getSourceId(), false);
     Set<Privilege> inPrivSet = (field != null && member != null && field.isGroupListField() && SubjectHelper.eq(member, grouperSession.getSubject())) ? 
         AccessPrivilege.OPT_OR_READ_PRIVILEGES :  AccessPrivilege.READ_PRIVILEGES;
+
+    // security: someone else's privilege list (admins, updaters, ...) needs ADMIN on the group, not READ;
+    // a deleted field is judged by its point in time type
+    inPrivSet = edu.internet2.middleware.grouper.privs.AccessFieldReadPrivileges.groupsOfSubjectPrivileges(grouperSession,
+        field != null ? field.isGroupAccessField() : !"list".equals(pitField.getType()),
+        member != null && SubjectHelper.eq(member, grouperSession.getSubject()), inPrivSet);
     
     //subject to check privileges for
     Subject accessSubject = grouperSession.getSubject();
@@ -443,7 +449,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     for (PITGroup pitGroup : pitGroups) {
       if (pitGroup.isActive()) {
         Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), true);
-        if (PrivilegeHelper.canRead(grouperSession.internal_getRootSession(), group, accessSubject)) {
+        if (edu.internet2.middleware.grouper.privs.AccessFieldReadPrivileges.canReadGroupForPrivileges(grouperSession.internal_getRootSession(), group, accessSubject, inPrivSet)) {
           filteredPITGroups.add(pitGroup);
         }
       }
