@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAttestation;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAttestationDaysLeftReadOnly;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -69,7 +70,7 @@ public class UiV2Attestation {
   private static final Log LOG = GrouperUtil.getLog(UiV2Attestation.class);
   
   /**
-   * group attestation https://spaces.internet2.edu/display/Grouper/Grouper+attestation
+   * group attestation https://docs.grouper.internet2.edu/wiki/spaces/Grouper/pages/28545015/Grouper+attestation
    * @param request
    * @param response
    */
@@ -180,14 +181,17 @@ public class UiV2Attestation {
     
           String daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
               GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
+          int daysLeft = -1;
           if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
     
-            GrouperAttestationJob.updateCalculatedDaysUntilRecertify((Group)attributeAssignable, attributeAssign);
+            // this is a read path (the screen only needs READ on the group) running as root: do not
+            // persist the calculated value or migrate legacy metadata here, just compute it for
+            // display.  The attestation daemon and the UPDATE-gated actions store it.
+            daysLeft = GuiAttestationDaysLeftReadOnly.calculateDaysLeft(attributeAssign);
     
+          } else {
+            daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
           }
-          daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-              GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-          int daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
           result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), 
               GrouperUtil.booleanObjectValue(attestationHasAttestation), attestationEmailAddresses, attestationDaysUntilRecertify,
               attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
@@ -200,14 +204,18 @@ public class UiV2Attestation {
             String daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
                 GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
             if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
-              GrouperAttestationJob.updateCalculatedDaysUntilRecertify((Stem)attributeAssignable);      
+              // read path: compute for display only, do not persist (see the group branch above).
+              // A blank hasAttestation is a legacy folder the daemon's migration marks as having
+              // attestation, so it is computed; an explicit false shows -1
+              daysLeft = GuiAttestationDaysLeftReadOnly.calculateDaysLeft(attributeAssign);
+            } else {
+              daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
             }
-            daysLeftBeforeAttestation = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-                GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
-            daysLeft = GrouperUtil.intValue(daysLeftBeforeAttestation, -1);
           }
           
-          GrouperAttestationJob.updateObjectAttributesToPatch81((Stem)attributeAssignable, attributeAssign);
+          // the legacy metadata migration (GrouperAttestationJob.updateObjectAttributesToPatch81)
+          // used to run here on every folder view; it writes, so it is left to the attestation
+          // daemon.  The GuiAttestation below only uses the values read above.
           result = new GuiAttestation(attributeAssignable, GrouperUtil.booleanObjectValue(attestationSendEmail), 
               GrouperUtil.booleanObjectValue(attestationHasAttestation), attestationEmailAddresses, attestationDaysUntilRecertify,
               attestationLastEmailedDate, attestationDaysBeforeToRemind, attestationStemScope, attestationDateCertified, 
@@ -516,10 +524,43 @@ public class UiV2Attestation {
           TextContainer.retrieveFromRequest().getText().get("grouperAttestationReportNameRequired")));
       hasError = true;
     }
+
+    // folder report attestation: the logged in user (not the root session the save runs in) must
+    // be able to read the referenced report and authorized group.  Checked here, before any write,
+    // so a denied reference leaves nothing behind (these checks used to run after the marker was
+    // assigned).  Other attestation types do not use these references, the save ignores them
+    if (!hasError && !isForGroup && "report".equals(attestationContainer.getEditAttestationType())
+        && attestationContainer.getEditAttestationReportConfiguration() != null
+        && !attestationContainer.getEditAttestationReportConfiguration().isCanRead(loggedInSubject)) {
+
+      guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperAttestationReportConfigurationId",
+          textOrDefault("grouperAttestationReportCantRead", "You need to be able to read the report")));
+      hasError = true;
+    }
+
+    if (!hasError && !isForGroup && "report".equals(attestationContainer.getEditAttestationType())
+        && attestationContainer.getEditAttestationAuthorizedGroup() != null
+        && !attestationContainer.getEditAttestationAuthorizedGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+
+      guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperAttestationAuthorizedGroupId",
+          textOrDefault("grouperAttestationAuthorizedGroupCantRead", "You need to be able to READ the authorized group (Grouper privilege)")));
+      hasError = true;
+    }
     return hasError;
 
   }
   
+  /**
+   * externalized text, or a default if the key is not there (patched releases ship no text change)
+   * @param key text key
+   * @param defaultText English default
+   * @return the text
+   */
+  private static String textOrDefault(String key, String defaultText) {
+    String text = TextContainer.textOrNull(key);
+    return StringUtils.isBlank(text) ? defaultText : text;
+  }
+
   /**
    * 
    * @param request
@@ -543,7 +584,9 @@ public class UiV2Attestation {
 
       grouperSession = GrouperSession.start(loggedInSubject);
         
-      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      // GRP-5105: group ADMIN adds, edits, disables or removes attestation settings; UPDATE
+      // (with READ) can only attest and clear the review date.  Checked here, not just in the menu
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
       
       if (group == null) {
         return;
@@ -576,59 +619,69 @@ public class UiV2Attestation {
           
           if (!hasError) {
 
-            AuditEntry auditEntry = null;
+            // one transaction for the marker, the values and the audit, so a later error or hook
+            // veto rolls back the whole save instead of leaving partial state
+            HibernateSession.callbackHibernateSession(
+                GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-            if (LOG.isDebugEnabled()) {
-              DEBUG_MAP.put("editAttestationIsAssigned", attestationContainer.isEditAttestationIsAssigned());
-            }
-            if (LOG.isDebugEnabled()) {
-              DEBUG_MAP.put("directGroupAttestationAssignment", attestationContainer.isDirectGroupAttestationAssignment());
-            }
+              public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
 
-            //if it was removed
-            if (!attestationContainer.isEditAttestationIsAssigned()) {
-
-              if (attestationContainer.isDirectGroupAttestationAssignment()) {
+                AuditEntry auditEntry = null;
 
                 if (LOG.isDebugEnabled()) {
-                  DEBUG_MAP.put("removeGroupAttestationAssignment", true);
+                  DEBUG_MAP.put("editAttestationIsAssigned", attestationContainer.isEditAttestationIsAssigned());
                 }
-                // remove most of the attributes
-                GrouperAttestationJob.removeDirectGroupAttestation(group);
-      
-                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                    TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
-      
-                auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId", group.getId(), "groupName", group.getName());
-                auditEntry.setDescription("Update group attestation: "+group.getName());
-
-                attestationSaveAudit(auditEntry);
-
-              }
-            } else {
-              if (!attestationContainer.isDirectGroupAttestationAssignment()) {
                 if (LOG.isDebugEnabled()) {
-                  DEBUG_MAP.put("assignAttribute", true);
+                  DEBUG_MAP.put("directGroupAttestationAssignment", attestationContainer.isDirectGroupAttestationAssignment());
                 }
-                group.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()); // we are adding attribute here
-                auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId", group.getId(), "groupName", group.getName());
-                auditEntry.setDescription("Add group attestation: "+group.getName());
+
+                //if it was removed
+                if (!attestationContainer.isEditAttestationIsAssigned()) {
+
+                  if (attestationContainer.isDirectGroupAttestationAssignment()) {
+
+                    if (LOG.isDebugEnabled()) {
+                      DEBUG_MAP.put("removeGroupAttestationAssignment", true);
+                    }
+                    // remove most of the attributes
+                    GrouperAttestationJob.removeDirectGroupAttestation(group);
+      
+                    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                        TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
+      
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_DELETE, "groupId", group.getId(), "groupName", group.getName());
+                    auditEntry.setDescription("Update group attestation: "+group.getName());
+
+                    attestationSaveAudit(auditEntry);
+
+                  }
+                } else {
+                  if (!attestationContainer.isDirectGroupAttestationAssignment()) {
+                    if (LOG.isDebugEnabled()) {
+                      DEBUG_MAP.put("assignAttribute", true);
+                    }
+                    group.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()); // we are adding attribute here
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_ADD, "groupId", group.getId(), "groupName", group.getName());
+                    auditEntry.setDescription("Add group attestation: "+group.getName());
                 
-              } else {
-                auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId", group.getId(), "groupName", group.getName());
-                auditEntry.setDescription("Update group attestation: "+group.getName());
-              }
+                  } else {
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTESTATION_UPDATE, "groupId", group.getId(), "groupName", group.getName());
+                    auditEntry.setDescription("Update group attestation: "+group.getName());
+                  }
               
-              updateGroupAttestationAttributes(group, true, attestationContainer.isEditAttestationSendEmail(), 
-                  attestationContainer.isEditAttestationHasAttestation(),
-                  attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
-                  null, attestationContainer.isEditAttestationResetCertifiedToToday(),
-                  attestationContainer.getEditAttestationEmailGroup() == null ? null : attestationContainer.getEditAttestationEmailGroup().getId());
+                  updateGroupAttestationAttributes(group, true, attestationContainer.isEditAttestationSendEmail(), 
+                      attestationContainer.isEditAttestationHasAttestation(),
+                      attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
+                      null, attestationContainer.isEditAttestationResetCertifiedToToday(),
+                      attestationContainer.getEditAttestationEmailGroup() == null ? null : attestationContainer.getEditAttestationEmailGroup().getId());
 
-              guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.groupAttestation&groupId=" + group.getId() + "')"));
+                  guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.groupAttestation&groupId=" + group.getId() + "')"));
                 
-              attestationSaveAudit(auditEntry);
-            }
+                  attestationSaveAudit(auditEntry);
+                }
+                return null;
+              }
+            });
           }
           
           if (!hasError) {
@@ -688,7 +741,8 @@ public class UiV2Attestation {
 
       grouperSession = GrouperSession.start(loggedInSubject);
         
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      // GRP-5105: only group ADMIN can open the attestation settings form (see editGroupAttestationSave)
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
       
       if (group == null) {
         return;
@@ -742,6 +796,27 @@ public class UiV2Attestation {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+
+
+  /**
+   * SECURITY (issue 63, 2026-11-10): resolve a group id from the attestation edit form.  This runs inside a
+   * root callback, so look it up without failing, and treat a group the logged in user cannot VIEW the
+   * same as one that does not exist: otherwise "not found" versus "cannot read" tells an attestation editor
+   * whether any group uuid exists.  Save still requires READ on the group.
+   * @param groupId from the request
+   * @return the group, or null if it does not exist or the user cannot see it
+   */
+  private static Group attestationEditGroupFromRequest(String groupId) {
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+    if (group == null) {
+      return null;
+    }
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (loggedInSubject == null || !group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
+      return null;
+    }
+    return group;
   }
 
   /**
@@ -801,14 +876,18 @@ public class UiV2Attestation {
     {
       String reportConfigurationId = request.getParameter("grouperAttestationReportConfigurationName");
       if (!StringUtils.isEmpty(reportConfigurationId)) {
-        attestationContainer.setEditAttestationReportConfiguration(GrouperReportConfigService.getGrouperReportConfigBean(reportConfigurationId));
+        // only a report configuration the form offers: on this folder and readable by the user (a
+        // global lookup let a folder admin bind a report of another folder or group); otherwise
+        // null, and the save is refused with the report name required message
+        attestationContainer.setEditAttestationReportConfiguration(edu.internet2.middleware.grouper.grouperUi.beans.ui.AttestationReportConfigurationBinding
+            .reportConfigurationOnFolderForEdit(attestationContainer, reportConfigurationId));
       }
     }
     
     {
       String authorizedGroupId = request.getParameter("grouperAttestationAuthorizedGroupComboName");
       if (!StringUtils.isEmpty(authorizedGroupId)) {
-        Group authorizedGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), authorizedGroupId, true);
+        Group authorizedGroup = attestationEditGroupFromRequest(authorizedGroupId);
         attestationContainer.setEditAttestationAuthorizedGroup(authorizedGroup);
       }
     }
@@ -885,7 +964,7 @@ public class UiV2Attestation {
     {
       String emailGroupId = request.getParameter("grouperAttestationEmailGroupComboName");
       if (!StringUtils.isEmpty(emailGroupId)) {
-        Group emailGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), emailGroupId, true);
+        Group emailGroup = attestationEditGroupFromRequest(emailGroupId);
         attestationContainer.setEditAttestationEmailGroup(emailGroup);
       }
     }
@@ -1629,66 +1708,81 @@ public class UiV2Attestation {
           boolean hasError = editAttestationSaveHelper(request, response, false, guiScreenActions);
           
           if (!hasError) {
-            //if it was removed
-            AuditEntry auditEntry = null;
-            if (!attestationContainer.isEditAttestationIsAssigned()) {
-              if (attestationContainer.isDirectStemAttestationAssignment()) {
-      
-                STEM.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
-      
-                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                    TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
-    
-                auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId", STEM.getId(), "stemName", STEM.getName());
-                auditEntry.setDescription("Delete stem attestation: "+STEM.getName());
-    
-                attestationSaveAudit(auditEntry);
-    
-              }
-            } else {
-              if (!attestationContainer.isDirectStemAttestationAssignment()) {
-                STEM.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()); // we are adding attribute here
-                auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_ADD, "stemId", STEM.getId(), "stemName", STEM.getName());
-                auditEntry.setDescription("Add stem attestation: "+STEM.getName());
-    
-              } else {
-                auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_UPDATE, "stemId", STEM.getId(), "stemName", STEM.getName());
-                auditEntry.setDescription("Update stem attestation: "+STEM.getName());
-              }
-    
-              String attestationReportConfigurationId = attestationContainer.getEditAttestationReportConfiguration() == null ? null : attestationContainer.getEditAttestationReportConfiguration().getAttributeAssignmentMarkerId();
-              String attestationAuthorizedGroupId = attestationContainer.getEditAttestationAuthorizedGroup() == null ? null : attestationContainer.getEditAttestationAuthorizedGroup().getId();
-              
-              if (attestationReportConfigurationId != null) {
-                // verify that the user can see this report
-                if (!attestationContainer.getEditAttestationReportConfiguration().isCanRead(loggedInSubject)) {
-                  // this shouldn't happen
-                  throw new RuntimeException(loggedInSubject.getId() + " not allowed to read report " + attestationContainer.getEditAttestationReportConfiguration().getReportConfigName());
-                }
-              }
-              
-              if (attestationAuthorizedGroupId != null) {
-                if (!attestationContainer.getEditAttestationAuthorizedGroup().canHavePrivilege(loggedInSubject, "read", false)) {
-                  throw new RuntimeException(loggedInSubject.getId() + " not allowed to read group " + attestationContainer.getEditAttestationAuthorizedGroup().getName());
-                }
-              }
-              
-              Stem.Scope scope = null;
-              if (!"report".equals(attestationContainer.getEditAttestationType())) {
-                scope = (attestationContainer.getEditAttestationStemScopeSub() == null || attestationContainer.getEditAttestationStemScopeSub()) ? Stem.Scope.SUB : Stem.Scope.ONE; 
-              }
 
-              updateStemAttestationAttributes(STEM, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), 
-                  attestationContainer.isEditAttestationSendEmail(), attestationContainer.isEditAttestationHasAttestation(),
-                  attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
-                  null, attestationContainer.isEditAttestationResetCertifiedToToday(), 
-                  scope,
-                  attestationContainer.getEditAttestationType(), attestationReportConfigurationId, attestationAuthorizedGroupId,
-                  attestationContainer.getEditAttestationEmailGroup() == null ? null : attestationContainer.getEditAttestationEmailGroup().getId());
-              guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + STEM.getId() + "')"));
+            // one transaction for the marker, the values and the audit, so a later error or hook
+            // veto rolls back the whole save instead of leaving a committed marker
+            HibernateSession.callbackHibernateSession(
+                GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+              public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+
+                //if it was removed
+                AuditEntry auditEntry = null;
+                if (!attestationContainer.isEditAttestationIsAssigned()) {
+                  if (attestationContainer.isDirectStemAttestationAssignment()) {
+      
+                    STEM.getAttributeDelegate().removeAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+      
+                    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                        TextContainer.retrieveFromRequest().getText().get("grouperAttestationEditRemoved")));
     
-              attestationSaveAudit(auditEntry);
-            }
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_DELETE, "stemId", STEM.getId(), "stemName", STEM.getName());
+                    auditEntry.setDescription("Delete stem attestation: "+STEM.getName());
+    
+                    attestationSaveAudit(auditEntry);
+    
+                  }
+                } else {
+                  if (!attestationContainer.isDirectStemAttestationAssignment()) {
+                    STEM.getAttributeDelegate().assignAttribute(GrouperAttestationJob.retrieveAttributeDefNameValueDef()); // we are adding attribute here
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_ADD, "stemId", STEM.getId(), "stemName", STEM.getName());
+                    auditEntry.setDescription("Add stem attestation: "+STEM.getName());
+    
+                  } else {
+                    auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ATTESTATION_UPDATE, "stemId", STEM.getId(), "stemName", STEM.getName());
+                    auditEntry.setDescription("Update stem attestation: "+STEM.getName());
+                  }
+    
+                  // the report and authorized group only apply to report attestation; the request parser
+                  // resolves them from any submitted parameter, so drop them for other types
+                  boolean isReportType = "report".equals(attestationContainer.getEditAttestationType());
+                  String attestationReportConfigurationId = (!isReportType || attestationContainer.getEditAttestationReportConfiguration() == null) ? null : attestationContainer.getEditAttestationReportConfiguration().getAttributeAssignmentMarkerId();
+                  String attestationAuthorizedGroupId = (!isReportType || attestationContainer.getEditAttestationAuthorizedGroup() == null) ? null : attestationContainer.getEditAttestationAuthorizedGroup().getId();
+              
+                  // backstop: editAttestationSaveHelper already checked these before any write
+                  if (attestationReportConfigurationId != null) {
+                    // verify that the user can see this report
+                    if (!attestationContainer.getEditAttestationReportConfiguration().isCanRead(loggedInSubject)) {
+                      // this shouldn't happen
+                      throw new RuntimeException(loggedInSubject.getId() + " not allowed to read report " + attestationContainer.getEditAttestationReportConfiguration().getReportConfigName());
+                    }
+                  }
+              
+                  if (attestationAuthorizedGroupId != null) {
+                    if (!attestationContainer.getEditAttestationAuthorizedGroup().canHavePrivilege(loggedInSubject, "read", false)) {
+                      throw new RuntimeException(loggedInSubject.getId() + " not allowed to read group " + attestationContainer.getEditAttestationAuthorizedGroup().getName());
+                    }
+                  }
+              
+                  Stem.Scope scope = null;
+                  if (!"report".equals(attestationContainer.getEditAttestationType())) {
+                    scope = (attestationContainer.getEditAttestationStemScopeSub() == null || attestationContainer.getEditAttestationStemScopeSub()) ? Stem.Scope.SUB : Stem.Scope.ONE; 
+                  }
+
+                  updateStemAttestationAttributes(STEM, GrouperAttestationJob.retrieveAttributeDefNameValueDef(), 
+                      attestationContainer.isEditAttestationSendEmail(), attestationContainer.isEditAttestationHasAttestation(),
+                      attestationContainer.getEditAttestationEmailAddresses(), GrouperUtil.stringValue(attestationContainer.getEditAttestationCustomRecertifyDays()), 
+                      null, attestationContainer.isEditAttestationResetCertifiedToToday(), 
+                      scope,
+                      attestationContainer.getEditAttestationType(), attestationReportConfigurationId, attestationAuthorizedGroupId,
+                      attestationContainer.getEditAttestationEmailGroup() == null ? null : attestationContainer.getEditAttestationEmailGroup().getId());
+                  guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Attestation.stemAttestation&stemId=" + STEM.getId() + "')"));
+    
+                  attestationSaveAudit(auditEntry);
+                }
+                return null;
+              }
+            });
           }
           
           if (!hasError) {

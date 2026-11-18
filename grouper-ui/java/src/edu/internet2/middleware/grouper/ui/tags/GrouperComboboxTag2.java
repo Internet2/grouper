@@ -138,6 +138,17 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
    */
   @Override
   public void doTag() throws JspException, IOException {
+    this.getJspContext().getOut().print(this.renderHtml());
+  }
+
+  /**
+   * Build the HTML and script for this combobox.  Values that come from the page (value, label,
+   * filter operation, additional form element names) are encoded for the context they land in
+   * (JavaScript string in a script element, or HTML attribute), since they can hold request or
+   * subject data.  Normal values decode back to exactly what they were.
+   * @return the html
+   */
+  public String renderHtml() {
 
     StringBuilder result = new StringBuilder();
 
@@ -175,18 +186,21 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
         .propertyValueBoolean("grouperUi.disableEnterKeyOnCombobox", false);
     boolean useEnterForLookup = !disableEnter;
 
-    // Escape single quotes since filterOperation is embedded in a single-quoted JS string
-    String filterOperationEscaped = StringUtils.replace(StringUtils.defaultString(this.filterOperation), "'", "\\'");
-    String valueEscaped = StringUtils.replace(StringUtils.defaultString(this.value), "'", "\\'");
+    // These are embedded in single-quoted JS strings inside a script element.  Escaping only the
+    // single quote is not enough: a closing script tag in the value would end the script element
+    // and the rest would be parsed as HTML, so encode for a JS string in a script element.
+    String filterOperationEscaped = escapeJavascriptStringInScript(this.filterOperation);
+    String valueEscaped = escapeJavascriptStringInScript(this.value);
+    String additionalFormElementNamesEscaped = escapeJavascriptStringInScript(this.additionalFormElementNames);
     // Only seed a display label when explicitly provided. Callers with an id-only value (e.g. reports)
     // omit valueLabel and rely on the async lookup to resolve a friendly label.
     boolean hasValueLabel = !StringUtils.isBlank(this.value) && !StringUtils.isBlank(this.valueLabel);
-    String valueLabelEscaped = StringUtils.replace(StringUtils.defaultString(this.valueLabel), "'", "\\'");
+    String valueLabelEscaped = escapeJavascriptStringInScript(this.valueLabel);
     // NOTE: no newline immediately before ");" (requested)
     result.append("    grouperRegisterCombobox(" +
         "'#" + this.idBase + "Id', " +
         "'" + filterOperationEscaped + "', " +
-        (StringUtils.isBlank(this.additionalFormElementNames) ? "null" : "'" + this.additionalFormElementNames + "'") + ", " +
+        (StringUtils.isBlank(this.additionalFormElementNames) ? "null" : "'" + additionalFormElementNamesEscaped + "'") + ", " +
         (StringUtils.isBlank(this.value) ? "null" : "'" + valueEscaped + "'") + ", " +
         "{searchDelay: " + this.searchDelayJs() + ", useEnterForLookup: " + (useEnterForLookup ? "true" : "false") +
         (hasValueLabel ? ", valueLabel: '" + valueLabelEscaped + "'" : "") + "}" +
@@ -202,6 +216,116 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
       result.append("&nbsp;<span id=\"" + this.idBase + "ErrorId\"></span>");
     }
 
-    this.getJspContext().getOut().print(result.toString());
+    return result.toString();
+  }
+
+  /**
+   * Encode a string for use INSIDE a JavaScript string literal (single or double quoted) that is
+   * itself inside an HTML script element.  Escapes backslash, both quotes, CR, LF, tab, other
+   * control characters and the U+2028 / U+2029 line separators, and also encodes the characters
+   * that matter to the HTML parser (less than, greater than, ampersand, slash), so a value such as
+   * a closing script tag cannot end the script element.  JavaScript decodes every escape back to
+   * the original character, so the value the browser sees (and later submits) is unchanged.
+   * @param input raw value, may be null
+   * @return the encoded value (empty string for null), without surrounding quotes
+   */
+  public static String escapeJavascriptStringInScript(String input) {
+    if (input == null) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder(input.length() + 16);
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      switch (c) {
+        case '\\':
+          result.append("\\\\");
+          break;
+        case '\'':
+          result.append("\\'");
+          break;
+        case '"':
+          result.append("\\\"");
+          break;
+        case '\n':
+          result.append("\\n");
+          break;
+        case '\r':
+          result.append("\\r");
+          break;
+        case '\t':
+          result.append("\\t");
+          break;
+        // HTML-significant characters: the HTML parser ends a script element at a closing
+        // script tag even inside a JavaScript string, so never emit a literal less than sign
+        case '<':
+          result.append("\\u003c");
+          break;
+        case '>':
+          result.append("\\u003e");
+          break;
+        case '&':
+          result.append("\\u0026");
+          break;
+        case '/':
+          result.append("\\/");
+          break;
+        // JavaScript line terminators that are not newlines in Java
+        case '\u2028':
+          result.append("\\u2028");
+          break;
+        case '\u2029':
+          result.append("\\u2029");
+          break;
+        default:
+          if (c < 0x20 || c == 0x7f) {
+            // other control characters
+            String hex = Integer.toHexString(c);
+            result.append("\\u");
+            for (int j = hex.length(); j < 4; j++) {
+              result.append('0');
+            }
+            result.append(hex);
+          } else {
+            result.append(c);
+          }
+      }
+    }
+    return result.toString();
+  }
+
+  /**
+   * Encode a string for use inside a double or single quoted HTML attribute value.  The browser
+   * decodes the entities, so the attribute value the page sees is the original string.
+   * @param input raw value, may be null
+   * @return the encoded value (empty string for null)
+   */
+  public static String escapeHtmlAttribute(String input) {
+    if (input == null) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder(input.length() + 16);
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      switch (c) {
+        case '&':
+          result.append("&amp;");
+          break;
+        case '<':
+          result.append("&lt;");
+          break;
+        case '>':
+          result.append("&gt;");
+          break;
+        case '"':
+          result.append("&quot;");
+          break;
+        case '\'':
+          result.append("&#39;");
+          break;
+        default:
+          result.append(c);
+      }
+    }
+    return result.toString();
   }
 }

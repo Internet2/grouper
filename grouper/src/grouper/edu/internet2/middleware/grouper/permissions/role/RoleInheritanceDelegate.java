@@ -23,14 +23,32 @@ import java.io.Serializable;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.audit.PermissionInheritanceAudit;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
- * delegate the role
+ * delegate the role inheritance (role set) operations of a role.
+ * <p>
+ * Adding or removing an inheritance link changes which permissions the members of a role get,
+ * so the public add and remove methods require the subject of the static grouper session to
+ * have ADMIN on BOTH roles of the link (wheel and root are allowed).  Before this check, a
+ * subject with ADMIN on one role could link it to any role it could merely VIEW, and so take
+ * that role's permissions (UI role inheritance screen, GSH or API).
+ * </p>
+ * <p>
+ * internal_addRoleToInheritFromThis is deliberately NOT checked: its only caller other than
+ * addRoleToInheritFromThis is the XML import (RoleSet.xmlSaveBusinessProperties), which runs
+ * as root.
+ * </p>
  */
 @SuppressWarnings("serial")
 public class RoleInheritanceDelegate implements Serializable {
@@ -86,12 +104,25 @@ public class RoleInheritanceDelegate implements Serializable {
 
   /**
    * if a user has this role, then he also inherits permissions from the roleToAdd
-   * for isntance this would be senior admin, and the argument would be admin
+   * for isntance this would be senior admin, and the argument would be admin.
+   * The subject of the static grouper session needs ADMIN on this role and on roleToAdd
+   * (or must be wheel or root).
    * @param roleToAdd
    * @return true if added, false if already there
+   * @throws InsufficientPrivilegeException if the session subject cannot ADMIN both roles
    */
-  public boolean addRoleToInheritFromThis(Role roleToAdd) {
-    return this.internal_addRoleToInheritFromThis(roleToAdd, null);
+  public boolean addRoleToInheritFromThis(final Role roleToAdd) {
+    assertIsRole(roleToAdd);
+    // check privileges before anything is written (the internal method does not check)
+    this.assertCanAdminBothRoles(roleToAdd);
+    // audit who added the link: it gives every member of this role the other role's permissions
+    return PermissionInheritanceAudit.roleInheritance(true, this.group, roleToAdd, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return RoleInheritanceDelegate.this.internal_addRoleToInheritFromThis(roleToAdd, null);
+      }
+    });
   }
 
   /**
@@ -108,15 +139,54 @@ public class RoleInheritanceDelegate implements Serializable {
   
   /**
    * if a user has this role, and he had inheriated permissions from roleToRemove directly, then 
-   * remove that relationship
+   * remove that relationship.
+   * The subject of the static grouper session needs ADMIN on this role and on roleToRemove
+   * (or must be wheel or root).  Note: converting a role back to a group (Group update hook)
+   * calls this for each link, so a non-wheel subject can only do that conversion if it can
+   * ADMIN every role linked to it.
    * @param roleToRemove
    * @return true if removed, false if already not there
+   * @throws InsufficientPrivilegeException if the session subject cannot ADMIN both roles
    */
-  public boolean removeRoleFromInheritFromThis(Role roleToRemove) {
+  public boolean removeRoleFromInheritFromThis(final Role roleToRemove) {
     assertIsRole(roleToRemove);
-    return GrouperSetEnum.ROLE_SET.removeFromGrouperSet(this.group, roleToRemove);
+    // removing a link can lift deny (disallow) assignments or take permissions away from the
+    // members of the other role, so it needs the same privileges as adding one
+    this.assertCanAdminBothRoles(roleToRemove);
+    // audit who removed the link
+    return PermissionInheritanceAudit.roleInheritance(false, this.group, roleToRemove, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return GrouperSetEnum.ROLE_SET.removeFromGrouperSet(RoleInheritanceDelegate.this.group, roleToRemove);
+      }
+    });
   }
   
+  /**
+   * assert that the subject of the static grouper session can ADMIN this role and the other
+   * role of an inheritance link.  Wheel and root can always.  ADMIN (not UPDATE) is required
+   * because the link changes the permissions of the role's members, which is a privilege
+   * change, not a membership change.
+   * @param otherRole the other end of the link, already asserted to be a role group
+   */
+  private void assertCanAdminBothRoles(Role otherRole) {
+    // throws if there is no static session, so a caller with no session fails closed
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return;
+    }
+    for (Group role : new Group[] {this.group, (Group)otherRole}) {
+      // secure=false: the check is about the session subject itself, which is allowed
+      // to ask about its own privileges
+      if (!role.canHavePrivilege(subject, AccessPrivilege.ADMIN.getName(), false)) {
+        throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject)
+            + " cannot ADMIN role " + role.getName()
+            + ", ADMIN is required on both roles to change role inheritance");
+      }
+    }
+  }
+
   /**
    * assert that this is a role
    * @param object 

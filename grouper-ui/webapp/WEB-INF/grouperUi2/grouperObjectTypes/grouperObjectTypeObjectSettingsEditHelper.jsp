@@ -70,9 +70,9 @@
 	                              <select name="grouperObjectTypeServiceName" id="grouperObjectTypeServiceNameId" style="width: 30em">
                                   <option value=""></option>
                                   <c:forEach items="${grouperRequestContainer.objectTypeContainer.serviceStems}" var="serviceStem">
-		                                <option value="${serviceStem.stem.name}"
+		                                <option value="${grouper:escapeHtml(serviceStem.stem.name)}"
 		                                    ${grouperRequestContainer.objectTypeContainer.grouperObjectTypesAttributeValue.objectTypeServiceName == serviceStem.stem.name ? 'selected="selected"' : '' }
-		                                    >${serviceStem.stem.name}</option>
+		                                    >${grouper:escapeHtml(serviceStem.stem.name)}</option>
 		                              </c:forEach>
                                 </select>
 	                              <br />

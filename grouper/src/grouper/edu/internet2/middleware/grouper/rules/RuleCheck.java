@@ -333,6 +333,16 @@ public class RuleCheck {
       return e.getMessage();
     }
 
+    // SECURITY: rules evaluate their check owner and if owner in root sessions, so the act-as
+    // subject must be allowed to read a referenced object other than the rule's own owner (else a
+    // rule on a group the author administers could watch or test another group's memberships).
+    // Checked before the check type's own validation so a missing object gets the same message
+    // as a forbidden one
+    String referencedObjectError = RuleReferencedObjectAuthorization.validate(ruleDefinition);
+    if (referencedObjectError != null) {
+      return referencedObjectError;
+    }
+
     //if not on a stem, but there is a stem scope, then need to specify the stem on the owner id or name
     if (!StringUtils.isBlank(this.checkStemScope) && StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())
         && StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(this.checkOwnerName)) {

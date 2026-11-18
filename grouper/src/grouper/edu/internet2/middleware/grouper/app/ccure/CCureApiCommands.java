@@ -737,8 +737,10 @@ public class CCureApiCommands {
         externalSystem.attachAuthenticationToHttpClient(grouperHttpCall);
 
         debugMap.put("url", url);
-        debugMap.put("session_id", externalSystem.getSessionId());
-        debugMap.put("token", externalSystem.getAccessToken());
+        // the session id and access token are credentials, the debug map is logged, so only
+        // say if they are there
+        debugMap.put("hasSessionId", !GrouperUtil.isBlank(externalSystem.getSessionId()));
+        debugMap.put("hasToken", !GrouperUtil.isBlank(externalSystem.getAccessToken()));
 
         grouperHttpCall.assignUrl(url);
         grouperHttpCall.assignGrouperHttpMethod(httpMethodName);

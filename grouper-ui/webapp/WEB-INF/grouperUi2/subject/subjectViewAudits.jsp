@@ -13,7 +13,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                 <p class="lead">${textContainer.text['subjectAuditLogDescription'] }</p>
 
                 <form class="form-inline form-small form-filter" id="subjectFilterAuditFormId">
-                  <input type="hidden" name="auditType" value="${grouperRequestContainer.subjectContainer.auditType}" />
+                  <input type="hidden" name="auditType" value="${fn:escapeXml(grouperRequestContainer.subjectContainer.auditType)}" />
                   <label for="date-filter">${textContainer.text['subjectAuditLogFilterByDate'] }</label>&nbsp;
                   <select id="date-filter" class="span2" name="filterType">
                     <option value="all" selected="selected">${textContainer.text['subjectAuditLogFilterType_all']}</option>
@@ -30,7 +30,7 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectAuditLogFilterShowExtendedResults']}
                   </label>&nbsp;&nbsp;
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
-                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
+                  onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['subjectAuditLogFilterFindEntriesButton']}</button>
                 </form>
 

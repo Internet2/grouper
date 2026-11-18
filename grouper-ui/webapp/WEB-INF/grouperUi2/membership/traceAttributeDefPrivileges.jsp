@@ -56,7 +56,7 @@ ${grouper:title('privilegesTraceBreadcrumb')}
 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                    <a href="?operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                    <a href="?operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToSubjectButton']}</a>
                   </c:when>
                   <c:otherwise>

@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleDefinitionVisibility;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -35,7 +36,10 @@ public class UiV2Rules {
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
-      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForSubject(loggedInSubject);
+      // the finder returns every rule in the (root loaded) rule engine; only show the rules whose
+      // owner and referenced objects the logged in user can see (wheel / root see all)
+      Set<RuleDefinition> ruleDefinitions = RuleDefinitionVisibility.filterForSubject(
+          RuleFinder.retrieveRuleDefinitionsForSubject(loggedInSubject), loggedInSubject);
       
       Set<GuiRuleDefinition> guiRules = new HashSet<>();
       

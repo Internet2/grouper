@@ -36,8 +36,8 @@ ${grouper:title('miscellaneousProvisionerConfigViewErrorsBreadcrumb')}
 	   <div id="messages"></div>
          
          <form class="form-inline form-small form-filter" id="provisionerConfigViewErrors">
-         	<input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}" />
-         	<input type="hidden" name="provisionerConfigType" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}" />
+         	<input type="hidden" name="provisionerConfigId" value="${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId)}" />
+         	<input type="hidden" name="provisionerConfigType" value="${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name)}" />
         <table class="table table-condensed table-striped">
               <tbody>
               	<tr>
@@ -67,8 +67,8 @@ ${grouper:title('miscellaneousProvisionerConfigViewErrorsBreadcrumb')}
                <select name="provisionerConfigErrorType" id="provisionerErrorTypeId" style="width: 30em">
                 <option value=""></option>
                 <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.allGcGrouperSyncErrorCodes}" var="errorCode">
-                  <option value="${errorCode}"
-                    ${grouperRequestContainer.provisionerConfigurationContainer.selectedErrorCode == errorCode ? 'selected="selected"' : '' }>${errorCode}</option>
+                  <option value="${grouper:escapeHtml(errorCode)}"
+                    ${grouperRequestContainer.provisionerConfigurationContainer.selectedErrorCode == errorCode ? 'selected="selected"' : '' }>${grouper:escapeHtml(errorCode)}</option>
                 </c:forEach>
                </select>
                <br />
@@ -92,7 +92,7 @@ ${grouper:title('miscellaneousProvisionerConfigViewErrorsBreadcrumb')}
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigErrorGroupId">${textContainer.text['provisionerConfigErrorGroup']}</label></strong></td>
           <td>
-             <input type="text" name="provisionerConfigErrorGroup" id="provisionerConfigErrorGroupId" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorGroup}" style="width: 30em" />
+             <input type="text" name="provisionerConfigErrorGroup" id="provisionerConfigErrorGroupId" value="${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorGroup)}" style="width: 30em" />
              <br />
              <span class="description">${textContainer.text['provisionerConfigErrorGroupHint']}</span>
            </td>
@@ -100,7 +100,7 @@ ${grouper:title('miscellaneousProvisionerConfigViewErrorsBreadcrumb')}
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigErrorEntityId">${textContainer.text['provisionerConfigErrorEntity']}</label></strong></td>
           <td>
-             <input type="text" name="provisionerConfigErrorEntity" id="provisionerConfigErrorEntityId" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorEntity}" style="width: 30em" />
+             <input type="text" name="provisionerConfigErrorEntity" id="provisionerConfigErrorEntityId" value="${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorEntity)}" style="width: 30em" />
              <br />
              <span class="description">${textContainer.text['provisionerConfigErrorEntityHint']}</span>
            </td>

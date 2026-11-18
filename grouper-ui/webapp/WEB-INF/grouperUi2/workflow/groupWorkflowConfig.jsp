@@ -45,16 +45,16 @@ ${grouper:titleFromKeyAndText('groupFormsPageTitle', grouperRequestContainer.gro
               
                 <tr>
                    <td style="white-space: nowrap;">
-                    <a href="?operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
-                    ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}</a>
+                    <a href="?operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewInstances&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
+                    ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}</a>
                    </td>
                    
                    <td style="white-space: nowrap;">
-                    ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigName}
+                    ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigName)}
                    </td>
                    
                    <td style="white-space: nowrap;">
-                    ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigType}
+                    ${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigType)}
                    </td>
                    
                    <td style="white-space: nowrap;">
@@ -78,9 +78,9 @@ ${grouper:titleFromKeyAndText('groupFormsPageTitle', grouperRequestContainer.gro
                            </a>
                            <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                              <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow }">
-                               <li><a href="?operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>
+                               <li><a href="?operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.editWorkflowConfig&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableEditDetailsActionOption'] }</a></li>
                              </c:if>
-                             <li><a href="?operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableViewDetailsActionOption'] }</a></li>
+                             <li><a href="?operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewWorkflowConfigDetails&workflowConfigId=${grouper:escapeHtml(guiWorkflowConfig.grouperWorkflowConfig.workflowConfigId)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperWorkflowConfigTableViewDetailsActionOption'] }</a></li>
                            </ul>
                          </div>
                    </td>

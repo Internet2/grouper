@@ -2212,7 +2212,9 @@ public class GrouperProvisioningService {
       return false; // only grouper system admin is allowed when no specific group is allowed to assign the given target
     }
     
-    MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getId());
+    // subjects are identified by source and id: key by both so one source's decision
+    // cannot answer for a different subject with the same id in another source
+    MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getSourceId(), subject.getId());
     
     Boolean isEditable = editableGroupToSubject.get(multiKey);
     if (isEditable != null) {
@@ -2265,7 +2267,9 @@ public class GrouperProvisioningService {
       return false;
     }
     
-    MultiKey multiKey = new MultiKey(groupAllowedToView, subject.getId());
+    // subjects are identified by source and id: key by both so one source's decision
+    // cannot answer for a different subject with the same id in another source
+    MultiKey multiKey = new MultiKey(groupAllowedToView, subject.getSourceId(), subject.getId());
     
     Boolean isViewable = viewableGroupToSubject.get(multiKey);
     if (isViewable != null) {

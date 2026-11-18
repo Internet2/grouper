@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -471,16 +473,13 @@ public class GuiAttestation {
             
             if (StringUtils.isBlank(daysLeftBeforeAttestation)) {
         
-              AttributeAssign attributeAssign = attributeAssignValueFinderResult.getMapOwnerIdToAttributeAssign().get(group.getId());
-              
-              if (LOG.isDebugEnabled()) {
-                DEBUG_MAP.put("attributeAssignInNull_" + i, attributeAssign == null);
-              }
-              GrouperAttestationJob.updateCalculatedDaysUntilRecertify(group, attributeAssign);
+              // list screens are read paths (READ-filtered) running as root: compute the value for
+              // display from the values already read, do not persist it or migrate legacy
+              // metadata.  The attestation daemon and the UPDATE-gated actions store it.
+              daysLeftBeforeAttestation = "" + GuiAttestationDaysLeftReadOnly.calculateDaysLeft(
+                  attestationHasAssignment, attestationDateCertified, attestationDaysUntilRecertify, group.getName());
         
             }
-            daysLeftBeforeAttestation = attributes.get(
-                GrouperAttestationJob.retrieveAttributeDefNameCalculatedDaysLeft().getName());
             if (LOG.isDebugEnabled()) {
               DEBUG_MAP.put("daysLeftBeforeAttestation2_" + i, daysLeftBeforeAttestation);
             }
@@ -587,10 +586,30 @@ public class GuiAttestation {
   }
   
   /**
-   * @return the grouperAttestationReportConfiguration
+   * report configuration for the screen, see getGrouperAttestationReportConfiguration()
+   */
+  private GrouperReportConfigurationBean grouperAttestationReportConfigurationForView;
+
+  /**
+   * if grouperAttestationReportConfigurationForView is computed
+   */
+  private boolean grouperAttestationReportConfigurationForViewComputed = false;
+
+  /**
+   * The report configuration is resolved as root when this object is built.  Only show it to a
+   * user who can read the report (in its viewers group, same rule as the folder Reports screen);
+   * others get a "restricted report" placeholder with no marker id, so the report name and id do
+   * not leak to a folder admin who is not a report viewer.
+   * @return the report configuration if the logged in user can read it, a placeholder if not,
+   * null if none is configured
    */
   public GrouperReportConfigurationBean getGrouperAttestationReportConfiguration() {
-    return grouperAttestationReportConfiguration;
+    if (!this.grouperAttestationReportConfigurationForViewComputed) {
+      this.grouperAttestationReportConfigurationForView = AttestationReportConfigurationBinding.readableOrPlaceholder(
+          this.grouperAttestationReportConfiguration);
+      this.grouperAttestationReportConfigurationForViewComputed = true;
+    }
+    return this.grouperAttestationReportConfigurationForView;
   }
   
   /**
@@ -604,11 +623,48 @@ public class GuiAttestation {
    * @return the gui group
    */
   public GuiGroup getGrouperAttestationAuthorizedGuiGroup() {
-    return new GuiGroup(grouperAttestationAuthorizedGroup);
+    return guiGroupIfViewable(grouperAttestationAuthorizedGroup);
   }
   
+  /**
+   * @return the gui group of the email recipient group, or a restricted placeholder if the
+   * logged in user cannot VIEW it
+   */
   public GuiGroup getGrouperAttestationEmailGuiGroup() {
-    return new GuiGroup(grouperAttestationEmailGroup);
+    return guiGroupIfViewable(grouperAttestationEmailGroup);
+  }
+
+  /**
+   * <p>Wrap a related group (email recipient or authorized group) for display.</p>
+   *
+   * <p>Why: these groups are resolved in a root session from the saved attestation settings, so
+   * READ on the reviewed group must not be enough to see them.  If the logged in user cannot VIEW
+   * the related group, return a placeholder that renders no name, UUID, path or description.
+   * The raw Group getters are unchanged, so the screens still know a recipient group is
+   * configured, and notification behavior and saved settings do not change.  Fails closed: if
+   * the logged in user cannot be determined, the placeholder is returned.</p>
+   *
+   * @param group related group, or null
+   * @return the gui group, or a GuiGroupRestrictedReference
+   */
+  private static GuiGroup guiGroupIfViewable(Group group) {
+    if (group == null) {
+      // same as before: an empty gui group, the JSPs check the raw group first
+      return new GuiGroup(null);
+    }
+    boolean canView = false;
+    try {
+      edu.internet2.middleware.subject.Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      canView = loggedInSubject != null
+          && group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+    } catch (RuntimeException re) {
+      LOG.debug("cannot check VIEW on related attestation group, not showing it", re);
+      canView = false;
+    }
+    if (canView) {
+      return new GuiGroup(group);
+    }
+    return new GuiGroupRestrictedReference();
   }
 
   public Group getGrouperAttestationEmailGroup() {

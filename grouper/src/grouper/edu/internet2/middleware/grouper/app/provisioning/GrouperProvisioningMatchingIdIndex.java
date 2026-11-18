@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1136,24 +1137,31 @@ public class GrouperProvisioningMatchingIdIndex {
   public void indexMatchingIdEntities(List<ProvisioningEntity> useTheseTargetProvisioningEntities) {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>> entityMatchingIdToTargetProvisioningEntityWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>>();
-    
+
+    // every unmatched target entity indexed here, so that after a refused relink (see
+    // GrouperProvisioningEntityLinkGuard) the member can be kept on the target entity it is already
+    // linked to, instead of leaving that entity unmatched (and maybe deleted as "not in Grouper")
+    List<ProvisioningEntity> indexedTargetProvisioningEntities = new ArrayList<ProvisioningEntity>();
+
     if (useTheseTargetProvisioningEntities == null) {
       // lets index the target objects first
       for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()))) {
-  
+
         // its not there!
         if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
           continue;
         }
-        
+
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
-        
+
         // these are already matched
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null && targetProvisioningEntity != null) {
           continue;
         }
-        
+
+        indexedTargetProvisioningEntities.add(targetProvisioningEntity);
+
         for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(targetProvisioningEntity.getMatchingIdAttributeNameToValues())) {
           Set<ProvisioningEntity> targetProvisioningEntities = entityMatchingIdToTargetProvisioningEntityWrapper.get(provisioningUpdatableAttributeAndValue);
           if (targetProvisioningEntities == null) {
@@ -1175,7 +1183,9 @@ public class GrouperProvisioningMatchingIdIndex {
             continue;
           }
         }
-        
+
+        indexedTargetProvisioningEntities.add(extraTargetProvsisioningEntity);
+
         for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(extraTargetProvsisioningEntity.getMatchingIdAttributeNameToValues())) {
           Set<ProvisioningEntity> targetProvisioningEntities = entityMatchingIdToTargetProvisioningEntityWrapper.get(provisioningUpdatableAttributeAndValue);
           if (targetProvisioningEntities == null) {
@@ -1196,13 +1206,17 @@ public class GrouperProvisioningMatchingIdIndex {
     
     int matchingIdToMultipleTargetProvisioningEntities = 0;
     int matchingIdToMultipleGrouperTargetEntities = 0;
-    
+
+    // grouper entities whose matching value found a different target entity than the one they are
+    // linked to (refused, see below), to the object error message
+    Map<ProvisioningEntityWrapper, String> relinkRefusedWrapperToErrorMessage = new LinkedHashMap<ProvisioningEntityWrapper, String>();
+
     // lets do non deleted grouper objects first
     for (boolean deleted : new boolean[] {false, true}) {
-      
+
       // lets do current value of all attributes first
       for (boolean currentValue : new boolean[] {true, false}) {
-  
+
         // lets look in matching attributes in order
         // first do all current values, then do all past values
         for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
@@ -1301,6 +1315,27 @@ public class GrouperProvisioningMatchingIdIndex {
               
               // its 1!!!!!!
               ProvisioningEntity targetProvisioningEntity = targetProvisioningEntities.iterator().next();
+
+              // security (issue provisioningMatchingRelinksToPreclaimedAccount): these passes try the
+              // CURRENT values of all matching attributes (e.g. the new userName / login / email) before
+              // the cached values that record which target object this member is already linked to.  If
+              // the member has a link (a target-sourced attribute cache, e.g. the target id) and this
+              // candidate is a different target object, the match came from a mutable value that another
+              // account holds (possibly pre-claimed by someone who wants this member's access).  Do not
+              // move the link: skip this value (a later cached value, e.g. the target id, may still match
+              // the linked entity) and record an object error after the passes.
+              String relinkRefusal = GrouperProvisioningEntityLinkGuard.relinkRefusal(
+                  this.grouperProvisioner, provisioningEntityWrapper, targetProvisioningEntity);
+              if (relinkRefusal != null) {
+                if (!relinkRefusedWrapperToErrorMessage.containsKey(provisioningEntityWrapper)) {
+                  relinkRefusedWrapperToErrorMessage.put(provisioningEntityWrapper, "Matching ID "
+                      + provisioningUpdatableAttributeAndValue.toString()
+                      + " matches a different target entity than the one this entity is linked to (" + relinkRefusal
+                      + "), not re-linking.  Rename or remove the other target account, or clear this entity's cached link to re-link on purpose");
+                }
+                continue;
+              }
+
               grouperTargetEntityMatchesTargetProvisioningEntity.put(grouperTargetEntity, targetProvisioningEntity);
               targetProvisioningEntityToSetOfTargetProvisioningEntities.put(targetProvisioningEntity, targetProvisioningEntities);
               grouperTargetEntityToTargetId.put(grouperTargetEntity, provisioningUpdatableAttributeAndValue);
@@ -1372,9 +1407,72 @@ public class GrouperProvisioningMatchingIdIndex {
         }
       }
             
-      
+
     }
-    
+
+    // refused relinks (see the guard in the passes above): keep the member on the target entity it is
+    // already linked to and record an object error, so nothing is renamed, no membership reaches the
+    // other account, and the linked account is not orphaned
+    int entityRelinkToDifferentTargetRefused = 0;
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : relinkRefusedWrapperToErrorMessage.keySet()) {
+
+      entityRelinkToDifferentTargetRefused++;
+
+      // a later cached value (e.g. the target id) may already have matched the linked entity; if not
+      // (e.g. the id is not a matching attribute), find the one unmatched indexed target entity that
+      // agrees with the cached link.  If it is not there (incremental retrieve) or ambiguous, leave
+      // the member unmatched: the error below keeps it out of insert/update
+      if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        ProvisioningEntity linkedTargetProvisioningEntity = null;
+        int linkedTargetProvisioningEntityCount = 0;
+        for (ProvisioningEntity indexedTargetProvisioningEntity : indexedTargetProvisioningEntities) {
+          ProvisioningEntityWrapper indexedTargetProvisioningEntityWrapper = indexedTargetProvisioningEntity.getProvisioningEntityWrapper();
+          // already matched to some grouper entity (setTargetProvisioningEntity re-points the wrapper)
+          if (indexedTargetProvisioningEntityWrapper != null && indexedTargetProvisioningEntityWrapper.getGrouperTargetEntity() != null) {
+            continue;
+          }
+          if (GrouperProvisioningEntityLinkGuard.isLinkedTargetEntity(this.grouperProvisioner, provisioningEntityWrapper, indexedTargetProvisioningEntity)) {
+            linkedTargetProvisioningEntity = indexedTargetProvisioningEntity;
+            linkedTargetProvisioningEntityCount++;
+          }
+        }
+        if (linkedTargetProvisioningEntityCount == 1) {
+          // same as a normal match above
+          ProvisioningEntityWrapper linkedTargetProvisioningEntityWrapper = linkedTargetProvisioningEntity.getProvisioningEntityWrapper();
+          provisioningEntityWrapper.setTargetProvisioningEntity(linkedTargetProvisioningEntity);
+          if (linkedTargetProvisioningEntityWrapper != null) {
+            provisioningEntityWrapper.setTargetNativeEntity(linkedTargetProvisioningEntityWrapper.getTargetNativeEntity());
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(linkedTargetProvisioningEntityWrapper);
+          }
+        }
+      }
+
+      // the member is leaving and is now matched to its own linked account: deleting that account is
+      // correct, so do not block it with an error (the refused candidate is left alone either way)
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+        continue;
+      }
+
+      String errorMessage = relinkRefusedWrapperToErrorMessage.get(provisioningEntityWrapper);
+
+      // an entity with an error code is skipped by the compare (no insert, update, or membership
+      // changes) and is not matched again by later calls of this method
+      if (provisioningEntityWrapper.getErrorCode() == null) {
+        provisioningEntityWrapper.setErrorCode(GcGrouperSyncErrorCode.MAT);
+      }
+      GcGrouperSyncMember gcGrouperSyncEntity = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncEntity != null) {
+        gcGrouperSyncEntity.setErrorCode(GcGrouperSyncErrorCode.MAT);
+        gcGrouperSyncEntity.setErrorMessage(errorMessage);
+        Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncEntity);
+        gcGrouperSyncEntity.setErrorTimestamp(entityErrorTimestamp);
+      }
+    }
+    if (entityRelinkToDifferentTargetRefused > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("entityRelinkToDifferentTargetRefused"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("entityRelinkToDifferentTargetRefused", oldCount + entityRelinkToDifferentTargetRefused);
+    }
+
     int provisioningEntityWrappersWithNoMatchingId = 0;
     int provisioningEntityWrappersWithNoMatch = 0;
     int provisioningEntityWrappersWithMatch = 0;

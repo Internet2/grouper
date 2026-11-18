@@ -871,7 +871,8 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     
           changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
               grouperSession.getSubject(), byHqlStatic, 
-              sql, "theServiceRoleView.groupId", AccessPrivilege.READ_PRIVILEGES);
+              sql, "theServiceRoleView.groupId", edu.internet2.middleware.grouper.privs.AccessFieldReadPrivileges.serviceRoleGroupPrivileges(
+                  grouperSession, member, serviceRole, anyServiceRole));
           
           //fields for the service role
           HibUtils.convertFieldsToSqlInString(

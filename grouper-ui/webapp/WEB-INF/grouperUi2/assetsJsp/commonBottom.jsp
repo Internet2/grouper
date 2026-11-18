@@ -10,6 +10,49 @@
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=7.3.3"></script>
+
+<%-- security patch, URL operation guard (see grouperUiUrlOperationGuard.js): a link or refresh may only load a screen,
+     not run an action.  Same grouper-ui config keys as GRP-7503 (uiV2.urlOperationGuard.mode and
+     uiV2.urlOperationGuard.additionalAllowedOperations) so settings carry over when you upgrade.
+     Only fixed words and Class.method names (letters, digits, one dot) are written into the script. --%>
+<script type="text/javascript">
+<%
+  {
+    // fail closed: enforce unless the config clearly says logOnly or off
+    String grouperUrlOpGuardModeJs = "enforce";
+    StringBuilder grouperUrlOpGuardExtraJs = new StringBuilder();
+    try {
+      edu.internet2.middleware.grouper.ui.util.GrouperUiConfig grouperUrlOpGuardConfig = 
+          edu.internet2.middleware.grouper.ui.util.GrouperUiConfig.retrieveConfig();
+      String grouperUrlOpGuardMode = grouperUrlOpGuardConfig.propertyValueString("uiV2.urlOperationGuard.mode", "enforce");
+      grouperUrlOpGuardMode = grouperUrlOpGuardMode == null ? "" : grouperUrlOpGuardMode.trim();
+      if ("logOnly".equalsIgnoreCase(grouperUrlOpGuardMode)) {
+        grouperUrlOpGuardModeJs = "logOnly";
+      } else if ("off".equalsIgnoreCase(grouperUrlOpGuardMode)) {
+        grouperUrlOpGuardModeJs = "off";
+      }
+      String grouperUrlOpGuardExtra = grouperUrlOpGuardConfig.propertyValueString("uiV2.urlOperationGuard.additionalAllowedOperations", "");
+      if (grouperUrlOpGuardExtra != null) {
+        for (String grouperUrlOpGuardOperation : grouperUrlOpGuardExtra.split(",")) {
+          grouperUrlOpGuardOperation = grouperUrlOpGuardOperation.trim();
+          // only Class.method, so nothing from config can break out of the javascript string
+          if (grouperUrlOpGuardOperation.matches("[A-Za-z0-9]+\\.[A-Za-z0-9]+")) {
+            grouperUrlOpGuardExtraJs.append(grouperUrlOpGuardExtraJs.length() == 0 ? "" : ", ")
+                .append("'").append(grouperUrlOpGuardOperation).append("'");
+          }
+        }
+      }
+    } catch (RuntimeException grouperUrlOpGuardException) {
+      // keep enforce with no extra operations
+      grouperUrlOpGuardExtraJs.setLength(0);
+    }
+    out.print("  var grouperUrlOperationGuardConfig = {mode: '" + grouperUrlOpGuardModeJs 
+        + "', additionalAllowedOperations: [" + grouperUrlOpGuardExtraJs + "]};");
+  }
+%>
+</script>
+<script src="../../grouperExternal/public/assets/js/grouperUiUrlOperationGuard.js?updated=20261111"></script>
+
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 

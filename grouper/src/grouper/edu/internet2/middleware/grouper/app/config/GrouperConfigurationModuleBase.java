@@ -201,7 +201,12 @@ public abstract class GrouperConfigurationModuleBase {
 
           GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetGroupAttribute." + index + ".name");
           if (grouperConfigurationModuleAttribute != null) {
-            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()
+                && this.isExpressionLanguageFromRequestNotEvaluated(grouperConfigurationModuleAttribute)) {
+              // a script posted with a screen request (not a save) is never evaluated, see
+              // populateConfigurationValuesFromUi.  do not show its text as the label either
+              theName = Integer.toString(index+1);
+            } else if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
               String theExpression = theName;
               try {
                 theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
@@ -224,7 +229,12 @@ public abstract class GrouperConfigurationModuleBase {
 
           GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetEntityAttribute." + index + ".name");
           if (grouperConfigurationModuleAttribute != null) {
-            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()
+                && this.isExpressionLanguageFromRequestNotEvaluated(grouperConfigurationModuleAttribute)) {
+              // a script posted with a screen request (not a save) is never evaluated, see
+              // populateConfigurationValuesFromUi.  do not show its text as the label either
+              theName = Integer.toString(index+1);
+            } else if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
               String theExpression = theName;
               try {
                 theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
@@ -249,7 +259,12 @@ public abstract class GrouperConfigurationModuleBase {
 
           GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetMembershipAttribute." + index + ".name");
           if (grouperConfigurationModuleAttribute != null) {
-            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()
+                && this.isExpressionLanguageFromRequestNotEvaluated(grouperConfigurationModuleAttribute)) {
+              // a script posted with a screen request (not a save) is never evaluated, see
+              // populateConfigurationValuesFromUi.  do not show its text as the label either
+              theName = Integer.toString(index+1);
+            } else if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
               String theExpression = theName;
               try {
                 theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
@@ -649,7 +664,10 @@ public abstract class GrouperConfigurationModuleBase {
         attribute.setExpressionLanguage(true);
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setExpressionLanguageScript(value);
-        if (!StringUtils.isBlank(value)) {
+        // a posted script is evaluated only when the request saves the form (a POST to a ...Submit
+        // operation).  a screen which only shows the form keeps the script as text: those screens
+        // can be driven by a link, and the script runs with static class access
+        if (!StringUtils.isBlank(value) && this.isExpressionLanguageEvaluatedForRequest(attribute, request)) {
           String theExpression = value;
           try {
             attribute.setExpressionLanguageValue(GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguage(theExpression, objectValueSubstituteMap, true, true, true)));
@@ -674,6 +692,70 @@ public abstract class GrouperConfigurationModuleBase {
     }
     
     
+  }
+
+  /**
+   * attributes whose expression language came from a request which did not save the form, so it
+   * was not evaluated.  by identity: a rebuilt attribute (clearAttributeCache) is not in here
+   */
+  private final java.util.Set<GrouperConfigurationModuleAttribute> expressionLanguageFromRequestNotEvaluated =
+      java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<GrouperConfigurationModuleAttribute, Boolean>());
+
+  /**
+   * whether this request saves a configuration form, so expression language posted with it may be
+   * evaluated.  the UI runs the method named by the last segment of the path (Class.method), and
+   * every method which saves a configuration form ends in Submit (addGshTemplateSubmit,
+   * editDaemonSubmit...).  the screens which only show a form (addGshTemplate, editDaemon...) can be
+   * reached from a link, so a script posted with them must not run.  not a POST, no path, or
+   * anything else means no
+   * @param request the request, may be null
+   * @return true if the request is a POST to a ...Submit operation
+   */
+  public static boolean isExpressionLanguageSaveRequest(HttpServletRequest request) {
+    if (request == null || !StringUtils.equalsIgnoreCase("POST", request.getMethod())) {
+      return false;
+    }
+    String uri = request.getRequestURI();
+    if (StringUtils.isBlank(uri)) {
+      return false;
+    }
+    // path parameters (;jsessionid=...) and trailing slashes are not part of the operation
+    int semicolonIndex = uri.indexOf(';');
+    if (semicolonIndex >= 0) {
+      uri = uri.substring(0, semicolonIndex);
+    }
+    while (uri.endsWith("/")) {
+      uri = uri.substring(0, uri.length() - 1);
+    }
+    return uri.endsWith("Submit");
+  }
+
+  /**
+   * whether expression language posted for this attribute is evaluated now.  it is when the request
+   * saves the form; else it is kept as text and the attribute is remembered, so nothing else
+   * (e.g. formatIndexes) evaluates it later in the same screen
+   * @param attribute the attribute whose script was posted
+   * @param request the request
+   * @return true to evaluate the posted script
+   */
+  private boolean isExpressionLanguageEvaluatedForRequest(GrouperConfigurationModuleAttribute attribute,
+      HttpServletRequest request) {
+    if (isExpressionLanguageSaveRequest(request)) {
+      this.expressionLanguageFromRequestNotEvaluated.remove(attribute);
+      return true;
+    }
+    this.expressionLanguageFromRequestNotEvaluated.add(attribute);
+    return false;
+  }
+
+  /**
+   * whether this attribute's expression language was posted with a request which did not save the
+   * form, so it must not be evaluated
+   * @param attribute the attribute
+   * @return true if its script came from such a request
+   */
+  public boolean isExpressionLanguageFromRequestNotEvaluated(GrouperConfigurationModuleAttribute attribute) {
+    return attribute != null && this.expressionLanguageFromRequestNotEvaluated.contains(attribute);
   }
 
   /**

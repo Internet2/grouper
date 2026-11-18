@@ -1,7 +1,7 @@
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20260511_7" type="text/javascript"></script>
+<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20261111_1" type="text/javascript"></script>
 
 
 <div class="lead" id="progressDiv">
@@ -9,7 +9,7 @@
 </div>
 <form class="form-horizontal form-inline" method="get" id="vis-settings-form">
   <input type="hidden" name="operation" id="vis-settings-operation" value="${grouperRequestContainer.visualizationContainer.operation}" />
-  <input type="hidden" name="objectId" id="vis-settings-objectid" value="${grouperRequestContainer.visualizationContainer.objectId}" />
+  <input type="hidden" name="objectId" id="vis-settings-objectid" value="${fn:escapeXml(grouperRequestContainer.visualizationContainer.objectId)}" />
   <input type="hidden" name="objectType" id="vis-settings-objecttype" value="${grouperRequestContainer.visualizationContainer.objectType}" />
   <input type="hidden" name="overrideAbacScript" id="vis-override-abac-script" value="" />
 

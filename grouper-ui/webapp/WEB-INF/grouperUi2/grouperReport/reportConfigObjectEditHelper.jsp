@@ -4,15 +4,15 @@
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigNameId">${textContainer.text['grouperReportConfigNameLabel']}</label></strong></td>
                        <td>
-                         <input type="hidden" name="previousReportConfigName" value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigName}" />
+                         <input type="hidden" name="previousReportConfigName" value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.reportConfigName)}" />
                          <select name="grouperReportConfigName" id="grouperReportConfigNameId" style="width: 30em"
                            onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Edit', {formIds: 'editReportConfigFormId'}); return false;">
                         
                          <option value=""></option>
                          <c:forEach items="${grouperRequestContainer.grouperReportContainer.reportConfigBeans}" var="reportConfigBean">
-                           <option value="${reportConfigBean.reportConfigName}"
+                           <option value="${grouper:escapeHtml(reportConfigBean.reportConfigName)}"
                                ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigName == reportConfigBean.reportConfigName ? 'selected="selected"' : '' }
-                               >${reportConfigBean.reportConfigName}</option>
+                               >${grouper:escapeHtml(reportConfigBean.reportConfigName)}</option>
                          </c:forEach>
                        </select>
                          

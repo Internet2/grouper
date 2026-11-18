@@ -150,7 +150,22 @@ public class ScriptTesterContainer {
     return GrouperTextContainer.textOrNull("jexlScriptExample_"+this.selectedScriptType+"__"+this.selectedExample+"_description");
   }
 
+  /**
+   * Server-side gate for the JEXL script tester page and submit handlers (UiV2ScriptTester calls
+   * this before doing anything).  The tester runs request-supplied GSH/Groovy in the UI JVM, so
+   * the user must be BOTH a Grouper sysadmin (wheel or root) AND a member of the configured
+   * jexlScriptTestingGroup, as the config doc and the error text say.  Group membership alone is
+   * not enough.
+   * @return true if the logged-in user can use the script tester
+   */
   public boolean isCanScriptTester() {
+    
+    // must be wheel or root first: before this check a non-admin member of the tester group could
+    // call the handlers directly (the link check is only presentation) and run arbitrary Groovy
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (loggedInSubject == null || !PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return false;
+    }
     
     String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
     if (StringUtils.isBlank(groupName)) {
@@ -165,8 +180,7 @@ public class ScriptTesterContainer {
         if (group == null) {
           return false;
         }
-        Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-        
+        // and must be a member (direct or indirect) of the configured tester group
         return group.hasMember(loggedInSubject);
         
       }
@@ -174,14 +188,13 @@ public class ScriptTesterContainer {
     
   }
   
+  /**
+   * whether to show the script tester link on the miscellaneous page.  Follows the same rule as
+   * isCanScriptTester() so the link and the server-side gate cannot drift apart
+   * @return true if the link should be shown
+   */
   public boolean isCanScriptTesterLink() {
-    
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    return false;
+    return this.isCanScriptTester();
   }
   
   /**

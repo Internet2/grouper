@@ -471,10 +471,18 @@ public class ConfigurationContainer {
   }
 
   /**
-   * filter to apply
+   * filter to apply, HTML-escaped for display.
+   * Only configure.jsp and history.jsp read this getter: they print it into a double-quoted
+   * HTML value attribute with plain EL (which does not escape), and the value comes straight
+   * from the request, so returning it raw was a reflected XSS.  Escape here (&amp; &lt; &gt;
+   * double and single quote) so every JSP variant across releases is covered without editing
+   * the JSPs.  The field itself stays raw; UiV2Configure matches and queries with its own local
+   * filter variable, never this getter.  The browser un-escapes the attribute, so the input box
+   * (and export, which reads the input box) still sees the raw filter.
+   * @return the HTML-escaped filter, or null
    */
   public String getFilter() {
-    return filter;
+    return edu.internet2.middleware.grouper.util.GrouperUtil.escapeHtml(this.filter, true);
   }
 
   /**

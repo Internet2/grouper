@@ -40,7 +40,9 @@ import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -163,11 +165,55 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
         if (LOG.isDebugEnabled()) {
           LOG.debug("Problem auto removing from " + currentGroup.getName() + ", " + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject()), e);
         }
+        //the veto reason is shown to the caller (UI, WS), so only name the other group if the caller can see it.
+        //the full name stays in the debug log above, which is not user facing
         throw new HookVeto(HOOK_VETO_MEMBERSHIP_ONE_IN_FOLDER_CANT_DELETE_MEMBER, "This folder only allows one membership in any group, "
-            + "but there was a problem removing from " + currentGroup.getName() + ", do you have privileges to remove memberships there?");
+            + "but there was a problem removing from " + groupLabelForVeto(currentGroup) + ", do you have privileges to remove memberships there?");
       }
     }
     
+  }
+
+  /**
+   * phrase used in the veto reason instead of the group name when the calling subject cannot VIEW the group
+   */
+  public static final String GROUP_LABEL_NOT_VIEWABLE = "another group in this folder";
+
+  /**
+   * label for a group in the user-facing veto reason.  The problem groups are found as GrouperSystem,
+   * so they can include groups the caller cannot see; naming those would disclose the group name and
+   * that the subject being added is a member of it.  Returns the group name if the subject of the
+   * current (calling) session can VIEW the group, else a generic phrase.
+   * @param group found as root
+   * @return the group name or GROUP_LABEL_NOT_VIEWABLE
+   */
+  static String groupLabelForVeto(final Group group) {
+    
+    try {
+      GrouperSession callingSession = GrouperSession.staticGrouperSession(false);
+      final Subject callingSubject = callingSession == null ? null : callingSession.getSubject();
+      if (callingSubject == null) {
+        return GROUP_LABEL_NOT_VIEWABLE;
+      }
+      
+      //check the privilege with a root session: the calling session might not be allowed to read
+      //privileges on a group it cannot see.  the privilege checked is the calling subject's, and the
+      //access resolver counts wheel and root as able to view everything
+      Boolean canView = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+          return PrivilegeHelper.canView(rootSession, group, callingSubject);
+        }
+      });
+      
+      if (canView != null && canView) {
+        return group.getName();
+      }
+    } catch (RuntimeException re) {
+      //fail closed: if the check cannot be made, do not name the group
+      LOG.debug("Problem checking VIEW on " + group.getName() + " for the veto message", re);
+    }
+    return GROUP_LABEL_NOT_VIEWABLE;
   }
 
   /**

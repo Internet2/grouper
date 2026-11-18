@@ -67,7 +67,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
       + "  \"replyToQueueOrTopicName\": \"someQueue\","
       + "  \"replyToQueueOrTopic\": \"queue\","
       + "  \"httpMethod\": \"PUT\","
-      + "  \"httpPath\": \"/test123\""
+      + "  \"httpPath\": \"/grouper-ws/servicesRest/json/v2_4_000/groups/test%3AtestGroup/members\""
       + "},"
       + "\"WsRestAddMemberRequest\":{ \"subjectLookups\":[{"
       + "  \"subjectId\":\"test.subject.0\","
@@ -147,11 +147,12 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     assertTrue(replyToSendCalled);
     assertFalse(webServiceCalled);
     
-    ArrayNode arrayNode = GrouperUtil.jsonJacksonGetArrayNode(GrouperUtil.jsonJacksonNode(replyToBody), "errors");
+    // plain Jackson calls: the GrouperUtil array helpers are not in every release (e.g. 2.6.19)
+    ArrayNode arrayNode = (ArrayNode)GrouperUtil.jsonJacksonNode(replyToBody).get("errors");
     
     assertEquals(arrayNode.size(), 2);
-    assertEquals(GrouperUtil.jsonJacksonGetString(arrayNode, 0), "grouperHeader.messageVersion is required.");
-    assertEquals(GrouperUtil.jsonJacksonGetString(arrayNode, 1), "grouperHeader.httpPath is required.");
+    assertEquals(arrayNode.get(0).asText(), "grouperHeader.messageVersion is required.");
+    assertEquals(arrayNode.get(1).asText(), "grouperHeader.httpPath is required.");
     
   }
   

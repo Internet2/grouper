@@ -2324,21 +2324,54 @@ public class SubjectFinder implements CheckboxValueDriver {
       return subjectMap;
     }
     
+    // security (issue 95): apply requireGroupNameForView attribute filtering like the Set overload
+    // does.  The bulk lookups (findByIds, findByIdentifiers, findByIdsOrIdentifiers) return through
+    // here before the caller-scoped subject cache stores them, so without this they returned and
+    // cached unfiltered subjects
+    Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+    for (Subject subject : subjectMap.values()) {
+      if (subject != null) {
+        subjectSet.add(subject);
+      }
+    }
+    filterSubjectAttributesBasedOnGroup(subjectSet);
+
     SubjectCustomizer subjectCustomizer = subjectCustomizer();
     if (subjectCustomizer != null) {
-      
-      Set<Subject> subjectSet = new LinkedHashSet<Subject>(subjectMap.values());
-      
+
       subjectSet = subjectCustomizer.filterSubjects(grouperSession, subjectSet, filterSubjectsInStemName);
-      
-      //make a new map
-      subjectMap = new LinkedHashMap<String, Subject>();
-      
-      for (Subject subject : subjectSet) {
-        subjectMap.put(subject.getId(), subject);
+
+      // index what the customizer kept by source id and subject id (it may return other instances)
+      Map<MultiKey, Subject> keptSubjects = new LinkedHashMap<MultiKey, Subject>();
+      for (Subject subject : GrouperUtil.nonNull(subjectSet)) {
+        keptSubjects.put(new MultiKey(subject.getSourceId(), subject.getId()), subject);
       }
-      
-    }    
+
+      // make a new map with the ORIGINAL keys: identifier-keyed maps (findByIdentifiers,
+      // findByIdsOrIdentifiers) must stay keyed by what the caller asked for
+      Map<String, Subject> filteredSubjectMap = new LinkedHashMap<String, Subject>();
+      Set<MultiKey> usedKeys = new HashSet<MultiKey>();
+      for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
+        Subject original = entry.getValue();
+        if (original == null) {
+          continue;
+        }
+        MultiKey key = new MultiKey(original.getSourceId(), original.getId());
+        Subject kept = keptSubjects.get(key);
+        if (kept != null) {
+          filteredSubjectMap.put(entry.getKey(), kept);
+          usedKeys.add(key);
+        }
+      }
+      // a subject the customizer returned that matched no original entry: key by id, as before
+      for (Map.Entry<MultiKey, Subject> entry : keptSubjects.entrySet()) {
+        if (!usedKeys.contains(entry.getKey())) {
+          filteredSubjectMap.put(entry.getValue().getId(), entry.getValue());
+        }
+      }
+      subjectMap = filteredSubjectMap;
+
+    }
     return subjectMap;
   }
   

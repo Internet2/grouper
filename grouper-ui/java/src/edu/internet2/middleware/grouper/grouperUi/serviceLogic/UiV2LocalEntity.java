@@ -1474,9 +1474,13 @@ public class UiV2LocalEntity {
       
       if (grouperPassword != null) {
         
-        GrouperDAOFactory.getFactory().getGrouperPasswordRecentlyUsed().deleteGrouperPasswordRecentlyUsedEntries(grouperPassword.getId());
-        
-        GrouperDAOFactory.getFactory().getGrouperPassword().delete(grouperPassword);
+        // GRP security fix: delete through GrouperPasswordSave (not the DAO) so the delete gets the
+        // local entity access check and an audit entry.  It also removes the recently used rows.
+        new GrouperPasswordSave()
+          .assignUuid(grouperPassword.getId())
+          .assignMemberId(memberIdOfLocalEntity)
+          .assignSaveMode(SaveMode.DELETE)
+          .save();
       } else {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("localEntityWsJwtDeleteKeyNotFoundError")));

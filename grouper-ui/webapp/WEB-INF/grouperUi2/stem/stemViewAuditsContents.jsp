@@ -43,16 +43,16 @@
                       <tr>
                         <td>${guiAuditEntry.guiDate}</td>
                         <td style="white-space: nowrap">${guiAuditEntry.guiSubjectPerformedAction.shortLinkWithIcon}</td>
-                        <td>${guiAuditEntry.grouperEngineLabel}</td>
+                        <td>${grouper:escapeHtml(guiAuditEntry.grouperEngineLabel)}</td>
                         <td>${guiAuditEntry.auditLine }</td>
                         <c:if test="${grouperRequestContainer.stemContainer.auditExtendedResults }" >
                           <td>${guiAuditEntry.durationLabel }</td>
-                          <td>${auditEntry.queryCount}</td>
-                          <td>${auditEntry.serverUserName }</td>
-                          <td>${auditEntry.serverHost }</td>
-                          <td>${auditEntry.userIpAddress }</td>
-                          <td>${auditEntry.id }</td>
-                          <td>${auditEntry.description }</td>
+                          <td>${grouper:escapeHtml(auditEntry.queryCount)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.serverUserName)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.serverHost)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.userIpAddress)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.id)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.description)}</td>
                         </c:if>
                       </tr>
                     </c:forEach>

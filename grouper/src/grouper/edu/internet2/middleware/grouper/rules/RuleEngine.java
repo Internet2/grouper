@@ -368,6 +368,15 @@ public class RuleEngine {
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
+      // SECURITY (back port of GRP-7283, 7.6.0): invalid rules are kept in the rule definitions so
+      // the UI can list them and they can be fixed, but they must not be indexed, since the index
+      // is what makes rules fire.  Since 5.8.0 the rule DAO no longer drops rules whose ruleValid
+      // is not T, so without this a rule that failed validation (e.g. an act-as the author is not
+      // allowed to use) would still fire as its act-as subject
+      if (!ruleDefinition.isValidInAttributes()) {
+        continue;
+      }
+      
       RuleCheck originalRuleCheck = ruleDefinition.getCheck();
       if (originalRuleCheck == null || StringUtil.isBlank(originalRuleCheck.getCheckType())) {
         continue;
@@ -545,8 +554,12 @@ public class RuleEngine {
         RuleSubjectActAs actAs = ruleDefinition.getActAs();
         Subject actAsSubject = actAs.subject(false);
         if (actAsSubject == null) {
-          LOG.error("Cant find subject for rule: " + ruleDefinition);
-          actAsSubject = SubjectFinder.findRootSubject();
+          // SECURITY: do not fall back to GrouperSystem.  The rule was validated (and is only
+          // allowed to run) as its act-as subject; if that subject cannot be resolved now (deleted,
+          // or its source is down), running the rule as GrouperSystem would give its then / if EL
+          // full privileges.  Skip it; the rules daemon marks it invalid at its next run
+          LOG.error("Cant find act as subject for rule, not firing it: " + ruleDefinition);
+          continue;
         }
         //lets get the currect subject and put it in the bean...
         GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);

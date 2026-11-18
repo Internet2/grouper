@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -33,6 +32,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RulePattern;
+import edu.internet2.middleware.grouper.rules.RuleUiRestrictGroup;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -790,27 +790,16 @@ public class GuiRuleDefinition implements Serializable, Comparable {
       return true;
     }
     
-    Boolean subjectInCache = rulesEditors.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
-    if (subjectInCache != null) {
-      if (subjectInCache == false) {
-        return false;
-      }
-    } else {
-      String restrictRulesGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesUiToMembersOfThisGroupName", "");
-      if (StringUtils.isNotBlank(restrictRulesGroupName)) {
-        Group restrictRulesGroup = GroupFinder.findByName(restrictRulesGroupName, false);
-        if (restrictRulesGroup != null) {
-          if (restrictRulesGroup.hasMember(loggedInSubject)) {
-            rulesEditors.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
-          } else {
-            rulesEditors.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
-            return false;
-          }
-          
-        } else {
-          LOG.warn("rules.restrictRulesUiToMembersOfThisGroupName is set to '"+restrictRulesGroupName+"' and it does not exist.");
-        }
-      }
+    // SECURITY: rules.restrictRulesUiToMembersOfThisGroupName gate.  RuleUiRestrictGroup resolves the
+    // restrict group as root and fails closed; the answer is cached per subject for a few minutes
+    MultiKey rulesEditorsCacheKey = new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId());
+    Boolean allowedToEditRulesInUi = rulesEditors.get(rulesEditorsCacheKey);
+    if (allowedToEditRulesInUi == null) {
+      allowedToEditRulesInUi = RuleUiRestrictGroup.allowedToEditRulesInUi(loggedInSubject);
+      rulesEditors.put(rulesEditorsCacheKey, allowedToEditRulesInUi);
+    }
+    if (!allowedToEditRulesInUi) {
+      return false;
     }
     
     //TODO call this method from UiV2Stem and UiV2Group on editRuleOnStem, addRuleOnStemSubmit, deleteRuleOnStem

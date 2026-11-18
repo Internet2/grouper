@@ -145,6 +145,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
+import edu.internet2.middleware.grouper.hooks.examples.IncludeExcludeRenameAuthorization;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -2039,6 +2040,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + this.extension
       + ", group dExtension: " + this.displayExtension + ", uuid: " + this.uuid + ", ";
 
+    // SECURITY: check ADMIN before the reference check below, so a caller who cannot delete this
+    // group is not told which scripted groups and privacy realms reference it
+    GroupDeleteReferenceCheck.assertCanAdminBeforeReferenceCheck(this, errorMessageSuffix);
+
     // check if this group is referenced by any scripted groups
     List<String> referencingConfigs = new ArrayList<>();
 
@@ -2050,9 +2055,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     List<String> dependentGroupNames = new GcDbAccess()
         .sql("select distinct depen_group_name from grouper_sql_dependency_group_v where owner_group_name = ? and depen_group_name is not null")
         .addBindVar(this.name).selectList(String.class);
-    for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
-      referencingConfigs.add("scripted group '" + groupName + "'");
-    }
+    // SECURITY: name only the dependent groups the caller can VIEW, count the rest
+    GroupDeleteReferenceCheck.addDependentGroupReferences(referencingConfigs, dependentGroupNames);
 
     // check if this group is referenced by any privacy realm configs
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
@@ -8565,6 +8569,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, overallGroup);
         GrouperDAOFactory.getFactory().getGroup().update(overallGroup);
       } 
       
@@ -8608,6 +8614,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
         
       if(changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, systemOfRecordGroup);
         GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordGroup);
       }
       
@@ -8649,6 +8657,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, includeGroup);
         GrouperDAOFactory.getFactory().getGroup().update(includeGroup);
       }
       
@@ -8690,6 +8700,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, excludeGroup);
         GrouperDAOFactory.getFactory().getGroup().update(excludeGroup);
       }
       
@@ -8731,6 +8743,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       }
       
       if (changed) {
+        // caller must be ADMIN on this related group too, not only on the group being stored
+        IncludeExcludeRenameAuthorization.assertCanRenameRelatedGroup(this, systemOfRecordAndIncludes);
         GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordAndIncludes);
       }
       

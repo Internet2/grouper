@@ -6,12 +6,12 @@
     <form id="simpleAttributeAssignValueEditForm" name="simpleAttributeAssignValueEditFormName" class="form-horizontal" action="javascript:void(0);">
     
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignType == 'imm_mem'}">
-        <input name="subjectId" id="subjectId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMembership.member.subjectId}" />
+        <input name="subjectId" id="subjectId" type="hidden" value="${grouper:escapeHtml(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMembership.member.subjectId)}" />
         <input name="groupId" id="groupId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMembership.ownerGroup.id}" />
       </c:if>
       
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignType == 'any_mem'}">
-        <input name="subjectId" id="subjectId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}" />
+        <input name="subjectId" id="subjectId" type="hidden" value="${grouper:escapeHtml(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}" />
         <input name="groupId" id="groupId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerGroup.id}" />
       </c:if>
             

@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperProxyBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import net.minidev.json.JSONObject;
 
 public class GrouperOidc {
@@ -395,7 +396,8 @@ public class GrouperOidc {
       this.accessToken = accessTokenObject.getValue();
       this.accessTokenObject = accessTokenObject;
 
-      this.debugMap.put("accessToken", StringUtils.abbreviate(this.accessToken, 8));
+      // log a one-way fingerprint, not a literal prefix of the token
+      this.debugMap.put("accessToken", GrouperTokenLogFingerprint.fingerprint(this.accessToken));
 
     } catch (RuntimeException re) {
       throw re;
@@ -546,6 +548,12 @@ public class GrouperOidc {
     if (this.ws && !grouperOidcConfig.isWs()) {
       throw new RuntimeException(matcher.group(1) + " is not enabled for ws in the external system.");
     }
+
+    // SECURITY (issue 06): a disabled OIDC config must not authenticate anyone.  Without this a
+    // WS "Bearer oidc_<configId>_<code>" header still exchanged the code with a config an admin turned off
+    if (!grouperOidcConfig.isEnabled()) {
+      throw new RuntimeException(matcher.group(1) + " is not enabled in the external system.");
+    }
 //    debugMap.put("configId", externalSystemConfigId);
     
     this.oidcCodeString = matcher.group(uriPattern ? 3 : 2);
@@ -678,7 +686,8 @@ public class GrouperOidc {
               if (StringUtils.isBlank(subjectSourceId)) {
                 subject = SubjectFinder.findById(subjectId, false);
               } else {
-                subject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
+                // the selected sources can be a comma separated list (subjectSourceIds), look in each one
+                subject = findSubjectInSelectedSources(subjectId, subjectSourceId, "subjectId");
               }
             }
             
@@ -703,7 +712,8 @@ public class GrouperOidc {
               if (StringUtils.isBlank(subjectSourceId)) {
                 subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
               } else {
-                subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, subjectSourceId, false);
+                // the selected sources can be a comma separated list (subjectSourceIds), look in each one
+                subject = findSubjectInSelectedSources(subjectIdentifier, subjectSourceId, "subjectIdentifier");
               }
             }
             
@@ -729,7 +739,8 @@ public class GrouperOidc {
               if (StringUtils.isBlank(subjectSourceId)) {
                 subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
               } else {
-                subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, subjectSourceId, false);
+                // the selected sources can be a comma separated list (subjectSourceIds), look in each one
+                subject = findSubjectInSelectedSources(subjectIdOrIdentifier, subjectSourceId, "subjectIdOrIdentifier");
               }
             }
           }
@@ -743,6 +754,51 @@ public class GrouperOidc {
     
     return this.subject;
     
+  }
+
+  /**
+   * Find the subject for a claim value only in the subject sources selected for this connector.
+   * The config screen saves grouper.oidcExternalSystem.(id).subjectSourceIds as a comma separated
+   * list (GrouperOidcConfig.getSubjectSourceId() returns it), but SubjectFinder takes one source
+   * id, so look in each selected source on its own (as GrouperUiOidcSubjectResolver does for the
+   * UI).  This never falls back to all sources: a value that is not in a selected source is not
+   * found.  A value that matches subjects in more than one selected source is ambiguous and is
+   * refused instead of picking one of them.
+   * @param claimValue the subject id and/or identifier from the claim
+   * @param subjectSourceIds one or more source ids, comma separated, not blank
+   * @param findBy subjectId, subjectIdentifier or subjectIdOrIdentifier (which lookup to do)
+   * @return the subject or null if not found in any of the selected sources
+   * @throws SubjectNotUniqueException if found in more than one of the selected sources
+   */
+  private static Subject findSubjectInSelectedSources(String claimValue, String subjectSourceIds, String findBy) {
+    Subject result = null;
+    for (String sourceId : GrouperUtil.splitTrim(subjectSourceIds, ",")) {
+      // skip empty entries, e.g. from "a,,b" or a trailing comma
+      if (StringUtils.isBlank(sourceId)) {
+        continue;
+      }
+      Subject current = null;
+      if (StringUtils.equals(findBy, "subjectId")) {
+        current = SubjectFinder.findByIdAndSource(claimValue, sourceId, false);
+      } else if (StringUtils.equals(findBy, "subjectIdentifier")) {
+        current = SubjectFinder.findByIdentifierAndSource(claimValue, sourceId, false);
+      } else if (StringUtils.equals(findBy, "subjectIdOrIdentifier")) {
+        current = SubjectFinder.findByIdOrIdentifierAndSource(claimValue, sourceId, false);
+      } else {
+        throw new RuntimeException("Unexpected findBy: '" + findBy + "'");
+      }
+      if (current == null) {
+        continue;
+      }
+      // a match in a second source is a different subject: do not guess which one logged in
+      if (result != null && !(StringUtils.equals(result.getSourceId(), current.getSourceId())
+          && StringUtils.equals(result.getId(), current.getId()))) {
+        throw new SubjectNotUniqueException("OIDC claim value matches subjects in more than one selected subject source: '"
+            + claimValue + "', sources: " + subjectSourceIds);
+      }
+      result = current;
+    }
+    return result;
   }
 
   public GrouperOidc assignAuthorizationCode(String authorizationCode) {

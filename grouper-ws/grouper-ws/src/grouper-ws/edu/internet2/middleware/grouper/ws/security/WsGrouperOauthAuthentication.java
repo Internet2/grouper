@@ -15,11 +15,14 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.authentication.GrouperOidc;
+import edu.internet2.middleware.grouper.authentication.GrouperOidcConfig;
+import edu.internet2.middleware.grouper.authentication.GrouperTokenLogFingerprint;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.security.WsOauthAccessTokenPolicy.WsOauthAccessTokenRefusedException;
 import edu.internet2.middleware.subject.Subject;
 
 public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
@@ -33,7 +36,7 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
     GrouperSession.startRootSession();
     
     // get employee number from access token
-    String accessToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgO"; 
+    String accessToken = args.length > 0 ? args[0] : null;
     // create a grouperOidc object
     GrouperOidc grouperOidc = new GrouperOidc();
     // set the access token
@@ -65,6 +68,21 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(WsGrouperOauthAuthentication.class);
 
+  /** only warn once per JVM that ws.security.authn.oauth.debugAccessTokens is ignored */
+  private static boolean warnedDebugAccessTokensIgnored = false;
+
+  /**
+   * ws.security.authn.oauth.debugAccessTokens used to log the whole bearer token.  It is kept so
+   * existing configs still load, but it is ignored: say so once
+   */
+  private static void warnDebugAccessTokensIgnored() {
+    if (!warnedDebugAccessTokensIgnored) {
+      warnedDebugAccessTokensIgnored = true;
+      LOG.warn("ws.security.authn.oauth.debugAccessTokens is deprecated and ignored: bearer tokens are never logged, "
+          + "only a SHA-256 fingerprint");
+    }
+  }
+
   @Override
   public String retrieveLoggedInSubjectId(HttpServletRequest httpServletRequest)
       throws WsInvalidQueryException {
@@ -89,7 +107,7 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
         //get the url strings
         List<String> urlStrings = extractUrlStrings(httpServletRequest);
         // get version
-        String version = urlStrings.get(0);
+        String version = urlStrings.size() > 0 ? urlStrings.get(0) : null;
         
         debugMap.put("urlVersion", version);
         
@@ -114,28 +132,53 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
         String accessToken = null;
         if (StringUtils.isNotBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
           accessToken = authorizationHeader.substring("Bearer ".length());
+          // SECURITY: never log the bearer token or any literal piece of it (a log reader could replay it),
+          // only a one-way fingerprint.  This also no longer throws for a token under 10 chars
+          debugMap.put("accessToken", GrouperTokenLogFingerprint.fingerprint(accessToken));
           if (grouperWsConfig.propertyValueBoolean("ws.security.authn.oauth.debugAccessTokens", false)) {
-            debugMap.put("accessToken", accessToken);
-          } else {
-            debugMap.put("accessToken", accessToken.substring(0, 10) + "**********");
+            warnDebugAccessTokensIgnored();
           }
-          GrouperOidc grouperOidc = new GrouperOidc().assignExternalSystemConfigId(grouperOauthConfigId);
-          
-          grouperOidc.setAccessToken(accessToken);
-          
-          AccessToken accessTokenObject = new BearerAccessToken(accessToken);
 
-          grouperOidc.setAccessTokenObject(accessTokenObject);
-          
-          grouperOidc.decodeAccessToken();
-          
+          GrouperOidc grouperOidc = null;
+          try {
+            // SECURITY: the config id comes from the caller (request parameter or URL version), so before
+            // the token goes anywhere the config must be enabled, have useForWs=true, and use the
+            // userinfo endpoint.  Then the token itself must have been issued for Grouper WS (aud and/or
+            // client id, per wsAccessTokenValidation), since userinfo accepts tokens issued to any client
+            GrouperOidcConfig grouperOidcConfig = WsOauthAccessTokenPolicy.retrieveConfigAllowedForWs(grouperOauthConfigId);
+            String tokenSubject = WsOauthAccessTokenPolicy.assertAccessTokenForWs(grouperOidcConfig, accessToken);
+
+            grouperOidc = new GrouperOidc().assignExternalSystemConfigId(grouperOauthConfigId);
+
+            grouperOidc.setAccessToken(accessToken);
+
+            AccessToken accessTokenObject = new BearerAccessToken(accessToken);
+
+            grouperOidc.setAccessTokenObject(accessTokenObject);
+
+            grouperOidc.decodeAccessToken();
+
+            // the userinfo claims must be about the user the token is for
+            WsOauthAccessTokenPolicy.assertUserInfoSubjectMatches(grouperOidcConfig, tokenSubject, grouperOidc.getClaimSourceAttributes());
+
+          } catch (WsOauthAccessTokenRefusedException woatre) {
+            // generic 401 to the caller, the reason only goes to the server log.  Do not run the
+            // fallback class: the caller presented an OAuth token that is not allowed here
+            debugMap.put("refused", woatre.getMessage());
+            LOG.warn("WS OAuth authentication refused: " + woatre.getMessage());
+            return null;
+          }
+
           Subject subject = grouperOidc.findSubject();
   
           if (subject == null) {
             debugMap.put("subject", "null");
           } else {
             debugMap.put("subject", GrouperUtil.subjectToString(subject));
-            return subject.getId();
+            // SECURITY: return sourceId::::subjectId, like the other bearer flows, so the logged in
+            // subject is the one the token resolved to.  A bare id is re-resolved later in the default
+            // WS source or in any source, which can pick a different subject with the same id
+            return subject.getSourceId() + GrouperWsConfig.WS_SEPARATOR + subject.getId();
           }
         }
       }

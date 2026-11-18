@@ -25,9 +25,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -137,54 +140,89 @@ public class UserLifecycleService {
     return result;
   }
   
+  /**
+   * Decide whether a subject may save this policy config id on this group. The caller (the group
+   * edit screen) has already checked that the subject is ADMIN on the group.
+   * <ul>
+   *   <li>null means the form did not submit the field: no change, allowed</li>
+   *   <li>blank means remove the policy: allowed for any group ADMIN, even for a restricted policy
+   *   (an ADMIN can delete the group anyway, so blocking removal would protect nothing); the
+   *   removal is audited</li>
+   *   <li>the policy already on the group: no change, allowed (the edit screen shows an assigned
+   *   policy the user cannot use as a read-only choice, and resubmits it)</li>
+   *   <li>any other policy (assign or replace): the subject must be allowed to use the NEW policy
+   *   (wheel or root, public policy, or member of the policy's group)</li>
+   * </ul>
+   * @param group the group
+   * @param policyConfigId submitted policy config id, null for no change, blank to remove
+   * @param subject the real (logged in) subject making the change
+   * @return true if allowed
+   */
+  public static boolean subjectCanSavePolicyConfigOnGroup(Group group, String policyConfigId, Subject subject) {
+    
+    // field not submitted: nothing will change
+    if (policyConfigId == null) {
+      return true;
+    }
+    
+    // removal is allowed for any group admin (audited in savePolicyConfigOnGroup)
+    if (StringUtils.isBlank(policyConfigId)) {
+      return true;
+    }
+    
+    // keeping the policy that is already assigned is not a change
+    String existingPolicyConfigId = retrieveExistingPolicyConfigId(group);
+    if (StringUtils.equals(existingPolicyConfigId, policyConfigId)) {
+      return true;
+    }
+    
+    // assigning or replacing: the subject must be able to use the new policy
+    for (UserLifecyclePolicyConfiguration userLifecyclePolicyConfiguration: retrieveUserLifecyclePolicies(subject)) {
+      if (StringUtils.equals(userLifecyclePolicyConfiguration.getConfigId(), policyConfigId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * Assign, replace or remove the user lifecycle policy on a group, as root, after checking
+   * subjectCanSavePolicyConfigOnGroup. Each change writes an audit entry naming the real subject.
+   * @param group the group
+   * @param policyConfigId policy config id to assign; blank removes the policy; null means no change
+   * (a form that did not submit the field must not remove the policy)
+   * @param subject the real (logged in) subject making the change
+   * @return true if a change was made
+   */
   public static boolean savePolicyConfigOnGroup(Group group, String policyConfigId, Subject subject) {
+    
+    // a missing form field is not a removal request
+    if (policyConfigId == null) {
+      return false;
+    }
     
     boolean[] madeChange = {false};
     
-    List<UserLifecyclePolicyConfiguration> userLifecyclePolicies = retrieveUserLifecyclePolicies(subject);
-    Set<String> totalPolicyConfigIdsSubjectCanAccess = new HashSet<String>();
-    for (UserLifecyclePolicyConfiguration userLifecyclePolicyConfiguration: userLifecyclePolicies) {
-      totalPolicyConfigIdsSubjectCanAccess.add(userLifecyclePolicyConfiguration.getConfigId());
-    }
-    
-//    String existingPolicyConfigId = retrieveExistingPolicyConfigId(group);
-    boolean subjectAllowedToConfigurePolicy = false;
-    
-    if (StringUtils.isBlank(policyConfigId) || totalPolicyConfigIdsSubjectCanAccess.contains(policyConfigId)) {
-      subjectAllowedToConfigurePolicy = true;
-    }
-    
-    // if user is adding a policy for the first time on the group, then check if the new policy can be accessed by the user
-//    if (StringUtils.isBlank(existingPolicyConfigId)) {
-//      
-//      if (totalPolicyConfigIdsSubjectCanAccess.contains(policyConfigId)) {
-//        subjectAllowedToConfigurePolicy = true;
-//      }
-//    } else {
-//      // if user is modifying an existing policy, then check both the existing policy and new policy can be accessed by the user
-//      if (totalPolicyConfigIdsSubjectCanAccess.contains(existingPolicyConfigId) && (StringUtils.isBlank(policyConfigId)) 
-//          || totalPolicyConfigIdsSubjectCanAccess.contains(existingPolicyConfigId)) {
-//        subjectAllowedToConfigurePolicy = true;
-//      }
-//    }
-    
-    if (!subjectAllowedToConfigurePolicy) {
+    if (!subjectCanSavePolicyConfigOnGroup(group, policyConfigId, subject)) {
       throw new RuntimeException("Subject "+subject.getId()+ " not allowed to save user lifecycle policy!!");
     }
     
-    //TODO: add audits, type: attribute assign. ideally a new one - assign policy, remove policy
+    final String existingPolicyConfigId = retrieveExistingPolicyConfigId(group);
+    final String[] attributeAssignId = {null};
+    
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       @Override
       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
         
-//        Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().retrieveAssignments(UserLifecycleAttributeNames.retrieveAttributeDefNameMarker());
-        
         AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", UserLifecycleAttributeNames.retrieveAttributeDefNameMarker(), false, false);
         
-//        AttributeAssign attributeAssign = UserLifecycleAttributeNames.getAttributeAssignMatchingPolicyConfigId(attributeAssigns, policyConfigId);
         if (attributeAssign == null && StringUtils.isNotBlank(policyConfigId)) {
           // we only want to add the assignment if the policy we're going to add is not blank. blank actually means remove it if it already exists
           attributeAssign = group.getAttributeDelegate().assignAttribute(UserLifecycleAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+        }
+        
+        if (attributeAssign != null) {
+          attributeAssignId[0] = attributeAssign.getId();
         }
         
         if (StringUtils.isBlank(policyConfigId) && attributeAssign != null) {
@@ -203,6 +241,10 @@ public class UserLifecycleService {
           attributeAssign.saveOrUpdate();
           madeChange[0] = true;
         }
+        
+        if (madeChange[0]) {
+          auditPolicyChange(theGrouperSession, group, attributeAssignId[0], existingPolicyConfigId, policyConfigId, subject);
+        }
         return null;
         
       };
@@ -210,6 +252,63 @@ public class UserLifecycleService {
     
     return madeChange[0];
     
+  }
+  
+  /**
+   * Write one audit entry for a policy assign, replace or remove. The attribute assignment audits
+   * that the change itself writes run in a root session and do not say which policy, and from GSH
+   * they do not name the real subject, so this entry does both.
+   * @param rootSession root session
+   * @param group the group
+   * @param attributeAssignId the marker assignment id
+   * @param oldPolicyConfigId policy before, blank for none
+   * @param newPolicyConfigId policy after, blank for none
+   * @param subject the real subject making the change
+   */
+  private static void auditPolicyChange(GrouperSession rootSession, Group group, String attributeAssignId,
+      String oldPolicyConfigId, String newPolicyConfigId, Subject subject) {
+    
+    // reuse the attribute-assign-on-group audit types, so no new audit type is needed
+    AuditTypeBuiltin auditTypeBuiltin = null;
+    String description = null;
+    if (StringUtils.isBlank(newPolicyConfigId)) {
+      auditTypeBuiltin = AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_DELETE;
+      description = "Removed user lifecycle policy '" + StringUtils.defaultString(oldPolicyConfigId) + "'";
+    } else if (StringUtils.isBlank(oldPolicyConfigId)) {
+      auditTypeBuiltin = AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_ADD;
+      description = "Assigned user lifecycle policy '" + newPolicyConfigId + "'";
+    } else {
+      auditTypeBuiltin = AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE;
+      description = "Changed user lifecycle policy from '" + oldPolicyConfigId + "' to '" + newPolicyConfigId + "'";
+    }
+    
+    AttributeDefName markerAttributeDefName = UserLifecycleAttributeNames.retrieveAttributeDefNameMarker();
+    
+    AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, 
+        "id", attributeAssignId,
+        "ownerGroupName", group.getName(),
+        "ownerGroupId", group.getId(),
+        "attributeDefNameName", markerAttributeDefName.getName(),
+        "attributeDefNameId", markerAttributeDefName.getId(),
+        "action", "assign",
+        "attributeDefId", markerAttributeDefName.getAttributeDefId());
+    auditEntry.setDescription(description);
+    
+    // context fields (logged in member from the UI, ip address, etc)
+    GrouperContext.assignAuditEntryFields(auditEntry);
+    
+    // the change runs as root, so make sure the real subject is the actor: logged in member if the
+    // context has none (e.g. GSH), else act-as if the context names someone else
+    Member member = subject == null ? null : MemberFinder.findBySubject(rootSession, subject, true);
+    if (member != null) {
+      if (StringUtils.isBlank(auditEntry.getLoggedInMemberId())) {
+        auditEntry.setLoggedInMemberId(member.getId());
+      } else if (!StringUtils.equals(auditEntry.getLoggedInMemberId(), member.getId())) {
+        auditEntry.setActAsMemberId(member.getId());
+      }
+    }
+    
+    auditEntry.saveOrUpdate(false);
   }
   
   public static String retrieveExistingPolicyConfigId(Group group) {

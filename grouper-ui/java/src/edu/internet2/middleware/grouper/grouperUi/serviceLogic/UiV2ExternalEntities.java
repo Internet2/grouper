@@ -135,6 +135,16 @@ public class UiV2ExternalEntities {
                 return null;
               }
 
+              // authorize the whole request before anything is stored or anything runs as root.
+              // inviteSetupExtraGroups only checks the groups that were sent (and drops ones that fail),
+              // so a request with no groups would otherwise reach the root invite with nothing checked
+              String denyTextKey = ExternalInviteSubmitAuthorization.denyTextKey(allGroups);
+              if (denyTextKey != null) {
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                    TextContainer.retrieveFromRequest().getText().get(denyTextKey)));
+                return null;
+              }
+
               // email or id
               String inviteBy = StringUtils.trimToNull(request.getParameter("inviteBy"));
 

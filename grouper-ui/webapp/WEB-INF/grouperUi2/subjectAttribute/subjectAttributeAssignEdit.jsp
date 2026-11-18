@@ -5,7 +5,7 @@
     
     <form id="simpleAttributeAssignEditForm" name="simpleAttributeAssignEditFormName" class="form-horizontal">
       
-      <input name="subjectId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}" />
+      <input name="subjectId" type="hidden" value="${grouper:escapeHtml(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}" />
       <c:if test="${attributeUpdateRequestContainer.guiAttributeAssignAssign != null}">
         <input name="attributeAssignId" type="hidden" value="${attributeUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.id }" />
       </c:if>
@@ -76,7 +76,7 @@
       
       <div class="form-actions">
         <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignEditSubmit', {formIds: 'simpleAttributeAssignEditForm'}); return false;">${textContainer.text['simpleAttributeAssign.assignEditSubmitButton'] }</a>
-        <a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=${attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId}');"
+        <a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.viewAttributeAssignments&subjectId=${grouper:escapeUrl(attributeUpdateRequestContainer.guiAttributeAssign.attributeAssign.ownerMember.subjectId)}');"
                            class="btn">${textContainer.text['simpleAttributeAssign.assignEditCancelButton']}</a> 
       </div>
       

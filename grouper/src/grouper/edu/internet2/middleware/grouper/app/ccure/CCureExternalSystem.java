@@ -26,7 +26,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,12 +93,38 @@ public class CCureExternalSystem extends GrouperExternalSystem {
     return sessionId;
   }
 
+  /**
+   * header names whose values are credentials (the CCure session id) and must not be logged.
+   * Response header names are matched exactly in older releases, so list the usual casings
+   */
+  private static final String[] SESSION_ID_HEADERS = new String[] {"session-id", "Session-Id", "Session-ID", "SESSION-ID"};
+
+  /**
+   * do not log the session id headers, and if the url has the token, do not log the url either.
+   * Merged into the existing do not log headers since assignDoNotLogHeaders replaces them
+   * @param grouperHttpClient
+   * @param hideUrl true to not log the url (it has the access token as a parameter)
+   */
+  private static void assignDoNotLogCredentials(GrouperHttpClient grouperHttpClient, boolean hideUrl) {
+    Set<String> doNotLogHeaders = new HashSet<String>(GrouperUtil.nonNull(grouperHttpClient.getDoNotLogHeaders()));
+    for (String sessionIdHeader : SESSION_ID_HEADERS) {
+      doNotLogHeaders.add(sessionIdHeader);
+    }
+    if (hideUrl) {
+      // GrouperHttpClient logs the url with the url parameters, i.e. with ?token=...
+      doNotLogHeaders.add("URL");
+    }
+    grouperHttpClient.assignDoNotLogHeaders(doNotLogHeaders);
+  }
+
   public void attachAuthenticationToHttpClient(GrouperHttpClient grouperHttpClient) {
     grouperHttpClient.addHeader("Access-Control-Expose-Headers", "session-id");
     grouperHttpClient.addHeader("session-id", sessionId);
     if (!GrouperUtil.isBlank(accessToken)) {
       grouperHttpClient.addUrlParameter("token", accessToken);
     }
+    // the session id header and the token in the url are credentials, keep them out of the logs
+    assignDoNotLogCredentials(grouperHttpClient, true);
   }
 
   // todo move class and make protected
@@ -124,6 +152,11 @@ public class CCureExternalSystem extends GrouperExternalSystem {
     grouperHttpClient.assignProxyType(proxyType);
 
     grouperHttpClient.assignDoNotLogParameters("Password");
+
+    // the response body is the access token and the session-id response header is the session,
+    // both are credentials, keep them out of the http debug log and the command log
+    grouperHttpClient.assignDoNotLogResponseBody(true);
+    assignDoNotLogCredentials(grouperHttpClient, false);
 
     grouperHttpClient.executeRequest();
     int code = grouperHttpClient.getResponseCode();

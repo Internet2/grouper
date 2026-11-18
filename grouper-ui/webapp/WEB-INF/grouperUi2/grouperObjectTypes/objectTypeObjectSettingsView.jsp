@@ -7,7 +7,7 @@
 	                        value="${guiGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue}" />
                       
                       <h4>
-                        ${textContainer.text['objectTypeHasTypeLabel'] }: ${grouperObjectTypesAttributeValue.objectTypeName }
+                        ${textContainer.text['objectTypeHasTypeLabel'] }: ${grouper:escapeHtml(grouperObjectTypesAttributeValue.objectTypeName)}
                         
                         <c:if test="${grouperObjectTypesAttributeValue.directAssignment}">
 	                        <c:choose>
@@ -88,7 +88,7 @@
 	                            <tr>
 	                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['objectTypeDataOwnerLabel'] }</strong></td>
 	                              <td>
-	                                ${grouperObjectTypesAttributeValue.objectTypeDataOwner}
+	                                ${grouper:escapeHtml(grouperObjectTypesAttributeValue.objectTypeDataOwner)}
 	                                <br />
 	                                <span class="description">${textContainer.text['objectTypeDataOwnerHint']}</span>
 	                              </td>
@@ -99,7 +99,7 @@
                               <tr>
 	                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['objectTypeMemberDescriptionLabel'] }</strong></td>
 	                              <td>
-	                                ${grouperObjectTypesAttributeValue.objectTypeMemberDescription}
+	                                ${grouper:escapeHtml(grouperObjectTypesAttributeValue.objectTypeMemberDescription)}
 	                                <br />
 	                                <span class="description">${textContainer.text['objectTypeMemberDescriptionHint']}</span>
 	                              </td>
@@ -110,7 +110,7 @@
                               <tr>
 	                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['objectTypeServiceNameLabel'] }</strong></td>
 	                              <td>
-	                                ${grouperObjectTypesAttributeValue.objectTypeServiceName}
+	                                ${grouper:escapeHtml(grouperObjectTypesAttributeValue.objectTypeServiceName)}
 	                                <br />
 	                                <span class="description">${textContainer.text['objectTypeServiceNameHint']}</span>
 	                              </td>

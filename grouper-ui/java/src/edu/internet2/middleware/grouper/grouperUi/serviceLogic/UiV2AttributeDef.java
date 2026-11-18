@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueBinding;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
@@ -2341,7 +2342,15 @@ public class UiV2AttributeDef {
         throw new RuntimeException("Why is attributeAssignValueId blank???");
       }
   
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
       
@@ -2441,7 +2450,15 @@ public class UiV2AttributeDef {
       
       final AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
             
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       attributeAssign.getValueDelegate().deleteValue(attributeAssignValue);
       
@@ -2497,7 +2514,15 @@ public class UiV2AttributeDef {
         throw new RuntimeException("Why is attributeAssignValueId blank???");
       }
 
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(attributeAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(attributeAssign, attributeAssignValueId);
+      if (attributeAssignValue == null) {
+        String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
+        return;
+      }
       
       final AttributeDef attributeDef = retrieveAttributeDefHelper(httpServletRequest, AttributeDefPrivilege.ATTR_VIEW, true).getAttributeDef();
       

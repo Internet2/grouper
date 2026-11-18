@@ -155,7 +155,16 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
           instance.setWorkflowInstanceError("assignToGroup group id: "+groupId+" not found. It might have been deleted.");
           break;
         }
-        
+
+        // the daemon runs as root and the config has no stored author, so never let a
+        // workflow add someone to a wheel group unless that is the workflow's own group
+        if (!GrouperWorkflowConfigAuthorValidator.isDaemonAssignAllowed(parentWorkflowConfig, assignToGroup)) {
+          LOG.error("For workflow config id: "+parentWorkflowConfig.getWorkflowConfigId()+" assignToGroup is a sysadmin group, not allowed. Group id is "+groupId);
+          instance.setWorkflowInstanceState(EXCEPTION_STATE);
+          instance.setWorkflowInstanceError("assignToGroup group id: "+groupId+" is a sysadmin group and cannot be assigned by a workflow.");
+          break;
+        }
+
         assignToGroup.addMember(subject, false);
         return true;
       }
@@ -182,7 +191,9 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
       GrouperWorkflowConfig parentWorkflowConfig = instance.getGrouperWorkflowConfig(); 
         
       if (currentState.equals(COMPLETE_STATE)) {
-        Subject subjectToAdd = GrouperWorkflowInstanceService.subjectWhoInitiatedWorkflow(instance);
+        // 101: initiator by source id and subject id; null (not an exception) if gone, so the
+        // instance goes to the exception state below instead of failing the whole run
+        Subject subjectToAdd = GrouperWorkflowSubjectIdentity.findInitiator(instance, false);
         
         if (subjectToAdd == null) {
           LOG.error("For workflow config id: "+parentWorkflowConfig.getWorkflowConfigId()+" subject that requested to join the group no longer exists.");
@@ -216,7 +227,8 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
             .getLogEntryByActionName(INITIATE_ACTION);
           
           String subjetWhoInitiated = workflowInstanceLogEntry.getSubjectId();
-          Subject subjectRejected = SubjectFinder.findById(subjetWhoInitiated, false);
+          // 101: by source id and subject id, never a same-id subject from another source
+          Subject subjectRejected = GrouperWorkflowSubjectIdentity.findInitiator(instance, false);
           if (subjectRejected == null) {
             LOG.error("For workflow config id: "+parentWorkflowConfig.getWorkflowConfigId()+" subject that requested to join the group no longer exists. subject id is "+subjetWhoInitiated);
             instance.setWorkflowInstanceState(EXCEPTION_STATE);

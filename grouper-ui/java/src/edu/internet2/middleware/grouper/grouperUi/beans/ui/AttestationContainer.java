@@ -1062,7 +1062,33 @@ public class AttestationContainer {
   }
   
   /**
-   * 
+   * GRP-5105: who can add, edit, disable or remove attestation settings: group ADMIN, or folder
+   * ADMIN for a folder.  UiV2Attestation.editGroupAttestation and editGroupAttestationSave
+   * enforce the same rule server side; this only drives the menu.
+   * @return true if can edit the attestation settings
+   */
+  public boolean isCanEditAttestation() {
+
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+
+    if (guiGroup != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+        return true;
+      }
+    }
+
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+
+    if (guiStem != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * who can attest and clear the review date (group UPDATE, folder ADMIN)
    * @return true if can write
    */
   public boolean isCanWriteAttestation() {

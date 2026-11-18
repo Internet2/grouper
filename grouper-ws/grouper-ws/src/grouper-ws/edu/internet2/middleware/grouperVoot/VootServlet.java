@@ -63,8 +63,12 @@ public class VootServlet extends HttpServlet {
     try {
       GrouperServiceJ2ee.assignHttpServlet(this);
 
-      // get the logged in user
-      Subject loggedInSubject = GrouperServiceJ2ee.retrieveSubjectLoggedIn();
+      // get the logged in user through the standard WS admission entry point (not
+      // retrieveSubjectLoggedIn), so VOOT enforces ws.client.user.group.name like every
+      // other WS operation: a subject outside that group gets "User is not authorized"
+      // before any session starts.  A null act-as lookup returns the logged in subject.
+      // Also sets the hooks and audit act-as context like the other WS operations.
+      Subject loggedInSubject = GrouperServiceJ2ee.retrieveSubjectActAs(null);
       if (loggedInSubject == null) {
         throw new NullPointerException("No logged in user!");
       }

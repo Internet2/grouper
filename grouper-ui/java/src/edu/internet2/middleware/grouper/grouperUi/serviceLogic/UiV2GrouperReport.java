@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceOwnerBinding;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
@@ -841,7 +842,12 @@ public class UiV2GrouperReport {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportInstance reportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          // security: the instance and its report config must belong to the requested folder,
+          // anything else gets the same not allowed message
+          GrouperReportInstance reportInstance = GrouperReportInstanceOwnerBinding.retrieveReportInstanceForOwner(attributeAssignId, STEM);
+          if (reportInstance == null) {
+            return null;
+          }
           
           String configMarkerAssignmentId = reportInstance.getReportInstanceConfigMarkerAssignmentId();
           
@@ -919,7 +925,12 @@ public class UiV2GrouperReport {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportInstance reportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          // security: the instance and its report config must belong to the requested group,
+          // anything else gets the same not allowed message
+          GrouperReportInstance reportInstance = GrouperReportInstanceOwnerBinding.retrieveReportInstanceForOwner(attributeAssignId, GROUP);
+          if (reportInstance == null) {
+            return null;
+          }
           
           String configMarkerAssignmentId = reportInstance.getReportInstanceConfigMarkerAssignmentId();
           
@@ -1164,41 +1175,32 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignId blank??");
       }
       
+      // security: resolve the folder as the logged in user (not in a root session), then only
+      // accept a report instance whose assignment and report config belong to that folder
+      Stem stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final Stem STEM = stem;
+      
       GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          GrouperReportInstance recentReportInstance = GrouperReportInstanceOwnerBinding.retrieveReportInstanceForOwner(attributeAssignId, STEM);
           return recentReportInstance;
         }
         
       });
       
-      if (reportInstance == null) {
-        throw new RuntimeException("No report instance found");
-      }
-      
-      
-      if (!reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
+      // one generic message for not found, other owner, and not in the viewer group
+      if (reportInstance == null || !reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
 
         final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToDownload")));
         return;
       }
-      
-      Stem stem = (Stem) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          Stem stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
-          return stem;
-        }
-        
-      });
-      
-      if (stem == null) {
-        throw new RuntimeException();
-      }
-      
-      final Stem STEM = stem;
       
       try {
         
@@ -1255,38 +1257,32 @@ public class UiV2GrouperReport {
         throw new RuntimeException("why is attributeAssignId blank??");
       }
       
+      // security: resolve the group as the logged in user with VIEW (not in a root session), then
+      // only accept a report instance whose assignment and report config belong to that group
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+      
+      final Group GROUP = group;
+      
       GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          GrouperReportInstance recentReportInstance = GrouperReportInstanceOwnerBinding.retrieveReportInstanceForOwner(attributeAssignId, GROUP);
           return recentReportInstance;
         }
         
       });
       
-      if (!reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
+      // one generic message for not found, other owner, and not in the viewer group
+      if (reportInstance == null || !reportInstance.getGrouperReportConfigurationBean().isCanRead(loggedInSubject)) {
 
         final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToDownload")));
         return;
       }
-      
-      Group group = (Group) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
-          
-          return group;
-        }
-        
-      });
-      
-      if (group == null) {
-        throw new RuntimeException();
-      }
-      
-      final Group GROUP = group;
       
       try {
         

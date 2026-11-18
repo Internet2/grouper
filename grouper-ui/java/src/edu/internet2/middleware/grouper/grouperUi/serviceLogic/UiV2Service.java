@@ -26,7 +26,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -39,6 +41,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.service.ServiceUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -154,6 +157,13 @@ public class UiV2Service extends UiServiceLogicBase {
 
     }
 
+    // security: the lookups above use the unsecured DAO (by id, name or sequential idIndex),
+    // so check that the logged-in user can VIEW the owning attribute def before anything is
+    // put on the screen.  If not, treat it as not found so the response is the same as for a
+    // bad id and does not confirm that the name exists.  The callers start the session as the
+    // logged-in subject.
+    attributeDefName = attributeDefNameIfCanView(attributeDefName, GrouperSession.staticGrouperSession().getSubject());
+
     if (attributeDefName != null) {
 
       grouperRequestContainer.getServiceContainer().setGuiService(new GuiService(new GuiAttributeDefName(attributeDefName), null));
@@ -184,6 +194,36 @@ public class UiV2Service extends UiServiceLogicBase {
     return result;
   }
   
+  /**
+   * return the attribute def name if the subject has ATTR_VIEW (or a privilege that implies it,
+   * or is wheel / root) on the attribute def that owns it, else null.  Used by
+   * retrieveServiceHelper since the service screens look up the name with the unsecured DAO.
+   * The owning attribute def is loaded as root since the secure finder would throw for a
+   * subject who cannot see it; the privilege check below is what decides.  The check runs with
+   * the root session of the current session since
+   * AttributeDefPrivilegeDelegate.canAttrView(Subject) requires the session subject to have
+   * ATTR_ADMIN, which a normal UI user does not.  A GrouperSession must be started (it throws
+   * if not, so no session fails closed).
+   * @param attributeDefName name found by the unsecured lookup, may be null
+   * @param subject the logged-in subject
+   * @return the attribute def name, or null if null in or the subject cannot view it
+   */
+  public static AttributeDefName attributeDefNameIfCanView(AttributeDefName attributeDefName, Subject subject) {
+    if (attributeDefName == null || subject == null) {
+      return null;
+    }
+    AttributeDef attributeDef = AttributeDefFinder.findByIdAsRoot(attributeDefName.getAttributeDefId(), false);
+    if (attributeDef == null) {
+      return null;
+    }
+    // fail closed: no view privilege on the owning attribute def means not found
+    GrouperSession rootSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    if (!PrivilegeHelper.canAttrView(rootSession, attributeDef, subject)) {
+      return null;
+    }
+    return attributeDefName;
+  }
+
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Service.class);

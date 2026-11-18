@@ -401,36 +401,16 @@ public class GrouperUiFilter implements Filter {
           Subject subjectLoggedIn = null;
           try {
             String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
-            if (StringUtils.isBlank(sourceIds)) {
-              
-              String uriContext = StringUtils.isBlank(request.getQueryString()) ?
-                  request.getRequestURI() : (request.getRequestURI() + "?" + request.getQueryString());
-              
-              String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi(uriContext);
-              if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
-                GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
-                String sourceId = grouperOidcConfig.getSubjectSourceId();
-                String subjectIdType = grouperOidcConfig.getSubjectIdType();
-                if (!StringUtils.isBlank(sourceId)) {
-                  
-                  if (StringUtils.equals("subjectId", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
-                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                  }                
-                } else {
-                  if (StringUtils.equals("subjectId", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
-                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
-                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
-                  }                
-                  
-                }
-              }
+
+            // security fix: pick the OIDC config from canonical spellings of the request (decoded path,
+            // query and body parameters, servlet alias) and the callback by exact path, not the raw string
+            String externalSystemConfigIdForUi = GrouperUiOidcRouteSelector.externalSystemConfigIdForUi(request);
+            if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
+              // an OIDC connector applies to this request, so the user id came from its login (remoteUser
+              // only accepts a fresh result of this connector): resolve it only as the connector says, in
+              // its sources (else grouper.ui.authentication.sourceIds), by its subjectIdType, never by
+              // falling back to all sources, and never to an internal (g:isa) subject.  Throws if not found
+              subjectLoggedIn = GrouperUiOidcSubjectResolver.resolveSubject(externalSystemConfigIdForUi, userIdLoggedIn, sourceIds, true);
             }
             if (subjectLoggedIn == null) {
               if (StringUtils.isBlank(sourceIds)) {
@@ -752,10 +732,9 @@ public class GrouperUiFilter implements Filter {
         }
       }
 
-      String uriContext = StringUtils.isBlank(httpServletRequest.getQueryString()) ?
-          httpServletRequest.getRequestURI() : (httpServletRequest.getRequestURI() + "?" + httpServletRequest.getQueryString());
-
-      String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi(uriContext);
+      // security fix: pick the OIDC config from canonical spellings of the request (decoded path,
+      // query and body parameters, servlet alias) and the callback by exact path, not the raw string
+      String externalSystemConfigIdForUi = GrouperUiOidcRouteSelector.externalSystemConfigIdForUi(httpServletRequest);
 
       if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
         
@@ -791,6 +770,14 @@ public class GrouperUiFilter implements Filter {
             remoteUser = null;
           }
           
+        } else {
+          // no OIDC result at all in this session: a container, header or session identity does not
+          // satisfy a request that an OIDC connector applies to, the same as a result of another
+          // connector or an expired one (above), so clear it and run this connector's login
+          if (!StringUtils.isBlank(remoteUser) && LOG.isDebugEnabled()) {
+            debugLog.put("remoteUserClearedNoAuthnResults", true);
+          }
+          remoteUser = null;
         }
 
         if (StringUtils.isBlank(remoteUser)) {
@@ -819,6 +806,7 @@ public class GrouperUiFilter implements Filter {
             }
             
             if (StringUtils.isBlank(authorizationCodeReturnedFromOidc) && !StringUtils.isBlank(errorFromOidc)) {
+              GrouperUiOidcPendingLogin.discardPendingLogin(httpServletRequest);
               String errorDescriptionFromOidc = httpServletRequest.getParameter("error_description");
 
               try {
@@ -843,6 +831,8 @@ public class GrouperUiFilter implements Filter {
             if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
               // it means we need to redirect to OIDC
               String loginUrl = grouperOidc.generateLoginUrl(httpServletRequest);
+              // security fix: remember this login (state, nonce, config, time) so the callback can be tied to this session
+              GrouperUiOidcPendingLogin.recordPendingLogin(httpServletRequest, externalSystemConfigIdForUi, loginUrl);
               
               // before redirecting, set session attributes 
               if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
@@ -888,12 +878,15 @@ public class GrouperUiFilter implements Filter {
   
             }
             
+            // security fix: the callback must belong to a login this session started (same config, state,
+            // under 10 minutes old, saved nonce); else this throws before the code is exchanged
+            Object expectedNonce = GrouperUiOidcPendingLogin.consumePendingLogin(httpServletRequest,
+                externalSystemConfigIdForUi, httpServletRequest.getParameter("state"), true);
             grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
             
-            if (httpServletRequest.getSession().getAttribute("oidcNonce") != null) {
-              grouperOidc.assignExpectedNonce((Nonce)httpServletRequest.getSession().getAttribute("oidcNonce"));
-              httpServletRequest.getSession().removeAttribute("oidcNonce");
-            }
+            // always check the id token nonce against the one saved for this login
+            grouperOidc.assignExpectedNonce((Nonce)expectedNonce);
+            httpServletRequest.getSession().removeAttribute("oidcNonce");
             
             grouperOidc.retrieveAndParseTokens();
   
@@ -911,6 +904,8 @@ public class GrouperUiFilter implements Filter {
             
             remoteUser = StringUtils.trim(remoteUser);
             
+            // security fix: new session id after login (session fixation)
+            GrouperUiOidcPendingLogin.rotateSessionId(httpServletRequest);
             httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
             httpServletRequest.getSession().setAttribute("authUser", remoteUser);
             
@@ -1045,64 +1040,9 @@ public class GrouperUiFilter implements Filter {
    * @return true if allowed anonymous
    */
   private static UiSection uiSectionForRequestHelper(HttpServletRequest httpServletRequest) {
-    
-    String uri = httpServletRequest.getRequestURI();
-    
-    //TODO might want to check the servlet param name from web.xml: ignore
-    if (uri.matches("^/[^/]+/$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/index\\.jsp$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperExternal/app/[^/]+$")) {
-      return UiSection.ANONYMOUS;
-    }
-
-    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.index$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.postIndex$")) {
-      return UiSection.ANONYMOUS;
-    }
-    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.postIndex$")) {
-      return UiSection.ANONYMOUS;
-    }
-    
-    boolean externalServlet = uri.matches("^/[^/]+/grouperExternal/app/[^/]+$");
-
-    String operation = httpServletRequest.getParameter("operation");
-
-    String theClass = null;
-    
-    if (!StringUtils.isBlank(operation)) {
-      theClass = GrouperUtil.prefixOrSuffix(operation, ".", true);
-    }
-    
-    if (externalServlet) {
-      
-      if (!StringUtils.isBlank(theClass)) {
-        if (theClass.startsWith(UiV2ExternalSubjectSelfRegister.class.getSimpleName())) {
-          return UiSection.EXTERNAL;
-        }
-      } else {
-        //this means we arent quite to the operation yet
-        return UiSection.ANONYMOUS;
-      }
-      throw new RuntimeException("Cannot use the external servlet for non external operations! '" + uri + "', '" + theClass + "'");
-    }
-    
-    if (!StringUtils.isBlank(operation)) {
-      
-      //anyone can see the menu...
-      if (theClass.equals("Misc") || theClass.equals("MiscMenu")) {
-        return UiSection.ANONYMOUS;
-      }
-    }
-
-    //must be admin UI
-    return UiSection.ADMIN_UI;
-    
+    // security fix: classify from the path the servlet dispatches, never from the operation
+    // parameter, and only the external self register screens on /grouperExternal/app/
+    return GrouperUiRouteSection.uiSectionForRequest(httpServletRequest);
   }
   
   /**

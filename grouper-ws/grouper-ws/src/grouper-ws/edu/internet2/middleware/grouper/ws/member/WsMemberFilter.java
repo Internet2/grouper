@@ -22,6 +22,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -520,6 +522,13 @@ public enum WsMemberFilter {
    */
   public final boolean hasMember(Group group, Subject subject, Field field) {
     try {
+      // the caller must be allowed to read this membership list (READ for members, or the
+      // field's read privilege).  The WS group lookup only needs VIEW, so without this a caller
+      // who could not list the members could still ask whether any subject is a member
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Field theField = field == null ? Group.getDefaultList() : field;
+      PrivilegeHelper.dispatch(grouperSession, group, grouperSession.getSubject(), theField.getReadPriv());
+
       return this.hasMemberHelper(group, subject, field);
     } catch (SchemaException se) {
       throw new RuntimeException("Problem with group and field: " + group + ", field: "

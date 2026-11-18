@@ -16,11 +16,11 @@
             <tr>
             
              <td style="white-space: nowrap;">
-                ${guiSubjectDataFieldConfig.aliases}
+                ${grouper:escapeHtml(guiSubjectDataFieldConfig.aliases)}
               </td>
               
               <td style="white-space: nowrap;">
-                ${guiSubjectDataFieldConfig.uiFriendlyValue}
+                ${grouper:escapeHtml(guiSubjectDataFieldConfig.uiFriendlyValue)}
               </td>
               
               </tr>
@@ -33,14 +33,14 @@
        
       <c:forEach items="${grouperRequestContainer.subjectContainer.dataRowConfigIdToFieldConfigIds}" var="dataRowConfigIdToFieldConfigId">
 
-      <p class="lead"> ${textContainer.text['subjectViewDataRowConfigIdPrefix']} '${dataRowConfigIdToFieldConfigId.key}' </p>
+      <p class="lead"> ${textContainer.text['subjectViewDataRowConfigIdPrefix']} '${grouper:escapeHtml(dataRowConfigIdToFieldConfigId.key)}' </p>
 
       <table
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
           <tr>
               <c:forEach var="fieldConfigId" items="${dataRowConfigIdToFieldConfigId.value.fieldConfigIds}">
-                  <th>${fieldConfigId}</th> <%-- Column Headers --%>
+                  <th>${grouper:escapeHtml(fieldConfigId)}</th> <%-- Column Headers --%>
               </c:forEach>
           </tr>
         </thead>
@@ -54,7 +54,7 @@
                     <td style="white-space: nowrap;">
                         <c:choose>
                             <c:when test="${not empty row[fieldConfigId]}">
-                                ${row[fieldConfigId]}
+                                ${grouper:escapeHtml(row[fieldConfigId])}
                             </c:when>
                             <c:otherwise> - </c:otherwise> <%-- this row has no value for this field --%>
                         </c:choose>

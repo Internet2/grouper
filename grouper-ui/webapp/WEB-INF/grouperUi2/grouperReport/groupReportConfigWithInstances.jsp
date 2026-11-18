@@ -23,39 +23,39 @@
       <tbody>
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigNameLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigName}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigName)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigDescriptionLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigDescription}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigDescription)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigTypeLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigType}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigType)}</td>
         </tr>
         
         <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">
           <tr>
             <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigQueryLabel']}</label></strong></td>
-            <td>${configInstance.reportConfigBean.reportConfigQuery}</td>
+            <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigQuery)}</td>
           </tr>
         </c:if>
                         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigFormatLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigFormat}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigFormat)}</td>
         </tr>
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigQuartzCronLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigQuartzCron}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigQuartzCron)}</td>
         </tr>
 
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['grouperReportConfigFileNameLabel']}</label></strong></td>
-          <td>${configInstance.reportConfigBean.reportConfigFilename}</td>
+          <td>${grouper:escapeHtml(configInstance.reportConfigBean.reportConfigFilename)}</td>
         </tr>
 
         <tr>
@@ -91,7 +91,7 @@
               
                 <tr>
                    <td style="white-space: nowrap;">
-                    ${guiReportInstance.reportConfigBean.reportConfigName}
+                    ${grouper:escapeHtml(guiReportInstance.reportConfigBean.reportConfigName)}
                    </td>
                    <td style="white-space: nowrap;">${guiReportInstance.runTime}</td>
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceStatus}</td>

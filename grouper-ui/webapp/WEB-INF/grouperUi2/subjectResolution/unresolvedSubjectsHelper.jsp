@@ -47,7 +47,7 @@
                           <td>${grouper:escapeHtml(unresolvedSubject.member.subjectSourceId)}</td>
                           <td>
                             <a href="?operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(unresolvedSubject.member.subjectId)}&sourceId=${grouper:escapeUrl(unresolvedSubject.member.subjectSourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(unresolvedSubject.member.subjectId)}&sourceId=${grouper:escapeUrl(unresolvedSubject.member.subjectSourceId)}');"
-                       >${unresolvedSubject.member.subjectId}</a>
+                       >${grouper:escapeHtml(unresolvedSubject.member.subjectId)}</a>
                           </td>
                           <td>${grouper:escapeHtml(unresolvedSubject.member.subjectIdentifier0)}</td>
                           <td>${grouper:escapeHtml(unresolvedSubject.member.name)}</td>

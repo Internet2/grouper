@@ -88,29 +88,11 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
             }
 
             if (StringUtils.isNotEmpty(tlsVersion)) {
-              if ("default".equals(tlsVersion)) {
-                tlsVersion = ConnectionFactory.computeDefaultTlsProtocol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
-              }
-              SSLContext c = SSLContext.getInstance(tlsVersion);
-              if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)) {
-                KeyStore tks = KeyStore.getInstance("JKS");
-                tks.load(new FileInputStream(pathToTrustStore), trustPassphrase.toCharArray());
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-                tmf.init(tks);
-                c.init(null, tmf.getTrustManagers(), null);
-              } else {
-                // amqp-client 5.x made com.rabbitmq.client.TrustEverythingTrustManager non-public;
-                // inline an equivalent trust-all X509TrustManager (used only when no trust store is configured)
-                c.init(null, new TrustManager[]{new X509TrustManager() {
-                  @Override
-                  public void checkClientTrusted(X509Certificate[] chain, String authType) { }
-                  @Override
-                  public void checkServerTrusted(X509Certificate[] chain, String authType) { }
-                  @Override
-                  public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                }}, null);
-              }
-              factory.useSslProtocol(c);
+              // explicit opt in to accept any broker certificate (only used when no trust store is configured)
+              boolean trustAllCertificates = GrouperUtil.booleanValue(grouperMessagingConfig.propertyValueString(
+                  GrouperClientConfig.retrieveConfig(), "trustAllCertificates"), false);
+              RabbitMQConnectionFactoryImpl.configureTls(factory, messagingSystemName, tlsVersion, pathToTrustStore,
+                  trustPassphrase, trustAllCertificates);
             }
             
             if (LOG.isDebugEnabled()) {
@@ -156,5 +138,80 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
       }
       
     }
+  };
+
+  /**
+   * Set up TLS on a RabbitMQ connection factory.  Which certificates are trusted:
+   * <ul>
+   * <li>pathToTrustStore and trustPassphrase set: the certificates in that JKS trust store</li>
+   * <li>else trustAllCertificates true: any certificate (no protection against a man in the middle,
+   * logs a warning); only for test brokers</li>
+   * <li>else: the JVM default trust store (cacerts or javax.net.ssl.trustStore), and the broker
+   * certificate must match the host name</li>
+   * </ul>
+   * Before this change a missing trust store silently meant "trust any certificate".
+   * @param factory connection factory to configure
+   * @param messagingSystemName for log messages
+   * @param tlsVersion e.g. TLSv1.2, or "default" for the best one the JVM and broker support
+   * @param pathToTrustStore path to a JKS trust store, or blank
+   * @param trustPassphrase trust store passphrase, or blank
+   * @param trustAllCertificates true to accept any certificate when no trust store is configured
+   * @return true if host name verification was enabled
+   * @throws Exception if the SSL context cannot be built
+   */
+  public static boolean configureTls(ConnectionFactory factory, String messagingSystemName, String tlsVersion,
+      String pathToTrustStore, String trustPassphrase, boolean trustAllCertificates) throws Exception {
+
+    if ("default".equals(tlsVersion)) {
+      tlsVersion = ConnectionFactory.computeDefaultTlsProtocol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
+    }
+    SSLContext c = SSLContext.getInstance(tlsVersion);
+    boolean verifyHostname = false;
+
+    if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)) {
+
+      // site trust store (unchanged behavior)
+      KeyStore tks = KeyStore.getInstance("JKS");
+      FileInputStream fileInputStream = new FileInputStream(pathToTrustStore);
+      try {
+        tks.load(fileInputStream, trustPassphrase.toCharArray());
+      } finally {
+        GrouperUtil.closeQuietly(fileInputStream);
+      }
+      TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+      tmf.init(tks);
+      c.init(null, tmf.getTrustManagers(), null);
+
+    } else if (trustAllCertificates) {
+
+      // explicit opt in only: accept any certificate
+      GrouperUtil.getLog(RabbitMQConnectionFactoryImpl.class).warn("RabbitMQ messaging system '" + messagingSystemName
+          + "' uses TLS with trustAllCertificates=true: the broker certificate is not checked, so the broker password and "
+          + "messages are not protected from a man in the middle.  Configure pathToTrustStore and trustPassphrase instead.");
+      c.init(null, new TrustManager[]{new X509TrustManager() {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) { }
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) { }
+        @Override
+        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+      }}, null);
+
+    } else {
+
+      // no trust store configured: the JVM default trust managers, and check the host name, like any
+      // other TLS client.  This used to trust any certificate, which let anyone on the network path
+      // pose as the broker
+      TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tmf.init((KeyStore) null);
+      c.init(null, tmf.getTrustManagers(), null);
+      verifyHostname = true;
+    }
+
+    factory.useSslProtocol(c);
+    if (verifyHostname) {
+      factory.enableHostnameVerification();
+    }
+    return verifyHostname;
   }
 }

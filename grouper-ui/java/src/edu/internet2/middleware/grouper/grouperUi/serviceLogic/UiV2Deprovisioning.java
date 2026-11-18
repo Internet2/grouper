@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.deprovisioning.DeprovisionedSubject;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAllowedAccess;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningConfiguration;
@@ -408,40 +409,37 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          int failures = 0;
-
-          for (String memberId : GrouperUtil.nonNull(memberIds)) {
-            try {
-              
-              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-              Subject subject = member.getSubject();
-              GrouperDeprovisioningLogic.removeAccess(GROUP, subject);
-              
-            } catch (Exception e) {
-              LOG.error("Error with removing priv: " + memberId + ", " + GROUP.getName(), e);
-              failures++;
-            }
-          }
-          
-          if (failures == 0) {
-            
-            deprovisioningOnGroupReport(request, response);
-            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
-          } else {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
-          }
-          return null;
-        }
-      });
+      // Bind the submit to the members the report lists, re-check that deprovisioning is
+      // enabled and the privileges, apply the guardrails, and remove access in one transaction
+      // (see GrouperDeprovisioningAllowedAccess).
+      GrouperDeprovisioningAllowedAccess.Result result = null;
+      try {
+        result = GrouperDeprovisioningAllowedAccess.removeAccessFromReport(loggedInSubject, GROUP, memberIds);
+      } catch (RuntimeException re) {
+        // the transaction rolled back, nothing was changed
+        LOG.error("Error with removing access from report: " + GROUP.getName() + ", user: " + loggedInSubject, re);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+        return;
+      }
       
+      if (result.isRefused()) {
+        String message = GrouperDeprovisioningAllowedAccess.REFUSED_DEPROVISIONING_DISABLED.equals(result.getRefusedReason())
+            ? TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")
+            : GrouperDeprovisioningAllowedAccess.refusedMessage(result);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
+        return;
+      }
+      
+      deprovisioningOnGroupReport(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
+      
+      String skippedMessage = GrouperDeprovisioningAllowedAccess.skippedMessage(result);
+      if (skippedMessage != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, skippedMessage));
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1435,54 +1433,49 @@ public class UiV2Deprovisioning {
         }
       }
       
-      //String reason = 
-
-      int failures = 0;
-      
-      Set<Membership> membershipsDeprovisionedSuccessfully = new HashSet<Membership>();
-      
-      for (String membershipId : GrouperUtil.nonNull(membershipsIds)) {
-        try {
-          Membership membership = MembershipFinder.findByUuid(GrouperSession.start(loggedInSubject), membershipId, false, true);
-          GrouperDeprovisioningLogic.removeAccess(membership);
-          membershipsDeprovisionedSuccessfully.add(membership);
-          } catch (Exception e) {
-          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
-          failures++;
-        }
-      }
-      
+      // Bind the submit to the rows the results page offered for this member and affiliation,
+      // apply the guardrails, and do the removals, the add to the deprovisioned users group and
+      // the audit entry in one transaction (see GrouperDeprovisioningAllowedAccess).  Managers
+      // are admin-like by design (any object, as root), but only for the rows on the screen.
       String memberId = request.getParameter("memberId");
-      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-      Subject subject = member.getSubject();
-
-      if (membershipsDeprovisionedSuccessfully.size() > 0 || GrouperUtil.length(membershipsIds) == 0) {
-                
-        Group deprovisionGroup = deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroup();
-        // subject is same for all memberships
-        boolean added = deprovisionGroup.addMember(subject, false);
-        if (added) {
-          GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
-          Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
-              membershipsDeprovisionedSuccessfully, deprovisioningAffiliation, false);
-          emailService.sendEmailToUsers(emailObjects);
-        }
-      }
       
-      if (failures == 0) {
-        
-        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBER_DEPROVISIONING, 
-            "memberId", member.getId(), "affiliation", deprovisioningAffiliation.getLabel());
-        auditEntry.setDescription("Deprovisioned user: " + GrouperUtil.subjectToString(subject) + " from affiliation: " + deprovisioningAffiliation.getLabel());
-        deprovisioningSaveAudit(auditEntry);
-        
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&affiliation=" + deprovisioningAffiliation.getLabel() + "')"));
-        
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionSuccess")));
-      } else {
+      GrouperDeprovisioningAllowedAccess.Result result = null;
+      try {
+        result = GrouperDeprovisioningAllowedAccess.deprovisionUser(loggedInSubject, deprovisioningAffiliation, memberId, membershipsIds);
+      } catch (RuntimeException re) {
+        // the transaction rolled back, nothing was changed
+        LOG.error("Error deprovisioning member: " + memberId + ", user: " + loggedInSubject, re);
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionError")));
+        return;
+      }
+      
+      if (result.isRefused()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            GrouperDeprovisioningAllowedAccess.refusedMessage(result)));
+        return;
+      }
+      
+      // email after the commit, about the memberships that were actually removed
+      if (result.isAddedToDeprovisionedGroup()) {
+        try {
+          GrouperDeprovisioningEmailService emailService = new GrouperDeprovisioningEmailService();
+          Map<String, EmailPerPerson> emailObjects = emailService.buildEmailObjectForOneDeprovisionedSubject(grouperSession,
+              new HashSet<Membership>(result.getRemovedMemberships()), deprovisioningAffiliation, false);
+          emailService.sendEmailToUsers(emailObjects);
+        } catch (RuntimeException re) {
+          LOG.error("Error emailing about deprovisioned member: " + memberId, re);
+        }
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Deprovisioning.viewRecentlyDeprovisionedUsers&affiliation=" + deprovisioningAffiliation.getLabel() + "')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionSuccess")));
+      
+      String skippedMessage = GrouperDeprovisioningAllowedAccess.skippedMessage(result);
+      if (skippedMessage != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, skippedMessage));
       }
       
     } finally {
@@ -2638,40 +2631,38 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          int failures = 0;
-  
-          for (String memberId : GrouperUtil.nonNull(memberIds)) {
-            try {
-              
-              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-              Subject subject = member.getSubject();
-              GrouperDeprovisioningLogic.removeAccess(STEM, subject);
-              
-            } catch (Exception e) {
-              LOG.error("Error with removing priv: " + memberId + ", " + STEM.getName(), e);
-              failures++;
-            }
-          }
-          
-          if (failures == 0) {
-            
-            deprovisioningOnGroupReport(request, response);
-            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
-          } else {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
-          }
-          return null;
-        }
-      });
+      // Bind the submit to the members the report lists, re-check that deprovisioning is
+      // enabled and the privileges, apply the guardrails, and remove access in one transaction
+      // (see GrouperDeprovisioningAllowedAccess).
+      GrouperDeprovisioningAllowedAccess.Result result = null;
+      try {
+        result = GrouperDeprovisioningAllowedAccess.removeAccessFromReport(loggedInSubject, STEM, memberIds);
+      } catch (RuntimeException re) {
+        // the transaction rolled back, nothing was changed
+        LOG.error("Error with removing access from report: " + STEM.getName() + ", user: " + loggedInSubject, re);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+        return;
+      }
       
+      if (result.isRefused()) {
+        String message = GrouperDeprovisioningAllowedAccess.REFUSED_DEPROVISIONING_DISABLED.equals(result.getRefusedReason())
+            ? TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")
+            : GrouperDeprovisioningAllowedAccess.refusedMessage(result);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
+        return;
+      }
+      
+      // refresh the folder report (this used to call deprovisioningOnGroupReport by mistake)
+      deprovisioningOnFolderReport(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
+      
+      String skippedMessage = GrouperDeprovisioningAllowedAccess.skippedMessage(result);
+      if (skippedMessage != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, skippedMessage));
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -2802,40 +2793,37 @@ public class UiV2Deprovisioning {
         return;
       }
       
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          int failures = 0;
-  
-          for (String memberId : GrouperUtil.nonNull(memberIds)) {
-            try {
-              
-              Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
-              Subject subject = member.getSubject();
-              GrouperDeprovisioningLogic.removeAccess(ATTRIBUTE_DEF, subject);
-              
-            } catch (Exception e) {
-              LOG.error("Error with removing priv: " + memberId + ", " + ATTRIBUTE_DEF.getName(), e);
-              failures++;
-            }
-          }
-          
-          if (failures == 0) {
-            
-            deprovisioningOnAttributeDefReport(request, response);
-            
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
-          } else {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
-          }
-          return null;
-        }
-      });
+      // Bind the submit to the members the report lists, re-check that deprovisioning is
+      // enabled and the privileges, apply the guardrails, and remove access in one transaction
+      // (see GrouperDeprovisioningAllowedAccess).
+      GrouperDeprovisioningAllowedAccess.Result result = null;
+      try {
+        result = GrouperDeprovisioningAllowedAccess.removeAccessFromReport(loggedInSubject, ATTRIBUTE_DEF, memberIds);
+      } catch (RuntimeException re) {
+        // the transaction rolled back, nothing was changed
+        LOG.error("Error with removing access from report: " + ATTRIBUTE_DEF.getName() + ", user: " + loggedInSubject, re);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportError")));
+        return;
+      }
       
+      if (result.isRefused()) {
+        String message = GrouperDeprovisioningAllowedAccess.REFUSED_DEPROVISIONING_DISABLED.equals(result.getRefusedReason())
+            ? TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")
+            : GrouperDeprovisioningAllowedAccess.refusedMessage(result);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message));
+        return;
+      }
+      
+      deprovisioningOnAttributeDefReport(request, response);
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("deprovisioningDeprovisionFromReportSuccess")));
+      
+      String skippedMessage = GrouperDeprovisioningAllowedAccess.skippedMessage(result);
+      if (skippedMessage != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, skippedMessage));
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
