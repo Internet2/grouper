@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -515,6 +516,10 @@ public class StemSave {
                   }
                   
                   StemSave.this.saveResultType = SaveResultType.INSERT;
+                  
+                  // Security: a caller-chosen uuid for a NEW folder must be a safe identifier (it
+                  // is used in queries, URLs and pages).  Existing folders keep their ids
+                  GrouperObjectIdValidator.assertValidNewId("folder", StemSave.this.uuid);
                   
                   boolean failOnExists = SAVE_MODE.equals(SaveMode.INSERT);
                   

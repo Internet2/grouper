@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -671,6 +672,9 @@ public class AttributeDefSave {
                   }
                   
                   saveResultType = SaveResultType.INSERT;
+                  // Security: a caller-chosen id for a NEW attribute definition must be a safe
+                  // identifier (it is used in queries, URLs and pages).  Existing ones keep theirs
+                  GrouperObjectIdValidator.assertValidNewId("attributeDef", AttributeDefSave.this.id);
                   AttributeDefType theAttributeDefType = GrouperUtil.defaultIfNull(AttributeDefSave.this.attributeDefType, AttributeDefType.attr);
                   theAttributeDef = parentStem.internal_addChildAttributeDef(AttributeDefSave.this.grouperSession, 
                       extensionNew, AttributeDefSave.this.id, theAttributeDefType, AttributeDefSave.this.description);

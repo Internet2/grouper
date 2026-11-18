@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -797,6 +798,9 @@ public class GroupSave {
               //if inserting
               if (!isUpdate) {
                 GroupSave.this.saveResultType = SaveResultType.INSERT;
+                // Security: a caller-chosen uuid for a NEW group must be a safe identifier (it is
+                // used in queries, URLs and pages).  Existing groups keep their ids
+                GrouperObjectIdValidator.assertValidNewId("group", GroupSave.this.uuid);
                 if (GroupSave.this.typeOfGroup == null || GroupSave.this.typeOfGroup == TypeOfGroup.group) {
                   theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                 } else if (GroupSave.this.typeOfGroup == TypeOfGroup.role) {
