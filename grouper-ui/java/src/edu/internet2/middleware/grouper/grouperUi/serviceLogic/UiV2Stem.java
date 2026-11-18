@@ -125,6 +125,7 @@ import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.InheritedPrivilegeRuleOwnership;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.rules.RulePattern;
 import edu.internet2.middleware.grouper.rules.RuleService;
@@ -2024,9 +2025,25 @@ public class UiV2Stem {
       {
         Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
         for (GuiRuleDefinition guiRuleDefinition : GrouperUtil.nonNull(guiRuleDefinitions)) {
+          // the finders also return ancestor folders' rules; only rules owned by this exact folder can be removed here
+          if (!InheritedPrivilegeRuleOwnership.isOwnedByStem(guiRuleDefinition.getRuleDefinition(), stem.getId())) {
+            continue;
+          }
           assignIdToGuiRuleDefinition.put(guiRuleDefinition.getRuleDefinition().getAttributeAssignType().getId(), guiRuleDefinition);
         }
       }
+
+      // all or nothing: if any requested id is not a rule owned by this folder, remove nothing
+      int unownedRuleIdCount = InheritedPrivilegeRuleOwnership.countUnownedRuleIds(ruleAttributeAssignIds, 
+          assignIdToGuiRuleDefinition.keySet(), stem.getId(), loggedInSubject);
+      if (unownedRuleIdCount > 0) {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(0);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(unownedRuleIdCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+        return;
+      }
+      final String ruleOwnerStemId = stem.getId();
       
       final Set<GuiRuleDefinition> guiRuleDefinitionsToDelete = new HashSet<GuiRuleDefinition>();
       
@@ -2045,6 +2062,9 @@ public class UiV2Stem {
                 continue;
               }
               
+              // re-check ownership from the database in the same root callback as the delete
+              InheritedPrivilegeRuleOwnership.assertAttributeAssignIdOwnedByStem(ruleAttributeAssignId, ruleOwnerStemId);
+
               guiRuleDefinitionsToDelete.add(guiRuleDefinition);
               guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
 
@@ -3752,7 +3772,9 @@ public class UiV2Stem {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      stem = retrieveStemHelper(request, false).getStem();
+      // security: the folder audit export needs STEM_ADMIN, the same as viewAudits and viewAuditsFilter,
+      // not only VIEW of the folder or of an object in it
+      stem = retrieveStemHelper(request, true).getStem();
 
       if (stem == null) {
         return;
@@ -5049,6 +5071,10 @@ public class UiV2Stem {
 
       String stemScopeString = stem.getName() + ":%";
 
+      // security: seeing the folder is not READ on every group in it; count only membership activity
+      // of the descendant groups the user can READ (the group chart needs READ on the group too)
+      StemHistoryChartGroupFilter stemHistoryChartGroupFilter = new StemHistoryChartGroupFilter(stem, loggedInSubject);
+
       // If there was no input start date, get the earliest date among all activity, direct/indirect, members/privileges
       if (dateFromDate == null) {
         String activityQuery = """
@@ -5058,7 +5084,7 @@ public class UiV2Stem {
         where g.name like ?
       """;
 
-        Long dateFloorMillis = new GcDbAccess().sql(activityQuery).addBindVar(stemScopeString).select(Long.class);
+        Long dateFloorMillis = stemHistoryChartGroupFilter.selectMin(activityQuery, stemScopeString);
         if (dateFloorMillis == null) {
           // no member data
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, "No data for this time period"));
@@ -5087,11 +5113,8 @@ public class UiV2Stem {
       List<Integer> directAddData = new ArrayList<>(Collections.nCopies(numBuckets, 0));
       List<Integer> indirectAddData = new ArrayList<>(Collections.nCopies(numBuckets, 0));
 
-      List<Object[]>  memberAddQueryResults = new GcDbAccess().sql(memberAddQuery)
-              .addBindVar(stemScopeString)
-              .addBindVar(dateFromEpoch * 1e6)
-              .addBindVar(dateToEpoch * 1e6)
-              .selectList(Object[].class);
+      List<Object[]>  memberAddQueryResults = stemHistoryChartGroupFilter.selectRows(memberAddQuery,
+              stemScopeString, dateFromEpoch * 1e6, dateToEpoch * 1e6);
 
       for (Object[] row : memberAddQueryResults) {
         long epoch = ((BigDecimal) row[0]).longValueExact();
@@ -5126,11 +5149,8 @@ public class UiV2Stem {
       List<Integer> directDeleteData = new ArrayList<>(Collections.nCopies(numBuckets, 0));
       List<Integer> indirectDeleteData = new ArrayList<>(Collections.nCopies(numBuckets, 0));
 
-      List<Object[]>  memberDeleteQueryResults = new GcDbAccess().sql(memberDeleteQuery)
-              .addBindVar(stemScopeString)
-              .addBindVar(dateFromEpoch * 1e6)
-              .addBindVar(dateToEpoch * 1e6)
-              .selectList(Object[].class);
+      List<Object[]>  memberDeleteQueryResults = stemHistoryChartGroupFilter.selectRows(memberDeleteQuery,
+              stemScopeString, dateFromEpoch * 1e6, dateToEpoch * 1e6);
 
       for (Object[] row : memberDeleteQueryResults) {
         long epoch = ((BigDecimal) row[0]).longValueExact();

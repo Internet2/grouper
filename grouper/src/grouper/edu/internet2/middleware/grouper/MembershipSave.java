@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.membership.MembershipWriteAuthorization;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -355,6 +356,18 @@ public class MembershipSave {
                 group.getId(), member.getId(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), false, true);
           }
 
+          // a membership found by immediateMembershipId must be an immediate member of the default list
+          // of this group, for this member.  This save only manages group members and only checks
+          // UPDATE on the group below, so it must not change or delete a privilege row (e.g. another
+          // subject's ADMIN row) or a row of another group
+          if (membership != null && (!membership.isImmediate()
+              || !StringUtils.equals(membership.getOwnerGroupId(), group.getId())
+              || !StringUtils.equals(membership.getFieldId(), Group.getDefaultList().getUuid())
+              || !StringUtils.equals(membership.getMemberUuid(), member.getId()))) {
+            throw new RuntimeException("Membership '" + MembershipSave.this.immediateMembershipId
+                + "' is not an immediate membership of group '" + group.getName() + "' for this member");
+          }
+
           if (!group.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.UPDATE.getName(), false)) {
             throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
               + "' cannot UPDATE group '" + group.getName() + "'");
@@ -367,7 +380,8 @@ public class MembershipSave {
               MembershipSave.this.saveResultType = SaveResultType.NO_CHANGE;
               return null;
             }
-            membership.delete();
+            // checked, audited delete (Membership.delete() writes no audit entry)
+            MembershipWriteAuthorization.deleteChecked(GrouperSession.staticGrouperSession(), membership);
             MembershipSave.this.saveResultType = SaveResultType.DELETE;
             return membership;
           }
@@ -393,7 +407,8 @@ public class MembershipSave {
           } else {
             membership.setEnabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipEnabledTime, true));
             membership.setDisabledTime(GrouperUtil.timestampObjectValue(MembershipSave.this.immediateMshipDisabledTime, true));
-            GrouperDAOFactory.getFactory().getMembership().update(membership);
+            // Membership.update() checks privileges and audits the date change, the DAO update did neither
+            membership.update();
             MembershipSave.this.saveResultType = SaveResultType.UPDATE;
           }
           return membership;

@@ -772,6 +772,9 @@ public class ProvisioningContainer {
 
   
   public void setGuiGrouperSyncObject(GuiGrouperSyncObject guiGrouperSyncObject) {
+    // security: the detail endpoints load this sync row by a request id, so only keep it if it
+    // belongs to the group / subject / target the request was authorized for
+    ProvisioningSyncRowBinding.bindToRequest(guiGrouperSyncObject);
     this.guiGrouperSyncObject = guiGrouperSyncObject;
   }
 

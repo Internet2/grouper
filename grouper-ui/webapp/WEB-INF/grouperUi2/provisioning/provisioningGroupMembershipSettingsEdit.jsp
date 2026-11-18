@@ -29,7 +29,7 @@
     </div>
     
     <form class="form-inline form-small form-filter" id="editProvisioningFormId">
-       <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
+       <input type="hidden" name="subjectId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
        <table class="table table-condensed table-striped">
          <tbody>
            <%@ include file="provisioningGroupMembershipSettingsEditHelper.jsp" %>
@@ -40,9 +40,9 @@
                <input type="submit" class="btn btn-primary"
                aria-controls="objectTypeSubmitId" id="submitId"
                value="${textContainer.text['provisioningEditButtonSave'] }"
-               onclick="ajax('../app/UiV2Provisioning.editProvisioningOnGroupMembershipSave?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'editProvisioningFormId'}); return false;">
+               onclick="ajax('../app/UiV2Provisioning.editProvisioningOnGroupMembershipSave?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'editProvisioningFormId'}); return false;">
                &nbsp; <a class="btn btn-cancel" role="button"
-               onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+               onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                >${textContainer.text['provisioningEditButtonCancel'] }</a>
              </td>
            </tr>

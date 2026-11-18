@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -323,6 +324,27 @@ public class AttributeDefNameSave {
                   throws GrouperSessionException {
                 
                 String attributeDefNameNameForError = GrouperUtil.defaultIfBlank(AttributeDefNameSave.this.attributeDefNameNameToEdit, AttributeDefNameSave.this.name);
+
+                // Security: inserting a name links it to the attribute definition, so the caller
+                // needs ATTR_ADMIN on the definition (as the UI and the docs require), not only
+                // CREATE on the destination folder.  Check before anything is written (parent
+                // folders, the name row, audit, change log).  Look the existing name up as root:
+                // a secure lookup would hide a name the caller cannot see and make it look like
+                // an insert.  The check is repeated right before the insert below in case this
+                // lookup and the later one disagree.
+                if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
+                  final String nameToLookUp = AttributeDefNameSave.this.attributeDefNameNameToEdit;
+                  AttributeDefName existingAttributeDefNameAsRoot = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+                    public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                      return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+                          nameToLookUp, false, new QueryOptions().secondLevelCache(false));
+                    }
+                  });
+                  if (existingAttributeDefNameAsRoot == null) {
+                    AttributeDefNameSave.this.assertCanAttrAdminForInsert(grouperSession);
+                  }
+                }
                 
                 int lastColonIndex = AttributeDefNameSave.this.name.lastIndexOf(':');
                 boolean topLevelAttributeDefName = lastColonIndex < 0;
@@ -420,6 +442,9 @@ public class AttributeDefNameSave {
                     throw new RuntimeException("cannot insert attribute def name with replaceAllSettings being false");
                   }
                   
+                  // Security: always enforce ATTR_ADMIN on the definition for an insert
+                  AttributeDefNameSave.this.assertCanAttrAdminForInsert(grouperSession);
+
                   theAttributeDefName = parentStem.internal_addChildAttributeDefName(grouperSession, 
                       AttributeDefNameSave.this.attributeDef, extensionNew, theDisplayExtension, 
                       AttributeDefNameSave.this.id, AttributeDefNameSave.this.description);
@@ -526,4 +551,24 @@ public class AttributeDefNameSave {
     }
 
   }
+  /**
+   * Security: a new attribute def name belongs to its attribute definition, so the acting
+   * subject must have ATTR_ADMIN on that definition (root and wheel pass).  CREATE on the
+   * destination folder is checked separately by Stem.internal_addChildAttributeDefName().
+   * Throws a GrouperSessionException wrapping an InsufficientPrivilegeException, which save()
+   * unwraps (and WS maps to INSUFFICIENT_PRIVILEGES).
+   * @param grouperSession session of the caller
+   */
+  private void assertCanAttrAdminForInsert(GrouperSession grouperSession) {
+    if (this.attributeDef == null) {
+      throw new RuntimeException("An attribute definition is required to create attributeDefName: '" + this.name + "'");
+    }
+    if (!PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, grouperSession.getSubject())) {
+      throw new GrouperSessionException(new InsufficientPrivilegeException("Subject "
+          + GrouperUtil.subjectToString(grouperSession.getSubject())
+          + " cannot ATTR_ADMIN attribute definition '" + this.attributeDef.getName()
+          + "' so cannot create attributeDefName: '" + this.name + "'"));
+    }
+  }
+
 }

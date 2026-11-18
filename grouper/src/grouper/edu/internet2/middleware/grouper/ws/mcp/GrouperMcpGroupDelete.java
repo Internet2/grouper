@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -100,26 +101,20 @@ public class GrouperMcpGroupDelete {
       return buildErrorResult("groupName is required.");
     }
 
-    // block modifications to protected system groups and the etc stem
-    if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-    }
-
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
-        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-      }
-      if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", groupName));
-      }
+    // protected-resource rules and read-write scope on the group the name really resolves to
+    // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate
+    GrouperMcpResolvedTargetGate.Target groupTarget =
+        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName);
+    if (groupTarget.getError() != null) {
+      return buildErrorResult(groupTarget.getError());
     }
 
     try {
-      // look up the group by name (false = don't throw exception if not found)
-      Group group = GroupFinder.findByName(groupName, false);
+      // look up, as the caller, the group that was checked: by its uuid, so an old name cannot
+      // lead somewhere else (false = don't throw exception if not found)
+      Group group = groupTarget.isFound()
+          ? GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupTarget.getUuid(), false)
+          : null;
 
       if (group == null) {
         return buildErrorResult("Group not found: " + groupName);
@@ -135,7 +130,7 @@ public class GrouperMcpGroupDelete {
       ObjectNode resultNode = objectMapper.createObjectNode();
       resultNode.put("resultCode", "DELETE");
       resultNode.put("success", true);
-      resultNode.put("name", groupName);
+      resultNode.put("name", group.getName());
       if (StringUtils.isNotBlank(displayExtension)) {
         resultNode.put("displayExtension", displayExtension);
       }

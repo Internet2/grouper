@@ -545,7 +545,23 @@ public class UiV2AttributeDefAction {
             TextContainer.retrieveFromRequest().getText().get("simpleAttributeUpdate.errorCantEditAttributeDef")));
         return;
       }
-      AttributeAssignAction attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findById(attributeAssignActionId, true);
+      // the action id comes from the request: load it without an exception and require that it is an
+      // action of the attribute def the user was just authorized on (ATTR_ADMIN above).  Otherwise any
+      // attribute def admin could pass an action id of another (private) attribute def and see its
+      // actions and implication hierarchy.  A missing id and an id of another attribute def get the
+      // same not found message, so the screen does not tell which ids exist.
+      AttributeAssignAction attributeAssignAction = StringUtils.isBlank(attributeAssignActionId) ? null
+          : GrouperDAOFactory.getFactory().getAttributeAssignAction().findById(attributeAssignActionId, false);
+      
+      if (attributeAssignAction == null || !StringUtils.equals(attributeAssignAction.getAttributeDefId(), attributeDef.getId())) {
+        if (attributeAssignAction != null) {
+          LOG.warn("Action id " + attributeAssignActionId + " is not an action of attribute def " + attributeDef.getId()
+              + ", user: " + SubjectHelper.getPretty(loggedInSubject));
+        }
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefActionNotFoundError")));
+        return;
+      }
       
       AttributeUpdateRequestContainer attributeUpdateRequestContainer = AttributeUpdateRequestContainer.retrieveFromRequestOrCreate();
       
@@ -563,7 +579,8 @@ public class UiV2AttributeDefAction {
       
       attributeUpdateRequestContainer.setGuiAttributeAssign(new GuiAttributeAssign());
       
-      attributeUpdateRequestContainer.setActions(new ArrayList<String>(attributeAssignAction.getAttributeDef().getAttributeDefActionDelegate().allowedActionStrings()));
+      // the authorized attribute def (the action belongs to it, checked above)
+      attributeUpdateRequestContainer.setActions(new ArrayList<String>(attributeDef.getAttributeDefActionDelegate().allowedActionStrings()));
       
       {
         List<String> actionsWhichCanImply = new ArrayList<String>(attributeAssignAction.getAttributeAssignActionSetDelegate().getNewAttributeAssignActionNamesThatCanImplyThis());

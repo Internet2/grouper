@@ -836,20 +836,35 @@ public class GrouperMcpInstitutionalTools {
       }
     }
 
-    // inputs
-    JsonNode inputsNode = arguments.has("inputs") ? arguments.get("inputs") : null;
-    if (inputsNode != null && inputsNode.isObject()) {
-      java.util.Iterator<String> fieldNames = inputsNode.fieldNames();
-      while (fieldNames.hasNext()) {
-        String fieldName = fieldNames.next();
-        // auto-prepend gsh_input_ if not already present
-        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
-        String fieldValue = inputsNode.get(fieldName).asText();
-        GshTemplateInput input = new GshTemplateInput();
-        input.assignName(inputName);
-        input.assignValue(fieldValue);
-        exec.addGshTemplateInput(input);
+    // the owner is what securityRunType privilegeOnObject authorizes on, and what templates act on
+    // through gsh_builtin_gshTemplateOwnerGroupName / OwnerStemName.  so for a template that can
+    // write, the owner gets the same protected-resource and read-write scope checks as any MCP
+    // write target, on the object it resolves to (not an old name), whether the caller named it
+    // or it came from the template's default.  see GrouperMcpResolvedTargetGate
+    if (!templateConfig.isMcpReadonly()) {
+      ObjectNode ownerError = checkTemplateOwner(exec, authUser);
+      if (ownerError != null) {
+        return ownerError;
       }
+    }
+
+    // the inputs, by full name (gsh_input_...), read once, so the value scope checked below is the
+    // value the template runs with.  an input given under both its full and its short name is
+    // refused rather than one of them quietly winning
+    List<String> duplicatedInputName = new ArrayList<String>();
+    Map<String, String> callInputs = callInputsByFullName(
+        arguments.has("inputs") ? arguments.get("inputs") : null, duplicatedInputName);
+    if (callInputs == null) {
+      String inputName = duplicatedInputName.get(0);
+      String shortName = inputName.substring("gsh_input_".length());
+      return buildErrorResult("Input '" + shortName + "' was given twice, as '" + inputName
+          + "' and '" + shortName + "'.  Give it once.");
+    }
+    for (Map.Entry<String, String> callInput : callInputs.entrySet()) {
+      GshTemplateInput input = new GshTemplateInput();
+      input.assignName(callInput.getKey());
+      input.assignValue(callInput.getValue());
+      exec.addGshTemplateInput(input);
     }
 
     // validate MCP scope restrictions on inputs for non-readonly templates
@@ -862,14 +877,8 @@ public class GrouperMcpInstitutionalTools {
         // find the matching input value
         String inputName = inputConfig.getName();
         String shortName = inputName.startsWith("gsh_input_") ? inputName.substring("gsh_input_".length()) : inputName;
-        String inputValue = null;
-        if (inputsNode != null && inputsNode.isObject()) {
-          if (inputsNode.has(inputName)) {
-            inputValue = inputsNode.get(inputName).asText();
-          } else if (inputsNode.has(shortName)) {
-            inputValue = inputsNode.get(shortName).asText();
-          }
-        }
+        // the value the template runs with, from callInputs above (GRP-7540)
+        String inputValue = callInputs.get("gsh_input_" + shortName);
         if (StringUtils.isBlank(inputValue)) {
           continue;
         }
@@ -894,11 +903,14 @@ public class GrouperMcpInstitutionalTools {
               return buildErrorResult(GrouperMcpProtectedResources.buildProtectedGroupError(value));
             }
           }
+          // folders and groups are judged on what the name resolves to (current name and uuid),
+          // so an alternate (old) name of an object outside the scope does not count as in scope.
+          // subjects are resolved to one subject and compared by source and id
           boolean inScope = true;
           if ("folders".equals(mcpScopeType)) {
-            inScope = authUser.isStemInReadwriteScope(value);
+            inScope = GrouperMcpResolvedTargetGate.isStemNameInReadwriteScope(authUser, value);
           } else if ("groups".equals(mcpScopeType)) {
-            inScope = authUser.isGroupInReadwriteScope(value);
+            inScope = GrouperMcpResolvedTargetGate.isGroupNameInReadwriteScope(authUser, value);
           } else if ("subjects".equals(mcpScopeType)) {
             inScope = authUser.isSubjectInReadwriteScope(value);
           }
@@ -974,6 +986,86 @@ public class GrouperMcpInstitutionalTools {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
     return output.isSuccess() ? buildSuccessResult(resultText) : buildErrorResult(resultText);
+  }
+
+  /**
+   * the inputs of a call by full input name (gsh_input_...), a field named without the prefix
+   * getting it.  the one place they are read, so the scope check and the template run see the
+   * same values (GRP-7540)
+   * @param inputsNode the call's inputs argument, may be null
+   * @param duplicatedInputName if not null, gets the full name of an input given twice
+   * @return the inputs by full name, in the order given, or null if an input is given twice, with
+   * and without the prefix
+   */
+  static Map<String, String> callInputsByFullName(JsonNode inputsNode, List<String> duplicatedInputName) {
+    Map<String, String> callInputs = new LinkedHashMap<String, String>();
+    if (inputsNode != null && inputsNode.isObject()) {
+      Iterator<String> fieldNames = inputsNode.fieldNames();
+      while (fieldNames.hasNext()) {
+        String fieldName = fieldNames.next();
+        String inputName = fieldName.startsWith("gsh_input_") ? fieldName : "gsh_input_" + fieldName;
+        if (callInputs.containsKey(inputName)) {
+          if (duplicatedInputName != null) {
+            duplicatedInputName.add(inputName);
+          }
+          return null;
+        }
+        callInputs.put(inputName, inputsNode.get(fieldName).asText());
+      }
+    }
+    return callInputs;
+  }
+
+  /**
+   * gate the owner group or folder of a template run that can write.  The owner is resolved as
+   * root (current or alternate name) and checked with GrouperMcpResolvedTargetGate; the exec is
+   * then pointed at the current name, so the template runs on the object that was checked.  An
+   * owner that does not resolve is refused (the template could not run on it anyway).  No owner
+   * (allowWsFromNoOwner) is nothing to check
+   * @param exec the exec, with its owner already assigned
+   * @param authUser the caller
+   * @return the error result, or null if the owner may be used
+   */
+  private static ObjectNode checkTemplateOwner(GshTemplateExec exec, GrouperMcpAuthUser authUser) {
+
+    GshTemplateOwnerType ownerType = exec.getGshTemplateOwnerType();
+    if (ownerType == null) {
+      return null;
+    }
+
+    if (ownerType == GshTemplateOwnerType.group) {
+      String ownerGroupName = exec.getOwnerGroupName();
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, ownerGroupName);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      if (!target.isFound()) {
+        return buildErrorResult("Owner group not found: " + ownerGroupName);
+      }
+      exec.assignOwnerGroupName(target.getName());
+      return null;
+    }
+
+    if (ownerType == GshTemplateOwnerType.stem) {
+      String ownerStemName = exec.getOwnerStemName();
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkStemByName(authUser, ownerStemName);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      if (!target.isFound()) {
+        return buildErrorResult("Owner folder not found: " + ownerStemName);
+      }
+      // the root folder is ":" to the exec, and has a blank name
+      if (!StringUtils.equals(ownerStemName, ":")) {
+        exec.assignOwnerStemName(target.getName());
+      }
+      return null;
+    }
+
+    // an owner type this check does not know: refuse rather than run unchecked
+    return buildErrorResult("Unsupported template owner type: " + ownerType);
   }
 
   /**

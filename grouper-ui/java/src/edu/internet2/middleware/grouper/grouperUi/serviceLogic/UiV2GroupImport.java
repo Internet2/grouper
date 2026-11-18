@@ -59,6 +59,9 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService
 import edu.internet2.middleware.grouper.app.reports.GrouperReportJob;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.app.reports.GroupMembersExportAsRequester;
+import edu.internet2.middleware.grouper.app.reports.GroupMembersExportRequestLimiter;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -362,6 +365,15 @@ public class UiV2GroupImport {
       // run can be fully deleted after download
       final String configName = GROUP_MEMBERS_EXPORT_CONFIG_NAME + "_" + GrouperUuid.getUuid();
 
+      // READ is enough to request an export, so limit how many a user can start: one pending per
+      // group (an older one is replaced) and a few per hour across groups.  See GroupMembersExportRequestLimiter
+      try {
+        GroupMembersExportRequestLimiter.assertCanSubmit(group, loggedInSubject);
+      } catch (GroupMembersExportRequestLimiter.ExportRequestRefusedException rre) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, groupExportRefusedMessage(rre)));
+        return;
+      }
+
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         @Override
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
@@ -389,17 +401,11 @@ public class UiV2GroupImport {
             // reload to pick up the attribute assignment marker id
             GrouperReportConfigurationBean savedBean = GrouperReportConfigService.getGrouperReportConfigBean(group, configName);
 
-            // register a durable, UNSCHEDULED job and trigger it once.  This is intentionally not a
-            // recurring/CRON schedule (via GrouperReportConfigService.scheduleJob) so it will never be
-            // rescheduled or run again on its own - it is a one-time export.
-            String jobName = "grouper_report_" + group.getId() + "_" + savedBean.getAttributeAssignmentMarkerId();
-            JobDetail jobDetail = JobBuilder.newJob(GrouperReportJob.class)
-                .withIdentity(jobName)
-                .storeDurably()
-                .build();
-            Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-            scheduler.addJob(jobDetail, true);
-            scheduler.triggerJob(new JobKey(jobName));
+            // run it once.  This is intentionally not a recurring/CRON schedule (via
+            // GrouperReportConfigService.scheduleJob) so it will never run again on its own.  The job
+            // is not durable and has a one shot trigger, so Quartz removes it after the run whether it
+            // succeeds or fails (a durable job used to stay forever unless the export was downloaded)
+            GroupMembersExportRequestLimiter.scheduleOneShot(group, savedBean);
 
           } catch (SchedulerException se) {
             throw new RuntimeException("Error running group members export for group: " + group.getName(), se);
@@ -425,8 +431,26 @@ public class UiV2GroupImport {
   }
 
   /**
+   * message for a refused emailed export.  Uses the externalized text when the key exists, else an
+   * English default, so the fix works without a text file change
+   * @param rre
+   * @return the message
+   */
+  private static String groupExportRefusedMessage(GroupMembersExportRequestLimiter.ExportRequestRefusedException rre) {
+    boolean pending = StringUtils.equals(GroupMembersExportRequestLimiter.ExportRequestRefusedException.REASON_PENDING, rre.getReason());
+    String text = GrouperTextContainer.textOrNull(pending ? "groupExportEmailAlreadyPending" : "groupExportEmailTooManyRequests");
+    if (!StringUtils.isBlank(text)) {
+      return text;
+    }
+    return pending
+        ? "An export of this group was requested in the last hour.  Use the link in that email, or try again later."
+        : "You have requested too many exports in the last hour.  Please try again later.";
+  }
+
+  /**
    * download a completed group members export.  Gated on group READ; verifies the report instance
-   * is a group members export for this group before streaming the decrypted content.
+   * is a group members export for this group, and that the logged in user is the one who requested
+   * it, before streaming the decrypted content.
    * @param request
    * @param response
    */
@@ -447,15 +471,27 @@ public class UiV2GroupImport {
       }
 
       final String attributeAssignId = request.getParameter("attributeAssignId");
-      if (StringUtils.isBlank(attributeAssignId)) {
-        throw new RuntimeException("attributeAssignId is required");
-      }
 
-      GrouperReportInstance reportInstance = (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      // every refusal below (blank, unknown, deleted or malformed id, wrong report type, other
+      // group, or not the requester) gives the same "not found" message, so the response does not
+      // reveal that an id exists.  All checks run before the content is read and before the
+      // one-time cleanup, so a refused request deletes nothing
+      GrouperReportInstance reportInstance = StringUtils.isBlank(attributeAssignId) ? null
+          : (GrouperReportInstance) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         @Override
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
 
-          GrouperReportInstance recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          GrouperReportInstance recentReportInstance = null;
+          try {
+            // getReportInstance throws on an unknown id
+            if (AttributeAssignFinder.findById(attributeAssignId, false) == null) {
+              return null;
+            }
+            recentReportInstance = GrouperReportInstanceService.getReportInstance(attributeAssignId);
+          } catch (RuntimeException re) {
+            LOG.debug("Cant load group members export instance: " + attributeAssignId, re);
+            return null;
+          }
           if (recentReportInstance == null) {
             return null;
           }
@@ -469,6 +505,14 @@ public class UiV2GroupImport {
           AttributeAssign configAttributeAssign = AttributeAssignFinder.findById(configBean.getAttributeAssignmentMarkerId(), false);
           if (configAttributeAssign == null || configAttributeAssign.getOwnerGroup() == null
               || !StringUtils.equals(configAttributeAssign.getOwnerGroup().getId(), group.getId())) {
+            return null;
+          }
+
+          // the file was built for the subject who requested it (with that subject's view of subject
+          // attributes), and the download deletes it, so only that subject may download it.  Group
+          // READ alone is not enough: another reader may not be allowed to see the same attributes.
+          // Source id and subject id must both match; a missing or malformed requester matches nobody
+          if (!GroupMembersExportAsRequester.isRequester(configBean, loggedInSubject)) {
             return null;
           }
 
@@ -1061,8 +1105,10 @@ public class UiV2GroupImport {
               });
   
             if (!canUpdate) {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
                   TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate")));
+              // fail closed: do not import into a group the user cannot update
+              groupIterator.remove();
               continue;
             }
           }
@@ -1411,7 +1457,9 @@ public class UiV2GroupImport {
                 try {
                   overlappingMembership.setEnabledTime(startDate);
                   overlappingMembership.setDisabledTime(endDate);
-                  GrouperDAOFactory.getFactory().getMembership().update(overlappingMembership);
+                  // Membership.update() checks UPDATE as the logged in user and audits the date
+                  // change; the DAO update did neither
+                  overlappingMembership.update();
                   GrouperUtil.sleep(pauseBetweenRecordsMillis);
                   groupImportGroupSummary.groupCountUpdatedIncrement();
                 } catch (Exception e) {

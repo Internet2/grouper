@@ -1090,12 +1090,12 @@ public class GrouperHttpClient {
           retry = true;
           networkIssueException = e;
         }
-        runtimeException = new RuntimeException("Error connecting to '" + this.url + "'", e);
+        runtimeException = new RuntimeException("Error connecting to '" + GrouperHttpClientLogRedactor.redactUrl(this.url) + "'", e);
       }
       
       if (code == 429 && StringUtils.isNotBlank(webServiceExternalSystemConfigId) && 
           GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.wsBearerToken."+webServiceExternalSystemConfigId+".treat429CodeAsError", false)) {
-        throw new RuntimeException("Error connecting to '" + this.url + "'. Received response code 429.");
+        throw new RuntimeException("Error connecting to '" + GrouperHttpClientLogRedactor.redactUrl(this.url) + "'. Received response code 429.");
       }
       
       if ( (code == 429 && this.grouperHttpThrottlingCallback == null) 
@@ -1134,7 +1134,7 @@ public class GrouperHttpClient {
           sleepMillis = Math.min(sleepMillis, 20 * 60 * 1000);
         }
         if (networkIssueException != null) {
-          LOG.warn("Transient network error connecting to '" + this.url + "', sleeping " + sleepMillis 
+          LOG.warn("Transient network error connecting to '" + GrouperHttpClientLogRedactor.redactUrl(this.url) + "', sleeping " + sleepMillis 
               + "ms and retrying (retry " + (i+1) + " of " + retryForThrottlingOrNetworkIssues + ")", networkIssueException);
         }
         
@@ -1391,7 +1391,7 @@ public class GrouperHttpClient {
         if (this.assertResponseCode != this.responseCode) {
           StringBuilder responseBody = new StringBuilder();
           if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
-            responseBody.append("\n").append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 10000));
+            responseBody.append("\n").append(GrouperUtil.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.responseBodyHolder.toString()), 10000));
           }
           if (this.responseFile != null) {
             responseBody.append("\nResponse file: ").append(this.responseFileName).append(", size: ")
@@ -1412,7 +1412,7 @@ public class GrouperHttpClient {
         if (!StringUtils.equals(value, this.assertJsonPointerExpectedValueString)) {
           StringBuilder responseBody = new StringBuilder();
           if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
-            responseBody.append("\n").append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 10000));
+            responseBody.append("\n").append(GrouperUtil.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.responseBodyHolder.toString()), 10000));
           }
 
           throw new RuntimeException("Expected json pointer value: '" + this.assertJsonPointerExpectedValueString + "' at path '" 
@@ -1461,7 +1461,7 @@ public class GrouperHttpClient {
           StringBuilder theLog = new StringBuilder();
           theLog.append("HTTP method: ").append(this.grouperHttpMethod).append("\n");
           if (!this.getDoNotLogHeaders().contains("URL") && !this.getDoNotLogHeaders().contains("*")) {
-            theLog.append("HTTP URL: ").append(this.url).append("\n");
+            theLog.append("HTTP URL: ").append(GrouperHttpClientLogRedactor.redactUrl(this.url)).append("\n");
           }
           if (!StringUtils.isBlank(this.user) && !this.getDoNotLogHeaders().contains("user") && !this.getDoNotLogHeaders().contains("*")) {
             theLog.append("HTTP user: ").append(this.user).append("\n");
@@ -1469,6 +1469,8 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.headers).keySet()) {
             theLog.append("HTTP request header: ").append(key).append(": ");
             if (!StringUtils.equalsIgnoreCase("Authorization", key)
+                // issue 40: also mask other credential headers (X-Api-Key, X-Auth-Token, Cookie, ...)
+                && !GrouperHttpClientLogRedactor.isSensitiveHeaderName(key)
                 && !this.isDoNotLogHeader(key)
                 && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.headers.get(key));
@@ -1482,15 +1484,15 @@ public class GrouperHttpClient {
             if (this.doNotLogRequestBody) {
               theLog.append("*******");
             } else {
-              theLog.append(StringUtils.abbreviate(this.body, 20000));
+              theLog.append(/* issue 40: mask passwords, secrets, tokens, assertions in the body */ StringUtils.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.body), 20000));
             }
             theLog.append("\n");
           }
           
           for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
             theLog.append("HTTP request body param: ").append(key).append(":");
-            if (!key.toLowerCase().contains("pass")
-                && !key.toLowerCase().contains("secret")
+            // issue 40: pass, secret, token, assertion, api key, ... (was only pass and secret)
+            if (!GrouperHttpClientLogRedactor.isSensitiveName(key)
                 && !this.getDoNotLogParameters().contains(key)
                 && !this.getDoNotLogParameters().contains("*")) {
               theLog.append(this.bodyParameters.get(key));
@@ -1504,6 +1506,8 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.responseHeaders).keySet()) {
             theLog.append("HTTP response header: ").append(key).append(": ");
             if (!key.toLowerCase().contains("cookie")
+                // issue 40: also mask other credential headers
+                && !GrouperHttpClientLogRedactor.isSensitiveHeaderName(key)
                 && !this.getDoNotLogHeaders().contains(key)
                 && !this.getDoNotLogHeaders().contains("*")) {
               theLog.append(this.responseHeaders.get(key));
@@ -1513,7 +1517,7 @@ public class GrouperHttpClient {
             theLog.append("\n");
           }
           if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
-            theLog.append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 3000)).append("\n");
+            theLog.append(GrouperUtil.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.responseBodyHolder.toString()), 3000)).append("\n");
           }
           if (this.responseFile != null) {
             theLog.append("Response file: ").append(this.responseFileName).append(", size: ")

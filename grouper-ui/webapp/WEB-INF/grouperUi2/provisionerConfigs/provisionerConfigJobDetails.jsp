@@ -30,7 +30,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobsTableHeaderSyncType'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.syncType}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.syncType)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -38,7 +38,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobsTableHeaderJobState'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.jobStateDb}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.jobStateDb)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -46,7 +46,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobsTableHeaderPercentComplete'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.percentComplete}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.percentComplete)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -54,7 +54,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastSyncIndex'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncIndex}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncIndex)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -62,7 +62,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastSyncStartTime'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncStart}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncStart)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -70,7 +70,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastSyncTime'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncTimestamp}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastSyncTimestamp)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -78,7 +78,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastTimeWorkWasDone'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastTimeWorkWasDone}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastTimeWorkWasDone)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -86,7 +86,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsLastUpdated'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastUpdated}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.lastUpdated)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -94,7 +94,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsErrorMessage'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.errorMessage}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.errorMessage)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>
@@ -102,7 +102,7 @@ ${grouper:title('miscellaneousProvisionerConfigurationsJobDetailsBreadcrumb')}
                      <tr>
                        <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerJobDetailsErrorTime'] }</strong></td>
                        <td>
-                       ${grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.errorTimestamp}
+                       ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.grouperSyncJob.errorTimestamp)}
                          <br />
                          <%-- <span class="description">${textContainer.text['provisioningUsersInGroupCountHint']}</span> --%>
                        </td>

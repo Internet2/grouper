@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUiAuthorization;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueBinding;
 import edu.internet2.middleware.grouper.exception.LimitInvalidException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -253,7 +255,8 @@ public class UiV2SubjectPermission {
       
       permissionContainer.setGuiMember(new GuiMember(member));
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectPermission.subjectPermission&subjectId=" + subjectToAssignPermissionTo.getId() + "')"));
+      // subject id and source id come from the subject source and the browser evals this script: encode them
+      guiResponseJs.addAction(GuiScreenAction.newScript(GuiV2LinkScript.guiV2link("UiV2SubjectPermission.subjectPermission", "subjectId", subjectToAssignPermissionTo.getId(), "sourceId", subjectToAssignPermissionTo.getSourceId())));
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -917,43 +920,20 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignId blank???");
       }
       
-      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
-      
-      limitAssign.delete();
-      
-      AttributeDef limitAttributeDef = null;
-      AttributeDefName limitAttributeDefName = null;
-      {
-        String attributeDefNameId = limitAssign.getAttributeDefNameId();
-        limitAttributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
-        limitAttributeDef = limitAttributeDefName.getAttributeDef();
-        if (!PrivilegeHelper.canAttrUpdate(GrouperSession.staticGrouperSession(), limitAttributeDef, loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
-          return;
-        }
-      }
-      
-      AttributeAssign permissionAssign = limitAssign.getOwnerAttributeAssign();
-      
-      //get current state
-      Role role = null;
-      {
-        String roleId = permissionAssign.getOwnerGroupId();
-        role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          return;
-        }
-      }
-      
-      AttributeDef permissionDef = permissionAssign.getAttributeDef();
-      if (!permissionDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+      //SECURITY: resolve the limit and authorize the limit def, the role and the permission def, all
+      //derived from the limit assignment, BEFORE deleting.  This used to delete first and check after,
+      //and deleted any viewable assignment, not only limits.
+      PermissionLimitUiAuthorization permissionLimitUiAuthorization = PermissionLimitUiAuthorization.authorize(
+          grouperSession, loggedInSubject, limitAssignId);
+      String limitErrorTextKey = permissionLimitUiAuthorization.getErrorTextKey();
+      if (limitErrorTextKey != null) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditLimit")));
+            TextContainer.retrieveFromRequest().getText().get(limitErrorTextKey)));
         return;
       }
+
+      permissionLimitUiAuthorization.deleteLimit();
+      AttributeAssign permissionAssign = permissionLimitUiAuthorization.getPermissionAssign();
       
       Member member = permissionAssign.getOwnerMember();
       
@@ -991,26 +971,16 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignId blank???");
       }
       
-      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
-  
-      //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, limitAssign.getAttributeDef(), loggedInSubject)) {
-        
+      //SECURITY: resolve the limit and authorize the limit def, the role and the permission def (which
+      //used to be skipped here), all derived from the limit assignment, before anything is read or changed
+      PermissionLimitUiAuthorization permissionLimitUiAuthorization = PermissionLimitUiAuthorization.authorize(
+          grouperSession, loggedInSubject, limitAssignId);
+      if (!permissionLimitUiAuthorization.isAuthorized()) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.editLimitNotAllowed")));
-        return;        
+            TextContainer.retrieveFromRequest().getText().get(permissionLimitUiAuthorization.getErrorTextKey())));
+        return;
       }
-      
-      Role role = null;
-      {
-        String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
-        role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          return;
-        }
-      }
+      AttributeAssign limitAssign = permissionLimitUiAuthorization.getLimitAssign();
 
       String limitAssignValueId = limitAssignValues[1];
       
@@ -1018,7 +988,14 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignValueId blank???");
       }
   
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(limitAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the limit assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(limitAssign, limitAssignValueId);
+      if (attributeAssignValue == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.editLimitNotAllowed")));
+        return;
+      }
       
       limitAssign.getValueDelegate().deleteValue(attributeAssignValue);
       
@@ -1055,25 +1032,16 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignId blank???");
       }
   
-      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
-  
-      //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, limitAssign.getAttributeDef(), loggedInSubject)) {        
+      //SECURITY: resolve the limit and authorize the limit def, the role and the permission def (which
+      //used to be skipped here), all derived from the limit assignment, before anything is read or changed
+      PermissionLimitUiAuthorization permissionLimitUiAuthorization = PermissionLimitUiAuthorization.authorize(
+          grouperSession, loggedInSubject, limitAssignId);
+      if (!permissionLimitUiAuthorization.isAuthorized()) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.editLimitNotAllowed")));
+            TextContainer.retrieveFromRequest().getText().get(permissionLimitUiAuthorization.getErrorTextKey())));
         return;
       }
-      
-      {
-        Role role = null;
-        String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
-        role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          return;
-        }
-      }
+      AttributeAssign limitAssign = permissionLimitUiAuthorization.getLimitAssign();
 
       String limitAssignValueId = limitAssignValues[1];
       
@@ -1081,7 +1049,14 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignValueId blank???");
       }
   
-      AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory().getAttributeAssignValue().findById(limitAssignValueId, true);
+      //SECURITY: the value id comes from the request, so it must belong to the limit assignment that was
+      //just authorized, else a caller could read, edit or delete a value of any other assignment
+      AttributeAssignValue attributeAssignValue = AttributeAssignValueBinding.retrieveBoundValue(limitAssign, limitAssignValueId);
+      if (attributeAssignValue == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.editLimitNotAllowed")));
+        return;
+      }
       
       PermissionUpdateRequestContainer permissionUpdateRequestContainer = PermissionUpdateRequestContainer.retrieveFromRequestOrCreate();
       
@@ -1140,26 +1115,17 @@ public class UiV2SubjectPermission {
         throw new RuntimeException("Why is limitAssignId blank???");
       }
   
-      AttributeAssign limitAssign = AttributeAssignFinder.findById(limitAssignId, true);
-  
-      //now we need to check security
-      AttributeDef limitDef = limitAssign.getAttributeDef();
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, limitDef, loggedInSubject)) {
+      //SECURITY: resolve the limit and authorize the limit def, the role and the permission def (which
+      //used to be skipped here), all derived from the limit assignment, before anything is read or changed
+      PermissionLimitUiAuthorization permissionLimitUiAuthorization = PermissionLimitUiAuthorization.authorize(
+          grouperSession, loggedInSubject, limitAssignId);
+      if (!permissionLimitUiAuthorization.isAuthorized()) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.editLimitNotAllowed")));
+            TextContainer.retrieveFromRequest().getText().get(permissionLimitUiAuthorization.getErrorTextKey())));
         return;
       }
-      
-      Role role = null;
-      {
-        String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
-        role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantManageRole")));
-          return;
-        }
-      }
+      AttributeAssign limitAssign = permissionLimitUiAuthorization.getLimitAssign();
+      AttributeDef limitDef = limitAssign.getAttributeDef();
 
       String limitAssignValueId = request.getParameter("limitAssignValueId");
       

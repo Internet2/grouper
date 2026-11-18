@@ -28,8 +28,10 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
+import edu.internet2.middleware.grouper.ws.scim.TierScimPaging;
 import edu.internet2.middleware.grouper.ws.scim.TierScimUtil;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierGroupResource;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierMetaResource;
@@ -72,9 +74,10 @@ public class TierGroupProvider {
   private Application application;
 
   /**
-   * Upper limit on sise of returned list responses
+   * Upper limit on sise of returned list responses.  Kept for compatibility; the limit in force
+   * is ws.scim.maxResultsPerPage (TierScimPaging), whose default is this value
    */
-  public static final int MAX_RESULTS_PER_PAGE = 1000;
+  public static final int MAX_RESULTS_PER_PAGE = TierScimPaging.MAX_RESULTS_PER_PAGE_DEFAULT;
 
   @GET
   @Path("/{id}")
@@ -133,18 +136,31 @@ public class TierGroupProvider {
         throw new IllegalArgumentException("Missing filter parameter");
       }
 
-      if (!GrouperUtil.isEmpty(startIndex)) {
-        throw new NotImplementedException("startIndex not currently implemented");
-      }
+      // SECURITY (issue 171, 2026-11-13): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
+      // startIndex is supported, and the searches below are paged in the database.  Before, the
+      // caller picked any itemsPerPage and every search loaded every group the caller can VIEW (and
+      // the converter loads the members of each), so one "co" filter could read the whole registry
+      TierScimPaging paging = new TierScimPaging(startIndex, itemsPerPage);
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
       Filter filter = Filter.fromString(filterString);
 
-      if (filter.getFilterType().equals(FilterType.EQUAL)) {
+      // sorted by name, from startIndex, count + 1 rows (the extra row says if there is a next page)
+      QueryOptions queryOptions = paging.getCount() > 0 ? paging.groupQueryOptions() : null;
+
+      // name, idIndex and uuid find one group: not paged in the database
+      boolean pagedInDatabase = true;
+
+      if (paging.getCount() == 0) {
+        // itemsPerPage=0: no results (a hibernate max results of 0 would mean no limit)
+        foundGroups = new HashSet<>();
+      } else if (filter.getFilterType().equals(FilterType.EQUAL)) {
         if ("name".equals(filter.getAttributePath().toString())) {
+          pagedInDatabase = false;
           foundGroups = new GroupFinder().addGroupName(filter.getComparisonValue().asText()).findGroups();
         } else if ("idIndex".equals(filter.getAttributePath().toString())) {
+          pagedInDatabase = false;
           foundGroups = GrouperUtil.toSet(GroupFinder.findByIdIndexSecure(
                   filter.getComparisonValue().asLong(),
                   false,
@@ -152,19 +168,20 @@ public class TierGroupProvider {
         } else if ("displayName".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByDisplayNameSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("extension".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByExtensionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("displayExtension".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByDisplayExtensionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("uuid".equals(filter.getAttributePath().toString())) {
+          pagedInDatabase = false;
           foundGroups = GrouperUtil.toSet(GroupFinder.findByUuid(
                   grouperSession,
                   filter.getComparisonValue().asText(),
@@ -172,7 +189,7 @@ public class TierGroupProvider {
         } else if ("description".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByDescriptionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else {
           throw new IllegalArgumentException("Unknown search type: " + filter.getAttributePath().toString());
@@ -181,22 +198,22 @@ public class TierGroupProvider {
         if ("displayName".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByApproximateDisplayNameSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("extension".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByApproximateExtensionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("displayExtension".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByApproximateDisplayExtensionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else if ("description".equals(filter.getAttributePath().toString())) {
           foundGroups = GroupFinder.findByApproximateDescriptionSecure(
                   filter.getComparisonValue().asText(),
-                  null,
+                  queryOptions,
                   null);
         } else {
           throw new IllegalArgumentException("Unknown search type: " + filter.getAttributePath().toString());
@@ -205,20 +222,27 @@ public class TierGroupProvider {
         throw new IllegalArgumentException("Only eq and co filters supported");
       }
 
+      // at most count groups are converted (each conversion loads the group's members)
+      List<Group> pageGroups;
+      int totalResults;
+      if (pagedInDatabase) {
+        pageGroups = paging.groupPage(foundGroups);
+        totalResults = paging.groupTotalResults(GrouperUtil.length(foundGroups));
+      } else {
+        List<Group> allGroups = TierScimPaging.sortByName(foundGroups);
+        pageGroups = paging.page(allGroups);
+        totalResults = allGroups.size();
+      }
+
       List<GroupResource> groupResources = new ArrayList<>();
-      int numAdded = 0;
-      int maxItems = GrouperUtil.isEmpty(itemsPerPage) ? MAX_RESULTS_PER_PAGE : itemsPerPage;
-      for (Group g: foundGroups) {
+      for (Group g: pageGroups) {
         groupResources.add(TierScimUtil.convertGrouperGroupToScimGroup(g));
-        if (++numAdded > maxItems) {
-          break;
-        }
       }
 
       ListResponse<GroupResource> listResponse = new ListResponse<GroupResource>(
-              groupResources.size(),
+              totalResults,
               groupResources,
-              1, numAdded);
+              paging.getStartIndex(), groupResources.size());
 
       return Response
               .status(Response.Status.OK)

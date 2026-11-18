@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningMetadataItemAuthorization;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -22,6 +23,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -160,6 +162,10 @@ public class GuiGrouperProvisioningAttributeValue {
       
       Map<String, Object> metadataNameValues = singleAttributeValue.getMetadataNameValues();
       for (String metadataName: metadataNameValues.keySet()) {
+        // do not show values the logged in user may not view (groupIdThatCanView)
+        if (!GrouperProvisioningMetadataItemAuthorization.canViewMetadataName(singleAttributeValue.getTargetName(), metadataName, GrouperUiFilter.retrieveSubjectLoggedIn())) {
+          continue;
+        }
         //md_anotherMetadata_myTeamDynamixProvisioner_label
         
         if (metadataName.equals("md_grouper_allowPolicyGroupOverride")) {

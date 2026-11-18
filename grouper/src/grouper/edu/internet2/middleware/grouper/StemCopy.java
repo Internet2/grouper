@@ -160,6 +160,12 @@ public class StemCopy {
 
     GrouperSession.validate(GrouperSession.staticGrouperSession());
 
+    // optional (security.stem.copyRequireDescendantPrivileges): the caller must be able to read
+    // what the copy options duplicate in every descendant group and folder, since privilege
+    // inheritance on the destination can make the copies readable.  Runs before anything is created.
+    StemCopyDescendantPreflight.check(stemToCopy, privilegesOfStem, privilegesOfGroup,
+        listMembersOfGroup, attributes);
+
     return stemToCopy.internal_copy(destinationStem, privilegesOfStem, privilegesOfGroup,
         groupAsPrivilege, listMembersOfGroup, listGroupAsMember, attributes, stemExtension, stemDisplayExtension);
   }

@@ -65,6 +65,23 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
    */
   private static ExpirableCache<Object, String> ownerIdentifierToOwnerUrl = new ExpirableCache<Object, String>(60);
 
+  /**
+   * Key for the static owner url cache.  The url embeds the user id and resource endpoint of
+   * the Azure tenant that resolved it, and the owner identifier is a search value of this
+   * provisioner's entity matching, so the key includes the provisioner config id and the
+   * Azure external system config id: a provisioner must never get an owner url that another
+   * provisioner or tenant resolved.
+   * @param ownerIdentifier owner search value
+   * @return the cache key
+   */
+  private edu.internet2.middleware.grouperClient.collections.MultiKey ownerUrlCacheKey(Object ownerIdentifier) {
+    GrouperAzureConfiguration theAzureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    return new edu.internet2.middleware.grouperClient.collections.MultiKey(
+        GrouperUtil.defaultString(this.getGrouperProvisioner().getConfigId()),
+        GrouperUtil.defaultString(theAzureConfiguration.getAzureExternalSystemConfigId()),
+        ownerIdentifier);
+  }
+
 
   @Override
   public boolean loggingStart() {
@@ -320,8 +337,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
           for (String owner: grouperAzureGroup.getOwners()) {
             if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
               ownersToBeSaved.add(owner);
-            } else if (ownerIdentifierToOwnerUrl.get(owner) != null) {
-              ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(owner));
+            } else if (ownerIdentifierToOwnerUrl.get(this.ownerUrlCacheKey(owner)) != null) {
+              ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(this.ownerUrlCacheKey(owner)));
             } else {
               // try to go fetch it and populate the cache
               usersToPrefixUrl.add(owner);
@@ -346,7 +363,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
                   "https://graph.microsoft.com/v1.0/");
               String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+id;
               ownersToBeSaved.add(url);
-              ownerIdentifierToOwnerUrl.put(searchValue, url);
+              ownerIdentifierToOwnerUrl.put(this.ownerUrlCacheKey(searchValue), url);
             }
           }
           

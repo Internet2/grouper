@@ -729,6 +729,10 @@ public class WsQueryFilter {
     }
     try {
       Stem stem = StemFinder.findByName(this.grouperSession, this.stemName, true, new QueryOptions().secondLevelCache(false));
+      // security: a folder the caller may not see is reported the same as a missing folder
+      if (!edu.internet2.middleware.grouper.privs.StemViewQueryAuthorization.canView(this.grouperSession, stem)) {
+        throw new StemNotFoundException("Cant find stem: '" + this.stemName + "'");
+      }
       return stem;
     } catch (StemNotFoundException snfe) {
       throw new WsInvalidQueryException("Cant find stem: '" + this.stemName + "'");

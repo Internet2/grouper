@@ -12,7 +12,7 @@
                   <thead>
                     <tr>
                       <th class="${grouperRequestContainer.subjectContainer.guiSorting.columnCssClass['lastUpdatedDb']}"
-                         onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&querySortAscending=${!grouperRequestContainer.subjectContainer.guiSorting.ascending}', {formIds: 'subjectFilterAuditFormId', formIdsOptional: 'subjectPagingAuditFormId'}); return false;"
+                         onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&querySortAscending=${!grouperRequestContainer.subjectContainer.guiSorting.ascending}', {formIds: 'subjectFilterAuditFormId', formIdsOptional: 'subjectPagingAuditFormId'}); return false;"
                          >${textContainer.text['subjectAuditLogFilterColumnDate']}</th>
                       <th>${textContainer.text['subjectAuditLogFilterColumnActor']}</th>
                       <th>${textContainer.text['subjectAuditLogFilterColumnEngine']}</th>
@@ -35,16 +35,16 @@
                       <tr>
                         <td>${guiAuditEntry.guiDate}</td>
                         <td style="white-space: nowrap">${guiAuditEntry.guiSubjectPerformedAction.shortLinkWithIcon}</td>
-                        <td>${guiAuditEntry.grouperEngineLabel}</td>
+                        <td>${grouper:escapeHtml(guiAuditEntry.grouperEngineLabel)}</td>
                         <td>${guiAuditEntry.auditLine }</td>
                         <c:if test="${grouperRequestContainer.subjectContainer.auditExtendedResults }" >
                           <td>${guiAuditEntry.durationLabel }</td>
-                          <td>${auditEntry.queryCount}</td>
-                          <td>${auditEntry.serverUserName }</td>
-                          <td>${auditEntry.serverHost }</td>
-                          <td>${auditEntry.userIpAddress }</td>
-                          <td>${auditEntry.id }</td>
-                          <td>${auditEntry.description }</td>
+                          <td>${grouper:escapeHtml(auditEntry.queryCount)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.serverUserName)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.serverHost)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.userIpAddress)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.id)}</td>
+                          <td>${grouper:escapeHtml(auditEntry.description)}</td>
                         </c:if>
                       </tr>
                     </c:forEach>
@@ -52,7 +52,7 @@
                 </table>
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.guiPaging}" formName="subjectPagingAuditForm" ajaxFormIds="subjectFilterAuditFormId, subjectQuerySortAscendingFormId"
-                    refreshOperation="../app/UiV2Subject.viewAuditsFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
+                    refreshOperation="../app/UiV2Subject.viewAuditsFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
                 </div>
 
 

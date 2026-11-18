@@ -228,8 +228,10 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
   }
 
   /**
-   * test that subjectId works when looking at own audit entries.
-   * a user should be able to see audit entries about themselves.
+   * audit entries about a subject follow the UI's rule (SubjectContainer.isCanSeeAudits) for
+   * every caller, including the caller's own subject: an ordinary user is refused, since those
+   * entries can name groups the user cannot see (security issue 07).  The "actions performed
+   * by" self filter is unchanged
    */
   public void testGetAuditEntriesOwnSubject() {
 
@@ -251,8 +253,9 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
 
       ObjectNode result = GrouperMcpGetAuditEntries.execute(arguments, authUser);
 
-      assertFalse("Expected success for own subject audits, got: " + result.toString(),
+      assertTrue("Expected access denied for own subject audits, got: " + result.toString(),
           result.get("isError").asBoolean());
+      assertTrue(result.toString(), result.toString().contains("Access denied"));
     } finally {
       GrouperSession.stopQuietly(session);
     }

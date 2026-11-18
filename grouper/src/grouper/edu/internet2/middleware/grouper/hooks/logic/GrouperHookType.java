@@ -29,9 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateMode;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
@@ -426,6 +429,9 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
   private static Map<String, CompiledHookCacheEntry> compiledHookCache =
       new ConcurrentHashMap<String, CompiledHookCacheEntry>();
 
+  /** logger (compiled hook templates that are skipped are logged here) */
+  private static final Log LOG = GrouperUtil.getLog(GrouperHookType.class);
+
   /**
    * one domain's compiled-hook cache entry — when it was built, the classes
    * resolved from the registry, and the (method,beanClass) -> instances built
@@ -497,6 +503,16 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
    * template config id to its compiled class through the registry (which itself
    * recompiles only on source change). The asSubclass in resolveClass enforces
    * that the compiled class extends the hook base.
+   * <p>
+   * Security: a config id is only resolved (compiled, cached and later
+   * instantiated) if its template is enabled, has templateType=hook and
+   * templateMode=compiled. Otherwise an administrator who sets
+   * grouperGshTemplate.&lt;id&gt;.enabled=false would still have the hook run
+   * on every ordinary operation that fires it (often in a root session).
+   * Such ids are skipped with an error in the log. A template that cannot be
+   * loaded or compiled still throws, as before, so a broken veto hook
+   * fails closed instead of silently not running.
+   * </p>
    * @param configIdsString comma-separated GSH template config ids
    * @param baseClass the hook base class
    * @return a fresh cache entry
@@ -509,10 +525,40 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
     for (String configId : configIds) {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(configId);
       gshTemplateConfig.populateConfiguration();
+
+      // only enabled, compiled, hook-type templates may run as hooks; check before
+      // resolveClass so a disabled template's code is never even compiled or loaded
+      String skipReason = compiledHookSkipReason(gshTemplateConfig);
+      if (skipReason != null) {
+        LOG.error("Not running GSH template '" + configId + "' as a hook (listed in a hooks.*.gshTemplateConfigIds property"
+            + " for base class " + baseClass.getName() + "): " + skipReason
+            + ". Remove it from the hooks property or fix the template config.");
+        continue;
+      }
+
       Class<?> resolvedClass = GshTemplateCompiledDispatch.resolveClass(configId, gshTemplateConfig, baseClass);
       entry.resolvedClasses.add(resolvedClass);
     }
     return entry;
+  }
+
+  /**
+   * Why a GSH template config must not be run as a compiled hook, or null if it may.
+   * Requires enabled, templateType=hook and templateMode=compiled.
+   * @param gshTemplateConfig populated template config
+   * @return the reason to skip it, or null if it is a runnable compiled hook
+   */
+  private static String compiledHookSkipReason(GshTemplateConfig gshTemplateConfig) {
+    if (!gshTemplateConfig.isEnabled()) {
+      return "template is disabled (enabled=false)";
+    }
+    if (gshTemplateConfig.getGshTemplateType() != GshTemplateType.hook) {
+      return "templateType is '" + gshTemplateConfig.getGshTemplateType() + "', expected 'hook'";
+    }
+    if (gshTemplateConfig.getGshTemplateMode() != GshTemplateMode.compiled) {
+      return "templateMode is '" + gshTemplateConfig.getGshTemplateMode() + "', expected 'compiled'";
+    }
+    return null;
   }
 
   

@@ -780,7 +780,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     if (GrouperUtil.length(privilegesTheUserHas) > 0) {
       privilegesTheUserHasFinal.addAll(privilegesTheUserHas);
-    } else if (GrouperUtil.length(fields) == 0 || !fields.iterator().next().isGroupAccessField()) {
+    } else if ((GrouperUtil.length(fields) == 0 || !fields.iterator().next().isGroupAccessField())
+        // security: not only the first field counts; privilege rows (any access field, fieldType access,
+        // serviceRole admin) of someone other than the caller need ADMIN on the group, not READ
+        && !edu.internet2.middleware.grouper.privs.AccessFieldReadPrivileges.membershipQueryReturnsOthersAccessRows(
+            grouperSession, totalMemberIds, fields, fieldType, serviceRole)) {
       privilegesTheUserHasFinal.addAll(AccessPrivilege.READ_PRIVILEGES);
     } else {
       privilegesTheUserHasFinal.addAll(AccessPrivilege.ADMIN_PRIVILEGES);
@@ -901,11 +905,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               sql.append(" and not exists ");
             }
             
+            // bind the ids, never concatenate them: a group id can be assigned by the caller
+            // on group create (e.g. WS group save with a uuid) and is only checked for not empty,
+            // so a quote in it would change this query (HQL injection)
             sql.append("(select 1 from MembershipEntry mscc " +
-                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "where mscc.ownerGroupId = :customCompositeGroupId " +
                 "and mscc.memberUuid = m.uuid " +
-                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.fieldId = :customCompositeFieldId " +
                 "and mscc.enabledDb = 'T') ");
+            byHqlStatic.setString("customCompositeGroupId", customCompositeGroup.getId());
+            byHqlStatic.setString("customCompositeFieldId", Group.getDefaultList().getId());
           }
           
           if (enabled != null && enabled) {
@@ -4531,11 +4540,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               sql.append(" and not exists ");
             }
 
+            // bind the ids, never concatenate them: a group id can be assigned by the caller
+            // on group create (e.g. WS group save with a uuid) and is only checked for not empty,
+            // so a quote in it would change this query (HQL injection)
             sql.append("(select 1 from MembershipEntry mscc " +
-                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "where mscc.ownerGroupId = :customCompositeGroupId " +
                 "and mscc.memberUuid = m.uuid " +
-                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.fieldId = :customCompositeFieldId " +
                 "and mscc.enabledDb = 'T') ");
+            byHqlStatic.setString("customCompositeGroupId", customCompositeGroup.getId());
+            byHqlStatic.setString("customCompositeFieldId", Group.getDefaultList().getId());
           }
 
           if (enabled != null && enabled) {
@@ -5080,11 +5094,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               sql.append(" and not exists ");
             }
             
+            // bind the ids, never concatenate them: a group id can be assigned by the caller
+            // on group create (e.g. WS group save with a uuid) and is only checked for not empty,
+            // so a quote in it would change this query (HQL injection)
             sql.append("(select 1 from MembershipEntry mscc " +
-                "where mscc.ownerGroupId = '" + customCompositeGroup.getId() + "' " +
+                "where mscc.ownerGroupId = :customCompositeGroupId " +
                 "and mscc.memberUuid = m.uuid " +
-                "and mscc.fieldId = '" + Group.getDefaultList().getId() + "' " +
+                "and mscc.fieldId = :customCompositeFieldId " +
                 "and mscc.enabledDb = 'T') ");
+            byHqlStatic.setString("customCompositeGroupId", customCompositeGroup.getId());
+            byHqlStatic.setString("customCompositeFieldId", Group.getDefaultList().getId());
           }
           
           if (enabled != null && enabled) {

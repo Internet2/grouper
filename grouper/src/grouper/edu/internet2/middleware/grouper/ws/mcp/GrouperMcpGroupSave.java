@@ -340,23 +340,21 @@ public class GrouperMcpGroupSave {
       return buildErrorResult("groupName is required.");
     }
 
-    // block modifications to protected system groups and the etc stem
-    if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-    }
-
-    // check readwrite scope restrictions (OAuth only).
+    // protected-resource rules and read-write scope on the group the name really resolves to (it
+    // can be an alternate, old, name), see GrouperMcpResolvedTargetGate.  a name that resolves to
+    // nothing (a create) is checked as it is.
     // note: composite factor group names (leftGroupName, rightGroupName) are not
     // checked because they are only referenced (read), not modified.
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
-        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-      }
-      if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", groupName));
-      }
+    GrouperMcpResolvedTargetGate.Target groupTarget =
+        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName);
+    if (groupTarget.getError() != null) {
+      return buildErrorResult(groupTarget.getError());
+    }
+
+    // the handlers find the group by name again.  give them the current name of the group that
+    // was checked, so an old name cannot lead them to a different object than the one checked
+    if (groupTarget.isFound()) {
+      groupName = groupTarget.getName();
     }
 
     try {

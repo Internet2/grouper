@@ -65,6 +65,8 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -198,7 +200,24 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
                 tempGrouperBuiltinMessagingCache.setExtensionOfTopicToAttributeDefName(topicMap);
               }
 
-              Set<PermissionEntry> permissionEntries = new PermissionFinder().addRole(messagingRole).findPermissions();
+              // Build effective decisions, not raw rows (security fix, builtinMessagingPermissionCacheAuthorization).
+              // The raw permission view returns denied (disallowed) rows, disabled / not yet enabled / expired
+              // assignments, and every inherited duplicate, and this loop used to store true for all of them.
+              // So: enabled assignments only, and the same conflict processor PermissionFinder.hasPermission()
+              // uses (more specific deny beats broader allow, per subject / resource / action).  Limits are
+              // not run here; findPermissionsAndLimits() returns them so they can be evaluated per entry below.
+              Map<PermissionEntry, Set<PermissionLimitBean>> permissionEntryToLimits = new HashMap<PermissionEntry, Set<PermissionLimitBean>>();
+              Set<PermissionEntry> permissionEntries = null;
+              {
+                PermissionFinder permissionFinder = new PermissionFinder().addRole(messagingRole)
+                    .assignEnabled(true)
+                    .assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS_AND_ROLES);
+                Map<PermissionEntry, Set<PermissionLimitBean>> limitMap = permissionFinder.findPermissionsAndLimits();
+                if (limitMap != null) {
+                  permissionEntryToLimits.putAll(limitMap);
+                  permissionEntries = limitMap.keySet();
+                }
+              }
 
               for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
 
@@ -218,6 +237,32 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
                 } else {
                   //ignore this
                   continue;
+                }
+
+                // only a currently effective allow goes in the map; a deny, or an assignment that is not
+                // enabled now, is left out, and a missing key means not allowed in the allowedTo* methods
+                if (!permissionEntry.isAllowedOverall()) {
+                  continue;
+                }
+
+                // messaging has no request data to give a limit, so evaluate limits with an empty
+                // environment (only the standard variables such as the current time); a limit that is
+                // not satisfied, or that cannot be evaluated, denies (fail closed) instead of the old
+                // behavior of ignoring the limit.  Per entry, so one bad limit does not break the cache.
+                Set<PermissionLimitBean> permissionLimitBeans = permissionEntryToLimits.get(permissionEntry);
+                if (GrouperUtil.length(permissionLimitBeans) > 0) {
+                  try {
+                    Map<PermissionEntry, Set<PermissionLimitBean>> oneEntryToLimits = new HashMap<PermissionEntry, Set<PermissionLimitBean>>();
+                    oneEntryToLimits.put(permissionEntry, permissionLimitBeans);
+                    PermissionProcessor.processLimits(GrouperUtil.toSet(permissionEntry), new HashMap<String, Object>(), oneEntryToLimits);
+                  } catch (RuntimeException re) {
+                    LOG.error("Cannot evaluate limit on messaging permission, denying: " + permissionEntry.getSubjectSourceId()
+                        + ", " + permissionEntry.getSubjectId() + ", " + attributeDefName.getName() + ", " + permissionEntry.getAction(), re);
+                    continue;
+                  }
+                  if (!permissionEntry.isAllowedOverall()) {
+                    continue;
+                  }
                 }
 
                 //hashmap of MultiKey[source id, subject id, topic/queue extension name, action], boolean if allow or not, lazy loaded

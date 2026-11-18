@@ -23,22 +23,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
-import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
@@ -311,210 +301,68 @@ public class GrouperMcpAssignAttributes {
       }
     }
 
-    // block modifications to protected system groups and stems
-    if (StringUtils.isNotBlank(ownerGroupName)
-        && GrouperMcpProtectedResources.isProtectedGroupName(ownerGroupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(ownerGroupName));
-    }
-    if (StringUtils.isNotBlank(ownerStemName)
-        && GrouperMcpProtectedResources.isProtectedStemName(ownerStemName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedStemError(ownerStemName));
+    // The protected-resource rules and the OAuth read-write scope are checked on the objects this
+    // call really changes, resolved as root only to find out what they are: a group or folder
+    // name can be an alternate (old) name, and an assignment can be addressed by its id, which
+    // names no owner at all.  The write below still runs as the caller, so Grouper privileges
+    // stay authoritative.  See GrouperMcpResolvedTargetGate.
+
+    // the subject owner: one lookup, used by the gate and by the write, so the subject checked
+    // is the subject changed (same value, id type and source)
+    WsSubjectLookup ownerSubjectLookup = null;
+    if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
+      String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(ownerSubjectIdType);
+      if (subjectIdTypeError != null) {
+        return buildErrorResult(subjectIdTypeError);
+      }
+      ownerSubjectLookup = GrouperMcpSubjectUtils.createSubjectLookup(
+          ownerSubjectIdOrIdentifier, ownerSubjectIdType, ownerSubjectSourceId);
     }
 
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      // if user has no group/folder scope, deny group/folder owners entirely
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
-        if (StringUtils.isNotBlank(ownerGroupName)) {
-          return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-        }
-        if (StringUtils.isNotBlank(ownerStemName)) {
-          return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-        }
-      }
-      if (StringUtils.isNotBlank(ownerGroupName)
-          && !authUser.isGroupInReadwriteScope(ownerGroupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", ownerGroupName));
-      }
-      if (StringUtils.isNotBlank(ownerStemName)
-          && !authUser.isStemInReadwriteScope(ownerStemName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("folder", ownerStemName));
-      }
-      // if user has no subject scope, deny subject owners entirely
-      if (!authUser.hasSubjectReadwriteScope()) {
-        if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
-          return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
-        }
-      }
-      if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)
-          && !authUser.isSubjectInReadwriteScope(ownerSubjectIdOrIdentifier)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("subject", ownerSubjectIdOrIdentifier));
+    // the assignment being changed, when addressed by id: gate its real owner
+    if (StringUtils.isNotBlank(attributeAssignId)) {
+      String gateError = GrouperMcpResolvedTargetGate.checkAttributeAssign(authUser, attributeAssignId);
+      if (gateError != null) {
+        return buildErrorResult(gateError);
       }
     }
 
-    // for assignment-on-assignment, resolve the owner assignment and validate
-    // protected resources and scope against the underlying owner (group/stem/subject)
-    if (StringUtils.isNotBlank(ownerAttributeAssignId)) {
-      try {
-        // use root session for the lookup so we can always resolve the owner
-        // for scope/protected-resource validation; the WS layer does its own
-        // privilege check for the actual operation
-        AttributeAssign ownerAssign = (AttributeAssign) GrouperSession.internal_callbackRootGrouperSession(
-            new GrouperSessionHandler() {
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                return AttributeAssignFinder.findById(ownerAttributeAssignId, true);
-              }
-            });
-
-        // check protected resources and scope on the underlying owner
-        AttributeAssignType ownerType = ownerAssign.getAttributeAssignType();
-        if (AttributeAssignType.group == ownerType) {
-          Group ownerGroup = ownerAssign.getOwnerGroup();
-          if (ownerGroup != null) {
-            String groupName = ownerGroup.getName();
-            if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-              return buildErrorResult(
-                  GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.hasGroupOrFolderReadwriteScope()) {
-              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.isGroupInReadwriteScope(groupName)) {
-              return buildErrorResult(
-                  authUser.buildReadwriteScopeDeniedError("group", groupName));
-            }
-          }
-        } else if (AttributeAssignType.stem == ownerType) {
-          Stem ownerStem = ownerAssign.getOwnerStem();
-          if (ownerStem != null) {
-            String stemName = ownerStem.getName();
-            if (GrouperMcpProtectedResources.isProtectedStemName(stemName)) {
-              return buildErrorResult(
-                  GrouperMcpProtectedResources.buildProtectedStemError(stemName));
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.hasGroupOrFolderReadwriteScope()) {
-              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.isStemInReadwriteScope(stemName)) {
-              return buildErrorResult(
-                  authUser.buildReadwriteScopeDeniedError("folder", stemName));
-            }
-          }
-        } else if (AttributeAssignType.member == ownerType) {
-          if (authUser.isOAuthAuthenticated() && ownerAssign.getOwnerMember() != null) {
-            if (!authUser.hasSubjectReadwriteScope()) {
-              return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
-            }
-            String subjectId = ownerAssign.getOwnerMember().getSubjectId();
-            if (!authUser.isSubjectInReadwriteScope(subjectId)) {
-              return buildErrorResult(
-                  authUser.buildReadwriteScopeDeniedError("subject", subjectId));
-            }
-          }
-        } else if (AttributeAssignType.any_mem == ownerType) {
-          // any_mem has both a group and a member; validate both
-          Group ownerGroup = ownerAssign.getOwnerGroup();
-          if (ownerGroup != null) {
-            String groupName = ownerGroup.getName();
-            if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-              return buildErrorResult(
-                  GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.hasGroupOrFolderReadwriteScope()) {
-              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-            }
-            if (authUser.isOAuthAuthenticated()
-                && !authUser.isGroupInReadwriteScope(groupName)) {
-              return buildErrorResult(
-                  authUser.buildReadwriteScopeDeniedError("group", groupName));
-            }
-          }
-          if (authUser.isOAuthAuthenticated() && ownerAssign.getOwnerMember() != null) {
-            if (!authUser.hasSubjectReadwriteScope()) {
-              return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
-            }
-            String subjectId = ownerAssign.getOwnerMember().getSubjectId();
-            if (!authUser.isSubjectInReadwriteScope(subjectId)) {
-              return buildErrorResult(
-                  authUser.buildReadwriteScopeDeniedError("subject", subjectId));
-            }
-          }
-        } else if (AttributeAssignType.imm_mem == ownerType) {
-          // imm_mem has an ownerMembershipId; get the membership's group and member
-          Membership ownerMembership = ownerAssign.getOwnerImmediateMembership();
-          if (ownerMembership != null) {
-            try {
-              Group ownerGroup = ownerMembership.getOwnerGroup();
-              if (ownerGroup != null) {
-                String groupName = ownerGroup.getName();
-                if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-                  return buildErrorResult(
-                      GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-                }
-                if (authUser.isOAuthAuthenticated()
-                    && !authUser.hasGroupOrFolderReadwriteScope()) {
-                  return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-                }
-                if (authUser.isOAuthAuthenticated()
-                    && !authUser.isGroupInReadwriteScope(groupName)) {
-                  return buildErrorResult(
-                      authUser.buildReadwriteScopeDeniedError("group", groupName));
-                }
-              }
-            } catch (Exception e) {
-              // membership might not have a group owner (e.g. stem membership)
-            }
-            try {
-              Member ownerMember = ownerMembership.getMember();
-              if (authUser.isOAuthAuthenticated() && ownerMember != null) {
-                if (!authUser.hasSubjectReadwriteScope()) {
-                  return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
-                }
-                String subjectId = ownerMember.getSubjectId();
-                if (!authUser.isSubjectInReadwriteScope(subjectId)) {
-                  return buildErrorResult(
-                      authUser.buildReadwriteScopeDeniedError("subject", subjectId));
-                }
-              }
-            } catch (Exception e) {
-              // ignore if member not found
-            }
-          }
-        } else if (AttributeAssignType.attr_def == ownerType) {
-          // attr_def: validate the parent folder of the attribute def
-          AttributeDef ownerAttrDef = ownerAssign.getOwnerAttributeDef();
-          if (ownerAttrDef != null) {
-            String parentStemName = ownerAttrDef.getParentStemName();
-            if (StringUtils.isNotBlank(parentStemName)) {
-              if (GrouperMcpProtectedResources.isProtectedStemName(parentStemName)) {
-                return buildErrorResult(
-                    GrouperMcpProtectedResources.buildProtectedStemError(parentStemName));
-              }
-              if (authUser.isOAuthAuthenticated()
-                  && !authUser.hasGroupOrFolderReadwriteScope()) {
-                return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-              }
-              if (authUser.isOAuthAuthenticated()
-                  && !authUser.isStemInReadwriteScope(parentStemName)) {
-                return buildErrorResult(
-                    authUser.buildReadwriteScopeDeniedError("folder", parentStemName));
-              }
-            }
-          }
+    // named owners.  the write uses the uuid the name resolved to, so an alternate name cannot
+    // point the write somewhere other than what was checked
+    String ownerGroupUuid = null;
+    String ownerStemUuid = null;
+    if (StringUtils.isBlank(attributeAssignId)) {
+      if (StringUtils.isNotBlank(ownerGroupName)) {
+        GrouperMcpResolvedTargetGate.Target target =
+            GrouperMcpResolvedTargetGate.checkGroupByName(authUser, ownerGroupName);
+        if (target.getError() != null) {
+          return buildErrorResult(target.getError());
         }
-      } catch (Exception e) {
-        return buildErrorResult("Could not resolve owner attribute assignment: "
-            + ownerAttributeAssignId + ", " + e.getMessage());
+        ownerGroupUuid = target.getUuid();
+      }
+      if (StringUtils.isNotBlank(ownerStemName)) {
+        GrouperMcpResolvedTargetGate.Target target =
+            GrouperMcpResolvedTargetGate.checkStemByName(authUser, ownerStemName);
+        if (target.getError() != null) {
+          return buildErrorResult(target.getError());
+        }
+        ownerStemUuid = target.getUuid();
+      }
+      if (ownerSubjectLookup != null) {
+        String gateError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
+            authUser, ownerSubjectLookup, ownerSubjectIdOrIdentifier);
+        if (gateError != null) {
+          return buildErrorResult(gateError);
+        }
+      }
+
+      // for assignment-on-assignment, gate the underlying owner of the owner assignment (group,
+      // folder, member, membership or attribute def).  fails closed if it cannot be resolved
+      if (StringUtils.isNotBlank(ownerAttributeAssignId)) {
+        String gateError = GrouperMcpResolvedTargetGate.checkAttributeAssign(authUser, ownerAttributeAssignId);
+        if (gateError != null) {
+          return buildErrorResult(gateError);
+        }
       }
     }
 
@@ -543,20 +391,24 @@ public class GrouperMcpAssignAttributes {
 
       if (StringUtils.isBlank(attributeAssignId)) {
         if (StringUtils.isNotBlank(ownerGroupName)) {
+          // by the uuid the gate checked when the name resolved, else by name (not found)
           WsGroupLookup gl = new WsGroupLookup();
-          gl.setGroupName(ownerGroupName);
+          if (ownerGroupUuid != null) {
+            gl.setUuid(ownerGroupUuid);
+          } else {
+            gl.setGroupName(ownerGroupName);
+          }
           wsOwnerGroupLookups = new WsGroupLookup[] { gl };
         }
 
         if (StringUtils.isNotBlank(ownerStemName)) {
-          wsOwnerStemLookups = new WsStemLookup[] { new WsStemLookup(ownerStemName, null) };
+          wsOwnerStemLookups = new WsStemLookup[] { ownerStemUuid != null
+              ? new WsStemLookup(null, ownerStemUuid) : new WsStemLookup(ownerStemName, null) };
         }
 
-        if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
-          wsOwnerSubjectLookups = new WsSubjectLookup[] {
-              GrouperMcpSubjectUtils.createSubjectLookup(
-                  ownerSubjectIdOrIdentifier, ownerSubjectIdType, ownerSubjectSourceId)
-          };
+        if (ownerSubjectLookup != null) {
+          // the same lookup the gate resolved
+          wsOwnerSubjectLookups = new WsSubjectLookup[] { ownerSubjectLookup };
         }
 
         if (StringUtils.isNotBlank(ownerAttributeAssignId)) {

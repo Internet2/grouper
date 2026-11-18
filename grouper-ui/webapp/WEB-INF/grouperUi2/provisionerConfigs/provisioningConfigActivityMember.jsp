@@ -42,19 +42,19 @@
              
                <tr>
                   <td style="white-space: nowrap;">
-                	${grouperSyncMember.memberId}
+                	${grouper:escapeHtml(grouperSyncMember.memberId)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMember.sourceId}
+                	${grouper:escapeHtml(grouperSyncMember.sourceId)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	 ${grouperSyncMember.subjectId}
+                	 ${grouper:escapeHtml(grouperSyncMember.subjectId)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	 ${grouperSyncMember.subjectIdentifier}
+                	 ${grouper:escapeHtml(grouperSyncMember.subjectIdentifier)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -92,59 +92,59 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMember.inTargetStart}
+                	${grouper:escapeHtml(grouperSyncMember.inTargetStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMember.inTargetEnd}
+                	${grouper:escapeHtml(grouperSyncMember.inTargetEnd)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.provisionableStart}
+                    ${grouper:escapeHtml(grouperSyncMember.provisionableStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.provisionableEnd}
+                    ${grouper:escapeHtml(grouperSyncMember.provisionableEnd)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastUpdated}
+                    ${grouper:escapeHtml(grouperSyncMember.lastUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastUserSyncStart}
+                    ${grouper:escapeHtml(grouperSyncMember.lastUserSyncStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastUserSync}
+                    ${grouper:escapeHtml(grouperSyncMember.lastUserSync)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastUserMetadataSyncStart}
+                    ${grouper:escapeHtml(grouperSyncMember.lastUserMetadataSyncStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastUserMetadataSync}
+                    ${grouper:escapeHtml(grouperSyncMember.lastUserMetadataSync)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.entityAttributeValueCache0}
+                    ${grouper:escapeHtml(grouperSyncMember.entityAttributeValueCache0)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.entityAttributeValueCache1}
+                    ${grouper:escapeHtml(grouperSyncMember.entityAttributeValueCache1)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.entityAttributeValueCache2}
+                    ${grouper:escapeHtml(grouperSyncMember.entityAttributeValueCache2)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.entityAttributeValueCache3}
+                    ${grouper:escapeHtml(grouperSyncMember.entityAttributeValueCache3)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.metadataUpdated}
+                    ${grouper:escapeHtml(grouperSyncMember.metadataUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -152,7 +152,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.errorTimestamp}
+                    ${grouper:escapeHtml(grouperSyncMember.errorTimestamp)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -163,7 +163,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.lastTimeWorkWasDone}
+                    ${grouper:escapeHtml(grouperSyncMember.lastTimeWorkWasDone)}
                   </td>
                   
                   </tr>

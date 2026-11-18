@@ -41,11 +41,14 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -112,7 +115,9 @@ public class GrouperMcpGetAuditEntries {
     properties.set("stemName", stemNameProp);
 
     GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
-        "Subject ID or identifier to get audit entries about.");
+        "Subject ID or identifier to get audit entries about. "
+        + "Requires a sysadmin, a readonly sysadmin, or membership in the group the UI uses for "
+        + "seeing subject audits (also when the subject is yourself).");
     GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
     GrouperMcpSubjectUtils.addSourceIdProperty(properties,
         "Source ID for the subject to get audit entries about.");
@@ -257,19 +262,23 @@ public class GrouperMcpGetAuditEntries {
         query.addAuditTypeFieldValue("stemId", stem.getId());
       }
 
-      // subject filter: audit entries about this subject
+      // subject filter: audit entries about this subject.  same rule as the UI's subject audit
+      // screen (SubjectContainer.isCanSeeAudits), for every subject including the caller: the
+      // entries name groups, folders and attribute definitions with no check that the caller can
+      // see them, so "about myself" would show hidden groups the caller is or was in.  checked
+      // before the subject is looked up, so a denied caller cannot probe which subjects exist
       if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+        if (!canSeeSubjectAudits(authenticatedSubject)) {
+          return buildErrorResult(
+              "Access denied: viewing audit entries about a subject requires a sysadmin, a readonly "
+              + "sysadmin, or membership in the group configured in "
+              + SEE_SUBJECT_AUDITS_GROUP_CONFIG + ".");
+        }
         Subject subject = StringUtils.isNotBlank(sourceId)
             ? SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, false)
             : SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
         if (subject == null) {
           return buildErrorResult("Subject not found: " + subjectIdOrIdentifier);
-        }
-        // allow if admin or looking at own audit entries
-        if (!isAdmin && !subjectsEqual(authenticatedSubject, subject)) {
-          return buildErrorResult(
-              "Access denied: admin privilege or being the subject is required "
-              + "to view audit entries about a subject.");
         }
         Member member = MemberFinder.findBySubject(grouperSession, subject, false);
         if (member == null) {
@@ -350,6 +359,51 @@ public class GrouperMcpGetAuditEntries {
       return buildErrorResult("Error getting audit entries: " + e.getMessage()
           + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
+  }
+
+  /**
+   * the UI config key (grouper-ui.properties) naming the group whose members may see audit entries
+   * about a subject, besides sysadmins and readonly sysadmins.  Blank means no one else.  Read
+   * through GrouperUiConfigInApi, the same cascade the UI reads, so MCP and the UI agree
+   */
+  static final String SEE_SUBJECT_AUDITS_GROUP_CONFIG = "uiV2.subject.seeAudits.must.be.in.group";
+
+  /**
+   * whether a subject may read audit entries about a subject: the same rule as the UI's
+   * SubjectContainer.isCanSeeAudits (wheel, root or readonly root, or a member of the group in
+   * uiV2.subject.seeAudits.must.be.in.group).  GrouperUiFilter.requireUiGroup is UI only, so it
+   * is mirrored here
+   * @param subject the caller
+   * @return true if allowed
+   */
+  static boolean canSeeSubjectAudits(final Subject subject) {
+    if (subject == null) {
+      return false;
+    }
+    if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(subject)) {
+      return true;
+    }
+    final String groupName = GrouperUiConfigInApi.retrieveConfig().propertyValueString(
+        SEE_SUBJECT_AUDITS_GROUP_CONFIG);
+    if (StringUtils.isBlank(groupName)) {
+      // blank means no one else, as in the UI
+      return false;
+    }
+    // as root: whether the caller can see the group does not matter, only whether they are in it
+    Boolean isMember = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          // misconfigured: fail closed
+          LOG.warn("Group in " + SEE_SUBJECT_AUDITS_GROUP_CONFIG + " not found: " + groupName);
+          return false;
+        }
+        return group.hasMember(subject);
+      }
+    });
+    return isMember != null && isMember;
   }
 
   /**

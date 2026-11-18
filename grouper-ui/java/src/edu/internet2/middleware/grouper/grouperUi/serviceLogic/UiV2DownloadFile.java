@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -43,6 +44,13 @@ import edu.internet2.middleware.subject.Subject;
  * <p>Security: the download only serves tokens that are in the current session and were
  * registered for the same logged in subject, so a url copied to someone else is useless.  The
  * caller is responsible for only registering files the user may see.</p>
+ *
+ * <p>Security (109_gshTemplateMutableDownloadDisclosure): a token is also bound to the version of the
+ * grouper_file row it was issued for (hibernate_version_number, which every store increments).  A GSH
+ * template download file is keyed by template, date, and file name, so another user running the same
+ * template replaces the contents of the same row (same id).  Without the version, a link issued to user A
+ * would then serve user B's contents.  With it, the old link returns 404 (fail closed) once the row
+ * changes, so a token only ever serves the bytes that existed when it was issued.</p>
  */
 public class UiV2DownloadFile {
 
@@ -69,6 +77,13 @@ public class UiV2DownloadFile {
     /** grouper_file id */
     private final String grouperFileId;
 
+    /**
+     * 109: grouper_file.hibernate_version_number when the token was issued.  The download fails closed if
+     * the row has been saved again since.  Null (e.g. an entry from a session serialized before this field
+     * existed) never matches, so such a token is treated as expired
+     */
+    private final Long grouperFileVersion;
+
     /** source id of the subject the token was registered for */
     private final String subjectSourceId;
 
@@ -77,11 +92,13 @@ public class UiV2DownloadFile {
 
     /**
      * @param grouperFileId
+     * @param grouperFileVersion version of the row the token is for
      * @param subjectSourceId
      * @param subjectId
      */
-    DownloadEntry(String grouperFileId, String subjectSourceId, String subjectId) {
+    DownloadEntry(String grouperFileId, Long grouperFileVersion, String subjectSourceId, String subjectId) {
       this.grouperFileId = grouperFileId;
+      this.grouperFileVersion = grouperFileVersion;
       this.subjectSourceId = subjectSourceId;
       this.subjectId = subjectId;
     }
@@ -91,6 +108,23 @@ public class UiV2DownloadFile {
      */
     String getGrouperFileId() {
       return this.grouperFileId;
+    }
+
+    /**
+     * @return grouper_file version the token was issued for
+     */
+    Long getGrouperFileVersion() {
+      return this.grouperFileVersion;
+    }
+
+    /**
+     * 109: if the row loaded at download time is the same version the token was issued for
+     * @param grouperFile
+     * @return true if it matches, false if the row changed (or the version is unknown)
+     */
+    boolean isForVersion(GrouperFile grouperFile) {
+      return grouperFile != null && this.grouperFileVersion != null
+          && this.grouperFileVersion.equals(grouperFile.getHibernateVersionNumber());
     }
 
     /**
@@ -121,25 +155,70 @@ public class UiV2DownloadFile {
    * @return the url, e.g. ../app/UiV2DownloadFile.download?token=abc123
    */
   public static String downloadUrl(String grouperFileId) {
+    return downloadUrl(grouperFileId, null);
+  }
+
+  /**
+   * 109: register a grouper_file for the logged in user to download, bound to the version of the row the
+   * caller produced (e.g. the version a GSH template saved), and return the relative url to download it.
+   * If the row has been saved again since (another user ran the same template), the link returns 404 rather
+   * than the other contents
+   * @param grouperFileId
+   * @param expectedVersion grouper_file.hibernate_version_number the caller saved or chose, or null to use
+   * the row's current version
+   * @return the url, e.g. ../app/UiV2DownloadFile.download?token=abc123
+   */
+  public static String downloadUrl(String grouperFileId, Long expectedVersion) {
     HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    String token = registerDownload(request.getSession(), grouperFileId, loggedInSubject);
+    String token = registerDownload(request.getSession(), grouperFileId, expectedVersion, loggedInSubject);
     return "../app/" + UiV2DownloadFile.class.getSimpleName() + ".download?token=" + token;
   }
 
   /**
-   * put a token in the session for this file and subject
+   * 109: the current grouper_file.hibernate_version_number of a row, without loading the contents
+   * @param grouperFileId
+   * @return the version or null if the row is not there
+   */
+  static Long retrieveGrouperFileVersion(String grouperFileId) {
+    return new GcDbAccess()
+        .sql("select " + GrouperFile.COLUMN_HIBERNATE_VERSION_NUMBER + " from " + GrouperFile.TABLE_GROUPER_FILE
+            + " where " + GrouperFile.COLUMN_ID + " = ?")
+        .addBindVar(grouperFileId).select(Long.class);
+  }
+
+  /**
+   * put a token in the session for this file (at its current version) and subject
    * @param httpSession
    * @param grouperFileId
    * @param subject logged in subject
    * @return the token
    */
   static String registerDownload(HttpSession httpSession, String grouperFileId, Subject subject) {
+    return registerDownload(httpSession, grouperFileId, null, subject);
+  }
+
+  /**
+   * put a token in the session for this file, version, and subject
+   * @param httpSession
+   * @param grouperFileId
+   * @param expectedVersion version the token is for, or null to use the row's current version
+   * @param subject logged in subject
+   * @return the token
+   */
+  static String registerDownload(HttpSession httpSession, String grouperFileId, Long expectedVersion, Subject subject) {
     if (StringUtils.isBlank(grouperFileId)) {
       throw new RuntimeException("grouperFileId is required");
     }
     if (subject == null) {
       throw new RuntimeException("subject is required");
+    }
+
+    // 109: bind the token to a version of the row so a later re-save (same id) does not follow the link.
+    // If the row is not there the version stays null, which never matches, so the download is a 404 (as before)
+    Long grouperFileVersion = expectedVersion;
+    if (grouperFileVersion == null) {
+      grouperFileVersion = retrieveGrouperFileVersion(grouperFileId);
     }
 
     // 128 random bits as hex
@@ -152,7 +231,7 @@ public class UiV2DownloadFile {
 
     Map<String, DownloadEntry> tokenToEntry = retrieveTokenMap(httpSession);
     synchronized (tokenToEntry) {
-      tokenToEntry.put(token.toString(), new DownloadEntry(grouperFileId, subject.getSourceId(), subject.getId()));
+      tokenToEntry.put(token.toString(), new DownloadEntry(grouperFileId, grouperFileVersion, subject.getSourceId(), subject.getId()));
 
       // drop the oldest so a long session does not grow without bound
       Iterator<String> iterator = tokenToEntry.keySet().iterator();
@@ -174,6 +253,18 @@ public class UiV2DownloadFile {
    * @return the grouper_file id or null if the token is not in this session or is for another subject
    */
   static String retrieveGrouperFileId(HttpSession httpSession, String token, Subject subject) {
+    DownloadEntry downloadEntry = retrieveDownloadEntry(httpSession, token, subject);
+    return downloadEntry == null ? null : downloadEntry.getGrouperFileId();
+  }
+
+  /**
+   * look up the entry (file id and version) for a token in this session, for this subject
+   * @param httpSession
+   * @param token
+   * @param subject logged in subject
+   * @return the entry or null if the token is not in this session or is for another subject
+   */
+  static DownloadEntry retrieveDownloadEntry(HttpSession httpSession, String token, Subject subject) {
     if (httpSession == null || StringUtils.isBlank(token) || subject == null) {
       return null;
     }
@@ -185,7 +276,51 @@ public class UiV2DownloadFile {
     if (downloadEntry == null || !downloadEntry.isForSubject(subject)) {
       return null;
     }
-    return downloadEntry.getGrouperFileId();
+    return downloadEntry;
+  }
+
+  /**
+   * 109: load the file for a token in this session, for this subject, only if the row is still the version the
+   * token was issued for.  If the row was saved again since (e.g. another user ran the same GSH template with the
+   * same date and file name), these are not the contents this user was given: the token is dropped and null is
+   * returned (fail closed)
+   * @param httpSession
+   * @param token
+   * @param subject logged in subject
+   * @return the file or null if the token is not valid here, the row is gone, or the row changed
+   */
+  static GrouperFile retrieveGrouperFileForDownload(HttpSession httpSession, String token, Subject subject) {
+    DownloadEntry downloadEntry = retrieveDownloadEntry(httpSession, token, subject);
+    if (downloadEntry == null) {
+      return null;
+    }
+    GrouperFile grouperFile = GrouperFileDao.findById(downloadEntry.getGrouperFileId(), false);
+    if (grouperFile == null) {
+      return null;
+    }
+    if (!downloadEntry.isForVersion(grouperFile)) {
+      LOG.warn("Download file changed since the link was issued, not serving it, subject: "
+          + GrouperUtil.subjectToString(subject) + ", grouperFileId: " + downloadEntry.getGrouperFileId()
+          + ", token version: " + downloadEntry.getGrouperFileVersion() + ", current version: "
+          + grouperFile.getHibernateVersionNumber());
+      removeToken(httpSession, token);
+      return null;
+    }
+    return grouperFile;
+  }
+
+  /**
+   * 109: drop a token whose file changed, it can never be served again
+   * @param httpSession
+   * @param token
+   */
+  private static void removeToken(HttpSession httpSession, String token) {
+    Map<String, DownloadEntry> tokenToEntry = retrieveTokenMap(httpSession);
+    synchronized (tokenToEntry) {
+      tokenToEntry.remove(token);
+    }
+    // set again so session replication sees the change
+    httpSession.setAttribute(SESSION_ATTRIBUTE, tokenToEntry);
   }
 
   /**
@@ -216,10 +351,11 @@ public class UiV2DownloadFile {
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     String token = request.getParameter("token");
 
-    String grouperFileId = retrieveGrouperFileId(request.getSession(false), token, loggedInSubject);
+    HttpSession httpSession = request.getSession(false);
+    String grouperFileId = retrieveGrouperFileId(httpSession, token, loggedInSubject);
 
-    GrouperFile grouperFile = grouperFileId == null ? null
-        : GrouperFileDao.findById(grouperFileId, false);
+    // 109: null if the token is unknown, the row is gone, or the row changed since the token was issued
+    GrouperFile grouperFile = retrieveGrouperFileForDownload(httpSession, token, loggedInSubject);
 
     try {
       if (grouperFile == null) {

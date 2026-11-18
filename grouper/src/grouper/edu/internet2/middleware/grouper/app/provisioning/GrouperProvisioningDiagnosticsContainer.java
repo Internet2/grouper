@@ -659,9 +659,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         if (values.size() == 0) {
           this.report.append("<font color='red'><b>Error:</b></font> No values to add after translation\n");
         } else if (values.size() > 1) {
-          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
+          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + escapeForReport(values) + "\n");
         } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-          this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
+          this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + escapeForReport(value) + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
               new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
@@ -671,7 +671,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.grouperProvisioner.retrieveGrouperProvisioningCompare().removeGroupDefaultMembershipAttributeValueIfAnyAdded(grouperTargetGroupsToUpdate);
   
           for (ProvisioningObjectChange provisioningObjectChange : grouperTargetGroupsToUpdate.get(0).getInternal_objectChanges()) {
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + provisioningObjectChange.getAttributeName() + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + provisioningObjectChange.getOldValue() + ", newValue=" + provisioningObjectChange.getNewValue() + "\n");
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + escapeForReport(provisioningObjectChange.getAttributeName()) + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + escapeForReport(provisioningObjectChange.getOldValue()) + ", newValue=" + escapeForReport(provisioningObjectChange.getNewValue()) + "\n");
           }
           
           RuntimeException runtimeException = null;
@@ -710,11 +710,11 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after inserting membership, should be 1!\n");
           } else {
             if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
-              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + escapeForReport(value) + "\n");
             } else if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-              this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + escapeForReport(value) + "\n");
             } else {
-              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + escapeForReport(value) + "\n");
             }
           }
           
@@ -1118,9 +1118,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         if (values.size() == 0) {
           this.report.append("<font color='red'><b>Error:</b></font> No values to remove after translation\n");
         } else if (values.size() > 1) {
-          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
+          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + escapeForReport(values) + "\n");
         } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName) == null || !((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-          this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
+          this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + escapeForReport(value) + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
               new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
@@ -1130,7 +1130,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.grouperProvisioner.retrieveGrouperProvisioningCompare().addGroupDefaultMembershipAttributeValueIfAllRemoved(grouperTargetGroupsToUpdate);
   
           for (ProvisioningObjectChange provisioningObjectChange : grouperTargetGroupsToUpdate.get(0).getInternal_objectChanges()) {
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + provisioningObjectChange.getAttributeName() + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + provisioningObjectChange.getOldValue() + ", newValue=" + provisioningObjectChange.getNewValue() + "\n");
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + escapeForReport(provisioningObjectChange.getAttributeName()) + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + escapeForReport(provisioningObjectChange.getOldValue()) + ", newValue=" + escapeForReport(provisioningObjectChange.getNewValue()) + "\n");
           }
           
           RuntimeException runtimeException = null;
@@ -1169,11 +1169,11 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after removing membership, should be 1!\n");
           } else {
             if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
-              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + escapeForReport(value) + "\n");
             } else if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-              this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + escapeForReport(value) + "\n");
             } else {
-              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + escapeForReport(value) + "\n");
             }
           }
           
@@ -1780,7 +1780,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='red'><b>Error:</b></font> " + GrouperUtil.xmlEscape(errorToDisplay)).append("\n");
         }
         for (String validationKeyError : validationErrorsToDisplay.keySet()) {
-          this.report.append("<font color='red'><b>Error:</b></font> in config item '" + validationKeyError + "': " + GrouperUtil.xmlEscape(validationErrorsToDisplay.get(validationKeyError))).append("\n");
+          this.report.append("<font color='red'><b>Error:</b></font> in config item '" + escapeForReport(validationKeyError) + "': " + GrouperUtil.xmlEscape(validationErrorsToDisplay.get(validationKeyError))).append("\n");
         }
       } else {
         this.report.append("<font color='green'><b>Success:</b></font> Provisioner config satisfies configuration JSON rules\n");
@@ -1817,13 +1817,31 @@ public class GrouperProvisioningDiagnosticsContainer {
 
   public void appendGeneralInfo() {
     this.report.append("<h4>Provisioner</h4><pre>");
-    GrouperProvisioningObjectLogType.appendProvisioner(grouperProvisioner, this.report, "Provisioner");
+    {
+      // build in its own buffer (starting with a newline, which the describer expects) and escape,
+      // since it prints toString() of config objects that can hold markup
+      StringBuilder section = new StringBuilder("\n");
+      GrouperProvisioningObjectLogType.appendProvisioner(grouperProvisioner, section, "Provisioner");
+      this.report.append(escapeForReport(section));
+    }
     this.report.append("</pre>\n<h4>Configuration analysis</h4><pre>");
-    GrouperProvisioningObjectLogType.appendConfiguration(grouperProvisioner, this.report, "Configuration");
+    {
+      StringBuilder section = new StringBuilder("\n");
+      GrouperProvisioningObjectLogType.appendConfiguration(grouperProvisioner, section, "Configuration");
+      this.report.append(escapeForReport(section));
+    }
     this.report.append("</pre>\n<h4>Target Dao capabilities</h4><pre>");
-    GrouperProvisioningObjectLogType.appendTargetDaoCapabilities(grouperProvisioner, this.report, "Target Dao capabilities");
+    {
+      StringBuilder section = new StringBuilder("\n");
+      GrouperProvisioningObjectLogType.appendTargetDaoCapabilities(grouperProvisioner, section, "Target Dao capabilities");
+      this.report.append(escapeForReport(section));
+    }
     this.report.append("</pre>\n<h4>Provisioner behaviors</h4><pre>");
-    GrouperProvisioningObjectLogType.appendTargetDaoBehaviors(grouperProvisioner, this.report, "Provisioner behaviors");
+    {
+      StringBuilder section = new StringBuilder("\n");
+      GrouperProvisioningObjectLogType.appendTargetDaoBehaviors(grouperProvisioner, section, "Provisioner behaviors");
+      this.report.append(escapeForReport(section));
+    }
     this.report.append("</pre>\n");
     
   }
@@ -1921,7 +1939,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               this.report.append("<font color='green'><b>Success:</b></font> All target groups have unique matching ids")
                 .append(this.getCurrentDuration()).append("\n");
             } else {
-              this.report.append("<font color='red'><b>Error:</b></font> " + countWithDuplicateMatchingId + " target groups have a duplicate matching id, e.g. " + GrouperUtil.toStringForLog(firstTen, 1000))
+              this.report.append("<font color='red'><b>Error:</b></font> " + countWithDuplicateMatchingId + " target groups have a duplicate matching id, e.g. " + escapeForReport(GrouperUtil.toStringForLog(firstTen, 1000)))
                 .append(this.getCurrentDuration()).append("\n");
             }
           }
@@ -1941,6 +1959,17 @@ public class GrouperProvisioningDiagnosticsContainer {
     this.report.append("</pre>");
   }
 
+  /**
+   * HTML escape a value for the diagnostics report.  the report is printed as HTML, and values
+   * here come from the target or from translations (group names, subject attributes, DNs), so they
+   * must never be added raw.  null prints as "null" like string concatenation did
+   * @param value
+   * @return the escaped string
+   */
+  private static String escapeForReport(Object value) {
+    return GrouperUtil.xmlEscape(String.valueOf(value));
+  }
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningDiagnosticsContainer.class);
 
@@ -1956,11 +1985,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         if (StringUtils.isBlank(line)) {
           continue;
         }
-        if (!line.startsWith("<font color='")) {
+        // always escape: callers pass object toString() and stack traces, which can carry target data
+        // that starts with a font tag, so a raw pass-through for such lines would let markup in
           this.report.append("<font color='gray'><b>Note:</b></font> ").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(line, 3000))).append("\n");
-        } else {
-          this.report.append(line).append("\n");
-        }
         if (++lineNumber >= 50) {
           this.report.append("<font color='gray'><b>Note:</b></font> Only showing 50 lines\n");
           break;
@@ -2212,9 +2239,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         if (values.size() == 0) {
           this.report.append("<font color='red'><b>Error:</b></font> No values to add after translation\n");
         } else if (values.size() > 1) {
-          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
+          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + escapeForReport(values) + "\n");
         } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-          this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
+          this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + escapeForReport(value) + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
               new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
@@ -2222,7 +2249,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               );
     
           for (ProvisioningObjectChange provisioningObjectChange : grouperTargetEntitiesToUpdate.get(0).getInternal_objectChanges()) {
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + provisioningObjectChange.getAttributeName() + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + provisioningObjectChange.getOldValue() + ", newValue=" + provisioningObjectChange.getNewValue() + "\n");
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + escapeForReport(provisioningObjectChange.getAttributeName()) + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + escapeForReport(provisioningObjectChange.getOldValue()) + ", newValue=" + escapeForReport(provisioningObjectChange.getNewValue()) + "\n");
           }
           
           RuntimeException runtimeException = null;
@@ -2261,11 +2288,11 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entitites after inserting membership, should be 1!\n");
           } else {
             if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
-              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + escapeForReport(value) + "\n");
             } else if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-              this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + escapeForReport(value) + "\n");
             } else {
-              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + escapeForReport(value) + "\n");
             }
           }
           
@@ -2377,9 +2404,9 @@ public class GrouperProvisioningDiagnosticsContainer {
         if (values.size() == 0) {
           this.report.append("<font color='red'><b>Error:</b></font> No values to remove after translation\n");
         } else if (values.size() > 1) {
-          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
+          this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + escapeForReport(values) + "\n");
         } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName) == null || !((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-          this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
+          this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + escapeForReport(value) + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
               new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
@@ -2387,7 +2414,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               );
     
           for (ProvisioningObjectChange provisioningObjectChange : grouperTargetEntitiesToUpdate.get(0).getInternal_objectChanges()) {
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + provisioningObjectChange.getAttributeName() + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + provisioningObjectChange.getOldValue() + ", newValue=" + provisioningObjectChange.getNewValue() + "\n");
+            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningObjectChange: attributeName=" + escapeForReport(provisioningObjectChange.getAttributeName()) + ", action=" + provisioningObjectChange.getProvisioningObjectChangeAction() + ", oldValue=" + escapeForReport(provisioningObjectChange.getOldValue()) + ", newValue=" + escapeForReport(provisioningObjectChange.getNewValue()) + "\n");
           }
           
           RuntimeException runtimeException = null;
@@ -2426,11 +2453,11 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entities after removing membership, should be 1!\n");
           } else {
             if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
-              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + escapeForReport(value) + "\n");
             } else if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
-              this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + value + "\n");
+              this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + escapeForReport(value) + "\n");
             } else {
-              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
+              this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + escapeForReport(value) + "\n");
             }
           }
           

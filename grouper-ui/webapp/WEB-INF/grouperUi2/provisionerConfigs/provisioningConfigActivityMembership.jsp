@@ -33,15 +33,15 @@
                <tr>
                		
                   <td style="white-space: nowrap;">
-                	${grouperSyncMembership.grouperSyncGroup.groupName}
+                	${grouper:escapeHtml(grouperSyncMembership.grouperSyncGroup.groupName)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMembership.grouperSyncMember.subjectId}
+                	${grouper:escapeHtml(grouperSyncMembership.grouperSyncMember.subjectId)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMembership.grouperSyncMember.subjectIdentifier}
+                	${grouper:escapeHtml(grouperSyncMembership.grouperSyncMember.subjectIdentifier)}
                   </td>
                		
                   <td style="white-space: nowrap;">
@@ -68,27 +68,27 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMembership.inTargetStart}
+                	${grouper:escapeHtml(grouperSyncMembership.inTargetStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                	${grouperSyncMembership.inTargetEnd}
+                	${grouper:escapeHtml(grouperSyncMembership.inTargetEnd)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.lastUpdated}
+                    ${grouper:escapeHtml(grouperSyncMembership.lastUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.membershipId}
+                    ${grouper:escapeHtml(grouperSyncMembership.membershipId)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.membershipId2}
+                    ${grouper:escapeHtml(grouperSyncMembership.membershipId2)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.metadataUpdated}
+                    ${grouper:escapeHtml(grouperSyncMembership.metadataUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -96,7 +96,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMembership.errorTimestamp}
+                    ${grouper:escapeHtml(grouperSyncMembership.errorTimestamp)}
                   </td>
                   
                   <td style="white-space: nowrap;">

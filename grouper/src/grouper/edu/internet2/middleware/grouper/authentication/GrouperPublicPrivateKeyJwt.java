@@ -172,6 +172,14 @@ public class GrouperPublicPrivateKeyJwt {
         }
       } 
       
+      // the credential holder must still be an existing, enabled local entity.  Checked on every
+      // request and not cached (the credential and subject above are cached), so disabling the
+      // entity, or reaching its disabled date, stops authentication on the next request
+      if (!GrouperLocalEntityJwtCheck.isCredentialHolderActive(grouperPassword, memberId, debugMap)) {
+        grouperPasswordRecentlyUsed.setStatus('F');
+        return null;
+      }
+      
       String jwtString = matcher.group(2);
       
       DecodedJWT decodedJwt = JWT.decode(jwtString);

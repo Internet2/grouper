@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthSubjectScope;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthCode;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
@@ -422,13 +423,10 @@ public class UiV2OAuth extends UiServiceLogicBase {
         // Anything which did not resolve is refused rather than dropped.  Carrying on with a
         // short list would hand out a wider consent than the one on the screen, since a folder
         // and group list which ends up empty leaves that dimension unscoped rather than closed.
-        //
-        // Subjects are deliberately not checked this way.  Nothing is looked up for them, so the
-        // only reason that list shrinks is resolveSubjectIds collapsing two picks of the same
-        // subject from different sources, which is right: the scope matches a subject id without
-        // a source.  That cannot turn a non empty pick into an empty list, which is the case
-        // this check exists to catch.
-        if (readwriteFolders.size() != stemIds.size() || readwriteGroups.size() != groupIds.size()) {
+        // Subjects too: each one is stored as sourceId||subjectId, and a pick which does not
+        // resolve to exactly one subject makes resolveSubjectIds return null
+        if (readwriteSubjects == null
+            || readwriteFolders.size() != stemIds.size() || readwriteGroups.size() != groupIds.size()) {
           response.sendError(HttpServletResponse.SC_BAD_REQUEST,
               GrouperTextContainer.textOrNull("oauthConsentReadwriteValidationError"));
           throw new ControllerDone();
@@ -603,6 +601,15 @@ public class UiV2OAuth extends UiServiceLogicBase {
       List<String> folderPaths = resolveStemNames(stemIds, loggedInSubject);
       List<String> groupPaths = resolveGroupNames(groupIds, loggedInSubject);
       List<String> subjectIds = resolveSubjectIds(readScopeHiddenFields(request, "extraSubjectId_"));
+
+      // a subject pick which does not resolve to exactly one subject stops the consent, the same
+      // as a folder or group which no longer resolves
+      if (subjectIds == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteSubjectComboErrorId",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteSubjectNotFound")));
+        return;
+      }
 
       // see the note on the same check in submitAuthorize: a pick which no longer resolves has to
       // stop the consent, because dropping it would widen the scope rather than narrow it
@@ -885,36 +892,37 @@ public class UiV2OAuth extends UiServiceLogicBase {
   }
 
   /**
-   * Pull the subject ids out of what the subject picker handed back.
+   * Turn what the subject picker handed back into subject scope keys, sourceId||subjectId.
    *
-   * <p>That picker is the shared one, whose ids are sourceId||subjectId.  The scope is stored as
-   * a bare subject id, and matches an id or one of a subject's identifiers, so the source half is
-   * dropped.  Nothing is looked up: a subject id which matches nothing authorizes nothing.</p>
+   * <p>That picker is the shared one, whose ids are sourceId||subjectId.  The source is kept: a
+   * subject id is only unique within a source, and an identifier such as an email can be shared
+   * across sources, so a scope without the source would let a token act on a different subject
+   * than the one picked.  Each pick is confirmed in its source; a value typed in without a source
+   * has to match exactly one subject.  See GrouperOAuthSubjectScope.</p>
    *
    * @param pickedValues what the form carried
-   * @return the subject ids, in the order they were picked
+   * @return the keys, in the order they were picked, or null if any pick does not resolve to
+   * exactly one subject (the caller refuses the consent rather than dropping the pick)
    */
   private static List<String> resolveSubjectIds(List<String> pickedValues) {
 
-    List<String> subjectIds = new ArrayList<String>();
+    List<String> subjectKeys = new ArrayList<String>();
 
     for (String pickedValue : pickedValues) {
 
-      // the first separator, not the last: a source id has no || in it, but nothing stops a
-      // subject id from having one, and that whole id is what the scope is stored as
-      String subjectId = StringUtils.trimToNull(StringUtils.substringAfter(pickedValue, "||"));
+      String subjectKey = GrouperOAuthSubjectScope.canonicalizeConsentValue(pickedValue);
 
-      if (subjectId == null) {
-        // typed in rather than picked, so there is no source half to drop
-        subjectId = StringUtils.trimToNull(pickedValue);
+      if (subjectKey == null) {
+        return null;
       }
 
-      if (subjectId != null && !subjectIds.contains(subjectId)) {
-        subjectIds.add(subjectId);
+      // two picks of the same subject (e.g. picked, and typed by id) collapse into one key
+      if (!subjectKeys.contains(subjectKey)) {
+        subjectKeys.add(subjectKey);
       }
     }
 
-    return subjectIds;
+    return subjectKeys;
   }
 
   /**

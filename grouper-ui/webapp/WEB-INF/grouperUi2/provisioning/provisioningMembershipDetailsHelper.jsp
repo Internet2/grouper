@@ -2,7 +2,7 @@
                   <c:when test="${not empty grouperRequestContainer.provisioningContainer.gcGrouperSyncMemberships}">
                     <c:forEach items="${grouperRequestContainer.provisioningContainer.gcGrouperSyncMemberships}" var="grouperSyncMembership" >
                     
-                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: ${grouperSyncMembership.grouperSync.provisionerName}</h4> 
+                      <h4>${textContainer.text['provisioningTargetNameLabel'] }: ${grouper:escapeHtml(grouperSyncMembership.grouperSync.provisionerName)}</h4> 
                       <table class="table table-condensed table-striped">
                         <tbody>
                           <tr>
@@ -38,14 +38,14 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectInTargetStartLabel'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.inTargetStart }
+                             ${grouper:escapeHtml(grouperSyncMembership.inTargetStart)}
                             </td>
                           </tr>
                           
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectInTargetEndLabel'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.inTargetEnd}
+                             ${grouper:escapeHtml(grouperSyncMembership.inTargetEnd)}
                             </td>
                           </tr>
                           
@@ -54,28 +54,28 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectLastUpdatedLabel'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.lastUpdated}
+                             ${grouper:escapeHtml(grouperSyncMembership.lastUpdated)}
                             </td>
                           </tr>
                           
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectMembershipIdLabel'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.membershipId}
+                             ${grouper:escapeHtml(grouperSyncMembership.membershipId)}
                             </td>
                           </tr>
                           
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectMembershipId2Label'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.membershipId2}
+                             ${grouper:escapeHtml(grouperSyncMembership.membershipId2)}
                             </td>
                           </tr>
                           
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisioningSubjectMembershipMetadataUpdatedLabel'] }</strong></td>
                             <td>
-                             ${grouperSyncMembership.metadataUpdated}
+                             ${grouper:escapeHtml(grouperSyncMembership.metadataUpdated)}
                             </td>
                           </tr>
                           

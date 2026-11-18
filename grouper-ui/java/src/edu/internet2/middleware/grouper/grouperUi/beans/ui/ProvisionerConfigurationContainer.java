@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class ProvisionerConfigurationContainer {
+
+  // security fix (provisionerConfigViewsDisclosePrivateGroupsAndMemberships): rows are filtered in
+  // the caller's session by ProvisionerConfigViewFilter before the JSPs see them
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ProvisionerConfigurationContainer.class);
@@ -49,9 +52,19 @@ public class ProvisionerConfigurationContainer {
   private List<GuiGroup> guiGroupsProvisionable = new ArrayList<GuiGroup>();
   
   private int totalProvisionableGroups;
+
+  /**
+   * provisionable group rows dropped because the group was not found for the caller
+   */
+  private int hiddenProvisionableGroups;
   
   private List<GuiProvisioningAssignment> guiProvisioningAssignments = new ArrayList<>();
   private int totalProvisioningAssignments;
+
+  /**
+   * assignment rows dropped because the group or folder was not found for the caller
+   */
+  private int hiddenProvisioningAssignments;
   
   /**
    * jobs for a provisioner
@@ -137,7 +150,8 @@ public class ProvisionerConfigurationContainer {
    * @param guiProvisionerLogs
    */
   public void setGuiProvisionerLogs(List<GuiProvisionerLog> guiProvisionerLogs) {
-    this.guiProvisionerLogs = guiProvisionerLogs;
+    // drop group-owned log rows whose group the caller cannot VIEW
+    this.guiProvisionerLogs = ProvisionerConfigViewFilter.filterLogs(guiProvisionerLogs);
   }
   
   
@@ -147,7 +161,9 @@ public class ProvisionerConfigurationContainer {
 
   
   public void setGuiGroupsProvisionable(List<GuiGroup> guiGroupsProvisionable) {
-    this.guiGroupsProvisionable = guiGroupsProvisionable;
+    // the handler wraps groups the caller cannot VIEW as new GuiGroup(null): drop and count them
+    this.guiGroupsProvisionable = ProvisionerConfigViewFilter.filterGuiGroups(guiGroupsProvisionable);
+    this.hiddenProvisionableGroups = GrouperUtil.length(guiGroupsProvisionable) - GrouperUtil.length(this.guiGroupsProvisionable);
   }
 
   
@@ -158,12 +174,28 @@ public class ProvisionerConfigurationContainer {
   
   public void setGuiProvisioningAssignments(
       List<GuiProvisioningAssignment> guiProvisioningAssignments) {
-    this.guiProvisioningAssignments = guiProvisioningAssignments;
+    // the handler wraps groups / folders the caller cannot see as GuiGroup(null) / GuiStem(null):
+    // drop and count them
+    if (guiProvisioningAssignments == null) {
+      this.guiProvisioningAssignments = null;
+      this.hiddenProvisioningAssignments = 0;
+      return;
+    }
+    List<GuiProvisioningAssignment> visible = new ArrayList<GuiProvisioningAssignment>();
+    for (GuiProvisioningAssignment guiProvisioningAssignment : guiProvisioningAssignments) {
+      if (guiProvisioningAssignment != null
+          && !ProvisionerConfigViewFilter.isEmptyGuiObject(guiProvisioningAssignment.getGuiGroupOrFolder())) {
+        visible.add(guiProvisioningAssignment);
+      }
+    }
+    this.guiProvisioningAssignments = visible;
+    this.hiddenProvisioningAssignments = guiProvisioningAssignments.size() - visible.size();
   }
 
   
   public int getTotalProvisioningAssignments() {
-    return totalProvisioningAssignments;
+    // do not count rows the caller cannot see
+    return Math.max(0, totalProvisioningAssignments - hiddenProvisioningAssignments);
   }
 
   
@@ -302,7 +334,8 @@ public class ProvisionerConfigurationContainer {
 
   
   public void setActivityForGroup(List<GcGrouperSyncGroup> activityForGroup) {
-    this.activityForGroup = activityForGroup;
+    // keep sync groups the caller can VIEW (filtered copy, the caller's list is not changed)
+    this.activityForGroup = ProvisionerConfigViewFilter.filterSyncGroups(activityForGroup);
   }
 
   
@@ -322,7 +355,8 @@ public class ProvisionerConfigurationContainer {
 
   
   public void setActivityForMembership(List<GcGrouperSyncMembership> activityForMembership) {
-    this.activityForMembership = activityForMembership;
+    // keep sync memberships whose group the caller can READ (filtered copy)
+    this.activityForMembership = ProvisionerConfigViewFilter.filterSyncMemberships(activityForMembership);
   }
 
   private String cacheGroupAttributePrefix;
@@ -388,6 +422,11 @@ public class ProvisionerConfigurationContainer {
   private String provisionerConfigErrorEntity;
 
   private GrouperProvisioningErrorSummary grouperProvisioningErrorSummary;
+
+  /**
+   * summary as computed by GrouperProvisioningService, before filtering
+   */
+  private GrouperProvisioningErrorSummary grouperProvisioningErrorSummaryUnfiltered;
   
   private List<GrouperProvisioningError> grouperProvisioningErrors;
   
@@ -399,7 +438,11 @@ public class ProvisionerConfigurationContainer {
   
   public void setGrouperProvisioningErrors(
       List<GrouperProvisioningError> grouperProvisioningErrors) {
-    this.grouperProvisioningErrors = grouperProvisioningErrors;
+    // group errors need VIEW, membership errors need READ on the group
+    this.grouperProvisioningErrors = ProvisionerConfigViewFilter.filterErrors(grouperProvisioningErrors);
+    // the summary counts must match what the caller may see, whichever setter runs first
+    this.grouperProvisioningErrorSummary = ProvisionerConfigViewFilter.filterErrorSummary(
+        this.grouperProvisioningErrorSummaryUnfiltered, this.grouperProvisioningErrors);
   }
 
   public GrouperProvisioningErrorSummary getGrouperProvisioningErrorSummary() {
@@ -409,7 +452,11 @@ public class ProvisionerConfigurationContainer {
   
   public void setGrouperProvisioningErrorSummary(
       GrouperProvisioningErrorSummary grouperProvisioningErrorSummary) {
-    this.grouperProvisioningErrorSummary = grouperProvisioningErrorSummary;
+    this.grouperProvisioningErrorSummaryUnfiltered = grouperProvisioningErrorSummary;
+    // for a filtered caller the group and membership counts come from the visible error rows
+    // (none until setGrouperProvisioningErrors runs), so they are no oracle for hidden groups
+    this.grouperProvisioningErrorSummary = ProvisionerConfigViewFilter.filterErrorSummary(
+        grouperProvisioningErrorSummary, this.grouperProvisioningErrors);
   }
 
   public String getProvisionerConfigErrorDuration() {
@@ -526,7 +573,8 @@ public class ProvisionerConfigurationContainer {
 
   
   public int getTotalProvisionableGroups() {
-    return totalProvisionableGroups;
+    // do not count rows the caller cannot see
+    return Math.max(0, totalProvisionableGroups - hiddenProvisionableGroups);
   }
 
   
@@ -541,7 +589,14 @@ public class ProvisionerConfigurationContainer {
 
   
   public void setProvisionerActivity(List<GuiProvisionerActivity> provisionerActivity) {
-    this.provisionerActivity = provisionerActivity;
+    if (provisionerActivity == null || ProvisionerConfigViewFilter.isUnfiltered()) {
+      this.provisionerActivity = provisionerActivity;
+      return;
+    }
+    // the handler builds these rows from its own unfiltered lists, so rebuild them from the
+    // filtered lists the setActivityFor* setters stored (same converter, same order)
+    this.provisionerActivity = GuiProvisionerActivity.convertFromGcGrouperSyncObjects(
+        this.activityForGroup, this.activityForMember, this.activityForMembership);
   }
   
   

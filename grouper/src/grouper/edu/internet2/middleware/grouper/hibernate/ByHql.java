@@ -544,6 +544,11 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       QueryPaging queryPaging = this.queryOptions == null ? 
           null : this.queryOptions.getQueryPaging();
       
+      // validate every sort column before it is concatenated into the HQL (the cursor paging
+      // where clause and the order by below).  Some callers pass a caller supplied sortString
+      // through, and an expression there is HQL injection
+      HqlSortColumnValidator.assertValidQuerySort(querySort);
+      
       boolean addedLastCursorFieldParam = false;
       
       if (queryPaging != null && queryPaging.isCursorBasedPaging()) {

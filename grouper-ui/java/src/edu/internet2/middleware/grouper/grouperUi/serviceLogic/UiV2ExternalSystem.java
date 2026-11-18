@@ -580,7 +580,9 @@ public class UiV2ExternalSystem {
       
       if (errors != null && errors.size() > 0) {
         for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, error));
+          // test() returns plain text built from data the external system returned (db rows, ldap values,
+          // remote error bodies), so escape it before it reaches the HTML message area
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, ExternalSystemTestErrorHtml.toSafeHtml(error)));
         }
         return;
       } else {

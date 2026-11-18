@@ -2706,12 +2706,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                               
               //CH 20080220: this will start saving the attributeDef
               GrouperDAOFactory.getFactory().getStem().createChildAttributeDef( Stem.this, attributeDef );
-                
-              //default action
-              attributeDef.getAttributeDefActionDelegate().addAction("assign");
-              
-              //grant privs
+
+              //grant privs (before the default action, so the creator is ATTR_ADMIN when it is added)
               _grantDefaultPrivsUponCreate(attributeDef);
+
+              //default action.  internal_addAction since changing actions now needs ATTR_ADMIN
+              //(issue 32), and a creator whose ATTR_ADMIN comes from an inherited privilege rule
+              //only gets it when the attributeDefCreate rule fires below.  The creator was
+              //already authorized by the CREATE check above, and the definition is new.
+              attributeDef.getAttributeDefActionDelegate().internal_addAction("assign", null);
               
               //fire a rule
               RulesAttributeDefBean rulesAttributeDefBean = new RulesAttributeDefBean(attributeDef);

@@ -99,6 +99,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.membership.MembershipWriteAuthorization;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -157,19 +158,12 @@ public class Membership extends GrouperAPI implements
    * update this record to the DB
    */
   public void update() {
-    
-    //MCH 20100831: note, adding this now to 2.0 since it should check permissions when editing memberships
-    if (!StringUtils.isBlank(this.getOwnerGroupId())) {
-      
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.getOwnerGroupId(), true);
-      Field field = FieldFinder.findById(this.getFieldId(), true);
-      if ( !group.canWriteField(field) ) { 
-        throw new InsufficientPrivilegeException("Not allowed to edit group " + group.getName() + ", " 
-            + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject()));
-      }
 
-    }
-    GrouperDAOFactory.getFactory().getMembership().update(this);
+    //MCH 20100831: note, adding this now to 2.0 since it should check permissions when editing memberships
+    // 2026: check every owner type, not only groups (folder rows need STEM_ADMIN, attribute def
+    // rows ATTR_ADMIN), deny by default, and write an audit entry for the enabled / disabled time
+    // change (unless the caller audits).  This used to check group rows only and audit nothing
+    MembershipWriteAuthorization.updateChecked(GrouperSession.staticGrouperSession(), this);
   }
   
   /** constant for field name for: contextId */
@@ -3218,7 +3212,9 @@ public class Membership extends GrouperAPI implements
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
 
     //if its an insert or update, then do the rest of the fields
-    existingRecord.update();
+    // DAO update, not update(): the XML import runs as root and is audited as an import, so do not
+    // write one audit entry per membership (update() now audits)
+    GrouperDAOFactory.getFactory().getMembership().update(existingRecord);
     return existingRecord;
   }
 

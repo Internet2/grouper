@@ -187,9 +187,10 @@ public class GrouperRemedyApiCommands {
   }
   
   /**
-   * cache tokens
+   * cache tokens, keyed by external system config id: each configured system has its own
+   * credentials, token URL and API URL, so one system's token must never be sent to another
    */
-  private static ExpirableCache<Boolean, String> retrieveJwtTokenCache = new ExpirableCache<Boolean, String>(5);
+  private static ExpirableCache<String, String> retrieveJwtTokenCache = new ExpirableCache<String, String>(5);
 
   /**
    * get the login token
@@ -199,12 +200,12 @@ public class GrouperRemedyApiCommands {
    */
   private static String retrieveJwtToken(String remedyExternalSystemConfigId, Map<String, Object> debugMap) {
     
-    String jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
+    String jwtToken = retrieveJwtTokenCache.get(remedyExternalSystemConfigId);
 
     if (GrouperClientUtils.isBlank(jwtToken)) {
       
       synchronized (retrieveJwtTokenCache) {
-        jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
+        jwtToken = retrieveJwtTokenCache.get(remedyExternalSystemConfigId);
         if (GrouperClientUtils.isBlank(jwtToken)) {
           String username = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyConnector."+remedyExternalSystemConfigId+".username");
           
@@ -257,7 +258,7 @@ public class GrouperRemedyApiCommands {
             throw new RuntimeException("authn didnt return 200, it returned: " + responseCodeInt + ", " + jwtToken);
           }
 
-          retrieveJwtTokenCache.put(Boolean.TRUE, jwtToken);
+          retrieveJwtTokenCache.put(remedyExternalSystemConfigId, jwtToken);
 
         }
       }

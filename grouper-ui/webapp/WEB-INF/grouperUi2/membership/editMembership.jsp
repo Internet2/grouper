@@ -39,7 +39,7 @@ ${grouper:titleFromKeyAndText('membershipEditSubHeader', grouperRequestContainer
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['subjectViewLabelEmail']}</label>
                       <div class="controls">
-                        ${grouperRequestContainer.subjectContainer.guiSubject.email}
+                        ${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.email)}
                       </div>
                     </div>
                   </c:if>
@@ -142,7 +142,7 @@ ${grouper:titleFromKeyAndText('membershipEditSubHeader', grouperRequestContainer
                     </c:if>
                     <c:choose>
                       <c:when test="${grouperRequestContainer.membershipGuiContainer.editMembershipFromSubject}">
-                        <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                        <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
                            class="btn">${textContainer.text['membershipEditCancelButton']}</a>
                       </c:when>
                       <c:otherwise>

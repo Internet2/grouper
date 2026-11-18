@@ -134,7 +134,10 @@ public class GrouperStatusServlet extends HttpServlet {
     // if only the http code and a heading of success or error should be sent, this takes precedence over sendDetailsInResponse
     boolean sendHttpCodeOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendHttpCodeOnly", false);
     
+    // details (hostname, version, task names, failure text) only for callers on ws.diagnostic.sourceIpAddresses,
+    // unless ws.diagnostic.sendDetailsOutsideSourceIpAddresses is true; everyone else gets the heading and http code
     boolean sendDetailsInResponse = !sendHttpCodeOnly
+        && GrouperStatusServletDetails.detailsAllowedForCaller(request)
         && GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.sendDetailsInResponse", true);
     
     requestThreadLocal.set(request);
@@ -247,7 +250,7 @@ public class GrouperStatusServlet extends HttpServlet {
             writer = response.getWriter();
             outerResult.append("<h1>Grouper status SUCCESS</h1><br /><pre>");
             if (sendDetailsInResponse) {
-              outerResult.append(result);
+              outerResult.append(GrouperStatusServletDetails.escapeHtml(result.toString()));
             } else {
               LOG.info("Status result: " + result.toString());
               if (!sendHttpCodeOnly) {
@@ -321,7 +324,7 @@ public class GrouperStatusServlet extends HttpServlet {
       writeToScreen(response, "<?xml version=\"1.0\" ?>\n"
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
         + "\n"
-        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + (sendDetailsInResponse ? theLastDiagnosticsError : messageNoDetails) + "</pre></body></html>");
+        + "<html><head></head><body><h1>Grouper status error!</h1><br /><pre>" + (sendDetailsInResponse ? GrouperStatusServletDetails.escapeHtml(theLastDiagnosticsError) : messageNoDetails) + "</pre></body></html>");
       
       
     } finally {

@@ -15,7 +15,8 @@
                               >${textContainer.text['groupAttestationMoreActionsViewAttestation'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
+                        <%-- GRP-5105: only group ADMIN can edit the attestation settings --%>
+                        <c:if test="${grouperRequestContainer.attestationContainer.canEditAttestation}" >
 	                        <li><a href="?operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['groupAttestationMoreActionsEditAttestation'] }</a></li>
                         </c:if>

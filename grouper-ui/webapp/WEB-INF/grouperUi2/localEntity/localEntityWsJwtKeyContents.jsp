@@ -53,7 +53,7 @@
         
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['localEntityWsJwtAllowedFromCidrsLabel']}</label></strong></td>
-          <td>${guiGrouperPassword.grouperPassword.allowedFromCidrs}</td>
+          <td>${grouper:escapeHtml(guiGrouperPassword.grouperPassword.allowedFromCidrs)}</td>
         </tr>
         
         <tr>

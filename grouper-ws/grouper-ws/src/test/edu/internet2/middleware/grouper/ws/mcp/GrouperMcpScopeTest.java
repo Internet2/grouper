@@ -85,6 +85,15 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
+  /**
+   * the read-write subject scope holds sourceId||subjectId keys (GrouperOAuthSubjectScope), as the
+   * consent screen stores them.  SUBJ0, SUBJ1 and SUBJ2 are in the jdbc test source
+   */
+  private static final String SUBJ0_KEY = "jdbc||" + SubjectTestHelper.SUBJ0_ID;
+
+  /** see SUBJ0_KEY */
+  private static final String SUBJ1_KEY = "jdbc||" + SubjectTestHelper.SUBJ1_ID;
+
   /** grouper version */
   private static final GrouperVersion GROUPER_VERSION = GrouperVersion.valueOfIgnoreCase(
       GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.version"));
@@ -343,14 +352,24 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testSubjectInScope_restricted_withSubjects() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
-        null, null, Arrays.asList("jsmith", "jdoe"));
+        null, null, Arrays.asList(SUBJ0_KEY, SUBJ1_KEY));
 
+    // the value is resolved to one subject, then compared by source and id
     assertTrue("matching subject is in scope",
-        authUser.isSubjectInReadwriteScope("jsmith"));
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ0_ID));
     assertTrue("second matching subject is in scope",
-        authUser.isSubjectInReadwriteScope("jdoe"));
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ1_ID));
+    assertTrue("matching subject by identifier is in scope",
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ0_IDENTIFIER));
     assertFalse("non-matching subject is not in scope",
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ2_ID));
+    assertFalse("a value that resolves to no subject is not in scope",
         authUser.isSubjectInReadwriteScope("bwilson"));
+
+    // a bare subject id in the scope (a token from before the keys) matches nothing
+    authUser = createAuthUser(true, null, null, Arrays.asList(SubjectTestHelper.SUBJ0_ID));
+    assertFalse("bare subject id in scope matches nothing",
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ0_ID));
   }
 
   // ========================================================================
@@ -363,15 +382,15 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testMixedScope_onlySubjects() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
-        null, null, Arrays.asList("jsmith"));
+        null, null, Arrays.asList(SUBJ0_KEY));
 
     // subject is allowed
     assertTrue("matching subject is in scope",
-        authUser.isSubjectInReadwriteScope("jsmith"));
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ0_ID));
 
     // non-matching subject is blocked
     assertFalse("non-matching subject should be blocked",
-        authUser.isSubjectInReadwriteScope("bwilson"));
+        authUser.isSubjectInReadwriteScope(SubjectTestHelper.SUBJ2_ID));
 
     // groups and stems should be allowed because the group/folder dimension
     // is unscoped (empty) while subjects dimension has values
@@ -445,7 +464,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("allowed:folder"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "other:folder:someGroup");
@@ -515,7 +534,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeAddMemberValid");
@@ -587,7 +606,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       // no folder/group scoping, but subjects list has SUBJ0
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           null, null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeAddMemberGrpUnscoped");
@@ -615,7 +634,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("allowed:folder"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "other:folder:someGroup");
@@ -652,7 +671,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeDeleteMemberValid");
@@ -739,7 +758,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("allowed:folder"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "other:folder:someGroup");
@@ -811,7 +830,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopePrivValid");
@@ -1078,46 +1097,43 @@ public class GrouperMcpScopeTest extends GrouperTest {
   }
 
   /**
-   * isSubjectInReadwriteScope with a list of identifiers should match
-   * if any identifier is in the scope list
+   * isSubjectInReadwriteScope with a list matches sourceId||subjectId keys only.  identifiers and
+   * bare ids never match, on either side: an identifier can be shared across sources
    */
   public void testSubjectInScope_multipleIdentifiers() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
-        null, null, Arrays.asList("jsmith"));
+        null, null, Arrays.asList(SUBJ0_KEY));
 
-    // should match when any identifier in the list matches
-    assertTrue("should match when subjectIdentifier0 matches scope",
+    // should match when the key is in the list
+    assertTrue("should match when the subject key is in the list",
         authUser.isSubjectInReadwriteScope(
-            Arrays.asList("12345", "jsmith", "john.smith@example.com")));
+            Arrays.asList(SubjectTestHelper.SUBJ0_ID, SUBJ0_KEY)));
 
-    // should match if the matching identifier is not the first
-    assertTrue("should match when subjectId is first but identifier matches",
+    // a bare id or identifier never matches
+    assertFalse("bare id does not match a key",
         authUser.isSubjectInReadwriteScope(
-            Arrays.asList("other-id", "jsmith")));
+            Arrays.asList(SubjectTestHelper.SUBJ0_ID, SubjectTestHelper.SUBJ0_IDENTIFIER)));
 
-    // should not match when no identifier matches
-    assertFalse("should not match when no identifier matches",
+    // the same id in another source does not match
+    assertFalse("same id in another source does not match",
         authUser.isSubjectInReadwriteScope(
-            Arrays.asList("12345", "john.smith@example.com")));
+            Arrays.asList("otherSource||" + SubjectTestHelper.SUBJ0_ID)));
   }
 
   /**
-   * isSubjectInReadwriteScope with a list should work when scope has subjectId
-   * and the list contains the subjectId among other identifiers
+   * a bare value in the scope (a token issued before the keys) matches nothing, even the same
+   * bare value
    */
   public void testSubjectInScope_multipleIdentifiers_matchById() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
         null, null, Arrays.asList("12345"));
 
-    // should match when subjectId matches
-    assertTrue("should match when subjectId in list matches scope",
+    assertFalse("bare scope value matches nothing",
         authUser.isSubjectInReadwriteScope(
             Arrays.asList("12345", "jsmith", "john.smith@example.com")));
-
-    // should not match when subjectId doesn't match
-    assertFalse("should not match when subjectId doesn't match",
+    assertFalse("bare scope value matches no key",
         authUser.isSubjectInReadwriteScope(
-            Arrays.asList("99999", "jsmith")));
+            Arrays.asList("jdbc||12345")));
   }
 
   /**
@@ -1126,7 +1142,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testSubjectInScope_multipleIdentifiers_emptyList() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
-        null, null, Arrays.asList("jsmith"));
+        null, null, Arrays.asList(SUBJ0_KEY));
 
     // empty list should not match
     assertFalse("empty identifier list should not match any scope",
@@ -1156,7 +1172,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       // scope contains the group UUID, not the name
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           null, Arrays.asList(group.getUuid()),
-          Arrays.asList(SubjectTestHelper.SUBJ0_ID));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeAddMemberUuid");
@@ -1193,11 +1209,11 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      // scope contains the subject identifier (e.g. "id.test.subject.0"),
-      // not the subject ID ("test.subject.0")
+      // scope contains the subject key (jdbc||test.subject.0), as the consent screen stores
+      // it; the identifier the API sends is resolved to that subject
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0_IDENTIFIER));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeAddMemberSubjIdent");
@@ -1236,10 +1252,10 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      // scope contains the subject ID ("test.subject.0")
+      // scope contains the subject key (jdbc||test.subject.0)
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0_ID));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopeAddMemberSubjIdReverse");
@@ -1483,7 +1499,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-          null, null, Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+          null, null, Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("attributeAssignType", "member");
@@ -1567,7 +1583,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       // scope contains subject identifier, not subject ID
       GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
           Arrays.asList("test"), null,
-          Arrays.asList(SubjectTestHelper.SUBJ0_IDENTIFIER));
+          Arrays.asList(SUBJ0_KEY));
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopePrivSubjIdent");

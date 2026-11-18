@@ -69,7 +69,12 @@ public class DojoComboLogic {
       boolean done = false;
       
       {
-        String validationError = dojoComboQueryLogic.initialValidationError(request, grouperSession);
+        // security: feature authorization for restricted combos (e.g. subject API diagnostics) runs
+        // first, since a combo URL can be called directly without opening its page
+        String validationError = DojoComboAuthorization.validationError(request, grouperSession, dojoComboQueryLogic);
+        if (StringUtils.isBlank(validationError)) {
+          validationError = dojoComboQueryLogic.initialValidationError(request, grouperSession);
+        }
         if (!StringUtils.isBlank(validationError)) {
           dojoComboDataResponse = new DojoComboDataResponse(
               new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", validationError, validationError)});

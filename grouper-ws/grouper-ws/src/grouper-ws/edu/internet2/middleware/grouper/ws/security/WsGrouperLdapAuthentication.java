@@ -165,6 +165,28 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
         debugMap.put("method", "authenticateLdap()");
       }
 
+      // refuse a blank user or password before anything goes to the directory.  An LDAP simple bind
+      // with a DN and an empty password is an "unauthenticated bind" (RFC 4513 5.1.2), which some
+      // directories (e.g. Active Directory by default) answer with success without checking anything
+      if (StringUtils.isBlank(principal) || StringUtils.isBlank(password)) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("blankUserOrPassword", "true");
+        }
+        LOG.warn("Refusing LDAP authentication with a blank user or password, user: '" + principal + "'");
+        return false;
+      }
+
+      // the user name is returned as the logged in user id, and the web service splits a user id with
+      // four colons into a subject source and a subject id.  A password check must not let the caller
+      // pick the subject source (e.g. g:isa::::GrouperSystem), so refuse the separator here
+      if (principal.contains(GrouperWsConfig.WS_SEPARATOR)) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("userContainsSourceSeparator", "true");
+        }
+        LOG.warn("Refusing LDAP authentication for a user name containing '" + GrouperWsConfig.WS_SEPARATOR + "': '" + principal + "'");
+        return false;
+      }
+
       //# if ldap authn should be used, this is the prefix of the userId when connecting to ldap, e.g. uid=
       //ws.authn.ldap.loginIdPrefix = uid=
       //
@@ -195,8 +217,12 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
         
         userDn = ldapEntries.get(0).getDn();
       } else {
-        // use previous behavior
-        userDn = loginDnPrefix + principal + loginDnSuffix;
+        // use previous behavior.  When the prefix ends in an attribute name and equals sign (e.g. uid=)
+        // the user name is an RDN value: escape it (RFC 4514) so it cannot add RDNs or change the DN.
+        // Other prefixes (e.g. a blank prefix with an @school.edu suffix, an AD user principal name)
+        // are not DNs and are left as they were
+        String principalInDn = loginDnPrefix.endsWith("=") ? escapeDnAttributeValue(principal) : principal;
+        userDn = loginDnPrefix + principalInDn + loginDnSuffix;
       }
       
       if (LOG.isDebugEnabled()) {
@@ -231,5 +257,39 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
 
     return false;
   }
-  
+
+  /**
+   * escape a string for use as an attribute value in a distinguished name, RFC 4514 section 2.4:
+   * a backslash before each comma, plus, double quote, backslash, less than, greater than,
+   * semicolon and equals sign, before a leading space or # and before a trailing space, and a
+   * backslash and 00 for a NUL character
+   * @param value
+   * @return the escaped value, or null if null
+   */
+  public static String escapeDnAttributeValue(String value) {
+    if (value == null) {
+      return null;
+    }
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == (char)0) {
+        result.append("\\00");
+        continue;
+      }
+      boolean escape = c == ',' || c == '+' || c == '"' || c == '\\' || c == '<' || c == '>' || c == ';' || c == '=';
+      if (i == 0 && (c == ' ' || c == '#')) {
+        escape = true;
+      }
+      if (i == value.length() - 1 && c == ' ') {
+        escape = true;
+      }
+      if (escape) {
+        result.append('\\');
+      }
+      result.append(c);
+    }
+    return result.toString();
+  }
+
 }

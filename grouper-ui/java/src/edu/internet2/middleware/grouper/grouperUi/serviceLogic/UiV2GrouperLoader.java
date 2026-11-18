@@ -926,6 +926,27 @@ public class UiV2GrouperLoader {
   }
 
   /**
+   * loader types this group has now (security issue 19)
+   * @param grouperLoaderContainer
+   * @return the types, empty if no loader marker
+   */
+  private static Set<String> loaderTypeAuthorizationExisting(GrouperLoaderContainer grouperLoaderContainer) {
+    return UiV2GrouperLoaderTypeAuthorization.existingLoaderTypes(grouperLoaderContainer.isGrouperSqlLoader(),
+        grouperLoaderContainer.isGrouperLdapLoader(), grouperLoaderContainer.isGrouperJexlScriptLoader(),
+        grouperLoaderContainer.isGrouperRecentMembershipsLoader());
+  }
+
+  /**
+   * loader-editing rights of the logged-in user on this group (security issue 19)
+   * @param grouperLoaderContainer
+   * @return the rights
+   */
+  private static UiV2GrouperLoaderTypeAuthorization.Rights loaderTypeAuthorizationRights(GrouperLoaderContainer grouperLoaderContainer) {
+    return new UiV2GrouperLoaderTypeAuthorization.Rights(grouperLoaderContainer.isCanEditLoader(),
+        grouperLoaderContainer.isCanEditAbacLoader(), grouperLoaderContainer.isCanEditRecentMembershipsLoader());
+  }
+
+  /**
    * edit the grouper loader
    * @param request
    * @param response
@@ -955,8 +976,43 @@ public class UiV2GrouperLoader {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
       editGrouperLoaderHelper(request, grouperLoaderContainer);
+      
+      // ${...} in loader SQL queries and LDAP filters / expressions runs as root in the loader
+      // daemon: only wheel or root may save it, or change a loader that already has it
+      edu.internet2.middleware.grouper.app.loader.GrouperLoaderExpressionAuthorization.assertUiSaveAllowed(
+          loggedInSubject, group, grouperLoaderContainer.isEditLoaderIsLoader(), grouperLoaderContainer.getEditLoaderType(),
+          new String[] {grouperLoaderContainer.getEditLoaderSqlQuery(), grouperLoaderContainer.getEditLoaderSqlGroupQuery()},
+          new String[] {grouperLoaderContainer.getEditLoaderLdapFilter(), grouperLoaderContainer.getEditLoaderLdapSubjectExpression(),
+            grouperLoaderContainer.getEditLoaderLdapGroupNameExpression(), grouperLoaderContainer.getEditLoaderLdapGroupDisplayNameExpression(),
+            grouperLoaderContainer.getEditLoaderLdapGroupDescriptionExpression(), grouperLoaderContainer.getEditLoaderLdapAttributeFilterExpression()});
+
+      // security issue 19: deny by default, before any cleanup below runs as root.  Decide by the
+      // group's actual loader markers and the requested type, so an unknown type or a type switch
+      // cannot skip the per-type checks
+      final Set<String> existingLoaderTypes = loaderTypeAuthorizationExisting(grouperLoaderContainer);
+      String loaderTypeRefusal = UiV2GrouperLoaderTypeAuthorization.checkSave(existingLoaderTypes,
+          grouperLoaderContainer.isEditLoaderIsLoader(), grouperLoaderContainer.getEditLoaderType(),
+          loaderTypeAuthorizationRights(grouperLoaderContainer));
+      if (UiV2GrouperLoaderTypeAuthorization.REFUSE_TYPE_INVALID.equals(loaderTypeRefusal)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditTypeRequired")));
+        return null;
+      }
+      if (loaderTypeRefusal != null) {
+        throw new RuntimeException("Not enough privileges");
+      }
 
       boolean hasError = false;
+
+      // a delegated (non-wheel) loader editor may only name groups (query results, and-groups, groups
+      // like) under folders they administer, needs READ on the and-groups, may not set the LDAP results
+      // transformation class or use the grouper database; also records who saved it for the run-time check
+      edu.internet2.middleware.grouper.app.loader.GrouperLoaderTargetAuthorization.assertUiSaveAllowedAndRecordEditor(
+          loggedInSubject, group, grouperLoaderContainer.isEditLoaderIsLoader(), grouperLoaderContainer.getEditLoaderType(),
+          grouperLoaderContainer.getEditLoaderSqlType(), grouperLoaderContainer.getEditLoaderSqlDatabaseName(),
+          grouperLoaderContainer.getEditLoaderSqlQuery(), grouperLoaderContainer.getEditLoaderSqlGroupQuery(),
+          grouperLoaderContainer.getEditLoaderLdapType(), grouperLoaderContainer.getEditLoaderGroupsLike(),
+          grouperLoaderContainer.getEditLoaderAndGroups(), grouperLoaderContainer.getEditLoaderLdapResultsTransformationClass());
       
       if (!grouperLoaderContainer.isEditLoaderIsLoader()) {
         // user is trying to delete the existing loader configuration
@@ -1030,7 +1086,11 @@ public class UiV2GrouperLoader {
           }
         }
         // remove loaderMetadata from this loader group and all previously managed groups
-        GrouperLoaderType.removeLoaderMetadataFromGroupAndManagedGroups(group);
+        // security issue 19: only when the group had a loader marker, else a VIEW-only user could
+        // strip the metadata that ties a managed group to its group-list loader
+        if (UiV2GrouperLoaderTypeAuthorization.shouldRemoveLoaderMetadata(existingLoaderTypes)) {
+          GrouperLoaderType.removeLoaderMetadataFromGroupAndManagedGroups(group);
+        }
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
 
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -2219,7 +2279,9 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
+      // security issue 19 (43): authorize by this group's actual loader type, not "can edit some loader type"
+      boolean canEditLoader = UiV2GrouperLoaderTypeAuthorization.canOpenOrExport(
+          loaderTypeAuthorizationExisting(grouperLoaderContainer), loaderTypeAuthorizationRights(grouperLoaderContainer));
           
       if (!canEditLoader) {
         return;
@@ -3207,6 +3269,15 @@ public class UiV2GrouperLoader {
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
+
+      // security: a delegated (non-wheel) loader editor needs READ on every 'and group' before the
+      // diagnostics below look them up as root (else they tell whether a hidden group exists)
+      String andGroupsReadError = edu.internet2.middleware.grouper.app.loader.GrouperLoaderTargetAuthorization.checkDiagnostics(
+          loggedInSubject, group);
+      if (andGroupsReadError != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, GrouperUtil.xmlEscape(andGroupsReadError)));
+        return;
+      }
 
       StringBuilder loaderReport = new StringBuilder();
       
@@ -4339,7 +4410,10 @@ public class UiV2GrouperLoader {
       
       loaderReport.append("</pre>");
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#grouperLoaderDiagnosticsResults", loaderReport.toString()));
+      // the report holds loader settings, query rows, job messages and stack traces: escape all of it and
+      // keep only the report's own fixed label markup, so none of that data is read as html
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#grouperLoaderDiagnosticsResults",
+          GrouperLoaderDiagnosticsReportHtml.toSafeHtml(loaderReport.toString())));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -5680,7 +5754,9 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
+      // security issue 19 (43): authorize by this group's actual loader type, not "can edit some loader type"
+      boolean canEditLoader = UiV2GrouperLoaderTypeAuthorization.canOpenOrExport(
+          loaderTypeAuthorizationExisting(grouperLoaderContainer), loaderTypeAuthorizationRights(grouperLoaderContainer));
           
       if (!canEditLoader) {
         return;
@@ -5797,15 +5873,22 @@ public class UiV2GrouperLoader {
         }
 
         
+        // the upload is copied to a new temp directory only to read it: delete both once read, also on an error,
+        // so neither an import nor a rejected one leaves a file behind
+        Path tempDirectory = null;
         try {
           String directoryName = GrouperUtil.uniqueId();
-          Path tempDirectory = Files.createTempDirectory(directoryName, new FileAttribute[0]);
+          tempDirectory = Files.createTempDirectory(directoryName, new FileAttribute[0]);
           File file = new File(tempDirectory.toAbsolutePath().toString() + File.separatorChar + fileName);
           importConfigFile.write(file);
           contentsToImport = FileUtils.readFileToString(file, Charset.defaultCharset());
         } catch (Exception e) {
           throw new RuntimeException("Cant process file upload '" + fileName + "'", e);
-        } 
+        } finally {
+          if (tempDirectory != null) {
+            FileUtils.deleteQuietly(tempDirectory.toFile());
+          }
+        }
         
       } else if (StringUtils.equals(grouperLoaderImportConfigFormat, "copyPaste")) {
         contentsToImport = request.getParameter("loaderConfigContents");

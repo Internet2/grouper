@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword.EncryptionType;
+import edu.internet2.middleware.grouper.authentication.GrouperPasswordCredentialPolicy;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -249,6 +250,15 @@ public class Authentication {
                 MultiKey multiKey = new MultiKey(user, application.name());
                 GrouperPassword grouperPassword = grouperPasswordCache.get(multiKey);
                 if (grouperPassword != null) {
+                  // a restricted row is read again so an edit to its expiration or networks (or a delete)
+                  // applies right away, not when the row cache expires
+                  if (GrouperPasswordCredentialPolicy.hasRestriction(grouperPassword)) {
+                    grouperPassword = GrouperDAOFactory.getFactory().getGrouperPassword().findByUsernameApplication(user, application.name());
+                    if (grouperPassword == null) {
+                      return false;
+                    }
+                    grouperPasswordCache.put(multiKey, grouperPassword);
+                  }
                   grouperPasswordRecentlyUsed.setGrouperPasswordId(grouperPassword.getId());
                   grouperPasswordRecentlyUsed.setStatus('S');
                 } else {
@@ -258,6 +268,14 @@ public class Authentication {
                   }
                   
                   grouperPasswordCache.put(multiKey, grouperPassword);
+                }
+                
+                // a cached password match must still pass the row's expiration and allowed networks
+                // (same checks as the database path below); refused like a wrong password
+                if (!GrouperPasswordCredentialPolicy.allowed(grouperPassword, requesterIpAddress)) {
+                  grouperPasswordRecentlyUsed.setGrouperPasswordId(grouperPassword.getId());
+                  grouperPasswordRecentlyUsed.setStatus('F');
+                  return false;
                 }
                 
                 return true;
@@ -279,6 +297,13 @@ public class Authentication {
               }
               
               correctPassword = StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
+              
+              // the right password is still refused (same result as a wrong password, recorded as a failed
+              // attempt) when the row is expired or the request is not from one of its allowed networks,
+              // like the JWT path in GrouperPublicPrivateKeyJwt.decode
+              if (correctPassword && !GrouperPasswordCredentialPolicy.allowed(grouperPassword, requesterIpAddress)) {
+                correctPassword = false;
+              }
               
               if (correctPassword) {
                 grouperPasswordRecentlyUsed.setGrouperPasswordId(grouperPassword.getId());

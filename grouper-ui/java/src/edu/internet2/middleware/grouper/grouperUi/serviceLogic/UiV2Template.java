@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputMask;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDecorateForUiInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
@@ -51,6 +52,8 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -206,6 +209,8 @@ public class UiV2Template {
     });
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    // a validation error added below stops the caller before any run (see the end of this method)
+    int actionCountBeforeInputs = GrouperUtil.length(guiResponseJs.getActions());
     
     for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
       GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = new GshTemplateInputConfigAndValue();
@@ -222,15 +227,20 @@ public class UiV2Template {
         if (gshTemplateFile != null) {
           String fileName = StringUtils.defaultString(gshTemplateFile == null ? "" : gshTemplateFile.getName());
           try {
-            String directoryName = GrouperUtil.uniqueId();
-            Path tempDirectory = Files.createTempDirectory(directoryName, new FileAttribute[0]);
-            File file = new File(tempDirectory.toAbsolutePath().toString() + File.separatorChar + fileName);
-            gshTemplateFile.write(file);
+            // check the user may run this template on this owner, then write under a new temp dir using only a
+            // sanitized basename of the client file name (it could contain ../)
+            File file = GshTemplateFileUpload.writeUploadAfterAuthorization(gshTemplateConfig, loggedInSubject, gshTemplateFile);
             if (gshTemplateInputConfig.getGshTemplateInputType() == GshTemplateInputType.FILE) {
               value = file;
             } else if (gshTemplateInputConfig.getGshTemplateInputType() == GshTemplateInputType.STRING) {
-              value = FileUtils.readFileToString(file, Charset.defaultCharset());
+              try {
+                value = FileUtils.readFileToString(file, Charset.defaultCharset());
+              } finally {
+                // the contents are in memory now, so the copy on disk is not needed
+                GshTemplateFileUpload.deleteUpload(file);
+              }
             } else {
+              GshTemplateFileUpload.deleteUpload(file);
               throw new RuntimeException("With form element type 'file', input type must be 'string' or 'file'.");
             }
           } catch (Exception e) {
@@ -268,6 +278,9 @@ public class UiV2Template {
       
     }
     
+    // every input with its value before showEl removes some, to delete the uploads that will not be used
+    Map<String, GshTemplateInputConfigAndValue> allInputConfigsMap = new LinkedHashMap<String, GshTemplateInputConfigAndValue>(guiTemplateInputConfigsMap);
+
     //for showEL, loop again and remove the ones where showEL is evaluated to false
     for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
       
@@ -281,7 +294,8 @@ public class UiV2Template {
           }
         } catch (RuntimeException re) {
           GrouperUtil.injectInException(re, ", script: '" + showElScript + "', ");
-          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(variableMap));
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(GshTemplateInputMask.variableMapForLog(gshTemplateConfig, variableMap)));
+          GshTemplateFileUpload.deleteUploads(allInputConfigsMap);
           throw re;
         }
         
@@ -289,6 +303,12 @@ public class UiV2Template {
       
     }
     
+    // a validation error stops the caller before the run, and an input hidden by showEl is not passed to the run,
+    // so delete those uploads now; the others are deleted when the run (customTemplateExecute) or the form
+    // decoration (newTemplateHelper) is done
+    GshTemplateFileUpload.deleteUnusedUploads(allInputConfigsMap, guiTemplateInputConfigsMap,
+        actionCountBeforeInputs != GrouperUtil.length(guiResponseJs.getActions()));
+
     guiGshTemplateConfig.setGshTemplateInputConfigAndValues(guiTemplateInputConfigsMap);
     GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
@@ -349,6 +369,11 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
+      // SECURITY: check enabled / owner / who can run it BEFORE populating inputs: an input's showEl
+      // runs in populateCustomTemplateInputs with the unrestricted expression engine
+      if (!customTemplatePreflightOrAddErrors(templateType, loggedInSubject, group, stem)) {
+        return;
+      }
       int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       if (gshTemplateInputs == null || actionCount != GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions())) {
@@ -399,6 +424,8 @@ public class UiV2Template {
             LOG.error("error", re);
           } finally {
             // we done
+            // the run is done (maybe on a background thread after the request returned): delete its uploads
+            GshTemplateFileUpload.deleteUploads(gshTemplateInputs);
             exec.getProgressBean().setComplete(true);
           }
           return null;
@@ -485,6 +512,11 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
+      // SECURITY: check enabled / owner / who can run it BEFORE populating inputs: an input's showEl
+      // runs in populateCustomTemplateInputs with the unrestricted expression engine
+      if (!customTemplatePreflightOrAddErrors(templateType, loggedInSubject, group, stem)) {
+        return;
+      }
       int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       
@@ -535,6 +567,8 @@ public class UiV2Template {
             LOG.error("error", re);
           } finally {
             // we done
+            // the run is done (maybe on a background thread after the request returned): delete its uploads
+            GshTemplateFileUpload.deleteUploads(gshTemplateInputs);
             exec.getProgressBean().setComplete(true);
           }
           return null;
@@ -1353,6 +1387,72 @@ public class UiV2Template {
   }
 
   /**
+   * Before a custom gsh template form is rendered (which loads the V2 template class and runs its
+   * decorateTemplateForUiDisplay), check that the logged in user may use this template on this group or folder:
+   * the template is enabled, is allowed on the owner, and the user satisfies its securityRunType.  The template
+   * dropdown (GroupStemTemplateContainer) only hides templates, so without this a direct request with
+   * templateType=&lt;config id&gt; would run the code of a disabled or restricted template.
+   * On failure the validation messages are shown as errors.
+   * @param templateType gsh template config id from the request
+   * @param loggedInSubject
+   * @param group owner group or null
+   * @param stem owner folder or null
+   * @return true if ok to proceed, false if not allowed (and errors were added to the screen)
+   */
+  private static boolean customTemplatePreflightOrAddErrors(final String templateType, final Subject loggedInSubject, 
+      final Group group, final Stem stem) {
+    
+    GshTemplateOutput gshTemplateOutput = new GshTemplateOutput();
+    boolean allowed = false;
+    try {
+      
+      // build the exec the same way customTemplateExecute does, so the checks are the ones execution runs
+      GshTemplateExec gshTemplateExec = new GshTemplateExec();
+      gshTemplateExec.assignConfigId(templateType);
+      gshTemplateExec.assignCurrentUser(loggedInSubject);
+      HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+      gshTemplateExec.assignRemoteAddr(httpServletRequest == null ? null : httpServletRequest.getRemoteAddr());
+      if (stem != null) {
+        gshTemplateExec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+        gshTemplateExec.assignOwnerStemName(stem.isRootStem() ? ":" : stem.getName());
+      } else if (group != null) {
+        gshTemplateExec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
+        gshTemplateExec.assignOwnerGroupName(group.getName());
+      }
+      
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+      gshTemplateConfig.populateConfiguration();
+      gshTemplateConfig.setCurrentUser(loggedInSubject);
+      
+      allowed = new GshTemplateValidationService().validatePreflight(gshTemplateConfig, gshTemplateExec, gshTemplateOutput);
+      
+    } catch (RuntimeException re) {
+      // e.g. unknown template id or bad config: fail closed
+      LOG.warn("Error checking gsh template: " + templateType, re);
+      allowed = false;
+    }
+    
+    if (allowed) {
+      return true;
+    }
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    boolean addedMessage = false;
+    for (GshValidationLine gshValidationLine : GrouperUtil.nonNull(gshTemplateOutput.getValidationLines())) {
+      // validation line text is externalized text with escaped values, same as shown after a run
+      if (StringUtils.isNotBlank(gshValidationLine.getText())) {
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, gshValidationLine.getText()));
+        addedMessage = true;
+      }
+    }
+    if (!addedMessage) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          "Template is not available: " + GrouperUtil.escapeHtml(templateType, true)));
+    }
+    return false;
+  }
+  
+  /**
    * Show fields for new template
    * @param request
    * @param response
@@ -1402,6 +1502,10 @@ public class UiV2Template {
 
         if (templateLogic == null) {
           // must be gsh custom template
+          // check enabled / owner / who can run it BEFORE populating inputs and loading or decorating the template
+          if (!customTemplatePreflightOrAddErrors(templateType, loggedInSubject, group, stem)) {
+            return;
+          }
           int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
           Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
           if (customTemplateInputs == null || actionCount !=  GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions())) {
@@ -1488,6 +1592,9 @@ public class UiV2Template {
       LOG.warn("Error in newTemplateHelper", e);
       return;
     } finally {
+      // nothing runs with the inputs this form was built from, so delete their uploads once it is drawn
+      GshTemplateFileUpload.deleteUploads(GrouperRequestContainer.retrieveFromRequestOrCreate()
+          .getGroupStemTemplateContainer().getGuiGshTemplateConfig());
       if (startedSession) {
         GrouperSession.stopQuietly(grouperSession);
       }

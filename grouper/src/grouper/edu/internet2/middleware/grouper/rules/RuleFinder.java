@@ -246,7 +246,10 @@ public class RuleFinder {
                 }
                 if (!privilegeOk) {
 
-                  if (!stem.canHavePrivilege(grouperSessionSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
+                  // SECURITY: a folder admin may see the folder's inheritance rules.  This check
+                  // was inverted (callers who were NOT folder admins were let through, so any user
+                  // could list every rule naming a subject); same check as findPrivilegeInheritRules
+                  if (stem.canHavePrivilege(grouperSessionSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
                     privilegeOk = true;
                   }
                 }
@@ -261,31 +264,37 @@ public class RuleFinder {
                     case attributeDefCreate:
 
                       //is there a membership for attribute def?
-                      Membership membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                      // otherwise the caller must be an admin of something the rule covers: the
+                      // caller's own admin privilege on an object in the rule's folder scope (the
+                      // old findMembership query had no member and could throw on more than one row)
+                      int membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                        .addSubject(grouperSessionSubject)
                         .assignField(AttributeDefPrivilege.ATTR_ADMIN.getField())
-                        .assignQueryOptionsForAttributeDef(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                        .assignQueryOptionsForAttributeDef(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                       
-                      privilegeOk = membership != null;
+                      privilegeOk = membershipSize > 0;
                       
                       break;
                     case groupCreate:
 
                       //is there a membership for group?
-                      membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                      membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                        .addSubject(grouperSessionSubject)
                         .assignField(AccessPrivilege.ADMIN.getField())
-                        .assignQueryOptionsForGroup(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                        .assignQueryOptionsForGroup(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                       
-                      privilegeOk = membership != null;
+                      privilegeOk = membershipSize > 0;
 
                       break;
                     case stemCreate:
                       
                       //is there a membership for stem?
-                      membership = new MembershipFinder().assignScope(stem.getName()).assignStemScope(scope)
+                      membershipSize = new MembershipFinder().assignStem(stem).assignStemScope(scope)
+                        .addSubject(grouperSessionSubject)
                         .assignField(NamingPrivilege.STEM_ADMIN.getField())
-                        .assignQueryOptionsForStem(new QueryOptions().paging(1, 1, false)).findMembership(false);
+                        .assignQueryOptionsForStem(new QueryOptions().paging(1, 1, false)).findMembershipsMembers().size();
                       
-                      privilegeOk = membership != null;
+                      privilegeOk = membershipSize > 0;
 
                       break;
                     default:

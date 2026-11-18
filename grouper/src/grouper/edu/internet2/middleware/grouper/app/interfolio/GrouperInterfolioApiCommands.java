@@ -125,7 +125,7 @@ public class GrouperInterfolioApiCommands {
     String bycUrl = InterfolioExternalSystem.retrieveConfigValue(configId, "bycUrl");
 
     String requestString = "/byc/core/tenure/" + databaseId + "/institutions/" + databaseId
-        + "/users/search?limit=" + limit + "&page=" + page + "&search=" + (searchTerm == null ? "" : searchTerm);
+        + "/users/search?limit=" + limit + "&page=" + page + "&search=" + InterfolioUserMatch.encodeSearchTerm(searchTerm);
 
     String responseBody = executeMethod("interfolioSearchUsers", configId, "GET", bycUrl,
         requestString, null, GrouperUtil.toSet(200));
@@ -249,24 +249,20 @@ public class GrouperInterfolioApiCommands {
    * deprovisions an already-existing user we look the pid up via byc users/search on the UID.
    * @param configId external system config id
    * @param institutionUserId the UID / PennKey to look up
-   * @param email the expected email, used to disambiguate when the search returns more than one hit
-   * @return the pid, or null if it cannot be resolved unambiguously
+   * @param email the email the user's Interfolio account holds now (before any update); required, a
+   *   hit is accepted only if its email equals this
+   * @return the pid, or null if no hit has exactly this email
    */
   public static String resolvePid(String configId, String institutionUserId, String email) {
     if (StringUtils.isBlank(institutionUserId)) {
       return null;
     }
     List<InterfolioUser> matches = searchUsers(configId, institutionUserId, 25, 1);
-    if (GrouperUtil.length(matches) == 1) {
-      return matches.get(0).getPid();
-    }
-    // more than one hit (the UID matched a substring of another user's email/name) - use the email
-    for (InterfolioUser match : GrouperUtil.nonNull(matches)) {
-      if (StringUtils.isNotBlank(email) && StringUtils.equalsIgnoreCase(email, match.getEmail())) {
-        return match.getPid();
-      }
-    }
-    return null;
+    // byc search is free text over name and email and does not return the UID, so a single hit is
+    // not proof it is this user.  Only a hit whose email equals the user's current Interfolio email
+    // (unique per institution) is accepted.
+    InterfolioUser match = InterfolioUserMatch.matchByEmail(matches, email);
+    return match == null ? null : match.getPid();
   }
 
   /**

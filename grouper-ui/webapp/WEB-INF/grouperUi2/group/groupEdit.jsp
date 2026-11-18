@@ -99,6 +99,21 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                       <span class="help-block">${userLifecyclePolicy.description}</span>
                     </c:forEach>
                     
+                    <%-- security fix: a policy assigned to the group that this user cannot use is not in the list above;
+                         show it read-only and checked, so a save keeps it and removing it (None) is deliberate --%>
+                    <jsp:useBean id="guiGroupUserLifecyclePolicyEdit" scope="page" class="edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGroupUserLifecyclePolicyEdit" />
+                    <c:if test="${guiGroupUserLifecyclePolicyEdit.assignedPolicyReadOnly}">
+                      <label class="radio" for="ulp_assigned">
+                        <input type="radio"
+                               id="ulp_assigned"
+                               name="userLifecyclePolicy"
+                               value="${grouper:escapeHtml(guiGroupUserLifecyclePolicyEdit.assignedPolicyConfigId)}"
+                               checked="checked"
+                        >${grouper:escapeHtml(guiGroupUserLifecyclePolicyEdit.assignedPolicyName)}
+                      </label>
+                      <span class="help-block">${grouper:escapeHtml(guiGroupUserLifecyclePolicyEdit.assignedPolicyReadOnlyText)}</span>
+                    </c:if>
+                    
                     <!-- Hardcoded 'None' option -->
                       <label class="radio" for="ulp_none">
                         <input type="radio"
@@ -220,7 +235,7 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                     </c:if>
                   </div>
                   <div class="form-actions"><button type="button" class="btn btn-primary" id="editGroupSaveButton" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</button> 
-                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</button></div>
+                  <button type="button" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</button></div>
                 </form>
               </div>
             </div>

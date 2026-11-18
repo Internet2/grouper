@@ -1096,46 +1096,10 @@ public class UiV2Admin extends UiServiceLogicBase {
         ganttJob.put("url", "?operation=UiV2Group.viewGroup&groupId=" + log.getGroupUuid());
       }
 
-      StringBuilder tooltipBuilder = new StringBuilder()
-        .append(log.getJobName())
-        .append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStatus"))
-        .append(": ").append(log.getStatus())
-        .append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipStarted"))
-        .append(": ").append(ganttJob.get("startDateString"));
-      if (log.getEndedTime() != null) {
-        tooltipBuilder.append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipFinished"))
-        .append(": " + ganttJob.get("endDateString"));
-        if (log.getStartedTime() != null) {
-          Duration duration = Duration.between(log.getStartedTime().toInstant(), log.getEndedTime().toInstant());
-          tooltipBuilder.append("<br/>")
-              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipElapsed"))
-              .append(":" + duration.getSeconds() + " ")
-              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipSecondsSuffix"))
-          ;
-        }
-      } else if (log.getLastUpdated() != null) {
-        // no end date but still in progress, so show the last updated time
-        tooltipBuilder.append("<br/>")
-              .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipLastUpdated"))
-              .append(": " + ganttJob.get("lastUpdatedDateString"));
-      }
-      tooltipBuilder.append("<br/>")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipInsertPrefix"))
-        .append(":" + log.getInsertCount())
-        .append(" ")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipUpdatePrefix"))
-        .append(":" + log.getUpdateCount())
-        .append(" ")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipDeletePrefix"))
-        .append(":" + log.getDeleteCount())
-        .append(" ")
-        .append(TextContainer.retrieveFromRequest().getText().get("adminJobHistoryTooltipTotalPrefix"))
-        .append(":" + log.getTotalCount());
-
-      ganttJob.put("tooltip", tooltipBuilder.toString());
+      // job name and status are stored data (a group loader job name holds the group name):
+      // UiV2AdminJobHistoryTooltip escapes them, the browser inserts the tooltip as HTML
+      ganttJob.put("tooltip", UiV2AdminJobHistoryTooltip.tooltipHtml(log, ganttJob.get("startDateString"),
+          ganttJob.get("endDateString"), ganttJob.get("lastUpdatedDateString"), TextContainer.retrieveFromRequest().getText()));
 
       ganttJobs.addPOJO(ganttJob);
       if (!ganttJobNameSet.contains(jobShortName)) {
@@ -1184,6 +1148,12 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
+      //if the user is allowed: check before the job and the actions menu are rendered, so a user who
+      //cannot see daemon jobs cannot see a job's state and actions menu
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+
       String jobName = request.getParameter("jobName");
       
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
@@ -1433,6 +1403,13 @@ public class UiV2Admin extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
+      //if the user is allowed: check before the job lookup and before the logs page and the actions
+      //menu are rendered, so a user who cannot see daemon jobs cannot probe job names or see a job's
+      //state and actions menu
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+
       String jobName = request.getParameter("jobName");
       if (!isJobNameValid(jobName)) {
         throw new RuntimeException("Invalid job name '" + jobName + "'");
@@ -1494,6 +1471,12 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+
+      //if the user is allowed: same check as viewPerformanceChartResults and viewLogs, so a user who
+      //cannot see daemon jobs cannot probe job names or see a job's state and actions menu
+      if (!daemonJobsAllowed()) {
+        return;
+      }
 
       String jobName = request.getParameter("jobName");
       if (!isJobNameValid(jobName)) {

@@ -1563,6 +1563,12 @@ public class AttributeAssignValueDelegate {
 
     Set<AttributeAssignValueResult> attributeAssignValueResults = new LinkedHashSet<AttributeAssignValueResult>();
 
+    //SECURITY: every value must belong to this assignment, which is the one that is authorized.  Callers
+    //(e.g. WS assignAttributes remove_value, the UI) can pass values loaded by an id from the request.
+    //Check all of them before anything is deleted, whether or not checkSecurity is set, so a foreign
+    //or mixed collection deletes nothing.  Values found through this delegate always pass.
+    AttributeAssignValueBinding.assertValuesBound(this.attributeAssign, attributeAssignValues);
+
     if (checkSecurity) {
       //make sure can edit
       this.attributeAssign.retrieveAttributeAssignable()

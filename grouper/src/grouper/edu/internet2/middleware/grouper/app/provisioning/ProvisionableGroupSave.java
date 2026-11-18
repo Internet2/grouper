@@ -223,6 +223,10 @@ public class ProvisionableGroupSave {
         
         final Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
         
+        // the caller's session, so the provisioner's metadata validation can see who is saving
+        // (the save itself runs as root below)
+        final GrouperSession CALLER_SESSION = GrouperSession.staticGrouperSession();
+        
         return GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
           
           @Override
@@ -288,7 +292,7 @@ public class ProvisionableGroupSave {
               attributeValue.setDoProvision(doProvision);
               attributeValue.setTargetName(targetName);
               
-              Map<String, Object> metadataNameValues = populateMetadata(metadataMap);
+              Map<String, Object> metadataNameValues = populateMetadata(metadataMap, null, true, SUBJECT_IN_SESSION, CALLER_SESSION);
              
               attributeValue.setMetadataNameValues(metadataNameValues);
               
@@ -330,7 +334,7 @@ public class ProvisionableGroupSave {
                 mergedMetadataMap.putAll(metadataMap);
               }
               
-              Map<String, Object> metadataNameValues = populateMetadata(mergedMetadataMap);
+              Map<String, Object> metadataNameValues = populateMetadata(mergedMetadataMap, existingValues.getMetadataNameValues(), false, SUBJECT_IN_SESSION, CALLER_SESSION);
              
               if (!GrouperUtil.mapEquals(metadataNameValues, existingValues.getMetadataNameValues())) {
                 attributeValue.setMetadataNameValues(metadataNameValues);
@@ -354,7 +358,17 @@ public class ProvisionableGroupSave {
   }
   
 
-  private Map<String, Object> populateMetadata(Map<String, Object> metadataMap) {
+  /**
+   * validate and convert the metadata to store
+   * @param metadataMap metadata to store (the caller's, merged with the stored values unless replaceAllSettings)
+   * @param storedMetadataNameValues metadata stored now, null if none
+   * @param isInsert true if the group has no provisioning settings for this target yet
+   * @param subjectInSession subject that called save (the save itself runs as root)
+   * @param callerSession session that called save
+   * @return the metadata to store
+   */
+  private Map<String, Object> populateMetadata(Map<String, Object> metadataMap, Map<String, Object> storedMetadataNameValues,
+      boolean isInsert, Subject subjectInSession, GrouperSession callerSession) {
     
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
 
@@ -387,7 +401,29 @@ public class ProvisionableGroupSave {
       
     }
     
-    Map<String, String> validateMetadataInputForGroup = provisioningObjectMetadata.validateMetadataInputForGroup(metadataNameValues);
+    // per item settings (groupIdThatCanUpdate, canUpdate, canChange, option lists, unique values),
+    // the same rules the UI save applies; wheel, root and runAsRoot callers are not checked
+    if (GrouperProvisioningMetadataApiSaveRules.appliesTo(subjectInSession, runAsRoot)) {
+      GrouperProvisioningMetadataApiSaveRules.enforce(grouperProvisioner, metadataItemsForGroup, this.metadataMap,
+          metadataNameValues, storedMetadataNameValues, isInsert, subjectInSession, group.getName());
+    }
+    
+    // run the provisioner's own validation in the caller's session, not as root, so a check that
+    // depends on the saving subject (e.g. READ on a group named in the metadata) sees the caller
+    final GrouperProvisioningObjectMetadata PROVISIONING_OBJECT_METADATA = provisioningObjectMetadata;
+    final Map<String, Object> METADATA_NAME_VALUES = metadataNameValues;
+    Map<String, String> validateMetadataInputForGroup = null;
+    if (!runAsRoot && callerSession != null) {
+      validateMetadataInputForGroup = (Map<String, String>)GrouperSession.callbackGrouperSession(callerSession, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          return PROVISIONING_OBJECT_METADATA.validateMetadataInputForGroup(METADATA_NAME_VALUES);
+        }
+      });
+    } else {
+      validateMetadataInputForGroup = provisioningObjectMetadata.validateMetadataInputForGroup(metadataNameValues);
+    }
     
     if (validateMetadataInputForGroup != null && validateMetadataInputForGroup.size() > 0) {
       throw new RuntimeException("There are errors in metadata input. "+GrouperUtil.mapToString(validateMetadataInputForGroup));

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -23,11 +24,22 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
+/**
+ * export a group's loader config as json, and import one onto another group
+ */
 public class GrouperLoaderImportExport {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderImportExport.class);
   
   
   
@@ -194,6 +206,18 @@ public class GrouperLoaderImportExport {
     
   }
 
+  /**
+   * import a loader config exported by exportLoaderConfig onto a group which is not a loader group
+   * yet.  the import is a save by the importing user, so for scripted (JEXL_SCRIPT) and recent
+   * memberships loaders the same privilege and content checks the UI's loader screen makes are made
+   * first, as the user of the current grouper session, by GrouperLoaderImportAuthorization.  only
+   * then is the config written, as root (the loader attributes can only be written by the system),
+   * in one transaction, so a refused or failed import leaves nothing behind.  SQL and LDAP imports
+   * are checked by the caller (the UI only lets loader editors import them)
+   * @param json the exported config
+   * @param group the group to import onto
+   * @return the errors, or an empty list if it was imported
+   */
   public static List<String> importLoaderConfig(String json, Group group) {
     
     List<String> errors = new ArrayList<String>();
@@ -203,67 +227,122 @@ public class GrouperLoaderImportExport {
       return errors;
     }
     
+    // security: a delegated (non-wheel) loader editor may only import a SQL or LDAP loader whose groups
+    // are under folders they administer, with READ on its and-groups, no LDAP results transformation
+    // class and not on the grouper database (same rules as the loader screen); records the editor
+    // for the run-time check
+    List<String> targetErrors = GrouperLoaderTargetAuthorization.checkImportAndRecordEditor(json, group);
+    if (targetErrors.size() > 0) {
+      errors.addAll(targetErrors);
+      return errors;
+    }
+    
     if (isLoaderAlreadyAssignedOnGroup(group)) {
       errors.add("Group already has the loader configured");
       return errors;
     }
     
+    final JsonNode jsonNode;
+    final String loaderType;
     try {
-      JsonNode jsonNode = GrouperUtil.jsonJacksonNode(json);
-      String loaderType = GrouperUtil.jsonJacksonGetString(jsonNode, "loaderType");
+      jsonNode = GrouperUtil.jsonJacksonNode(json);
+      loaderType = GrouperUtil.jsonJacksonGetString(jsonNode, "loaderType");
+    } catch (Exception e) {
+      errors.add("Invalid json");
+      return errors;
+    }
+    
+    // security: check the import as the importing user before anything is written.  the write
+    // below runs as root, and a scripted group's script is later run by the daemon as root, so
+    // without this a group admin could import a script using groups they cannot read and have
+    // their members copied into their own group
+    GrouperSession grouperSessionForCheck = GrouperSession.staticGrouperSession();
+    Subject importingSubject = grouperSessionForCheck == null ? null : grouperSessionForCheck.getSubject();
+    List<String> checkErrors = GrouperLoaderImportAuthorization.checkImport(group, loaderType, jsonNode, importingSubject);
+    if (checkErrors.size() > 0) {
+      errors.addAll(checkErrors);
+      return errors;
+    }
+
+    // ${...} in a SQL or LDAP loader runs as root in the loader daemon: only wheel or root may import it
+    String expressionError = GrouperLoaderExpressionAuthorization.checkImport(loaderType, jsonNode);
+    if (expressionError != null) {
+      errors.add(expressionError);
+      return errors;
+    }
+    
+    try {
       
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
+      // one transaction, so an import which fails part way does not leave a marker with only
+      // some of its values
+      GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+        
         @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          AttributeDefName attributeDefName  = null;
-          
-          if (StringUtils.equals(loaderType, "SQL")) {
-            
-            attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-                .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
-            
-          } else if ( StringUtils.equals(loaderType, "JEXL_SCRIPT")) {
-            
-            attributeDefName = AttributeDefNameFinder.findByName(
-                GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
-            
-          } else if ( StringUtils.equals(loaderType, "RECENT_MEMBERSHIPS")) {
-            
-            attributeDefName = AttributeDefNameFinder.findByName(
-                GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-            
-          } else if ( StringUtils.equals(loaderType, "LDAP")) {
-            attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
-          } else {
-            errors.add("Invalid json");
-            return errors;
-          }
-          
-          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-
-          if (attributeAssign != null) {
-            errors.add("Loader is already configured on the group");
-            return errors;
-          }
-          
-          attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
-          
-          ArrayNode attributesArray = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "attributes");
-          
-          for (int index=0; index<attributesArray.size(); index++) {
-            JsonNode singleAttributeNode = attributesArray.get(index);
-            String attributeName = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeName");
-            String attributeValue = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeValue");
-            attributeAssign.getAttributeValueDelegate().assignValue(attributeName, attributeValue);
-          }
-          
-          return null;
+        public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
+      
+          return GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              
+              AttributeDefName attributeDefName  = null;
+              
+              if (StringUtils.equals(loaderType, "SQL")) {
+                
+                attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
+                    .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
+                
+              } else if ( StringUtils.equals(loaderType, "JEXL_SCRIPT")) {
+                
+                attributeDefName = AttributeDefNameFinder.findByName(
+                    GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+                
+              } else if ( StringUtils.equals(loaderType, "RECENT_MEMBERSHIPS")) {
+                
+                attributeDefName = AttributeDefNameFinder.findByName(
+                    GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+                
+              } else if ( StringUtils.equals(loaderType, "LDAP")) {
+                attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
+              } else {
+                errors.add("Invalid json");
+                return errors;
+              }
+              
+              AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    
+              if (attributeAssign != null) {
+                errors.add("Loader is already configured on the group");
+                return errors;
+              }
+              
+              attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+              
+              ArrayNode attributesArray = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "attributes");
+              
+              for (int index=0; attributesArray != null && index<attributesArray.size(); index++) {
+                JsonNode singleAttributeNode = attributesArray.get(index);
+                String attributeName = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeName");
+                String attributeValue = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeValue");
+                
+                // only the attributes the check above accepted for this loader type.  values the
+                // daemon sets itself (e.g. the scripted group's last sync time) are not copied
+                if (!GrouperLoaderImportAuthorization.isAttributeToWrite(loaderType, attributeName)) {
+                  continue;
+                }
+                attributeAssign.getAttributeValueDelegate().assignValue(attributeName, attributeValue);
+              }
+              
+              return null;
+            }
+          });
         }
       });
       
     } catch (Exception e) {
+      LOG.error("Error importing loader config on group: " + (group == null ? null : group.getName()), e);
+      // a half done import is rolled back, so the group is not left with a partial config
+      errors.clear();
       errors.add("Invalid json");
     }
     

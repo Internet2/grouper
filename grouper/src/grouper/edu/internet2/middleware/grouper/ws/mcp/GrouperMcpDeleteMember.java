@@ -124,18 +124,13 @@ public class GrouperMcpDeleteMember {
       return buildErrorResult("groupName is required.");
     }
 
-    // block modifications to protected system groups
-    if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-    }
-
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", groupName));
-      }
+    // protected-resource rules and read-write scope on the group the name really resolves to
+    // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate.  the write below
+    // uses that group's uuid, so the group checked is the group changed
+    GrouperMcpResolvedTargetGate.Target groupTarget =
+        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName);
+    if (groupTarget.getError() != null) {
+      return buildErrorResult(groupTarget.getError());
     }
 
     // parse subjects array
@@ -169,16 +164,19 @@ public class GrouperMcpDeleteMember {
         return buildErrorResult(subjectIdTypeError + " (subject at index " + i + ").");
       }
 
-      // check readwrite scope restrictions on subject (OAuth only)
-      if (authUser.isOAuthAuthenticated()) {
-        if (!authUser.isSubjectInReadwriteScope(subjectIdOrIdentifier)) {
-          return buildErrorResult(
-              authUser.buildReadwriteScopeDeniedError("subject", subjectIdOrIdentifier));
-        }
+      // the lookup the write will use.  the scope check resolves it (by value, id type and source)
+      // and the lookup keeps that subject, so the subject checked is the subject removed
+      WsSubjectLookup subjectLookup = GrouperMcpSubjectUtils.createSubjectLookup(
+          subjectIdOrIdentifier, subjectIdType, sourceId);
+
+      // check readwrite scope restrictions on subject, by source and id
+      String subjectError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
+          authUser, subjectLookup, subjectIdOrIdentifier);
+      if (subjectError != null) {
+        return buildErrorResult(subjectError);
       }
 
-      subjectLookupList.add(GrouperMcpSubjectUtils.createSubjectLookup(
-          subjectIdOrIdentifier, subjectIdType, sourceId));
+      subjectLookupList.add(subjectLookup);
     }
 
     WsSubjectLookup[] subjectLookups =
@@ -186,9 +184,14 @@ public class GrouperMcpDeleteMember {
 
     try {
 
-      // build the group lookup
+      // build the group lookup: by the uuid the gate checked, else by name (not found, the web
+      // service logic reports that)
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
-      wsGroupLookup.setGroupName(groupName);
+      if (groupTarget.isFound()) {
+        wsGroupLookup.setUuid(groupTarget.getUuid());
+      } else {
+        wsGroupLookup.setGroupName(groupName);
+      }
 
       // convert fieldName string to Field
       Field field = GrouperServiceUtils.retrieveField(fieldNameString);

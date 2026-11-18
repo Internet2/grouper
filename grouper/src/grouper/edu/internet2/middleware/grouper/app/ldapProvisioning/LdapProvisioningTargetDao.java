@@ -1557,6 +1557,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       return;
     }
 
+    // only walk up from a dn strictly under groupSearchBaseDn: anything else (e.g. a group dn
+    // override outside the base) would walk to the directory root, deleting empty entries
+    if (!LdapGroupDnOverrideGuard.isStrictlyUnderBase(groupDnString, ldapSyncConfiguration.getGroupSearchBaseDn())) {
+      return;
+    }
+
     Dn groupSearchBaseDn = new Dn(ldapSyncConfiguration.getGroupSearchBaseDn());
 
     Dn parentDn = new Dn(groupDnString);
@@ -1567,8 +1573,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         return;
       }
 
-      if (parentDn.isSame(groupSearchBaseDn)) {
-        // we've clearly gone too far up
+      if (parentDn.isSame(groupSearchBaseDn)
+            || !LdapGroupDnOverrideGuard.isStrictlyUnderBase(parentDn.format(), ldapSyncConfiguration.getGroupSearchBaseDn())) {
+        // we've clearly gone too far up (or left the base)
         return;
       }
 
@@ -1593,6 +1600,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   private void createParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
 
     if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
+      return;
+    }
+
+    // only create folders under groupSearchBaseDn, never parents of a dn outside the base: for a dn
+    // outside the base (only a sysadmin can save such an override) the parent entries must already
+    // exist, so do not walk up toward the directory root
+    if (!LdapGroupDnOverrideGuard.isStrictlyUnderBase(groupDnString, ldapSyncConfiguration.getGroupSearchBaseDn())) {
       return;
     }
 
@@ -1626,8 +1640,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         break;
       }
 
-      if (parentDn.isSame(groupSearchBaseDn)) {
-        // we've clearly gone too far up
+      if (parentDn.isSame(groupSearchBaseDn)
+            || !LdapGroupDnOverrideGuard.isStrictlyUnderBase(parentDn.format(), ldapSyncConfiguration.getGroupSearchBaseDn())) {
+        // we've clearly gone too far up (or left the base)
         break;
       }
 

@@ -117,30 +117,18 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
         List<InterfolioUser> users = GrouperInterfolioApiCommands.searchUsers(configId, searchValue, 25, 1);
 
         if (StringUtils.equals("institution_user_id", searchAttribute)) {
-          // Matching on the UID: byc users/search does not return institution_user_id, so we cannot
-          // compare it directly - we can only infer it from the fact that we searched by it.
-          if (GrouperUtil.length(users) == 1) {
-            // one hit is unambiguous - stamp the UID we searched on so the entity matches
-            match = users.get(0);
+          // Matching on the UID: byc users/search does not return institution_user_id, and it is a
+          // free-text search over name and email, so a hit (even the only hit) may be someone else
+          // whose name or email merely contains the UID ("avik" finds Ravikanth Maddipati).  Accept a
+          // hit only when its email equals the email Grouper expects for this user; Interfolio emails
+          // are unique per institution, so that is an exact identifier match.  No expected email, or
+          // no equal email, means not found (never link to a lone free-text hit).
+          String expectedEmail = targetDaoRetrieveEntityRequest.getTargetEntity() == null ? null
+              : targetDaoRetrieveEntityRequest.getTargetEntity().retrieveAttributeValueString("email");
+          match = InterfolioUserMatch.matchByEmail(users, expectedEmail);
+          if (match != null) {
+            // stamp the UID we searched on so the entity matches
             match.setInstitutionUserId(searchValue);
-          } else if (GrouperUtil.length(users) > 1) {
-            // byc search is a free-text search over name and email, so a short UID happily matches
-            // other people (searching "avik" also returns Ravikanth Maddipati, Avik Chakravarty,
-            // daviking, ...).  Treating that as "not found" made select-after-insert fail for 47 of
-            // 244 users the provisioner had just successfully created, which threw out of
-            // createMissingEntitiesFull and discarded the whole run's sync state.
-            // Disambiguate on email, the same way resolvePid() already does for the update path.
-            String expectedEmail = targetDaoRetrieveEntityRequest.getTargetEntity() == null ? null
-                : targetDaoRetrieveEntityRequest.getTargetEntity().retrieveAttributeValueString("email");
-            if (StringUtils.isNotBlank(expectedEmail)) {
-              for (InterfolioUser user : GrouperUtil.nonNull(users)) {
-                if (StringUtils.equalsIgnoreCase(expectedEmail, user.getEmail())) {
-                  match = user;
-                  match.setInstitutionUserId(searchValue);
-                  break;
-                }
-              }
-            }
           }
         } else {
           for (InterfolioUser user : GrouperUtil.nonNull(users)) {
@@ -226,7 +214,10 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
       // institution_user_id may not have one yet - resolve it via byc search before the IAM PUT.
       String pid = user.getPid();
       if (StringUtils.isBlank(pid)) {
-        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(), user.getEmail());
+        // resolve with the email the Interfolio account holds now (the old value when this update
+        // changes the email); the new email could belong to a different account
+        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(),
+            InterfolioUserMatch.emailBeforeChange(targetEntity));
       }
       if (StringUtils.isBlank(pid)) {
         throw new RuntimeException("Cannot resolve Interfolio pid for institution_user_id '"
@@ -276,7 +267,14 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.isBlank(pid)) {
         // csv_report does not return the pid; resolve it from the UID for the deprovision
         InterfolioUser user = InterfolioUser.fromProvisioningEntity(targetEntity);
-        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(), user.getEmail());
+        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(),
+            InterfolioUserMatch.emailBeforeChange(targetEntity));
+        if (StringUtils.isBlank(pid)) {
+          // do not report a deprovision that did not happen: the account could not be identified
+          // exactly (no search hit with this user's email), so fail this entity visibly
+          throw new RuntimeException("Cannot resolve Interfolio pid for institution_user_id '"
+              + user.getInstitutionUserId() + "' to deprovision");
+        }
       }
       if (StringUtils.isNotBlank(pid)) {
         GrouperInterfolioApiCommands.unsubscribeUserFromRpt(configId, pid);

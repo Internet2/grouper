@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.privs.StemViewAuthorization;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -293,11 +294,12 @@ public class GuiAuditEntry {
   private String action;
   
   /**
-   * action when permission is added to role
-   * @return
+   * action when permission is added to role, HTML escaped since the audits_* text templates
+   * print it into the audit line as markup (the stored value is not trusted)
+   * @return the escaped action
    */
   public String getAction() {
-    return action;
+    return GrouperUtil.xmlEscape(action);
   }
 
   /**
@@ -409,7 +411,40 @@ public class GuiAuditEntry {
    * @return audit
    */
   public AuditEntry getAuditEntry() {
+    // the extended audit view and the audit CSV export print the stored description, which for an
+    // attribute value update lists the old and new values.  If the viewer cannot read the attribute,
+    // drop that part (in memory only, this display copy of the row is never saved)
+    if (this.auditEntry != null && this.getAuditTypeBuiltin() == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE
+        && !this.isAttributeValueReadable()) {
+      this.auditEntry.setDescription("Updated attribute assignment value");
+    }
     return this.auditEntry;
+  }
+
+  /**
+   * null until computed: for an attribute value audit row, if the viewer may read the attribute
+   * definition (ATTR_READ) and so see the value
+   */
+  private Boolean attributeValueReadable = null;
+
+  /**
+   * for an attribute value add / update / delete row, see if the user looking at the audit may read
+   * the attribute definition (ATTR_READ), computed once per row.  Other rows are not restricted here
+   * @return true if the value may be shown
+   */
+  private boolean isAttributeValueReadable() {
+    if (this.attributeValueReadable == null) {
+      AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+      if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD
+          || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE
+          || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE) {
+        this.attributeValueReadable = GuiAuditEntryAttributeValueAccess.canReadValue(
+            this.auditEntry.retrieveStringValue("attributeDefNameId"), auditViewerSubject());
+      } else {
+        this.attributeValueReadable = true;
+      }
+    }
+    return this.attributeValueReadable;
   }
 
   /**
@@ -1327,7 +1362,11 @@ public class GuiAuditEntry {
     if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD 
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE) {
-      this.attributeValue = GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.retrieveStringValue("value"), 100));
+      // the row was selected by its group / folder / subject, which says nothing about the attribute:
+      // only show the stored value if the user can read the attribute definition (ATTR_READ)
+      if (this.isAttributeValueReadable()) {
+        this.attributeValue = GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.retrieveStringValue("value"), 100));
+      }
     }
   }
 
@@ -1389,6 +1428,16 @@ public class GuiAuditEntry {
   }
   
   /**
+   * user looking at the audit: the subject of the static session the audit screen runs in (the same
+   * session the group / attribute lookups in this class are secured by)
+   * @return the subject or null if there is no session
+   */
+  private static Subject auditViewerSubject() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    return grouperSession == null ? null : grouperSession.getSubject();
+  }
+
+  /**
    * setup a group from an audit
    */
   private void setupStem() {
@@ -1407,6 +1456,12 @@ public class GuiAuditEntry {
     }
     String stemId = this.auditEntry.retrieveStringValue(stemIdName);
     Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+    // StemFinder.findByUuid is a lookup, not an authorization check.  Only show the live folder (name,
+    // description, link) if the user looking at the audit can currently see it; otherwise render it
+    // like a deleted folder, e.g. My Activity after the user's folder privileges were revoked
+    if (stem != null && !StemViewAuthorization.canView(auditViewerSubject(), stem)) {
+      stem = null;
+    }
     GuiStem guiStem = new GuiStem(stem);
     this.setGuiStem(guiStem);
     
@@ -1446,8 +1501,13 @@ public class GuiAuditEntry {
     return exportSize;
   }
   
+  /**
+   * file name for import and export, HTML escaped since the audits_* text templates print it
+   * into the audit line as markup and the import file name comes from the uploading browser
+   * @return the escaped file name
+   */
   public String getFile() {
-    return file;
+    return GrouperUtil.xmlEscape(file);
  }
 
   private void setupImportProperties() {
@@ -1476,7 +1536,8 @@ public class GuiAuditEntry {
     PITGroup pitGroup = this.guiPITGroup != null ? this.guiPITGroup.getPITGroup() : null;
     
     if (group == null && pitGroup != null) {
-      return pitGroup.getName();
+      // html escape, the other branch returns a link built with escaped text
+      return GrouperUtil.xmlEscape(pitGroup.getName());
     }
     
     // this includes if the group is actually null - will show as unknown in the UI

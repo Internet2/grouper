@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.util.GrouperLogger;
 import edu.internet2.middleware.grouper.util.GrouperLoggerState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
@@ -190,6 +191,10 @@ public class GrouperServiceJ2ee implements Filter {
   public static Subject retrieveSubjectLoggedInFromRequest() {
 
     Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    // forget any header act-as state from an earlier call; set again below if the
+    // X-Grouper-actAs headers replace the authenticated caller (GrouperWsHeaderActAsGuard)
+    GrouperWsHeaderActAsGuard.clear();
 
     String authenticationClassName = GrouperWsConfig.getPropertyString(
         GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS,
@@ -313,6 +318,22 @@ public class GrouperServiceJ2ee implements Filter {
       }
 
       caller = retrieveSubjectGrouperActAsHelper(caller);
+
+      // the X-Grouper-actAs headers replaced the authenticated caller.  the authenticated caller
+      // must itself be a web service client (ws.client.user.group.name, checked here before the
+      // header subject is used for anything; the header subject is still checked later too), and
+      // is remembered so a request body actAsSubjectLookup cannot chain from the header subject
+      // to a third subject the header rule does not allow
+      if (caller != null && originalCaller != null
+          && !GrouperWsHeaderActAsGuard.sameSubject(caller, originalCaller)) {
+        if (!GrouperWsHeaderActAsGuard.isClientUserAdmitted(originalCaller)) {
+          LOG.error("user: '" + GrouperUtil.subjectToString(originalCaller)
+              + "' sent X-Grouper-actAs headers but is not a member of the group in grouper-ws.properties "
+              + "ws.client.user.group.name, and therefore is not authorized to use the web service");
+          throw new GrouperWsException("User is not authorized").assignLogStack(false);
+        }
+        GrouperWsHeaderActAsGuard.assignAuthenticatedSubject(originalCaller);
+      }
 
       if (caller != null && originalCaller != null && !StringUtils.equals(caller.getId(), originalCaller.getId())) {
         debugMap.put("userIdActAsSource", caller.getSourceId());
@@ -744,6 +765,7 @@ public class GrouperServiceJ2ee implements Filter {
           // MCP servlet sets REMOTE_USER when it authenticates, copy for the access log
           assignRemoteUserForAccessLog((HttpServletRequest) request);
           threadLocalRequest.remove();
+          GrouperWsHeaderActAsGuard.clear();
           GrouperWsRequestContext.clearThreadLocals();
         }
         return;
@@ -884,6 +906,7 @@ public class GrouperServiceJ2ee implements Filter {
       GrouperLogger.clearGrouperLoggerState();
 
       threadLocalRequest.remove();
+      GrouperWsHeaderActAsGuard.clear();
       threadLocalResponse.remove();
       threadLocalServlet.remove();
       GrouperWsRequestContext.clearThreadLocals();

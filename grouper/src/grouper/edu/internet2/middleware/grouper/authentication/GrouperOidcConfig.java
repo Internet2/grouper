@@ -481,6 +481,12 @@ public class GrouperOidcConfig {
     //  # optional, could be in claim as "subjectSourceId", e.g. myPeople
     //  grouper.oidc.configId.subjectSourceId =
     grouperOidcConfig.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".subjectSourceId");
+    // the config screen saves the subject source checkboxes as subjectSourceIds (plural, comma separated,
+    // see grouper.base.properties), so read that when the legacy singular subjectSourceId is not set,
+    // otherwise a source chosen on the screen is never enforced
+    if (GrouperUtil.isBlank(grouperOidcConfig.subjectSourceId)) {
+      grouperOidcConfig.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".subjectSourceIds");
+    }
 
     //   
     //  # subjectId, subjectIdentifier, or subjectIdOrIdentifier

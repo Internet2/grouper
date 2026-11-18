@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -101,26 +102,20 @@ public class GrouperMcpFolderDelete {
       return buildErrorResult("stemName is required.");
     }
 
-    // block modifications to protected system stems and the etc stem
-    if (GrouperMcpProtectedResources.isProtectedStemName(stemName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedStemError(stemName));
-    }
-
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
-        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
-      }
-      if (!authUser.isStemInReadwriteScope(stemName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("stem", stemName));
-      }
+    // protected-resource rules and read-write scope on the folder the name really resolves to
+    // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate
+    GrouperMcpResolvedTargetGate.Target stemTarget =
+        GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName);
+    if (stemTarget.getError() != null) {
+      return buildErrorResult(stemTarget.getError());
     }
 
     try {
-      // look up the stem by name (false = don't throw exception if not found)
-      Stem stem = StemFinder.findByName(stemName, false);
+      // look up, as the caller, the folder that was checked: by its uuid, so an old name cannot
+      // lead somewhere else (false = don't throw exception if not found)
+      Stem stem = stemTarget.isFound()
+          ? StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemTarget.getUuid(), false)
+          : null;
 
       if (stem == null) {
         return buildErrorResult("Stem not found: " + stemName);
@@ -136,7 +131,7 @@ public class GrouperMcpFolderDelete {
       ObjectNode resultNode = objectMapper.createObjectNode();
       resultNode.put("resultCode", "DELETE");
       resultNode.put("success", true);
-      resultNode.put("name", stemName);
+      resultNode.put("name", stem.getName());
       if (StringUtils.isNotBlank(displayExtension)) {
         resultNode.put("displayExtension", displayExtension);
       }

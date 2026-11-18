@@ -183,9 +183,18 @@ public class GrouperMcpFolderSave {
       return buildErrorResult("The root folder cannot be changed with folder_save.");
     }
 
-    String protectedOrScopeError = protectedOrScopeError(stemName, authUser);
-    if (protectedOrScopeError != null) {
-      return buildErrorResult(protectedOrScopeError);
+    // protected-resource rules and read-write scope on the folder the name really resolves to
+    // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate
+    GrouperMcpResolvedTargetGate.Target stemTarget =
+        GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName);
+    if (stemTarget.getError() != null) {
+      return buildErrorResult(stemTarget.getError());
+    }
+
+    // the handlers find the folder by name again.  give them the current name of the folder that
+    // was checked, so an old name cannot lead them to a different object than the one checked
+    if (stemTarget.isFound()) {
+      stemName = stemTarget.getName();
     }
 
     boolean createParentFolders = arguments.has("createParentFoldersIfNotExist")
@@ -234,21 +243,8 @@ public class GrouperMcpFolderSave {
    */
   private static String protectedOrScopeError(String stemName, GrouperMcpAuthUser authUser) {
 
-    // block modifications to protected system folders and the etc folder
-    if (GrouperMcpProtectedResources.isProtectedStemName(stemName)) {
-      return GrouperMcpProtectedResources.buildProtectedStemError(stemName);
-    }
-
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
-        return "Access denied: your OAuth scope does not include groups or folders.";
-      }
-      if (!authUser.isStemInReadwriteScope(stemName)) {
-        return authUser.buildReadwriteScopeDeniedError("stem", stemName);
-      }
-    }
-    return null;
+    // the same checks as the folder itself, on what the name resolves to if anything
+    return GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName).getError();
   }
 
   /**

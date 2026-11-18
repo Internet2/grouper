@@ -449,11 +449,14 @@ public class GrouperUiFunctions {
       subjectId = member.getSubjectId();
       Subject subject = member.getSubject();
 
-      return new GuiSubject(subject).getScreenLabelShort2();
+      // the label is plain text (subject name or the screenLabel2 EL result) and the header
+      // JSPs print this function's result as markup, so escape it here
+      return escapeHtml(new GuiSubject(subject).getScreenLabelShort2());
     } catch (SubjectNotFoundException snfe) {
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(subjectId);
       try {
-        return TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound");
+        // the not found text holds the raw subject id of the member
+        return escapeHtml(TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound"));
       } finally {
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(null);
       }
@@ -482,7 +485,8 @@ public class GrouperUiFunctions {
     } catch (SubjectNotFoundException snfe) {
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(subjectId);
       try {
-        return TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound");
+        // the not found text holds the raw subject id of the member
+        return escapeHtml(TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound"));
       } finally {
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(null);
       }

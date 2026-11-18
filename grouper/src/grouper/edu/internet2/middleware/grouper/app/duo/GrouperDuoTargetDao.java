@@ -179,7 +179,18 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   
-  private static ExpirableCache<Boolean, Map<String, GrouperDuoGroup>> cacheGroupNameToGroup = new ExpirableCache<Boolean, Map<String, GrouperDuoGroup>>(5);
+  private static ExpirableCache<String, Map<String, GrouperDuoGroup>> cacheGroupNameToGroup = new ExpirableCache<String, Map<String, GrouperDuoGroup>>(5);
+
+  /**
+   * Key for the static group caches in this class.  The caches are shared by every Duo
+   * provisioner in the JVM, so they are keyed by the Duo external system config id: a
+   * provisioner must never read (or link to) groups that were loaded from another Duo tenant.
+   * @return the cache key, never null
+   */
+  private String groupCacheKey() {
+    GrouperDuoConfiguration theDuoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    return GrouperUtil.defaultString(theDuoConfiguration.getDuoExternalSystemConfigId());
+  }
   
   @Override
   public TargetDaoRetrieveGroupResponse retrieveGroup(TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
@@ -199,7 +210,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         String name = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
         if (StringUtils.isNotBlank(name)) {
           
-          Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+          Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
           
           grouperDuoGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
           
@@ -210,7 +221,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
             for (GrouperDuoGroup currentDuoGroup: GrouperUtil.nonNull(allDuoGroups)) {
               groupNameToGroup.put(currentDuoGroup.getName(), currentDuoGroup);
             }
-            cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
+            cacheGroupNameToGroup.put(this.groupCacheKey(), groupNameToGroup);
             
             grouperDuoGroup = groupNameToGroup.get(name);
             
@@ -393,7 +404,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
       
-      Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(this.groupCacheKey());
       if (groupNameToGroup != null) {
         groupNameToGroup.remove(grouperDuoGroup.getName());
       } 

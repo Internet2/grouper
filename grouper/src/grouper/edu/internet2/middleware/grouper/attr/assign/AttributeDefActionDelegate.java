@@ -185,6 +185,14 @@ public class AttributeDefActionDelegate {
         removes.add(has);
       }
     }
+
+    // security (2026-11 review, issue 32): changing actions is an ATTR_ADMIN operation.  Check
+    // before anything is written: removing an action also deletes, as root, every assignment
+    // that uses it.  A call that changes nothing still succeeds without the privilege.
+    if (adds.size() > 0 || removes.size() > 0) {
+      AttributeDefActionAuthorization.assertCanEditActions(this.attributeDef);
+    }
+
     //lets add and delete, no need to do in transaction
     for (String add: adds) {
       internal_addAction(add, null);
