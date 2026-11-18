@@ -79,9 +79,17 @@ public class Hib3MembershipDAOCustomCompositeTest extends GrouperTest {
     this.normalEmpty = new GroupSave(this.grouperSession).assignName("test:normalEmpty")
         .assignCreateParentStemsIfNotExist(true).save();
 
-    // same as the WS group save with a caller supplied uuid
-    this.craftedEmpty = new GroupSave(this.grouperSession).assignName("test:craftedEmpty")
-        .assignUuid(CRAFTED_ID).assignCreateParentStemsIfNotExist(true).save();
+    // a custom composite group whose stored id is crafted.  a save can no longer create one (the
+    // caller-supplied uuid check refuses it), but one stored before that check could still exist,
+    // and the query must bind it safely.  the query only reads the id, so an unsaved group with
+    // that id (and no members, like an empty group) stands in for it
+    this.craftedEmpty = new Group();
+    this.craftedEmpty.setId(CRAFTED_ID);
+    // the query checks READ on it, which needs a name (root can read any group)
+    this.craftedEmpty.setNameDb("test:craftedEmpty");
+    this.craftedEmpty.setDisplayNameDb("test:craftedEmpty");
+    this.craftedEmpty.setExtensionDb("craftedEmpty");
+    this.craftedEmpty.setDisplayExtensionDb("craftedEmpty");
     assertEquals(CRAFTED_ID, this.craftedEmpty.getId());
 
     Group other = new GroupSave(this.grouperSession).assignName("test:other")

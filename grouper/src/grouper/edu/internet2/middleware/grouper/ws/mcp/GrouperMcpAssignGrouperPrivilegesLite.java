@@ -180,7 +180,7 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
     String stemUuid = null;
     if (StringUtils.isNotBlank(groupName)) {
       GrouperMcpResolvedTargetGate.Target target =
-          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName);
+          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName, false);
       if (target.getError() != null) {
         return buildErrorResult(target.getError());
       }
@@ -188,7 +188,7 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
     }
     if (StringUtils.isNotBlank(stemName)) {
       GrouperMcpResolvedTargetGate.Target target =
-          GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName);
+          GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName, false);
       if (target.getError() != null) {
         return buildErrorResult(target.getError());
       }
@@ -197,7 +197,7 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
 
     // the subject, by source and id, resolved by the same lookup the write is built from
     String subjectError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
-        authUser, wsSubjectLookup, subjectIdOrIdentifier);
+        authUser, wsSubjectLookup, subjectIdOrIdentifier, false);
     if (subjectError != null) {
       return buildErrorResult(subjectError);
     }

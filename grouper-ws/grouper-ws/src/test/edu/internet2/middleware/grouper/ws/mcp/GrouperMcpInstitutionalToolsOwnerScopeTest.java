@@ -142,11 +142,18 @@ public class GrouperMcpInstitutionalToolsOwnerScopeTest extends GrouperTest {
     override.put(configPrefix + "runAsType", "GrouperSystem");
     override.put(configPrefix + "showOnFolders", showOnFolders ? "true" : "false");
     override.put(configPrefix + "showOnGroups", showOnGroups ? "true" : "false");
+    // required on 7.9.x when the template shows on folders / groups: everywhere, so the scope check decides
+    if (showOnFolders) {
+      override.put(configPrefix + "folderShowType", "allFolders");
+    }
+    if (showOnGroups) {
+      override.put(configPrefix + "groupShowType", "allGroups");
+    }
     override.put(configPrefix + "allowWsFromNoOwner", "false");
     override.put(configPrefix + "numberOfInputs", "0");
     override.put(configPrefix + "gshTemplate", showOnFolders
-        ? "gsh_builtin_gshTemplateOutput.addOutputLine(\"ran on \" + gsh_builtin_gshTemplateOwnerStemName);"
-        : "gsh_builtin_gshTemplateOutput.addOutputLine(\"ran on \" + gsh_builtin_gshTemplateOwnerGroupName);");
+        ? "gsh_builtin_gshTemplateOutput.addOutputLine(\"ran on \" + gsh_builtin_ownerStemName);"
+        : "gsh_builtin_gshTemplateOutput.addOutputLine(\"ran on \" + gsh_builtin_ownerGroupName);");
   }
 
   /**

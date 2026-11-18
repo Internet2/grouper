@@ -170,7 +170,7 @@ public class GrouperMcpAddMember {
     // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate.  the write below
     // uses that group's uuid, so the group checked is the group changed
     GrouperMcpResolvedTargetGate.Target groupTarget =
-        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName);
+        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName, false);
     if (groupTarget.getError() != null) {
       return buildErrorResult(groupTarget.getError());
     }
@@ -213,7 +213,7 @@ public class GrouperMcpAddMember {
 
       // check readwrite scope restrictions on subject, by source and id
       String subjectError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
-          authUser, subjectLookup, subjectIdOrIdentifier);
+          authUser, subjectLookup, subjectIdOrIdentifier, false);
       if (subjectError != null) {
         return buildErrorResult(subjectError);
       }

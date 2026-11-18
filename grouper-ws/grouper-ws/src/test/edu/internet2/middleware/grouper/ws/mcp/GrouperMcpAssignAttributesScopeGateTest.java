@@ -207,7 +207,10 @@ public class GrouperMcpAssignAttributesScopeGateTest extends GrouperTest {
    * @return true if the assignment still exists (looked up as root)
    */
   private static boolean assignmentExists(String attributeAssignId) {
-    return AttributeAssignFinder.findById(attributeAssignId, false) != null;
+    // the DAO, not AttributeAssignFinder: the finder checks VIEW with the static session, and
+    // callers run this after stopping their own session
+    return edu.internet2.middleware.grouper.misc.GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findById(attributeAssignId, false) != null;
   }
 
   /**
@@ -423,7 +426,11 @@ public class GrouperMcpAssignAttributesScopeGateTest extends GrouperTest {
     AttributeAssign allowedAssign = allowedMembership.getAttributeDelegate().assignAttribute(immMemAttr).getAttributeAssign();
     HibernateSession.flush();
 
+    // a membership has a member too: the gate also checks the member against the subject scope
+    // (as the any_mem owner check does), so the caller here can change SUBJ2
     GrouperMcpAuthUser authUser = oauthUser(SubjectTestHelper.SUBJ0);
+    authUser.setConsentReadwriteSubjects(Arrays.asList(
+        edu.internet2.middleware.grouper.authentication.GrouperOAuthSubjectScope.subjectKey(SubjectTestHelper.SUBJ2)));
     assertNotNull(GrouperMcpResolvedTargetGate.checkAttributeAssign(authUser, outsideAssign.getId()));
     assertNull(GrouperMcpResolvedTargetGate.checkAttributeAssign(authUser, allowedAssign.getId()));
 

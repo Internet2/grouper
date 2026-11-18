@@ -1036,7 +1036,7 @@ public class GrouperMcpInstitutionalTools {
     if (ownerType == GshTemplateOwnerType.group) {
       String ownerGroupName = exec.getOwnerGroupName();
       GrouperMcpResolvedTargetGate.Target target =
-          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, ownerGroupName);
+          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, ownerGroupName, false);
       if (target.getError() != null) {
         return buildErrorResult(target.getError());
       }
@@ -1050,7 +1050,7 @@ public class GrouperMcpInstitutionalTools {
     if (ownerType == GshTemplateOwnerType.stem) {
       String ownerStemName = exec.getOwnerStemName();
       GrouperMcpResolvedTargetGate.Target target =
-          GrouperMcpResolvedTargetGate.checkStemByName(authUser, ownerStemName);
+          GrouperMcpResolvedTargetGate.checkStemByName(authUser, ownerStemName, false);
       if (target.getError() != null) {
         return buildErrorResult(target.getError());
       }

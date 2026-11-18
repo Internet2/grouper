@@ -155,11 +155,27 @@ public class GrouperMcpResolvedTargetGate {
    * the object changed
    */
   public static Target checkGroupByName(GrouperMcpAuthUser authUser, final String typedName) {
+    return checkGroupByName(authUser, typedName, true);
+  }
+
+  /**
+   * see {@link #checkGroupByName(GrouperMcpAuthUser, String)}
+   * @param authUser the caller
+   * @param typedName the group name the caller sent
+   * @param requireScopeDimension true (save, delete and attribute tools, as in 7.9.0) to deny a
+   * scoped token whose scope has no values in this dimension; false (member, privilege and
+   * template tools) to leave the dimension open when another dimension is scoped, as
+   * isGroupInReadwriteScope / isSubjectInReadwriteScope already decide
+   * @return the result
+   */
+  public static Target checkGroupByName(GrouperMcpAuthUser authUser, final String typedName,
+      boolean requireScopeDimension) {
     Group group = findGroupByNameAsRoot(typedName);
     if (group != null) {
-      return new Target(checkGroup(authUser, group, typedName), group.getUuid(), group.getName());
+      return new Target(checkGroup(authUser, group, typedName, requireScopeDimension),
+          group.getUuid(), group.getName());
     }
-    return new Target(checkTypedGroupName(authUser, typedName), null, null);
+    return new Target(checkTypedGroupName(authUser, typedName, requireScopeDimension), null, null);
   }
 
   /**
@@ -170,11 +186,27 @@ public class GrouperMcpResolvedTargetGate {
    * @return the result
    */
   public static Target checkStemByName(GrouperMcpAuthUser authUser, final String typedName) {
+    return checkStemByName(authUser, typedName, true);
+  }
+
+  /**
+   * see {@link #checkStemByName(GrouperMcpAuthUser, String)}
+   * @param authUser the caller
+   * @param typedName the folder name the caller sent
+   * @param requireScopeDimension true (save, delete and attribute tools, as in 7.9.0) to deny a
+   * scoped token whose scope has no values in this dimension; false (member, privilege and
+   * template tools) to leave the dimension open when another dimension is scoped, as
+   * isGroupInReadwriteScope / isSubjectInReadwriteScope already decide
+   * @return the result
+   */
+  public static Target checkStemByName(GrouperMcpAuthUser authUser, final String typedName,
+      boolean requireScopeDimension) {
     Stem stem = findStemByNameAsRoot(typedName);
     if (stem != null) {
-      return new Target(checkStem(authUser, stem, typedName), stem.getUuid(), stem.getName());
+      return new Target(checkStem(authUser, stem, typedName, requireScopeDimension),
+          stem.getUuid(), stem.getName());
     }
-    return new Target(checkTypedStemName(authUser, typedName), null, null);
+    return new Target(checkTypedStemName(authUser, typedName, requireScopeDimension), null, null);
   }
 
   /**
@@ -184,7 +216,8 @@ public class GrouperMcpResolvedTargetGate {
    * @param typedName name the caller sent
    * @return error or null
    */
-  private static String checkTypedGroupName(GrouperMcpAuthUser authUser, String typedName) {
+  private static String checkTypedGroupName(GrouperMcpAuthUser authUser, String typedName,
+      boolean requireScopeDimension) {
     if (StringUtils.isBlank(typedName)) {
       return GENERIC_DENIED_MESSAGE;
     }
@@ -192,7 +225,7 @@ public class GrouperMcpResolvedTargetGate {
       return GrouperMcpProtectedResources.buildProtectedGroupError(typedName);
     }
     if (authUser.isConsentScopeEnforced()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+      if (requireScopeDimension && !authUser.hasGroupOrFolderReadwriteScope()) {
         return NO_GROUP_OR_FOLDER_SCOPE_MESSAGE;
       }
       // the (name, uuid) form, not the string form: that one looks the name up again
@@ -209,7 +242,8 @@ public class GrouperMcpResolvedTargetGate {
    * @param typedName name the caller sent
    * @return error or null
    */
-  private static String checkTypedStemName(GrouperMcpAuthUser authUser, String typedName) {
+  private static String checkTypedStemName(GrouperMcpAuthUser authUser, String typedName,
+      boolean requireScopeDimension) {
     if (StringUtils.isBlank(typedName)) {
       return GENERIC_DENIED_MESSAGE;
     }
@@ -217,7 +251,7 @@ public class GrouperMcpResolvedTargetGate {
       return GrouperMcpProtectedResources.buildProtectedStemError(typedName);
     }
     if (authUser.isConsentScopeEnforced()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+      if (requireScopeDimension && !authUser.hasGroupOrFolderReadwriteScope()) {
         return NO_GROUP_OR_FOLDER_SCOPE_MESSAGE;
       }
       if (!authUser.isStemInReadwriteScope(typedName, null)) {
@@ -235,6 +269,22 @@ public class GrouperMcpResolvedTargetGate {
    * @return error or null
    */
   public static String checkGroup(final GrouperMcpAuthUser authUser, final Group group, String typedName) {
+    return checkGroup(authUser, group, typedName, true);
+  }
+
+  /**
+   * see {@link #checkGroup(GrouperMcpAuthUser, Group, String)}
+   * @param authUser the caller
+   * @param group the group the operation will change, null is denied
+   * @param typedName the name the caller sent for it, or null if the caller sent an id
+   * @param requireScopeDimension true (save, delete and attribute tools, as in 7.9.0) to deny a
+   * scoped token whose scope has no values in this dimension; false (member, privilege and
+   * template tools) to leave the dimension open when another dimension is scoped, as
+   * isGroupInReadwriteScope / isSubjectInReadwriteScope already decide
+   * @return error or null
+   */
+  public static String checkGroup(final GrouperMcpAuthUser authUser, final Group group, String typedName,
+      boolean requireScopeDimension) {
     if (group == null) {
       return GENERIC_DENIED_MESSAGE;
     }
@@ -249,7 +299,7 @@ public class GrouperMcpResolvedTargetGate {
     }
 
     if (authUser.isConsentScopeEnforced()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+      if (requireScopeDimension && !authUser.hasGroupOrFolderReadwriteScope()) {
         return NO_GROUP_OR_FOLDER_SCOPE_MESSAGE;
       }
       if (!authUser.isGroupInReadwriteScope(realName, group.getUuid())) {
@@ -269,6 +319,22 @@ public class GrouperMcpResolvedTargetGate {
    * @return error or null
    */
   public static String checkStem(final GrouperMcpAuthUser authUser, final Stem stem, String typedName) {
+    return checkStem(authUser, stem, typedName, true);
+  }
+
+  /**
+   * see {@link #checkStem(GrouperMcpAuthUser, Stem, String)}
+   * @param authUser the caller
+   * @param stem the folder the operation will change, null is denied
+   * @param typedName the name the caller sent for it, or null if the caller sent an id
+   * @param requireScopeDimension true (save, delete and attribute tools, as in 7.9.0) to deny a
+   * scoped token whose scope has no values in this dimension; false (member, privilege and
+   * template tools) to leave the dimension open when another dimension is scoped, as
+   * isGroupInReadwriteScope / isSubjectInReadwriteScope already decide
+   * @return error or null
+   */
+  public static String checkStem(final GrouperMcpAuthUser authUser, final Stem stem, String typedName,
+      boolean requireScopeDimension) {
     if (stem == null) {
       return GENERIC_DENIED_MESSAGE;
     }
@@ -283,7 +349,7 @@ public class GrouperMcpResolvedTargetGate {
     }
 
     if (authUser.isConsentScopeEnforced()) {
-      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+      if (requireScopeDimension && !authUser.hasGroupOrFolderReadwriteScope()) {
         return NO_GROUP_OR_FOLDER_SCOPE_MESSAGE;
       }
       if (!authUser.isStemInReadwriteScope(realName, stem.getUuid())) {
@@ -362,10 +428,26 @@ public class GrouperMcpResolvedTargetGate {
    */
   public static String checkSubjectLookup(GrouperMcpAuthUser authUser, WsSubjectLookup wsSubjectLookup,
       String typedValue) {
+    return checkSubjectLookup(authUser, wsSubjectLookup, typedValue, true);
+  }
+
+  /**
+   * see {@link #checkSubjectLookup(GrouperMcpAuthUser, WsSubjectLookup, String)}
+   * @param authUser the caller
+   * @param wsSubjectLookup the lookup
+   * @param typedValue what the caller sent for the subject, for the message
+   * @param requireScopeDimension true (save, delete and attribute tools, as in 7.9.0) to deny a
+   * scoped token whose scope has no values in this dimension; false (member, privilege and
+   * template tools) to leave the dimension open when another dimension is scoped, as
+   * isGroupInReadwriteScope / isSubjectInReadwriteScope already decide
+   * @return error or null
+   */
+  public static String checkSubjectLookup(GrouperMcpAuthUser authUser, WsSubjectLookup wsSubjectLookup,
+      String typedValue, boolean requireScopeDimension) {
     if (!authUser.isConsentScopeEnforced()) {
       return null;
     }
-    if (!authUser.hasSubjectReadwriteScope()) {
+    if (requireScopeDimension && !authUser.hasSubjectReadwriteScope()) {
       return NO_SUBJECT_SCOPE_MESSAGE;
     }
     if (!authUser.isSubjectLookupInReadwriteScope(wsSubjectLookup)) {
