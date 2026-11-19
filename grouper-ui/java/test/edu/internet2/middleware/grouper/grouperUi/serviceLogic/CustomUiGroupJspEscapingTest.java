@@ -22,6 +22,11 @@ import junit.textui.TestRunner;
  * through grouper:escapeHtml.  The description stays raw on purpose: it is built from Grouper's
  * own text templates, which hold links (guiGroup short links).</p>
  *
+ * <p>GRP-7589: the label is admin-written custom UI config, the same trust level as the custom UI
+ * header and instructions (which are raw by design), and sites format it with HTML on purpose
+ * (e.g. a bold title and a line break, or a link).  So the label is raw again; the value and the
+ * other data cells stay escaped.</p>
+ *
  * <p>There is no JSP rendering harness in grouper-ui tests, so this is a static source check of
  * the JSP.  No database or Grouper config is needed.  Rendering is in the manual test steps.</p>
  */
@@ -80,8 +85,8 @@ public class CustomUiGroupJspEscapingTest extends TestCase {
   }
 
   /**
-   * every output of a user query display bean value (except the description) and of a text
-   * result's script result, default and end-if-matches must be directly inside
+   * every output of a user query display bean value (except the description and the label) and of
+   * a text result's script result, default and end-if-matches must be directly inside
    * grouper:escapeHtml(...).  Fails before the fix.
    * @throws Exception
    */
@@ -89,9 +94,9 @@ public class CustomUiGroupJspEscapingTest extends TestCase {
     String jsp = new String(Files.readAllBytes(findJsp().toPath()), StandardCharsets.UTF_8);
 
     // output expressions only: ${customUiUserQueryDisplayBean.x} as a whole EL, not inside a
-    // c:if test (forLoggedInUserBoolean)
+    // c:if test (forLoggedInUserBoolean).  The label is left out on purpose (GRP-7589).
     Pattern pattern = Pattern.compile("\\$\\{\\s*((?:grouper:escapeHtml\\()?)"
-        + "(customUiUserQueryDisplayBean\\.(?:label|variableValue|variableName|variableType|userQueryType|forLoggedInUser)"
+        + "(customUiUserQueryDisplayBean\\.(?:variableValue|variableName|variableType|userQueryType|forLoggedInUser)"
         + "|customUiTextResult\\.(?:scriptResult|theDefault|endIfMatches))\\b");
     Matcher matcher = pattern.matcher(jsp);
     List<String> rawUses = new ArrayList<String>();
@@ -105,8 +110,19 @@ public class CustomUiGroupJspEscapingTest extends TestCase {
       }
     }
     assertTrue("Unescaped custom UI table values: " + rawUses, rawUses.isEmpty());
-    // the nine cells must still be shown, else this test is checking nothing
-    assertTrue("expected 9 escaped cells, found " + escaped, escaped >= 9);
+    // the eight data cells must still be shown, else this test is checking nothing
+    assertTrue("expected 8 escaped cells, found " + escaped, escaped >= 8);
+  }
+
+  /**
+   * GRP-7589: the label is admin config and may hold HTML formatting on purpose, so it is printed
+   * raw (not inside grouper:escapeHtml), like the custom UI header and instructions
+   * @throws Exception
+   */
+  public void testLabelIsRawHtml() throws Exception {
+    String jsp = new String(Files.readAllBytes(findJsp().toPath()), StandardCharsets.UTF_8);
+    assertTrue("label should be printed raw", jsp.contains("${customUiUserQueryDisplayBean.label}"));
+    assertFalse("label should not be escaped", jsp.contains("grouper:escapeHtml(customUiUserQueryDisplayBean.label)"));
   }
 
   /**
