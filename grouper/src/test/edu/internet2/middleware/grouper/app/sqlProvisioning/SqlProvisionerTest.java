@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
@@ -1345,6 +1346,122 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
+  /**
+   * GRP-7561: when the incremental retrieves memberships for a group (or member) being recalculated, a group/member
+   * pair that the recalc already covers is skipped.  the memberships returned must be the same as without the pairs,
+   * each returned once, and a membership removed in grouper must not come back
+   */
+  public void testIncrementalRetrieveMembershipsSkipsPairsCoveredByRecalc() {
+
+    GrouperStartup.startup();
+
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignHasTargetGroupLink(true)
+        .assignEntityAttributeCount(5)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        );
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    incrementalProvision();
+    fullProvision();
+
+    assertEquals(new Integer(4), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship2").select(int.class));
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+    String groupId = testGroup.getId();
+    String groupId2 = testGroup2.getId();
+    String memberId0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getId();
+    String memberId1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getId();
+    String memberId2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true).getId();
+
+    // group recalc alone
+    List<ProvisioningMembership> groupOnly = grouperProvisioner.retrieveGrouperDao().retrieveMemberships(
+        false, GrouperUtil.toSet(groupId), null, null);
+    assertEquals(2, groupOnly.size());
+
+    // group recalc plus pairs for its existing memberships (as an LDAP recalc has), plus a pair in another group
+    Set<MultiKey> pairs = new HashSet<MultiKey>();
+    pairs.add(new MultiKey(groupId, memberId0));
+    pairs.add(new MultiKey(groupId, memberId1));
+    pairs.add(new MultiKey(groupId2, memberId2));
+    List<ProvisioningMembership> groupAndPairs = grouperProvisioner.retrieveGrouperDao().retrieveMemberships(
+        false, GrouperUtil.toSet(groupId), null, pairs);
+
+    // each membership once: the group's two, plus the pair in the other group
+    assertEquals(3, groupAndPairs.size());
+    Set<String> groupAndPairsIds = new HashSet<String>();
+    Set<MultiKey> groupAndPairsKeys = new HashSet<MultiKey>();
+    for (ProvisioningMembership provisioningMembership : groupAndPairs) {
+      groupAndPairsIds.add(provisioningMembership.getId());
+      groupAndPairsKeys.add(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()));
+    }
+    assertEquals(3, groupAndPairsIds.size());
+    for (ProvisioningMembership provisioningMembership : groupOnly) {
+      assertTrue(groupAndPairsIds.contains(provisioningMembership.getId()));
+    }
+    assertTrue(groupAndPairsKeys.contains(new MultiKey(groupId2, memberId2)));
+
+    // member recalc plus a pair for that member and a pair for another member
+    Set<MultiKey> memberPairs = new HashSet<MultiKey>();
+    memberPairs.add(new MultiKey(groupId2, memberId2));
+    memberPairs.add(new MultiKey(groupId, memberId0));
+    List<ProvisioningMembership> memberAndPairs = grouperProvisioner.retrieveGrouperDao().retrieveMemberships(
+        false, null, GrouperUtil.toSet(memberId2), memberPairs);
+    assertEquals(2, memberAndPairs.size());
+
+    // remove a member in grouper: the stale pair must not bring the membership back with the group recalc
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    incrementalProvision();
+
+    List<ProvisioningMembership> afterRemove = grouperProvisioner.retrieveGrouperDao().retrieveMemberships(
+        false, GrouperUtil.toSet(groupId), null, pairs);
+    Set<MultiKey> afterRemoveKeys = new HashSet<MultiKey>();
+    for (ProvisioningMembership provisioningMembership : afterRemove) {
+      afterRemoveKeys.add(new MultiKey(provisioningMembership.getProvisioningGroupId(), provisioningMembership.getProvisioningEntityId()));
+    }
+    assertEquals(2, afterRemove.size());
+    assertTrue(afterRemoveKeys.contains(new MultiKey(groupId, memberId0)));
+    assertFalse(afterRemoveKeys.contains(new MultiKey(groupId, memberId1)));
+    assertTrue(afterRemoveKeys.contains(new MultiKey(groupId2, memberId2)));
+
+    // and the target no longer has it
+    assertEquals(new Integer(3), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship2").select(int.class));
+  }
+
   /**
    * just do a simple full sync of groups and memberships
    */
