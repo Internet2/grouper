@@ -645,7 +645,18 @@ public class GrouperProvisioningGrouperDao {
           GrouperUtil.length(memberUuidsForEntitySync) == 0 && GrouperUtil.length(groupUuidMemberUuids) == 0) {
         return results;
       }
-      List<MultiKey> groupUuidsMemberUuidsList = GrouperUtil.listFromCollection(GrouperUtil.nonNull(groupUuidMemberUuids));
+      // a pair whose group (or member) is also being recalculated is already returned by the group (or member)
+      // query, so skip it.  otherwise a whole group recalc also sends one OR term per existing membership
+      Set<String> groupUuidsForGroupSyncSet = new HashSet<String>(GrouperUtil.nonNull(groupUuidsForGroupSync));
+      Set<String> memberUuidsForEntitySyncSet = new HashSet<String>(GrouperUtil.nonNull(memberUuidsForEntitySync));
+      List<MultiKey> groupUuidsMemberUuidsList = new ArrayList<MultiKey>();
+      for (MultiKey groupUuidMemberUuid : GrouperUtil.nonNull(groupUuidMemberUuids)) {
+        if (groupUuidsForGroupSyncSet.contains(groupUuidMemberUuid.getKey(0))
+            || memberUuidsForEntitySyncSet.contains(groupUuidMemberUuid.getKey(1))) {
+          continue;
+        }
+        groupUuidsMemberUuidsList.add(groupUuidMemberUuid);
+      }
       for (String groupUuid : GrouperUtil.nonNull(groupUuidsForGroupSync)) {
         groupUuidsMemberUuidsList.add(new MultiKey(groupUuid, null));
       }
