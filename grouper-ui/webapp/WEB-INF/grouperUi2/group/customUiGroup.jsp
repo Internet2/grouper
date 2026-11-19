@@ -120,7 +120,9 @@
                             var="customUiUserQueryDisplayBean" >
                       <c:if test="${grouperRequestContainer.customUiContainer.canSeeScreenState || !customUiUserQueryDisplayBean.forLoggedInUserBoolean }">
                         <tr>
-                          <td class="span5">${grouper:escapeHtml(customUiUserQueryDisplayBean.label)}</td>
+                          <%-- GRP-7589: the label is admin-written custom UI config (like the header and instructions above), so it may hold
+                               HTML formatting on purpose.  The value and the other data cells stay escaped (GRP-7582). --%>
+                          <td class="span5">${customUiUserQueryDisplayBean.label}</td>
                           <td>${grouper:escapeHtml(customUiUserQueryDisplayBean.variableValue)}</td>
                           <td>${customUiUserQueryDisplayBean.description}</td>
                           <c:if test="${ grouperRequestContainer.customUiContainer.canSeeScreenState}">
