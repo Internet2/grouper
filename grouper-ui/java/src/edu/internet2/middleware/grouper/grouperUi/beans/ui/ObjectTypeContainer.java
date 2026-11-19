@@ -231,11 +231,12 @@ public class ObjectTypeContainer {
       types.add("<span class=\"grouperTooltip\" onmouseover=\"grouperTooltip('"+escapedTooltipText+"')\" onmouseout=\"UnTip()\" >"+typesAttributeValue.getObjectTypeName()+"</span>");
       
       if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {    
-        dataOwners.add(typesAttributeValue.getObjectTypeDataOwner());
+        // escaped: data owner and member description are free text, and this summary is HTML
+        dataOwners.add(edu.internet2.middleware.grouper.util.GrouperUtil.xmlEscape(typesAttributeValue.getObjectTypeDataOwner()));
       }
       
       if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeMemberDescription())) {        
-        memberDescriptions.add(typesAttributeValue.getObjectTypeMemberDescription());
+        memberDescriptions.add(edu.internet2.middleware.grouper.util.GrouperUtil.xmlEscape(typesAttributeValue.getObjectTypeMemberDescription()));
       }
       
       if (StringUtils.equals(typesAttributeValue.getObjectTypeName(), APP) && !typesAttributeValue.isDirectAssignment()) {

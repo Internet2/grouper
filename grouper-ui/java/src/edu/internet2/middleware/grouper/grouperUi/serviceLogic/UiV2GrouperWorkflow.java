@@ -21,10 +21,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowApprovalStates;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAuthorValidator;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigViewCheck;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigParam;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigParams;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigValidator;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInitiateGroupCheck;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstance;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceValidator;
@@ -87,8 +90,13 @@ public class UiV2GrouperWorkflow {
           
           List<GrouperWorkflowConfig> configsSubjectCanView = new ArrayList<GrouperWorkflowConfig>();
           
+          // 112: check each config on its own (configure on the group, or that config's viewers
+          // group).  canSubjectViewWorkflow means "can view some workflow here", so it is not
+          // enough to list them all.  The configure check is the same for every config, do it once
+          boolean canSubjectConfigureWorkflow = GrouperWorkflowConfigService.canSubjectConfigureWorkflow(GROUP, loggedInSubject);
+          
           for (GrouperWorkflowConfig workflowConfig: GrouperWorkflowConfigService.getWorkflowConfigs(GROUP)) {
-            if (GrouperWorkflowConfigService.canSubjectViewWorkflow(GROUP, loggedInSubject)) {
+            if (canSubjectConfigureWorkflow || GrouperWorkflowConfigViewCheck.canSubjectViewWorkflowConfig(workflowConfig, loggedInSubject)) {
               configsSubjectCanView.add(workflowConfig);
             }
           }
@@ -233,11 +241,24 @@ public class UiV2GrouperWorkflow {
           
           workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
           
-          List<String> errors = new GrouperWorkflowConfigValidator().validate(workflowConfig, GROUP, true);
-          
+          List<String> errors = new ArrayList<String>(new GrouperWorkflowConfigValidator().validate(workflowConfig, GROUP, true));
+
+          // the validator only checks that referenced groups exist (as root), also check that
+          // the logged in user has privileges on them (e.g. cannot assign to the wheel group)
+          if (errors.size() == 0) {
+            errors.addAll(GrouperWorkflowConfigAuthorValidator.validateAuthor(workflowConfig, GROUP, loggedInSubject, null));
+          }
+
           return errors;
         }
       });
+      
+      // the save runs as root and grants or revokes VIEW on the group: only a group ADMIN (or
+      // wheel/root) may save a workflow that changes who can VIEW the group
+      if (errors.size() == 0) {
+        errors = edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigViewPrivileges.validateAuthor(
+            workflowConfig, GROUP, loggedInSubject);
+      }
       
       if (errors.size() > 0) {
         workflowContainer.setErrors(errors);
@@ -315,6 +336,13 @@ public class UiV2GrouperWorkflow {
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
             
           GrouperWorkflowConfig workflowConfig = GrouperWorkflowConfigService.getWorkflowConfig(GROUP, workflowConfigId);
+          
+          // 112: VIEW on the group is not enough, the user must be able to configure workflows on
+          // the group or be in this config's viewers group (same rule as viewInstances)
+          if (!GrouperWorkflowConfigViewCheck.canSubjectViewWorkflowConfig(GROUP, workflowConfig, loggedInSubject)) {
+            throw new RuntimeException("Operation not permitted");
+          }
+          
           workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
           
           return null;
@@ -447,11 +475,26 @@ public class UiV2GrouperWorkflow {
           
           workflowContainer.setGuiGrouperWorkflowConfig(GuiGrouperWorkflowConfig.convertFromGrouperWorkflowConfig(workflowConfig));
           
-          List<String> errors = new GrouperWorkflowConfigValidator().validate(workflowConfig, GROUP, false);
-          
+          List<String> errors = new ArrayList<String>(new GrouperWorkflowConfigValidator().validate(workflowConfig, GROUP, false));
+
+          // the validator only checks that referenced groups exist (as root), also check that
+          // the logged in user has privileges on them.  References unchanged from the stored
+          // config are not re-checked
+          if (errors.size() == 0) {
+            GrouperWorkflowConfig previousConfig = GrouperWorkflowConfigService.getWorkflowConfig(GROUP, workflowConfig.getWorkflowConfigId());
+            errors.addAll(GrouperWorkflowConfigAuthorValidator.validateAuthor(workflowConfig, GROUP, loggedInSubject, previousConfig));
+          }
+
           return errors;
         }
       });
+      
+      // the save runs as root and grants or revokes VIEW on the group: only a group ADMIN (or
+      // wheel/root) may save a workflow that changes who can VIEW the group
+      if (errors.size() == 0) {
+        errors = edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigViewPrivileges.validateAuthor(
+            workflowConfig, GROUP, loggedInSubject);
+      }
       
       if (errors.size() > 0) {
         workflowContainer.setErrors(errors);
@@ -588,6 +631,13 @@ public class UiV2GrouperWorkflow {
             }
             
             Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, true).getGroup();
+            
+            // the config and the group come from two request params and are resolved as root,
+            // so make sure the group is the config's own group before writing an instance on it.
+            // Return the error (do not throw): the catch below would hide it as a generic error
+            if (!GrouperWorkflowInitiateGroupCheck.groupMatchesConfig(grouperWorkflowConfig, group)) {
+              return Arrays.asList(TextContainer.retrieveFromRequest().getText().get("workflowInitiateNotAllowedError"));
+            }
             
             GrouperWorkflowConfigParams configParams = grouperWorkflowConfig.getConfigParams();
             

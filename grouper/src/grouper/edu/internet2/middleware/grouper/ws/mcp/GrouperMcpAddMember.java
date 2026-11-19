@@ -17,7 +17,9 @@ package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -28,6 +30,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthSubjectScope;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
@@ -36,6 +45,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * MCP tool handler for adding members to a Grouper group.
@@ -156,18 +166,13 @@ public class GrouperMcpAddMember {
       return buildErrorResult("groupName is required.");
     }
 
-    // block modifications to protected system groups
-    if (GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
-    }
-
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", groupName));
-      }
+    // protected-resource rules and read-write scope on the group the name really resolves to
+    // (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate.  the write below
+    // uses that group's uuid, so the group checked is the group changed
+    GrouperMcpResolvedTargetGate.Target groupTarget =
+        GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName, false);
+    if (groupTarget.getError() != null) {
+      return buildErrorResult(groupTarget.getError());
     }
 
     // parse subjects array
@@ -201,16 +206,19 @@ public class GrouperMcpAddMember {
         return buildErrorResult(subjectIdTypeError + " (subject at index " + i + ").");
       }
 
-      // check readwrite scope restrictions on subject (OAuth only)
-      if (authUser.isOAuthAuthenticated()) {
-        if (!authUser.isSubjectInReadwriteScope(subjectIdOrIdentifier)) {
-          return buildErrorResult(
-              authUser.buildReadwriteScopeDeniedError("subject", subjectIdOrIdentifier));
-        }
+      // the lookup the write will use.  the scope check resolves it (by value, id type and source)
+      // and the lookup keeps that subject, so the subject checked is the subject added
+      WsSubjectLookup subjectLookup = GrouperMcpSubjectUtils.createSubjectLookup(
+          subjectIdOrIdentifier, subjectIdType, sourceId);
+
+      // check readwrite scope restrictions on subject, by source and id
+      String subjectError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
+          authUser, subjectLookup, subjectIdOrIdentifier, false);
+      if (subjectError != null) {
+        return buildErrorResult(subjectError);
       }
 
-      subjectLookupList.add(GrouperMcpSubjectUtils.createSubjectLookup(
-          subjectIdOrIdentifier, subjectIdType, sourceId));
+      subjectLookupList.add(subjectLookup);
     }
 
     WsSubjectLookup[] subjectLookups =
@@ -218,12 +226,28 @@ public class GrouperMcpAddMember {
 
     try {
 
-      // build the group lookup
+      // build the group lookup: by the uuid the gate checked, else by name (not found, the web
+      // service logic reports that)
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
-      wsGroupLookup.setGroupName(groupName);
+      if (groupTarget.isFound()) {
+        wsGroupLookup.setUuid(groupTarget.getUuid());
+      } else {
+        wsGroupLookup.setGroupName(groupName);
+      }
 
       // convert fieldName string to Field
       Field field = GrouperServiceUtils.retrieveField(fieldNameString);
+
+      // replaceAllExisting also removes every current member that is not in the request.  those
+      // removals need the same subject scope check as an explicit group_delete_member, so when the
+      // subject scope is limited, check them all before anything is changed
+      if (replaceAllExisting && authUser.isConsentScopeEnforced()
+          && authUser.isSubjectReadwriteScopeLimited()) {
+        String replaceAllError = replaceAllExistingScopeError(authUser, groupTarget, field, subjectLookups);
+        if (replaceAllError != null) {
+          return buildErrorResult(replaceAllError);
+        }
+      }
 
       // convert timestamp strings
       Timestamp disabledTimestamp = GrouperServiceUtils.stringToTimestamp(disabledTimeString);
@@ -282,6 +306,80 @@ public class GrouperMcpAddMember {
       return buildErrorResult("Error adding members to group: " + e.getMessage()
           + GrouperMcpErrorUtils.stackTraceIfAllowed(authUser, e));
     }
+  }
+
+  /**
+   * check the members replaceAllExisting would remove against the subject scope.  The web service
+   * logic removes every immediate member of the field whose subject is not in the request
+   * (GrouperServiceLogic.addMember), so the same set is computed here, as root (a superset of what
+   * the caller sees, which only makes this stricter), and every one of them has to be in scope.
+   * Fails closed: a group that does not resolve, or a submitted subject that does not resolve (so
+   * it is not known which members would be kept), is refused.
+   * @param authUser the caller
+   * @param groupTarget the gated group
+   * @param field the field, null for the default members list
+   * @param subjectLookups the subjects in the request, already resolved by the scope check
+   * @return the error, or null if every removal is in scope
+   */
+  private static String replaceAllExistingScopeError(final GrouperMcpAuthUser authUser,
+      final GrouperMcpResolvedTargetGate.Target groupTarget, final Field field,
+      final WsSubjectLookup[] subjectLookups) {
+
+    if (!groupTarget.isFound()) {
+      return "Access denied: replaceAllExisting needs a group that exists.";
+    }
+
+    // the subjects that will be kept, by source and id, the same key the web service logic uses
+    final Set<String> keptKeys = new HashSet<String>();
+    for (WsSubjectLookup subjectLookup : subjectLookups) {
+      Subject subject = null;
+      try {
+        subject = subjectLookup.retrieveSubject();
+      } catch (Exception e) {
+        LOG.debug("Could not resolve subject for replaceAllExisting check", e);
+      }
+      if (subject == null) {
+        return "Access denied: with replaceAllExisting every subject in the request must resolve to "
+            + "exactly one subject, so the members it would remove can be checked against your "
+            + "consented read-write scope. Nothing was changed.";
+      }
+      keptKeys.add(GrouperOAuthSubjectScope.subjectKey(subject));
+    }
+
+    Integer outOfScopeCount = (Integer) GrouperSession.internal_callbackRootGrouperSession(
+        new GrouperSessionHandler() {
+
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            Group group = GroupFinder.findByUuid(grouperSession, groupTarget.getUuid(), false);
+            if (group == null) {
+              return -1;
+            }
+            Field theField = field == null ? Group.getDefaultList() : field;
+            int count = 0;
+            for (Member member : GrouperUtil.nonNull(group.getImmediateMembers(theField))) {
+              String key = GrouperOAuthSubjectScope.subjectKey(member.getSubjectSourceId(), member.getSubjectId());
+              if (keptKeys.contains(key)) {
+                continue;
+              }
+              // this member would be removed: it has to be in the subject scope
+              if (!authUser.isSubjectInReadwriteScope(member)) {
+                count++;
+              }
+            }
+            return count;
+          }
+        });
+
+    if (outOfScopeCount == null || outOfScopeCount < 0) {
+      return GrouperMcpResolvedTargetGate.GENERIC_DENIED_MESSAGE;
+    }
+    if (outOfScopeCount > 0) {
+      // the subjects are not named: the caller may not be allowed to read the membership list
+      return "Access denied: replaceAllExisting would remove " + outOfScopeCount
+          + " existing member(s) outside your consented read-write subject scope. Nothing was changed.";
+    }
+    return null;
   }
 
   /**

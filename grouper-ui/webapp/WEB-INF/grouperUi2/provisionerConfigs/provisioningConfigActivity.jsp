@@ -42,15 +42,15 @@
              
                <tr>
                   <td style="white-space: nowrap;">
-                  ${provisionerActivity.type}
+                  ${grouper:escapeHtml(provisionerActivity.type)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                  ${provisionerActivity.action}
+                  ${grouper:escapeHtml(provisionerActivity.action)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                   ${provisionerActivity.name}
+                   ${grouper:escapeHtml(provisionerActivity.name)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -88,59 +88,59 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                  ${provisionerActivity.inTargetStart}
+                  ${grouper:escapeHtml(provisionerActivity.inTargetStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                  ${provisionerActivity.inTargetEnd}
+                  ${grouper:escapeHtml(provisionerActivity.inTargetEnd)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.provisionableStart}
+                    ${grouper:escapeHtml(provisionerActivity.provisionableStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.provisionableEnd}
+                    ${grouper:escapeHtml(provisionerActivity.provisionableEnd)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastUpdated}
+                    ${grouper:escapeHtml(provisionerActivity.lastUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastObjectSyncStart}
+                    ${grouper:escapeHtml(provisionerActivity.lastObjectSyncStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastObjectSync}
+                    ${grouper:escapeHtml(provisionerActivity.lastObjectSync)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastObjectMetadataSyncStart}
+                    ${grouper:escapeHtml(provisionerActivity.lastObjectMetadataSyncStart)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastObjectMetadataSync}
+                    ${grouper:escapeHtml(provisionerActivity.lastObjectMetadataSync)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.objectAttributeValueCache0}
+                    ${grouper:escapeHtml(provisionerActivity.objectAttributeValueCache0)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.objectAttributeValueCache1}
+                    ${grouper:escapeHtml(provisionerActivity.objectAttributeValueCache1)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.objectAttributeValueCache2}
+                    ${grouper:escapeHtml(provisionerActivity.objectAttributeValueCache2)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.objectAttributeValueCache3}
+                    ${grouper:escapeHtml(provisionerActivity.objectAttributeValueCache3)}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.metadataUpdated}
+                    ${grouper:escapeHtml(provisionerActivity.metadataUpdated)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -148,7 +148,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.errorTimestamp}
+                    ${grouper:escapeHtml(provisionerActivity.errorTimestamp)}
                   </td>
                   
                   <td style="white-space: nowrap;">
@@ -160,7 +160,7 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${provisionerActivity.lastTimeWorkWasDone}
+                    ${grouper:escapeHtml(provisionerActivity.lastTimeWorkWasDone)}
                   </td>
                   
                   </tr>

@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import java.util.LinkedHashSet;
@@ -525,6 +526,8 @@ public class CompositeSave {
                     CompositeSave.this.saveResultType = SaveResultType.NO_CHANGE;
                     return null;
                   }
+                  // check UPDATE on the owner first: the DAO delete below checks no privilege
+                  assertCanChangeComposite(ownerGroup, null, null);
                   GrouperDAOFactory.getFactory().getComposite().delete(composite);
                   CompositeSave.this.saveResultType = SaveResultType.DELETE;
                   return composite;
@@ -532,6 +535,8 @@ public class CompositeSave {
   
                 // insert
                 if (!hasComposite) {
+                  // check UPDATE on the owner and READ on both factors before anything is written
+                  assertCanChangeComposite(ownerGroup, leftFactorGroup, rightFactorGroup);
                   if (CompositeSave.this.convertMembersInPlace) {
                     // relabel any existing immediate members in place so making the group a composite
                     // does not churn the change log/PIT for members whose effective membership is
@@ -553,6 +558,8 @@ public class CompositeSave {
                 }
                 
                 //its wrong
+                // check UPDATE on the owner and READ on both factors before the old composite is deleted
+                assertCanChangeComposite(ownerGroup, leftFactorGroup, rightFactorGroup);
                 ownerGroup.deleteCompositeMember();
                 if (CompositeSave.this.convertMembersInPlace) {
                   CompositeSave.this.relabelExistingImmediateMembersToComposite();
@@ -655,5 +662,38 @@ public class CompositeSave {
     }
 
     return resultMembers;
+  }
+
+  /**
+   * Check, before this save writes anything, that the caller may make the change: UPDATE on the
+   * owner group (what deleteMember, deleteCompositeMember and internal_addCompositeMember require)
+   * and, unless the factors are null, READ on both factor groups (what internal_addCompositeMember
+   * requires).  Those methods check the same privileges, but only after earlier steps of this save
+   * have deleted the old composite or (7.4.0 and later) immediate members.  The save's transaction
+   * rolls those back when the late check fails, but a caller whose own outer transaction catches
+   * the exception and commits would keep them; checking first means a denied save changes nothing.
+   * The DELETE save mode deletes through the DAO, which checks no privilege at all.  Wheel and root
+   * pass PrivilegeHelper as before, so their saves are unchanged.
+   * @param theOwnerGroup group whose composite is changed
+   * @param theLeftFactorGroup left factor, or null to skip the factor checks (delete)
+   * @param theRightFactorGroup right factor, or null to skip the factor checks (delete)
+   * @throws InsufficientPrivilegeException if the caller lacks a privilege
+   */
+  private static void assertCanChangeComposite(Group theOwnerGroup, Group theLeftFactorGroup,
+      Group theRightFactorGroup) throws InsufficientPrivilegeException {
+
+    // inside save() the static session is the caller's session (not a root session)
+    GrouperSession callerSession = GrouperSession.staticGrouperSession();
+
+    PrivilegeHelper.dispatch(callerSession, theOwnerGroup, callerSession.getSubject(),
+        Group.getDefaultList().getWritePriv());
+    if (theLeftFactorGroup != null) {
+      PrivilegeHelper.dispatch(callerSession, theLeftFactorGroup, callerSession.getSubject(),
+          Group.getDefaultList().getReadPriv());
+    }
+    if (theRightFactorGroup != null) {
+      PrivilegeHelper.dispatch(callerSession, theRightFactorGroup, callerSession.getSubject(),
+          Group.getDefaultList().getReadPriv());
+    }
   }
 }

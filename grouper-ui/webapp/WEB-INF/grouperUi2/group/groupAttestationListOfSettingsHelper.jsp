@@ -44,10 +44,10 @@
                             <c:choose>
                               <c:when test="${guiAttestation.hasAttestation}">
                                 <td class="expand foo-clicker" style="white-space: nowrap;">
-                                  ${guiAttestation.grouperAttestationDaysUntilRecertify != null ? guiAttestation.grouperAttestationDaysUntilRecertify : textContainer.text['grouperAttestationOverallColumnDefaultRecertify']}
+                                  ${guiAttestation.grouperAttestationDaysUntilRecertify != null ? grouper:escapeHtml(guiAttestation.grouperAttestationDaysUntilRecertify) : textContainer.text['grouperAttestationOverallColumnDefaultRecertify']}
                                 </td>
                                 <td class="expand foo-clicker" style="white-space: nowrap;">
-                                  ${guiAttestation.grouperAttestationEmailAddresses != null ? guiAttestation.grouperAttestationEmailAddresses : textContainer.text['grouperAttestationOverallColumnDefaultEmailAddresses']}
+                                  ${guiAttestation.grouperAttestationEmailAddresses != null ? grouper:escapeHtml(guiAttestation.grouperAttestationEmailAddresses) : textContainer.text['grouperAttestationOverallColumnDefaultEmailAddresses']}
                                 </td>
                                 <td class="expand foo-clicker" style="white-space: nowrap;">
                                   ${guiAttestation.grouperAttestationSendEmail != null ? guiAttestation.grouperAttestationSendEmail : textContainer.text['grouperAttestationOverallColumnDefaultSendEmail']}
@@ -55,7 +55,7 @@
                                 <td class="expand foo-clicker" style="white-space: nowrap;">
                                   ${guiAttestation.guiGroup != null ? textContainer.text['grouperAttestationOverallSettingsNotApplicable'] : 
                                     ( guiAttestation.grouperAttestationStemScope == null ? textContainer.text['grouperAttestationOverallColumnScopeDefault'] 
-                                      : guiAttestation.grouperAttestationStemScope )}
+                                      : grouper:escapeHtml(guiAttestation.grouperAttestationStemScope) )}
                                 </td>
                                 
                               

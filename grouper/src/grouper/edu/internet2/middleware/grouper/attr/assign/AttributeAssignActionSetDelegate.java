@@ -26,6 +26,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.audit.PermissionInheritanceAudit;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -194,8 +195,15 @@ public class AttributeAssignActionSetDelegate implements Serializable {
    * @param newAttributeAssignAction
    * @return true if added, false if already there
    */
-  public boolean addToAttributeAssignActionSet(AttributeAssignAction newAttributeAssignAction) {
-    return internal_addToAttributeAssignActionSet(newAttributeAssignAction, null);
+  public boolean addToAttributeAssignActionSet(final AttributeAssignAction newAttributeAssignAction) {
+    // audit who added the implication: holders of this action now also hold the other one
+    return PermissionInheritanceAudit.actionInheritance(true, this.attributeAssignAction, newAttributeAssignAction, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return internal_addToAttributeAssignActionSet(newAttributeAssignAction, null);
+      }
+    });
   }
   
   /**
@@ -213,8 +221,16 @@ public class AttributeAssignActionSetDelegate implements Serializable {
    * @param attributeAssignActionToRemove
    * @return true if removed, false if already removed
    */
-  public boolean removeFromAttributeAssignActionSet(AttributeAssignAction attributeAssignActionToRemove) {
-    return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.removeFromGrouperSet(this.attributeAssignAction, attributeAssignActionToRemove);
+  public boolean removeFromAttributeAssignActionSet(final AttributeAssignAction attributeAssignActionToRemove) {
+    // audit who removed the implication
+    return PermissionInheritanceAudit.actionInheritance(false, this.attributeAssignAction, attributeAssignActionToRemove, 
+        new PermissionInheritanceAudit.SetChange() {
+      
+      public boolean change() {
+        return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.removeFromGrouperSet(
+            AttributeAssignActionSetDelegate.this.attributeAssignAction, attributeAssignActionToRemove);
+      }
+    });
   }
 
 }

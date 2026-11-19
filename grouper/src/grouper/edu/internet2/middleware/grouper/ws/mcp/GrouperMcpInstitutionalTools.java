@@ -828,6 +828,18 @@ public class GrouperMcpInstitutionalTools {
       }
     }
 
+    // the owner is what securityRunType privilegeOnObject authorizes on, and what templates act on
+    // through gsh_builtin_gshTemplateOwnerGroupName / OwnerStemName.  so for a template that can
+    // write, the owner gets the same protected-resource and read-write scope checks as any MCP
+    // write target, on the object it resolves to (not an old name), whether the caller named it
+    // or it came from the template's default.  see GrouperMcpResolvedTargetGate
+    if (!templateConfig.isMcpReadonly()) {
+      ObjectNode ownerError = checkTemplateOwner(exec, authUser);
+      if (ownerError != null) {
+        return ownerError;
+      }
+    }
+
     // the inputs, by full name (gsh_input_...), read once, so the value scope checked below is the
     // value the template runs with.  an input given under both its full and its short name is
     // refused rather than one of them quietly winning
@@ -883,11 +895,14 @@ public class GrouperMcpInstitutionalTools {
               return buildErrorResult(GrouperMcpProtectedResources.buildProtectedGroupError(value));
             }
           }
+          // folders and groups are judged on what the name resolves to (current name and uuid),
+          // so an alternate (old) name of an object outside the scope does not count as in scope.
+          // subjects are resolved to one subject and compared by source and id
           boolean inScope = true;
           if ("folders".equals(mcpScopeType)) {
-            inScope = authUser.isStemInReadwriteScope(value);
+            inScope = GrouperMcpResolvedTargetGate.isStemNameInReadwriteScope(authUser, value);
           } else if ("groups".equals(mcpScopeType)) {
-            inScope = authUser.isGroupInReadwriteScope(value);
+            inScope = GrouperMcpResolvedTargetGate.isGroupNameInReadwriteScope(authUser, value);
           } else if ("subjects".equals(mcpScopeType)) {
             inScope = authUser.isSubjectInReadwriteScope(value);
           }
@@ -963,6 +978,58 @@ public class GrouperMcpInstitutionalTools {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
     return output.isSuccess() ? buildSuccessResult(resultText) : buildErrorResult(resultText);
+  }
+
+  /**
+   * gate the owner group or folder of a template run that can write.  The owner is resolved as
+   * root (current or alternate name) and checked with GrouperMcpResolvedTargetGate; the exec is
+   * then pointed at the current name, so the template runs on the object that was checked.  An
+   * owner that does not resolve is refused (the template could not run on it anyway).  No owner
+   * (allowWsFromNoOwner) is nothing to check
+   * @param exec the exec, with its owner already assigned
+   * @param authUser the caller
+   * @return the error result, or null if the owner may be used
+   */
+  private static ObjectNode checkTemplateOwner(GshTemplateExec exec, GrouperMcpAuthUser authUser) {
+
+    GshTemplateOwnerType ownerType = exec.getGshTemplateOwnerType();
+    if (ownerType == null) {
+      return null;
+    }
+
+    if (ownerType == GshTemplateOwnerType.group) {
+      String ownerGroupName = exec.getOwnerGroupName();
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, ownerGroupName, false);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      if (!target.isFound()) {
+        return buildErrorResult("Owner group not found: " + ownerGroupName);
+      }
+      exec.assignOwnerGroupName(target.getName());
+      return null;
+    }
+
+    if (ownerType == GshTemplateOwnerType.stem) {
+      String ownerStemName = exec.getOwnerStemName();
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkStemByName(authUser, ownerStemName, false);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      if (!target.isFound()) {
+        return buildErrorResult("Owner folder not found: " + ownerStemName);
+      }
+      // the root folder is ":" to the exec, and has a blank name
+      if (!StringUtils.equals(ownerStemName, ":")) {
+        exec.assignOwnerStemName(target.getName());
+      }
+      return null;
+    }
+
+    // an owner type this check does not know: refuse rather than run unchecked
+    return buildErrorResult("Unsupported template owner type: " + ownerType);
   }
 
   /**

@@ -117,7 +117,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGroupUserLifecyclePolicyEdit;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupSummaryContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupSummaryRelatedGroups;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupTypeForEdit;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -414,16 +416,20 @@ public class UiV2Group {
       {
         if (isAdmin) {
           int countGroupUsage = SqlCacheDependencyDao.countGroupUsageInOtherAbacs(group);
+          // security: list and count only the dependent ABAC groups the user can VIEW (ADMIN on this
+          // group does not authorize seeing the names of other groups whose scripts use it)
+          Set<Group> groups = null;
+          if (countGroupUsage > 0 && !GroupSummaryRelatedGroups.canViewAllGroups(loggedInSubject)) {
+            groups = GroupSummaryRelatedGroups.viewableGroups(SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group));
+            countGroupUsage = groups.size();
+          }
           groupSummaryContainer.setAbacScriptedGroupDependenciesCount(countGroupUsage);
           if (countGroupUsage > 0 && countGroupUsage <= 5) {
-            
-            Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
-            if (GrouperUtil.length(groupIdsForDependentGroupUsage) > 0) {
-              GroupFinder groupFinder = new GroupFinder();
-              for (String groupId: groupIdsForDependentGroupUsage) {            
-                groupFinder.addGroupId(groupId);
-              }
-              Set<Group> groups = groupFinder.findGroups();
+
+            if (groups == null) {
+              groups = GroupSummaryRelatedGroups.viewableGroups(SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group));
+            }
+            if (GrouperUtil.length(groups) > 0) {
               Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
               groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
             }
@@ -2702,6 +2708,12 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupDisabledDate",
             TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisabledDateAfterEnabledDateError")));
+        return;
+      }
+      
+      // check the submitted user lifecycle policy before anything is saved, so a denied policy
+      // change shows a validation message and leaves the group unchanged (security fix)
+      if (!GuiGroupUserLifecyclePolicyEdit.validateGroupEditSubmit(group, request.getParameter("userLifecyclePolicy"), loggedInSubject)) {
         return;
       }
       
@@ -6949,26 +6961,35 @@ public class UiV2Group {
           .findMembershipResult();
           
           int directGroupMembersCount = queryOptions.getCount().intValue();
-          groupSummaryContainer.setDirectGroupMembersCount(directGroupMembersCount);
-          
-          if (directGroupMembersCount < 5) {
-            
+
+          // security: list and count only the member groups the user can VIEW (READ on this group
+          // does not authorize seeing the names of private member groups)
+          boolean canViewAllGroups = GroupSummaryRelatedGroups.canViewAllGroups(loggedInSubject);
+
+          if (directGroupMembersCount > 0 && (!canViewAllGroups || directGroupMembersCount < 5)) {
+
             MembershipResult membershipResult = new MembershipFinder()
             .addField(Group.getDefaultList())
             .addGroup(group)
             .addSourceId("g:gsa")
             .assignMembershipType(MembershipType.IMMEDIATE)
             .findMembershipResult();
-            
+
             Set<Member> directGroupMembers = membershipResult.members();
             Set<String> groupIds = new HashSet<String>();
             for (Member member: directGroupMembers) {
               groupIds.add(member.getSubjectId());
             }
-            Set<Group> directGroups = new GroupFinder().assignGroupIds(groupIds).findGroups();
-            Set<GuiGroup> directGuiGroups = GuiGroup.convertFromGroups(directGroups);
-            groupSummaryContainer.setDirectGroupMembers(directGuiGroups);
+            Set<Group> directGroups = GroupSummaryRelatedGroups.viewableGroups(groupIds);
+            if (!canViewAllGroups) {
+              directGroupMembersCount = directGroups.size();
+            }
+            if (directGroupMembersCount < 5) {
+              Set<GuiGroup> directGuiGroups = GuiGroup.convertFromGroups(directGroups);
+              groupSummaryContainer.setDirectGroupMembers(directGuiGroups);
+            }
           }
+          groupSummaryContainer.setDirectGroupMembersCount(directGroupMembersCount);
           
           // find the number of groups where this group is being used as a member
           Member member = MemberFinder.findBySubject(grouperSession, group.toSubject(), false);
@@ -7013,21 +7034,39 @@ public class UiV2Group {
           int directPrivilegesCount = MembershipFinder.retrieveDirectPrivilegesCount(group.getId());
           groupSummaryContainer.setDirectPrivilegesCount(directPrivilegesCount);
           int directGroupPrivilegesCount = MembershipFinder.retrieveDirectGroupPrivilegesCount(group.getId());
-          groupSummaryContainer.setDirectGroupPrivilegesCount(directGroupPrivilegesCount);
-          if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
+
+          // security: the related group ids come from raw SQL; list and count only the groups the
+          // user can VIEW (ADMIN on this group does not authorize seeing other private groups)
+          boolean canViewAllGroups = GroupSummaryRelatedGroups.canViewAllGroups(loggedInSubject);
+
+          if (directGroupPrivilegesCount > 0 && (!canViewAllGroups || directGroupPrivilegesCount < 5)) {
             Set<String> directGroupPrivileges = new TreeSet<String>(MembershipFinder.retrieveDirectGroupPrivileges(group.getId()));
-            Set<Group> directGroupPrivilgesGroups = new TreeSet<Group>(new GroupFinder().assignGroupIds(directGroupPrivileges).findGroups());
-            
-            // this is already sorted
-            Set<GuiGroup> directGuiGroupPrivilgesGroups = GuiGroup.convertFromGroups(directGroupPrivilgesGroups);
-            
-            groupSummaryContainer.setDirectGroupPrivilegesGroups(directGuiGroupPrivilgesGroups);
+            Set<Group> directGroupPrivilgesGroups = GroupSummaryRelatedGroups.viewableGroups(directGroupPrivileges);
+            if (!canViewAllGroups) {
+              directGroupPrivilegesCount = directGroupPrivilgesGroups.size();
+            }
+
+            if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
+              // this is already sorted
+              Set<GuiGroup> directGuiGroupPrivilgesGroups = GuiGroup.convertFromGroups(directGroupPrivilgesGroups);
+
+              groupSummaryContainer.setDirectGroupPrivilegesGroups(directGuiGroupPrivilgesGroups);
+            }
           }
+          groupSummaryContainer.setDirectGroupPrivilegesCount(directGroupPrivilegesCount);
           int countOfWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveCountOfWhereGroupIsBeingUsedInPrivileges(group.getId());
+          Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = null;
+          if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && !canViewAllGroups) {
+            groupsWhereGroupIsBeingUsedInPrivileges = GroupSummaryRelatedGroups.viewableGroups(
+                MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId()));
+            countOfWhereGroupIsBeingUsedInPrivileges = groupsWhereGroupIsBeingUsedInPrivileges.size();
+          }
           groupSummaryContainer.setCountOfWhereGroupIsBeingUsedInPrivileges(countOfWhereGroupIsBeingUsedInPrivileges);
           if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && countOfWhereGroupIsBeingUsedInPrivileges < 5) {
-            Set<String> groupIdsWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId());
-            Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = new TreeSet<Group>(new GroupFinder().assignGroupIds(groupIdsWhereGroupIsBeingUsedInPrivileges).findGroups());
+            if (groupsWhereGroupIsBeingUsedInPrivileges == null) {
+              groupsWhereGroupIsBeingUsedInPrivileges = GroupSummaryRelatedGroups.viewableGroups(
+                  MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId()));
+            }
             Set<GuiGroup> guiGroupsWhereGroupIsBeingUsedInPrivileges = GuiGroup.convertFromGroups(groupsWhereGroupIsBeingUsedInPrivileges);
             groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(guiGroupsWhereGroupIsBeingUsedInPrivileges);
           }

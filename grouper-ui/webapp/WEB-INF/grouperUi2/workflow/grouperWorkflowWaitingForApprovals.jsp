@@ -45,7 +45,7 @@ ${grouper:title('workflowMiscFormsWaitingForApprovalTitle')}
               <tr>
                 
                 <td style="white-space: nowrap;">
-                  ${instance.grouperWorkflowConfig.workflowConfigName}
+                  ${grouper:escapeHtml(instance.grouperWorkflowConfig.workflowConfigName)}
                 </td>
                 
                 <td style="white-space: nowrap;">
@@ -53,7 +53,7 @@ ${grouper:title('workflowMiscFormsWaitingForApprovalTitle')}
                 </td>
                    
                 <td style="white-space: nowrap;">
-                 ${instance.workflowInstanceState}
+                 ${grouper:escapeHtml(instance.workflowInstanceState)}
                 </td>
                    
                 <td style="white-space: nowrap;">

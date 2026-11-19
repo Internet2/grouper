@@ -112,7 +112,7 @@
                       <div class="modal-body">
                         <form class="form form-inline" id="addGroupSearchFormId">
                           <input id="addGroupSubjectSearchId" name="addGroupSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchGroupPlaceholder']}" />
-                          <button class="btn" onclick="ajax('../app/UiV2Subject.addGroupSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addGroupSearch?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                           <br />
                           <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['subjectSearchExactIdMatch']}"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
                         </form>
@@ -134,7 +134,7 @@
 
                                 <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
+                                  filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}"/>
                                 <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i aria-hidden="true" class="fa fa-search"></i></a --%>
                                 ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty(); $('#addGroupSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
                                 
@@ -206,7 +206,7 @@
 
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-groups-form', formIdsOptional: 'groupFilterFormId,groupPagingFormId,groupPrivilegeFormId,groupPagingPrivilegesFormId,subjectRefreshPartFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'add-groups-form', formIdsOptional: 'groupFilterFormId,groupPagingFormId,groupPrivilegeFormId,groupPagingPrivilegesFormId,subjectRefreshPartFormId'}); return false;" 
                                 id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddGroupLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&backTo=subject'); return false;" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
                             </div>
                           </div>
@@ -223,7 +223,7 @@
                       <div class="modal-body">
                         <form class="form form-inline" id="stemSearchFormId">
                           <input id="addStemSubjectSearchId" name="stemSearch" type="text" placeholder="${textContainer.text['subjectSearchStemPlaceholder']}" />
-                          <button class="btn" onclick="ajax('../app/UiV2Subject.addStemSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'stemSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addStemSearch?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'stemSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                         </form>
                         <div id="folderSearchResultsId">
                         </div>
@@ -243,7 +243,7 @@
 
                                 <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Subject.addToStemFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
+                                  filterOperation="../app/UiV2Subject.addToStemFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}"/>
                                 ${textContainer.text['subjectSearchStemLabelPreComboLink']} <a href="#stem-search" onclick="$('#addStemResults').empty(); $('#addStemSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForStemLink']}</a>
                                 
                               </div>
@@ -271,7 +271,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addStemSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-stems-form,groupPrivilegeFormId,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addStemSubmit?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'add-stems-form,groupPrivilegeFormId,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
                                 id="add-stem-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddStemLink']}</button>
                             </div>
                           </div>
@@ -287,7 +287,7 @@
                       <div class="modal-body">
                         <form class="form form-inline" id="addAttributeDefSearchFormId">
                           <input id="addAttributeDefSubjectSearchId" name="addAttributeDefSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchAttributeDefPlaceholder']}" />
-                          <button class="btn" onclick="ajax('../app/UiV2Subject.addAttributeDefSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addAttributeDefSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addAttributeDefSearch?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'addAttributeDefSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                         </form>
                         <div id="addAttributeDefResults">
                         </div>
@@ -307,7 +307,7 @@
 
                                 <%-- placeholder: Enter the name of a attributeDef --%>
                                 <grouper:combobox2 idBase="attributeDefAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Subject.addToAttributeDefFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
+                                  filterOperation="../app/UiV2Subject.addToAttributeDefFilter?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}"/>
                                 ${textContainer.text['subjectSearchAttributeDefLabelPreComboLink']} <a href="#attributeDef-search" onclick="$('#addAttributeDefResults').empty(); $('#addAttributeDefSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForAttributeDefLink']}</a>
                                 
                               </div>
@@ -345,7 +345,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addAttributeDefSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-attributeDefs-form,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addAttributeDefSubmit?subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {formIds: 'add-attributeDefs-form,groupFilterPrivilegesFormId', formIdsOptional: 'groupPagingPrivilegesFormId'}); return false;" 
                                 id="add-attributeDef-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddAttributeDefLink']}</button>
                             </div>
                           </div>

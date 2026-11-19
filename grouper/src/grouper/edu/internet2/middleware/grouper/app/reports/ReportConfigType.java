@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
@@ -28,7 +32,10 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
@@ -208,6 +215,35 @@ public enum ReportConfigType {
         throw new RuntimeException("GROUP_MEMBERS_EXPORT report config must be assigned to a group. attributeAssignId: " + attributeAssignId);
       }
 
+      // the report job runs as root, but the export was requested by a user with READ on the group.
+      // Build the data as that user (READ checked again now), so subject attribute filtering
+      // (requireGroupNameForView, SubjectCustomizer) applies as it does for "Download now".
+      // Fails closed: no requester, requester not found, or no READ any more throws, so the
+      // instance is an error with no file and no email.  See GroupMembersExportAsRequester
+      final Group GROUP = group;
+      return (GrouperReportData)GroupMembersExportAsRequester.callbackAsRequester(
+          grouperReportConfigurationBean, group, new GrouperSessionHandler() {
+
+            @Override
+            public Object callback(GrouperSession requesterSession) throws GrouperSessionException {
+              Group groupAsRequester = GroupFinder.findByUuid(requesterSession, GROUP.getId(), true);
+              return groupMembersExportData(requesterSession, groupAsRequester, grouperReportConfigurationBean);
+            }
+          });
+    }
+  };
+
+  /**
+   * build the group members export data.  Runs in the requester's session (see
+   * GroupMembersExportAsRequester.callbackAsRequester)
+   * @param requesterSession
+   * @param group found as the requester
+   * @param grouperReportConfigurationBean
+   * @return the data
+   */
+  static GrouperReportData groupMembersExportData(GrouperSession requesterSession, Group group,
+      GrouperReportConfigurationBean grouperReportConfigurationBean) {
+
       boolean exportAll = StringUtils.equalsIgnoreCase("all", grouperReportConfigurationBean.getReportConfigQuery());
 
       Set<Member> members = group.getMembers();
@@ -243,9 +279,27 @@ public enum ReportConfigType {
 
         Member.resolveSubjects(members, true);
 
+        // filter the subjects for the requester explicitly: a subject can come from the subject
+        // cache, resolved earlier as root and so not filtered.  The filtered copies are keyed by
+        // source and id; a member whose subject the filter drops gets the id columns only
+        Set<Subject> memberSubjects = new LinkedHashSet<Subject>();
+        for (Member member : members) {
+          try {
+            memberSubjects.add(member.getSubject());
+          } catch (Exception e) {
+            LOG.error("Error resolving subject for group members export, memberId: " + member.getUuid()
+                + ", subjectId: " + member.getSubjectId(), e);
+          }
+        }
+        Map<MultiKey, Subject> filteredSubjects = new HashMap<MultiKey, Subject>();
+        for (Subject subject : GroupMembersExportAsRequester.filterForRequester(requesterSession, memberSubjects)) {
+          filteredSubjects.put(new MultiKey(subject.getSourceId(), subject.getId()), subject);
+        }
+
         List<String[]> memberData = new ArrayList<String[]>();
         for (Member member : members) {
-          memberData.add(groupMembersExportAllRow(member, headers, isAttribute));
+          Subject subject = filteredSubjects.get(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
+          memberData.add(groupMembersExportAllRow(member, subject, headers, isAttribute));
         }
         GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -289,8 +343,7 @@ public enum ReportConfigType {
       }
 
       return grouperReportData;
-    }
-  };
+  }
 
   /**
    * logger
@@ -326,11 +379,14 @@ public enum ReportConfigType {
    * build a single csv row of subject fields for a member (group members export, "all" mode).
    * Mirrors the legacy UI export but runs in core, so screenLabel falls back to the subject name.
    * @param member
+   * @param subject the member's subject, already filtered for the requester; null (dropped by the
+   * filter or not resolvable) gives the id columns only.  Never read the subject from the member here:
+   * that would skip the requester's filtering
    * @param headers
    * @param isAttribute which header indexes are subject attributes
    * @return the row of values matching the headers
    */
-  static String[] groupMembersExportAllRow(Member member, String[] headers, boolean[] isAttribute) {
+  static String[] groupMembersExportAllRow(Member member, Subject subject, String[] headers, boolean[] isAttribute) {
 
     String[] result = new String[headers.length];
 
@@ -347,8 +403,11 @@ public enum ReportConfigType {
       }
     }
 
+    if (subject == null) {
+      return result;
+    }
+
     try {
-      Subject subject = member.getSubject();
       Source source = subject.getSource();
       Map<String, String> exportLabelToAttributeName = null;
       if (source instanceof LazySource) {

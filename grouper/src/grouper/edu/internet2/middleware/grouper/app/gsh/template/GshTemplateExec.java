@@ -371,6 +371,10 @@ public class GshTemplateExec {
             throw new RuntimeException(currentUser.getId()+ " is not a member of "+actAsGroup.getName());
           }
           
+          // the act-as group says who may act as someone else, not whom: a caller who is not
+          // root or wheel may not act as root or a wheel / readonly wheel / viewonly wheel member
+          GshTemplateActAsAuthorization.assertAllowedToActAs(currentUser, actAsSubject);
+          
           originalCurrentMember[0] = MemberFinder.findBySubject(grouperSession, currentUser, true);
           
         }
@@ -557,10 +561,14 @@ public class GshTemplateExec {
           StringBuilder inputsStringBuilder = new StringBuilder();
           for (GshTemplateInput input: GshTemplateExec.this.gshTemplateInputs) {
             String stringValue = GrouperUtil.stringValue(input.getValue());
-            inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(stringValue, 100) + ";");
+            inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(GshTemplateInputMask.valueForLog(templateConfig, input.getName(), stringValue), 100) + ";");
           }
           
           final boolean success[] = {true};
+          
+          // GRP security fix (gshTemplateFailedRunNotAudited): set when the GSH_TEMPLATE_EXEC audit is written,
+          // so a non-transactional run that throws still gets an error audit (see finally below)
+          final boolean auditWritten[] = {false};
           
           grouperGroovyResult = (GrouperGroovyResult) HibernateSession.callbackHibernateSession(
               templateConfig.isRunGshInTransaction() ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING: GrouperTransactionType.NONE, 
@@ -569,71 +577,93 @@ public class GshTemplateExec {
       
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
+              try {
 
-              grouperGroovyInput.assignUseTransaction(templateConfig.isRunGshInTransaction());
-              grouperGroovyInput.assignScript(scriptToRun.toString());
-              grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
+                grouperGroovyInput.assignUseTransaction(templateConfig.isRunGshInTransaction());
+                grouperGroovyInput.assignScript(scriptToRun.toString());
+                grouperGroovyInput.assignLightWeight(templateConfig.isGshLightweight());
               
-              GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
-              gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
+                GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+                gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
 
-              // if v2, only run the script if it is new in cache or changed
-              if (templateVersionV1) {
-                GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
-                if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+                // if v2, only run the script if it is new in cache or changed
+                if (templateVersionV1) {
+                  GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+                  if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+                    success[0] = false;
+                  }
+                }
+                if (useGshTemplateV2instance) {
+                  try {
+                    gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
+                  } catch (Throwable t) {
+                    if (t instanceof GrouperGroovyExit) {
+                      GrouperGroovyExit grouperGroovyExit = (GrouperGroovyExit)t.getCause();
+                      if (grouperGroovyExit.getExitCode() != 0 || GrouperUtil.defaultIfNull(grouperGroovyResult.getResultCode(), 0) == 0) {
+                        grouperGroovyResult.setResultCode(grouperGroovyExit.getExitCode());
+                      }
+                      // this is a normal exit
+                    } else if (compiled) {
+                      // GRP-7026 (commit 2): a compiled Java template's exception already
+                      // carries real Java line numbers in its stack trace. Do NOT route it
+                      // through handleGshException, whose Groovy line-number back-calculation
+                      // is only meaningful for "Script<n>.groovy" frames and which also
+                      // deep-sanitizes (mangles) the stack trace. Throw the real exception.
+                      throw GrouperUtil.exceptionConvertToRuntime(t, null);
+                    } else {
+
+                      t = GrouperGroovysh.handleGshException(gshTemplateV2.isLightWeight(), gshTemplateV2.getScriptPrependHeaders(), gshTemplateV2.getSource(), t);
+                      throw GrouperUtil.exceptionConvertToRuntime(t, null);
+                    }
+                  }
+                }
+              
+                for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
+                  if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
+                    success[0] = false;
+                  }
+                }
+              
+                if (gshTemplateExecOutput.getGshTemplateOutput().isError() || gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
                   success[0] = false;
                 }
-              }
-              if (useGshTemplateV2instance) {
-                try {
-                  gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
-                } catch (Throwable t) {
-                  if (t instanceof GrouperGroovyExit) {
-                    GrouperGroovyExit grouperGroovyExit = (GrouperGroovyExit)t.getCause();
-                    if (grouperGroovyExit.getExitCode() != 0 || GrouperUtil.defaultIfNull(grouperGroovyResult.getResultCode(), 0) == 0) {
-                      grouperGroovyResult.setResultCode(grouperGroovyExit.getExitCode());
-                    }
-                    // this is a normal exit
-                  } else if (compiled) {
-                    // GRP-7026 (commit 2): a compiled Java template's exception already
-                    // carries real Java line numbers in its stack trace. Do NOT route it
-                    // through handleGshException, whose Groovy line-number back-calculation
-                    // is only meaningful for "Script<n>.groovy" frames and which also
-                    // deep-sanitizes (mangles) the stack trace. Throw the real exception.
-                    throw GrouperUtil.exceptionConvertToRuntime(t, null);
-                  } else {
-
-                    t = GrouperGroovysh.handleGshException(gshTemplateV2.isLightWeight(), gshTemplateV2.getScriptPrependHeaders(), gshTemplateV2.getSource(), t);
-                    throw GrouperUtil.exceptionConvertToRuntime(t, null);
+              
+                if (success[0] == false && templateConfig.isRunGshInTransaction()) {
+                  hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+                }
+              
+                if (!templateConfig.isRunGshInTransaction() || (success[0] == true && templateConfig.isRunGshInTransaction())) {
+                
+                  auditWritten[0] = true;
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
+                      "gshTemplateConfigId", configId, "status",
+                      success[0] ? "success": "error");
+                  String actAsAdditionalLine =  theCurrentUser[0] == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(currentUser) + ") ");
+                  auditEntry.setDescription("Execute gsh template " + actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
+                  auditEntry.saveOrUpdate(true);
+                }
+              
+                return grouperGroovyResult;
+              } finally {
+                // GRP security fix (gshTemplateFailedRunNotAudited): if the script threw (e.g. a V2 or compiled
+                // template exception is rethrown above), a non-transactional run keeps its changes, and with
+                // useIndividualAudits=false the inner calls did not audit either.  Write the summary audit as
+                // an error so the run is recorded.  A transactional run is rolled back, so nothing to record.
+                if (!auditWritten[0] && !templateConfig.isRunGshInTransaction()) {
+                  auditWritten[0] = true;
+                  success[0] = false;
+                  try {
+                    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
+                        "gshTemplateConfigId", configId, "status", "error");
+                    String actAsAdditionalLine = theCurrentUser[0] == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(currentUser) + ") ");
+                    auditEntry.setDescription("Execute gsh template " + actAsAdditionalLine + "with configId: " + configId + ", status: error, inputs: " + inputsStringBuilder.toString());
+                    auditEntry.saveOrUpdate(true);
+                  } catch (Throwable auditException) {
+                    // never mask the script exception
+                    LOG.error("Error writing audit for failed gsh template run: " + configId, auditException);
                   }
                 }
               }
-              
-              for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
-                if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
-                  success[0] = false;
-                }
-              }
-              
-              if (gshTemplateExecOutput.getGshTemplateOutput().isError() || gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
-                success[0] = false;
-              }
-              
-              if (success[0] == false && templateConfig.isRunGshInTransaction()) {
-                hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
-              }
-              
-              if (!templateConfig.isRunGshInTransaction() || (success[0] == true && templateConfig.isRunGshInTransaction())) {
-                
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
-                    "gshTemplateConfigId", configId, "status",
-                    success[0] ? "success": "error");
-                String actAsAdditionalLine =  theCurrentUser[0] == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(currentUser) + ") ");
-                auditEntry.setDescription("Execute gsh template " + actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
-                auditEntry.saveOrUpdate(true);
-              }
-              
-              return grouperGroovyResult;
             }
             
           });

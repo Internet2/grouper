@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionAuthorization;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -5223,6 +5224,11 @@ public class GrouperServiceLogic {
         boolean calculateMembers = false;
         //free form search yes by group
         if (!StringUtils.isBlank(searchString) && filteringByGroup) {
+          // security: the membership DAO below does no privilege check and the caller picks the
+          // field, so require a group list field and its read privilege (READ for members,
+          // ADMIN for admins), like the subject lookup branch (MemberFinder.findBySubjectsInGroup)
+          WsGetSubjectsGroupSearchSecurity.checkCanSearchGroupField(session, group, fieldName);
+
           QueryOptions queryOptions = new QueryOptions().paging(maxFilter, 1, false);
           
           SearchStringEnum searchStringEnum = SearchStringEnum.getDefaultSearchString();
@@ -8068,55 +8074,72 @@ public class GrouperServiceLogic {
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
       //get the attributedefs to be modified
-      AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(
+      final AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(
           session, "Attribute Def not found.");
 
-      List<WsAttributeDefActionOperationPerformed> actionsWithOperations = new ArrayList<WsAttributeDefActionOperationPerformed>();
+      // security (2026-11 review, issue 32): changing actions needs ATTR_ADMIN.  Check it before
+      // reading or changing anything.  The ATTR_ADMIN check in attributeDef.store() came after
+      // the actions were already changed and committed.
+      AttributeDefActionAuthorization.assertCanEditActions(attributeDef);
 
-      if (!assign) {
-        for (String action : actions) {
-          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-          actionWithOperation.setAction(action);
-          if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) {
-            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
+      final List<WsAttributeDefActionOperationPerformed> actionsWithOperations = new ArrayList<WsAttributeDefActionOperationPerformed>();
+
+      // do all the action changes and the store in one transaction, so a failure part way
+      // (for example on the third of five actions) rolls back the ones already done
+      GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_NEW,
+          new GrouperTransactionHandler() {
+
+        @Override
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+
+          if (!assign) {
+            for (String action : actions) {
+              WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+              actionWithOperation.setAction(action);
+              if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) {
+                actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
+              } else {
+                attributeDef.getAttributeDefActionDelegate().removeAction(action);
+                actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
+              }
+              actionsWithOperations.add(actionWithOperation);
+            }
+          } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
+            for (String action : actions) {
+              WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+              actionWithOperation.setAction(action);
+              if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
+                actionWithOperation
+                    .assignStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
+              } else {
+                attributeDef.getAttributeDefActionDelegate().addAction(action);
+                actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
+              }
+              actionsWithOperations.add(actionWithOperation);
+            }
           } else {
-            attributeDef.getAttributeDefActionDelegate().removeAction(action);
-            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
+            Set<AttributeAssignAction> allowedActions = attributeDef
+                .getAttributeDefActionDelegate().allowedActions();
+            attributeDef.getAttributeDefActionDelegate().replaceAllActionsWith(
+                Arrays.asList(actions));
+            for (AttributeAssignAction action : allowedActions) {
+              WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+              actionWithOperation.setAction(action.getName());
+              actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
+              actionsWithOperations.add(actionWithOperation);
+            }
+            for (String action : actions) {
+              WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+              actionWithOperation.setAction(action);
+              actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
+              actionsWithOperations.add(actionWithOperation);
+            }
           }
-          actionsWithOperations.add(actionWithOperation);
+          attributeDef.store();
+          return null;
         }
-      } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
-        for (String action : actions) {
-          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-          actionWithOperation.setAction(action);
-          if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
-            actionWithOperation
-                .assignStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
-          } else {
-            attributeDef.getAttributeDefActionDelegate().addAction(action);
-            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
-          }
-          actionsWithOperations.add(actionWithOperation);
-        }
-      } else {
-        Set<AttributeAssignAction> allowedActions = attributeDef
-            .getAttributeDefActionDelegate().allowedActions();
-        attributeDef.getAttributeDefActionDelegate().replaceAllActionsWith(
-            Arrays.asList(actions));
-        for (AttributeAssignAction action : allowedActions) {
-          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-          actionWithOperation.setAction(action.getName());
-          actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
-          actionsWithOperations.add(actionWithOperation);
-        }
-        for (String action : actions) {
-          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-          actionWithOperation.setAction(action);
-          actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
-          actionsWithOperations.add(actionWithOperation);
-        }
-      }
-      attributeDef.store();
+      });
 
       WsAttributeDef wsAttributeDef = new WsAttributeDef(attributeDef,
           wsAttributeDefLookup);
@@ -8128,6 +8151,11 @@ public class GrouperServiceLogic {
       wsAttributeDefAssignActionsResults
           .assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
 
+    } catch (InsufficientPrivilegeException ipe) {
+      // the caller cannot ATTR_ADMIN the definition (issue 32), nothing was changed
+      wsAttributeDefAssignActionsResults.assignResultCodeException(
+          WsAttributeDefAssignActionsResultsCode.INSUFFICIENT_PRIVILEGES, theSummary, ipe);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", ipe);
     } catch (Exception e) {
       wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);

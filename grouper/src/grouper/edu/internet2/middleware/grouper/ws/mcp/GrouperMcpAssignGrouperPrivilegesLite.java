@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * MCP tool handler for assigning or removing privileges on a Grouper group or stem.
@@ -172,35 +173,49 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
       return buildErrorResult("privilegeName is required.");
     }
 
-    // block modifications to protected system groups and stems
-    if (StringUtils.isNotBlank(groupName)
-        && GrouperMcpProtectedResources.isProtectedGroupName(groupName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
+    // protected-resource rules and read-write scope on the group or folder the name really
+    // resolves to (it can be an alternate, old, name), see GrouperMcpResolvedTargetGate.  the
+    // write below uses that object's uuid, so the object checked is the object changed
+    String groupUuid = null;
+    String stemUuid = null;
+    if (StringUtils.isNotBlank(groupName)) {
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkGroupByName(authUser, groupName, false);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      groupUuid = target.getUuid();
     }
-    if (StringUtils.isNotBlank(stemName)
-        && GrouperMcpProtectedResources.isProtectedStemName(stemName)) {
-      return buildErrorResult(
-          GrouperMcpProtectedResources.buildProtectedStemError(stemName));
+    if (StringUtils.isNotBlank(stemName)) {
+      GrouperMcpResolvedTargetGate.Target target =
+          GrouperMcpResolvedTargetGate.checkStemByName(authUser, stemName, false);
+      if (target.getError() != null) {
+        return buildErrorResult(target.getError());
+      }
+      stemUuid = target.getUuid();
     }
 
-    // check readwrite scope restrictions (OAuth only)
-    if (authUser.isOAuthAuthenticated()) {
-      if (StringUtils.isNotBlank(groupName)
-          && !authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("group", groupName));
-      }
-      if (StringUtils.isNotBlank(stemName)
-          && !authUser.isStemInReadwriteScope(stemName)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("folder", stemName));
-      }
-      if (!authUser.isSubjectInReadwriteScope(subjectIdOrIdentifier)) {
-        return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("subject", subjectIdOrIdentifier));
+    // the subject, by source and id, resolved by the same lookup the write is built from
+    String subjectError = GrouperMcpResolvedTargetGate.checkSubjectLookup(
+        authUser, wsSubjectLookup, subjectIdOrIdentifier, false);
+    if (subjectError != null) {
+      return buildErrorResult(subjectError);
+    }
+
+    // when the scope check resolved the subject, pass its id and source rather than the typed
+    // value, so the web service logic cannot resolve the value to a different subject
+    if (authUser.isConsentScopeEnforced() && authUser.isSubjectReadwriteScopeLimited()) {
+      Subject resolvedSubject = wsSubjectLookup.retrieveSubject();
+      if (resolvedSubject != null) {
+        subjectId = resolvedSubject.getId();
+        subjectSourceId = resolvedSubject.getSourceId();
+        subjectIdentifier = null;
       }
     }
+
+    // by uuid when the name resolved; the web service lookup takes the name or the uuid
+    String groupNameForWrite = groupUuid != null ? null : groupName;
+    String stemNameForWrite = stemUuid != null ? null : stemName;
 
     try {
 
@@ -210,8 +225,8 @@ public class GrouperMcpAssignGrouperPrivilegesLite {
       WsAssignGrouperPrivilegesLiteResult wsResult = GrouperServiceLogic.assignGrouperPrivilegesLite(
           GrouperVersion.currentVersion(),
           subjectId, subjectSourceId, subjectIdentifier,
-          groupName, null,  // groupUuid
-          stemName, null,   // stemUuid
+          groupNameForWrite, groupUuid,
+          stemNameForWrite, stemUuid,
           privilegeTypeEnum, privilegeEnum,
           allowed,
           null, null, null,  // actAs

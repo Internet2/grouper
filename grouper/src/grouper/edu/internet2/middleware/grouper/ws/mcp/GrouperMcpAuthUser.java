@@ -26,11 +26,13 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthSubjectScope;
 import edu.internet2.middleware.grouper.mcp.GrouperToolEntryPath;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -107,7 +109,9 @@ public class GrouperMcpAuthUser {
   private List<String> consentReadwriteGroups;
 
   /**
-   * readwrite scope restriction: subject IDs/identifiers the user consented to.
+   * readwrite scope restriction: subjects the user consented to, as sourceId||subjectId keys
+   * (see GrouperOAuthSubjectScope).  bare ids or identifiers, from tokens issued before the keys,
+   * match nothing.
    * null or empty means no subject restriction (all subjects in scope),
    * unless consentReadwriteScopeRestricted is true (then empty means nothing allowed).
    */
@@ -369,7 +373,9 @@ public class GrouperMcpAuthUser {
   }
 
   /**
-   * readwrite scope restriction: subject IDs/identifiers the user consented to.
+   * readwrite scope restriction: subjects the user consented to, as sourceId||subjectId keys
+   * (see GrouperOAuthSubjectScope).  bare ids or identifiers, from tokens issued before the keys,
+   * match nothing.
    * null or empty means no subject restriction, unless
    * consentReadwriteScopeRestricted is true (then empty means nothing allowed).
    * @return the subject IDs
@@ -548,72 +554,12 @@ public class GrouperMcpAuthUser {
   }
 
   /**
-   * Check if a subject ID or identifier is within the readwrite scope restriction.
-   * First checks the provided value directly. If no match is found, resolves
-   * the member record to get all identifiers (subjectId, subjectIdentifier0,
-   * subjectIdentifier1, subjectIdentifier2) and checks those as well. This allows
-   * the scope list to contain any form of subject identifier and still match
-   * regardless of which form the API caller uses.
-   * @param subjectIdOrIdentifier the subject ID or identifier to check
-   * @return true if the subject is in the readwrite scope
+   * whether the subject dimension of the readwrite scope lets every subject through without
+   * looking at which subject it is: no subject list, and either the scope is not restricted or
+   * another dimension (folders, groups) has values, so this dimension is simply unscoped.
+   * @return true if any subject is in scope
    */
-  public boolean isSubjectInReadwriteScope(String subjectIdOrIdentifier) {
-    // first try with just the provided value (fast path, no DB lookup)
-    List<String> identifiers = new ArrayList<String>();
-    if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
-      identifiers.add(subjectIdOrIdentifier);
-    }
-    if (isSubjectInReadwriteScope(identifiers)) {
-      return true;
-    }
-    // if direct match failed and there are scope restrictions, resolve the member
-    // to get all identifiers and try those
-    if (this.consentReadwriteSubjects != null && !this.consentReadwriteSubjects.isEmpty()
-        && StringUtils.isNotBlank(subjectIdOrIdentifier)) {
-      try {
-        Member member = MemberFinder.find(null, null, null, subjectIdOrIdentifier, null);
-        if (member != null) {
-          List<String> allIdentifiers = new ArrayList<String>();
-          allIdentifiers.add(subjectIdOrIdentifier);
-          if (StringUtils.isNotBlank(member.getSubjectId())
-              && !allIdentifiers.contains(member.getSubjectId())) {
-            allIdentifiers.add(member.getSubjectId());
-          }
-          if (StringUtils.isNotBlank(member.getSubjectIdentifier0())
-              && !allIdentifiers.contains(member.getSubjectIdentifier0())) {
-            allIdentifiers.add(member.getSubjectIdentifier0());
-          }
-          if (StringUtils.isNotBlank(member.getSubjectIdentifier1())
-              && !allIdentifiers.contains(member.getSubjectIdentifier1())) {
-            allIdentifiers.add(member.getSubjectIdentifier1());
-          }
-          if (StringUtils.isNotBlank(member.getSubjectIdentifier2())
-              && !allIdentifiers.contains(member.getSubjectIdentifier2())) {
-            allIdentifiers.add(member.getSubjectIdentifier2());
-          }
-          return isSubjectInReadwriteScope(allIdentifiers);
-        }
-      } catch (Exception e) {
-        LOG.debug("Could not resolve member for scope check: " + subjectIdOrIdentifier, e);
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Check if any of the given subject identifiers (subjectId, subjectIdentifier0,
-   * subjectIdentifier1, subjectIdentifier2, etc.) are within the readwrite scope
-   * restriction. This allows the scope list to contain any form of subject identifier
-   * (ID, identifier0, identifier1, identifier2) and still match regardless of which
-   * form the API caller uses.
-   * If no subject restrictions are set: when consentReadwriteScopeRestricted
-   * is false all subjects are in scope; when true, subjects are in scope only if
-   * at least one other dimension has values (meaning this dimension
-   * is simply unscoped, not blocked).
-   * @param subjectIdsAndIdentifiers all known IDs and identifiers for the subject
-   * @return true if any of the identifiers matches the readwrite scope
-   */
-  public boolean isSubjectInReadwriteScope(List<String> subjectIdsAndIdentifiers) {
+  private boolean isSubjectDimensionOpen() {
     if (this.consentReadwriteSubjects == null
         || this.consentReadwriteSubjects.isEmpty()) {
       // if scope restrictions are not active, all subjects are allowed
@@ -621,14 +567,128 @@ public class GrouperMcpAuthUser {
       // at least one other dimension has values (this dimension is unscoped)
       return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
+    return false;
+  }
 
-    for (String candidate : subjectIdsAndIdentifiers) {
-      if (StringUtils.isNotBlank(candidate)) {
-        for (String consentedSubject : this.consentReadwriteSubjects) {
-          if (consentedSubject.equals(candidate)) {
-            return true;
-          }
-        }
+  /**
+   * whether the readwrite scope limits which subjects may be acted on, so a check has to look at
+   * the subject.  false when the subject dimension is open (see isSubjectInReadwriteScope).  Used
+   * to decide whether an operation with implicit effects on subjects, such as group_add_member
+   * with replaceAllExisting, has to check every subject it would touch
+   * @return true if the subject scope is limited
+   */
+  public boolean isSubjectReadwriteScopeLimited() {
+    return !isSubjectDimensionOpen();
+  }
+
+  /**
+   * Check if a subject, given as a subject id or identifier with no source, is within the
+   * readwrite scope restriction.  The scope holds sourceId||subjectId keys (see
+   * GrouperOAuthSubjectScope), so the value is resolved to exactly one subject first (by id or
+   * identifier, in all sources) and that subject's key is compared.  A value which does not
+   * resolve, or matches subjects in more than one source, is not in scope: the typed string is
+   * never compared on its own, since an identifier such as an email can be shared across sources.
+   * Callers which know the source should use {@link #isSubjectLookupInReadwriteScope(WsSubjectLookup)}
+   * with the same lookup the operation uses.
+   * @param subjectIdOrIdentifier the subject ID or identifier to check
+   * @return true if the subject is in the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(String subjectIdOrIdentifier) {
+    if (isSubjectDimensionOpen()) {
+      return true;
+    }
+    if (StringUtils.isBlank(subjectIdOrIdentifier)) {
+      return false;
+    }
+    Subject subject = null;
+    try {
+      subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+    } catch (Exception e) {
+      // not unique across sources, source unavailable, etc: fail closed
+      LOG.debug("Could not resolve subject for scope check: " + subjectIdOrIdentifier, e);
+      return false;
+    }
+    return isSubjectInReadwriteScope(subject);
+  }
+
+  /**
+   * Check if a resolved subject is within the readwrite scope restriction, by its source and id.
+   * If no subject restrictions are set: when consentReadwriteScopeRestricted is false all
+   * subjects are in scope; when true, subjects are in scope only if at least one other dimension
+   * has values (meaning this dimension is simply unscoped, not blocked).
+   * @param subject the subject the operation acts on, null means not in scope (when restricted)
+   * @return true if the subject is in the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(Subject subject) {
+    if (isSubjectDimensionOpen()) {
+      return true;
+    }
+    return GrouperOAuthSubjectScope.isSubjectInScope(this.consentReadwriteSubjects, subject);
+  }
+
+  /**
+   * Check if a member is within the readwrite scope restriction, by its subject source and id
+   * (no subject lookup needed)
+   * @param member the member the operation acts on, null means not in scope (when restricted)
+   * @return true if the member's subject is in the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(Member member) {
+    if (isSubjectDimensionOpen()) {
+      return true;
+    }
+    if (member == null) {
+      return false;
+    }
+    return GrouperOAuthSubjectScope.isSubjectInScope(this.consentReadwriteSubjects,
+        member.getSubjectSourceId(), member.getSubjectId());
+  }
+
+  /**
+   * Check if the subject a web service subject lookup resolves to is within the readwrite scope
+   * restriction.  Pass the same lookup object the operation will use: it caches the subject it
+   * resolved, so the subject checked here is the subject the operation acts on (same value, id
+   * type and source).  A lookup which does not resolve to exactly one subject is not in scope.
+   * @param wsSubjectLookup the lookup the operation will use
+   * @return true if the subject is in the readwrite scope
+   */
+  public boolean isSubjectLookupInReadwriteScope(WsSubjectLookup wsSubjectLookup) {
+    if (isSubjectDimensionOpen()) {
+      return true;
+    }
+    if (wsSubjectLookup == null) {
+      return false;
+    }
+    Subject subject = null;
+    try {
+      subject = wsSubjectLookup.retrieveSubject();
+    } catch (Exception e) {
+      LOG.debug("Could not resolve subject lookup for scope check: " + wsSubjectLookup, e);
+      return false;
+    }
+    return isSubjectInReadwriteScope(subject);
+  }
+
+  /**
+   * Check if any of the given subject scope keys (sourceId||subjectId, see
+   * GrouperOAuthSubjectScope) are within the readwrite scope restriction.  Bare subject ids or
+   * identifiers never match (in the list or in the scope): a subject is only identified by its
+   * source and id.
+   * If no subject restrictions are set: when consentReadwriteScopeRestricted
+   * is false all subjects are in scope; when true, subjects are in scope only if
+   * at least one other dimension has values (meaning this dimension
+   * is simply unscoped, not blocked).
+   * @param subjectKeys sourceId||subjectId keys for the subject
+   * @return true if any of the keys matches the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(List<String> subjectKeys) {
+    if (isSubjectDimensionOpen()) {
+      return true;
+    }
+
+    for (String candidate : GrouperUtil.nonNull(subjectKeys)) {
+      if (GrouperOAuthSubjectScope.isSubjectKey(candidate)
+          && this.consentReadwriteSubjects.contains(candidate)) {
+        return true;
       }
     }
     return false;

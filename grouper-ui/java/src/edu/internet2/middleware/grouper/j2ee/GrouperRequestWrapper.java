@@ -383,8 +383,27 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    * @return parameter values based on name
    */
   @Override
-  @SuppressWarnings("unchecked")
   public String[] getParameterValues(String name) {
+    String[] values = this.getParameterValuesHelper(name);
+    // security: the focusOnElementName param is concatenated into javascript, see isSafeFocusOnElementName()
+    if (values != null && isFocusOnElementNameParam(name)) {
+      for (String value : values) {
+        if (value != null && !isSafeFocusOnElementName(value)) {
+          LOG.debug("Ignoring unsafe focusOnElementName param value");
+          return null;
+        }
+      }
+    }
+    return values;
+  }
+
+  /**
+   * get the param values without the focusOnElementName check
+   * @param name
+   * @return parameter values based on name
+   */
+  @SuppressWarnings("unchecked")
+  private String[] getParameterValuesHelper(String name) {
     if (!this.multipart) {
       return super.getParameterValues(name);
     }
@@ -479,6 +498,57 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    */
   @Override
   public String getParameter(String name) {
+    String value = this.getParameterHelper(name);
+    // security: the focusOnElementName param is concatenated into javascript, see isSafeFocusOnElementName()
+    if (value != null && isFocusOnElementNameParam(name) && !isSafeFocusOnElementName(value)) {
+      LOG.debug("Ignoring unsafe focusOnElementName param value");
+      return null;
+    }
+    return value;
+  }
+
+  /** name of the request param the config screens use to say which field to focus after an ajax refresh */
+  public static final String FOCUS_ON_ELEMENT_NAME_PARAM = "focusOnElementName";
+
+  /** a field name: letters, digits, underscore, dot, dash.  Nothing that can end a javascript string or a jquery selector */
+  private static final java.util.regex.Pattern SAFE_FOCUS_ON_ELEMENT_NAME_PATTERN = java.util.regex.Pattern.compile("^[A-Za-z0-9_.\\-]{1,200}$");
+
+  /**
+   * if this param name is focusOnElementName (also with the brackets that radios send)
+   * @param name
+   * @return true if the focusOnElementName param
+   */
+  private static boolean isFocusOnElementNameParam(String name) {
+    return StringUtils.equals(FOCUS_ON_ELEMENT_NAME_PARAM, name)
+        || StringUtils.equals(FOCUS_ON_ELEMENT_NAME_PARAM + "[]", name);
+  }
+
+  /**
+   * <pre>
+   * Security: UiV2SubjectSource.addSubjectSource() / editSubjectSource() and
+   * UiV2ProvisionerConfiguration.addProvisionerConfiguration() / editProvisionerConfiguration()
+   * concatenate the focusOnElementName request param into a GuiScreenAction.newScript()
+   * javascript string, which the browser runs with eval().  So a crafted link could run
+   * script in a wheel user's session (reflected XSS).  The param is only ever a form field name
+   * (e.g. config_targetGroupAttribute.0.name, provisionerConfigType, sourceConfigType), so only allow
+   * field name characters.  Anything else is dropped (the screen just does not focus a field).
+   * </pre>
+   * @param value
+   * @return true if the value is a safe field name
+   */
+  public static boolean isSafeFocusOnElementName(String value) {
+    if (value == null) {
+      return false;
+    }
+    return SAFE_FOCUS_ON_ELEMENT_NAME_PATTERN.matcher(value).matches();
+  }
+
+  /**
+   * get a param without the focusOnElementName check, handles file uploads
+   * @param name
+   * @return get a certain param
+   */
+  private String getParameterHelper(String name) {
 
     if (StringUtils.equals(owaspCsrfTokenHeader(), name)) {
       String value = this.wrapped.getParameter(name);

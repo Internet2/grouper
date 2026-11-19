@@ -96,7 +96,8 @@ public class GrouperLoaderContainer {
    * @param editLoaderRecentFromGroupId1
    */
   public void setEditLoaderRecentGroupUuidFrom(String editLoaderRecentGroupUuidFrom) {
-    this.editLoaderRecentGroupUuidFrom = editLoaderRecentGroupUuidFrom;
+    // security: only keep a source group uuid the logged in user can READ (the edit form shows it)
+    this.editLoaderRecentGroupUuidFrom = GrouperLoaderRelatedGroups.recentFromGroupUuidIfReadable(editLoaderRecentGroupUuidFrom);
   }
 
   /**
@@ -998,7 +999,8 @@ public class GrouperLoaderContainer {
         return theGroup;
       }
     });
-    return new GuiGroup(group);
+    // security: show the source group only if the logged in user can VIEW it (or edit loaders)
+    return GrouperLoaderRelatedGroups.guiGroupIfViewable(group, this);
   }
   
   /**
@@ -1383,7 +1385,8 @@ public class GrouperLoaderContainer {
             
             Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
             group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
-            guiGroups.add(new GuiGroup(group));
+            // security: show the and group only if the logged in user can VIEW it (or edit loaders)
+            guiGroups.add(GrouperLoaderRelatedGroups.guiGroupIfViewable(group, GrouperLoaderContainer.this));
             
           }
           
@@ -1439,7 +1442,8 @@ public class GrouperLoaderContainer {
             
             Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
             group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
-            guiGroups.add(new GuiGroup(group));
+            // security: show the and group only if the logged in user can VIEW it (or edit loaders)
+            guiGroups.add(GrouperLoaderRelatedGroups.guiGroupIfViewable(group, GrouperLoaderContainer.this));
             
           }
           
@@ -2948,7 +2952,8 @@ public class GrouperLoaderContainer {
             
             Group group = GroupFinder.findByUuid(grouperSession, andGroupString, false);
             group = group != null ? group : GroupFinder.findByName(grouperSession, andGroupString, false);
-            guiGroups.add(new GuiGroup(group));
+            // security: show the and group only if the logged in user can VIEW it (or edit loaders)
+            guiGroups.add(GrouperLoaderRelatedGroups.guiGroupIfViewable(group, GrouperLoaderContainer.this));
             
           }
           

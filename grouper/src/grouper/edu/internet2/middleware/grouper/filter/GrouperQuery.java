@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.privs.StemViewQueryAuthorization;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -244,7 +245,9 @@ public class GrouperQuery {
         LOG.error(E.NI + E.Q_S + o.getClass());
       }
     }
-    return stems;
+    // security: the stem query filters resolve folders with unsecured lookups, keep only the
+    // folders the caller may see (security.folders.are.viewable.by.all)
+    return StemViewQueryAuthorization.filterViewable(this.s, stems);
   } // public Set getStems()
 
 } // public class GrouperQuery

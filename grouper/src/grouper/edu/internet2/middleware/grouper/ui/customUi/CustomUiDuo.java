@@ -81,7 +81,8 @@ public class CustomUiDuo extends CustomUiUserQueryBase {
   }
 
   /**
-   * cche key is sourceId and subjectId
+   * cache key is configId, sourceId and subjectId (the config id because two configs can point
+   * at different tenants / accounts, and one config's answer must not be shown for another)
    * cache this for a minute so whenn one screen loads it does one operation
    */
   private static ExpirableCache<MultiKey, Map<String, Object>> duoUserCache = new ExpirableCache<MultiKey, Map<String, Object>>(1);
@@ -97,7 +98,7 @@ public class CustomUiDuo extends CustomUiUserQueryBase {
       throw new RuntimeException("subject is null");
     }
 
-    MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
+    MultiKey multiKey = new MultiKey(configId, subject.getSourceId(), subject.getId());
     Map<String, Object> duoUser = duoUserCache.get(multiKey);
     
     if (duoUser == null) {

@@ -29,14 +29,14 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simplePermissionAssign.limitAction'] }</label>
         <div class="controls">
-          <span>${permissionUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignAction.name}</span>
+          <span>${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssign.attributeAssign.attributeAssignAction.name)}</span>
         </div>
       </div>
       
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simplePermissionAssign.limitName'] }</label>
         <div class="controls">
-          <span>${permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.attributeDefName.displayName}</span>
+          <span>${grouper:escapeHtml(permissionUpdateRequestContainer.guiAttributeAssignAssign.attributeAssign.attributeDefName.displayName)}</span>
         </div>
       </div>
       

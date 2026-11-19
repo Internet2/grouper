@@ -1,7 +1,7 @@
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20260511_7" type="text/javascript"></script>
+<script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20261111_1" type="text/javascript"></script>
 
 
 <div class="lead" id="progressDiv">

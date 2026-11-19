@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
+import edu.internet2.middleware.grouper.dataField.GrouperDataPrivacyRealmAccess;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -502,6 +503,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
         } else if (StringUtils.equals(argumentString, "row")) {
           String rowAlias = (String)argument.getKey(1);
+          // security: the row's privacy realm must allow this user to read it (update to save), same rule as a data field
+          if (!GrouperDataPrivacyRealmAccess.checkRowForJexlAnalysis(grouperDataEngine, rowAlias, loggedInSubject, readOnly, grouperJexlScriptAnalysis)) {
+            return grouperJexlScriptAnalysis;
+          }
           GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
           GrouperDataRow grouperDataRow = grouperDataRowWrapper.getGrouperDataRow();
           gcDbAccess.addBindVar(grouperDataRow.getInternalId());
@@ -567,6 +572,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         } else if (StringUtils.equals(argumentString, "attributeCompareLeft") || StringUtils.equals(argumentString, "attributeCompareRight")) {
 
           String fieldAlias = (String)argument.getKey(1);
+          // security: fields compared here must pass the same privacy realm check as any other data field
+          if (!GrouperDataPrivacyRealmAccess.checkFieldForJexlAnalysis(grouperDataEngine, fieldAlias, loggedInSubject, readOnly, grouperJexlScriptAnalysis)) {
+            return grouperJexlScriptAnalysis;
+          }
           Long mathOffset = (Long)argument.getKey(2);
 
           GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(fieldAlias.toLowerCase());

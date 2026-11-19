@@ -8,7 +8,7 @@
       <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectMembershipsTab'] }</a></li>
     </c:when>
     <c:otherwise>
-      <li><a role="tab" href="?operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
+      <li><a role="tab" href="?operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
     </c:otherwise>
   </c:choose>
 
@@ -20,7 +20,7 @@
           >${textContainer.text['groupPrivilegesTab'] }</a></li>
       </c:when>
       <c:otherwise>
-        <li><a role="tab" href="?operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+        <li><a role="tab" href="?operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2LocalEntity.localEntityPrivileges&groupId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
       </c:otherwise>
     </c:choose>
   </c:if>
@@ -33,7 +33,7 @@
       <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
     </c:when>
     <c:otherwise>
-      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
+      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
     </c:otherwise>
   </c:choose>
 
@@ -43,7 +43,7 @@
       <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
     </c:when>
     <c:otherwise>
-      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
+      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
     </c:otherwise>
   </c:choose>
 
@@ -53,7 +53,7 @@
       <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
     </c:when>
     <c:otherwise>
-      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
+      <li><a role="tab" href="?operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}', {dontScrollTop: true});" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
     </c:otherwise>
   </c:choose>
 

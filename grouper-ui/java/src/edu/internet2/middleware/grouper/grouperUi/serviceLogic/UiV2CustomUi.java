@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.CustomUiContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.CustomUiVariableName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -304,10 +305,9 @@ public class UiV2CustomUi {
 
         String groupId = request.getParameter("groupId");
         
-        if (StringUtils.isBlank(groupId)) {
-          throw new RuntimeException("Cant find groupId!");
-        }
-        Group group = GroupFinder.findByUuid(inner_grouperSession, groupId, true);
+        // this runs as root so users without VIEW can use a custom UI; only allow groups that
+        // actually have an enabled custom UI, and fail without revealing the group name
+        Group group = retrieveCustomUiGroupOrFail(inner_grouperSession, groupId);
         
         if (group.getTypeOfGroup() == TypeOfGroup.entity) {
           throw new RuntimeException("Not implemented for entities!");
@@ -317,6 +317,34 @@ public class UiV2CustomUi {
         return group;
       }
     });
+  }
+
+  /**
+   * Find the group for the custom UI screens. Those screens look the group up in a root session,
+   * since a custom UI is meant for users who may not have VIEW on the group. So only a group that
+   * has an enabled custom UI configuration is returned. For any other group, or a uuid that does
+   * not exist, this throws an exception whose message holds only the caller-supplied id and is the
+   * same in both cases, so the error text does not reveal the group name or whether it exists.
+   * (Before this check, a group with no custom UI made CustomUiEngine throw an error containing
+   * the full group name, which the UI showed to the user.)
+   * @param rootSession root grouper session
+   * @param groupId group uuid from the request
+   * @return the group, never null
+   */
+  static Group retrieveCustomUiGroupOrFail(GrouperSession rootSession, String groupId) {
+
+    if (StringUtils.isBlank(groupId)) {
+      throw new RuntimeException("Cant find groupId!");
+    }
+
+    Group group = GroupFinder.findByUuid(rootSession, groupId, false);
+
+    // same message for "no such group" and "group has no enabled custom UI" so this endpoint
+    // is not an existence or group name oracle
+    if (group == null || StringUtils.isBlank(CustomUiEngine.retrieveCustomUiConfigurationConfigId(group, true))) {
+      throw new RuntimeException("Cant find group with custom UI: " + groupId);
+    }
+    return group;
   }
 
   /**
@@ -380,7 +408,8 @@ public class UiV2CustomUi {
     if (parameterNames != null) {
       while (parameterNames.hasMoreElements()) {
         String parameterName = parameterNames.nextElement();
-        if (parameterName.startsWith("cu_")) {
+        // only names like cu_someName: the name is later written into Groovy source run as root
+        if (CustomUiVariableName.isUrlParameterVariableName(parameterName)) {
           urlParamVariables.put(parameterName, request.getParameter(parameterName));
         }
       }
@@ -422,7 +451,8 @@ public class UiV2CustomUi {
     if (parameterNames != null) {
       while (parameterNames.hasMoreElements()) {
         String parameterName = parameterNames.nextElement();
-        if (parameterName.startsWith("cu_")) {
+        // only names like cu_someName: the name is later written into Groovy source run as root
+        if (CustomUiVariableName.isUrlParameterVariableName(parameterName)) {
           urlParamVariables.put(parameterName, request.getParameter(parameterName));
         }
       }

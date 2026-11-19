@@ -32,8 +32,11 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.membership.MembershipWriteAuthorization;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
+import edu.internet2.middleware.grouper.ws.scim.TierScimPaging;
 import edu.internet2.middleware.grouper.ws.scim.TierScimUtil;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierGroupResource;
 import edu.internet2.middleware.grouper.ws.scim.resources.TierMembershipResource;
@@ -57,6 +60,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +84,7 @@ public class TierMembershipProvider {
   /**
    * Upper limit on sise of returned list responses
    */
-  public static final int MAX_RESULTS_PER_PAGE = 1000;
+  public static final int MAX_RESULTS_PER_PAGE = TierScimPaging.MAX_RESULTS_PER_PAGE_DEFAULT;
 
   @GET
   @Path("/{id}")
@@ -113,6 +118,9 @@ public class TierMembershipProvider {
     } catch (IllegalArgumentException e) {
       return TierScimUtil.errorResponse(Response.Status.BAD_REQUEST, "Memberships.get", e.toString());
     } catch (Exception e) {
+      if (isInsufficientPrivilege(e)) {
+        return TierScimUtil.errorResponse(Response.Status.FORBIDDEN, "Memberships.get", e.toString());
+      }
       return TierScimUtil.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Memberships.get", e.toString());
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -139,9 +147,10 @@ public class TierMembershipProvider {
         throw new IllegalArgumentException("Missing filter parameter");
       }
 
-      if (!GrouperUtil.isEmpty(startIndex)) {
-        throw new NotImplementedException("startIndex not currently implemented");
-      }
+      // SECURITY (issue 171, 2026-11-13): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
+      // startIndex is supported; only one page of memberships is converted.  The search itself is
+      // bounded by ws.getMemberships.maxResultSize (grouper.properties, "Too many results" above it)
+      TierScimPaging paging = new TierScimPaging(startIndex, itemsPerPage);
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
@@ -155,24 +164,37 @@ public class TierMembershipProvider {
         }
       } else if (filter.getFilterType().equals(FilterType.EQUAL)) {
         addFilterToFinder(membershipFinder, filter);
+      } else {
+        // other filter types (or, pr, ...) used to add no criteria at all: refuse them (400)
+        throw new IllegalArgumentException("Only eq and and filters supported");
       }
 
       List<TierMembershipResource> resources = new ArrayList<>();
-      int numAdded = 0;
-      int maxItems = GrouperUtil.isEmpty(itemsPerPage) ? MAX_RESULTS_PER_PAGE : itemsPerPage;
 
       Set<Object[]> memberTuples = membershipFinder.findMembershipsMembers();
-      for (Object[] memberTuple: memberTuples) {
-        resources.add(TierScimUtil.convertGrouperMembershipToScimResource((Membership) memberTuple[0]));
-        if (++numAdded > maxItems) {
-          break;
+
+      // stable order (by membership id) so startIndex pages do not overlap
+      List<Membership> memberships = new ArrayList<>();
+      for (Object[] memberTuple: GrouperUtil.nonNull(memberTuples)) {
+        memberships.add((Membership) memberTuple[0]);
+      }
+      Collections.sort(memberships, new Comparator<Membership>() {
+
+        public int compare(Membership o1, Membership o2) {
+          String id1 = o1.getUuid() == null ? "" : o1.getUuid();
+          String id2 = o2.getUuid() == null ? "" : o2.getUuid();
+          return id1.compareTo(id2);
         }
+      });
+
+      for (Membership membership: paging.page(memberships)) {
+        resources.add(TierScimUtil.convertGrouperMembershipToScimResource(membership));
       }
 
       ListResponse<TierMembershipResource> listResponse = new ListResponse<TierMembershipResource>(
-              resources.size(),
+              memberships.size(),
               resources,
-              1, numAdded);
+              paging.getStartIndex(), resources.size());
 
       return Response
               .status(Response.Status.OK)
@@ -282,6 +304,9 @@ public class TierMembershipProvider {
     } catch (MembershipNotFoundException e) {
       return TierScimUtil.errorResponse(Response.Status.NOT_FOUND, "Memberships.update", e.toString());
     } catch (Exception e) {
+      if (isInsufficientPrivilege(e)) {
+        return TierScimUtil.errorResponse(Response.Status.FORBIDDEN, "Memberships.update", e.toString());
+      }
       return TierScimUtil.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Memberships.update", e.toString());
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -304,7 +329,9 @@ public class TierMembershipProvider {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       Membership mship = MembershipFinder.findByUuid(grouperSession, id, true, false);
-      mship.delete();
+      // Membership.delete() checks no privileges and writes no audit entry.  Delete through the
+      // normal Group / Stem / AttributeDef API for the row's owner, as the logged in subject
+      MembershipWriteAuthorization.deleteChecked(grouperSession, mship);
 
       return Response
               .status(Response.Status.NO_CONTENT)
@@ -312,10 +339,30 @@ public class TierMembershipProvider {
     } catch (GroupNotFoundException | MembershipNotFoundException e) {
       return TierScimUtil.errorResponse(Response.Status.NOT_FOUND, "Memberships.delete", e.toString());
     } catch (Exception e) {
+      if (isInsufficientPrivilege(e)) {
+        return TierScimUtil.errorResponse(Response.Status.FORBIDDEN, "Memberships.delete", e.toString());
+      }
       return TierScimUtil.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, "Memberships.delete", e.toString());
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * see if an exception is (or is caused by) an InsufficientPrivilegeException, so the caller
+   * gets 403 and not 500.  Some Grouper APIs wrap the privilege exception in another one
+   * @param throwable
+   * @return true if not allowed
+   */
+  private static boolean isInsufficientPrivilege(Throwable throwable) {
+    int depth = 0;
+    while (throwable != null && depth++ < 20) {
+      if (throwable instanceof InsufficientPrivilegeException) {
+        return true;
+      }
+      throwable = throwable.getCause();
+    }
+    return false;
   }
 
   private void addFilterToFinder(MembershipFinder membershipFinder, Filter filter) {
@@ -331,7 +378,8 @@ public class TierMembershipProvider {
       } else {
         throw new IllegalArgumentException("Unknown search type: " + filter.getAttributePath().toString());
       }
-    } else if (filter.getFilterType().equals(FilterType.CONTAINS)) {
+    } else {
+      // co and anything else (nested or, pr, ...) used to fall through and add no criteria
       throw new IllegalArgumentException("Only eq filters supported");
     }
 

@@ -140,8 +140,9 @@ public class TeamDynamixExternalSystem extends GrouperExternalSystem {
     try {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      //TODO
-      //grouperHttpClient.assignDoNotLogHeaders(TeamDynamixMockServiceHandler.doNotLogHeaders);
+      // the request body holds the BEID and the WebServicesKey, and the response body is the
+      // bearer token, so neither body may go to the http debug log or the command log
+      grouperHttpClient.assignDoNotLogRequestBody(true);
       
       grouperHttpClient.assignDoNotLogResponseBody(true);
       

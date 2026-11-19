@@ -539,16 +539,10 @@ public class CustomUiContainer {
     for (String key: new TreeSet<String>(variables.keySet())) {
       
       Object value = variables.get(key);
+      // check the name before it is written into the Groovy source below (it runs as root),
+      // then append its declaration
+      CustomUiVariableName.appendScriptVariableDeclaration(script, key, value);
       grouperGroovyInput.assignInputValueObject(key, value);
-      if (value instanceof Number) {
-        script.append("Number " + key + " = (Number)grouperGroovyRuntime.retrieveInputValueObject(\"" + key + "\");\n");
-      } else if (value instanceof Boolean) {
-        script.append("boolean " + key + " = grouperGroovyRuntime.retrieveInputValueBoolean(\"" + key + "\");\n");
-      } else if (value instanceof String) {
-        script.append("String " + key + " = grouperGroovyRuntime.retrieveInputValueString(\"" + key + "\");\n");
-      } else if (value == null) {
-        script.append("Object " + key + " = null;\n");
-      }
       
     }
    return (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {

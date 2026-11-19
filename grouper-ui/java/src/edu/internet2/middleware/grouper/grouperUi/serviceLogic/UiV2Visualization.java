@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2VisualizationPreference;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
@@ -544,6 +545,38 @@ public class UiV2Visualization {
   protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Visualization.class);
 
   /**
+   * see if the logged in user may preview a scripted group script (overrideAbacScript) on the
+   * start object of a visualization.  the preview runs the scripted group analysis: population
+   * counts, and whether a subject matches, for a script from the request.  so it needs the same
+   * check as the scripted group Analyze screen (UiV2GrouperLoader.editGrouperLoaderAnalyze): the
+   * start object is a group, and the user can edit its loader or its ABAC / recent memberships
+   * loader (wheel, or the configured editor groups plus ADMIN on the group)
+   * @param grouperRequestContainer the request container
+   * @param visualizationContainer the visualization container with the object type and id set
+   * @return true if allowed
+   */
+  private static boolean canPreviewAbacScript(GrouperRequestContainer grouperRequestContainer,
+      VisualizationContainer visualizationContainer) {
+
+    // a script belongs to a group, there is nothing to preview on a folder or a subject
+    if (!"group".equals(visualizationContainer.getObjectType())) {
+      return false;
+    }
+
+    // found in the user's session, so a group the user cannot see is not found
+    Object startObject = visualizationContainer.getGrouperObject();
+    if (!(startObject instanceof Group)) {
+      return false;
+    }
+
+    // the loader container checks the group in the group container, as on the Analyze screen
+    grouperRequestContainer.getGroupContainer().setGuiGroup(new GuiGroup((Group) startObject));
+    GrouperLoaderContainer grouperLoaderContainer = grouperRequestContainer.getGrouperLoaderContainer();
+    return grouperLoaderContainer.isCanEditLoader()
+        || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
+  }
+
+  /**
    * Internal ajax call to get the graph based on settings. Puts json into the visualizationObject DOM element
    *
    * @param request
@@ -593,6 +626,14 @@ public class UiV2Visualization {
       }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      // a script preview is the scripted group analysis, so only for the users who may use the
+      // Analyze screen of that group (it used to run for anybody who could see the group)
+      if (isAbacPreview && !canPreviewAbacScript(grouperRequestContainer, visualizationContainer)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminAnotherGroup")));
+        return;
+      }
 
       String searchSubjectString = request.getParameter("visualizationAddMemberComboName");
 

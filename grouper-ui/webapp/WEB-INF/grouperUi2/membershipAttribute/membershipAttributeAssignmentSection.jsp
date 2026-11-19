@@ -14,7 +14,7 @@
          <div id="assign-membership-attribute-block-container" class="well hide">
           <form id="assignAttributeMembershipForm" class="form-horizontal">
              <%-- <input name="groupId" type="hidden" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" /> --%>
-             <input name="subjectId" type="hidden" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
+             <input name="subjectId" type="hidden" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
              
              <div class="control-group">
                <label for="grouperMembershipAttributeAssignmentGroupComboId" class="control-label">${textContainer.text['membershipAssignAttributeGroupLabel'] }</label>

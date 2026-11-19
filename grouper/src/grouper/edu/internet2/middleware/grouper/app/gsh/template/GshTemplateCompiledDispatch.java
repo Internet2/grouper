@@ -10,13 +10,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * instance of the type's framework base class. Every compiled-template
  * dispatcher (GshTemplateExec for gsh/abac, OtherJobScript for daemons, and
  * the change-log / report / customUi / hook / library wirings to come) funnels
- * through here so the resolve &rarr; cast &rarr; instantiate sequence and its
+ * through here so the resolve -> cast -> instantiate sequence and its
  * error reporting live in one place.
  *
  * <p>The sequence:</p>
  * <ol>
  *   <li>read the template source from its configured location
- *       (GshTemplateConfig.readSource() — inline config or container file);</li>
+ *       (GshTemplateConfig.readSource() -- inline config or container file);</li>
  *   <li>resolve the compiled class through GshTemplateClassLoaderRegistry
  *       (compile-on-miss, source-hash cache);</li>
  *   <li>cast the Class to the expected framework base via asSubclass(),
@@ -48,7 +48,7 @@ public class GshTemplateCompiledDispatch {
   /**
    * Resolve a compiled-Java template to its loaded Class, cast to the expected
    * framework base. Same resolve + cast as {@link #instantiate} but stops short
-   * of instantiating — for callers (e.g. the hooks framework) that need the
+   * of instantiating -- for callers (e.g. the hooks framework) that need the
    * Class itself to introspect methods or create their own instances.
    *
    * @param <T> the framework base class type for this templateType
@@ -64,6 +64,15 @@ public class GshTemplateCompiledDispatch {
     }
     if (baseClass == null) {
       throw new IllegalArgumentException("baseClass must be non-null for '" + configId + "'");
+    }
+
+    // SECURITY (issue 73, 2026-11-10): every compiled-template dispatcher (daemon, change log, report,
+    // custom UI, provisioner, library, hook, interactive) comes through here, so refuse a template that
+    // is disabled, not in compiled mode, or of the wrong type for this dispatcher BEFORE its source is
+    // read or its class is loaded.  Disabling a template must stop its code from running.
+    String notRunnable = notRunnableReason(gshTemplateConfig, baseClass);
+    if (notRunnable != null) {
+      throw new RuntimeException("GSH template '" + configId + "' cannot run here: " + notRunnable);
     }
 
     String javaSource = gshTemplateConfig.readSource();
@@ -93,7 +102,7 @@ public class GshTemplateCompiledDispatch {
    * reads its source, resolves the compiled class through the registry, and
    * returns a fresh instance.
    *
-   * <p>The returned Object has no required base class — callers cast to a
+   * <p>The returned Object has no required base class -- callers cast to a
    * parent-jar interface (Option B) or invoke methods by name via
    * GrouperUtil.callMethod (Option C). See the design doc section "Shared
    * logic and inter-template calls". Each call returns a new instance; the
@@ -118,11 +127,51 @@ public class GshTemplateCompiledDispatch {
       throw new RuntimeException("GSH template '" + configId
           + "' must be templateMode=compiled to be loaded as a library template");
     }
+    // SECURITY (issue 73, 2026-11-10): only an enabled template of type library may be loaded this way
+    if (gshTemplateConfig.getGshTemplateType() == null
+        || !"library".equals(gshTemplateConfig.getGshTemplateType().name())) {
+      throw new RuntimeException("GSH template '" + configId + "' is not templateType=library");
+    }
     return instantiate(configId, gshTemplateConfig, Object.class);
   }
 
   /**
-   * Build a readable failure message from a non-success resolve result —
+   * Why a template may not run through a dispatcher expecting this base class, or null if it may.
+   * The expected template type is checked for the framework bases that belong to one type; other
+   * bases (e.g. Object for library templates, which instanceForTemplate checks) are not typed here.
+   * @param gshTemplateConfig populated config
+   * @param baseClass framework base the dispatcher expects
+   * @return the reason, or null if runnable
+   */
+  static String notRunnableReason(GshTemplateConfig gshTemplateConfig, Class<?> baseClass) {
+    if (!gshTemplateConfig.isEnabled()) {
+      return "the template is disabled";
+    }
+    if (!gshTemplateConfig.isCompiledMode()) {
+      return "the template is not templateMode=compiled";
+    }
+    String expectedType = null;
+    String baseName = baseClass.getSimpleName();
+    if ("GrouperTemplateDaemon".equals(baseName)) {
+      expectedType = "daemon";
+    } else if ("GrouperTemplateDaemonChangeLog".equals(baseName)) {
+      expectedType = "daemonChangeLog";
+    } else if ("GrouperTemplateReport".equals(baseName)) {
+      expectedType = "report";
+    } else if ("GrouperTemplateCustomUi".equals(baseName)) {
+      expectedType = "customUi";
+    } else if ("GshTemplateProvisionerBase".equals(baseName)) {
+      expectedType = "provisioner";
+    }
+    GshTemplateType actualType = gshTemplateConfig.getGshTemplateType();
+    if (expectedType != null && (actualType == null || !expectedType.equals(actualType.name()))) {
+      return "templateType is '" + actualType + "', expected '" + expectedType + "'";
+    }
+    return null;
+  }
+
+  /**
+   * Build a readable failure message from a non-success resolve result --
    * either a parse error (no package / no public class) or compile diagnostics.
    *
    * @param configId GSH template config id

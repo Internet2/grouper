@@ -232,7 +232,11 @@ public class MessageConsumerDaemon implements Job {
       
       WsResponse wsReponse = null;
       try {        
-        wsReponse = callWebService(newJson, wsBaseUrl + grouperHeader.getHttpPath(), configName);
+        // never concatenate the message's httpPath onto the base URL; the builder
+        // rejects paths that would change the host or leave the WS REST path, before any
+        // credential or act-as header is attached (the catch below turns it into an error reply)
+        String wsUrl = MessageConsumerDaemonWsUrl.buildWsUrl(wsBaseUrl, grouperHeader.getHttpPath());
+        wsReponse = callWebService(newJson, wsUrl, configName);
         messagesToBeAcknowledged.add(inputMessage);
       } catch (Exception e) {
         wsReponse = new WsResponse();

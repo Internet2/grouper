@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.privs.StemViewAuthorization;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -1508,6 +1509,11 @@ public class GrouperUserDataApi {
         } finally {
           GrouperSession.stopQuietly(userSession);
         }
+
+        // the stem DAO lookup above is not secured by the session (it returns every existing folder), so
+        // keep only the folders the subject can still see (a naming privilege, or something inside).  The
+        // size check below then drops deleted and no longer visible folders from the stored list
+        stems = StemViewAuthorization.filterViewable(subject, stems);
 
         if (stemDataType.isSortByName()) {
           Set<Stem> newResult = new TreeSet<Stem>();

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.privs.StemViewAuthorization;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 
 import org.apache.commons.lang3.StringUtils;
@@ -991,7 +992,10 @@ public class RelationGraph {
 
       if (this.showStems) {
         long numStemsAdded = 0;
-        for (Stem s : ((Stem) fromNode.getGrouperObject()).getChildStems()) {
+        // only the child folders the user can see.  getChildStems reads the folder table with no
+        // privilege check, which put the names, ids and descriptions of hidden folders in the graph
+        for (Stem s : StemViewAuthorization.filterViewable(GrouperSession.staticGrouperSession().getSubject(),
+            ((Stem) fromNode.getGrouperObject()).getChildStems())) {
           if (getMaxSiblings() > 0 && numStemsAdded >= getMaxSiblings()) {
             skippedFolders.add(s);
           } else if (!matchesFilter(s)) {
@@ -1127,7 +1131,10 @@ public class RelationGraph {
       // Show groups, data attributes, and data rows referenced by ABAC/jexl script (only for the start group)
       if (fromNode.isAbacGroup() && fromNode.isStartNode()) {
         try {
-          if (!StringUtils.isEmpty(fromNode.getAbacScript())) {
+          // the analysis shows population counts and per-reference matches of the subject, so run it
+          // only for users who could open the group's loader Analyze screen (VIEW alone is not enough)
+          if (!StringUtils.isEmpty(fromNode.getAbacScript())
+              && RelationGraphAbacAnalysisAccess.canRunAbacAnalysis(GrouperSession.staticGrouperSession().getSubject(), theGroup)) {
             // Single analysis call gets both tree structure and population counts
             GrouperJexlScriptAnalysis analysis = runAbacAnalysis(fromNode.getAbacScript());
 
@@ -1381,6 +1388,12 @@ public class RelationGraph {
         groupNodesByUuid.put(node.getGrouperObjectId(), node);
       }
     }
+
+    // membership counts are membership-derived data: VIEW puts a group in the graph, but only
+    // READ allows its counts (same as the group summary screen).  The HQL below does no
+    // privilege checking, so drop the groups the caller cannot READ.  Their counts stay 0
+    // and are not added to the graph totals.
+    groupNodesByUuid.keySet().retainAll(RelationGraphReadableGroups.readableGroupIds(groupNodesByUuid.values()));
 
     // no groups to count, don't need to continue
     if (groupNodesByUuid.size() == 0) {

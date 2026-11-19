@@ -65,7 +65,9 @@ function escapeHTML(unsafe) {
   }
 
   // CH need to escape more chars for some reason...
-  return unsafe.replace(/[<>&"']/g, function(m) {
+  // the backslash too: these values also go into Graphviz DOT quoted strings, where a
+  // backslash would escape the closing quote; the entity renders as a backslash
+  return unsafe.replace(/[<>&"'\\]/g, function(m) {
     switch (m) {
       case '<':
         return '&lt;';
@@ -77,6 +79,8 @@ function escapeHTML(unsafe) {
         return '&quot;';
       case "'":
         return '&#39;';
+      case "\\":
+        return '&#92;';
     }
   });
 }
@@ -192,13 +196,71 @@ function getObjectNameUsingPrefs(node) {
 }
 
 
+// Visualization node links (security fix: node ids such as sourceId||||subjectId come from
+// subject sources and may hold quotes or markup, so they are never written into html, a
+// javascript: url or DOT syntax).  Each linked node gets a small integer index on the current
+// graph; the text view puts it in a data attribute, the graph view in a "#grouperVisNode<n>"
+// URL, and one click handler maps the index back to the node and calls followObject with the
+// node's own type and id.
+
+// index of a node in visualizationObject.visNodeList, assigned on first use
+function visNodeIndex(node) {
+  var graph = visualizationObject;
+  if (!graph.visNodeList) {
+    graph.visNodeList = [];
+  }
+  if (typeof node.visNodeIndex !== "number") {
+    node.visNodeIndex = graph.visNodeList.length;
+    graph.visNodeList.push(node);
+  }
+  return node.visNodeIndex;
+}
+
+// opaque DOT node key, so no object id enters the DOT source
+function visNodeKey(node) {
+  return "grouperVisNode" + visNodeIndex(node);
+}
+
+// click on a text-view link or a graph node: find the index on the element or a parent, follow it
+function visNodeClick(event) {
+  var el = event.target;
+  while (el && el.getAttribute) {
+    var index = el.getAttribute("data-grouper-vis-node");
+    if (index === null) {
+      // graph view: graphviz writes the node URL as the svg link href (xlink:href or href)
+      var href = el.getAttribute("href") || el.getAttribute("xlink:href")
+        || (el.getAttributeNS ? el.getAttributeNS("http://www.w3.org/1999/xlink", "href") : null);
+      var match = href ? /^#grouperVisNode([0-9]+)$/.exec(href) : null;
+      index = match ? match[1] : null;
+    }
+    if (index !== null) {
+      event.preventDefault();
+      var graph = visualizationObject;
+      var node = (graph && graph.visNodeList) ? graph.visNodeList[parseInt(index, 10)] : null;
+      if (node && node.linkType) {
+        followObject(node.linkType, node.id);
+      }
+      return;
+    }
+    el = el.parentNode;
+  }
+}
+
+// the screen loads this script again on each visit: register the handler only once
+if (!window.grouperVisNodeClickInstalled) {
+  window.grouperVisNodeClickInstalled = true;
+  document.addEventListener("click", visNodeClick, false);
+}
+
+
 function getObjectLink(node, text) {
   //if (typeof node === "undefined") {
   //  return text;
   //}
 
   if (node.linkType) {
-    return "<a href=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\">" + text + "</a>";
+    // the object type and id stay data (looked up by index on click), never markup or script
+    return "<a href=\"#\" data-grouper-vis-node=\"" + visNodeIndex(node) + "\">" + text + "</a>";
   } else {
     return text;
   }
@@ -678,7 +740,8 @@ function drawGraphModuleD3() {
       function(node) {
         var props = getStyleArray(graph, ["shape", "style", "color", "fontcolor", "border", "fillcolor"], node);
         if (node.linkType) {
-            props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
+            // no javascript: url and no object id in the DOT source; see visNodeClick
+            props.push("URL=\"#grouperVisNode" + visNodeIndex(node) + "\"");
         }
 
         // a stem or group can have multiple rows in the label, depending on whether showing object types or counts
@@ -742,7 +805,7 @@ function drawGraphModuleD3() {
         }
         props.push('tooltip="' + graph.styles[node.type].displayTag + ": " + tooltip + '"');
 
-        var row = '{"' + node.id + '" [' + props.join(" ") + "] ; }";
+        var row = '{"' + visNodeKey(node) + '" [' + props.join(" ") + "] ; }";
         //console.debug(row);
         dot += row + "\n";
     });
@@ -774,7 +837,7 @@ function drawGraphModuleD3() {
           }
         }
 
-        var row = '"' + link.source + '" -> "' + link.target + '" [' +  props.join('; ') + '];';
+        var row = '"' + visNodeKey(source) + '" -> "' + visNodeKey(target) + '" [' +  props.join('; ') + '];';
         //console.debug(row);
         dot += row + "\n";
       });

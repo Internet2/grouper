@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -196,6 +197,14 @@ public class WsAttributeDefNameToSave {
     AttributeDefName attributeDefNameLookedup = this.getWsAttributeDefNameLookup().retrieveAttributeDefName();
 
     String attributeDefNameLookup = attributeDefNameLookedup == null ? null : attributeDefNameLookedup.getName();
+
+    // Security: nothing found, so this is (or will fail as) an insert: a caller-chosen uuid for a
+    // new attribute definition name must be a safe identifier.  AttributeDefNameSave checks this
+    // too at the insert; this gives the caller an INVALID_QUERY result first.  Existing ones can
+    // still be saved by uuid
+    if (attributeDefNameLookedup == null && !GrouperObjectIdValidator.isValidNewId(this.getWsAttributeDefName().getUuid())) {
+      throw new WsInvalidQueryException(GrouperObjectIdValidator.invalidIdMessage("attributeDefName", this.getWsAttributeDefName().getUuid()));
+    }
 
     AttributeDef attributeDef = null;
     

@@ -46,6 +46,23 @@ public class GrouperWorkflowConfigService {
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperWorkflowConfigService.class);
+
+  /**
+   * message when workflow is used while it is off
+   */
+  private static final String WORKFLOW_DISABLED_MESSAGE = "Workflow is disabled: set workflow.enable = true "
+      + "in grouper.properties (or the configuration database) to use workflow";
+
+  /**
+   * refuse to read or write a workflow config while workflow is off (workflow.enable).  The UI
+   * checks this in most screens, but not all of them (e.g. the join group form), and the instance
+   * code builds configs too, so the check is here where every caller goes through.
+   */
+  private static void assertWorkflowEnabled() {
+    if (!GrouperWorkflowSettings.workflowEnabled()) {
+      throw new RuntimeException(WORKFLOW_DISABLED_MESSAGE);
+    }
+  }
   
   /**
    * get workflow config for a given group and workflow id
@@ -54,6 +71,11 @@ public class GrouperWorkflowConfigService {
    * @return
    */
   public static GrouperWorkflowConfig getWorkflowConfig(final Group group, final String workflowId) {
+    
+    // workflow off: no group has a usable workflow config
+    if (!GrouperWorkflowSettings.workflowEnabled()) {
+      return null;
+    }
     
     AttributeAssign attributeAssign = getAttributeAssign(group, workflowId);
     if (attributeAssign == null) {
@@ -71,6 +93,10 @@ public class GrouperWorkflowConfigService {
    */
   public static GrouperWorkflowConfig getWorkflowConfig(String attributeAssignmentMarkerId) {
     
+    // workflow off: callers (initiate, instances, daemon) dereference the config, so refuse
+    // with a clear message instead of returning null
+    assertWorkflowEnabled();
+    
     AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignmentMarkerId, true);
     
     return buildGrouperWorkflowConfig(attributeAssign);
@@ -84,6 +110,11 @@ public class GrouperWorkflowConfigService {
    */
   public static boolean workflowIdExists(final String workflowId) {
         
+    // workflow off: no workflow config is visible
+    if (!GrouperWorkflowSettings.workflowEnabled()) {
+      return false;
+    }
+    
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.retrieveCount(true);
     queryOptions.retrieveResults(false);
@@ -105,6 +136,11 @@ public class GrouperWorkflowConfigService {
   public static List<GrouperWorkflowConfig> getWorkflowConfigs(final Group group) {
     
     List<GrouperWorkflowConfig> result = new ArrayList<GrouperWorkflowConfig>();
+
+    // workflow off: no group offers a workflow (join group form, viewers, validators)
+    if (!GrouperWorkflowSettings.workflowEnabled()) {
+      return result;
+    }
     Set<AttributeAssign> attributeAssigns = group.getAttributeDelegate().retrieveAssignments(GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase());
     
     for (AttributeAssign attributeAssign: attributeAssigns) {
@@ -180,6 +216,9 @@ public class GrouperWorkflowConfigService {
    */
   public static void saveOrUpdateGrouperWorkflowConfig(GrouperWorkflowConfig grouperWorkflowConfig, Group group) {
     
+    // workflow off: do not create or change workflow configs
+    assertWorkflowEnabled();
+    
     GrouperWorkflowApprovalStates existingApprovalStates = null;
     AttributeAssign attributeAssign = getAttributeAssign(group, grouperWorkflowConfig.getWorkflowConfigId());
     if (attributeAssign == null) {
@@ -230,37 +269,14 @@ public class GrouperWorkflowConfigService {
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperWorkflowConfig.getWorkflowConfigViewersGroupId());
     
-    // when we are updating a workflow config, based on the allowedGroupId value, 
-    // either remove the allowedGroup VIEW privilege from the group on which we are adding the workflow config
-    // or remove the every entity VIEW privilege from the group on which we are adding the workflow config
-    if (existingApprovalStates != null) {
-      GrouperWorkflowApprovalState previousInitiateState = existingApprovalStates.getStateByName(INITIATE_STATE);
-      if (StringUtils.isNotBlank(previousInitiateState.getAllowedGroupId())) {
-        Subject previousAllowedGroup = SubjectFinder.findById(previousInitiateState.getAllowedGroupId(), false);
-        if (previousAllowedGroup != null) {
-          group.revokePriv(previousAllowedGroup, AccessPrivilege.VIEW, false);
-        }
-      } else {
-        Subject everyEntitySubject = SubjectFinder.findAllSubject();
-        group.revokePriv(everyEntitySubject, AccessPrivilege.VIEW, false);
-      }
-    }
-    
-    // give view privilege to allowedGroupId or put every entity with VIEW privilege to the group
-    // on which we are saving the workflow config
-    // this is necessary so that subjects can view the group and can initiate the workflow
-    // without view privilege, group won't show up in the tree on the left
-    GrouperWorkflowApprovalState initiateState = grouperWorkflowConfig.getWorkflowApprovalStates().getStateByName(INITIATE_STATE);
-    String alloweGroupId = initiateState.getAllowedGroupId();
-    if (StringUtils.isNotBlank(alloweGroupId)) {
-      Subject allowedGroup = SubjectFinder.findById(alloweGroupId, true);
-      group.addOrEditMember(allowedGroup, false, false, false, false, false, true, 
-          false, false, false, false, null, null, false);
-    } else {
-      Subject everyEntitySubject = SubjectFinder.findAllSubject();
-      group.addOrEditMember(everyEntitySubject, false, false, false, false, false, true, 
-          false, false, false, false, null, null, false);
-    }
+    // grant VIEW on the group to whoever may initiate the workflow (allowedGroupId, or everyone
+    // when it is blank) so they can find the group.  On edit, VIEW is revoked from the previous
+    // allowed group only when allowedGroupId changed and no other workflow on the group uses it;
+    // EveryEntity VIEW the group already has is never revoked.  allowedGroupId is resolved as a
+    // group (uuid or name) like GrouperWorkflowConfigValidator does.  The UI checks
+    // (GrouperWorkflowConfigViewPrivileges.validateAuthor) that a non-admin author's save makes
+    // no VIEW change, since this runs in a root session
+    GrouperWorkflowConfigViewPrivileges.assignViewPrivileges(grouperWorkflowConfig, existingApprovalStates, group);
     
     attributeAssign.saveOrUpdate();
     

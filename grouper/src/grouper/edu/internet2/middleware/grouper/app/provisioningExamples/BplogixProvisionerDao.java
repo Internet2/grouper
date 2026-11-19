@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperXmlSecureFactory;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
@@ -235,7 +236,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -341,7 +343,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -473,7 +476,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -567,7 +571,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -660,7 +665,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -755,7 +761,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -846,7 +853,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -946,7 +954,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -1049,7 +1058,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {
@@ -1177,7 +1187,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
       
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // hardened factory: no DOCTYPE or external entities in the endpoint response (XXE)
+        DocumentBuilderFactory dbf = GrouperXmlSecureFactory.newDocumentBuilderFactory();
         DocumentBuilder db = dbf.newDocumentBuilder();
         document = db.parse(inputStream);
       } catch (Exception e) {

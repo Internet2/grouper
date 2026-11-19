@@ -34,7 +34,7 @@
                             </label>
                           </td>
                         </c:if>
-                        <td>${attributeAssignAction.name}</td>
+                        <td>${grouper:escapeHtml(attributeAssignAction.name)}</td>
                         <td>
                           <div class="btn-group">
                           	<button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeActionActions']}" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">

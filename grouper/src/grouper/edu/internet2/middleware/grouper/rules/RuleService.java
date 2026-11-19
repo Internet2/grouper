@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.subject.Subject;
 
 public class RuleService {
@@ -35,6 +42,36 @@ public class RuleService {
   public static Map<String, List<String>> saveOrUpdateRuleAttributes(RuleConfig ruleConfig, GrouperObject grouperObject, String attributeAssignId) {
 
     Map<String, List<String>> result = new HashMap<>();
+
+    // SECURITY: an edit must be of a rule on this group or folder.  Callers check the user's
+    // privilege on grouperObject, and this method runs as root, so a rule id from another object
+    // (or an attribute assign that is not a rule) must never be overwritten here.  Checked first,
+    // for every caller including wheel, since a foreign id is never a legitimate edit.
+    if (StringUtils.isNotBlank(attributeAssignId)
+        && RuleAssignOwnerCheck.ruleAssignOwnedBy(grouperObject, attributeAssignId) == null) {
+      result.put("ERROR", Arrays.asList(RuleAssignOwnerCheck.invalidRuleIdError()));
+      return result;
+    }
+
+    // SECURITY: the rules UI shows the run daemon control only when RuleConfig.isCanSetDaemon() is true,
+    // but the submit actions read the request parameter regardless and this method runs as root.
+    // When the configuring subject may not set it, the submitted value (true or false) is ignored,
+    // with no error: a new rule stores run daemon blank (the rule engine default) and an edit keeps
+    // the rule's stored value, so a forged value changes nothing.  Wheel/root are never ignored.
+    final boolean submittedDaemonSettingIgnored = RuleDaemonSettingCheck.isSubmittedDaemonSettingIgnored(ruleConfig);
+
+    // SECURITY: a sendEmail rule's recipient, subject and body run as JEXL when the rule fires, as
+    // GrouperSystem for rules saved here, with ruleElUtils (grants privileges, changes memberships)
+    // in scope.  A non-wheel author may only use the predefined variables (${groupName},
+    // ${safeSubject.name}, ...).  Checked against the logged in user on the RuleConfig (this method
+    // runs as root), on every add and edit and on all three fields, before anything is written.
+    String sendEmailExpressionError = ruleConfig == null ? null : RuleEmailTemplateCheck.sendEmailExpressionError(
+        RuleEmailTemplateCheck.configuringSubject(ruleConfig), ruleConfig.getThenOption(),
+        ruleConfig.getThenArg0(), ruleConfig.getThenArg1(), ruleConfig.getThenArg2());
+    if (sendEmailExpressionError != null) {
+      result.put("ERROR", Arrays.asList(sendEmailExpressionError));
+      return result;
+    }
 
     // SECURITY (GRP-7359): a rule that uses expression language (EL) in its if-condition or its
     // then runs that arbitrary expression as GrouperSystem when the rule fires.  There is no way
@@ -158,7 +195,7 @@ public class RuleService {
     
     if (grouperObject instanceof Group) {
       Group group = (Group) grouperObject;
-      attributeAssign = attributeAssign != null ? attributeAssign : group.getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      // a new rule's attribute assign is created in persistRuleValues, after validation
       
       //rule is being assigned on a group 
       String checkOwner = ruleConfig.getCheckOwner();
@@ -276,7 +313,7 @@ public class RuleService {
       
     } else if (grouperObject instanceof Stem) {
       Stem stem = (Stem) grouperObject;
-      attributeAssign = attributeAssign != null ? attributeAssign : stem.getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      // a new rule's attribute assign is created in persistRuleValues, after validation
       
       //rule is being assigned on a folder 
       String checkOwner = ruleConfig.getCheckOwner();
@@ -384,13 +421,13 @@ public class RuleService {
       
     }
     
-    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    // SECURITY: collect the rule's attribute values (name to value, null removes it) and write them
+    // only after the whole rule is validated below, so a refused add or edit changes nothing stored
+    final Map<String, String> ruleValues = new LinkedHashMap<String, String>();
     
-    AttributeAssignAttrAssignDelegate attributeDelegate = attributeAssign.getAttributeDelegate();
-    
-    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
-    attributeValueDelegate.assignValue(RuleUtils.ruleCheckTypeName(), ruleConfig.getCheckType());
+    ruleValues.put(RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    ruleValues.put(RuleUtils.ruleActAsSubjectIdName(), SubjectFinder.findRootSubject().getId());
+    ruleValues.put(RuleUtils.ruleCheckTypeName(), ruleConfig.getCheckType());
     
     ruleCheck.setCheckType(ruleConfig.getCheckType());
     
@@ -400,135 +437,142 @@ public class RuleService {
       // the other one.  if this rule already stores the uuid (e.g. it was created with RuleApi),
       // then keep storing the uuid, even if a different group or folder was picked, so that
       // editing a rule in the UI doesnt change the way that rule stores its check owner
-      boolean ruleAlreadyStoresCheckOwnerId = !StringUtils.isBlank(
-          attributeValueDelegate.retrieveValueString(RuleUtils.ruleCheckOwnerIdName()));
+      boolean ruleAlreadyStoresCheckOwnerId = attributeAssign != null && !StringUtils.isBlank(
+          attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleCheckOwnerIdName()));
 
       if (ruleAlreadyStoresCheckOwnerId && !StringUtils.isBlank(checkOwnerIdResolved)) {
-        attributeValueDelegate.assignValue(RuleUtils.ruleCheckOwnerIdName(), checkOwnerIdResolved);
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerNameName());
+        ruleValues.put(RuleUtils.ruleCheckOwnerIdName(), checkOwnerIdResolved);
+        ruleValues.put(RuleUtils.ruleCheckOwnerNameName(), null);
         ruleCheck.setCheckOwnerId(checkOwnerIdResolved);
       } else {
-        attributeValueDelegate.assignValue(RuleUtils.ruleCheckOwnerNameName(), checkOwnerName);
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerIdName());
+        ruleValues.put(RuleUtils.ruleCheckOwnerNameName(), checkOwnerName);
+        ruleValues.put(RuleUtils.ruleCheckOwnerIdName(), null);
         ruleCheck.setCheckOwnerName(checkOwnerName);
       }
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckOwnerNameName());
+      ruleValues.put(RuleUtils.ruleCheckOwnerNameName(), null);
     }
     
     if (StringUtils.isNotBlank(checkOwnerStemScope)) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleCheckStemScopeName(), checkOwnerStemScope);
+      ruleValues.put(RuleUtils.ruleCheckStemScopeName(), checkOwnerStemScope);
       ruleCheck.setCheckStemScope(checkOwnerStemScope);
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckStemScopeName());
+      ruleValues.put(RuleUtils.ruleCheckStemScopeName(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getCheckArg0())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleCheckArg0Name(), ruleConfig.getCheckArg0());
+      ruleValues.put(RuleUtils.ruleCheckArg0Name(), ruleConfig.getCheckArg0());
       ruleCheck.setCheckArg0(ruleConfig.getCheckArg0());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckArg0Name());
+      ruleValues.put(RuleUtils.ruleCheckArg0Name(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getCheckArg1())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleCheckArg1Name(), ruleConfig.getCheckArg1());
+      ruleValues.put(RuleUtils.ruleCheckArg1Name(), ruleConfig.getCheckArg1());
       ruleCheck.setCheckArg1(ruleConfig.getCheckArg1());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleCheckArg1Name());
+      ruleValues.put(RuleUtils.ruleCheckArg1Name(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getIfConditionOption())) {
       
       if (StringUtils.equals(ruleConfig.getIfConditionOption(), "EL")) {
-        attributeValueDelegate.assignValue(RuleUtils.ruleIfConditionElName(), ruleConfig.getIfConditionEl());
+        ruleValues.put(RuleUtils.ruleIfConditionElName(), ruleConfig.getIfConditionEl());
         ruleIfCondition.setIfConditionEl(ruleConfig.getIfConditionEl());
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionEnumName());
+        ruleValues.put(RuleUtils.ruleIfConditionEnumName(), null);
       } else {
-        attributeValueDelegate.assignValue(RuleUtils.ruleIfConditionEnumName(), ruleConfig.getIfConditionOption());
+        ruleValues.put(RuleUtils.ruleIfConditionEnumName(), ruleConfig.getIfConditionOption());
         ruleIfCondition.setIfConditionEnum(ruleConfig.getIfConditionOption());
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionElName());
+        ruleValues.put(RuleUtils.ruleIfConditionElName(), null);
       }
       
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionElName());
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionEnumName());
+      ruleValues.put(RuleUtils.ruleIfConditionElName(), null);
+      ruleValues.put(RuleUtils.ruleIfConditionEnumName(), null);
     }
     
     if (StringUtils.isNotBlank(ifConditionOwnerName)) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleIfOwnerNameName(), ifConditionOwnerName);
+      ruleValues.put(RuleUtils.ruleIfOwnerNameName(), ifConditionOwnerName);
       ruleIfCondition.setIfOwnerName(ifConditionOwnerName);
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfOwnerNameName());
+      ruleValues.put(RuleUtils.ruleIfOwnerNameName(), null);
     }
     
     if (StringUtils.isNotBlank(ifConditionOwnerStemScope)) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleIfStemScopeName(), ifConditionOwnerStemScope);
+      ruleValues.put(RuleUtils.ruleIfStemScopeName(), ifConditionOwnerStemScope);
       ruleIfCondition.setIfStemScope(ifConditionOwnerStemScope);
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfStemScopeName());
+      ruleValues.put(RuleUtils.ruleIfStemScopeName(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getIfConditionArg0())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleIfConditionEnumArg0Name(), ruleConfig.getIfConditionArg0());
+      ruleValues.put(RuleUtils.ruleIfConditionEnumArg0Name(), ruleConfig.getIfConditionArg0());
       ruleIfCondition.setIfConditionEnumArg0(ruleConfig.getIfConditionArg0());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionEnumArg0Name());
+      ruleValues.put(RuleUtils.ruleIfConditionEnumArg0Name(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getIfConditionArg1())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleIfConditionEnumArg1Name(), ruleConfig.getIfConditionArg1());
+      ruleValues.put(RuleUtils.ruleIfConditionEnumArg1Name(), ruleConfig.getIfConditionArg1());
       ruleIfCondition.setIfConditionEnumArg1(ruleConfig.getIfConditionArg1());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleIfConditionEnumArg1Name());
+      ruleValues.put(RuleUtils.ruleIfConditionEnumArg1Name(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getThenOption())) {
       
       if (StringUtils.equals(ruleConfig.getThenOption(), "EL")) {
-        attributeValueDelegate.assignValue(RuleUtils.ruleThenElName(), ruleConfig.getThenEl());
+        ruleValues.put(RuleUtils.ruleThenElName(), ruleConfig.getThenEl());
         ruleThen.setThenEl(ruleConfig.getThenEl());
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleThenEnumName());
+        ruleValues.put(RuleUtils.ruleThenEnumName(), null);
       } else {
-        attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumName(), ruleConfig.getThenOption());
+        ruleValues.put(RuleUtils.ruleThenEnumName(), ruleConfig.getThenOption());
         ruleThen.setThenEnum(ruleConfig.getThenOption());
-        attributeDelegate.removeAttributeByName(RuleUtils.ruleThenElName());
+        ruleValues.put(RuleUtils.ruleThenElName(), null);
       }
       
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleThenElName());
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleThenEnumName());
+      ruleValues.put(RuleUtils.ruleThenElName(), null);
+      ruleValues.put(RuleUtils.ruleThenEnumName(), null);
     }
     
     if (StringUtils.isNotBlank(ruleConfig.getThenArg0())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg0Name(), ruleConfig.getThenArg0());
+      ruleValues.put(RuleUtils.ruleThenEnumArg0Name(), ruleConfig.getThenArg0());
       ruleThen.setThenEnumArg0(ruleConfig.getThenArg0());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleThenEnumArg0Name());
+      ruleValues.put(RuleUtils.ruleThenEnumArg0Name(), null);
     }
     
     
     if (StringUtils.isNotBlank(ruleConfig.getThenArg1())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg1Name(), ruleConfig.getThenArg1());
+      ruleValues.put(RuleUtils.ruleThenEnumArg1Name(), ruleConfig.getThenArg1());
       ruleThen.setThenEnumArg1(ruleConfig.getThenArg1());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleThenEnumArg1Name());
+      ruleValues.put(RuleUtils.ruleThenEnumArg1Name(), null);
     }
     
     
     if (StringUtils.isNotBlank(ruleConfig.getThenArg2())) {
-      attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg2Name(), ruleConfig.getThenArg2());
+      ruleValues.put(RuleUtils.ruleThenEnumArg2Name(), ruleConfig.getThenArg2());
       ruleThen.setThenEnumArg2(ruleConfig.getThenArg2());
     } else {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleThenEnumArg2Name());
+      ruleValues.put(RuleUtils.ruleThenEnumArg2Name(), null);
     }
     
-    if (ruleConfig.getRunDaemon() == null) {
-      attributeDelegate.removeAttributeByName(RuleUtils.ruleRunDaemonName());
+    if (submittedDaemonSettingIgnored) {
+      // SECURITY: the user was not offered the run daemon control, so the submitted value is not used.
+      // A new rule stores it blank; an edit has no entry here, so persistRuleValues leaves the stored
+      // value alone.
+      if (attributeAssign == null) {
+        ruleValues.put(RuleUtils.ruleRunDaemonName(), null);
+      }
+    } else if (ruleConfig.getRunDaemon() == null) {
+      ruleValues.put(RuleUtils.ruleRunDaemonName(), null);
     } else {
       if (!ruleConfig.getRunDaemon()) {
-        attributeValueDelegate.assignValue(RuleUtils.ruleRunDaemonName(), "F");
+        ruleValues.put(RuleUtils.ruleRunDaemonName(), "F");
       } else {
-        attributeValueDelegate.assignValue(RuleUtils.ruleRunDaemonName(), "T");
+        ruleValues.put(RuleUtils.ruleRunDaemonName(), "T");
       }
     }
    
@@ -565,13 +609,18 @@ public class RuleService {
     String error = ruleDefinition.validate();
     
     if (StringUtils.isBlank(error)) {
-      try {
-        
-        if (ruleConfig.getRunDaemon() != null) {
-          ruleDefinition.getCheck().checkTypeEnum().canRunDeamon(ruleDefinition);
-        }
-      } catch (Exception e) {
-        error = "This rule does not support a daemon so you cannot set run daemon to true";
+      // SECURITY: runDaemon=true on a rule whose check type has no daemon would throw every time the
+      // rule is processed for its owner.  The old check ignored the result of canRunDeamon and
+      // dropped its error, so refuse it here, before saveOrUpdate, for everyone (admins too).  The
+      // value checked is the one that will be stored: the submitted one, or when it is ignored, blank
+      // for a new rule or the stored one for an edit (so an edit cannot keep a stored true on a check
+      // type with no daemon).  Nothing has been written yet, so a refused save changes nothing.
+      error = RuleDaemonSettingCheck.daemonCapabilityError(
+          RuleDaemonSettingCheck.effectiveRunDaemon(ruleConfig, submittedDaemonSettingIgnored, attributeAssign),
+          ruleDefinition);
+      if (error != null) {
+        result.put("ERROR", Arrays.asList(error));
+        return result;
       }
     } else {
 //      String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidGroup");
@@ -583,11 +632,10 @@ public class RuleService {
     // SECURITY (GRP-7359): a non-wheel user is limited to the predefined patterns.  The rule is now
     // fully built, so verify it actually matches the pattern the request claimed -- a manipulated
     // request could otherwise set fields that make the persisted rule differ from its pattern.  A
-    // blank/"custom" pattern was already rejected for non-wheel at the top.  On a mismatch, remove
-    // whatever was assigned and reject so nothing durable remains.
+    // blank/"custom" pattern was already rejected for non-wheel at the top.  On a mismatch, reject:
+    // nothing has been written yet, and an existing rule stays exactly as it was.
     if (configuringSubject != null && !PrivilegeHelper.isWheelOrRoot(configuringSubject)
         && !ruleMatchesClaimedPattern(ruleDefinition, ruleConfig.getPattern())) {
-      attributeAssign.delete();
       String patternError = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditPatternMismatch");
       if (StringUtils.isBlank(patternError)) {
         patternError = "This rule does not match the selected pattern.";
@@ -596,7 +644,8 @@ public class RuleService {
       return result;
     }
 
-    attributeAssign.saveOrUpdate();
+    // every check passed: write the rule, all or nothing
+    attributeAssign = persistRuleValues(grouperObject, attributeAssign, ruleValues);
 
     String validValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
@@ -612,6 +661,50 @@ public class RuleService {
 
   }
   
+  /**
+   * SECURITY: write a rule's attribute values, after saveOrUpdateRuleAttributes validated the whole
+   * rule.  Everything is in one transaction, so an unexpected error part way through rolls back
+   * instead of leaving a half written rule.  A new rule's attribute assign is created here, not
+   * before validation, so a refused add leaves nothing behind.
+   * @param grouperObject group or folder that owns the rule
+   * @param existingAttributeAssign the rule being edited, or null for a new rule
+   * @param ruleValues attribute name to value, in order; a null value removes that attribute
+   * @return the rule's attribute assign
+   */
+  private static AttributeAssign persistRuleValues(final GrouperObject grouperObject,
+      final AttributeAssign existingAttributeAssign, final Map<String, String> ruleValues) {
+
+    return (AttributeAssign)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+
+        AttributeAssign attributeAssign = existingAttributeAssign;
+        if (attributeAssign == null) {
+          if (grouperObject instanceof Group) {
+            attributeAssign = ((Group)grouperObject).getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+          } else {
+            attributeAssign = ((Stem)grouperObject).getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+          }
+        }
+
+        AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+        AttributeAssignAttrAssignDelegate attributeDelegate = attributeAssign.getAttributeDelegate();
+
+        for (Map.Entry<String, String> ruleValue : ruleValues.entrySet()) {
+          if (ruleValue.getValue() == null) {
+            attributeDelegate.removeAttributeByName(ruleValue.getKey());
+          } else {
+            attributeValueDelegate.assignValue(ruleValue.getKey(), ruleValue.getValue());
+          }
+        }
+
+        attributeAssign.saveOrUpdate();
+        return attributeAssign;
+      }
+    });
+  }
+
   public static RulePattern calculateRulePattern(RuleConfig ruleConfig) {
     
     

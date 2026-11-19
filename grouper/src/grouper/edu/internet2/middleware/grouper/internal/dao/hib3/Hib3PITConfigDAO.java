@@ -310,12 +310,16 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
     
     StringBuilder sql = new StringBuilder("select pit from PITGrouperConfigHibernate as pit ");
     
-    if (StringUtils.isNotBlank(filter)) {
-      sql.append(" where lower(pit.configKey) like lower('%"+filter+"%') ");
-      sql.append(" or lower(pit.configValueDb) like lower('%"+filter+"%') "); 
-      sql.append(" or lower(pit.configValueClobDb) like lower('%"+filter+"%') "); 
-      sql.append(" or lower(pit.previousConfigValueDb) like lower('%"+filter+"%') "); 
-      sql.append(" or lower(pit.previousConfigValueClobDb) like lower('%"+filter+"%') "); 
+    // the filter is user input (UI config history search box), so it is never concatenated
+    // into the HQL; all five predicates share one bind variable, set below on byHqlStatic.
+    // % and _ in the filter still act as like wildcards (search semantics unchanged)
+    boolean hasFilter = StringUtils.isNotBlank(filter);
+    if (hasFilter) {
+      sql.append(" where lower(pit.configKey) like lower(:theFilter) ");
+      sql.append(" or lower(pit.configValueDb) like lower(:theFilter) "); 
+      sql.append(" or lower(pit.configValueClobDb) like lower(:theFilter) "); 
+      sql.append(" or lower(pit.previousConfigValueDb) like lower(:theFilter) "); 
+      sql.append(" or lower(pit.previousConfigValueClobDb) like lower(:theFilter) "); 
     }
     
     if (queryOptions == null) {
@@ -334,6 +338,12 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
     ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic().options(queryOptions)
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindPITConfigs");
+    
+    // bind the filter as data (quotes, parens, HQL keywords have no effect on the query);
+    // the bound value is part of the query cache key so cached results stay correct
+    if (hasFilter) {
+      byHqlStatic.setString("theFilter", "%" + filter + "%");
+    }
     
     List<PITGrouperConfigHibernate> pitConfigs = byHqlStatic.createQuery(sql.toString()).list(PITGrouperConfigHibernate.class);
      

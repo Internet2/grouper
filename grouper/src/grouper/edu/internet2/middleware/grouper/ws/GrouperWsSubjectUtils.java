@@ -205,6 +205,13 @@ public class GrouperWsSubjectUtils {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+    // if the X-Grouper-actAs headers already replaced the authenticated caller with the logged in
+    // subject, a body actAs to a different subject would give the authenticated caller the header
+    // subject's own ws.act.as.group rights (chaining), so refuse it (GrouperWsHeaderActAsGuard)
+    if (GrouperWsHeaderActAsGuard.isChainedActAs(loggedInSubject, actAsSubject)) {
+      throw new WsInvalidQueryException(GrouperWsHeaderActAsGuard.chainedActAsMessage(loggedInSubject, actAsSubject));
+    }
+
     //see if same:
     if (StringUtils.equals(loggedInSubjectId, actAsSubject.getId())
         && StringUtils.equals(loggedInSubject.getSource().getId(), actAsSubject.getSource().getId())) {

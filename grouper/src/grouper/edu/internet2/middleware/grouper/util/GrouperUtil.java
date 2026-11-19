@@ -12675,10 +12675,12 @@ public class GrouperUtil {
 
         try {
           if (asScript) {
-            Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+            // SECURITY: allowStaticClasses=false (rules, send-email, limits ...) runs sandboxed, see GrouperJexlSandbox
+            Script e = (allowStaticClasses ? jexlEngines.get(new MultiKey(silent, lenient)) : GrouperJexlSandbox.sandboxedJexl2Engine(silent, lenient)).createScript(script);
             o = e.execute(jc);
           } else {
-            Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
+            // SECURITY: allowStaticClasses=false (rules, send-email, limits ...) runs sandboxed, see GrouperJexlSandbox
+            Expression e = (allowStaticClasses ? jexlEngines.get(new MultiKey(silent, lenient)) : GrouperJexlSandbox.sandboxedJexl2Engine(silent, lenient)).createExpression(script);
             o = e.evaluate(jc);
           }
         } catch (JexlException je) {
@@ -12819,7 +12821,8 @@ public class GrouperUtil {
       // take out ${  and  }
       script = script.substring(2, script.length()-1);
 
-      Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+      // SECURITY: allowStaticClasses=false (rules, send-email, limits ...) runs sandboxed, see GrouperJexlSandbox
+      Script e = (allowStaticClasses ? jexlEngines.get(new MultiKey(silent, lenient)) : GrouperJexlSandbox.sandboxedJexl2Engine(silent, lenient)).createScript(script);
 
       //this is the result of the evaluation
       Object o = null;
@@ -15645,7 +15648,8 @@ public class GrouperUtil {
 
       script = script.trim();
 
-      org.apache.commons.jexl3.JexlEngine jexl = jexlEngines3.get(new MultiKey(silent, lenient));
+      // SECURITY: allowStaticClasses=false (rules, send-email, limits ...) runs sandboxed, see GrouperJexlSandbox
+      org.apache.commons.jexl3.JexlEngine jexl = (allowStaticClasses ? jexlEngines3.get(new MultiKey(silent, lenient)) : GrouperJexlSandbox.sandboxedJexl3Engine(silent, lenient));
       JxltEngine jxlt = jexl.createJxltEngine();
       Template theTemplate = jxlt.createTemplate(script);
       

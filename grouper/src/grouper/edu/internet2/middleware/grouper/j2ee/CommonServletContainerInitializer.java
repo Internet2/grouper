@@ -84,6 +84,29 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
         
         String[] urlPatterns = new String[] {"/grouperUi/app/*", "/grouperExternal/app/*", "/grouperExternal/public/UiV2Public.index", "/grouperExternal/public/UiV2Public.postIndex"};
         
+        // ---- anti-framing (clickjacking) headers: GrouperUiAntiFramingFilter sends
+        // Content-Security-Policy frame-ancestors and X-Frame-Options on every UI response.
+        // Registered first: mappings added here run in the order they are added, so the headers
+        // are set before GrouperUiFilter runs (login page, redirects and error pages get them too).
+        // Registered here rather than by a @WebFilter annotation, which the container does not
+        // scan in every deployment.  Own try block: if the class is missing (grouper-ui not on the
+        // classpath) the UI starts as it did before this filter existed, with an error logged.
+        try {
+          String grouperUiAntiFramingFilterName = "GrouperUiAntiFraming";
+          Class grouperUiAntiFramingFilterClass = Class.forName("edu.internet2.middleware.grouper.ui.GrouperUiAntiFramingFilter");
+          Dynamic grouperUiAntiFramingFilter = context.addFilter(grouperUiAntiFramingFilterName, grouperUiAntiFramingFilterClass);
+          if (grouperUiAntiFramingFilter == null) {
+            // a filter with this name is already declared (e.g. in a site's web.xml): keep that one
+            LOG.warn("Filter " + grouperUiAntiFramingFilterName + " is already declared, not registering it again");
+          } else {
+            // null dispatcher types means REQUEST, same as the other UI filters
+            grouperUiAntiFramingFilter.addMappingForUrlPatterns(null, false, "*.jsp", "/grouperUi/*", "/grouperExternal/*");
+          }
+        } catch (ClassNotFoundException e) {
+          LOG.error("Anti-framing filter is not on the classpath, UI responses will not carry "
+              + "anti-framing headers: " + e.getMessage(), e);
+        }
+
         try {
           String grouperUiFilterName = "GrouperUi";
           Class grouperUiFilterClass = Class.forName("edu.internet2.middleware.grouper.ui.GrouperUiFilter");

@@ -391,6 +391,17 @@ public class GrouperMcpLdapSearch {
     String filter = arguments.has("filter")
         ? arguments.get("filter").asText() : null;
 
+    // refuse expression syntax before anything else: the LDAP session evaluates a filter that
+    // starts with ${ as an unrestricted Grouper expression (static classes allowed), which is
+    // meant for administrator-authored loader / provisioner config, never for a value an MCP
+    // caller sends.  The tool takes LDAP filters only, for every tier (full admin-readonly too).
+    if (filterIsExpression(filter)) {
+      LOG.warn("MCP LDAP tool refused a filter with expression syntax from "
+          + (authUser == null || authUser.getSubject() == null ? null : authUser.getSubject().getId()));
+      return buildErrorResult("filter must be a plain LDAP filter (e.g., '(uid=jsmith)'). "
+          + "Expression syntax (a filter starting with '${') is not allowed.");
+    }
+
     // validate externalSystemId
     String validationError = validateExternalSystemAllowed(externalSystemId, authUser);
     if (validationError != null) {
@@ -515,6 +526,18 @@ public class GrouperMcpLdapSearch {
     }
 
     return buildSuccessResult(resultText);
+  }
+
+  /**
+   * true if the LDAP session would treat this filter as an expression instead of an LDAP filter.
+   * LdaptiveSessionImpl evaluates a trimmed filter that starts with ${ (and ends with }); refuse
+   * anything that starts with ${ after the same trim, whatever the end, so a near miss is not
+   * silently sent on
+   * @param filter the caller's filter
+   * @return true if it must be refused
+   */
+  static boolean filterIsExpression(String filter) {
+    return filter != null && filter.trim().startsWith("${");
   }
 
   /**

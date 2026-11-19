@@ -15,7 +15,10 @@ ${grouper:titleFromKeyAndText('groupPrivilegesAssignedToMembersOfThisGroupPageTi
                 <%@ include file="../group/groupTabs.jsp" %>
                 <p class="lead">${textContainer.text['assignedToGroupPrivilegesInheritedFromFoldersDecription'] }</p>
                 <c:choose>
-                  <c:when test="${fn:length(grouperRequestContainer.rulesContainer.guiRuleDefinitions) == 0}">
+                  <%-- SECURITY: same gate as the subject screen (UiV2Subject.thisSubjectsPrivilegesInheritedFromFolders) and the
+                       menu link: uiV2.privilegeInheritanceReadRequireAdmin / ...ReadRequireGroup also apply when this
+                       operation is called directly --%>
+                  <c:when test="${!grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance || fn:length(grouperRequestContainer.rulesContainer.guiRuleDefinitions) == 0}">
                     <p>${textContainer.text['subjectPrivilegesInheritedNone'] }</p>
                   </c:when>
                   <c:otherwise>

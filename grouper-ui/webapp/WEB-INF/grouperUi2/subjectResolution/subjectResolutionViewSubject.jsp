@@ -8,10 +8,10 @@
                             <td><strong>${textContainer.text['subjectResolutionViewSubjectTableSubjectSource']}</strong></td>
                             <c:choose>
                               <c:when test="${empty grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject}">
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.subjectSourceId}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.subjectSourceId)}</td>
                               </c:when>
                               <c:otherwise>
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.sourceId}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.sourceId)}</td>
                               </c:otherwise>
                             </c:choose>
                           </tr>
@@ -37,10 +37,10 @@
                             <td><strong>${textContainer.text['subjectResolutionViewSubjectTableSubjectIdentifier']}</strong></td>
                             <c:choose>
                               <c:when test="${empty grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject}">
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.subjectIdentifier0}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.subjectIdentifier0)}</td>
                               </c:when>
                               <c:otherwise>
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.member.subjectIdentifier0}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.member.subjectIdentifier0)}</td>
                               </c:otherwise>
                             </c:choose>
                           </tr>
@@ -49,10 +49,10 @@
                             <td><strong>${textContainer.text['subjectResolutionViewSubjectTableSubjectName']}</strong></td>
                             <c:choose>
                               <c:when test="${empty grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject}">
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.name}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.name)}</td>
                               </c:when>
                               <c:otherwise>
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.name}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.name)}</td>
                               </c:otherwise>
                             </c:choose>
                           </tr>
@@ -61,10 +61,10 @@
                             <td><strong>${textContainer.text['subjectResolutionViewSubjectTableSubjectDescription']}</strong></td>
                             <c:choose>
                               <c:when test="${empty grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject}">
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.description}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.subjectResolutionAttributeValue.member.description)}</td>
                               </c:when>
                               <c:otherwise>
-                                <td>${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.description}</td>
+                                <td>${grouper:escapeHtml(grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.description)}</td>
                               </c:otherwise>
                             </c:choose>
                           </tr>

@@ -36,8 +36,13 @@ public class GrouperReportClearJob extends OtherJobBase {
     
     int instancesDeleted = clearOldReports();
     
+    // emailed group members exports: delete the whole stale export (config and job too), the
+    // instance cleanup above leaves the config and job behind
+    int exportsDeleted = GroupMembersExportRequestLimiter.deleteStaleExports();
+    
     otherJobInput.getHib3GrouperLoaderLog().store();
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Deleted "+instancesDeleted+" of grouper reports");
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Deleted "+instancesDeleted+" of grouper reports, "
+        + exportsDeleted + " stale group members exports");
     
     return null;
   }

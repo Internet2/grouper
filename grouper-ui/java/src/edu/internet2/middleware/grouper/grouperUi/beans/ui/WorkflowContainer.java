@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowHtmlSanitizer;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceService;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -145,7 +146,11 @@ public class WorkflowContainer {
    * @return html form to show when a group membership is requested or when approver goes to approve
    */
   public String getHtmlForm() {
-    return htmlForm;
+    // the JSPs print this unescaped (it is HTML), and it comes from an editor supplied
+    // workflow form or a stored instance snapshot, so strip script, event handlers and other
+    // active content here.  Doing it at render time also covers configs and snapshots saved
+    // before the save-time check in GrouperWorkflowConfigValidator.
+    return GrouperWorkflowHtmlSanitizer.sanitize(htmlForm);
   }
   
   public void setHtmlForm(String htmlForm) {

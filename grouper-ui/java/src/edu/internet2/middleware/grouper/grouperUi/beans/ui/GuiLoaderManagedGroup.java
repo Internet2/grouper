@@ -17,6 +17,16 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
+ * <p>Loader metadata of a group that a multi-group loader job (SQL_GROUP_LIST, LDAP_GROUP_LIST,
+ * LDAP_GROUPS_FROM_ATTRIBUTES) manages, and the loader group that controls it.  Shown in the
+ * group header and on the Loader tab of the managed group.</p>
+ *
+ * <p>The controlling group is resolved in a root session (from the grouperLoaderMetadataGroupId
+ * attribute), so getControllingGroup() only returns the real group for display if the logged in
+ * user can VIEW it, or can edit loaders; else a "restricted group" placeholder
+ * (GrouperLoaderRelatedGroups.guiGroupIfViewable).  An ADMIN of a managed group is not
+ * necessarily allowed to see the loader job group.</p>
+ *
  * @author vsachdeva
  *
  */
@@ -128,8 +138,46 @@ public class GuiLoaderManagedGroup {
     return groupBeingManaged;
   }
 
+  /**
+   * controlling group as the logged in user may see it, worked out on first use (the JSPs call
+   * the getter more than once per request)
+   */
+  private GuiGroup controllingGroupForDisplay;
+
+  /**
+   * the loader group that manages this group, for display.  The real group only if the logged in
+   * user can VIEW it or can edit loaders, else a GuiGroupRestrictedReference placeholder, so the
+   * JSPs that render its shortLinkWithIcon do not show a private loader group's UUID, name,
+   * folder or description.
+   * @return the controlling group or the placeholder
+   */
   public GuiGroup getControllingGroup() {
-    return controllingGroup;
+    if (this.controllingGroupForDisplay == null) {
+      this.controllingGroupForDisplay = controllingGroupIfViewable(this.controllingGroup);
+    }
+    return this.controllingGroupForDisplay;
+  }
+
+  /**
+   * @param theControllingGroup controlling group as resolved (root session), can be null
+   * @return the gui group or the restricted placeholder
+   */
+  private static GuiGroup controllingGroupIfViewable(GuiGroup theControllingGroup) {
+    if (theControllingGroup == null || theControllingGroup.getGroup() == null) {
+      // nothing to hide
+      return theControllingGroup;
+    }
+    GrouperLoaderContainer grouperLoaderContainer = null;
+    try {
+      // the request's loader container, so loader editors (wheel, uiV2.loader.edit.if.in.group)
+      // see the real group as on the rest of the Loader tab
+      grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+    } catch (RuntimeException re) {
+      // not in a UI request: only the VIEW check applies
+      grouperLoaderContainer = null;
+    }
+    // checks VIEW against the logged in user (not the root session), fails closed
+    return GrouperLoaderRelatedGroups.guiGroupIfViewable(theControllingGroup.getGroup(), grouperLoaderContainer);
   }
   
 }

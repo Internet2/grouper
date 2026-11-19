@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignView;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignView;
+import edu.internet2.middleware.grouper.dataField.GrouperDataPrivacyRealmAccess;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -2822,7 +2823,11 @@ public class UiV2Subject {
           }
       });
       
-      List<GrouperDataRowAssignView> dataRowAssignments = GrouperDataRowAssignDao.retrieveDataRowAssignments(subject);
+      // security: only rows whose row privacy realm AND field privacy realm give the logged in user read or update.
+      // This endpoint can be called directly for any subject, so this is the authorization, not just display
+      List<GrouperDataRowAssignView> dataRowAssignments = GrouperDataPrivacyRealmAccess.filterReadableRowAssignments(grouperDataEngine,
+          GrouperDataRowAssignDao.retrieveDataRowAssignments(subject), GrouperDataRowAssignView::getDataRowConfigId,
+          GrouperDataRowAssignView::getDataFieldConfigId, loggedInSubject);
 
       // Group the subject's field values by their actual data row (data_row_assign_internal_id) so that
       // sparse fields render against the correct row.  We accumulate two things per data row config id:

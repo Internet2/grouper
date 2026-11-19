@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -25,6 +25,11 @@ import edu.internet2.middleware.subject.Subject;
  * group that is a red button lockout group
  */
 public class LockoutGroup {
+
+  /**
+   * logger
+   */
+  private static final Log LOG = GrouperUtil.getLog(LockoutGroup.class);
 
   /**
    * name of lockout group
@@ -122,26 +127,37 @@ public class LockoutGroup {
             LockoutGroup lockoutGroup = new LockoutGroup();
             lockoutGroup.setName(grouperConfig.propertyValueString(lockoutGroupNameKey));
 
-            if (StringUtils.isBlank(lockoutGroup.getName())) {
+            // GrouperUtil.isBlank instead of StringUtils so one file compiles on 5.x (shaded lang3) through 7.x
+            if (GrouperUtil.isBlank(lockoutGroup.getName())) {
               continue;
             }
             
             String lockoutAllowedGroupKey = "grouper.lockoutGroup.allowedToUse." + i;
             
             if (grouperConfig.containsKey(lockoutAllowedGroupKey)) {
-              final String lockoutGroupName = grouperConfig.propertyValueString(lockoutGroupNameKey);
+              // read the allowedToUse group name (this used to re-read the lockout group name by mistake,
+              // so the allowedToUse restriction was never applied)
+              final String allowedToUseGroupName = grouperConfig.propertyValueString(lockoutAllowedGroupKey);
               
               // if controlling who can use
-              if (!StringUtils.isBlank(lockoutGroupName)) {
+              if (!GrouperUtil.isBlank(allowedToUseGroupName)) {
                 if (subject != null && !PrivilegeHelper.isWheelOrRoot(subject)) {
-                  Group lockoutGroupAllowedToUse = GroupFinder.findByName(grouperSession, lockoutGroupName, true);
+                  Group lockoutGroupAllowedToUse = GroupFinder.findByName(grouperSession, allowedToUseGroupName, false);
                   
-                  //if the current subject is not in the group, then not allowed
+                  // fail closed: if the allowedToUse group is misconfigured, nobody but wheel/root can use this entry
+                  if (lockoutGroupAllowedToUse == null) {
+                    LOG.warn("Cannot find lockout group allowedToUse group '" + allowedToUseGroupName 
+                        + "' from config '" + lockoutAllowedGroupKey + "', so not allowing non-wheel subjects to use '" 
+                        + lockoutGroup.getName() + "'");
+                    continue;
+                  }
+                  
+                  //if the current subject is not in the allowedToUse group, then not allowed
                   if (!lockoutGroupAllowedToUse.hasMember(subject)) {
                     continue;
                   }
                 }
-                lockoutGroup.setAllowedToUseGroup(lockoutGroupName);
+                lockoutGroup.setAllowedToUseGroup(allowedToUseGroupName);
               }
             }
             Group lockoutGroupGroup = GroupFinder.findByName(grouperSession, lockoutGroup.getName(), true);
