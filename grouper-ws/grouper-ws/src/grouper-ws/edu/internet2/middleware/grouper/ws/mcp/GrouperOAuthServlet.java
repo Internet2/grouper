@@ -352,7 +352,7 @@ public class GrouperOAuthServlet extends HttpServlet {
    * Dynamic client registration per RFC 7591.
    *
    * <p>Registration is anonymous (no authentication required).  It is protected by:
-   * the redirect URI allowlist ({@code grouper.oauth.redrectUri.*.regex}),
+   * the redirect URI allowlist ({@code grouper.oauth.redirectUri.*.regex}),
    * IP-based rate limiting, and the fact that registration alone grants zero
    * access — the user must still complete the OAuth consent flow.</p>
    *

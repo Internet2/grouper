@@ -391,8 +391,16 @@ public enum UpgradeTasks {
     public UpgradeTasksInterface upgradeTask() {
       return new UpgradeTaskV46();
     }
+  },
+  /**
+   * GRP-7532: rename the misspelled grouper.oauth.redrectUri.* database configs to grouper.oauth.redirectUri.*
+   */
+  V47{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV47();
+    }
   }
-  // Update https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks when new upgrade tasks are added
   ,
   /**
    * remove old maintenance jobs

@@ -315,10 +315,17 @@ public class GrouperOAuthStore {
   // ==================== Redirect URI validation ====================
 
   /**
-   * pattern to find all grouper.oauth.redrectUri.{configId}.regex config keys
+   * pattern to find all grouper.oauth.redirectUri.{configId}.regex config keys.  Also matches the
+   * misspelled grouper.oauth.redrectUri.{configId}.regex (GRP-7532), which is deprecated but still read
    */
   private static final Pattern REDIRECT_URI_CONFIG_PATTERN = Pattern.compile(
-      "^grouper\\.oauth\\.redrectUri\\.([^.]+)\\.regex$");
+      "^grouper\\.oauth\\.(?:redirectUri|redrectUri)\\.([^.]+)\\.regex$");
+
+  /** prefix of the deprecated, misspelled redirect URI config keys (GRP-7532) */
+  private static final String DEPRECATED_REDIRECT_URI_CONFIG_PREFIX = "grouper.oauth.redrectUri.";
+
+  /** deprecated redirect URI config keys already warned about, so each is logged once */
+  private static final Set<String> deprecatedRedirectUriKeysWarned = Collections.synchronizedSet(new HashSet<String>());
 
   /** whether the warning about the MCP URLs not being configured has been logged */
   private static boolean loggedMcpUrlConfigurationError = false;
@@ -655,7 +662,7 @@ public class GrouperOAuthStore {
 
   /**
    * Validate that a single redirect URI matches at least one configured
-   * {@code grouper.oauth.redrectUri.<configId>.regex} pattern.
+   * {@code grouper.oauth.redirectUri.<configId>.regex} pattern.
    * If no regex patterns are configured, all redirect URIs are rejected
    * (secure-by-default).
    *
@@ -675,7 +682,7 @@ public class GrouperOAuthStore {
           + "not http with a loopback host.  MCP allows only those two, since an authorization "
           + "code is sent to this address.  Private use schemes such as com.example.app:/cb are "
           + "deliberately not accepted, and cannot be allowed through "
-          + "grouper.oauth.redrectUri.<configId>.regex.");
+          + "grouper.oauth.redirectUri.<configId>.regex.");
       return "redirect_uri '" + redirectUri + "' must be an https URL, or http with a loopback "
           + "host such as 127.0.0.1";
     }
@@ -685,11 +692,21 @@ public class GrouperOAuthStore {
 
     if (regexMap.isEmpty()) {
       LOG.warn("OAuth redirect URI rejected because no "
-          + "grouper.oauth.redrectUri.*.regex patterns are configured. "
+          + "grouper.oauth.redirectUri.*.regex patterns are configured. "
           + "Attempted URI: '" + redirectUri + "'");
       return "No redirect URI patterns are configured; all redirect URIs "
-          + "are rejected. Configure grouper.oauth.redrectUri.<configId>.regex "
+          + "are rejected. Configure grouper.oauth.redirectUri.<configId>.regex "
           + "in grouper.properties.";
+    }
+
+    // GRP-7532: the misspelled key still works, but say so once per key
+    for (String configKey : regexMap.keySet()) {
+      if (configKey.startsWith(DEPRECATED_REDIRECT_URI_CONFIG_PREFIX) && deprecatedRedirectUriKeysWarned.add(configKey)) {
+        LOG.warn("Config key '" + configKey + "' is misspelled and deprecated, rename it to '"
+            + "grouper.oauth.redirectUri." + configKey.substring(DEPRECATED_REDIRECT_URI_CONFIG_PREFIX.length())
+            + "'.  Upgrade task V47 renames it in the database configuration; a value in a properties file "
+            + "has to be renamed there");
+      }
     }
 
     // test the URI against each configured regex
@@ -724,7 +741,7 @@ public class GrouperOAuthStore {
 
   /**
    * Validate that all redirect URIs in a set match at least one configured
-   * {@code grouper.oauth.redrectUri.<configId>.regex} pattern.
+   * {@code grouper.oauth.redirectUri.<configId>.regex} pattern.
    *
    * @param redirectUris the redirect URIs to validate
    * @return null if all URIs are allowed, or a descriptive error message

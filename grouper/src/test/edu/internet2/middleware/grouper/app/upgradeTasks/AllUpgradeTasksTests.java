@@ -32,6 +32,7 @@ public class AllUpgradeTasksTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.gsh");
     //$JUnit-BEGIN$
     suite.addTestSuite(UpgradeTasksJobTest.class);
+    suite.addTestSuite(UpgradeTaskV47Test.class);
     //$JUnit-END$
     return suite;
   }
