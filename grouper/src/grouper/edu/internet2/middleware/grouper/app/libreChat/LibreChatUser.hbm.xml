@@ -1,0 +1,16 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.libreChat" default-lazy="false">
+  <class name="LibreChatUser" table="mock_librechat_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="username" column="username" />
+    <property name="name" column="name" />
+    <property name="email" column="email" />
+
+  </class>
+</hibernate-mapping>

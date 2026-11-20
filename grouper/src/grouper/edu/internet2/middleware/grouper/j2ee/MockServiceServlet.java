@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.app.interfolio.InterfolioMockServiceHand
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMockServiceHandler;
 import edu.internet2.middleware.grouper.app.jamf.JamfMockServiceHandler;
+import edu.internet2.middleware.grouper.app.libreChat.LibreChatMockServiceHandler;
 import edu.internet2.middleware.grouper.app.smartsheet.SmartsheetMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -78,6 +79,7 @@ public class MockServiceServlet extends HttpServlet {
       "teamdynamix", TeamDynamixMockServiceHandler.class.getName(),
       "truefoundry", TrueFoundryMockServiceHandler.class.getName(),
       "jamf", JamfMockServiceHandler.class.getName(),
+      "libreChat", LibreChatMockServiceHandler.class.getName(),
       "smartsheet", SmartsheetMockServiceHandler.class.getName(),
       "dropbox", DropboxMockServiceHandler.class.getName(),
       "interfolio", InterfolioMockServiceHandler.class.getName(),
