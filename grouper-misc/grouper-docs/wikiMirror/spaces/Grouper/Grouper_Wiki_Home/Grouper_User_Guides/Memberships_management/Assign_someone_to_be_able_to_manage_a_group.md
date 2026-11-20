@@ -2,8 +2,8 @@
 title: "Assign someone to be able to manage a group"
 space: Grouper
 pageId: 28545434
-version: 12
-lastUpdated: 2024-05-21T16:18:20.237Z
+version: 13
+lastUpdated: 2026-11-20T20:26:03.548Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545434/Assign+someone+to+be+able+to+manage+a+group
 ---
 

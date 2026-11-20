@@ -2,8 +2,8 @@
 title: "Access Management"
 space: Grouper
 pageId: 28543656
-version: 2
-lastUpdated: 2024-04-01T13:46:28.585Z
+version: 3
+lastUpdated: 2026-11-20T20:25:19.126Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543656/Access+Management
 ---
 

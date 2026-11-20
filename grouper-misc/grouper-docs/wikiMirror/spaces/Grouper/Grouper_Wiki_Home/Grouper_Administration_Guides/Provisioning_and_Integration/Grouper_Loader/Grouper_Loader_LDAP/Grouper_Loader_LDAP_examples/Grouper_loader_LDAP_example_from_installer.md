@@ -2,8 +2,8 @@
 title: "Grouper loader LDAP example from installer"
 space: Grouper
 pageId: 28559933
-version: 5
-lastUpdated: 2017-06-20T19:33:21.885Z
+version: 6
+lastUpdated: 2026-11-20T20:27:15.903Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559933/Grouper+loader+LDAP+example+from+installer
 ---
 

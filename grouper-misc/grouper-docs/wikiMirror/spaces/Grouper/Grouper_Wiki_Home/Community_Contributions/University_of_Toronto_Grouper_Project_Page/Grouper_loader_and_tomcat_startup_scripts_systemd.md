@@ -2,8 +2,8 @@
 title: "Grouper loader and tomcat startup scripts systemd"
 space: Grouper
 pageId: 28543985
-version: 2
-lastUpdated: 2018-05-04T15:28:38.440Z
+version: 3
+lastUpdated: 2026-11-20T20:25:24.018Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543985/Grouper+loader+and+tomcat+startup+scripts+systemd
 ---
 

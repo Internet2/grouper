@@ -2,8 +2,8 @@
 title: "Grouper permissions example"
 space: Grouper
 pageId: 28548152
-version: 7
-lastUpdated: 2013-04-11T01:53:39.595Z
+version: 8
+lastUpdated: 2026-11-20T20:26:18.086Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548152/Grouper+permissions+example
 ---
 

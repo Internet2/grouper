@@ -2,8 +2,8 @@
 title: "Create a group"
 space: Grouper
 pageId: 28545455
-version: 7
-lastUpdated: 2024-05-21T16:36:07.294Z
+version: 8
+lastUpdated: 2026-11-20T20:26:05.973Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545455/Create+a+group
 ---
 

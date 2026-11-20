@@ -2,8 +2,8 @@
 title: "Privilege Management Presentation from 2011 Fall Member Meeting"
 space: Grouper
 pageId: 28673881
-version: 6
-lastUpdated: 2011-11-03T10:36:20.142Z
+version: 7
+lastUpdated: 2026-11-20T20:27:25.624Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28673881/Privilege+Management+Presentation+from+2011+Fall+Member+Meeting
 ---
 

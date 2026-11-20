@@ -21,6 +21,10 @@ description: >-
   not a preference: an MCP write silently damages the page.
 - Every page must start with the standard Navigation include as its first node.
   On edits, never drop it; if the incoming body lacks it, add it back before the PUT.
+- The Navigation include must appear EXACTLY ONCE. Before adding it, check the body
+  does not already have one (any form: with or without <p>, ri:space-key,
+  ac:macro-id, ri:version-at-save). If you find it twice, remove the extra copy and
+  keep the first. Count it again before every PUT/POST.
 - Edit ONE page at a time. No bulk edits without explicit, recent team approval.
 - Do the smallest edit that does the job; leave every other tag/macro byte-for-byte.
   Preserve the page title unless asked to change it. Confirm with a human before a
@@ -95,7 +99,8 @@ Put temp files (body, payload) in a scratch dir, not a repo.
      -H "Content-Type: application/json" --data @payload.json \
      "https://grouper.atlassian.net/wiki/rest/api/content/<PAGEID>"
 4. Verify: the response (or a re-GET) shows the version incremented, the change
-   landed, and the Navigation include is still first. Give the person the
+   landed, and the Navigation include is still first and appears only once
+   (count ri:content-title="Navigation" include macros == 1). Give the person the
    docs.grouper.internet2.edu/wiki/... link (see "Two hosts").
 
 ## Create a new page

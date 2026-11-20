@@ -2,8 +2,8 @@
 title: "Grouper external subjects via auto-provisioning"
 space: Grouper
 pageId: 28549558
-version: 1
-lastUpdated: 2024-06-13T04:03:48.009Z
+version: 2
+lastUpdated: 2026-11-20T20:26:37.324Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549558/Grouper+external+subjects+via+auto-provisioning
 ---
 

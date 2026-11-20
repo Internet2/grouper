@@ -2,8 +2,8 @@
 title: "Grouper Training - Use cases - Lesson 09: VPN access control part 2"
 space: Grouper
 pageId: 28544298
-version: 27
-lastUpdated: 2026-07-12T15:26:17.091Z
+version: 29
+lastUpdated: 2026-11-18T20:22:05.157Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544298/Grouper+Training+-+Use+cases+-+Lesson+09+VPN+access+control+part+2
 ---
 
@@ -11,101 +11,307 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544298/Grouper+Tr
 
 [Connect to your VM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543735/Connecting+to+the+Grouper+Training+Environment+VM)
 
-## Hands On
+In this lesson, anything you type is in a box with a copy button on the right. Buttons, menus, and labels to click or select are in double quotes.
+
+## Hands on
 
 ### Translate natural language policy to digital policy
 
-The natural language policy is "Faculty, staff, and some exceptions (students, contractors, etc)"
+The natural language policy is “Faculty, staff, and some exceptions (students, contractors, etc)”.
 
-- Use the application template and the policy group template to create a new `vpn` application folder
-- Create a policy group called `vpn_authorized`
-- Add the *All Faculty/Staff* group to *vpn_authorized_allow*
+#### Create the vpn application
+
+1. In the left menu, click "Browse folders", click "Root", then click the folder "app".
+2. Click "Folder actions" → "Run template".
+3. "Template to run": select "Application".
+4. "Key":
+  
+  
+  ```
+  vpn
+  ```
+5. "Description":
+  
+  
+  ```
+  VPN access policies
+  ```
+6. Click "Next". Review the folders and groups the template will create, then click "Submit".
+
+#### Create the vpn_authorized policy group
+
+1. Go to the folder "app:vpn:service:policy" (Browse folders → Root → app → vpn → service → policy).
+2. Click "Folder actions" → "Run template".
+3. "Template to run": select "Policy group".
+4. "Key":
+  
+  
+  ```
+  vpn_authorized
+  ```
+5. Click "Next". Review the groups the template will create, then click "Submit".
+
+#### Add faculty and staff to the allow group
+
+1. Go to the group "app:vpn:service:policy:vpn_authorized_allow".
+2. Click "Add members".
+3. In "Member name or ID", paste this, pick "All Faculty/Staff" from the list, and click "Add":
+  
+  
+  ```
+  ref:role:all_facstaff
+  ```
 
 ### Create provisioner
 
-Go to Miscellaneous > Provisioning and add a new provisioner
+1. In the left menu, click "Miscellaneous", then click "Provisioning".
+2. Click "Provisioning actions" → "Add provisioner".
+3. "Configuration id":
+  
+  
+  ```
+  groupOfNames2
+  ```
+4. "Provisioner type": select "Ldap".
+5. "Start with": select "LDAP 'start with'".
+6. "External system config id": select "demo".
+7. "Ldap pattern": select "groupOfNames".
+8. "Group DN type": select "flat".
+9. "User attributes type": select "core".
+10. "Group search base DN":
+  
+  
+  ```
+  ou=groups,dc=internet2,dc=edu
+  ```
+11. "RDN groups attribute":
+  
+  
+  ```
+  cn
+  ```
+12. "RDN value for groups": select "name".
+13. "Membership attribute name for groups":
+  
+  
+  ```
+  member
+  ```
+14. "Membership attribute default value":
+  
+  
+  ```
+  <emptyString>
+  ```
+15. "Object classes for groups": select "groupOfNames".
+16. "Other group ldap attributes":
+  
+  
+  ```
+  description
+  ```
+17. "Entity search base DN":
+  
+  
+  ```
+  ou=people,dc=internet2,dc=edu
+  ```
+18. "Select all entities at once during full sync": select "True".
+19. "Matching search attribute name for entities":
+  
+  
+  ```
+  uid
+  ```
+20. "Matching search attribute value for entities": select "subjectIdentifier0".
+21. "Object classes for entities":
+  
+  
+  ```
+  eduPerson
+  ```
+22. Click "Submit" to continue to the full form.
+23. Click "Submit" to save the provisioner.
 
-- Configuration Id: `groupOfNames2`
-- Provisioner type: Ldap
-- Start with: LDAP 'start with'
-
-- External system config id: demo
-- Ldap pattern: groupOfNames
-
-- Group DN type: flat
-- User attributes type: core
-- Group search base DN: `ou=groups,dc=internet2,dc=edu`
-- RDN groups attribute: `cn`
-- RDN value for groups: name
-- Membership attribute name for groups: `member`
-- Membership attribute default value: `<emptyString>`
-- Object classes for groups: groupOfNames
-- Other group ldap attributes: `description`
-- Entity search base DN: `ou=people,dc=internet2,dc=edu`
-- Select all entities at once during full sync: True
-- Matching search attribute name for entities: `uid`
-- Matching search attribute value for entities: subjectIdentifier0
-- Object classes for entities: `eduPerson`
-
-Click Submit to continue to the full form.
-
-Click Submit to complete the form
-
-In this provisioner, a group will sync to a record in LDAP in the *ou=Groups* tree. The *cn* value will be the full group name. The *member* attribute will be multi-valued, containing the LDAP Dn values for the groups' members
+In this provisioner, a group syncs to a record in LDAP in the ou=groups tree. The cn value is the full group name. The member attribute is multi-valued and holds the LDAP DNs of the group’s members.
 
 ### Provision vpn_authorized to OpenLDAP
 
-- Configure provisioning on *app:vpn:service:policy:vpn_authorized*
+1. Go to the group "app:vpn:service:policy:vpn_authorized".
+2. Click "Group actions" → "Provisioning".
+3. Click "Provisioning actions" → "Edit provisioning settings".
+4. "Target name": select "groupOfNames2".
+5. "Provision": select "Yes".
+6. Click "Save".
 
-### Enable and run full sync provisioning job
+### Enable and run the full sync provisioning job
 
-A full sync daemon job was created when the provisioner was added. It needs to be enabled
+A full sync daemon job was created when the provisioner was added. It needs to be enabled.
 
-- Go to Miscellaneous->Daemon jobs
-- Filter for job name `OTHER_JOB_provisioner_full_groupOfNames2`
-- Click on name to go to detail page
-- Enable job
-- Run job
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Type this in the filter box and click "Apply filter":
+  
+  
+  ```
+  OTHER_JOB_provisioner_full_groupOfNames2
+  ```
+3. Click the job name to go to its detail page.
+4. Click "Job actions" → "Enable job".
+5. Click "Job actions" → "Run job now".
 
 ### Verify results
 
-- Log in to [https://localhost:8443/phpldapadmin](https://localhost:8443/phpldapadmin) and navigate to *ou=groups*. Review your new Grouper managed vpn access control group!
-- Investigate exceptions and add to the ad-hoc group as needed
-- *Open a service ticket to have the network team switch the VPN config to use vpn_authorized.
+1. Open phpLDAPadmin and log in:
+  
+  
+  ```
+  https://localhost:8443/phpldapadmin
+  ```
+2. Go to ou=groups and review your new Grouper managed vpn access control group.
+
+In real life you would then investigate exceptions, add them to the ad hoc group as needed, and open a service ticket to have the network team switch the VPN config to use vpn_authorized.
 
 Some important goals have been accomplished:
 
-- Automatic provisioning/deprovisioning of VPN access for faculty and staff.
-- Natural language policy - clear and visible.
+- Automatic provisioning/deprovisioning of VPN access for faculty and staff
+- Natural language policy - clear and visible
 - Exceptions management
 
-This is a huge improvement! However, we are still dealing with tickets to add and remove subjects (well at least to add!) to the ad-hoc group. There is no way to distinguish different exceptions, and it is not clear who is responsible for lifecycle and attestation.
+This is a huge improvement! However, we are still dealing with tickets to add and remove subjects (well at least to add!) to the ad hoc group. There is no way to distinguish different exceptions, and it is not clear who is responsible for lifecycle and attestation.
 
-### Enable incremental job
+### Enable the incremental job
 
-Locate daemon job CHANGE_LOG_consumer_provisioner_incremental_groupOfNames2 and enable it. No need to run it yet
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Type this in the filter box and click "Apply filter":
+  
+  
+  ```
+  CHANGE_LOG_consumer_provisioner_incremental_groupOfNames2
+  ```
+3. Click the job name, then click "Job actions" → "Enable job". You do not need to run it yet.
 
 ### Implement distributed exception management
 
-Each policy exception is represented by an application specific access control lists (ACL).
+Each policy exception is represented by an application specific access control list (ACL). vpn_consultants will be managed by the IAM team. Management of vpn_wri250 will be delegated to a course instructor.
 
-- Create `app:vpn:service:policy:vpn_consultants`. This ACL will be managed by the IAM team.
-- Create `app:vpn:service:policy:vpn_wri250`. Management of this ACL will be delegated to a course instructor.
-- Add each of these ACLs to *vpn_authorized_allow*
+#### Create the ACL groups
 
-Professor Jenkins (`kjenkins`) runs a special project for course WRI250 that includes various online resources that can only be accessed from the VPN. The professor should be able to control who is allowed to have VPN access for the purpose of accessing his project’s resources.
+1. Go to the folder "app:vpn:service:policy" (Browse folders → Root → app → vpn → service → policy).
+2. Click "Folder actions" → "Create new group".
+3. "Group name":
+  
+  
+  ```
+  vpn_consultants
+  ```
+4. Click "Save". You land on the new group page "app:vpn:service:policy:vpn_consultants".
+5. Go to the folder "app:vpn:service:policy" (Browse folders → Root → app → vpn → service → policy).
+6. Click "Folder actions" → "Create new group".
+7. "Group name":
+  
+  
+  ```
+  vpn_wri250
+  ```
+8. Click "Save". You land on the new group page "app:vpn:service:policy:vpn_wri250".
 
-We already created an access control list (ACL) *app:vpn:service:policy:vpn_wri250* to represent subjects that will access resources related to the special project. In order to delegate management of this ACL to the course instructors, we must create a security group and grant it appropriate permissions:
+#### Add the ACLs to the allow group
 
-- Create `app:vpn:security:vpn_wri250_mgr`
-- Add the instructors for WRI250 to this security group (hint: there is a basis group for this)
-- Grant *vpn_wri250_mgr* UPDATE and READ to *vpn_wri250*
-- Review the privileges on *vpn_wri250*
-- In a private browser window, log in to [http://localhost:8443/grouper](http://localhost:8443/grouper) with username `kjenkins` and password `password`. You should be able to add and remove members from the *vpn_wri250* ACL.
-- Add student `mwest` to *vpn_wri250*
-- Switch back to `banderson`. Find `mwest` in *vpn_authorized* and trace membership
+1. Go to the group "app:vpn:service:policy:vpn_authorized_allow".
+2. Click "Add members" → "Import".
+3. Scroll down to "Add these members" and change the radio button to "Copy/paste a list of member IDs".
+4. Paste this whole list into the text area, then click "Submit":
+  
+  
+  ```
+  app:vpn:service:policy:vpn_consultants
+  app:vpn:service:policy:vpn_wri250
+  ```
 
-As banderson, find the provisioner incremental job and see whether the new user got provisioned.
+#### Delegate vpn_wri250 to the instructors
+
+Professor Jenkins (kjenkins) runs a special project for course WRI250 that includes online resources that can only be accessed from the VPN. The professor should be able to control who has VPN access for the project. To delegate management of vpn_wri250, create a security group and grant it privileges.
+
+1. Go to the folder "app:vpn:security" (Browse folders → Root → app → vpn → security).
+2. Click "Folder actions" → "Create new group".
+3. "Group name":
+  
+  
+  ```
+  vpn_wri250_mgr
+  ```
+4. Click "Save". You land on the new group page "app:vpn:security:vpn_wri250_mgr".
+5. Click "Add members".
+6. In "Member name or ID", paste this, pick "instructor" from the list, and click "Add":
+  
+  
+  ```
+  basis:sis:course:wri:wri250:instructor
+  ```
+
+Grant the security group UPDATE and READ on vpn_wri250:
+
+1. Go to the group "app:vpn:service:policy:vpn_wri250".
+2. Click the "Privileges" tab, then click "Add members".
+3. In "Member name or ID", paste this and pick "vpn_wri250_mgr" from the list:
+  
+  
+  ```
+  app:vpn:security:vpn_wri250_mgr
+  ```
+4. "Assign these privileges": check "UPDATE" and "READ".
+5. Click "Add", then review the privileges on vpn_wri250.
+
+#### Manage the ACL as the instructor
+
+1. Open a private / incognito browser window and go to:
+  
+  
+  ```
+  https://localhost:8443/grouper
+  ```
+2. Log in with username:
+  
+  
+  ```
+  kjenkins
+  ```
+3. and password:
+  
+  
+  ```
+  password
+  ```
+4. Go to the group "app:vpn:service:policy:vpn_wri250". You can add and remove members of this ACL.
+5. Click "Add members".
+6. In "Member name or ID", paste this, pick the match from the list, and click "Add":
+  
+  
+  ```
+  mwest
+  ```
+
+#### Trace the new membership
+
+1. Switch back to your banderson browser window.
+2. Go to the group "app:vpn:service:policy:vpn_authorized".
+3. On the "Members" tab, type this in the "Member name" filter box and click "Apply filter":
+  
+  
+  ```
+  mwest
+  ```
+4. On the row for mwest, click "Actions" → "Trace membership".
+
+As banderson, check whether the incremental job provisioned the new user:
+
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Type this in the filter box and click "Apply filter":
+  
+  
+  ```
+  CHANGE_LOG_consumer_provisioner_incremental_groupOfNames2
+  ```
 
 ### Implement additional policy constraints
 
@@ -119,37 +325,80 @@ The ref:iam:global_deny reference group represents a broad cohort of subjects th
 - Deceased
 - Other reasons
 
-ref:iam:global_deny was automatically added to the vpn_authorized_deny
+ref:iam:global_deny was automatically added to vpn_authorized_deny.
 
-#### WRI250
+#### WRI250 attestation
 
-- As banderson, add 30 day attestation requirements to the *vpn_wri250* ACL. (vpn_wri250 -> More actions -> Attestation -> Attestation actions -> Edit attestation settings…)
-- As `kjenkins`, review attestations (Miscellaneous -> Attestation)
+As banderson, add a 30 day attestation requirement to vpn_wri250:
 
-The daemon to send attestation emails generally runs once at night. We can force it to run so we can see the email.
+1. Go to the group "app:vpn:service:policy:vpn_wri250".
+2. Click "Group actions" → "Attestation".
+3. Click "Attestation actions" → "Edit attestation settings".
+4. "Attestation": select "Yes, does have attestation directly assigned".
+5. "Use default recertify days": select "No, use custom recertify days".
+6. "Days until recertify":
+  
+  
+  ```
+  30
+  ```
+7. Click "Save".
 
-- As banderson, run daemon job OTHER_JOB_attestationDaemon
-- Click on the Jump page link for the [mail server](https://localhost:8443/mail/)
+As kjenkins, review attestations: in the left menu, click "Miscellaneous", then click "Attestation".
+
+The daemon that sends attestation emails generally runs once at night. Force it to run so you can see the email. As banderson:
+
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Type this in the filter box and click "Apply filter":
+  
+  
+  ```
+  OTHER_JOB_attestationDaemon
+  ```
+3. Click the job name, then click "Job actions" → "Run job now".
+4. Open the mail server (also linked from the GTE jump page):
+  
+  
+  ```
+  https://localhost:8443/mail/
+  ```
 
 #### Consultants
 
-Consultant exceptions should expire automatically after 180 days. There are 2 techniques to accomplish this in Grouper. The first is to simply edit the membership end date after you have added a subject to a group. The second, and more reliable, is to have a rule that runs every time a subject is added which automatically sets the membership end date. Let’s implement the second approach.
+Consultant exceptions should expire automatically after 180 days. There are 2 techniques to do this in Grouper. The first is to edit the membership end date after you add a subject to a group. The second, and more reliable, is a rule that runs every time a subject is added and sets the membership end date. Let’s implement the second approach.
 
-In the vpn_consultants group, go to Group actions > Rules
+1. Go to the group "app:vpn:service:policy:vpn_consultants".
+2. Click "Group actions" → "Rules".
+3. Click "Rules actions" → "Add rule".
+4. "Rule pattern": select "Add disabled date on membership".
+5. "Expire after X days":
+  
+  
+  ```
+  180
+  ```
+6. Click "Save".
+7. Click "Add members".
+8. In "Member name or ID", paste this, pick "Ricardo Johnson" from the list, and click "Add":
+  
+  
+  ```
+  rjohnso5
+  ```
+9. On the "Members" tab, click "Advanced".
+10. "Enabled / disabled": select "Enabled / disabled status", then click "Apply filter". Review the enabled/disabled status of the membership.
 
-Add rule "Add disabled date on membership"
+### Answering audit questions - does jadams3 have access to VPN? When?
 
-Expire after X days: 180
+The CISO is working on an investigation and wants to know if NetID jadams3 has access to the VPN now or had it in the past 90 days.
 
-Add Ricardo Johnson (`rjohnso5`) to *vpn_consultants*
+1. Go to the group "app:vpn:service:policy:vpn_authorized".
+2. On the "Members" tab, type this in the "Member name" filter box and click "Apply filter":
+  
+  
+  ```
+  jadams3
+  ```
+3. On the row for jadams3, click "Actions" → "Trace membership".
 
-Review Enabled/Disabled status - Membership -> Filter for: -> Advanced -> Enabled/disabled
-
-### Answering Audit Questions - Does "jadams3" have access to VPN? When?
-
-The CISO is working on a investigation and wants to know if this particular NetID "jadams3" has access to the VPN now or in the past 90 days?
-
-- Navigate to *app:vpn:service:policy:vpn_authorized*
-- Search for `jadams3` and trace membership.
-
-Joseph currently has access since he is staff. The Point-In-Time (PIT) tables know if he’s had access in the last 90 days. These can be access using the advanced membership filter. This shows his earliest access date.
+Joseph currently has access since he is staff. The point in time (PIT) tables know if he has had access in the last 90 days. To see this, on the "Members" tab click "Advanced", set "Point in time audit" to "Yes, show audit memberships", and click "Apply filter". This shows his earliest access date.

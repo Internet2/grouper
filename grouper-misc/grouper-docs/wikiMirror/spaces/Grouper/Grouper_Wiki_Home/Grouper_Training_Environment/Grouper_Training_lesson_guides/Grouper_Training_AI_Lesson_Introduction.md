@@ -2,8 +2,8 @@
 title: "Grouper Training - AI - Lesson: Introduction"
 space: Grouper
 pageId: 28544868
-version: 28
-lastUpdated: 2025-12-08T16:34:43.073Z
+version: 30
+lastUpdated: 2026-10-20T05:47:59.641Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544868/Grouper+Training+-+AI+-+Lesson+Introduction
 ---
 

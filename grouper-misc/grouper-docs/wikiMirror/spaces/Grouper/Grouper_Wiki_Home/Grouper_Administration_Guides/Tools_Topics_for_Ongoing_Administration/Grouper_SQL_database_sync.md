@@ -2,8 +2,8 @@
 title: "Grouper SQL database sync"
 space: Grouper
 pageId: 28545506
-version: 36
-lastUpdated: 2026-07-12T15:26:43.497Z
+version: 37
+lastUpdated: 2026-11-20T20:26:10.384Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545506/Grouper+SQL+database+sync
 ---
 

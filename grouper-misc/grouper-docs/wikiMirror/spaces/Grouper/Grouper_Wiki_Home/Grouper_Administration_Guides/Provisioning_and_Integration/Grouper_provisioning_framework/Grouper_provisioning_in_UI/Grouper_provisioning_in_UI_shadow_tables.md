@@ -2,8 +2,8 @@
 title: "Grouper provisioning in UI shadow tables"
 space: Grouper
 pageId: 28555085
-version: 4
-lastUpdated: 2020-02-02T07:33:06.024Z
+version: 5
+lastUpdated: 2026-11-20T20:27:01.732Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555085/Grouper+provisioning+in+UI+shadow+tables
 ---
 

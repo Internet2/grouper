@@ -2,8 +2,8 @@
 title: "Find where any group in a folder is used in other places"
 space: Grouper
 pageId: 28544053
-version: 1
-lastUpdated: 2019-06-07T22:13:31.708Z
+version: 2
+lastUpdated: 2026-11-20T20:25:27.628Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544053/Find+where+any+group+in+a+folder+is+used+in+other+places
 ---
 

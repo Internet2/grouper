@@ -2,8 +2,8 @@
 title: "Access Control Models"
 space: Grouper
 pageId: 28543645
-version: 92
-lastUpdated: 2026-07-12T15:26:09.073Z
+version: 93
+lastUpdated: 2026-11-20T20:25:17.710Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543645/Access+Control+Models
 ---
 

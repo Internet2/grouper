@@ -2,8 +2,8 @@
 title: "Display an SSI and server label in UI docker container"
 space: Grouper
 pageId: 28545325
-version: 2
-lastUpdated: 2019-11-15T14:50:51.367Z
+version: 3
+lastUpdated: 2026-11-20T20:25:58.596Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545325/Display+an+SSI+and+server+label+in+UI+docker+container
 ---
 

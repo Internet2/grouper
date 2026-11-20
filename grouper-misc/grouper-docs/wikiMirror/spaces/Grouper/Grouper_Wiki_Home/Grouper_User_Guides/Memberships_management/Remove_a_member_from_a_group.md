@@ -2,8 +2,8 @@
 title: "Remove a member from a group"
 space: Grouper
 pageId: 28544375
-version: 9
-lastUpdated: 2024-05-21T16:31:35.244Z
+version: 10
+lastUpdated: 2026-11-20T20:25:37.364Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544375/Remove+a+member+from+a+group
 ---
 

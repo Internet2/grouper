@@ -2,8 +2,8 @@
 title: "Grouper Changelog"
 space: Grouper
 pageId: 28544508
-version: 12
-lastUpdated: 2026-07-12T05:43:36.680Z
+version: 13
+lastUpdated: 2026-11-20T20:25:38.529Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544508/Grouper+Changelog
 ---
 

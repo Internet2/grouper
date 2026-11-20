@@ -2,8 +2,8 @@
 title: "How to use the Grouper wiki"
 space: Grouper
 pageId: 28541532
-version: 4
-lastUpdated: 2024-11-15T18:26:03.235Z
+version: 5
+lastUpdated: 2026-11-20T20:24:59.748Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541532/How+to+use+the+Grouper+wiki
 ---
 

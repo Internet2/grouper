@@ -2,8 +2,8 @@
 title: "Grouper MCP server - user guide"
 space: Grouper
 pageId: 28554356
-version: 20
-lastUpdated: 2026-10-14T05:04:46.996Z
+version: 25
+lastUpdated: 2026-11-20T20:23:38.543Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide
 ---
 
@@ -386,6 +386,25 @@ Find which groups a subject belongs to. Optionally filter by stem scope, members
 
 **Response:** Returns a JSON array of groups, each with `name`, `extension`, `displayExtension`, `description`, and `uuid`.
 
+### entity_whoami
+
+Tells you who you are logged in to Grouper as on this connection and what this login can do. Use it to check your MCP connection after signing in or re-authenticating, or to troubleshoot an access denied error, for example by asking your AI client "who am I logged in to Grouper as, and what can I do?". It takes no parameters. It only describes you, so any MCP access is enough to run it: membership in at least one MCP access group (readonly, readwrite, SQL readonly, admin readonly, admin readwrite, or one of the limited groups) and, for OAuth users, a matching consent scope on the token.
+
+**Response**: Returns a JSON object with these fields:
+
+| Field | Description |
+| --- | --- |
+| subject | The logged-in subject: sourceId, subjectId, identifier, name, and memberId |
+| login | How this login came in: oauth (with tokenIssuedAt), wsAuthentication (HTTP Basic or container auth), or uiAssistant (the AI assistant in the Grouper UI) |
+| grouperSysadmin, grouperReadonlySysadmin | Whether the subject is a Grouper sysadmin or readonly sysadmin |
+| mcpAccessGroups | Each MCP access group (readonly, readwrite, wsAuthnAllowed, SQL readonly, admin readonly, admin readwrite, and the limited SQL, admin readonly and admin readwrite groups), with its config property, its group name, and whether you are a member |
+| limitedAccessGroups | The limitedAccessGroups you are in, per tool and per SQL, LDAP and admin external system. Only the ones you are in are listed |
+| scopes | The scopes of this login. For OAuth, what was consented to for the token: readonly, readwrite, sqlReadonly, adminReadonly, adminReadwrite, and with read-write the readwriteLimits (folders, groups and subjects). For the UI assistant, the scope chosen for the session. For web service authentication there are none (enforced is false) and only group membership applies |
+| allowedToolCategories | For each tool category, whether this login may use it, taking group membership and scope together |
+| availableTools | The names of the tools offered to this login: the same list tools/list returns |
+
+Group memberships are cached for up to 60 seconds on each Grouper server, so a change to an MCP access group can take a minute to show up.
+
 ### folder_delete
 
 Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.
@@ -589,7 +608,7 @@ Create, update, or manage a Grouper group. Uses an action-based approach where t
 
 | **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
-| `action` | string (enum) | Yes | The operation to perform: `createGroup`, `createOrUpdateGroup`, `updateGroupPart`, `moveGroup`,`addGroupType`, `removeGroupType`, `addComposite`, `updateComposite`, `removeComposite`, `addEligibilityRequirement`, `removeEligibilityRequirement`, `addProvisioner`, `removeProvisioner`. |
+| `action` | string (enum) | Yes | The operation to perform: `createGroup`, `createOrUpdateGroup`, `updateGroupPart`, `renameGroup` `moveGroup`,`addGroupType`, `removeGroupType`, `addComposite`, `updateComposite`, `removeComposite`, `addEligibilityRequirement`, `removeEligibilityRequirement`, `addProvisioner`, `removeProvisioner`, `setJexlScript`, `removeJexlScript`, `analyzeJexlScript`. |
 | `groupName` | string | Yes | Fully qualified group name (e.g., `stem1:stem2:groupName`). Required for all actions. |
 | `description` | string | No | Group description. Used with `createGroup`, `createOrUpdateGroup`, and `updateGroupPart`. |
 | `displayExtension` | string | No | Display extension (friendly name). Used with `createGroup`, `createOrUpdateGroup`, and `updateGroupPart`. |
@@ -605,6 +624,12 @@ Create, update, or manage a Grouper group. Uses an action-based approach where t
 | `rightGroupName` | string | No | Fully qualified name of the right factor group. Required for `addComposite` and `updateComposite`. |
 | `configId` | string | No | Eligibility requirement config ID from the `grouper.membershipRequirement.{configId}.*` configuration. Required for `addEligibilityRequirement` and `removeEligibilityRequirement`. |
 | `targetName` | string | No | Provisioning target name. Required for `addProvisioner` and `removeProvisioner`. |
+| `script` | string | No | The JEXL script, e.g. `entity.memberOf('app:faculty') && !entity.memberOf('app:onLeave')`. Use single quotes around group names. At most 4000 bytes in UTF-8. Required for `setJexlScript`. For `analyzeJexlScript`, leave it out to analyze the group's current script; an empty script is refused. |
+| `subjectSourceIds` | array of strings | No | The subject sources the script selects people from. Used with `setJexlScript`. Left out, the group keeps its current sources. An empty array goes back to the defaults, and is always allowed. Choosing sources is only allowed where `grouper.abac.allowUserOverrideSubjectSourceIds` is true and `grouper.abac.availableSubjectSourceIds` is set, and each source must be in that list. Also used with `analyzeJexlScript` to preview other sources. |
+| `subjectIdOrIdentifier` | string | No | A person to check. The result says whether the script selects them. Used with `analyzeJexlScript`. |
+| `sourceId` | string | No | The source of `subjectIdOrIdentifier`, needed when the id matches people in more than one source. Used with `analyzeJexlScript`, and only with `subjectIdOrIdentifier`. |
+| `partCounts` | boolean | No | Also count each part of the script, and say which parts the person matches. Defaults to `false`, since each part is a separate query. Used with `analyzeJexlScript`. |
+| `membershipChanges` | boolean | No | Count how many members the next sync would add and remove. Defaults to `true`; `false` skips those queries. Used with `analyzeJexlScript`. |
 
 #### Actions
 
@@ -621,8 +646,54 @@ Create, update, or manage a Grouper group. Uses an action-based approach where t
 - **removeEligibilityRequirement** — Remove an eligibility requirement from a group. Existing members remain unchanged. *Privilege: GROUP_ATTR_UPDATE on the group and ATTR_UPDATE on the requirement's attribute definition.* Uses: `groupName`, `configId`.
 - **addProvisioner** — Enable provisioning of a group to a target. Validates that the target exists and the user is authorized for the target. *Privilege: membership in the provisioning target's*`groupAllowedToAssign`*group, or wheel/root.* Uses: `groupName`, `targetName`.
 - **removeProvisioner** — Disable provisioning of a group from a target. *Privilege: membership in the provisioning target's*`groupAllowedToAssign`*group, or wheel/root.* Uses: `groupName`, `targetName`.
+- **setJexlScript** — *Grouper 7.9.2 and later.* Make an existing group a scripted group, or change its script. Members are not changed by the save itself: within about a minute, when the scripted group change log job runs, the people the script selects are added and direct members it does not select are removed. The script gets the same checks as the scripted group screen in the UI; see **Scripted (JEXL) groups** below. *Privilege: wheel/root, or ADMIN on the group and membership in the* `grouper.abac.edit.if.in.group` *group if one is set; READ on every group the script uses; update in the privacy realm of every data field it uses.* Uses: `groupName`, `script`, and optionally `subjectSourceIds`.
+- **removeJexlScript** — *Grouper 7.9.2 and later.* Stop a group being a scripted group. The script and its settings are removed, and the group's current members stay as direct members, the same as in the UI. *Privilege: the same as setJexlScript on the group.* Uses: `groupName`.
+- **analyzeJexlScript** — *Grouper 7.9.2 and later.* Preview a script for a group without saving anything, like the Analyze button on the UI's scripted group screen. It is a read, so the AI assistant runs it without asking first, and a protected group or one outside the read-write scope gets a warning rather than a refusal. It still needs MCP readwrite access. *Privilege: the same as setJexlScript on the group; read in the privacy realm of every data field it uses. A group used that the user can see but not read is refused; one they cannot see, or that does not exist by that name, is counted as empty and reported in*`warnings`. Uses: `groupName`, and optionally `script`, `subjectSourceIds`, `subjectIdOrIdentifier`, `sourceId`, `partCounts`, `membershipChanges`.
 
-**Response:** Returns a JSON object with `action` (the action performed), `resultCode` (e.g., `INSERT`, `UPDATE`, `NO_CHANGE`, `DELETE`), `success` (boolean), and `groupName`. For `createGroup` and `updateGroupPart`, also includes `name`, `displayExtension`, `description`, and `uuid`. For `addComposite`, includes `compositeType`, `leftGroupName`, and `rightGroupName`. For eligibility requirement actions, includes `configId` and `requireGroupName` (on add). For provisioner actions, includes `targetName`. For `moveGroup`, also includes `previousName`, `name`, `displayExtension`, `description`, and `uuid`.
+**Response:** Returns a JSON object with `action` (the action performed), `resultCode` (e.g., `INSERT`, `UPDATE`, `NO_CHANGE`, `DELETE`), `success` (boolean), and `groupName`. For `createGroup` and `updateGroupPart`, also includes `name`, `displayExtension`, `description`, and `uuid`. For `addComposite`, includes `compositeType`, `leftGroupName`, and `rightGroupName`. For eligibility requirement actions, includes `configId` and `requireGroupName` (on add). For provisioner actions, includes `targetName`. For `moveGroup`, also includes `previousName`, `name`, `displayExtension`, `description`, and `uuid`. For `setJexlScript`, also includes `script`, `subjectSourceIds`, `populationCount` (how many members the script selects) and a `note`; for `removeJexlScript`, a `note`. For `analyzeJexlScript`, there is no `resultCode`, since nothing is saved. It includes `script`, `subjectSourceIds`, `populationCount`, `wouldAdd` and `wouldRemove` (unless left out), `cannotBeSaved` and `warnings` when the script could not be saved, `subject` (`subjectId`, `sourceId`, `selectedByScript`) when a person was given, `parts` when `partCounts` is true (each with `description`, `populationCount`, and `subjectMatches` when a person was given), and a `note`.
+
+#### Scripted (JEXL) groups
+
+A scripted group's members are whoever its JEXL script selects. `setJexlScript` refuses a script, and `analyzeJexlScript` reports it in `warnings` with `cannotBeSaved` set to `true`, when:
+
+- the group is protected (under the built-in objects folder, by default `etc`, or a folder in `grouper.mcp.protectedFolders`), or, for OAuth clients, outside the consented read-write scope;
+- the group already has a SQL, LDAP or recent memberships loader (change the loader type on the group's loader screen in the UI);
+- the group is a composite (remove the composite first);
+- the script refers to the group itself;
+- the script uses a group that does not exist by that exact name (for example an old name), or that the user cannot see;
+- the script uses a data field, or a `globalAttributeValue`, whose privacy realm the user can read but not update;
+- the script selects unresolvable or deleted subjects;
+- the script selects more members than the user may give a scripted group: `grouper.abac.defaultMaxMembershipSizeLimit`, or a higher limit for users who are in a group set by `grouper.abac.maxMembershipSizeLimit.<id>.groupName`, with that tier's `.maxSize`.
+
+Both actions refuse outright, with an error, a script that:
+
+- is over 4000 bytes or cannot be parsed;
+- uses a group the user can see but not read;
+- uses a data field the user cannot view, or whose privacy realm they can only view (`setJexlScript` needs update in the realm; `analyzeJexlScript` needs read).
+
+`analyzeJexlScript` also refuses outright:
+
+- an empty script;
+- no script, for a group that is not a scripted group;
+- a `subjectIdOrIdentifier` that is not found, or that matches more than one subject (give its `sourceId`);
+- an unknown `sourceId` given with `subjectIdOrIdentifier`.
+
+`setJexlScript` and `removeJexlScript` change the group, so the protected group and OAuth read-write scope checks apply to it. The groups a script uses are only read, so they do not need to be in the read-write scope.
+
+`analyzeJexlScript` notes:
+
+- The script reads cached memberships, so the counts are an estimate until the group is next recalculated.
+- The add and remove counts are left out when the script uses a group that does not exist by that exact name, or that the user cannot read.
+- For a group with another loader, the counts are still returned: they show what switching the group to the script would do.
+- It records two things, as the UI's Analyze button always has: a member record for the person checked if Grouper has not seen them before, and, for each group used with `recentMemberOf` that the user can read, that its membership history should be kept. Neither changes who is in any group.
+
+In the AI assistant, the approval box shows what will change:
+
+- For `setJexlScript`, the new script, and the script it replaces when the group already has one. When the group is a composite or has another loader, it says the call will be refused.
+- For `removeJexlScript`, how many current members stay as direct members, or, for a group that is not a scripted group, that nothing changes.
+- For both, the group's current name, when it was given by a name it used to have.
+
+The script, member count, refusal, "not a scripted group" text and current name are shown only to a user who may edit the group's script.
 
 ### institutional_tools
 

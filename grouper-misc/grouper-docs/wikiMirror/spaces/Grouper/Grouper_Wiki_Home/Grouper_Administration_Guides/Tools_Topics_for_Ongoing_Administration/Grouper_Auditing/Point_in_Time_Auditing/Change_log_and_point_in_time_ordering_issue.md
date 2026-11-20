@@ -2,8 +2,8 @@
 title: "Change log and point in time ordering issue"
 space: Grouper
 pageId: 28555282
-version: 2
-lastUpdated: 2017-06-15T17:58:36.775Z
+version: 3
+lastUpdated: 2026-11-20T20:27:07.575Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555282/Change+log+and+point+in+time+ordering+issue
 ---
 

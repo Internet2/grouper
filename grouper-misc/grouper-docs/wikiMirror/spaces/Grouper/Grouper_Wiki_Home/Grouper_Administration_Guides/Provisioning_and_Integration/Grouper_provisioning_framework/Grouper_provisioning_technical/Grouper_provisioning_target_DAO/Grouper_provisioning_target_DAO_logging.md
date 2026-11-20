@@ -2,8 +2,8 @@
 title: "Grouper provisioning target DAO logging"
 space: Grouper
 pageId: 28559936
-version: 2
-lastUpdated: 2021-03-25T17:46:32.869Z
+version: 3
+lastUpdated: 2026-11-20T20:27:17.048Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559936/Grouper+provisioning+target+DAO+logging
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper daemon \"other job\" GSH script to load data from a rest WS to a SQL table"
 space: Grouper
 pageId: 28560397
-version: 10
-lastUpdated: 2026-07-19T00:32:46.356Z
+version: 11
+lastUpdated: 2026-11-20T20:27:23.064Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28560397/Grouper+daemon+other+job+GSH+script+to+load+data+from+a+rest+WS+to+a+SQL+table
 ---
 

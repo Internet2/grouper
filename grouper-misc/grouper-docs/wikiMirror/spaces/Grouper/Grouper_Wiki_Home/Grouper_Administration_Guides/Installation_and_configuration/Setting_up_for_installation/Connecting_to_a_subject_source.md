@@ -2,8 +2,8 @@
 title: "Connecting to a subject source"
 space: Grouper
 pageId: 28548079
-version: 10
-lastUpdated: 2026-10-19T01:48:38.249Z
+version: 11
+lastUpdated: 2026-11-20T20:26:16.763Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548079/Connecting+to+a+subject+source
 ---
 

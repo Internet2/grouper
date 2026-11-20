@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Assign attribute to group"
 space: Grouper
 pageId: 28555190
-version: 11
-lastUpdated: 2024-02-21T06:12:04.743Z
+version: 12
+lastUpdated: 2026-11-20T20:27:02.894Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555190/Grouper+rules+pattern+-+Assign+attribute+to+group
 ---
 

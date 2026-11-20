@@ -2,8 +2,8 @@
 title: "Consortium GARR Grouper Project Page"
 space: Grouper
 pageId: 28543696
-version: 6
-lastUpdated: 2026-03-13T22:15:16.226Z
+version: 7
+lastUpdated: 2026-11-20T20:25:20.315Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543696/Consortium+GARR+Grouper+Project+Page
 ---
 

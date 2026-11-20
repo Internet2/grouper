@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH web service membership counts - V1 - json inputs / outputs"
 space: Grouper
 pageId: 28555697
-version: 7
-lastUpdated: 2023-12-25T22:51:16.085Z
+version: 8
+lastUpdated: 2026-11-20T20:27:12.273Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555697/Grouper+custom+template+via+GSH+web+service+membership+counts+-+V1+-+json+inputs+outputs
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper Training Environment"
 space: Grouper
 pageId: 28541839
-version: 141
-lastUpdated: 2026-07-12T15:26:00.895Z
+version: 142
+lastUpdated: 2026-10-19T05:11:50.585Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541839/Grouper+Training+Environment
 ---
 
@@ -196,7 +196,7 @@ You can also use the dedicated Slack channel for an even faster response.
 3. Then spin up the GTE:
 
 ```
-C:\Users\mchyzer-local> docker run -d -p 8443:443 -p 8432:5432 -p 8389:389 -e GROUPER_TOMCAT_LOG_ACCESS=false --name 101.1.1 tier/gte:101.1.1-202604
+C:\Users\mchyzer-local> docker run -d -p 8443:443 -p 8432:5432 -p 8389:389 -e GROUPER_TOMCAT_LOG_ACCESS=false --name 101.1.1 tier/gte:101.1.1-202610
 a282e12af384105b810fb2d1fd67ad450a3ef1fa0ea039c6083348a979cef3d5
 
 ```

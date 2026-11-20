@@ -2,8 +2,8 @@
 title: "v2.0 Release Notes"
 space: GrIntDev
 pageId: 48793436
-version: 18
-lastUpdated: 2026-07-12T17:03:06.478Z
+version: 19
+lastUpdated: 2026-11-20T20:27:43.202Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793436/v2.0+Release+Notes
 ---
 

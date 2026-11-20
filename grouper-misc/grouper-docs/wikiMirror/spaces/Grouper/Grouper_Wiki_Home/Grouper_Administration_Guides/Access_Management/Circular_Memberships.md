@@ -2,8 +2,8 @@
 title: "Circular Memberships"
 space: Grouper
 pageId: 206635009
-version: 3
-lastUpdated: 2026-10-19T01:48:37.065Z
+version: 4
+lastUpdated: 2026-11-20T20:27:36.579Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/206635009/Circular+Memberships
 ---
 

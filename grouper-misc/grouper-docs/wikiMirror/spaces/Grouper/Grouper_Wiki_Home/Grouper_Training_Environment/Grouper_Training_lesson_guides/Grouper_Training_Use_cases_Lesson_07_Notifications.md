@@ -2,8 +2,8 @@
 title: "Grouper Training - Use cases - Lesson 07: Notifications"
 space: Grouper
 pageId: 28544798
-version: 34
-lastUpdated: 2026-04-22T01:35:04.369Z
+version: 36
+lastUpdated: 2026-11-18T19:13:55.170Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544798/Grouper+Training+-+Use+cases+-+Lesson+07+Notifications
 ---
 
@@ -11,43 +11,99 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544798/Grouper+Tr
 
 [Connect to your VM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543735/Connecting+to+the+Grouper+Training+Environment+VM)
 
-**Lesson steps**
+In this lesson, anything you type is in a box with a copy button on the right. Buttons, menus, and labels to click or select are in double quotes.
 
-Assign this config first: Miscellaneous > External Systems > SMTP:
+## Learning objectives
 
-- Group UUIDs/names email allow: test:emailAddressAdmins
+- Send an email when someone is added to a group (rule)
+- Send a daily summary email of group members (notification daemon)
 
-(add to existing with comma if something already there)
+## Hands on
 
-Create group: `test:emailAddressAdmins`
+### Allow email to a group
 
-Add *dgilmore* to `test:emailAddressAdmins`
+Grouper can email the members of a group (e.g. test:emailAddressAdmins@grouper), but only for groups listed in the SMTP external system.
+
+1. In the left menu, click "Miscellaneous", then click "External systems".
+2. On the row for "smtp", click "Actions" → "Edit details".
+3. "Group UUIDs/names email allow": paste this. If the field already has a value, type a comma at the end of it first:
+  
+  
+  ```
+  test:emailAddressAdmins
+  ```
+4. Click "Submit".
+
+### Create the email admins group
+
+1. In the left menu, click "Browse folders", click "Root", then click the folder "test".
+2. Click "Folder actions" → "Create new group".
+3. "Group name":
+  
+  
+  ```
+  emailAddressAdmins
+  ```
+4. Click "Save". You land on the new group page "test:emailAddressAdmins".
+5. Click "Add members".
+6. In "Member name or ID", paste this, pick "Dawn Gilmore" from the list, and click "Add":
+  
+  
+  ```
+  dgilmore
+  ```
 
 ## Rule to email on membership adds
 
-### Method 1 (new v5 UI feature)
+### Create the group
 
-Create group: `test:testNotifications`
+1. In the left menu, click "Browse folders", click "Root", then click the folder "test".
+2. Click "Folder actions" → "Create new group".
+3. "Group name":
+  
+  
+  ```
+  testNotifications
+  ```
+4. Click "Save". You land on the new group page "test:testNotifications".
 
-Group actions > Rules
+### Add the rule
 
-Rule pattern: Send email after new membership
+1. On the group "test:testNotifications", click "Group actions" → "Rules".
+2. Click "Rules actions" → "Add rule".
+3. "Rule pattern": select "Send email after new membership".
+4. "Email addresses":
+  
+  
+  ```
+  test:emailAddressAdmins@grouper, banderson@example.com
+  ```
+5. "Email subject":
+  
+  
+  ```
+  Person was added to group ${groupName}
+  ```
+6. "Email body":
+  
+  
+  ```
+  Hello, Just letting you know ${safeSubject.name} was added to the group ${groupDisplayExtension}. Regards.
+  ```
+7. Click "Save".
 
-Email addresses: `test:emailAddressAdmins@grouper, banderson@example.com`
+### Test the rule
 
-Email subject: `Person was added to group ${groupName}`
+1. Go to the group "test:testNotifications" and click "Add members".
+2. In "Member name or ID", paste this, pick "Douglas Brown" from the list, and click "Add":
+  
+  
+  ```
+  dbrown
+  ```
+3. Check the email in the mail server (open it from the GTE jump page). It can take up to a minute to show up.
 
-Email body:
-
-```
-Hello, Just letting you know ${safeSubject.name} was added to the group ${groupDisplayExtension}. Regards.
-```
-
-Submit
-
-Add dbrown to testNotifications
-
-Check email in the Mail server (may need to wait up to a minute to show up)
+The email looks like this:
 
 > From: grouper@example.com  
 > Subject: Person was added to group test:testNotifications  
@@ -57,35 +113,63 @@ Check email in the Mail server (may need to wait up to a minute to show up)
 
 ## Daily summary
 
-Create new daemon: *testDailyEmail*
+### Create the notification daemon
 
-Daemon type: Notification job
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Click "Daemon actions" → "Add daemon".
+3. "Config id":
+  
+  
+  ```
+  testDailyEmail
+  ```
+4. "Daemon type": select "Notification job".
+5. "Email type": select "summary".
+6. "Population type": select "groupMembership".
+7. "Name of group":
+  
+  
+  ```
+  test:testNotifications
+  ```
+8. "Name of group to email summary":
+  
+  
+  ```
+  test:emailAddressAdmins
+  ```
+9. "Email summary only if records/members exist": select "true".
+10. "Template of email subject":
+  
+  
+  ```
+  People who need training
+  ```
+11. "Template of email body":
+  
+  
+  ```
+  <html>
+  hello ${subject_name},
+   <br /><br />
+  This many people have issues: ${size(listOfRecordMaps)}
+   <br /><br /><ul>
+  $$ for (var recordMap : listOfRecordMaps) {
+  <li>Record subject ID: ${recordMap.get('subject_description')} </li>
+  $$ }
+  </ul>
+  </html>
+  ```
+12. Click "Submit".
 
-Email type: summary
+### Run the daemon
 
-Population type: groupMembership
-
-Name of group: `test:testNotifications`
-
-Name of group to email summary: `test:emailAddressAdmins`
-
-Email summary only if records/members exist: `true`
-
-Template of email subject: `People who need training`
-
-Template of email body:
-
-```
-<html>
-hello ${subject_name},
- <br /><br />
-This many people have issues: ${size(listOfRecordMaps)}
- <br /><br /><ul>
-$$ for (var recordMap : listOfRecordMaps) {
-<li>Record subject ID: ${recordMap.get('subject_description')} </li>
-$$ }
-</ul>
-</html>
-```
-
-Search for job `OTHER_JOB_testDailyEmail` and *Run job now*.
+1. In the left menu, click "Miscellaneous", then click "Daemon jobs".
+2. Type this in the filter box and click "Apply filter":
+  
+  
+  ```
+  OTHER_JOB_testDailyEmail
+  ```
+3. On the row for OTHER_JOB_testDailyEmail, click "Job actions" → "Run job now".
+4. Check the email in the mail server. Dawn Gilmore gets a summary listing the members of test:testNotifications.

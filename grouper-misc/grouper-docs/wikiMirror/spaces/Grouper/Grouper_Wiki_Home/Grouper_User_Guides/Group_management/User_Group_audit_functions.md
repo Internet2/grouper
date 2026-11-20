@@ -2,8 +2,8 @@
 title: "User/Group audit functions"
 space: Grouper
 pageId: 28545440
-version: 8
-lastUpdated: 2026-04-05T21:22:25.783Z
+version: 9
+lastUpdated: 2026-11-20T20:26:04.851Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545440/User+Group+audit+functions
 ---
 

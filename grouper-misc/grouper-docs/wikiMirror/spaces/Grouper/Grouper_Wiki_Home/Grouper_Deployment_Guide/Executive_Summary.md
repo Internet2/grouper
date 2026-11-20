@@ -2,8 +2,8 @@
 title: "Executive Summary"
 space: Grouper
 pageId: 28543579
-version: 34
-lastUpdated: 2024-03-10T22:05:57.346Z
+version: 35
+lastUpdated: 2026-11-20T20:25:16.423Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543579/Executive+Summary
 ---
 

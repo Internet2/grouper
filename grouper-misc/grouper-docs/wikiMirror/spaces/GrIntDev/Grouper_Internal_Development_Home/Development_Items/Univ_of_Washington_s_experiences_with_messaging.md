@@ -2,8 +2,8 @@
 title: "Univ of Washington's experiences with messaging"
 space: GrIntDev
 pageId: 48824677
-version: 6
-lastUpdated: 2014-10-30T14:03:31.261Z
+version: 7
+lastUpdated: 2026-11-20T20:27:48.088Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48824677/Univ+of+Washington+s+experiences+with+messaging
 ---
 

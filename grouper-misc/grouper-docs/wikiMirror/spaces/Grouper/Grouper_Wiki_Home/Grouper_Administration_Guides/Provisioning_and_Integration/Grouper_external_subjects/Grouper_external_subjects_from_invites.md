@@ -2,8 +2,8 @@
 title: "Grouper external subjects from invites"
 space: Grouper
 pageId: 28549552
-version: 7
-lastUpdated: 2024-06-13T04:22:55.899Z
+version: 8
+lastUpdated: 2026-11-20T20:26:36.118Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549552/Grouper+external+subjects+from+invites
 ---
 

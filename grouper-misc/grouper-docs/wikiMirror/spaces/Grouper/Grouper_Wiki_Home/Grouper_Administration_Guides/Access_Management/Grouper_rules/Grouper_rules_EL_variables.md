@@ -2,8 +2,8 @@
 title: "Grouper rules EL variables"
 space: Grouper
 pageId: 28549057
-version: 6
-lastUpdated: 2025-04-10T18:34:52.344Z
+version: 7
+lastUpdated: 2026-11-20T20:26:27.776Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549057/Grouper+rules+EL+variables
 ---
 

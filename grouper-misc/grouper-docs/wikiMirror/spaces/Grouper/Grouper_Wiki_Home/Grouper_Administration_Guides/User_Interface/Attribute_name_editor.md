@@ -2,8 +2,8 @@
 title: "Attribute name editor"
 space: Grouper
 pageId: 28545130
-version: 6
-lastUpdated: 2024-05-21T14:51:47.664Z
+version: 7
+lastUpdated: 2026-11-20T20:25:54.881Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545130/Attribute+name+editor
 ---
 

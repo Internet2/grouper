@@ -2,8 +2,8 @@
 title: "Understanding Grouper"
 space: Grouper
 pageId: 28543452
-version: 79
-lastUpdated: 2026-07-12T05:56:52.142Z
+version: 80
+lastUpdated: 2026-11-20T20:25:12.781Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543452/Understanding+Grouper
 ---
 

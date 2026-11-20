@@ -2,8 +2,8 @@
 title: "Authentication"
 space: Grouper
 pageId: 28545269
-version: 3
-lastUpdated: 2026-06-12T14:38:21.701Z
+version: 4
+lastUpdated: 2026-11-20T20:25:57.383Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545269/Authentication
 ---
 

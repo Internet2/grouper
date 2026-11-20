@@ -2,8 +2,8 @@
 title: "Grouper MCP Recipes"
 space: Grouper
 pageId: 188579841
-version: 3
-lastUpdated: 2026-09-28T07:37:16.615Z
+version: 4
+lastUpdated: 2026-11-20T20:27:35.251Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/188579841/Grouper+MCP+Recipes
 ---
 

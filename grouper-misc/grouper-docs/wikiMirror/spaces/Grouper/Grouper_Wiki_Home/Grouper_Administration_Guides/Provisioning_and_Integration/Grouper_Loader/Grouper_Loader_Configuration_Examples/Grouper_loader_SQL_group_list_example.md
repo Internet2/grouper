@@ -2,8 +2,8 @@
 title: "Grouper loader SQL group list example"
 space: Grouper
 pageId: 28554799
-version: 10
-lastUpdated: 2026-07-12T15:27:10.343Z
+version: 11
+lastUpdated: 2026-11-20T20:26:51.553Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554799/Grouper+loader+SQL+group+list+example
 ---
 

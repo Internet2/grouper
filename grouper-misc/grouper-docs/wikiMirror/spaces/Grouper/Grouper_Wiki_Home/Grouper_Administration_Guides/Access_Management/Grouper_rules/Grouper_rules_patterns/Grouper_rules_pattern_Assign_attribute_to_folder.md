@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Assign attribute to folder"
 space: Grouper
 pageId: 28554665
-version: 10
-lastUpdated: 2024-02-21T06:11:40.375Z
+version: 11
+lastUpdated: 2026-11-20T20:26:50.458Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554665/Grouper+rules+pattern+-+Assign+attribute+to+folder
 ---
 

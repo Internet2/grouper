@@ -2,8 +2,8 @@
 title: "Do not allow someone to add themself to a group"
 space: Grouper
 pageId: 28547715
-version: 5
-lastUpdated: 2019-03-17T08:03:20.616Z
+version: 6
+lastUpdated: 2026-11-20T20:26:15.160Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547715/Do+not+allow+someone+to+add+themself+to+a+group
 ---
 

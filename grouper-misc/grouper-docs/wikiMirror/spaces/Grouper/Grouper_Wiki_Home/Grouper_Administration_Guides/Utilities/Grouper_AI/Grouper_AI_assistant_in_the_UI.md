@@ -2,8 +2,8 @@
 title: "Grouper AI assistant in the UI"
 space: Grouper
 pageId: 271908865
-version: 2
-lastUpdated: 2026-10-05T11:09:59.530Z
+version: 3
+lastUpdated: 2026-11-20T20:27:37.960Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/271908865/Grouper+AI+assistant+in+the+UI
 ---
 

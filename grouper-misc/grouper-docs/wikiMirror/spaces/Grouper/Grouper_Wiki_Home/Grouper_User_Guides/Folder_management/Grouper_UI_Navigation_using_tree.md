@@ -2,8 +2,8 @@
 title: "Grouper UI - Navigation using tree"
 space: Grouper
 pageId: 28544211
-version: 14
-lastUpdated: 2024-05-06T19:48:29.122Z
+version: 15
+lastUpdated: 2026-11-20T20:25:34.834Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544211/Grouper+UI+-+Navigation+using+tree
 ---
 

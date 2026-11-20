@@ -2,8 +2,8 @@
 title: "Grouper web services act as"
 space: Grouper
 pageId: 28554493
-version: 10
-lastUpdated: 2017-08-23T16:13:09.838Z
+version: 11
+lastUpdated: 2026-11-20T20:26:46.873Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554493/Grouper+web+services+act+as
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper SCIM web service"
 space: Grouper
 pageId: 28549538
-version: 4
-lastUpdated: 2025-06-20T18:13:21.376Z
+version: 5
+lastUpdated: 2026-11-20T20:26:34.964Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549538/Grouper+SCIM+web+service
 ---
 

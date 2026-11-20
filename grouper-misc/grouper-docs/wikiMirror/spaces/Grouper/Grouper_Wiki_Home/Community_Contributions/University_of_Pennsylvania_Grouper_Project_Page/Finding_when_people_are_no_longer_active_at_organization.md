@@ -2,8 +2,8 @@
 title: "Finding when people are no longer active at organization"
 space: Grouper
 pageId: 28544191
-version: 4
-lastUpdated: 2019-01-29T19:17:04.308Z
+version: 5
+lastUpdated: 2026-11-20T20:25:32.495Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544191/Finding+when+people+are+no+longer+active+at+organization
 ---
 

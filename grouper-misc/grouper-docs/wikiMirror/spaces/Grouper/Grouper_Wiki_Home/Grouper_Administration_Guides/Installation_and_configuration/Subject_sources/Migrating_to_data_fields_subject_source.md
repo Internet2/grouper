@@ -2,8 +2,8 @@
 title: "Migrating to data fields subject source"
 space: Grouper
 pageId: 28549728
-version: 7
-lastUpdated: 2025-11-14T16:21:33.157Z
+version: 8
+lastUpdated: 2026-11-20T20:26:38.532Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549728/Migrating+to+data+fields+subject+source
 ---
 

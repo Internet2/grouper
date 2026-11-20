@@ -2,8 +2,8 @@
 title: "Grouper MCP server - administrator guide"
 space: Grouper
 pageId: 28554349
-version: 27
-lastUpdated: 2026-10-14T05:04:38.506Z
+version: 30
+lastUpdated: 2026-11-20T20:23:37.339Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554349/Grouper+MCP+server+-+administrator+guide
 ---
 
@@ -86,11 +86,17 @@ These properties control how MCP clients register as OAuth clients via dynamic c
 | --- | --- | --- |
 | `grouper.oauth.registration.enabled` | true | If false, dynamic client registration is disabled entirely. The `/mcp/oauth/register` endpoint returns 403. |
 | `grouper.oauth.registration.rateLimitPerIpPerHour` | 20 | Maximum number of registration requests allowed per IP address per hour. Set to 0 to disable rate limiting. |
-| `grouper.oauth.redrectUri.<configId>.regex` | (none) | Regex pattern that registered redirect URIs must match. Multiple patterns can be configured with different `configId` values. A redirect URI is allowed if it matches **any** configured pattern. If no patterns are configured, all redirect URIs are rejected (secure-by-default). Validated at both client registration time and at the authorization/consent endpoint. |
+| `grouper.oauth.redirectUri.<configId>.regex` | (none) | Regex pattern that registered redirect URIs must match. Multiple patterns can be configured with different `configId` values. A redirect URI is allowed if it matches **any** configured pattern. If no patterns are configured, all redirect URIs are rejected (secure-by-default). Validated at both client registration time and at the authorization/consent endpoint. |
 
-**Redirect URI patterns are required.** If no `grouper.oauth.redrectUri.*.regex` patterns are configured, all OAuth client registrations will be rejected. For development, start with a localhost pattern:
+**Redirect URI patterns are required.** If no `grouper.oauth.redirectUri.*.regex` patterns are configured, all OAuth client registrations will be rejected. For development, start with a localhost pattern:
 
-`# Allow localhost redirect URIs for development grouper.oauth.redrectUri.localhost.regex = ^http://localhost(:\\d+)?/.*$ # Allow a production application grouper.oauth.redrectUri.myApp.regex = ^https://myapp\\.example\\.edu/.*$`
+`# Allow localhost redirect URIs for development`
+
+`grouper.oauth.redirectUri.localhost.regex = ^http://localhost(:\\d+)?/.*$`
+
+`# Allow a production application`
+
+`grouper.oauth.redirectUri.myApp.regex = ^https://myapp\\.example\\.edu/.*$`
 
 ### MCP authorization groups (grouper.properties)
 
@@ -149,7 +155,7 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 | doc_search |  |  |  |  |  |
 | entity_get |  |  |  |  |  |
 | entity_get_groups |  |  |  |  |  |
-| folder_delete |  |  |  |  |  |
+| entity_whoami |  |  |  |  |  |
 | folder_find |  |  |  |  |  |
 | folder_save |  |  |  |  |  |
 | group_add_member |  |  |  |  |  |
@@ -166,7 +172,9 @@ Note: These groups are autocreated by Grouper at startup (when `configuration.au
 
 An `X` in both a readonly and readwrite column reflects that readwrite group members inherit readonly access (and admin readwrite members inherit admin readonly access). `folder_delete`, `folder_save`, `group_delete`, and `group_save` additionally require the OAuth client to hold group or folder readwrite scope. `institutional_tools` is available to readonly members for read-only GSH templates; running write-capable templates requires readwrite.
 
-## Recipes
+`entity_whoami` only describes the caller: who they are logged in as, their MCP access groups and limited access groups, the scopes of their login, and the tools available to them. So it is available to a member of any MCP access group, including the limited SQL, admin readonly and admin readwrite groups, as long as an OAuth token also has the matching scope. It counts against the readonly throttle. It only lists the limited access groups and external systems the caller is in, not everything that is configured.
+
+Recipes
 
 A recipe tells an AI client how your institution wants a task done, e.g. use a GSH template instead of `group_save` for certain groups. Grouper advertises a `recipe` tool, adds a one-line pointer to the description of each tool a recipe names, and sends the recipe back when one of those tools fails. Each recipe is only seen by its own use group.
 
@@ -178,7 +186,7 @@ The MCP server includes SQL readonly tools that allow authorized users to explor
 
 | **Tool** | **Description** |
 | --- | --- |
-| `sql_get_schema` | Database schema discovery with three actions: `listExternalSystems` returns the available database connections (always includes `"grouper"`); `listTables` returns table and view names for a given external system; `tableInfo` returns DDL or column metadata for a specific table. See [external database connections](#sql-external-systems) below. |
+| `sql_get_schema` | Database schema discovery with three actions: `listExternalSystems` returns the available database connections (always includes `"grouper"`); `listTables` returns table and view names for a given external system; `tableInfo` returns DDL or column metadata for a specific table. See external database connections below. |
 | `sql_select` | Executes a read-only SQL SELECT query and returns the results as JSON. Results are paged with `pageSize` (default 500, max 5000) and `pageNumber` (1-based, default 1). Set `countOnly` to `true` to return just the row count without fetching data. Use `externalSystemId` to query a different database connection. |
 | `sql_select_count` | (Backward compatibility) Equivalent to `sql_select` with `countOnly = true`. Accepts the same `sql` and `externalSystemId` parameters. |
 
@@ -296,7 +304,7 @@ The MCP server includes administrative tools for Grouper system administrators. 
 | `admin_daemon_logs` | Returns information from `grouper_loader_log` for daemon job runs. Returns the most recent 100 rows ordered by start time descending. The job message is not returned (use `admin_daemon_job_message` for that). Filters: `jobName` (exact match), `status` (case-insensitive), `startedAfter`, `startedBefore` (format: yyyy-MM-dd or yyyy/MM/dd HH:mm:ss). At least one of `jobName` or `status` is required. |
 | `admin_config_search` | Searches Grouper configuration properties. Supports two search modes: `lucene` (default) for full-text search on config keys and values using a Lucene in-memory index, and `regex` for Java regex matching against config key names only. Sensitive values (passwords, secrets, private keys) are automatically masked as `*******`. Optionally filter by a specific config file (e.g., `grouper.properties`, `grouper-loader.properties`). Lucene results include metadata: where configured (base/override/database), default value, EL expression, comment, value type, and required flag. Returns up to 500 results. |
 | `admin_daemon_names` | Searches for distinct daemon job names in the `grouper_loader_log` table. Takes a search string that is split by whitespace into terms. Each term is matched against `job_name` using case-insensitive LIKE. Users can include `%` wildcards in each term; terms without wildcards are automatically wrapped with `%`. Returns up to 200 matching job names. |
-| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar, Smartsheet) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See [external system user lookup](#external-system-user-lookup) below for configuration details. |
+| `admin_external_system_get` | Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar, Smartsheet) configured in Grouper. Two actions: `listExternalSystems` discovers which external systems are configured for user lookups; `getUser` translates a Grouper subject to the external system user identifier via a JEXL expression and retrieves the user record. See external system user lookup below for configuration details. |
 
 ### Admin readwrite tools
 
@@ -652,7 +660,7 @@ The MCP server enforces per-user, per-category rate limits to protect system per
 
 | **Category** | **Tools** | **Default (calls/min)** | **Config property** |
 | --- | --- | --- | --- |
-| `readonly` | group_find, folder_find, group_get_members, etc. | 200 | `grouper.mcp.throttle.readonly.defaultCallsPerMinute` |
+| `readonly` | group_find, folder_find, group_get_members, entity_whoami, etc. | 200 | `grouper.mcp.throttle.readonly.defaultCallsPerMinute` |
 | `readwrite` | folder_delete, folder_save, group_add_member, group_delete, group_remove_member, group_save, etc. | 60 | `grouper.mcp.throttle.readwrite.defaultCallsPerMinute` |
 | `sql` | sql_select, sql_get_schema | 30 | `grouper.mcp.throttle.sql.defaultCallsPerMinute` |
 | `admin_readonly` | admin_daemon_names, admin_daemon_logs, etc. | 60 | `grouper.mcp.throttle.admin_readonly.defaultCallsPerMinute` |
@@ -674,7 +682,7 @@ OAuth dynamic client registration is anonymous (no authentication required). Thi
 
 Registration is protected by three mechanisms:
 
-- **Redirect URI allowlist:** Every redirect URI submitted during registration must match at least one configured `grouper.oauth.redrectUri.*.regex` pattern. If no patterns are configured, all registrations are rejected (secure-by-default). This prevents arbitrary clients from registering with open redirect URIs.
+- **Redirect URI allowlist:** Every redirect URI submitted during registration must match at least one configured `grouper.oauth.redirectUri.*.regex` pattern. If no patterns are configured, all registrations are rejected (secure-by-default). This prevents arbitrary clients from registering with open redirect URIs.
 - **IP-based rate limiting:** Each IP address is limited to `grouper.oauth.registration.rateLimitPerIpPerHour` registrations per hour (default 20). Excess requests receive HTTP 429 (Too Many Requests). This prevents database pollution from automated registration abuse.
 - **Kill switch:** Registration can be disabled entirely by setting `grouper.oauth.registration.enabled = false`. When disabled, the registration endpoint returns HTTP 403.
 

@@ -2,8 +2,8 @@
 title: "Grouper ABAC script analysis"
 space: Grouper
 pageId: 28548379
-version: 4
-lastUpdated: 2023-08-30T00:07:40.546Z
+version: 5
+lastUpdated: 2026-11-20T20:26:21.734Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548379/Grouper+ABAC+script+analysis
 ---
 

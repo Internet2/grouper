@@ -2,8 +2,8 @@
 title: "Grouper MCP server"
 space: Grouper
 pageId: 28547487
-version: 27
-lastUpdated: 2026-09-29T15:22:14.478Z
+version: 29
+lastUpdated: 2026-11-20T20:23:36.462Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487/Grouper+MCP+server
 ---
 
@@ -37,7 +37,7 @@ The built-in MCP server does not allow destructive operations such as deleting s
 
 ## What can it do?
 
-The MCP server exposes Grouper operations as tools that MCP clients can discover and invoke. Currently there are 25 tools available, covering group and stem management (finding, creating, and updating groups and stems), membership operations (adding, removing, checking members, and retrieving membership details with dates), privilege management (viewing and assigning privileges), subject lookup, attribute operations (finding and assigning attributes), audit log retrieval, SQL read-only operations (database schema discovery, SQL SELECT queries with optional count-only mode, and support for multiple configured database connections), LDAP directory searches (querying configured LDAP external systems with filters and attribute retrieval), and administrative tools (daemon job search, daemon log retrieval, daemon job message retrieval, daemon job triggering, and configuration search). Additional tools may be added over time. For the full list of tools with their parameters and response formats, see the [user guide](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide).
+The MCP server exposes Grouper operations as tools that MCP clients can discover and invoke. It offers more than 30 tools, covering group and stem management (finding, creating, and updating groups and stems), membership operations (adding, removing, checking members, and retrieving membership details with dates), privilege management (viewing and assigning privileges), subject lookup, checking who you are connected as and what you can do, attribute operations (finding and assigning attributes), audit log retrieval, SQL read-only operations (database schema discovery, SQL SELECT queries with optional count-only mode, and support for multiple configured database connections), LDAP directory searches (querying configured LDAP external systems with filters and attribute retrieval), and administrative tools (daemon job search, daemon log retrieval, daemon job message retrieval, daemon job triggering, and configuration search). Additional tools may be added over time. For the full list of tools with their parameters and response formats, see the [user guide](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide).
 
 ## Getting started
 

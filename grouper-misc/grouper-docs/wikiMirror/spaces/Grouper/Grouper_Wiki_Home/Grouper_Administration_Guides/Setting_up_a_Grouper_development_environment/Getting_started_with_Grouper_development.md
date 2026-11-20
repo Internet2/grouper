@@ -2,8 +2,8 @@
 title: "Getting started with Grouper development"
 space: Grouper
 pageId: 48824688
-version: 7
-lastUpdated: 2015-01-28T22:53:04.946Z
+version: 8
+lastUpdated: 2026-11-20T20:27:30.507Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48824688/Getting+started+with+Grouper+development
 ---
 

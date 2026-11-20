@@ -2,8 +2,8 @@
 title: "Grouper AI example - editing GSH template (add a membership)"
 space: Grouper
 pageId: 28555736
-version: 3
-lastUpdated: 2025-06-24T21:51:24.390Z
+version: 4
+lastUpdated: 2026-11-20T20:27:13.480Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555736/Grouper+AI+example+-+editing+GSH+template+add+a+membership
 ---
 

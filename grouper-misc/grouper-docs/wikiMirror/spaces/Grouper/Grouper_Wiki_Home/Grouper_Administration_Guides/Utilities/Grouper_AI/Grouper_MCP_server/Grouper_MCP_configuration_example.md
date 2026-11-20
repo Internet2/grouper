@@ -2,8 +2,8 @@
 title: "Grouper MCP configuration example"
 space: Grouper
 pageId: 28554803
-version: 22
-lastUpdated: 2026-07-01T05:39:35.842Z
+version: 25
+lastUpdated: 2026-11-20T20:23:39.469Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554803/Grouper+MCP+configuration+example
 ---
 
@@ -41,11 +41,11 @@ grouper.mcp.sqlGrouperExternalSystem = awsProdReadonly
 # you dont need these to start, you can try to register, 
 # look at the error in the WS logs, and add url regexes as needed. 
 # here are some common ones
-grouper.oauth.redrectUri.chatgpt.regex = ^https://chatgpt\.com/.*$
-grouper.oauth.redrectUri.claudeAi.regex = ^https://claude\.(ai|com)/.*$
+grouper.oauth.redirectUri.chatgpt.regex = ^https://chatgpt\.com/.*$
+grouper.oauth.redirectUri.claudeAi.regex = ^https://claude\.(ai|com)/.*$
 # some AIs use localhost and some use 127.0.0.1
-grouper.oauth.redrectUri.localhost.regex = ^http\u003A//localhost(:[0-9]+)?/callback$
-grouper.oauth.redrectUri.localhost2.regex = ^http\u003A//127.0.0.1(:[0-9]+)?/callback$
+grouper.oauth.redirectUri.localhost.regex = ^http\u003A//localhost(:[0-9]+)?/callback$
+grouper.oauth.redirectUri.localhost2.regex = ^http\u003A//127.0.0.1(:[0-9]+)?/callback$
 
 ```
 

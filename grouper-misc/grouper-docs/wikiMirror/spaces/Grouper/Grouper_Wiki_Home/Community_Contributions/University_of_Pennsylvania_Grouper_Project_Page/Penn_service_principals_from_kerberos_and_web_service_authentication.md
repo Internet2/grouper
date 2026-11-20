@@ -2,8 +2,8 @@
 title: "Penn service principals from kerberos and web service authentication"
 space: Grouper
 pageId: 28544197
-version: 4
-lastUpdated: 2019-12-06T19:23:28.569Z
+version: 5
+lastUpdated: 2026-11-20T20:25:33.664Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544197/Penn+service+principals+from+kerberos+and+web+service+authentication
 ---
 

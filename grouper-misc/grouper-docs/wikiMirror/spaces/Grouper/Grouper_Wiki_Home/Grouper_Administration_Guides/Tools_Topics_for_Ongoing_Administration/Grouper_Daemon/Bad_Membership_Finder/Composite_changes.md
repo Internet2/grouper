@@ -2,8 +2,8 @@
 title: "Composite changes"
 space: Grouper
 pageId: 28555757
-version: 7
-lastUpdated: 2024-02-28T07:31:27.155Z
+version: 8
+lastUpdated: 2026-11-20T20:27:14.660Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555757/Composite+changes
 ---
 

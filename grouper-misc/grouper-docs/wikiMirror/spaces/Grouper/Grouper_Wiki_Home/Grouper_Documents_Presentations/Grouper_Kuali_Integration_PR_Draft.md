@@ -2,8 +2,8 @@
 title: "Grouper Kuali Integration PR Draft"
 space: Grouper
 pageId: 48824690
-version: 2
-lastUpdated: 2010-06-09T14:53:30.843Z
+version: 3
+lastUpdated: 2026-11-20T20:27:31.689Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48824690/Grouper+Kuali+Integration+PR+Draft
 ---
 
