@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
@@ -72,6 +74,57 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   // ============================
+  // Sync-back (GRP-7595): cached objects get the same rules as a live read
+  // ============================
+
+  /**
+   * ids of the managed groups this run treats as present, from the live read or from the cache.
+   * Memberships are only kept for these groups.
+   */
+  private Set<String> managedGroupIds = new HashSet<String>();
+
+  /**
+   * Cached groups: keep only managed ones (source local, idOnTheSource with the prefix, valid id), and
+   * remove the prefix from idOnTheSource, exactly as a live read does
+   */
+  @Override
+  public List<ProvisioningGroup> filterTargetGroupsFromSyncBack(List<ProvisioningGroup> targetGroups) {
+    String prefix = getLibreChatConfiguration().getLibreChatGroupIdOnTheSourcePrefix();
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+      if (targetGroup == null) {
+        continue;
+      }
+      LibreChatGroup cached = new LibreChatGroup();
+      cached.setId(targetGroup.getId());
+      cached.setSource(targetGroup.retrieveAttributeValueString("source"));
+      cached.setIdOnTheSource(targetGroup.retrieveAttributeValueString("idOnTheSource"));
+      if (!cached.isManaged(prefix)) {
+        continue;
+      }
+      targetGroup.assignAttributeValue("idOnTheSource", StringUtils.removeStart(cached.getIdOnTheSource(), prefix));
+      result.add(targetGroup);
+      this.managedGroupIds.add(targetGroup.getId());
+    }
+    return result;
+  }
+
+  /**
+   * Cached memberships: keep only those of managed groups, like a live read
+   */
+  @Override
+  public List<ProvisioningMembership> filterTargetMembershipsFromSyncBack(List<ProvisioningMembership> targetMemberships) {
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+      if (targetMembership != null && !StringUtils.isBlank(targetMembership.getProvisioningEntityId())
+          && this.managedGroupIds.contains(targetMembership.getProvisioningGroupId())) {
+        result.add(targetMembership);
+      }
+    }
+    return result;
+  }
+
+  // ============================
   // Retrieve all data: users, managed groups, and each managed group's members
   // ============================
 
@@ -89,8 +142,18 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
       String configId = config.getLibreChatExternalSystemConfigId();
       String prefix = config.getLibreChatGroupIdOnTheSourcePrefix();
 
+      // GRP-7595: when a full sync is served from the sync-back cache the framework asks to skip some reads
+      boolean retrieveEntities = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveEntities();
+      boolean retrieveGroups = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveGroups();
+      boolean retrieveMemberships = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveMemberships();
+
+      // a fresh view for this run, filled by the live group read below or by filterTargetGroupsFromSyncBack
+      this.managedGroupIds.clear();
+
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
-      if (targetDaoRetrieveAllDataRequest.isRetrieveEntities()) {
+      if (retrieveEntities) {
+        // counter so tests and diagnostics can see whether the user pull ran
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "libreChatRetrieveAllUsersApiCall", 1);
         for (LibreChatUser user : LibreChatApiCommands.retrieveUsers(configId)) {
           provisioningEntities.add(user.toProvisioningEntity());
         }
@@ -99,13 +162,31 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningGroup> provisioningGroups = new ArrayList<ProvisioningGroup>();
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
-      for (LibreChatGroup group : LibreChatApiCommands.retrieveManagedGroups(configId, prefix)) {
-        provisioningGroups.add(group.toProvisioningGroup(prefix));
-        for (String userId : LibreChatApiCommands.retrieveGroupMemberIds(configId, group.getId())) {
-          ProvisioningMembership membership = new ProvisioningMembership(false);
-          membership.setProvisioningGroupId(group.getId());
-          membership.setProvisioningEntityId(userId);
-          provisioningMemberships.add(membership);
+
+      // the managed group list is needed for groups, and to know whose members to read
+      List<LibreChatGroup> managedGroups = new ArrayList<LibreChatGroup>();
+      if (retrieveGroups || retrieveMemberships) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "libreChatRetrieveAllGroupsApiCall", 1);
+        managedGroups = LibreChatApiCommands.retrieveManagedGroups(configId, prefix);
+        for (LibreChatGroup group : managedGroups) {
+          this.managedGroupIds.add(group.getId());
+        }
+      }
+      if (retrieveGroups) {
+        for (LibreChatGroup group : managedGroups) {
+          provisioningGroups.add(group.toProvisioningGroup(prefix));
+        }
+      }
+      if (retrieveMemberships) {
+        // one members call per managed group; this is what fullSyncMembershipsFromSyncBack saves
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "libreChatRetrieveMembershipsApiCall", 1);
+        for (LibreChatGroup group : managedGroups) {
+          for (String userId : LibreChatApiCommands.retrieveGroupMemberIds(configId, group.getId())) {
+            ProvisioningMembership membership = new ProvisioningMembership(false);
+            membership.setProvisioningGroupId(group.getId());
+            membership.setProvisioningEntityId(userId);
+            provisioningMemberships.add(membership);
+          }
         }
       }
       targetData.setProvisioningGroups(provisioningGroups);
@@ -114,6 +195,47 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
       return response;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllData", startNanos));
+    }
+  }
+
+  // ============================
+  // Retrieve the members of one managed group.  Declaring this (canRetrieveMembershipsAllByGroup) is what
+  // makes memberships "selected in general", which full sync of memberships from sync-back requires (GRP-7595)
+  // ============================
+
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(
+      TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+
+    long startNanos = System.nanoTime();
+
+    try {
+      List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+      ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
+      String groupId = targetGroup == null ? null : targetGroup.getId();
+      if (StringUtils.isBlank(groupId)) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+      }
+
+      LibreChatProvisionerConfiguration config = getLibreChatConfiguration();
+      String configId = config.getLibreChatExternalSystemConfigId();
+
+      // only managed groups are visible, the same as retrieveAllData
+      LibreChatGroup current = LibreChatApiCommands.retrieveGroup(configId, groupId);
+      if (current == null || !current.isManaged(config.getLibreChatGroupIdOnTheSourcePrefix())) {
+        return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+      }
+
+      // the member read captures the full member list for sync-back in LibreChatApiCommands
+      for (String userId : LibreChatApiCommands.retrieveGroupMemberIds(configId, groupId)) {
+        ProvisioningMembership membership = new ProvisioningMembership(false);
+        membership.setProvisioningGroupId(groupId);
+        membership.setProvisioningEntityId(userId);
+        result.add(membership);
+      }
+      return new TargetDaoRetrieveMembershipsByGroupResponse(result);
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
     }
   }
 
@@ -210,6 +332,8 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       LibreChatGroup created = LibreChatApiCommands.createGroup(config.getLibreChatExternalSystemConfigId(), group);
       targetGroup.setId(created.getId());
+      // sync-back: the created group is known, no re-read needed (GRP-7595)
+      LibreChatProvisioningTargetNativeSync.captureGroupWriteFromCurrentProvisioner(created.getId(), created);
       markProvisioned(targetGroup, true);
       return new TargetDaoInsertGroupResponse();
     } catch (RuntimeException e) {
@@ -242,6 +366,8 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       LibreChatApiCommands.updateGroup(config.getLibreChatExternalSystemConfigId(), targetGroup.getId(), fieldToValue);
+      // sync-back: the end-of-run drain re-reads the updated group (GRP-7595)
+      LibreChatProvisioningTargetNativeSync.captureGroupWriteFromCurrentProvisioner(targetGroup.getId(), null);
       markProvisioned(targetGroup, true);
       return new TargetDaoUpdateGroupResponse();
     } catch (RuntimeException e) {
@@ -278,9 +404,12 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
           // keeps the group and the agents shared with it, but nobody gets access through it
           for (String userId : LibreChatApiCommands.retrieveGroupMemberIds(configId, current.getId())) {
             LibreChatApiCommands.removeGroupMember(configId, current.getId(), userId);
+            LibreChatProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(current.getId(), userId);
           }
         } else {
           LibreChatApiCommands.deleteGroup(configId, current.getId());
+          // sync-back: drop the group from the mirror (GRP-7595)
+          LibreChatProvisioningTargetNativeSync.captureGroupDeleteFromCurrentProvisioner(current.getId());
         }
       }
       markProvisioned(targetGroup, true);
@@ -342,8 +471,10 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
         }
         if (add) {
           LibreChatApiCommands.addGroupMember(configId, groupId, userId);
+          LibreChatProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(groupId, userId);
         } else {
           LibreChatApiCommands.removeGroupMember(configId, groupId, userId);
+          LibreChatProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(groupId, userId);
         }
         markProvisioned(membership, true);
       } catch (RuntimeException e) {
@@ -393,6 +524,8 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
+    // members of one managed group (GRP-7595: needed so memberships can be served from sync-back)
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
     // groups: full CRUD (only groups with the idOnTheSource prefix)
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
@@ -404,6 +537,13 @@ public class LibreChatTargetDao extends GrouperProvisionerTargetDaoBase {
     // memberships: add and remove one at a time
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+
+    // sync-back (GRP-7595): reads are captured in LibreChatApiCommands, writes here.  Groups and memberships
+    // can be served from the cache.  Users cannot: LibreChat creates them at first login, outside Grouper,
+    // so a cached user list would miss new users (and the user list is a single paged read anyway)
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
   }
 
 }

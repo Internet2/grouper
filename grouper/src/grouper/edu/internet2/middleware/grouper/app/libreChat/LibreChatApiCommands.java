@@ -183,7 +183,10 @@ public class LibreChatApiCommands {
   public static List<LibreChatUser> retrieveUsers(String configId) {
     List<LibreChatUser> result = new ArrayList<LibreChatUser>();
     for (JsonNode userNode : retrieveAllPages(configId, "retrieveUsers", "/api/admin/users", "users")) {
-      result.add(LibreChatUser.fromJson(userNode));
+      LibreChatUser user = LibreChatUser.fromJson(userNode);
+      // sync-back: mirror every user read (GRP-7595)
+      LibreChatProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
+      result.add(user);
     }
     return result;
   }
@@ -210,6 +213,7 @@ public class LibreChatApiCommands {
       for (JsonNode userNode : arrayElements(jsonNode, "users")) {
         LibreChatUser user = LibreChatUser.fromJson(userNode);
         if (StringUtils.equalsIgnoreCase(StringUtils.trim(user.getUsername()), username.trim())) {
+          LibreChatProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
           return user;
         }
       }
@@ -246,6 +250,8 @@ public class LibreChatApiCommands {
     List<LibreChatGroup> result = new ArrayList<LibreChatGroup>();
     for (JsonNode groupNode : retrieveAllPages(configId, "retrieveGroups", "/api/admin/groups?source=local", "groups")) {
       LibreChatGroup group = LibreChatGroup.fromJson(groupNode);
+      // sync-back: mirror every local group read, before the managed filter, with its raw idOnTheSource (GRP-7595)
+      LibreChatProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(group);
       if (group.isManaged(prefix)) {
         result.add(group);
       }
@@ -268,7 +274,9 @@ public class LibreChatApiCommands {
       int[] returnCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, "retrieveGroup", "GET", configId,
           "/api/admin/groups/" + groupId, GrouperUtil.toSet(200, 404), returnCode, null);
-      return returnCode[0] == 404 ? null : LibreChatGroup.fromJson(jsonNode);
+      LibreChatGroup group = returnCode[0] == 404 ? null : LibreChatGroup.fromJson(jsonNode);
+      LibreChatProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(group);
+      return group;
     } finally {
       LibreChatLog.libreChatLog(debugMap, startTime);
     }
@@ -288,6 +296,8 @@ public class LibreChatApiCommands {
         result.add(userId);
       }
     }
+    // sync-back: the group's full member list (GRP-7595)
+    LibreChatProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(groupId, result);
     return result;
   }
 

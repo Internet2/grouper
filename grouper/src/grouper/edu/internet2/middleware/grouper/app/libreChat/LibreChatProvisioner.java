@@ -4,6 +4,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 /**
@@ -30,6 +31,12 @@ public class LibreChatProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass() {
     return LibreChatProvisionerConfiguration.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    // sync-back: native user / group / membership capture (GRP-7595)
+    return LibreChatProvisioningTargetNativeSync.class;
   }
 
   @Override

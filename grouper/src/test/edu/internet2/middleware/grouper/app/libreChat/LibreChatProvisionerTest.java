@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.app.libreChat;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
@@ -398,6 +400,142 @@ public class LibreChatProvisionerTest extends GrouperProvisioningBaseTest {
       } else {
         assertNull(LibreChatApiCommands.retrieveGroup(CONFIG_ID, libreChatGroupId));
       }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  // =============================================
+  // Sync-back (GRP-7595)
+  // =============================================
+
+  /**
+   * @param tableName grouper_prov_user, grouper_prov_group or grouper_prov_mship
+   * @return rows for this provisioner
+   */
+  private static int countSyncBack(String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName
+            + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(PROVISIONER_CONFIG_ID).select(int.class);
+  }
+
+  /**
+   * @param tableName sync-back table
+   * @param idColumn target_user_id or target_group_id
+   * @param targetId LibreChat id
+   * @return true if mirrored
+   */
+  private static boolean inSyncBack(String tableName, String idColumn, String targetId) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName + " where " + idColumn + " = ?"
+            + " and grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(targetId).addBindVar(PROVISIONER_CONFIG_ID).select(int.class) > 0;
+  }
+
+  /**
+   * @param fullSyncFromCache true to serve groups and memberships from the cache on full sync
+   * @return config input with sync-back on
+   */
+  private static LibreChatProvisionerTestConfigInput syncBackConfig(boolean fullSyncFromCache) {
+    LibreChatProvisionerTestConfigInput configInput = new LibreChatProvisionerTestConfigInput()
+        .assignConfigId(PROVISIONER_CONFIG_ID)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (fullSyncFromCache) {
+      configInput.addExtraConfig("fullSyncGroupsFromSyncBack", "true")
+          .addExtraConfig("fullSyncMembershipsFromSyncBack", "true");
+    }
+    return configInput;
+  }
+
+  /**
+   * Users and every local group are mirrored, including a hand-made group the provisioner leaves alone;
+   * memberships are mirrored for managed groups
+   */
+  public void testSyncBackMirror() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(syncBackConfig(false));
+
+    try {
+      String user0 = insertMockUser(email(SubjectTestHelper.SUBJ0));
+      String handMade = insertMockGroup("Hand made", "local", null);
+      insertMockMembership(handMade, user0);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:chat:team1").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      attachProvisioningAttribute(stem);
+
+      fullProvision();
+      fullProvision();
+
+      String libreChatGroupId = libreChatGroupIdFor(group);
+      assertTrue("user is mirrored", inSyncBack("grouper_prov_user", "target_user_id", user0));
+      assertTrue("managed group is mirrored", inSyncBack("grouper_prov_group", "target_group_id", libreChatGroupId));
+      assertTrue("hand-made local group is mirrored too", inSyncBack("grouper_prov_group", "target_group_id", handMade));
+      // the managed group's member (the hand-made group's members are not read)
+      assertEquals(1, countSyncBack("grouper_prov_mship"));
+      // and the hand-made group was left alone
+      assertEquals(1, memberCount(handMade));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Warm cache: groups and memberships come from the mirror (no group list, no per-group member reads),
+   * users are still read live, and changes still provision.  The cached group's idOnTheSource must have the
+   * prefix removed or it would not match its Grouper group (and Grouper would try to create a duplicate).
+   */
+  public void testFullSyncFromSyncBackWarmCache() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(syncBackConfig(true));
+
+    try {
+      insertMockUser(email(SubjectTestHelper.SUBJ0));
+      insertMockUser(email(SubjectTestHelper.SUBJ1));
+      String handMade = insertMockGroup("Hand made", "local", "other:x");
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:chat:team1").save();
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      attachProvisioningAttribute(stem);
+
+      // warm the cache (the first run is a live read)
+      fullProvision();
+      fullProvision();
+      fullProvision();
+      String libreChatGroupId = libreChatGroupIdFor(group);
+      assertEquals(2, memberCount(libreChatGroupId));
+
+      // the warm run serves groups and memberships from the cache
+      fullProvision();
+      Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+      assertNotNull("users are always read live", debugMap.get("libreChatRetrieveAllUsersApiCall"));
+      assertNull("group list skipped", debugMap.get("libreChatRetrieveAllGroupsApiCall"));
+      assertNull("per-group member reads skipped", debugMap.get("libreChatRetrieveMembershipsApiCall"));
+      assertEquals("no duplicate group was created", 1, new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from mock_librechat_group where id_on_the_source = ?")
+          .addBindVar(PREFIX + group.getId()).select(int.class).intValue());
+
+      // a change still provisions from the cache-served view
+      group.deleteMember(SubjectTestHelper.SUBJ1);
+      fullProvision();
+      assertEquals(1, memberCount(libreChatGroupId));
+
+      // the cached hand-made group (other prefix) is never treated as managed
+      assertNotNull(LibreChatApiCommands.retrieveGroup(CONFIG_ID, handMade));
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

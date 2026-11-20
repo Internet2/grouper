@@ -13,6 +13,7 @@ public class AllLibreChatProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllLibreChatProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(LibreChatProvisionerTest.class);
+    suite.addTestSuite(LibreChatProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }
