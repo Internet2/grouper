@@ -47,6 +47,7 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
                       <option value="customUi" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'customUi' ? 'selected' : ''}>customUi</option>
                       <option value="daemon" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'daemon' ? 'selected' : ''}>daemon</option>
                       <option value="daemonChangeLog" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'daemonChangeLog' ? 'selected' : ''}>daemonChangeLog</option>
+                      <option value="externalSystem" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'externalSystem' ? 'selected' : ''}>externalSystem</option>
                       <option value="gsh" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'gsh' ? 'selected' : ''}>gsh</option>
                       <option value="hook" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'hook' ? 'selected' : ''}>hook</option>
                       <option value="library" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'library' ? 'selected' : ''}>library</option>

@@ -162,6 +162,9 @@ public class GshTemplateCompiledDispatch {
       expectedType = "customUi";
     } else if ("GshTemplateProvisionerBase".equals(baseName)) {
       expectedType = "provisioner";
+    } else if ("GrouperTemplateExternalSystem".equals(baseName)) {
+      // GRP-7593
+      expectedType = "externalSystem";
     }
     GshTemplateType actualType = gshTemplateConfig.getGshTemplateType();
     if (expectedType != null && (actualType == null || !expectedType.equals(actualType.name()))) {

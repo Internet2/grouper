@@ -76,6 +76,15 @@ BASE CLASS AND METHOD PER TEMPLATE TYPE (templateType)
                 (for example GroupHooks, MembershipHooks, StemHooks, AttributeAssignHooks) and override the
                 event methods you care about, e.g. public void groupPreInsert(HooksContext hooksContext, HooksGroupBean bean)
 
+- externalSystem: extend edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateExternalSystem
+                override the hook its external system calls.  For a web service external system with
+                httpAuthnType=dynamic: public void decorateHttpClient(GrouperHttpClient grouperHttpClient, String externalSystemConfigId)
+                add headers with grouperHttpClient.addHeader(name, value).  Authorization, cookie, auth and key
+                headers are already redacted from the HTTP log; mark any other secret header with addDoNotLogHeader(name).
+                Your own login/refresh calls must hide tokens from the HTTP log (do-not-log headers, parameters, bodies).
+                Runs before every attempt including retries.  One instance per external system, so instance fields
+                can cache a token; make that thread safe.  The template keeps its own config.
+
 - library:      a plain public class with public methods that other templates call.  No required base class.
 
 ============================================================

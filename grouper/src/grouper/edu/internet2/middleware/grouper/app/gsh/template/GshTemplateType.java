@@ -70,6 +70,17 @@ public enum GshTemplateType {
   hook,
 
   /**
+   * external system template — compiled-Java body extends
+   * GrouperTemplateExternalSystem and overrides the hook methods its external
+   * system calls (e.g. decorateHttpClient for a web service external system with
+   * httpAuthnType=dynamic). Dispatched from the external system; one instance is
+   * kept per external system config id.
+   *
+   * GRP-7593
+   */
+  externalSystem,
+
+  /**
    * library template — compiled-Java body that exposes reusable methods
    * for other templates to call. No required base class; no dispatcher of
    * its own. Other templates invoke it via the registry (by interface

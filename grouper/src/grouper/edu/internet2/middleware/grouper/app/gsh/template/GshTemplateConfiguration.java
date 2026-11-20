@@ -629,6 +629,9 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       baseClasses.add(GrouperTemplateDaemonChangeLog.class);
     } else if (gshTemplateType == GshTemplateType.report) {
       baseClasses.add(GrouperTemplateReport.class);
+    } else if (gshTemplateType == GshTemplateType.externalSystem) {
+      // GRP-7593
+      baseClasses.add(GrouperTemplateExternalSystem.class);
     } else if (gshTemplateType == GshTemplateType.customUi) {
       Class<?> customUiBase = safeForName("edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateCustomUi");
       if (customUiBase != null) {

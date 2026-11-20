@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,9 @@ import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateExternalSystem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -42,6 +46,80 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
+
+  /**
+   * GRP-7593: httpAuthnType=dynamic template instances, keyed by external system config id, template
+   * config id and endpoint (see dynamicTemplateKey).  One instance per external system so a template
+   * can cache tokens in instance fields between requests.  The endpoint is in the key so a token cached
+   * for one host is never sent to another host if the external system's endpoint is changed.  The
+   * instance is replaced when the template's compiled class changes (source edited, hot reload).
+   */
+  private static final Map<String, GrouperTemplateExternalSystem> dynamicTemplateInstances = new ConcurrentHashMap<>();
+
+  /**
+   * GRP-7593: instances checked recently (enabled, compiled, right type, current class), so a request
+   * does not reload the template config and look up its class on every attempt.  The trade off: a
+   * template that is disabled or edited is picked up within a minute, not instantly.
+   */
+  private static final ExpirableCache<String, GrouperTemplateExternalSystem> dynamicTemplateRecentlyChecked =
+      new ExpirableCache<String, GrouperTemplateExternalSystem>(1);
+
+  /**
+   * GRP-7593: forget cached dynamic template instances (and any tokens they hold), e.g. for tests
+   */
+  public static void clearDynamicTemplateCache() {
+    dynamicTemplateRecentlyChecked.clear();
+    dynamicTemplateInstances.clear();
+  }
+
+  /**
+   * GRP-7593: for tests, act as if the one minute recheck window passed (instances and their tokens are kept)
+   */
+  static void expireDynamicTemplateRecentlyChecked() {
+    dynamicTemplateRecentlyChecked.clear();
+  }
+
+  /**
+   * GRP-7593: get the compiled externalSystem template for an external system with httpAuthnType=dynamic.
+   * The template must be enabled, templateMode=compiled, templateType=externalSystem, and extend
+   * GrouperTemplateExternalSystem (GshTemplateCompiledDispatch checks all of that, at most a minute ago).
+   * @param externalSystemConfigId e.g. the "myWs" in grouper.wsBearerToken.myWs.endpoint
+   * @param grouperLoaderConfig config to read the template config id from
+   * @return the template instance for this external system
+   */
+  public static GrouperTemplateExternalSystem retrieveDynamicTemplate(String externalSystemConfigId, GrouperLoaderConfig grouperLoaderConfig) {
+    String gshTemplateConfigId = grouperLoaderConfig.propertyValueStringRequired(
+        "grouper.wsBearerToken." + externalSystemConfigId + ".dynamicGshTemplateConfigId");
+    String endpoint = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".endpoint");
+
+    // the separator cannot appear in a config id, so the parts cannot run together
+    String dynamicTemplateKey = externalSystemConfigId + "|" + gshTemplateConfigId + "|" + StringUtils.defaultString(endpoint);
+
+    GrouperTemplateExternalSystem recentlyChecked = dynamicTemplateRecentlyChecked.get(dynamicTemplateKey);
+    if (recentlyChecked != null) {
+      return recentlyChecked;
+    }
+
+    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
+    gshTemplateConfig.populateConfiguration();
+
+    // the registry caches the compiled class by source, so this is cheap after the first call,
+    // and returns a new class if the source changed
+    Class<? extends GrouperTemplateExternalSystem> templateClass = GshTemplateCompiledDispatch.resolveClass(
+        gshTemplateConfigId, gshTemplateConfig, GrouperTemplateExternalSystem.class);
+
+    GrouperTemplateExternalSystem instance;
+    synchronized (dynamicTemplateInstances) {
+      instance = dynamicTemplateInstances.get(dynamicTemplateKey);
+      // first use, or the template source changed: start fresh (drops any cached tokens)
+      if (instance == null || instance.getClass() != templateClass) {
+        instance = GrouperUtil.newInstance(templateClass);
+        dynamicTemplateInstances.put(dynamicTemplateKey, instance);
+      }
+    }
+    dynamicTemplateRecentlyChecked.put(dynamicTemplateKey, instance);
+    return instance;
+  }
 
   private static final Pattern HTTP_HEADER_NAME = Pattern.compile("^[!#$%&'*+.^_`|~0-9A-Za-z-]+$");
 
@@ -437,7 +515,17 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
         // never log the api key
         grouperHttpClient.addDoNotLogHeader(apiKeyHeader);
       }
-      
+
+    } else if (StringUtils.equals(httpAuthnType, "dynamic")) {
+
+      // GRP-7593: a compiled externalSystem GSH template adds the authentication (e.g. an SSO login
+      // that yields a short-lived bearer token plus cookies).  This method runs before every attempt
+      // including retries (see the GrouperHttpClientSetupAuthorization below), so the template can
+      // refresh an expired token.  Authorization, cookie, auth and key headers are already redacted from the
+      // http log (GrouperHttpClientLogRedactor); the template marks any other secret header do-not-log
+      GrouperTemplateExternalSystem grouperTemplateExternalSystem = retrieveDynamicTemplate(externalSystemConfigId, grouperLoaderConfig);
+      grouperTemplateExternalSystem.decorateHttpClient(grouperHttpClient, externalSystemConfigId);
+
     } else {
       throw new RuntimeException("Invalid authentication type: grouper-loader.properties: 'grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType' = '" + httpAuthnType + "'");
     }

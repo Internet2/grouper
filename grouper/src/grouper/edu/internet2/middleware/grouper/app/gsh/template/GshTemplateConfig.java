@@ -740,6 +740,7 @@ public class GshTemplateConfig {
         //   provisioner, daemon, daemonChangeLog, report: run in the loader daemon as root
         //   customUi: always wrapped in a root session (CustomUiContainer)
         //   hook, library: run in the session of whoever triggered the hook / called the library
+        //   externalSystem: runs in the session of whatever is using the external system (GRP-7593)
         // The UI hides both fields for those types and saving the template removes them, so do not
         // require them here, and ignore any value left over from before
         boolean runAsAndSecurityApply = gshTemplateType == GshTemplateType.gsh || gshTemplateType == GshTemplateType.abac;
