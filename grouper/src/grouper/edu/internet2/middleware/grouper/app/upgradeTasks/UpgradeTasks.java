@@ -401,6 +401,7 @@ public enum UpgradeTasks {
       return new UpgradeTaskV47();
     }
   }
+  // Update https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks when new upgrade tasks are added
   ,
   /**
    * remove old maintenance jobs
