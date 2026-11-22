@@ -45,7 +45,7 @@ ${grouper:titleFromKeyAndText('groupMovePageTitle', grouperRequestContainer.grou
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" name="moveChangeAlternateNames" checked="checked" value="true" />${textContainer.text['groupMoveChangeAlternateNamesDescription']}
+                        <input type="checkbox" name="moveChangeAlternateNames" value="true" />${textContainer.text['groupMoveChangeAlternateNamesDescription']}
                       </label>
                     </div>
                   </div>
