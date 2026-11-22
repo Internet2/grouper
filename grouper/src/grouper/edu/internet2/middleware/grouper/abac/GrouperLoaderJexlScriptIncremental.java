@@ -193,7 +193,8 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
           dataFieldInternalIdsChanged.add(dataFieldInternalId);
           
         }
-        if (esbEventType == EsbEventType.DATA_ROW_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROW_ASSIGN_DELETE) {
+        if (esbEventType == EsbEventType.DATA_ROW_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROW_ASSIGN_DELETE
+            || esbEventType == EsbEventType.DATA_ROWFIELD_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROWFIELD_ASSIGN_DELETE) {
 
           Long dataRowInternalId = GrouperUtil.longValue(esbEvent.getDataRowInternalId(), -1);
           
@@ -418,7 +419,8 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
 
 
         }
-        if (esbEventType == EsbEventType.DATA_ROW_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROW_ASSIGN_DELETE) {
+        if (esbEventType == EsbEventType.DATA_ROW_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROW_ASSIGN_DELETE
+            || esbEventType == EsbEventType.DATA_ROWFIELD_ASSIGN_ADD || esbEventType == EsbEventType.DATA_ROWFIELD_ASSIGN_DELETE) {
 
           Long dataRowInternalId = GrouperUtil.longValue(esbEvent.getDataRowInternalId(), -1);
           
