@@ -590,9 +590,40 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     recordCapture("lastUsersFilter", filter);
     
     List<GrouperScim2User> grouperScimUsers = null;
+    boolean pageAndFilterAfterPaging = mockTestKnobBoolean("grouperTest.scim2.mock.pageAndFilterAfterPaging");
+    int totalResults = 0;
+    int returnedStartIndex = 1;
     
     if (StringUtils.isBlank(filter)) {
-      grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class);
+      if (pageAndFilterAfterPaging) {
+        List<GrouperScim2User> allUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User order by userName").list(GrouperScim2User.class);
+        totalResults = GrouperUtil.length(allUsers);
+        String startIndexParam = mockServiceRequest.getHttpServletRequest().getParameter("startIndex");
+        String countParam = mockServiceRequest.getHttpServletRequest().getParameter("count");
+        int startIndex = StringUtils.isNotBlank(startIndexParam) ? GrouperUtil.intValue(startIndexParam, 1) : 1;
+        if (startIndex < 1) {
+          startIndex = 1;
+        }
+        returnedStartIndex = startIndex;
+        int count = StringUtils.isNotBlank(countParam) ? GrouperUtil.intValue(countParam, totalResults) : totalResults;
+        if (count < 0) {
+          count = totalResults;
+        }
+        int fromIndex = startIndex - 1;
+        int toIndex = Math.min(fromIndex + count, totalResults);
+        Set<String> hiddenUserNames = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(
+            GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.hiddenUserNames"), ","));
+        grouperScimUsers = new ArrayList<GrouperScim2User>();
+        for (int i = fromIndex; i < toIndex; i++) {
+          GrouperScim2User candidate = allUsers.get(i);
+          if (!hiddenUserNames.contains(candidate.getUserName())) {
+            grouperScimUsers.add(candidate);
+          }
+        }
+      } else {
+        grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class);
+        totalResults = GrouperUtil.length(grouperScimUsers);
+      }
     } else {
       String field = null;
       String value = null;
@@ -664,6 +695,7 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
       } else {
         grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2User.class);
       }
+      totalResults = GrouperUtil.length(grouperScimUsers);
     }
     
     //  {
@@ -681,9 +713,9 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    resultNode.put("totalResults", GrouperUtil.length(grouperScimUsers));
+    resultNode.put("totalResults", totalResults);
     resultNode.put("itemsPerPage", GrouperUtil.length(grouperScimUsers));
-    resultNode.put("startIndex", 1);
+    resultNode.put("startIndex", returnedStartIndex);
 
     {
       ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
@@ -1376,9 +1408,40 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     recordCapture("lastGroupsFilter", filter);
 
     List<GrouperScim2Group> grouperScimGroups = null;
+    boolean pageAndFilterAfterPaging = mockTestKnobBoolean("grouperTest.scim2.mock.pageAndFilterAfterPaging");
+    int totalResults = 0;
+    int returnedStartIndex = 1;
 
     if (StringUtils.isBlank(filter)) {
-      grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class);
+      if (pageAndFilterAfterPaging) {
+        List<GrouperScim2Group> allGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group order by displayName").list(GrouperScim2Group.class);
+        totalResults = GrouperUtil.length(allGroups);
+        String startIndexParam = mockServiceRequest.getHttpServletRequest().getParameter("startIndex");
+        String countParam = mockServiceRequest.getHttpServletRequest().getParameter("count");
+        int startIndex = StringUtils.isNotBlank(startIndexParam) ? GrouperUtil.intValue(startIndexParam, 1) : 1;
+        if (startIndex < 1) {
+          startIndex = 1;
+        }
+        returnedStartIndex = startIndex;
+        int count = StringUtils.isNotBlank(countParam) ? GrouperUtil.intValue(countParam, totalResults) : totalResults;
+        if (count < 0) {
+          count = totalResults;
+        }
+        int fromIndex = startIndex - 1;
+        int toIndex = Math.min(fromIndex + count, totalResults);
+        Set<String> hiddenGroupDisplayNames = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(
+            GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.hiddenGroupDisplayNames"), ","));
+        grouperScimGroups = new ArrayList<GrouperScim2Group>();
+        for (int i = fromIndex; i < toIndex; i++) {
+          GrouperScim2Group candidate = allGroups.get(i);
+          if (!hiddenGroupDisplayNames.contains(candidate.getDisplayName())) {
+            grouperScimGroups.add(candidate);
+          }
+        }
+      } else {
+        grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class);
+        totalResults = GrouperUtil.length(grouperScimGroups);
+      }
     } else {
       //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
       //          + "%20eq%20\"" + GrouperUtil.escapeUrlEncode(fieldValue)
@@ -1391,6 +1454,7 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
       value = StringEscapeUtils.unescapeJson(value);
       GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
       grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2Group.class);
+      totalResults = GrouperUtil.length(grouperScimGroups);
     }
     
     //  {
@@ -1405,9 +1469,9 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    resultNode.put("totalResults", GrouperUtil.length(grouperScimGroups));
+    resultNode.put("totalResults", totalResults);
     resultNode.put("itemsPerPage", GrouperUtil.length(grouperScimGroups));
-    resultNode.put("startIndex", 1);
+    resultNode.put("startIndex", returnedStartIndex);
   
     {
       ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();

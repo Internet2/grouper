@@ -49,6 +49,7 @@ public class ScimSettings {
     this.setAcceptHeader(scimConfiguration.getAcceptHeader());
     this.setScimContentType(scimConfiguration.getScimContentType());
     this.setScimIgnorePagingMetadata(scimConfiguration.isScimIgnorePagingMetadata());
+    this.setScimPageByRequestedCount(scimConfiguration.isScimPageByRequestedCount());
     this.setScimMembershipBatchSize(scimConfiguration.getScimMembershipBatchSize());
     this.setScimEmailFilterStrategy(scimConfiguration.getScimEmailFilterStrategy());
   }
@@ -66,6 +67,8 @@ public class ScimSettings {
   private String scimContentType = "application/json";
   
   private boolean scimIgnorePagingMetadata = false;
+
+  private boolean scimPageByRequestedCount = false;
 
   private String scimEmailFilterStrategy = "email";
 
@@ -85,6 +88,14 @@ public class ScimSettings {
   
   public void setScimIgnorePagingMetadata(boolean scimIgnoreTotalResults) {
     this.scimIgnorePagingMetadata = scimIgnoreTotalResults;
+  }
+
+  public boolean isScimPageByRequestedCount() {
+    return scimPageByRequestedCount;
+  }
+
+  public void setScimPageByRequestedCount(boolean scimPageByRequestedCount) {
+    this.scimPageByRequestedCount = scimPageByRequestedCount;
   }
 
 

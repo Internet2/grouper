@@ -1,7 +1,11 @@
 package edu.internet2.middleware.grouper.app.scim;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -32,7 +36,9 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 /**
@@ -54,7 +60,7 @@ import junit.textui.TestRunner;
 public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerScimSettingsTest("testDisableEntitiesInsteadOfDelete"));
+    TestRunner.run(new GrouperAwsProvisionerScimSettingsTest("testScimPageByRequestedCount"));
   }
 
   public static boolean startTomcat = false;
@@ -502,8 +508,13 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.schema.readOnlyAttribute").value("").store();
     // reset the page size override used by the service provider config validation test
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.pageSize").value("50").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.userPageSize").value("").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.groupPageSize").value("").store();
     // reset the advertised filter maxResults override used by the pagination probe test
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.filterMaxResults").value("50").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.pageAndFilterAfterPaging").value("").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.hiddenUserNames").value("").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.hiddenGroupDisplayNames").value("").store();
     super.tearDown();
   }
 
@@ -1211,5 +1222,213 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // ...and it warns about possible duplicate/skip due to the unstable multi-page order
     assertTrue("report should warn about possible duplicate/skip entities; report was:\n" + report,
         report.contains("may duplicate or skip entities"));
+  }
+
+  public void testScimPageByRequestedCount() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignSelectAllEntities(true)
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("selectAllGroups", "true")
+        .addExtraConfig("insertGroups", "false")
+        .addExtraConfig("insertEntities", "false")
+        .addExtraConfig("insertMemberships", "false"));
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("grouper.wsBearerToken.awsConfigId.userPageSize").value("5").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("grouper.wsBearerToken.awsConfigId.groupPageSize").value("5").store();
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GenericScim2MockServiceHandler.ensureScimMockTables();
+    clearScimMockTables();
+
+    String[] allUserNames = new String[] {
+        "test.subject.0",
+        "test.subject.0.hidden01",
+        "test.subject.1",
+        "test.subject.1.hidden01",
+        "test.subject.1.hidden02",
+        "test.subject.1.hidden03",
+        "test.subject.1.hidden04",
+        "test.subject.1.hidden05",
+        "test.subject.1.hidden06",
+        "test.subject.1.hidden07",
+        "test.subject.1.hidden08",
+        "test.subject.1.hidden09",
+        "test.subject.1.hidden10",
+        "test.subject.1.hidden11",
+        "test.subject.1.hidden12",
+        "test.subject.1.hidden13",
+        "test.subject.2",
+        "test.subject.2.hidden01",
+        "test.subject.3",
+        "test.subject.3.hidden01",
+        "test.subject.4",
+        "test.subject.4.hidden01",
+        "test.subject.5",
+        "test.subject.6",
+        "test.subject.7"
+    };
+
+    String[] allGroupDisplayNames = new String[] {
+        "group0",
+        "group0.hidden01",
+        "group1",
+        "group1.hidden01",
+        "group1.hidden02",
+        "group1.hidden03",
+        "group1.hidden04",
+        "group1.hidden05",
+        "group1.hidden06",
+        "group1.hidden07",
+        "group1.hidden08",
+        "group1.hidden09",
+        "group1.hidden10",
+        "group1.hidden11",
+        "group1.hidden12",
+        "group1.hidden13",
+        "group2",
+        "group2.hidden01",
+        "group3",
+        "group3.hidden01",
+        "group4",
+        "group4.hidden01",
+        "group5",
+        "group6",
+        "group7"
+    };
+
+    List<String> hiddenUsers = new ArrayList<String>();
+    Set<String> expectedVisibleUsers = new HashSet<String>();
+    for (int i = 0; i < allUserNames.length; i++) {
+      String userName = allUserNames[i];
+      GrouperScim2User user = new GrouperScim2User();
+      user.setUserName(userName);
+      user.setGivenName("my name is " + userName);
+      user.setFamilyName("my name is " + userName);
+      user.setDisplayName("my name is " + userName);
+      user.setActive(true);
+      createMockUser(user);
+      if (userName.contains(".hidden")) {
+        hiddenUsers.add(userName);
+      } else {
+        expectedVisibleUsers.add(userName);
+      }
+    }
+
+    List<String> hiddenGroups = new ArrayList<String>();
+    Set<String> expectedVisibleGroups = new HashSet<String>();
+    for (int i = 0; i < allGroupDisplayNames.length; i++) {
+      String displayName = allGroupDisplayNames[i];
+      GrouperScim2Group group = new GrouperScim2Group();
+      group.setDisplayName(displayName);
+      GrouperScim2ApiCommands.createScimGroup("awsConfigId", group, GrouperUtil.toSet("displayName"), new ScimSettings());
+      if (displayName.contains(".hidden")) {
+        hiddenGroups.add(displayName);
+      } else {
+        expectedVisibleGroups.add(displayName);
+      }
+    }
+
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.pageAndFilterAfterPaging").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.hiddenUserNames").value(String.join(",", hiddenUsers)).store();
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.hiddenGroupDisplayNames").value(String.join(",", hiddenGroups)).store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    Subject[] subjects = new Subject[] {
+        SubjectTestHelper.SUBJ0,
+        SubjectTestHelper.SUBJ1,
+        SubjectTestHelper.SUBJ2,
+        SubjectTestHelper.SUBJ3,
+        SubjectTestHelper.SUBJ4,
+        SubjectTestHelper.SUBJ5,
+        SubjectTestHelper.SUBJ6,
+        SubjectTestHelper.SUBJ7
+    };
+
+    for (int i = 0; i < 8; i++) {
+      Group group = new GroupSave(grouperSession).assignName("test:group" + i).save();
+      group.addMember(subjects[i], false);
+    }
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("awsProvisioner");
+    attributeValue.setTargetName("awsProvisioner");
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    ScimSettings settingsOff = new ScimSettings();
+    settingsOff.setScimPageByRequestedCount(false);
+    List<GrouperScim2User> usersOff = GrouperScim2ApiCommands.retrieveScimUsers(settingsOff, "awsConfigId", null);
+    List<GrouperScim2Group> groupsOff = GrouperScim2ApiCommands.retrieveScimGroups(settingsOff, "awsConfigId", null);
+    assertEquals(2, usersOff.size());
+    assertEquals(2, groupsOff.size());
+
+    fullProvision("awsProvisioner", true);
+    GrouperProvisioner provisionerOff = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(2, provisionerOff.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities().size());
+    assertEquals(2, provisionerOff.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups().size());
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.awsProvisioner.scimPageByRequestedCount").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.awsProvisioner.insertGroups").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.awsProvisioner.insertEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.awsProvisioner.insertMemberships").value("true").store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    ScimSettings settingsOn = new ScimSettings();
+    settingsOn.setScimPageByRequestedCount(true);
+    List<GrouperScim2User> usersOn = GrouperScim2ApiCommands.retrieveScimUsers(settingsOn, "awsConfigId", null);
+    List<GrouperScim2Group> groupsOn = GrouperScim2ApiCommands.retrieveScimGroups(settingsOn, "awsConfigId", null);
+    assertEquals(8, usersOn.size());
+    assertEquals(8, groupsOn.size());
+
+    fullProvision();
+    GrouperProvisioner provisionerOn = GrouperProvisioner.retrieveInternalLastProvisioner();
+    List<ProvisioningEntity> targetEntities = provisionerOn.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities();
+    List<ProvisioningGroup> targetGroups = provisionerOn.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups();
+    assertEquals(8, targetEntities.size());
+    assertEquals(8, targetGroups.size());
+
+    Set<String> retrievedUserNames = new HashSet<String>();
+    for (int i = 0; i < targetEntities.size(); i++) {
+      retrievedUserNames.add(targetEntities.get(i).retrieveAttributeValueString("userName"));
+    }
+    assertEquals(expectedVisibleUsers, retrievedUserNames);
+
+    Set<String> retrievedGroupNames = new HashSet<String>();
+    for (int i = 0; i < targetGroups.size(); i++) {
+      retrievedGroupNames.add(targetGroups.get(i).getDisplayName());
+    }
+    assertEquals(expectedVisibleGroups, retrievedGroupNames);
+
+    assertEquals(new Integer(8), new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from mock_scim_membership").select(int.class));
   }
 }
