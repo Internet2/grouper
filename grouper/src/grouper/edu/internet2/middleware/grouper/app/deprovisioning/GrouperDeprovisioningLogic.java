@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -853,7 +854,7 @@ public class GrouperDeprovisioningLogic {
       return true;
     }
     
-    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliations(subject);
+    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliationsFromDatabase(grouperSession, subject);
     
     if (deprovisionedInAffiliations.size() == 0) {
       return true;
@@ -914,6 +915,56 @@ public class GrouperDeprovisioningLogic {
     return affiliations;
   }
   
+  /**
+   * query the usersWhoHaveBeenDeprovisioned groups directly (not the cache) so a subject who was
+   * just deprovisioned (on any node) is seen right away
+   * @param grouperSession
+   * @param subject
+   * @return list of affiliations this subject has been deprovisioned from
+   */
+  public static Set<String> subjectDeprovisionedInAffiliationsFromDatabase(GrouperSession grouperSession, Subject subject) {
+    
+    Set<String> affiliations = new HashSet<String>();
+
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+      return affiliations;
+    }
+    
+    Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+    if (member == null) {
+      return affiliations;
+    }
+    
+    Map<String, String> groupIdToAffiliation = new HashMap<String, String>();
+    MembershipFinder membershipFinder = new MembershipFinder().assignEnabled(true).addMemberId(member.getId());
+    
+    Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
+    for (String affiliation: allAffiliations.keySet()) {
+      String groupName = allAffiliations.get(affiliation).getUsersWhoHaveBeenDeprovisionedGroupName();
+      Group group = GroupFinder.findByName(grouperSession, groupName, false);
+      if (group == null) {
+        continue;
+      }
+      groupIdToAffiliation.put(group.getId(), affiliation);
+      membershipFinder.addGroupId(group.getId());
+    }
+    
+    if (groupIdToAffiliation.size() == 0) {
+      return affiliations;
+    }
+    
+    MembershipResult membershipResult = membershipFinder.assignField(Group.getDefaultList()).findMembershipResult();
+    
+    for (Object[] membershipOwnerMember : membershipResult.getMembershipsOwnersMembers()) {
+      Group group = (Group)membershipOwnerMember[1];
+      String affiliation = groupIdToAffiliation.get(group.getId());
+      if (affiliation != null) {
+        affiliations.add(affiliation);
+      }
+    }
+    
+    return affiliations;
+  }
   
   /**
    * 
