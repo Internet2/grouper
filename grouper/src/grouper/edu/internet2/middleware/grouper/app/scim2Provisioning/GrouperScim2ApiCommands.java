@@ -1471,6 +1471,7 @@ public class GrouperScim2ApiCommands {
       int startIndex = 1;
       int maxCalls = Math.max(10000000/pageSize, 1);
       int previousStartIndex = 0;
+      boolean pageByRequestedCount = scimSettings != null && scimSettings.isScimPageByRequestedCount();
       do {
 
         JsonNode jsonNode = null;
@@ -1494,9 +1495,9 @@ public class GrouperScim2ApiCommands {
         }
 
         // do not do this until after seeing if total results is 0
-        int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-        int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-        if (previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata() ) {
+        Integer itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
+        Integer returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+        if (returnedStartIndex != null && previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata() && !pageByRequestedCount) {
           // the server returned the previous page so we're done. It happens in AWS.
           return results;
         }
@@ -1506,18 +1507,19 @@ public class GrouperScim2ApiCommands {
               + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
         }
 
-        if (!jsonNode.has("Resources")) {
+        if (!pageByRequestedCount && !jsonNode.has("Resources")) {
           return results;
         }
         
-        ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+        ArrayNode resourcesNode = jsonNode.has("Resources") ? (ArrayNode)jsonNode.get("Resources") : null;
 
-        if (resourcesNode == null || resourcesNode.size() == 0) {
+        if (!pageByRequestedCount && (resourcesNode == null || resourcesNode.size() == 0)) {
           return results;
         }
    
         boolean foundNewUser = false;
-        for (int i=0;i<resourcesNode.size();i++) {
+        int resourcesSize = resourcesNode == null ? 0 : resourcesNode.size();
+        for (int i=0;i<resourcesSize;i++) {
           JsonNode userNode = resourcesNode.get(i);
           GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
           if (!idsRetreved.contains(grouperScimUser.getId())) {
@@ -1539,11 +1541,21 @@ public class GrouperScim2ApiCommands {
 
         previousStartIndex = startIndex;
         
-        // this doesnt increase by pageSize since the server might not support it
-        startIndex = startIndex + resourcesNode.size();
-        
-        if (pageSize == -1 || !foundNewUser) {
-          return results;
+        if (pageByRequestedCount) {
+          if (pageSize <= 0) {
+            return results;
+          }
+          startIndex = startIndex + pageSize;
+          if (startIndex > totalResults) {
+            return results;
+          }
+        } else {
+          // this doesnt increase by pageSize since the server might not support it
+          startIndex = startIndex + resourcesSize;
+          
+          if (pageSize == -1 || !foundNewUser) {
+            return results;
+          }
         }
         
 //        if (results.size() >= 5000) {
@@ -2402,6 +2414,7 @@ public class GrouperScim2ApiCommands {
       int startIndex = 1;
       int maxCalls = Math.max(5000000/pageSize, 1);
       int previousStartIndex = 0;
+      boolean pageByRequestedCount = scimSettings != null && scimSettings.isScimPageByRequestedCount();
       do {
 
         JsonNode jsonNode = null;
@@ -2421,9 +2434,9 @@ public class GrouperScim2ApiCommands {
 
         // do not do this until after seeing if total results is 0
 
-        int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-        int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-        if (previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata()) {
+        Integer itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
+        Integer returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+        if (returnedStartIndex != null && previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata() && !pageByRequestedCount) {
           // the server returned the previous page so we're done. It happens in AWS.
           return results;
         }
@@ -2434,18 +2447,19 @@ public class GrouperScim2ApiCommands {
               + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
         }
 
-        if (!jsonNode.has("Resources")) {
+        if (!pageByRequestedCount && !jsonNode.has("Resources")) {
           return results;
         }
 
-        ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+        ArrayNode resourcesNode = jsonNode.has("Resources") ? (ArrayNode)jsonNode.get("Resources") : null;
 
-        if (resourcesNode.size() == 0) {
+        if (!pageByRequestedCount && (resourcesNode == null || resourcesNode.size() == 0)) {
           return results;
         }
    
         boolean foundNewGroup = false;
-        for (int i=0;i<resourcesNode.size();i++) {
+        int resourcesSize = resourcesNode == null ? 0 : resourcesNode.size();
+        for (int i=0;i<resourcesSize;i++) {
           JsonNode groupNode = resourcesNode.get(i);
           GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
           if (!idsRetreved.contains(grouperScimGroup.getId())) {
@@ -2467,11 +2481,21 @@ public class GrouperScim2ApiCommands {
 
         previousStartIndex = startIndex;
         
-        // this doesnt increase by pageSize since the server might not support it
-        startIndex = startIndex + resourcesNode.size();
-        
-        if (pageSize == -1 || !foundNewGroup) {
-          return results;
+        if (pageByRequestedCount) {
+          if (pageSize <= 0) {
+            return results;
+          }
+          startIndex = startIndex + pageSize;
+          if (startIndex > totalResults) {
+            return results;
+          }
+        } else {
+          // this doesnt increase by pageSize since the server might not support it
+          startIndex = startIndex + resourcesSize;
+          
+          if (pageSize == -1 || !foundNewGroup) {
+            return results;
+          }
         }
 
         

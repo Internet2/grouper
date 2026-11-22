@@ -28,6 +28,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   private String membershipStrategy;
   
   private boolean scimIgnorePagingMetadata = false;
+
+  private boolean scimPageByRequestedCount = false;
   
   private boolean scimRetrieveMembershipsByUser = true;
   
@@ -121,6 +123,14 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimIgnorePagingMetadata = scimIgnoreTotalResults;
   }
 
+  public boolean isScimPageByRequestedCount() {
+    return scimPageByRequestedCount;
+  }
+
+  public void setScimPageByRequestedCount(boolean scimPageByRequestedCount) {
+    this.scimPageByRequestedCount = scimPageByRequestedCount;
+  }
+
   public boolean isDisableEntitiesInsteadOfDelete() {
     return disableEntitiesInsteadOfDelete;
   }
@@ -211,6 +221,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimRetrieveMembershipsByGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimRetrieveMembershipsByGroup", false), true);
 
     this.scimIgnorePagingMetadata = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimIgnorePagingMetadata", false), false);
+
+    this.scimPageByRequestedCount = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimPageByRequestedCount", false), false);
     
     this.scimMembershipBatchSize = GrouperUtil.intValue(this.retrieveConfigInt("scimMembershipBatchSize", false), 100);
 
