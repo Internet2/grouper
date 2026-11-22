@@ -6713,31 +6713,22 @@ public class UiV2Group {
           }
           
           // get not-group members count
-          QueryOptions queryOptions = new QueryOptions();
-          queryOptions.retrieveCount(true);
-          queryOptions.retrieveResults(false);
-          new MembershipFinder().addField(Group.getDefaultList())
-          .addGroup(group).assignQueryOptionsForMember(queryOptions)
-          .assignSources(new HashSet<Source>(sources))
-          .findMembershipResult();
-            
-           int directNotGroupMembersCount = queryOptions.getCount().intValue();
-           groupSummaryContainer.setNotGroupMembersCount(directNotGroupMembersCount); // members that are non-groups
+          // count distinct members, not memberships: a subject with multiple paths has one row per path
+          int directNotGroupMembersCount = new MembershipFinder().addField(Group.getDefaultList())
+              .addGroup(group)
+              .assignSources(new HashSet<Source>(sources))
+              .findCountForMember();
+          groupSummaryContainer.setNotGroupMembersCount(directNotGroupMembersCount); // members that are non-groups
            
            //get total members count (direct + indirect and subjects + groups)
-           queryOptions = new QueryOptions();
-           queryOptions.retrieveCount(true);
-           queryOptions.retrieveResults(false);
-           new MembershipFinder().addField(Group.getDefaultList())
-              .addGroup(group).assignQueryOptionsForMember(queryOptions)
-              .findMembershipResult();
-           
-           int totalMembersCount = queryOptions.getCount().intValue();
+           int totalMembersCount = new MembershipFinder().addField(Group.getDefaultList())
+              .addGroup(group)
+              .findCountForMember();
            groupSummaryContainer.setTotalMembersCount(totalMembersCount);
            
            
            //get total direct members count 
-           queryOptions = new QueryOptions();
+           QueryOptions queryOptions = new QueryOptions();
            queryOptions.retrieveCount(true);
            queryOptions.retrieveResults(false);
            new MembershipFinder().addField(Group.getDefaultList())
