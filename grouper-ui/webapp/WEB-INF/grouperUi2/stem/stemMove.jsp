@@ -46,7 +46,7 @@ ${grouper:titleFromKeyAndText('stemMovePageTitle', grouperRequestContainer.stemC
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" name="moveChangeAlternateNames" checked="checked" value="true" />${textContainer.text['stemMoveChangeAlternateNamesDescription']}
+                        <input type="checkbox" name="moveChangeAlternateNames" value="true" />${textContainer.text['stemMoveChangeAlternateNamesDescription']}
                       </label>
                     </div>
                   </div>
