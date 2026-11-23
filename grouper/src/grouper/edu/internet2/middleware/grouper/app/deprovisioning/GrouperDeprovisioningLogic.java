@@ -854,12 +854,14 @@ public class GrouperDeprovisioningLogic {
       return true;
     }
     
-    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliationsFromDatabase(grouperSession, subject);
-    
-    if (deprovisionedInAffiliations.size() == 0) {
+    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       return true;
     }
-    
+
+    // GRP-7563: this runs on every membership add (MembershipVetoIfDeprovisionedHook), so first look at the
+    // owner's deprovisioning settings (cached), and only query the database for whether the subject is
+    // deprovisioned when the owner deprovisions an affiliation that does not allow adds.  Most owners have
+    // no deprovisioning, so most adds never query the deprovisioned groups
     GrouperObject grouperObject;
     
     if (StringUtils.isNotBlank(groupId)) {
@@ -882,16 +884,23 @@ public class GrouperDeprovisioningLogic {
     }
     
     GrouperDeprovisioningOverallConfiguration deprovisioningConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
-    
-    for (String deprovisionedInAffiliation: deprovisionedInAffiliations) {
-      if (!affiliationsToDeprovision.contains(deprovisionedInAffiliation)) {
-        continue;
-      }
-      if (!deprovisioningConfiguration.isAllowAddsWhileDeprovisioned(deprovisionedInAffiliation)) {
-        return false;
+
+    // only the affiliations which deprovision this owner and do not allow adds while deprovisioned can veto
+    Set<String> affiliationsWhichVeto = new HashSet<String>();
+    for (String affiliationToDeprovision : affiliationsToDeprovision) {
+      if (!deprovisioningConfiguration.isAllowAddsWhileDeprovisioned(affiliationToDeprovision)) {
+        affiliationsWhichVeto.add(affiliationToDeprovision);
       }
     }
-    return true;
+
+    if (affiliationsWhichVeto.size() == 0) {
+      return true;
+    }
+
+    // query the database (not the cache) so a subject who was just deprovisioned (on any node) is seen right away
+    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliationsFromDatabase(grouperSession, subject, affiliationsWhichVeto);
+
+    return deprovisionedInAffiliations.size() == 0;
   }
   
   /**
@@ -923,7 +932,19 @@ public class GrouperDeprovisioningLogic {
    * @return list of affiliations this subject has been deprovisioned from
    */
   public static Set<String> subjectDeprovisionedInAffiliationsFromDatabase(GrouperSession grouperSession, Subject subject) {
-    
+    return subjectDeprovisionedInAffiliationsFromDatabase(grouperSession, subject, null);
+  }
+
+  /**
+   * query the usersWhoHaveBeenDeprovisioned groups directly (not the cache) so a subject who was
+   * just deprovisioned (on any node) is seen right away
+   * @param grouperSession
+   * @param subject
+   * @param onlyTheseAffiliations if not null, only check these affiliations (fewer groups to look up and query)
+   * @return list of affiliations this subject has been deprovisioned from
+   */
+  public static Set<String> subjectDeprovisionedInAffiliationsFromDatabase(GrouperSession grouperSession, Subject subject, Set<String> onlyTheseAffiliations) {
+
     Set<String> affiliations = new HashSet<String>();
 
     if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
@@ -940,6 +961,9 @@ public class GrouperDeprovisioningLogic {
     
     Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
     for (String affiliation: allAffiliations.keySet()) {
+      if (onlyTheseAffiliations != null && !onlyTheseAffiliations.contains(affiliation)) {
+        continue;
+      }
       String groupName = allAffiliations.get(affiliation).getUsersWhoHaveBeenDeprovisionedGroupName();
       Group group = GroupFinder.findByName(grouperSession, groupName, false);
       if (group == null) {
