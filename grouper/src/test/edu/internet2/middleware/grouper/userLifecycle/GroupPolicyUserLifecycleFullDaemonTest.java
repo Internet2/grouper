@@ -37,7 +37,7 @@ public class GroupPolicyUserLifecycleFullDaemonTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupPolicyUserLifecycleFullDaemonTest("testMultipleActionsAndEvents"));
+    TestRunner.run(new GroupPolicyUserLifecycleFullDaemonTest("testGroupUserRemoveTemplateGroupVariables"));
   }
   
   /**
@@ -403,6 +403,66 @@ $$ }
     assertEquals(1, immediateMembers.size());
     assertEquals("my name is test.subject.0", immediateMembers.iterator().next().getName());
 
+  }
+
+  /**
+   * GRP-7555: the groupUserRemove trigger must render the real group variables (name, display name,
+   * extension, display extension, description) in the natural language templates
+   */
+  public void testGroupUserRemoveTemplateGroupVariables() {
+
+    Group facStaffGroup = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:hr:allFacstaff")
+        .assignDisplayExtension("All Fac Staff").assignDescription("All faculty and staff").assignCreateParentStemsIfNotExist(true).save();
+
+    facStaffGroup.addMember(SubjectFinder.findById("test.subject.1", true));
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.name").value("hr position lost").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.description").value("Removed from all fac staff").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.groupUserRemoveGroup").value(facStaffGroup.getUuid()).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.naturalLanguageDescriptionJexlPrivileged").value("HR position lost (removed from ${groupDisplayExtension}) ${groupName} | ${groupDisplayName}").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.naturalLanguageDescriptionJexlPrivilegedGroupIdOrName").value("etc:sysadmingroup").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.naturalLanguageDescriptionJexlUnprivileged").value("Removed from ${groupExtension} | ${groupDescription}").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.hrPositionLost.trigger").value("groupUserRemove").store();
+
+    facStaffGroup.deleteMember(SubjectFinder.findById("test.subject.1", true));
+
+    //This will insert entries in the cache tables
+    ChangeLogTempToEntity.convertRecords();
+
+    UserLifecycleEngine.syncUserLifecycleEventConfigs(null);
+
+    GrouperLifecycleEventConfig lifecycleEventConfig = UserLifecycleEventConfigDao.selectByText("hrPositionLost");
+    UserLifecycleEventConfiguration.prepareAndStoreSqlCacheDependencies(lifecycleEventConfig);
+
+    // now run the OTHER_JOB_sqlCacheHistoryFullSync to insert entries into the grouper_sql_cache_mship_hst table
+    OtherJobInput otherJobInput = new OtherJobInput();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    otherJobInput.setJobName("OTHER_JOB_sqlCacheHistoryFullSync");
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    new SqlCacheHistoryFullSyncDaemon().run(otherJobInput);
+
+    GrouperUtil.sleep(2000L);
+
+    OtherJobInput otherJobInput1 = new OtherJobInput();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog1 = new Hib3GrouperLoaderLog();
+    otherJobInput1.setJobName("OTHER_JOB_userLifecycleFullDaemon");
+    otherJobInput1.setHib3GrouperLoaderLog(hib3GrouperLoaderLog1);
+    new UserLifecycleFullDaemon().run(otherJobInput1);
+
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectFinder.findById("test.subject.1", true), true);
+
+    String privilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_priv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("HR position lost (removed from All Fac Staff) test:hr:allFacstaff | " + facStaffGroup.getDisplayName(), privilegedText);
+
+    String unprivilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_unpriv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("Removed from allFacstaff | All faculty and staff", unprivilegedText);
   }
 
   /**
