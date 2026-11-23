@@ -1408,10 +1408,15 @@ public enum RuleThenEnum {
       
       Map<String, Object> variableMap =  new HashMap<String, Object>();
 
-      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
-      boolean hasAccessToEl = RuleEngine.hasAccessToElApi(actAsSubject);
+      // SECURITY (GRP-7596): a non-wheel author may only use the predefined variables, which always run
+      // in the JEXL sandbox with the plain string variables.  Anything else could only have been saved
+      // by a sysadmin (or is a template file the site wrote), so with rules.allowUnrestrictedEl it gets
+      // every EL variable and runs unrestricted.  Without it, a failure logs a hint naming the property.
+      boolean sysadminExpression = RuleElSysadminCheck.sendEmailRunsUnrestricted(ruleDefinition.getThen());
+      boolean unrestricted = sysadminExpression && RuleElSysadminCheck.allowUnrestrictedEl();
+      String sandboxHint = sysadminExpression && !unrestricted ? "  " + RuleElSysadminCheck.sandboxHint(ruleDefinition) : "";
 
-      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToEl);
+      ruleDefinition.addElVariables(variableMap, rulesBean, unrestricted);
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", EL variables: ");
@@ -1426,25 +1431,25 @@ public enum RuleThenEnum {
       }
       
       try {
-        toAddressesString = GrouperUtil.substituteExpressionLanguage(toAddressesString, variableMap);
+        toAddressesString = GrouperUtil.substituteExpressionLanguage(toAddressesString, variableMap, unrestricted, false, false);
       } catch (Exception e) {
-        LOG.error("Problem substituting EL in toAddressesString: " + toAddressesString, e);
+        LOG.error("Problem substituting EL in toAddressesString: " + toAddressesString + sandboxHint, e);
       }
 
       // make this failsafe
       String subject = subjectTemplate;
       try {
-        subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap);
+        subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap, unrestricted, false, false);
       } catch (Exception e) {
-        LOG.error("Problem substituting EL in subjectTemplate: " + subjectTemplate, e);
+        LOG.error("Problem substituting EL in subjectTemplate: " + subjectTemplate + sandboxHint, e);
       }
       
       // make this failsafe      
       String body = bodyTemplate;
       try {
-        body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap);
+        body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap, unrestricted, false, false);
       } catch (Exception e) {
-        LOG.error("Problem substituting EL in bodyTemplate: " + bodyTemplate, e);
+        LOG.error("Problem substituting EL in bodyTemplate: " + bodyTemplate + sandboxHint, e);
       }
 
       if (logDataForThisDefinition != null) {

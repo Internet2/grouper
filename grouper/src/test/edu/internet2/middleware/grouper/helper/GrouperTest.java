@@ -287,6 +287,7 @@ public class GrouperTest extends GrouperTestBase {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.externalSubject.class", null);
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.group", null);
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowUnrestrictedEl", null);
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.cache.minutes", "30");
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.customElClasses", null);
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 

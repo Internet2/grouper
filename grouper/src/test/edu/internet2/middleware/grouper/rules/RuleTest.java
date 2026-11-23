@@ -492,14 +492,14 @@ public class RuleTest extends GrouperTest {
   }
   
   /**
-   * 
+   * GRP-7596: with rules.allowUnrestrictedEl, if/then EL gets the full EL API (here
+   * attributeAssignType) without rules.accessToApiInEl.group, since only a sysadmin can save it
    */
   public void testRuleLonghandIfElMoreApi() {
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", "etc:rulesAccessToApi");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", "");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowUnrestrictedEl", "true");
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    Group rulesAccessToApiGroup = new GroupSave(grouperSession).assignName("etc:rulesAccessToApi").save();
     
     Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
     Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
@@ -530,22 +530,6 @@ public class RuleTest extends GrouperTest {
     groupB.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
-    //count rule firings
-    try {
-      groupB.deleteMember(SubjectTestHelper.SUBJ0);
-      fail("should not be allowed to call object (or doesnt exist)");
-    } catch (Exception e) {
-      //good
-    }
-
-    //tx's were rolled back
-    assertTrue(groupA.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(groupB.hasMember(SubjectTestHelper.SUBJ0));
-
-    //now lets put the act as in the full api group
-    rulesAccessToApiGroup.addMember(SubjectFinder.findRootSubject(), false);
-    RuleEngine.clearSubjectHasAccessToElApi();
-
     groupB.deleteMember(SubjectTestHelper.SUBJ0);
 
     assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));

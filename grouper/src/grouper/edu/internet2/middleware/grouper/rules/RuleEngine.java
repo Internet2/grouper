@@ -734,65 +734,14 @@ public class RuleEngine {
   }
 
   /**
-   * multikey is sourceId and subjectId , default is 2.5 minutes
-   */
-  private static GrouperCache<MultiKey, Boolean> subjectHasAccessToApi = 
-    new GrouperCache<MultiKey, Boolean>(RuleEngine.class.getName() + ".hasAccessToElApi", 1000, false, 150, 150, false);
-  
-  /**
-   * clear this for testing
-   */
-  static void clearSubjectHasAccessToElApi() {
-    subjectHasAccessToApi.clear();
-  }
-  
-  /**
    * clear this for testing
    */
   public static void clearRuleEngineCache() {
     ruleEngineCache.clear();
   }
   
-  /**
-   * see if a subejct (e.g. act as subject) has access to the EL api
-   * @param subject
-   * @return true if has access, flase if not, use the cache
-   */
-  public static boolean hasAccessToElApi(final Subject subject) {
-
-    final String hasAccessToGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.accessToApiInEl.group");
-    
-    if (StringUtils.isBlank(hasAccessToGroupName)) {
-      return false;
-    }
-    
-    final MultiKey subjectKey = new MultiKey(subject.getSourceId(), subject.getId());
-    
-    Boolean result = subjectHasAccessToApi.get(subjectKey);
-    if (result == null) {
-      
-      //go to root
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
-      
-      result = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-          Group hasAccessGroup = GroupFinder.findByName(grouperSession, hasAccessToGroupName, true);
-          
-          boolean result = hasAccessGroup.hasMember(subject);
-          
-          //add back to cache
-          subjectHasAccessToApi.put(subjectKey, result);
-          
-          return result;
-        }
-      });
-      
-    }
-
-    return result;
-  }
+  // GRP-7596: hasAccessToElApi and rules.accessToApiInEl.group were removed.  Rule if/then EL
+  // (sysadmin only) always gets every EL variable, see RuleElSysadminCheck.
   
   
 }

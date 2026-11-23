@@ -246,10 +246,12 @@ public class RuleThen {
       Map<String, Object> variableMap =  new HashMap<String, Object>();
 
       
-      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
-      boolean hasAccessToEl = RuleEngine.hasAccessToElApi(actAsSubject);
+      // SECURITY (GRP-7596): only a sysadmin can save then EL (RuleService and RuleElSysadminCheck).
+      // With rules.allowUnrestrictedEl it gets every EL variable and runs unrestricted; otherwise it
+      // runs in the JEXL sandbox with the plain variables.
+      boolean unrestricted = RuleElSysadminCheck.allowUnrestrictedEl();
 
-      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToEl);
+      ruleDefinition.addElVariables(variableMap, rulesBean, unrestricted);
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", EL variables: ");
@@ -263,7 +265,8 @@ public class RuleThen {
         }
       }
       
-      String result = GrouperUtil.substituteExpressionLanguage(this.thenEl, variableMap);
+      // a sandboxed failure says to set rules.allowUnrestrictedEl
+      String result = RuleElSysadminCheck.substituteRuleEl(this.thenEl, variableMap, unrestricted, ruleDefinition);
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", elResult: ").append(result);
