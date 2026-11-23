@@ -17,8 +17,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
-import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
-import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.abac.GrouperAbacScriptedGroup;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
@@ -285,50 +284,24 @@ public class GrouperLoaderImportAuthorization {
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
 
-    String invalidMessage = GrouperAbac.validScript(script, grouperDataEngine);
-    if (!StringUtils.isBlank(invalidMessage)) {
-      errors.add("The script is not valid: " + GrouperUtil.xmlEscape(invalidMessage));
-      return;
-    }
-
-    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = null;
+    // GRP-7542: use the same checks as the UI and MCP save (length, composite, valid and parses,
+    // self reference, the analysis in save mode, every group exists and the user can READ it, and the
+    // max ABAC membership size).  the analysis on its own treats a group the user cannot see as
+    // missing (so as not to show it exists), so calling only the analysis here would let an import
+    // use a hidden group's members
+    GrouperAbacScriptedGroup.SaveCheck saveCheck = null;
     try {
-      grouperJexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
-          grouperDataEngine, script, null, subject, false, effectiveSourceIds, false);
+      saveCheck = GrouperAbacScriptedGroup.checkScriptForSave(grouperDataEngine, group, script, effectiveSourceIds, subject);
     } catch (RuntimeException re) {
-      // e.g. a script which does not parse, or a data field which does not exist
-      LOG.warn("Error analyzing imported script on group: " + group.getName(), re);
-      errors.add("The script could not be analyzed: " + GrouperUtil.xmlEscape(re.getMessage()));
-      return;
-    }
-    if (grouperJexlScriptAnalysis == null) {
+      // e.g. a database error.  log the detail, do not echo it to the importer
+      LOG.warn("Error checking imported script on group: " + group.getName(), re);
       errors.add("The script could not be analyzed");
       return;
     }
-
-    // e.g. a group in the script the user cannot read, or a data field whose privacy realm they
-    // cannot update.  in save mode a warning refuses the save too, as on the UI's loader screen
-    if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getErrorMessage())) {
-      errors.add("The script is not allowed: " + GrouperUtil.xmlEscape(grouperJexlScriptAnalysis.getErrorMessage()));
+    if (saveCheck == null || !saveCheck.isAllowed()) {
+      String errorMessage = saveCheck == null ? null : saveCheck.getErrorMessage();
+      errors.add("The script is not allowed" + (StringUtils.isBlank(errorMessage) ? "" : ": " + GrouperUtil.xmlEscape(errorMessage)));
       return;
-    }
-    if (StringUtils.isNotBlank(grouperJexlScriptAnalysis.getWarningMessage())) {
-      errors.add("The script is not allowed: " + GrouperUtil.xmlEscape(grouperJexlScriptAnalysis.getWarningMessage()));
-      return;
-    }
-
-    // the configured max ABAC membership size for the importing user, so people cannot configure
-    // oversized scripted groups that would overwhelm Grouper
-    if (GrouperUtil.length(grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) > 0) {
-      Integer maxAbacMembershipSize = GrouperAbac.maxAbacMembershipSizeForSubject(subject);
-      if (maxAbacMembershipSize != null) {
-        int populationCount = grouperJexlScriptAnalysis.getGrouperJexlScriptParts().get(0).getPopulationCount();
-        if (populationCount > maxAbacMembershipSize.intValue()) {
-          errors.add("The script selects " + populationCount + " members, more than the "
-              + maxAbacMembershipSize.intValue() + " you are allowed");
-          return;
-        }
-      }
     }
   }
 
