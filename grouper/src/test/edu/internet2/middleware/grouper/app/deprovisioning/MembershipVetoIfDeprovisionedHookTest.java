@@ -129,7 +129,70 @@ public class MembershipVetoIfDeprovisionedHookTest extends GrouperTest {
     }
     
     assertTrue(noException);
-    
+
+  }
+
+  /**
+   * GRP-7563: a subject deprovisioned after the deprovisioned-subjects cache was built is vetoed right away
+   * (not ~5 minutes later), and an owner with no deprovisioning does not veto a deprovisioned subject
+   */
+  public void testMembershipVetoRightAfterDeprovision() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // folder that deprovisions employees, and a folder with no deprovisioning
+    Stem deprovisioningStem = new StemSave(grouperSession).assignName("test").save();
+    Group group = new GroupSave(grouperSession).assignName(deprovisioningStem.getName() + ":testGroup" ).assignCreateParentStemsIfNotExist(true).save();
+    Group groupNoDeprovisioning = new GroupSave(grouperSession).assignName("test2:testGroupNoDeprovisioning").assignCreateParentStemsIfNotExist(true).save();
+
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(deprovisioningStem, false);
+
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+    grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
+    grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("employee", grouperDeprovisioningConfiguration);
+
+    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+    grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+
+    grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+
+    grouperDeprovisioningAttributeValue.setDeprovisionString("true");
+    grouperDeprovisioningAttributeValue.setDirectAssignment(true);
+
+    grouperDeprovisioningAttributeValue.setAffiliationString("employee");
+
+    grouperDeprovisioningConfiguration.storeConfiguration();
+
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_deprovisioningFullSyncDaemon");
+
+    MembershipVetoIfDeprovisionedHook vetoHook = new MembershipVetoIfDeprovisionedHook();
+    HooksContext hooksContext = new HooksContext();
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+
+    Membership membership = new Membership();
+    membership.setOwnerGroupId(group.getId());
+    membership.setMember(member);
+
+    // not deprovisioned yet: allowed (this also builds the deprovisioned-subjects cache)
+    GrouperDeprovisioningLogic.subjectDeprovisionedInAffiliations(SubjectTestHelper.SUBJ2);
+    vetoHook.checkMembershipEligibility(membership, hooksContext);
+
+    // deprovision subj2 now, the cache still says not deprovisioned, but the veto must apply right away
+    GrouperDeprovisioningAffiliation deprovisioningAffiliation = GrouperDeprovisioningAffiliation.retrieveAllAffiliations().get("employee");
+    deprovisioningAffiliation.getUsersWhoHaveBeenDeprovisionedGroup().addMember(SubjectTestHelper.SUBJ2, false);
+
+    try {
+      vetoHook.checkMembershipEligibility(membership, hooksContext);
+      fail("subj2 was just deprovisioned and should be vetoed");
+    } catch (HookVeto e) {
+      // good
+    }
+
+    // an owner with no deprovisioning does not veto, even for a deprovisioned subject
+    Membership membershipNoDeprovisioning = new Membership();
+    membershipNoDeprovisioning.setOwnerGroupId(groupNoDeprovisioning.getId());
+    membershipNoDeprovisioning.setMember(member);
+    vetoHook.checkMembershipEligibility(membershipNoDeprovisioning, hooksContext);
+
   }
 
 
