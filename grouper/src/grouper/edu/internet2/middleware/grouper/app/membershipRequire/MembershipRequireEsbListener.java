@@ -98,7 +98,13 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
 
     Set<MultiKey> attributeNameTypeOwnerIds = new HashSet<MultiKey>();
     Set<MultiKey> groupNameMemberIds = new HashSet<MultiKey>();
-    
+
+    // ids of groups that were added, or renamed / moved (a folder move renames every group under
+    // it, so it shows up here as one GROUP_UPDATE per descendant group).  A group that lands under
+    // a folder with a membership requirement brings its existing members with it, and nothing
+    // else would re-check them before the full sync
+    Set<String> addedOrMovedGroupIds = new HashSet<String>();
+
     RuntimeException runtimeException = null;
     try {
       
@@ -151,7 +157,31 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
               groupNameMemberIds.add(new MultiKey(groupName, esbEvent.getMemberId()));
             }
             break;
-          
+
+          case GROUP_ADD:
+            {
+              // e.g. a group copy into a protected folder: the copied members are there by the
+              // time this runs
+              if (!StringUtils.isBlank(esbEvent.getGroupId())) {
+                addedOrMovedGroupIds.add(esbEvent.getGroupId());
+              }
+            }
+            break;
+
+          case GROUP_UPDATE:
+            {
+              // only a name or parent folder change can bring a group under a new requirement;
+              // description and display name changes are ignored
+              String propertyChanged = esbEvent.getPropertyChanged();
+              if (!StringUtils.equals("name", propertyChanged) && !StringUtils.equals("parentStemId", propertyChanged)) {
+                continue;
+              }
+              if (!StringUtils.isBlank(esbEvent.getGroupId())) {
+                addedOrMovedGroupIds.add(esbEvent.getGroupId());
+              }
+            }
+            break;
+
           default:
         }
       }
@@ -219,7 +249,25 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
           }
         }
       }
-      
+
+      // added, renamed or moved groups: remove members that do not meet the requirements the
+      // group has at its CURRENT name (assigned to the group or inherited from any ancestor
+      // folder).  Looked up by id, so a group renamed twice in one batch is handled once, at its
+      // final name, and a group deleted since is skipped
+      for (String groupId : addedOrMovedGroupIds) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+        Group group = GroupFinder.findByUuid(groupId, false);
+        if (group == null) {
+          continue;
+        }
+        Set<MembershipRequireConfigBean> configBeansAssignedToGroup = MembershipRequireEngine.groupNameToConfigBeanAssigned(group.getName());
+        for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(configBeansAssignedToGroup)) {
+          int removed = MembershipRequireEngine.removeInvalidMembers(group.getName(), membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
+          hib3GrouperLoaderLog.addDeleteCount(removed);
+        }
+      }
+
       // if we didnt throw an exception, then we processed all of them
       // get the last sequence before the provisioner re-orders them
       Long lastSequenceNumber = -1L;

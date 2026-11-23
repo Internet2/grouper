@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigSecretMasking;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpConfigSearchIndex;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -284,10 +285,11 @@ public class GrouperMcpAdminSearchConfigs {
 
               String value = config.propertyValueString(key);
 
-              // check if this is a sensitive/password config
-              boolean isSensitive = GrouperConfigHibernate.isPasswordHelper(
-                  fileName, null, key, value,
-                  StringUtils.isNotBlank(value), null);
+              // check if this is a sensitive/password config.  also a .value whose sibling
+              // .valueIsSecret is true (e.g. ws bearer token additional headers), which the
+              // generic key and metadata rules cannot see
+              boolean isSensitive = GrouperConfigSecretMasking.isSensitive(
+                  fileName, null, config, key, value);
 
               ObjectNode entry = objectMapper.createObjectNode();
               entry.put("key", key);

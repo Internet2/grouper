@@ -136,7 +136,7 @@ public class TierGroupProvider {
         throw new IllegalArgumentException("Missing filter parameter");
       }
 
-      // SECURITY (issue 171, 2026-11-13): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
+      // SECURITY (GRP-7585): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
       // startIndex is supported, and the searches below are paged in the database.  Before, the
       // caller picked any itemsPerPage and every search loaded every group the caller can VIEW (and
       // the converter loads the members of each), so one "co" filter could read the whole registry

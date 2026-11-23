@@ -66,7 +66,7 @@ public class GshTemplateCompiledDispatch {
       throw new IllegalArgumentException("baseClass must be non-null for '" + configId + "'");
     }
 
-    // SECURITY (issue 73, 2026-11-10): every compiled-template dispatcher (daemon, change log, report,
+    // SECURITY (GRP-7575): every compiled-template dispatcher (daemon, change log, report,
     // custom UI, provisioner, library, hook, interactive) comes through here, so refuse a template that
     // is disabled, not in compiled mode, or of the wrong type for this dispatcher BEFORE its source is
     // read or its class is loaded.  Disabling a template must stop its code from running.
@@ -127,7 +127,7 @@ public class GshTemplateCompiledDispatch {
       throw new RuntimeException("GSH template '" + configId
           + "' must be templateMode=compiled to be loaded as a library template");
     }
-    // SECURITY (issue 73, 2026-11-10): only an enabled template of type library may be loaded this way
+    // SECURITY (GRP-7575): only an enabled template of type library may be loaded this way
     if (gshTemplateConfig.getGshTemplateType() == null
         || !"library".equals(gshTemplateConfig.getGshTemplateType().name())) {
       throw new RuntimeException("GSH template '" + configId + "' is not templateType=library");

@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
- * Security issue 43 follow-on (mainline only, 2026-11-10): a uuid that a caller chooses for a NEW
+ * Security (GRP-7583): a uuid that a caller chooses for a NEW
  * group, folder, attribute definition or attribute definition name must be a safe identifier
  * (letters, digits, colon, underscore, dot, dash, at most 40 characters).  Before the fix any
  * string was stored, e.g. markup that then rendered in the UI.

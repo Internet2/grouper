@@ -929,7 +929,7 @@ public class UiV2GrouperLoader {
   }
 
   /**
-   * loader types this group has now (security issue 19)
+   * loader types this group has now (GRP-7576)
    * @param grouperLoaderContainer
    * @return the types, empty if no loader marker
    */
@@ -940,7 +940,7 @@ public class UiV2GrouperLoader {
   }
 
   /**
-   * loader-editing rights of the logged-in user on this group (security issue 19)
+   * loader-editing rights of the logged-in user on this group (GRP-7576)
    * @param grouperLoaderContainer
    * @return the rights
    */
@@ -989,7 +989,7 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.getEditLoaderLdapGroupNameExpression(), grouperLoaderContainer.getEditLoaderLdapGroupDisplayNameExpression(),
             grouperLoaderContainer.getEditLoaderLdapGroupDescriptionExpression(), grouperLoaderContainer.getEditLoaderLdapAttributeFilterExpression()});
 
-      // security issue 19: deny by default, before any cleanup below runs as root.  Decide by the
+      // SECURITY (GRP-7576): deny by default, before any cleanup below runs as root.  Decide by the
       // group's actual loader markers and the requested type, so an unknown type or a type switch
       // cannot skip the per-type checks
       final Set<String> existingLoaderTypes = loaderTypeAuthorizationExisting(grouperLoaderContainer);
@@ -1085,7 +1085,7 @@ public class UiV2GrouperLoader {
           }
         }
         // remove loaderMetadata from this loader group and all previously managed groups
-        // security issue 19: only when the group had a loader marker, else a VIEW-only user could
+        // SECURITY (GRP-7576): only when the group had a loader marker, else a VIEW-only user could
         // strip the metadata that ties a managed group to its group-list loader
         if (UiV2GrouperLoaderTypeAuthorization.shouldRemoveLoaderMetadata(existingLoaderTypes)) {
           GrouperLoaderType.removeLoaderMetadataFromGroupAndManagedGroups(group);
@@ -1214,7 +1214,11 @@ public class UiV2GrouperLoader {
               gshTemplateConfig.populateConfiguration();
               
               Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = UiV2Template.populateCustomTemplateInputs(request, templateType);
-              
+
+              // the run below takes its input values from the request parameters, not from these populated values,
+              // so a FILE input's uploaded copy is never used here: delete it now so it does not stay in the temp dir
+              GshTemplateFileUpload.deleteUploads(gshTemplateInputs);
+
               for (String inputName: gshTemplateInputs.keySet()) {
                 
                 String value = request.getParameter("config_"+inputName);
@@ -2228,7 +2232,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      // security issue 19 (43): authorize by this group's actual loader type, not "can edit some loader type"
+      // SECURITY (GRP-7576): authorize by this group's actual loader type, not "can edit some loader type"
       boolean canEditLoader = UiV2GrouperLoaderTypeAuthorization.canOpenOrExport(
           loaderTypeAuthorizationExisting(grouperLoaderContainer), loaderTypeAuthorizationRights(grouperLoaderContainer));
           
@@ -2506,7 +2510,9 @@ public class UiV2GrouperLoader {
           if (StringUtils.isNotBlank(templateType)) {
             grouperLoaderContainer.setEditLoaderAbacPattern(templateType);
             
-            UiV2Template.populateCustomTemplateInputs(request, templateType);
+            // the inputs are only populated to redraw the form (a file input cannot be redrawn with its file), and
+            // nothing runs with them here, so delete any FILE input's uploaded copy now
+            GshTemplateFileUpload.deleteUploads(UiV2Template.populateCustomTemplateInputs(request, templateType));
           }
         }
         
@@ -5703,7 +5709,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      // security issue 19 (43): authorize by this group's actual loader type, not "can edit some loader type"
+      // SECURITY (GRP-7576): authorize by this group's actual loader type, not "can edit some loader type"
       boolean canEditLoader = UiV2GrouperLoaderTypeAuthorization.canOpenOrExport(
           loaderTypeAuthorizationExisting(grouperLoaderContainer), loaderTypeAuthorizationRights(grouperLoaderContainer));
           

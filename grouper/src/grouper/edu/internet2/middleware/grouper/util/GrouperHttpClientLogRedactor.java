@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  *  - Bearer / Basic / AR-JWT authorization values in text
  *
  * Only java.lang and java.util.regex are used so the same class works on every Grouper release.
- * Security issue 40 (provisionerCommandLoggingCredentials).
+ * Security (GRP-7581).
  * </pre>
  */
 public class GrouperHttpClientLogRedactor {

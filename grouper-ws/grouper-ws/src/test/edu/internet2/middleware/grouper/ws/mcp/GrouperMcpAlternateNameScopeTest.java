@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 54 (mcpAlternateNameScopeBypass): MCP write tools gate the group or folder a
+ * Security (GRP-7578): MCP write tools gate the group or folder a
  * name resolves to (a name also matches an alternate, old, name), not the typed string, and
  * write by what was checked.
  *

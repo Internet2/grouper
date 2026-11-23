@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.file.GrouperFile;
-import edu.internet2.middleware.grouper.file.GrouperFileDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GshTemplateOutput {
   
@@ -251,21 +251,45 @@ public class GshTemplateOutput {
   public String getDownloadGrouperFileId() {
     return this.downloadGrouperFileId;
   }
-  
+
+  /**
+   * SECURITY: grouper_file.hibernate_version_number of the download file when this template saved or chose it.
+   * The UI binds the download link to this version, so if the row is saved again (e.g. another user runs the same
+   * template with the same date and file name) the link stops working instead of serving the new contents
+   */
+  private Long downloadGrouperFileVersion;
+
+  /**
+   * grouper_file version the download link is bound to
+   * @return the version or null if no download
+   */
+  public Long getDownloadGrouperFileVersion() {
+    return this.downloadGrouperFileVersion;
+  }
+
   /**
    * GRP-7438: let the user download an existing grouper_file row (any system name).  The row is not
    * copied and is never deleted by the download cleanup.  The template is responsible for only
-   * handing back files the user is allowed to see.
+   * handing back files the user is allowed to see.  The link is bound to the row's current version, so if the
+   * row is saved again before the user downloads it, the link returns not found
    * @param grouperFileId id of the grouper_file row, or null to not download anything
    * @return this for chaining
    */
   public GshTemplateOutput assignDownloadGrouperFileId(String grouperFileId) {
-    // fail now in the template rather than later in the download.  Only select the file name so
-    // the contents are not loaded
-    if (grouperFileId != null && GrouperFileDao.findFileNameById(grouperFileId) == null) {
-      throw new RuntimeException("Cant find grouper file by id: " + grouperFileId);
+    Long grouperFileVersion = null;
+    if (grouperFileId != null) {
+      // fail now in the template rather than later in the download.  Only select the version so
+      // the contents are not loaded
+      grouperFileVersion = new GcDbAccess()
+          .sql("select " + GrouperFile.COLUMN_HIBERNATE_VERSION_NUMBER + " from " + GrouperFile.TABLE_GROUPER_FILE
+              + " where " + GrouperFile.COLUMN_ID + " = ?")
+          .addBindVar(grouperFileId).select(Long.class);
+      if (grouperFileVersion == null) {
+        throw new RuntimeException("Cant find grouper file by id: " + grouperFileId);
+      }
     }
     this.downloadGrouperFileId = grouperFileId;
+    this.downloadGrouperFileVersion = grouperFileVersion;
     return this;
   }
   
@@ -285,7 +309,8 @@ public class GshTemplateOutput {
   
   /**
    * GRP-7438: save text contents to grouper_file (unencrypted) for this template and date, and let the
-   * user download it.  Replaces the contents if the file for this date and name is already there.
+   * user download it.  Replaces the contents if the file for this date and name is already there, which makes download
+   * links issued for the earlier contents return not found.
    * Not deleted automatically: the template should call deleteDownloadFilesOlderThanMinutes()
    * @param date yyyy-MM-dd, the day the file is for
    * @param fileName name the browser saves the file as, e.g. myReport_2026-10-04.csv
@@ -295,6 +320,8 @@ public class GshTemplateOutput {
   public GshTemplateOutput assignDownloadFile(String date, String fileName, String contents) {
     GrouperFile grouperFile = GshTemplateDownloadFile.save(this.retrieveTemplateConfigIdRequired(), date, fileName, contents);
     this.downloadGrouperFileId = grouperFile.getId();
+    // the version this run saved (the store sets or increments it on the object), the link is bound to it
+    this.downloadGrouperFileVersion = grouperFile.getHibernateVersionNumber();
     return this;
   }
 
@@ -310,6 +337,8 @@ public class GshTemplateOutput {
   public GshTemplateOutput assignDownloadFile(String date, String fileName, byte[] contents) {
     GrouperFile grouperFile = GshTemplateDownloadFile.save(this.retrieveTemplateConfigIdRequired(), date, fileName, contents);
     this.downloadGrouperFileId = grouperFile.getId();
+    // the version this run saved (the store sets or increments it on the object), the link is bound to it
+    this.downloadGrouperFileVersion = grouperFile.getHibernateVersionNumber();
     return this;
   }
   

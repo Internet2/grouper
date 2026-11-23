@@ -12,7 +12,7 @@ import junit.textui.TestRunner;
  * The MCP ldap tool must treat its filter argument as an LDAP filter only.  The LDAP session
  * evaluates a filter that starts with ${ as an unrestricted Grouper expression, so the tool
  * refuses that syntax before it looks at the external system or opens a connection.
- * Security issue 128_mcpLdapFilterRootCodeExecution.
+ * Security fix (GRP-7583).
  */
 public class GrouperMcpLdapFilterExpressionTest extends GrouperTest {
 

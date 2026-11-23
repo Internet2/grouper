@@ -31,6 +31,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * served to any user who runs the template, so do not reuse a file with per-user data unless the file name is unique
  * to the user.</p>
  *
+ * <p>Saving a file that is already there replaces its contents in the same row (same id) and increments its
+ * hibernate_version_number.  UI download links are bound to the version they were issued for, so a re-save makes
+ * earlier links return not found rather than the new contents.  A template that writes per-user data under a shared
+ * file name therefore breaks the earlier user's link; put something unique to the user in the file name instead.</p>
+ *
  * <p>Templates normally use this through {@link GshTemplateOutput#retrieveDownloadFileId(String, String)}
  * and {@link GshTemplateOutput#assignDownloadFile(String, String, String)}, which fill in the
  * template config id.</p>

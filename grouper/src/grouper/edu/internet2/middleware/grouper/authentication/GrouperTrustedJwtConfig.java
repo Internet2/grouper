@@ -121,8 +121,61 @@ public class GrouperTrustedJwtConfig {
     //  # some claim name that has the subjectId in it.  optional, can just label claim name as "subjectId", "subjectIdentifier", or "subjectIdOrIdentifier"
     //  grouper.jwt.trusted.configId.subjectIdClaimName = pennId
     grouperTrustedJwtConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".subjectIdClaimName");
-    
+
+    // token binding (optional): a key the issuer also uses for other applications would otherwise
+    // let a token minted for another relying party authenticate here.  Blank means not checked.
+    //  # the iss claim must equal this exactly
+    //  grouper.jwt.trusted.configId.issuer = https://idp.example.edu
+    grouperTrustedJwtConfig.issuer = StringUtils.trimToNull(GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".issuer"));
+
+    //  # comma separated; the aud claim must contain at least one of these
+    //  grouper.jwt.trusted.configId.audiences = https://grouper.example.edu/grouper-ws
+    String commaSeparatedAudiences = GrouperConfig.retrieveConfig().propertyValueString("grouper.jwt.trusted." + configId + ".audiences");
+    grouperTrustedJwtConfig.audiences = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(commaSeparatedAudiences, ","));
+
     return grouperTrustedJwtConfig;
+  }
+
+  /**
+   * optional: if not blank, the token iss claim must equal this exactly
+   */
+  private String issuer = null;
+
+  /**
+   * optional: if not blank, the token iss claim must equal this exactly
+   * @return issuer or null if not checked
+   */
+  public String getIssuer() {
+    return this.issuer;
+  }
+
+  /**
+   * optional: if not blank, the token iss claim must equal this exactly
+   * @param issuer1
+   */
+  public void setIssuer(String issuer1) {
+    this.issuer = issuer1;
+  }
+
+  /**
+   * optional: if not empty, the token aud claim must contain at least one of these
+   */
+  private Set<String> audiences = new HashSet<String>();
+
+  /**
+   * optional: if not empty, the token aud claim must contain at least one of these
+   * @return the audiences, never null (empty means not checked)
+   */
+  public Set<String> getAudiences() {
+    return this.audiences;
+  }
+
+  /**
+   * optional: if not empty, the token aud claim must contain at least one of these
+   * @param audiences1
+   */
+  public void setAudiences(Set<String> audiences1) {
+    this.audiences = audiences1;
   }
 
    /**

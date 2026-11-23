@@ -17,7 +17,7 @@ import junit.textui.TestRunner;
 
 /**
  * <pre>
- * Security fix 101: workflow identity is source id plus subject id.  A same-id subject from
+ * Security (GRP-7573): workflow identity is source id plus subject id.  A same-id subject from
  * another source must not view an instance, be resolved as the initiator, or as an explicit
  * approver.
  *

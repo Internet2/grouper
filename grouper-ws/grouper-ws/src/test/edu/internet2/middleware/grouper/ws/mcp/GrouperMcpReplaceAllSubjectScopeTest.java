@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 80 (mcpReplaceAllSubjectScope): group_add_member with replaceAllExisting also
+ * Security (GRP-7578): group_add_member with replaceAllExisting also
  * removes every current member not in the request, so when the OAuth subject scope is limited
  * each of those removals has to be in scope, checked before anything changes.
  *

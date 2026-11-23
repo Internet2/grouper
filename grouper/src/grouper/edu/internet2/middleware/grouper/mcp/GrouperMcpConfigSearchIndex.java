@@ -48,7 +48,7 @@ import org.apache.lucene.store.Directory;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigSecretMasking;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase.ConfigFile;
@@ -391,10 +391,11 @@ public class GrouperMcpConfigSearchIndex {
             }
 
             // pass null for configFileName so isPasswordHelper doesn't re-fetch metadata
-            // from the database when metadata is null (we already looked it up)
-            boolean isSensitive = GrouperConfigHibernate.isPasswordHelper(
-                null, metadata, key, value,
-                StringUtils.isNotBlank(value), null);
+            // from the database when metadata is null (we already looked it up).  also a .value
+            // whose sibling .valueIsSecret is true (e.g. ws bearer token additional headers): a
+            // sensitive value is neither stored nor added to the searchable content below
+            boolean isSensitive = GrouperConfigSecretMasking.isSensitive(
+                null, metadata, config, key, value);
 
             Document doc = new Document();
             doc.add(new StringField("key", key, Field.Store.YES));

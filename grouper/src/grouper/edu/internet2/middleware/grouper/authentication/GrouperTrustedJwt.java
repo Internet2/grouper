@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.authentication;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -152,7 +153,44 @@ public class GrouperTrustedJwt {
       if (!verified) {
         return null;
       }
-      
+
+      // token binding (optional, blank = not checked): the signature only proves who signed the
+      // token, not which application it was issued for.  If the issuer key also signs tokens for
+      // other relying parties, these keep such tokens out.  Checked before any subject lookup.
+      // Never log the token itself, only the config id and the (abbreviated) claim values.
+      String configuredIssuer = grouperTrustedJwtConfig.getIssuer();
+      if (!StringUtils.isBlank(configuredIssuer)) {
+        String tokenIssuer = decodedJwt.getIssuer();
+        if (!StringUtils.equals(configuredIssuer, tokenIssuer)) {
+          debugMap.put("issuerNotAllowed", StringUtils.abbreviate(tokenIssuer, 100));
+          LOG.error("Trusted JWT config '" + configId + "' refused a token whose iss claim '"
+              + StringUtils.abbreviate(tokenIssuer, 100) + "' is not the configured issuer '" + configuredIssuer + "'");
+          this.grouperTrustedJwtResult = GrouperTrustedJwtResult.ERROR_TOKEN_INVALID;
+          return null;
+        }
+      }
+
+      Set<String> configuredAudiences = GrouperUtil.nonNull(grouperTrustedJwtConfig.getAudiences());
+      if (configuredAudiences.size() > 0) {
+        List<String> tokenAudiences = decodedJwt.getAudience();
+        boolean audienceMatches = false;
+        for (String tokenAudience : GrouperUtil.nonNull(tokenAudiences)) {
+          if (tokenAudience != null && configuredAudiences.contains(tokenAudience)) {
+            audienceMatches = true;
+            break;
+          }
+        }
+        if (!audienceMatches) {
+          // a missing aud claim is refused too
+          debugMap.put("audienceNotAllowed", StringUtils.abbreviate(GrouperUtil.toStringForLog(tokenAudiences), 100));
+          LOG.error("Trusted JWT config '" + configId + "' refused a token whose aud claim "
+              + StringUtils.abbreviate(GrouperUtil.toStringForLog(tokenAudiences), 100)
+              + " does not contain a configured audience " + configuredAudiences);
+          this.grouperTrustedJwtResult = GrouperTrustedJwtResult.ERROR_TOKEN_INVALID;
+          return null;
+        }
+      }
+
       // work on copies: getSubjectSourceIds() is the live set of the cached config object, so
       // changing it would push one token's claim onto every later token of this config until
       // the config cache expires (and HashSet is not safe for concurrent requests)

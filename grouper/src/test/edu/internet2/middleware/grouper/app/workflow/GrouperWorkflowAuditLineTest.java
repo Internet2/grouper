@@ -13,7 +13,7 @@ import junit.textui.TestRunner;
 
 /**
  * <pre>
- * Security fix 99: the workflow audit line (appended to the stored instance form, which the view
+ * Security (GRP-7582): the workflow audit line (appended to the stored instance form, which the view
  * instance screen prints raw) must html escape the subject id, name and source name, the action
  * and the state.  Subject values come from subject sources and are not trusted markup.
  * Before the fix this does not compile (GrouperWorkflowAuditLine is missing), and the service

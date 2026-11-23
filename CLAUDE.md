@@ -25,6 +25,8 @@ Grouper ships with base property files named `*.base.properties`. User-managed f
 
 When editing configuration that shows up in the UI as a wizard, add externalized text for the label and description.
 
+When a change adds or changes configuration that matters for security or for whether a feature works (an off-by-default safety setting, a key that turns on less safe behavior, a required setting whose absence breaks a feature, or a removed or renamed key), also add or update a check in `grouper/src/grouper/edu/internet2/middleware/grouper/app/config/check/`. Extend `GrouperConfigurationCheck` and register it in `GrouperConfigurationCheckEngine`. Use ERROR for broken or unsafe config and WARNING for valid but not recommended config. Write the message and recommendation as English strings in the check, like the existing checks, and add a unit test. The checks show on the UI Configure screen (Configuration review).
+
 See `CONFIGURATION.md` for the full list of base and user-managed property files with descriptions, plus details on the database-backed config.
 
 ## Git Repository Information

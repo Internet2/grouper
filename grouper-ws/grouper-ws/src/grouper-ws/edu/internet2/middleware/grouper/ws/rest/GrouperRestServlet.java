@@ -136,7 +136,7 @@ public class GrouperRestServlet extends HttpServlet {
       String contentType = request.getContentType();
       
       //get the body and convert to an object
-      //read the body with a size limit (ws.restMaxRequestBodyBytes), over the limit is HTTP 413 (security issue 114)
+      //read the body with a size limit (ws.restMaxRequestBodyBytes), over the limit is HTTP 413 (GRP-7585)
       String body = WsRestRequestBodyReader.readBody(request);
 
       if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
@@ -181,9 +181,19 @@ public class GrouperRestServlet extends HttpServlet {
         } 
       }
       //refuse a json wrapper that is not a plain javascript function name, before the operation runs,
-      //since the wrapper is printed verbatim in front of the response (security issue 66)
-      if (wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", true)) {
-        WsRestJsonResponseWrapper.assertValidWrapper(GrouperServiceJ2ee.parameterValue(parameterMap, request, WsRestJsonResponseWrapper.PARAM_NAME));
+      //since the wrapper is printed verbatim in front of the response (GRP-7579).
+      //SECURITY: the wrapper (JSONP) is off by default, a page on another site could otherwise read
+      //WS responses with a browser's cached credentials; a site that needs it sets ws.allowJsonWrapper = true
+      if (wsRestResponseContentType == WsRestResponseContentType.json) {
+        String jsonResponseWrapper = GrouperServiceJ2ee.parameterValue(parameterMap, request, WsRestJsonResponseWrapper.PARAM_NAME);
+        if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", false)) {
+          WsRestJsonResponseWrapper.assertValidWrapper(jsonResponseWrapper);
+        } else if (!StringUtils.isBlank(jsonResponseWrapper)) {
+          //refuse it (INVALID_QUERY) instead of silently returning plain json, so a client that relies on
+          //the wrapper sees why it is not wrapped
+          throw new GrouperRestInvalidRequest(WsRestJsonResponseWrapper.PARAM_NAME
+              + " is not allowed: the json response wrapper (JSONP) is off, set ws.allowJsonWrapper = true in grouper-ws.properties to use it");
+        }
       }
 
       //will get enum and validate
@@ -199,7 +209,7 @@ public class GrouperRestServlet extends HttpServlet {
       WsRequestBean requestObject = null;
 
       if (!StringUtils.isBlank(body)) {
-        //a body that does not parse is HTTP 400 with a short message, the body is not logged or returned (security issue 114)
+        //a body that does not parse is HTTP 400 with a short message, the body is not logged or returned (GRP-7585)
         requestObject = (WsRequestBean) WsRestRequestBodyReader.parseBody(wsRestRequestContentType, body,
             warnings);
       }
@@ -216,7 +226,7 @@ public class GrouperRestServlet extends HttpServlet {
       GrouperRestHttpMethod grouperRestHttpMethod = requestObject == null ? GrouperRestHttpMethod
           .valueOfIgnoreCase(request.getMethod(), true) : requestObject.retrieveRestHttpMethod();
 
-      //refuse a write (e.g. add member) sent with HTTP GET or HEAD, unless ws.rest.allowWritesWithGet (security issue 56)
+      //refuse a write (e.g. add member) sent with HTTP GET or HEAD, unless ws.rest.allowWritesWithGet (GRP-7577)
       WsRestHttpMethodValidator.assertHttpMethodAllowed(request, requestObject);
 
       wsResponseBean = grouperRestHttpMethod.service(clientVersion, urlStrings, requestObject);
@@ -234,7 +244,7 @@ public class GrouperRestServlet extends HttpServlet {
       LOG.error(error, glir);
 
       wsResultMeta.appendResultMessageError(error);
-      //413 if the body was over the size limit (security issue 114)
+      //413 if the body was over the size limit (GRP-7585)
       wsResultMeta.assignHttpStatusCode(glir instanceof WsRestRequestTooLarge ? 413 : 400);
       wsResultMeta.assignResultCode("INVALID_QUERY");
       wsResultMeta.assignSuccess("F");
@@ -283,7 +293,7 @@ public class GrouperRestServlet extends HttpServlet {
       boolean wrapJsonResponse = false;
 
       //maybe response writer
-      if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", true)) {
+      if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", false)) {
         
         String grouperJsonResponseWrapper = GrouperServiceJ2ee.parameterValue(parameterMap, request, "grouperJsonResponseWrapper"); 
         //only print a plain javascript function name, never raw request text (an earlier error can skip the check above)

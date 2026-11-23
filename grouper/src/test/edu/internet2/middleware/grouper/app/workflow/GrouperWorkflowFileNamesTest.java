@@ -24,7 +24,7 @@ import junit.textui.TestRunner;
 
 /**
  * <pre>
- * Security fix 113: workflow snapshot storage names must be unique per instance, so two
+ * Security (GRP-7585): workflow snapshot storage names must be unique per instance, so two
  * instances of the same workflow saved in the same state in the same second neither fail
  * (database unique file_path) nor overwrite each other (S3, file system).
  * Before the fix this does not compile (GrouperWorkflowFileNames is missing); the storage

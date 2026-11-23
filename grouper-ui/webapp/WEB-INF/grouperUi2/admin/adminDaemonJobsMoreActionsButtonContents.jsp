@@ -10,8 +10,11 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="daemon-more-options">
 
+                        <%-- only a sysadmin can add a daemon (the submit refuses anyone else) --%>
+                        <c:if test="${grouperRequestContainer.adminContainer.canAddDaemon}">
           					    <li><a href="?operation=UiV2Admin.addDaemon" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.addDaemon'); return false;"
                             >${textContainer.text['daemonJobsAddDaemon'] }</a></li>
+                        </c:if>
 
                         <li><a href="?operation=UiV2Admin.daemonJobs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.daemonJobs'); return false;"
                             >${textContainer.text['daemonJobsButtonAllDaemonJobs'] }</a></li>

@@ -38,8 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p>JEXL_SCRIPT: the user must be allowed to edit scripted groups on the group
  * (PrivilegeHelper.canEditAbacLoader, not the abac-or-recent-memberships check the import screen
  * opens with), and the script must pass the checks the UI's loader screen makes before it saves
- * (see checkJexlScript: this is a patch for a release, so they are the checks that release's UI
- * makes).</p>
+ * (GrouperAbacScriptedGroup.checkScriptForSave), with the subject sources the daemon will use.</p>
  *
  * <p>RECENT_MEMBERSHIPS: the user must be allowed to edit recent memberships loaders on the group
  * (PrivilegeHelper.canEditRecentMembershipsLoader), the group the memberships come from must exist
@@ -259,11 +258,10 @@ public class GrouperLoaderImportAuthorization {
   // scripted groups
 
   /**
-   * the checks this release's UI loader screen makes before it saves a script
-   * (UiV2GrouperLoader.editGrouperLoaderSave): a script is given, GrouperAbac.validScript finds
-   * nothing wrong, the analysis in save mode gives no error and no warning (this is where READ on
-   * every group the script uses, and update on the privacy realm of every data field, is checked),
-   * and it selects no more members than the user is allowed
+   * the checks the UI makes before it saves a script (GrouperAbacScriptedGroup.checkScriptForSave):
+   * a script is given, it is valid and parses, the analysis in save mode gives no error and no warning
+   * (this is where READ on every group the script uses, and update on the privacy realm of every data
+   * field, is checked), and it selects no more members than the user is allowed
    * @param group
    * @param attributes
    * @param subject

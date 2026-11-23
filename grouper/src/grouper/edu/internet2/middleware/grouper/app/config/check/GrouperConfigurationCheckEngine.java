@@ -7,10 +7,21 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesAccessToApiInElConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesElSandboxConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRulesUiConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ui.UiAntiFramingDisabledConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.workflow.WorkflowOffWithDataConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ws.WsAllowJsonWrapperConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ws.WsDiagnosticSendDetailsOutsideConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ws.WsOauthAuthenticatorConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ws.WsOidcAccessTokenUserInfoOnlyConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.ws.WsRestAllowWritesWithGetConfigurationCheck;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -37,6 +48,27 @@ public class GrouperConfigurationCheckEngine {
     checks.add(new RulesSendEmailGateConfigurationCheck());
     checks.add(new RulesAccessToApiInElConfigurationCheck());
     checks.add(new RulesElSandboxConfigurationCheck());
+
+    // ESB listeners (grouper-loader.properties)
+    checks.add(new EsbXmppListenerRemovedConfigurationCheck());
+    checks.add(new EsbHttpListenerAuthFileConfigurationCheck());
+
+    // web services (grouper-ws.properties, and OIDC / diagnostic settings in grouper.properties)
+    checks.add(new WsOauthAuthenticatorConfigurationCheck());
+    checks.add(new WsOidcAccessTokenUserInfoOnlyConfigurationCheck());
+    checks.add(new WsAllowJsonWrapperConfigurationCheck());
+    checks.add(new WsRestAllowWritesWithGetConfigurationCheck());
+    checks.add(new WsDiagnosticSendDetailsOutsideConfigurationCheck());
+
+    // workflow
+    checks.add(new WorkflowOffWithDataConfigurationCheck());
+
+    // messaging (grouper.properties and grouper.client.properties)
+    checks.add(new MessagingAllowedGroupMissingConfigurationCheck());
+    checks.add(new MessagingTrustAllCertificatesConfigurationCheck());
+
+    // UI (grouper-ui.properties)
+    checks.add(new UiAntiFramingDisabledConfigurationCheck());
 
     return checks;
   }

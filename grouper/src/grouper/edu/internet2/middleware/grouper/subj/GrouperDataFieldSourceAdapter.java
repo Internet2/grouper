@@ -58,9 +58,177 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     return this.sortAttributes;
   }
 
+  /**
+   * prefix of the internal subject attributes (index appended) that hold a configured search
+   * attribute computed only from data fields everyone can read (public or authenticated privacy
+   * realm).  For each search string index that is open to every user (no
+   * security.member.search.stringN.wheelOnly / allowOnlyGroup), getSearchAttributes() returns this
+   * name, so the search string Grouper stores in grouper_members.search_stringN never contains
+   * values of realm-restricted fields.  The provider sync resolves subjects as root, which can read
+   * every realm; without this, any user could find subjects by the values of fields they cannot
+   * read.  An index the site restricted keeps the configured attribute (full values): the site
+   * limits who can search it.
+   */
+  public static final String PUBLIC_SEARCH_ATTRIBUTE_PREFIX = "grouperDataFieldPublicSearchAttribute";
+
+  /**
+   * the search attributes Grouper stores in grouper_members.search_stringN: for each configured
+   * subjectApi.source.&lt;id&gt;.searchAttribute.N, the internal attribute PUBLIC_SEARCH_ATTRIBUTE_PREFIX + N,
+   * or the configured attribute if search string N is restricted
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSearchAttributes()
+   */
   @Override
   public Map<Integer, String> getSearchAttributes() {
-    return this.searchAttributes;
+    Map<Integer, String> result = new LinkedHashMap<Integer, String>();
+    if (this.searchAttributes != null) {
+      for (Integer index : this.searchAttributes.keySet()) {
+        result.put(index, isSearchStringRestricted(index) ? this.searchAttributes.get(index) : PUBLIC_SEARCH_ATTRIBUTE_PREFIX + index);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * the configured internal attributes plus the public search attributes, so screens that hide
+   * internal attributes do not list them
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getInternalAttributes()
+   */
+  @Override
+  public Set<String> getInternalAttributes() {
+    Set<String> result = new HashSet<String>();
+    Set<String> configured = super.getInternalAttributes();
+    if (configured != null) {
+      result.addAll(configured);
+    }
+    for (String searchAttributeName : this.getSearchAttributes().values()) {
+      if (searchAttributeName != null && searchAttributeName.startsWith(PUBLIC_SEARCH_ATTRIBUTE_PREFIX)) {
+        result.add(searchAttributeName);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * if the site limited who can search on grouper_members.search_stringN
+   * (security.member.search.stringN.wheelOnly or .allowOnlyGroup, see SearchStringEnum)
+   * @param index
+   * @return true if restricted
+   */
+  private static boolean isSearchStringRestricted(int index) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.search.string" + index + ".wheelOnly", false)) {
+      return true;
+    }
+    return !StringUtils.isBlank(GrouperConfig.retrieveConfig().propertyValueString("security.member.search.string" + index + ".allowOnlyGroup"));
+  }
+
+  /**
+   * data field config ids in a privacy realm that every logged in user can read (public or
+   * authenticated); only these feed the stored search strings
+   * @param dataFieldCache
+   * @return the config ids
+   */
+  private static Set<String> publicDataFieldConfigIds(DataFieldCache dataFieldCache) {
+    Set<String> result = dataFieldCache.publicDataFieldConfigIds;
+    if (result != null) {
+      return result;
+    }
+    result = new HashSet<String>();
+    Map<String, GrouperPrivacyRealmConfig> privacyRealmConfigByConfigId = dataFieldCache.dataEngine.getPrivacyRealmConfigByConfigId();
+    for (GrouperDataFieldConfig dataFieldConfig: dataFieldCache.allDataFieldConfigIds) {
+      GrouperPrivacyRealmConfig privacyRealmConfig = privacyRealmConfigByConfigId == null ? null
+          : privacyRealmConfigByConfigId.get(dataFieldConfig.getGrouperPrivacyRealmConfigId());
+      // a missing realm is not public (fail closed)
+      if (privacyRealmConfig != null && (privacyRealmConfig.isPrivacyRealmPublic() || privacyRealmConfig.isPrivacyRealmAuthenticated())) {
+        result.add(dataFieldConfig.getConfigId());
+      }
+    }
+    dataFieldCache.publicDataFieldConfigIds = result;
+    return result;
+  }
+
+  /**
+   * set the internal public search attributes on a resolved subject: build a second subject from
+   * only the publicly readable data fields of the same rows and copy each configured search
+   * attribute's value from it, so the stored search strings are the same whoever resolved the subject
+   * @param subjectResult the subject being returned
+   * @param subjectId
+   * @param dataFieldConfigIdToSetOfValues the data field values read for this subject
+   * @param dataFieldCache
+   */
+  private void assignPublicSearchAttributes(SubjectImpl subjectResult, String subjectId,
+      Map<String, Set<String>> dataFieldConfigIdToSetOfValues, DataFieldCache dataFieldCache) {
+
+    if (this.searchAttributes == null || this.searchAttributes.size() == 0) {
+      return;
+    }
+
+    Set<String> publicDataFieldConfigIds = publicDataFieldConfigIds(dataFieldCache);
+
+    // same conversion as search(), restricted to publicly readable fields
+    Map<String, Object> publicSourceAttributesToValues = new CaseInsensitiveMap();
+    for (String dataFieldConfigId: dataFieldConfigIdToSetOfValues.keySet()) {
+      if (!publicDataFieldConfigIds.contains(dataFieldConfigId)) {
+        continue;
+      }
+      Set<String> dataFieldAttributeValues = dataFieldConfigIdToSetOfValues.get(dataFieldConfigId);
+      boolean toLowerCase = dataFieldCache.dataFieldFormatToLowerCaseConfigIds.contains(dataFieldConfigId);
+      if (dataFieldCache.dataFieldMultivaluedConfigIds.contains(dataFieldConfigId)) {
+        Set<String> values = new HashSet<String>();
+        for (String singleValue: GrouperUtil.nonNull(dataFieldAttributeValues)) {
+          values.add(toLowerCase && singleValue != null ? singleValue.toLowerCase() : singleValue);
+        }
+        publicSourceAttributesToValues.put(dataFieldConfigId.toLowerCase(), values);
+      } else {
+        String singleValue = GrouperUtil.length(dataFieldAttributeValues) == 0 ? null : dataFieldAttributeValues.iterator().next();
+        if (toLowerCase && singleValue != null) {
+          singleValue = singleValue.toLowerCase();
+        }
+        publicSourceAttributesToValues.put(dataFieldConfigId.toLowerCase(), singleValue);
+      }
+    }
+
+    SubjectImpl publicSubject = (SubjectImpl) createSubject(publicSourceAttributesToValues, subjectId);
+    publicSubject.setResolvedFromSource(true);
+    publicSubject.getTranslationMap().put("subjectid", subjectId);
+    // same privacy priority attributes as the real subject, from the public values
+    for (String attributeName : dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.keySet()) {
+      List<String> privacyAttributeNames = dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.get(attributeName);
+      Set<String> values = null;
+      for (String privacyAttributeName : privacyAttributeNames) {
+        if (privacyAttributeName == null) {
+          continue;
+        }
+        Set<String> attributeValues = publicSubject.getAttributeValues(privacyAttributeName.toLowerCase());
+        if (GrouperUtil.length(attributeValues) > 0 && StringUtils.isNotBlank(attributeValues.iterator().next())) {
+          values = attributeValues;
+          break;
+        }
+      }
+      publicSubject.internalAssignAttribute(attributeName, values);
+    }
+
+    for (Integer index : this.searchAttributes.keySet()) {
+      // a restricted search string keeps the configured attribute (see getSearchAttributes)
+      if (isSearchStringRestricted(index)) {
+        continue;
+      }
+      String searchAttributeName = this.searchAttributes.get(index);
+      Set<String> values = StringUtils.isBlank(searchAttributeName) ? null : publicSubject.getAttributeValues(searchAttributeName, false);
+      subjectResult.internalAssignAttribute(PUBLIC_SEARCH_ATTRIBUTE_PREFIX + index,
+          values == null ? null : new LinkedHashSet<String>(values));
+    }
+  }
+
+  /**
+   * escape a search term for "like ? escape '!'" so % and _ in the term match literally
+   * @param term
+   * @return the escaped term
+   */
+  static String escapeLikeTerm(String term) {
+    if (term == null) {
+      return null;
+    }
+    return term.replace("!", "!!").replace("%", "!%").replace("_", "!_");
   }
 
 
@@ -638,6 +806,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
           subjectResult.internalAssignAttribute(attributeName, values);
         }
+        // stored search strings come from these: only publicly readable fields, whoever resolves
+        assignPublicSearchAttributes(subjectResult, subjectId, dataFieldConfigIdToSetOfValues, dataFieldCache);
         results.add(subjectResult);
       }
       
@@ -732,8 +902,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     gcDbAccess.addBindVar(this.getId());
 
     for (int i = 0; i < terms.length; i++) {
-      subjectIdsQuery.append(" gm.search_string" + searchStringEnum.getIndex() + " like ?");
-      gcDbAccess.addBindVar("%" + terms[i].toLowerCase() + "%");
+      // escape % and _ so a term matches literally (no wildcard probing)
+      subjectIdsQuery.append(" gm.search_string" + searchStringEnum.getIndex() + " like ? escape '!'");
+      gcDbAccess.addBindVar("%" + escapeLikeTerm(terms[i].toLowerCase()) + "%");
       if (i != terms.length - 1) {
         subjectIdsQuery.append(" and ");
       }
@@ -822,8 +993,11 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     private Set<GrouperDataFieldConfig> allDataFieldConfigIds = new LinkedHashSet<GrouperDataFieldConfig>();
     
-    private Set<String> dataFieldMultivaluedConfigIds = new HashSet<String>(); 
-    
+    private Set<String> dataFieldMultivaluedConfigIds = new HashSet<String>();
+
+    /** data field config ids in a public or authenticated privacy realm, computed on first use */
+    private Set<String> publicDataFieldConfigIds = null;
+
     private Set<String> dataFieldFormatToLowerCaseConfigIds = new HashSet<String>(); 
     
     private Set<String> identifierDataFieldConfigIds = new LinkedHashSet<String>();

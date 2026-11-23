@@ -888,7 +888,11 @@ public class UiV2Template {
             if (downloadFileName == null) {
               LOG.error("gsh template: " + templateType + " returned download file id that does not exist: " + downloadGrouperFileId);
             } else {
-              String downloadUrl = UiV2DownloadFile.downloadUrl(downloadGrouperFileId);
+              // SECURITY: bind the link to the version the template saved, so if another user re-saves the same
+              // template file (same row id) before this request registers the link, the link 404s instead of
+              // serving the other user's contents
+              String downloadUrl = UiV2DownloadFile.downloadUrl(downloadGrouperFileId,
+                  gshTemplateExecOutput.getGshTemplateOutput().getDownloadGrouperFileVersion());
               String downloadMessage = TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateDownloadFile");
               downloadMessage = StringUtils.replace(downloadMessage, "$$downloadUrl$$", GrouperUtil.escapeHtml(downloadUrl, true));
               downloadMessage = StringUtils.replace(downloadMessage, "$$fileName$$", GrouperUtil.escapeHtml(downloadFileName, true));

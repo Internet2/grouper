@@ -139,8 +139,9 @@ public class GrouperAbacScriptedGroup {
    * and the script can be parsed, the script does not use the group it is for, the analysis in
    * save mode gives no error and no warning, every group the script uses exists by that name and
    * the user can READ it (groupNotFoundMessage), and it selects no more members than the user is
-   * allowed.  the analysis errors cover a group the user can see but not read, and a data field
-   * whose privacy realm they cannot update.  a group they cannot see, or one which is not there,
+   * allowed.  the analysis errors cover a group the user can see but not read, a data field
+   * whose privacy realm they cannot update, and a data row (entity.hasRow) whose privacy realm they
+   * cannot update.  a group they cannot see, or one which is not there,
    * the analysis treats as empty, and groupNotFoundMessage refuses.  in save mode the only warning
    * is that unresolvable or deleted entities match the script, which has always refused a save.
    * a group just made and not in the sql cache yet counts as empty for the size check until the

@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper.ws.rest;
  * (small error response, result code INVALID_QUERY) applies.  GrouperRestInvalidRequest is in
  * the grouper-ws module through 7.5.1 and in the grouper module from 7.6.0, same package and
  * constructors, so this one version compiles in every release.
- * (security issue 114)
+ * (GRP-7585)
  * </pre>
  */
 public class WsRestRequestTooLarge extends GrouperRestInvalidRequest {

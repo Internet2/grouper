@@ -230,7 +230,7 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
   /**
    * audit entries about a subject follow the UI's rule (SubjectContainer.isCanSeeAudits) for
    * every caller, including the caller's own subject: an ordinary user is refused, since those
-   * entries can name groups the user cannot see (security issue 07).  The "actions performed
+   * entries can name groups the user cannot see (GRP-7579).  The "actions performed
    * by" self filter is unchanged
    */
   public void testGetAuditEntriesOwnSubject() {

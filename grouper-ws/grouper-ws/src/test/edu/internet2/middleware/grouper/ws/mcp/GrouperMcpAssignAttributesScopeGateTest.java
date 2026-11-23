@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 12 (mcpAttributeAssignmentIdScopeBypass): attribute_assignment_save must gate
+ * Security (GRP-7578): attribute_assignment_save must gate
  * the real owner of the assignment it changes, however the assignment is addressed (by owner
  * name, by attributeAssignId, or through ownerAttributeAssignId), fail closed when the owner
  * cannot be resolved, and not name an owner the caller cannot see.

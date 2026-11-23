@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 07 (mcpAuditSelfHiddenGroups): audit_get with a subject filter uses the UI's
+ * Security (GRP-7579): audit_get with a subject filter uses the UI's
  * rule for every caller, the caller's own subject included: a sysadmin, a readonly sysadmin, or
  * a member of the group in uiV2.subject.seeAudits.must.be.in.group.  The "actions performed by
  * me" filter is unchanged.

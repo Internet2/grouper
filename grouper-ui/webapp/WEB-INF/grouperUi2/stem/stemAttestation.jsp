@@ -71,9 +71,15 @@ ${grouper:titleFromKeyAndText('stemAttestationPageTitle', grouperRequestContaine
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationReportConfigurationLabel']}</strong></td>
                               <td>
-                                <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration != null}">
-                                  <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}</a>
-                                </c:if>
+                                <%-- a report the user cannot read is a placeholder without marker id: plain text, no link --%>
+                                <c:choose>
+                                  <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration != null && empty grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}">
+                                    ${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}
+                                  </c:when>
+                                  <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration != null}">
+                                    <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}</a>
+                                  </c:when>
+                                </c:choose>
                                 <br />
                                 <span class="description">${textContainer.text['grouperAttestationReportConfigurationDescription']}</span>
                               </td>

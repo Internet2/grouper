@@ -155,7 +155,7 @@ public class TierScimUtil {
 
     userResource.setId(subject.getId()); // better would be member uuid
     //userResource.setExternalId(member.getSubjectId());
-    // SECURITY (issue 92, 2026-11-10): userName comes from the subject as resolved for the caller (subject
+    // SECURITY (GRP-7579): userName comes from the subject as resolved for the caller (subject
     // customizer and attribute rules applied), not from the member cache; omitted when hidden
     String scimUserName = scimUserName(subject);
     userResource.setUserName(scimUserName);
@@ -173,7 +173,7 @@ public class TierScimUtil {
     entUserExtension.setEmployeeNumber(subject.getId());
     userResource.setExtension(entUserExtension);
 
-    // SECURITY (issue 129, 2026-11-10): only groups the caller can READ.  Without privileges GroupFinder
+    // SECURITY (GRP-7579): only groups the caller can READ.  Without privileges GroupFinder
     // does not filter, so every group of the subject was listed, hidden ones included
     Set<Group> groups = new GroupFinder().assignSubject(subject).assignFieldName("members")
         .assignPrivileges(AccessPrivilege.READ_PRIVILEGES).findGroups();

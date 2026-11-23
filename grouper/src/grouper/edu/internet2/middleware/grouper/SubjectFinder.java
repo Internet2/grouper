@@ -2324,7 +2324,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       return subjectMap;
     }
     
-    // security (issue 95): apply requireGroupNameForView attribute filtering like the Set overload
+    // security (GRP-7579): apply requireGroupNameForView attribute filtering like the Set overload
     // does.  The bulk lookups (findByIds, findByIdentifiers, findByIdsOrIdentifiers) return through
     // here before the caller-scoped subject cache stores them, so without this they returned and
     // cached unfiltered subjects

@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 49 (mcpInstitutionalToolOwnerScopeBypass): a GSH template that can write (not
+ * Security (GRP-7578): a GSH template that can write (not
  * mcpReadonly) gets the protected-resource and OAuth read-write scope checks on its owner group
  * or folder, whether the caller names it or it comes from the template's default, on the object
  * the name resolves to.
@@ -248,7 +248,7 @@ public class GrouperMcpInstitutionalToolsOwnerScopeTest extends GrouperTest {
   }
 
   /**
-   * an owner given by the old name of a folder moved out of the consent is refused (issue 54's
+   * an owner given by the old name of a folder moved out of the consent is refused (the alternate name gate's
    * pattern: the gate uses the resolved folder)
    */
   public void testStemOwnerByAlternateNameDenied() {

@@ -800,7 +800,7 @@ public class UiV2Attestation {
 
 
   /**
-   * SECURITY (issue 63, 2026-11-10): resolve a group id from the attestation edit form.  This runs inside a
+   * SECURITY (GRP-7579): resolve a group id from the attestation edit form.  This runs inside a
    * root callback, so look it up without failing, and treat a group the logged in user cannot VIEW the
    * same as one that does not exist: otherwise "not found" versus "cannot read" tells an attestation editor
    * whether any group uuid exists.  Save still requires READ on the group.

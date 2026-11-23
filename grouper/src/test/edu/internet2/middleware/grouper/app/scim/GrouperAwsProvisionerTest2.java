@@ -650,6 +650,10 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
       .assignGroupAttributeCount(2)
     );
 
+    // re-linking after an update conflict is off by default; these tests cover the opt-in
+    new edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig().configFileName("grouper-loader.properties")
+      .propertyName("provisioner.awsProvisioner.scim2UpdateConflictRelink").value("true").store();
+
     GrouperStartup.startup();
 
     if (startTomcat) {
@@ -686,11 +690,13 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
 
       // ----- scenario 1: renaming A's userName into B's value collides -> stash, do not throw -----
 
-      // patch targets A (by id) and renames userName to B's value; externalId left unset so recovery
-      // falls back to the userName lookup to find B
+      // patch targets A (by id) and renames userName to B's value.  The patch carries B's externalId
+      // (a true duplicate): recovery only trusts an exact externalId match, never the userName alone
+      // (see GrouperScim2ConflictAnchorTest for the refused cases)
       GrouperScim2User patchAintoB = new GrouperScim2User();
       patchAintoB.setId(idA);
       patchAintoB.setUserName("kimberley_serpico");
+      patchAintoB.setExternalId("ext-kimberley");
 
       Map<String, edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction> fieldsToUpdate =
           new HashMap<String, edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction>();
@@ -795,6 +801,10 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
     }
     ScimProvisionerTestUtils.configureScimProvisioner(configInput);
 
+    // re-linking after an update conflict is off by default; these tests cover the opt-in
+    new edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig().configFileName("grouper-loader.properties")
+      .propertyName("provisioner.awsProvisioner.scim2UpdateConflictRelink").value("true").store();
+
     GrouperStartup.startup();
 
     if (startTomcat) {
@@ -848,12 +858,18 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
       // 1) corrupt the target so A's userName no longer matches what the entity wants, forcing the
       //    next sync to PATCH-rename A back to the subject id
       accountA.setUserName(subjectId0 + "_stale");
+      // A's externalId drifts too, so A is not the account carrying the expected externalId (the
+      // entity's externalId is the subject id); only then is B provably the same identity
+      accountA.setExternalId(subjectId0 + "_stale");
       HibernateSession.byObjectStatic().saveOrUpdate(accountA);
 
       // 2) pre-seed a DIFFERENT account B that already holds the subject id (the desired userName), so
       //    the rename collides.  A now has a stale userName, so this create does not itself collide.
       GrouperScim2User userB = new GrouperScim2User();
       userB.setUserName(subjectId0);
+      // B carries the expected externalId (a true duplicate of the entity), which conflict
+      // recovery requires before it re-links; a userName-only match is refused
+      userB.setExternalId(subjectId0);
       userB.setDisplayName("pre-existing dup");
       GrouperScim2User createdB = GrouperScim2ApiCommands.createScimUser("awsConfigId", userB, null, new ScimSettings());
       String idB = createdB.getId();

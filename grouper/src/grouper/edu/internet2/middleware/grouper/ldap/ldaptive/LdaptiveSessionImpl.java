@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapHandler;
 import edu.internet2.middleware.grouper.ldap.LdapHandlerBean;
+import edu.internet2.middleware.grouper.ldap.LdapLoaderSearchResultCodes;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -536,7 +537,8 @@ public class LdaptiveSessionImpl implements LdapSession {
       resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
     }
 
-    final Set<ResultCode> ignoreResultCodes = ldapConfig.getSearchIgnoreResultCodes();
+    // loader searches do not ignore TIME_LIMIT_EXCEEDED / PARTIAL_RESULTS by default (LdapLoaderSearchResultCodes)
+    final Set<ResultCode> ignoreResultCodes = LdapLoaderSearchResultCodes.ignoreResultCodes(ldapServerId, ldapConfig.getSearchIgnoreResultCodes());
     if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
       // referrals should be followed before any other search result handlers
       // the boolean parameter indicates that failure to follow referrals should raise an exception

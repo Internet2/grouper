@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 /**
- * Security issue 42 (mcpOauthSubjectSourceScope): the OAuth read-write subject scope is a list
+ * Security (GRP-7578): the OAuth read-write subject scope is a list
  * of sourceId||subjectId keys, and every MCP subject gate compares the key of the subject the
  * operation really acts on.  A bare subject id (as tokens issued before the fix carry) matches
  * nothing, so it cannot act as a wildcard across sources.

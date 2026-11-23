@@ -4732,6 +4732,17 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   
   
   /**
+   * if this search attribute is one the data field subject source computes from publicly readable
+   * fields only (see GrouperDataFieldSourceAdapter.PUBLIC_SEARCH_ATTRIBUTE_PREFIX)
+   * @param searchAttributeName
+   * @return true if so
+   */
+  private static boolean isPublicDataFieldSearchAttribute(String searchAttributeName) {
+    return searchAttributeName != null && searchAttributeName.startsWith(
+        edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter.PUBLIC_SEARCH_ATTRIBUTE_PREFIX);
+  }
+
+  /**
    * @param subject
    * @param storeChanges if there are changes, should they be saved to the database?
    */
@@ -4940,6 +4951,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<String> attrs = subject.getAttributeValues(searchAttributes.get(0), false);
       if (attrs != null && attrs.size() > 0) {
         this.searchString0 = GrouperUtil.join(attrs.iterator(), ",");
+      } else if (isPublicDataFieldSearchAttribute(searchAttributes.get(0))) {
+        // the data field source computes this from publicly readable fields: an empty value must
+        // clear the stored search string, else an older value (e.g. from a restricted field) stays searchable
+        this.searchString0 = null;
       }
     }
     
@@ -4947,6 +4962,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<String> attrs = subject.getAttributeValues(searchAttributes.get(1), false);
       if (attrs != null && attrs.size() > 0) {
         this.searchString1 = GrouperUtil.join(attrs.iterator(), ",");
+      } else if (isPublicDataFieldSearchAttribute(searchAttributes.get(1))) {
+        // the data field source computes this from publicly readable fields: an empty value must
+        // clear the stored search string, else an older value (e.g. from a restricted field) stays searchable
+        this.searchString1 = null;
       }
     }
     
@@ -4954,6 +4973,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<String> attrs = subject.getAttributeValues(searchAttributes.get(2), false);
       if (attrs != null && attrs.size() > 0) {
         this.searchString2 = GrouperUtil.join(attrs.iterator(), ",");
+      } else if (isPublicDataFieldSearchAttribute(searchAttributes.get(2))) {
+        // the data field source computes this from publicly readable fields: an empty value must
+        // clear the stored search string, else an older value (e.g. from a restricted field) stays searchable
+        this.searchString2 = null;
       }
     }
     
@@ -4961,6 +4984,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<String> attrs = subject.getAttributeValues(searchAttributes.get(3), false);
       if (attrs != null && attrs.size() > 0) {
         this.searchString3 = GrouperUtil.join(attrs.iterator(), ",");
+      } else if (isPublicDataFieldSearchAttribute(searchAttributes.get(3))) {
+        // the data field source computes this from publicly readable fields: an empty value must
+        // clear the stored search string, else an older value (e.g. from a restricted field) stays searchable
+        this.searchString3 = null;
       }
     }
     
@@ -4968,6 +4995,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<String> attrs = subject.getAttributeValues(searchAttributes.get(4), false);
       if (attrs != null && attrs.size() > 0) {
         this.searchString4 = GrouperUtil.join(attrs.iterator(), ",");
+      } else if (isPublicDataFieldSearchAttribute(searchAttributes.get(4))) {
+        // the data field source computes this from publicly readable fields: an empty value must
+        // clear the stored search string, else an older value (e.g. from a restricted field) stays searchable
+        this.searchString4 = null;
       }
     }
         

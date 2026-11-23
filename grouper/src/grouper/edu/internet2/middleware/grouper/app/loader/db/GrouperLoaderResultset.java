@@ -35,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,6 +52,7 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformatio
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapLoaderSearchResultCodes;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -619,8 +621,18 @@ public class GrouperLoaderResultset {
       this.columnNameToIndex.put(this.columnNames.get(i).toUpperCase(), i);
     }
     
-    List<String> results = LdapSessionUtils.ldapSession().list(String.class, ldapServerId, searchDn,
-        ldapSearchScopeEnum, filter, subjectAttribute);
+    // loader search: a time limit or partial results fails the job instead of syncing a cut-off population
+    final String ldapServerIdFinal = ldapServerId;
+    final String searchDnFinal = searchDn;
+    final LdapSearchScope ldapSearchScopeFinal = ldapSearchScopeEnum;
+    final String filterFinal = filter;
+    final String subjectAttributeFinal = subjectAttribute;
+    List<String> results = LdapLoaderSearchResultCodes.callForLoader(new Callable<List<String>>() {
+      public List<String> call() {
+        return LdapSessionUtils.ldapSession().list(String.class, ldapServerIdFinal, searchDnFinal,
+            ldapSearchScopeFinal, filterFinal, subjectAttributeFinal);
+      }
+    });
 
     for (String result : results) {
 
@@ -727,7 +739,7 @@ public class GrouperLoaderResultset {
 
       String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
 
-      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray, null);
+      List<LdapEntry> searchResults = loaderLdapList(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray);
 
       int subObjectCount = 0;
       Boolean groupParentFolderNameIsRoot = null;
@@ -1037,7 +1049,7 @@ public class GrouperLoaderResultset {
 
       String[] attributeArray = GrouperUtil.toArray(attributesList, String.class);
       
-      List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, modifiedFilter, attributeArray, null);
+      List<LdapEntry> searchResults = loaderLdapList(ldapServerId, searchDn, ldapSearchScopeEnum, modifiedFilter, attributeArray);
       
       if (!StringUtils.isBlank(subjectIdIfIncremental)) {
         if (searchResults.size() > 1) {
@@ -1961,5 +1973,25 @@ public class GrouperLoaderResultset {
       }
     }
     return defaultFolder;
+  }
+
+  /**
+   * LDAP list search for the loader: TIME_LIMIT_EXCEEDED and PARTIAL_RESULTS fail the search (and the
+   * job) instead of returning a cut-off population, unless ldap.&lt;id&gt;.searchIgnoreResultCodes
+   * is set explicitly.  See LdapLoaderSearchResultCodes.
+   * @param ldapServerId
+   * @param searchDn
+   * @param ldapSearchScope
+   * @param filter
+   * @param attributeArray
+   * @return the entries
+   */
+  private static List<LdapEntry> loaderLdapList(final String ldapServerId, final String searchDn,
+      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeArray) {
+    return LdapLoaderSearchResultCodes.callForLoader(new Callable<List<LdapEntry>>() {
+      public List<LdapEntry> call() {
+        return LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScope, filter, attributeArray, null);
+      }
+    });
   }
 }

@@ -32,7 +32,7 @@ public class GrouperScimServlet extends ServletContainer {
 
     GrouperServiceJ2ee.assignHttpServlet(this);
 
-    // SECURITY (issue 34, 2026-11-10): admit the caller the same way every other WS entry point does, so
+    // SECURITY (GRP-7577): admit the caller the same way every other WS entry point does, so
     // SCIM honors ws.client.user.group.name.  The SCIM providers only call retrieveSubjectLoggedIn, which
     // skips the WS client group.  A null act-as lookup returns the logged in subject after the admission
     // check, and throws for a subject outside the group (or when no one is logged in): answer 403 before
