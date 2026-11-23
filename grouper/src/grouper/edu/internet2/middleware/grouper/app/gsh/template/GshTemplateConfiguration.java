@@ -530,7 +530,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
    * @param validationErrorsToDisplay field errors are added here
    * @return true if ok, false if an error was added
    */
-  private static boolean validateWhereTemplateRuns(Map<String, GrouperConfigurationModuleAttribute> attributes,
+  // package-private for GshTemplateNoOwnerTest
+  static boolean validateWhereTemplateRuns(Map<String, GrouperConfigurationModuleAttribute> attributes,
       Map<String, String> validationErrorsToDisplay) {
 
     GrouperConfigurationModuleAttribute templateTypeAttribute = attributes.get("templateType");
