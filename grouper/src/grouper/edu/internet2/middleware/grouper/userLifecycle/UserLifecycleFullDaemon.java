@@ -68,21 +68,10 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         
         groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
         
-        StringBuilder groupsFinderSql = new StringBuilder("SELECT name, display_name, extension, display_extension, description FROM grouper_groups WHERE internal_id = ? ");
-        
-        GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(groupInternalId).sql(groupsFinderSql.toString());
-        Object[] groupAttributes = gcDbAccess.select(Object[].class);
-        if (groupAttributes == null) {
-          LOG.warn("grouper lifecycle event config: '"+configId+"' does not have the correct group internal id: '"+groupInternalId+"'");
+        Group groupForJexl = retrieveGroupForJexl(groupInternalId, configId);
+        if (groupForJexl == null) {
           continue;
         }
-        
-        Group groupForJexl = new Group();
-        groupForJexl.setNameDb(GrouperUtil.stringValue(groupAttributes[0]));
-        groupForJexl.setDisplayNameDb(GrouperUtil.stringValue(groupAttributes[1]));
-        groupForJexl.setExtensionDb(GrouperUtil.stringValue(groupAttributes[2]));
-        groupForJexl.setDisplayExtensionDb(GrouperUtil.stringValue(groupAttributes[3]));
-        groupForJexl.setDescriptionDb(GrouperUtil.stringValue(groupAttributes[4]));
 
         String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, groupForJexl, null, null, null, null, true);
         String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, groupForJexl, null, null, null, null, true);
@@ -132,21 +121,10 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         Long groupInternalId = lifecycleEventConfig.getGroupInternalId();
         groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
         
-        StringBuilder groupsFinderSql = new StringBuilder("SELECT * FROM grouper_groups WHERE internal_id = ? ");
-        
-        GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(groupInternalId).sql(groupsFinderSql.toString());
-        Object[] groupAttributes = gcDbAccess.select(Object[].class);
-        if (groupAttributes == null) {
-          LOG.warn("grouper lifecycle event config: '"+configId+"' does not have the correct group internal id: '"+groupInternalId+"'");
+        Group groupForJexl = retrieveGroupForJexl(groupInternalId, configId);
+        if (groupForJexl == null) {
           continue;
         }
-        
-        Group groupForJexl = new Group();
-        groupForJexl.setNameDb(GrouperUtil.stringValue(groupAttributes[0]));
-        groupForJexl.setDisplayNameDb(GrouperUtil.stringValue(groupAttributes[1]));
-        groupForJexl.setExtensionDb(GrouperUtil.stringValue(groupAttributes[2]));
-        groupForJexl.setDisplayExtensionDb(GrouperUtil.stringValue(groupAttributes[3]));
-        groupForJexl.setDescriptionDb(GrouperUtil.stringValue(groupAttributes[4]));
 
         String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, groupForJexl, null, null, null, null, true);
         String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, groupForJexl, null, null, null, null, true);
@@ -533,6 +511,31 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
     new GcDbAccess().deleteFromDatabaseMultiple(allDependencies);
     
     return null;
+  }
+  
+  /**
+   * load the group fields exposed to lifecycle event jexl templates
+   * @param groupInternalId
+   * @param configId lifecycle event config id, for logging
+   * @return the group with name, display name, extension, display extension and description set, or null if not found
+   */
+  private static Group retrieveGroupForJexl(Long groupInternalId, String configId) {
+    
+    Object[] groupAttributes = new GcDbAccess().addBindVar(groupInternalId)
+        .sql("SELECT name, display_name, extension, display_extension, description FROM grouper_groups WHERE internal_id = ? ")
+        .select(Object[].class);
+    if (groupAttributes == null) {
+      LOG.warn("grouper lifecycle event config: '"+configId+"' does not have the correct group internal id: '"+groupInternalId+"'");
+      return null;
+    }
+    
+    Group groupForJexl = new Group();
+    groupForJexl.setNameDb(GrouperUtil.stringValue(groupAttributes[0]));
+    groupForJexl.setDisplayNameDb(GrouperUtil.stringValue(groupAttributes[1]));
+    groupForJexl.setExtensionDb(GrouperUtil.stringValue(groupAttributes[2]));
+    groupForJexl.setDisplayExtensionDb(GrouperUtil.stringValue(groupAttributes[3]));
+    groupForJexl.setDescriptionDb(GrouperUtil.stringValue(groupAttributes[4]));
+    return groupForJexl;
   }
   
 }
