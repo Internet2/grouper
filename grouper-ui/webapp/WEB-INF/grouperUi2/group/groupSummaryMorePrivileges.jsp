@@ -18,7 +18,8 @@
                  </c:if>
               </c:when>
               <c:otherwise>
-                <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageMembershipsGroupNotUsedMessage'] }</li>
+                <%-- GRP-7600: privileges text, not the memberships "not a member of any other groups" text --%>
+                <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesNone'] }</li>
               </c:otherwise>
             </c:choose>
             
