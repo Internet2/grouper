@@ -147,7 +147,7 @@ public class TierMembershipProvider {
         throw new IllegalArgumentException("Missing filter parameter");
       }
 
-      // SECURITY (issue 171, 2026-11-13): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
+      // SECURITY (GRP-7585): itemsPerPage is clamped to ws.scim.maxResultsPerPage and
       // startIndex is supported; only one page of memberships is converted.  The search itself is
       // bounded by ws.getMemberships.maxResultSize (grouper.properties, "Too many results" above it)
       TierScimPaging paging = new TierScimPaging(startIndex, itemsPerPage);

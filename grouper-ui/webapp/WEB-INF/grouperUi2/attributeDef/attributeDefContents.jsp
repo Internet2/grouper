@@ -2,15 +2,17 @@
 
               <form id="attributeDefNamesToDeleteFormId">
                 <c:set var="isAdmin" value="${grouperRequestContainer.attributeDefContainer.canAdmin}" />
+                <%-- the bulk remove (toolbar button and checkboxes) is not shown when the site does not allow deleting attribute names in the UI (uiV2.attributeDefName.preventDeleteInUi) --%>
+                <c:set var="canBulkRemoveNames" value="${isAdmin && !grouperRequestContainer.attributeDefNameContainer.configPreventUiDeletion}" />
                 <table class="table table-hover table-bordered table-striped table-condensed data-table">
                   <thead>
-                    <c:if test="${isAdmin}" >
+                    <c:if test="${canBulkRemoveNames}" >
                       <tr>
                         <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2AttributeDefName.deleteAttributeDefNames?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId,attributeDefNamesToDeleteFormId'}); return false;" class="btn">${textContainer.text['attributeDefRemoveSelectedAttributeDefNamesButton'] }</a></td>
                       </tr>
                     </c:if>
                     <tr>
-                      <c:if test="${isAdmin}" >
+                      <c:if test="${canBulkRemoveNames}" >
                         <th>
                           <label class="checkbox checkbox-no-padding">
                             <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.attributeDefNameCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
@@ -27,7 +29,7 @@
                     <c:set var="i" value="0" />
                     <c:forEach items="${grouperRequestContainer.attributeDefContainer.guiAttributeDefNames}" var="guiAttributeDefName">
                       <tr>
-                        <c:if test="${isAdmin}" >
+                        <c:if test="${canBulkRemoveNames}" >
                           <td>
                             <label class="checkbox checkbox-no-padding">
                               <input type="checkbox" name="attributeDefName_${i}" aria-label="${textContainer.text['attributeDefDetailsCheckboxAriaLabel']}"

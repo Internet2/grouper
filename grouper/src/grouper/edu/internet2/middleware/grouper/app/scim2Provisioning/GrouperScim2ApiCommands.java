@@ -34,7 +34,7 @@ public class GrouperScim2ApiCommands {
 
   /**
    * provisioner setting that allows re-linking an entity to an existing account after an update conflict
-   * (issue 93): provisioner.&lt;configId&gt;.scim2UpdateConflictRelink, default false
+   * (GRP-7580): provisioner.&lt;configId&gt;.scim2UpdateConflictRelink, default false
    */
   public static final String UPDATE_CONFLICT_RELINK_SUFFIX = "scim2UpdateConflictRelink";
 
@@ -777,7 +777,7 @@ public class GrouperScim2ApiCommands {
               + externalId + "' (userName '" + userName + "' is not trusted to re-link)");
         }
 
-        // SECURITY (issue 93, 2026-11-10): externalId can be set by anyone who can write the account at the
+        // SECURITY (GRP-7580): externalId can be set by anyone who can write the account at the
         // target, so an update conflict must not move this entity onto another account (and dispose of
         // the old one) unless the provisioner opts in.  Off by default: the entity becomes an object error
         if (!updateConflictRelinkAllowed()) {

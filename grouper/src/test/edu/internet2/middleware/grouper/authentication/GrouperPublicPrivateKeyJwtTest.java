@@ -19,7 +19,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -113,7 +118,13 @@ public class GrouperPublicPrivateKeyJwtTest extends GrouperTest {
     GrouperSession grouperSession = SessionHelper.getRootSession();
     
     String[] publicPrivateKey = GrouperUtil.generateRsaKeypair(2048);
-    
+
+    // self-service WS JWT keys belong to local entities, and the authenticator now requires an
+    // enabled local entity, so the key is for a local entity, not GrouperSystem
+    Group localEntity = new GroupSave(grouperSession).assignName("test:jwtLocalEntity")
+        .assignTypeOfGroup(TypeOfGroup.entity).assignCreateParentStemsIfNotExist(true).save();
+    Member localEntityMember = MemberFinder.findBySubject(grouperSession, localEntity.toSubject(), true);
+
     new GrouperPasswordSave()
       .assignAllowedFromCidrs("0.0.0.0/0")
       .assignApplication(GrouperPassword.Application.WS)
@@ -122,11 +133,11 @@ public class GrouperPublicPrivateKeyJwtTest extends GrouperTest {
       .assignExpiresAt(System.currentTimeMillis() +365 * 60 * 60 * 1000)
       .assignMemberIdWhoSetPassword(grouperSession.getMember().getId())
       .assignPublicKey(publicPrivateKey[0])
-      .assignUsername(grouperSession.getMember().getId())
-      .assignMemberId(grouperSession.getMember().getId())
+      .assignUsername(localEntityMember.getId())
+      .assignMemberId(localEntityMember.getId())
       .save();
-    
-    String base64EncodedMemberId = new String(new Base64().encode(grouperSession.getMember().getId().getBytes("UTF-8")));
+
+    String base64EncodedMemberId = new String(new Base64().encode(localEntityMember.getId().getBytes("UTF-8")));
     
     TestRSAKeyProvider testRSAKeyProvider = new TestRSAKeyProvider();
     testRSAKeyProvider.publicKeyString = publicPrivateKey[0];
@@ -144,7 +155,7 @@ public class GrouperPublicPrivateKeyJwtTest extends GrouperTest {
     
     // then
     Assert.assertTrue(subject != null);
-    Assert.assertEquals("GrouperSysAdmin", subject.getName());
+    Assert.assertEquals(localEntity.getId(), subject.getId());
     
     // issue JWT in the past
     Date lastYear = new Date(System.currentTimeMillis() - 366 * 60 * 60 * 1000);

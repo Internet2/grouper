@@ -154,6 +154,17 @@ public class AdminContainer {
   }
 
   /**
+   * if the logged in user can add a daemon.  Only a sysadmin (wheel or root) can add one, since
+   * daemons run as GrouperSystem (the submit refuses anyone else), so the Add daemon action is
+   * only shown to them
+   * @return true if the logged in user can add a daemon
+   */
+  public boolean isCanAddDaemon() {
+    return edu.internet2.middleware.grouper.app.daemon.GrouperDaemonCodeAuthorization
+        .isSubjectAllowedToEditWheelOnlyDaemons(GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
+  /**
    * if show daemon jobs
    * @return if show daemon jobs
    */

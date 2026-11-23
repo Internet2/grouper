@@ -5705,11 +5705,18 @@ public class UiV2Group {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
-      
+
       if (group == null) {
         return;
       }
-  
+
+      // SECURITY: same gate as UiV2Subject.thisSubjectsPrivilegesInheritedFromFolders and the menu link
+      // (uiV2.privilegeInheritanceReadRequireAdmin / ...ReadRequireGroup), so calling this operation
+      // directly does not bypass a site's lockdown of the privilege inheritance screens
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+
       //if viewing a subject, and that subject is a group, just show the group screen
       GrouperSubject grouperSubject = new GrouperSubject(group);
 

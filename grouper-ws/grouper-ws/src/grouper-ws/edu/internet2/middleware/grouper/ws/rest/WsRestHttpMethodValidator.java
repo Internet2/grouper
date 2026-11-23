@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
  * API, WsRequestBean, GrouperRestHttpMethod, GrouperRestInvalidRequest, GrouperWsConfig and
  * GrouperUtil.getLog, all the same in every release (no commons-lang, which is lang in 5.x and
  * lang3 in 6.x and later).
- * (security issue 56)
+ * (GRP-7577)
  * </pre>
  */
 public class WsRestHttpMethodValidator {

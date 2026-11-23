@@ -222,7 +222,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
 
   /**
    * <pre>
-   * security (issue 48): the group the current web service operation resolved, as
+   * security (GRP-7572): the group the current web service operation resolved, as
    * {grouperSessionId, groupUuid}.  WsGroupLookup.retrieveGroupIfNeeded() sets it every time it runs,
    * so in addMember it holds the target group while the subject lookups run.  An external subject is
    * only auto-created (addExternalSubjectIfNotFound) when the caller has UPDATE on this group.
@@ -234,7 +234,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
 
   /**
    * <pre>
-   * security (issue 48): remember the group a web service operation resolved, so that auto-creating
+   * security (GRP-7572): remember the group a web service operation resolved, so that auto-creating
    * an external subject in the same operation can require UPDATE on it.  Called by WsGroupLookup.
    * Not a javabean property.
    * </pre>
@@ -251,7 +251,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
 
   /**
    * <pre>
-   * security (issue 48): see if the caller may auto-create an external subject.  Both are required:
+   * security (GRP-7572): see if the caller may auto-create an external subject.  Both are required:
    * the caller may edit external users (wheel, or externalSubjects.groupAllowedForEdit), and the
    * caller has UPDATE on the group this operation resolved.  Fails closed when the target group is
    * not known.
@@ -375,7 +375,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   
         //cant have source without type
         if (hasSubjectSource) {
-          // security (issue 95): go through SubjectFinder (not the source adapter directly) so
+          // security (GRP-7579): go through SubjectFinder (not the source adapter directly) so
           // requireGroupNameForView attribute filtering and the subject customizer apply
           this.subject = SubjectFinder.findByIdAndSource(this.subjectId, this.subjectSourceId, true);
           // a subject the customizer hides comes back null with no exception: not found, not success
@@ -390,7 +390,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   
         //cant have source without type
         if (hasSubjectSource) {
-          // security (issue 95): go through SubjectFinder (not the source adapter directly) so
+          // security (GRP-7579): go through SubjectFinder (not the source adapter directly) so
           // requireGroupNameForView attribute filtering and the subject customizer apply
           this.subject = SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.subjectSourceId, true);
           // a subject the customizer hides comes back null with no exception: not found, not success
@@ -439,7 +439,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
             return;
           }
           
-          // security (issue 48): this used to store as root, which skipped the external-user edit
+          // security (GRP-7572): this used to store as root, which skipped the external-user edit
           // check, before the UPDATE check on the group.  Now nothing is created unless the caller
           // may edit external users AND has UPDATE on the target group
           String deniedReason = externalSubjectCreateDeniedReason();

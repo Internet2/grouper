@@ -1178,94 +1178,20 @@ public class GrouperLoader {
       }
     }
 
-    boolean runEsbHXmppListener = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-        "esb.listeners.xmpp.enable", false);
+    // SECURITY: the experimental ESB XMPP listener (EsbXmppListener) was removed: it changed
+    // memberships of any group as GrouperSystem for any XMPP sender whose address contained the
+    // configured sender name.  Never schedule it; always remove a trigger and job left over from
+    // an older version (deleteJob does not need the job class, which no longer exists).
     try {
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("esb.listeners.xmpp.enable", false)) {
+        LOG.error("The experimental ESB XMPP listener (esb.listeners.xmpp.enable) has been removed for "
+            + "security and will not start.  Remove the esb.listeners.xmpp.* settings from grouper-loader.properties.");
+      }
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      boolean unschedule = false;
-      if (runEsbHXmppListener) {
-        LOG.info("Starting experimental XMPP listener");
-
-        String server = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "esb.listeners.xmpp.server", "");
-        if (server.equals("")) {
-          LOG.warn("XMPP server must be configured in grouper-loader.properties");
-        }
-        String port = GrouperLoaderConfig.retrieveConfig().propertyValueString("esb.listeners.xmpp.port",
-            "5222");
-        String username = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "esb.listeners.xmpp.username", "");
-        if (username.equals("")) {
-          LOG.warn("XMPP username must be configured in grouper-loader.properties");
-        }
-        String password = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "esb.listeners.xmpp.password", "");
-        if (password.equals("")) {
-          LOG.warn("XMPP password must be configured in grouper-loader.properties");
-        }
-        String sendername = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "esb.listeners.xmpp.sendername", "");
-        String resource = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "esb.listeners.xmpp.resource", "GrouperListener");
-        if (server.equals("")) {
-          LOG.warn("XMPP sendername must be configured in grouper-loader.properties");
-        }
-        if (!(server.equals("")) & !(username.equals("")) && !(password.equals(""))
-            && !(sendername.equals(""))) {
-
-          //the name of the job must be unique, so use the group name since one job per group (at this point)
-          JobDetail jobDetail = JobBuilder.newJob(GrouperUtil.forName("edu.internet2.middleware.grouper.esb.listener.EsbXmppListener"))
-            .withIdentity(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER)
-            .usingJobData("port", port)
-            .usingJobData("server", server)
-            .usingJobData("username", username)
-            .usingJobData("password", password)
-            .usingJobData("sendername", sendername)
-            .usingJobData("resource", resource)
-            .build();
-          
-          Trigger trg = TriggerBuilder.newTrigger()
-            .withIdentity(triggerNameXmmpListener)
-            .startAt(runTime)
-            .withPriority(priority)
-            .build();
-
-          if (scheduleJobIfNeeded(jobDetail, trg)) {
-            changesMade++;
-          }
-        } else {
-          unschedule = true;
-        }
-      } else {
-        LOG.info("Not starting experimental XMPP listener");
-        unschedule = true;
-      }
-      
-      if (unschedule) {
-        scheduler.unscheduleJob(TriggerKey.triggerKey(triggerNameXmmpListener));
-      }
-      
+      scheduler.unscheduleJob(TriggerKey.triggerKey(triggerNameXmmpListener));
+      scheduler.deleteJob(JobKey.jobKey(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER));
     } catch (Exception e) {
-      String errorMessage = "Could not schedule job: '"
-          + GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER + "'";
-      LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
-      try {
-        //lets enter a log entry so it shows up as error in the db
-        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobMessage(errorMessage);
-        hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER);
-        hib3GrouploaderLog.setJobSchedulePriority(priority);
-        hib3GrouploaderLog.setJobScheduleQuartzCron("5 seconds from now");
-        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER);
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-        hib3GrouploaderLog.store();
-
-      } catch (Exception e2) {
-        LOG.error("Problem logging to loader db log", e2);
-      }
+      LOG.error("Could not remove job: '" + GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER + "'", e);
     }
     return changesMade;
   }

@@ -68,13 +68,54 @@ import net.minidev.json.JSONObject;
 
 public class GrouperOidc {
 
+  /**
+   * which UI OIDC external system applies to a request
+   * @param uriContext request uri, optionally followed by ? and the raw query string
+   * @return the config id or null
+   * @deprecated the UI uses GrouperUiOidcRouteSelector.externalSystemConfigIdForUi(HttpServletRequest)
+   * (grouper-ui), which also matches the regexes against the decoded path, the decoded query and
+   * body parameters and the /grouperExternal/app/ alias.  This raw string version only sees one
+   * spelling of the request, so a reordered, encoded or body parameter does not match
+   */
+  @Deprecated
   public static String externalSystemConfigIdForUi(String uriContext) {
-  
+
     String externalSystemConfigIdForUi = null;
     Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
     Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
-    
+
     String defaultExternalSystemConfigIdForUi = null;
+
+    // SECURITY: the OIDC callback is the request whose path is exactly a config's redirect uri
+    // path.  It used to be any request with ".oidc?" anywhere in it, so "&x=.oidc?" in a query skipped
+    // every route regex and the default config
+    String uriPath = uriContext.indexOf('?') >= 0 ? uriContext.substring(0, uriContext.indexOf('?')) : uriContext;
+    for (String configId: GrouperUtil.nonNull(configIds)) {
+      boolean enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."
+          + configId + ".enabled", true);
+      boolean useForUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."
+          + configId + ".useForUi", false);
+      String redirectUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + configId + ".redirectUri");
+      if (useForUi && enabled && !StringUtils.isBlank(redirectUri)) {
+        String context = null;
+        try {
+          context = GrouperOidcConfig.redirectUriContext(redirectUri);
+        } catch (RuntimeException re) {
+          // invalid redirect uri, this config cannot be the callback
+          context = null;
+        }
+        if (!StringUtils.isBlank(context) && StringUtils.equals(uriPath, context)) {
+          GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
+          externalSystemConfigIdForUi = configId;
+        }
+      }
+    }
+    if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("oidc callback uriContext: '" + uriContext + "', externalSystemConfigIdForUi: " + externalSystemConfigIdForUi);
+      }
+      return externalSystemConfigIdForUi;
+    }
     
     OUTER: for (String configId: GrouperUtil.nonNull(configIds)) {
       
@@ -86,21 +127,6 @@ public class GrouperOidc {
       
       if (useForUi && enabled) {
 
-        // https://grouper.apps.upenn.edu/grouper/grouperUi/app/UiV2Main.oidc
-        // if this is the oidc redirect from the idp then check the url
-        if (uriContext.contains(".oidc?")) {
-          
-          String redirectUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + configId + ".redirectUri");
-          
-          String context = GrouperOidcConfig.redirectUriContext(redirectUri);
-
-          if (!StringUtils.isBlank(context) && uriContext.startsWith(context)) {
-            GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
-            externalSystemConfigIdForUi = configId;
-          }
-          continue OUTER;
-        }
-        
         List<String> uiPathRegexesList = GrouperOidcConfig.uiPathRegexesForConfigId(configId);
         
         if (GrouperUtil.length(uiPathRegexesList) == 0) {
@@ -549,7 +575,7 @@ public class GrouperOidc {
       throw new RuntimeException(matcher.group(1) + " is not enabled for ws in the external system.");
     }
 
-    // SECURITY (issue 06): a disabled OIDC config must not authenticate anyone.  Without this a
+    // SECURITY (GRP-7577): a disabled OIDC config must not authenticate anyone.  Without this a
     // WS "Bearer oidc_<configId>_<code>" header still exchanged the code with a config an admin turned off
     if (!grouperOidcConfig.isEnabled()) {
       throw new RuntimeException(matcher.group(1) + " is not enabled in the external system.");

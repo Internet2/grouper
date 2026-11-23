@@ -349,7 +349,7 @@ public class ProvisionableStemSave {
               attributeValue.setTargetName(targetName);
               attributeValue.setStemScopeString(stemScope.name());
               
-              Map<String, Object> metadataNameValues = populateMetadata(metadataMap);
+              Map<String, Object> metadataNameValues = populateMetadata(metadataMap, SUBJECT_IN_SESSION);
              
               attributeValue.setMetadataNameValues(metadataNameValues);
               
@@ -404,7 +404,7 @@ public class ProvisionableStemSave {
                 mergedMetadataMap.putAll(metadataMap);
               }
               
-              Map<String, Object> metadataNameValues = populateMetadata(mergedMetadataMap);
+              Map<String, Object> metadataNameValues = populateMetadata(mergedMetadataMap, SUBJECT_IN_SESSION);
               
               if (!GrouperUtil.mapEquals(metadataNameValues, existingValues.getMetadataNameValues())) {
                 attributeValue.setMetadataNameValues(metadataNameValues);
@@ -427,7 +427,13 @@ public class ProvisionableStemSave {
   }
   
 
-  private Map<String, Object> populateMetadata(Map<String, Object> metadataMap) {
+  /**
+   * validate and convert the metadata the caller passed
+   * @param metadataMap metadata from the caller
+   * @param subjectInSession subject that called save (the save itself runs as root)
+   * @return the metadata to store
+   */
+  private Map<String, Object> populateMetadata(Map<String, Object> metadataMap, Subject subjectInSession) {
     
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
 
@@ -445,6 +451,15 @@ public class ProvisionableStemSave {
       
       if (metadataItem.isRequired() && (!metadataMap.containsKey(metadataItem.getName()) || metadataMap.get(metadataItem.getName()) == null) ) {
         throw new RuntimeException(metadataItem.getName() +" is a required field. Add it to the metadataMap.");
+      }
+      
+      // the options of a dropdown / radio button / checkbox item are the values a wheel admin allows
+      // delegated users to send to the target; only root / wheel (e.g. a migration) may go outside them
+      if (metadataMap.get(metadataItem.getName()) != null && !PrivilegeHelper.isWheelOrRoot(subjectInSession)) {
+        String notAllowedValue = GrouperProvisioningMetadataAllowedValues.firstDisallowedValue(metadataItem, metadataMap.get(metadataItem.getName()));
+        if (notAllowedValue != null) {
+          throw new RuntimeException("'" + metadataItem.getName() + "' value is not one of the allowed options.");
+        }
       }
       
       if (metadataMap.get(metadataItem.getName()) != null) {

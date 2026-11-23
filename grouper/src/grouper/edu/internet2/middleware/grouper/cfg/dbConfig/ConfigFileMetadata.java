@@ -540,7 +540,7 @@ public class ConfigFileMetadata {
         }
       }
     }
-    // issue 36: a known secret key (e.g. the ESB changeLog.consumer.<name>.encryptionKey) that has no
+    // GRP-7581: a known secret key (e.g. the ESB changeLog.consumer.<name>.encryptionKey) that has no
     // password metadata in this release's base properties still gets password metadata, so it is
     // encrypted when saved and masked when shown or searched
     return GrouperConfigKnownSecretKeys.adjustMetadataForKey(this.configFileName, key, result);

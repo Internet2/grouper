@@ -106,7 +106,10 @@ public class GrouperConfigurationModuleExpressionLanguageTest extends GrouperTes
   }
 
   /**
-   * a request carrying the given form parameters and nothing else
+   * a request which saves the form (a POST to a ...Submit operation, the only kind of request
+   * whose posted expression language is evaluated, see
+   * GrouperConfigurationModuleBase.isExpressionLanguageSaveRequest), carrying the given form
+   * parameters
    * @param parameters parameter name to value
    * @return the request
    */
@@ -121,6 +124,12 @@ public class GrouperConfigurationModuleExpressionLanguageTest extends GrouperTes
         if ("getParameterValues".equals(method.getName())) {
           String value = parameters.get((String) args[0]);
           return value == null ? null : new String[] { value };
+        }
+        if ("getMethod".equals(method.getName())) {
+          return "POST";
+        }
+        if ("getRequestURI".equals(method.getName())) {
+          return "/grouper/grouperUi/app/UiV2ExternalSystem.addExternalSystemSubmit";
         }
         return null;
       }

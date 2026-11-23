@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContent
  * Its own class (instead of inline in the servlet, or edits to WsRestRequestContentType and
  * GrouperUtil, which differ a lot across releases) so it is one version for every 5.x-7.x
  * release.  No commons-lang (lang in 5.x, lang3 in 6.x and later).
- * (security issue 114)
+ * (GRP-7585)
  * </pre>
  */
 public class WsRestRequestBodyReader {

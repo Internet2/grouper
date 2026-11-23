@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * other factor is not part of the membership path the user is allowed to see, so READ on the
  * composite owner does not authorize its UUID, name, path or description.  The trace text
  * templates (membershipTraceGroupCompositeOf*) render guiGroupFactor.shortLink, which
- * GuiGroupRestrictedReference (issue 63) does not override, so this subclass also renders the
+ * GuiGroupRestrictedReference (GRP-7579) does not override, so this subclass also renders the
  * "(restricted group)" text for shortLink and link.  The wrapped group is null, so no other
  * getter can leak it either.</p>
  */

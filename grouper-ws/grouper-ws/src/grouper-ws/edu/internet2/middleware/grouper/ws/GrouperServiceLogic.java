@@ -8077,7 +8077,7 @@ public class GrouperServiceLogic {
       final AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(
           session, "Attribute Def not found.");
 
-      // security (2026-11 review, issue 32): changing actions needs ATTR_ADMIN.  Check it before
+      // security (GRP-7574): changing actions needs ATTR_ADMIN.  Check it before
       // reading or changing anything.  The ATTR_ADMIN check in attributeDef.store() came after
       // the actions were already changed and committed.
       AttributeDefActionAuthorization.assertCanEditActions(attributeDef);
@@ -8152,7 +8152,7 @@ public class GrouperServiceLogic {
           .assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
 
     } catch (InsufficientPrivilegeException ipe) {
-      // the caller cannot ATTR_ADMIN the definition (issue 32), nothing was changed
+      // the caller cannot ATTR_ADMIN the definition (GRP-7574), nothing was changed
       wsAttributeDefAssignActionsResults.assignResultCodeException(
           WsAttributeDefAssignActionsResultsCode.INSUFFICIENT_PRIVILEGES, theSummary, ipe);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", ipe);

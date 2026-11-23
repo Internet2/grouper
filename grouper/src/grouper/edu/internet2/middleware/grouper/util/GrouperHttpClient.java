@@ -1469,7 +1469,7 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.headers).keySet()) {
             theLog.append("HTTP request header: ").append(key).append(": ");
             if (!StringUtils.equalsIgnoreCase("Authorization", key)
-                // issue 40: also mask other credential headers (X-Api-Key, X-Auth-Token, Cookie, ...)
+                // GRP-7581: also mask other credential headers (X-Api-Key, X-Auth-Token, Cookie, ...)
                 && !GrouperHttpClientLogRedactor.isSensitiveHeaderName(key)
                 && !this.isDoNotLogHeader(key)
                 && !this.getDoNotLogHeaders().contains("*")) {
@@ -1484,14 +1484,14 @@ public class GrouperHttpClient {
             if (this.doNotLogRequestBody) {
               theLog.append("*******");
             } else {
-              theLog.append(/* issue 40: mask passwords, secrets, tokens, assertions in the body */ StringUtils.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.body), 20000));
+              theLog.append(/* GRP-7581: mask passwords, secrets, tokens, assertions in the body */ StringUtils.abbreviate(GrouperHttpClientLogRedactor.redactBody(this.body), 20000));
             }
             theLog.append("\n");
           }
           
           for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
             theLog.append("HTTP request body param: ").append(key).append(":");
-            // issue 40: pass, secret, token, assertion, api key, ... (was only pass and secret)
+            // GRP-7581: pass, secret, token, assertion, api key, ... (was only pass and secret)
             if (!GrouperHttpClientLogRedactor.isSensitiveName(key)
                 && !this.getDoNotLogParameters().contains(key)
                 && !this.getDoNotLogParameters().contains("*")) {
@@ -1506,7 +1506,7 @@ public class GrouperHttpClient {
           for (String key: GrouperUtil.nonNull(this.responseHeaders).keySet()) {
             theLog.append("HTTP response header: ").append(key).append(": ");
             if (!key.toLowerCase().contains("cookie")
-                // issue 40: also mask other credential headers
+                // GRP-7581: also mask other credential headers
                 && !GrouperHttpClientLogRedactor.isSensitiveHeaderName(key)
                 && !this.getDoNotLogHeaders().contains(key)
                 && !this.getDoNotLogHeaders().contains("*")) {

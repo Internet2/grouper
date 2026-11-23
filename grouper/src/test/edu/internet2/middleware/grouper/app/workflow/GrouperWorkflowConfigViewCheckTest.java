@@ -17,7 +17,7 @@ import junit.textui.TestRunner;
 
 /**
  * <pre>
- * Security fix 112: viewing a workflow config (the configs list and the config details screen)
+ * Security (GRP-7579): viewing a workflow config (the configs list and the config details screen)
  * is decided per config: people who can configure workflows on the group, else members of that
  * config's own viewers group.  VIEW on the group, or being a viewer of another config on the
  * group, is not enough.

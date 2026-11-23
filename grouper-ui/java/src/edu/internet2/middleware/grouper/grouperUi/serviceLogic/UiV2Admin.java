@@ -570,7 +570,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (!daemonJobsAllowed()) {
         return;
       }
-      
+
+      //only a sysadmin can add a daemon, so do not show or submit the form for a non sysadmin,
+      //e.g. from a bookmarked or typed URL (the save also refuses it)
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer().isCanAddDaemon()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            edu.internet2.middleware.grouper.app.daemon.GrouperDaemonCodeAuthorization.NOT_ALLOWED_MESSAGE));
+        return;
+      }
+
       String daemonConfigType = request.getParameter("daemonConfigType");
       String daemonConfigId = request.getParameter("daemonConfigId");
       String enable = request.getParameter("daemonConfigEnable");
@@ -653,7 +661,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (!daemonJobsAllowed()) {
         return;
       }
-      
+
+      //only a sysadmin can add a daemon, so do not show or submit the form for a non sysadmin,
+      //e.g. from a bookmarked or typed URL (the save also refuses it)
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer().isCanAddDaemon()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            edu.internet2.middleware.grouper.app.daemon.GrouperDaemonCodeAuthorization.NOT_ALLOWED_MESSAGE));
+        return;
+      }
+
       String daemonConfigType = request.getParameter("daemonConfigType");
       String daemonConfigId = request.getParameter("daemonConfigId");
       String enable = request.getParameter("daemonConfigEnable");

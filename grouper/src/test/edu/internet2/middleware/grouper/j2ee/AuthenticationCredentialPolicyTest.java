@@ -23,7 +23,7 @@ import junit.textui.TestRunner;
 
 /**
  * <pre>
- * Security fix 141 (basicAuthenticationIgnoresCredentialRestrictions): built-in Basic
+ * Security (GRP-7577): built-in Basic
  * authentication (Authentication.authenticate) must refuse a database-backed grouper_password
  * credential, even with the right password, when its expiration is in the past or the request is
  * not from one of its allowed_from_cidrs networks, also on an authentication-cache hit, and must
