@@ -40,7 +40,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testFullSyncDuoStartWithAndDiagnostics"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testDuoFullSyncReusesSyncBackRows"));
   }
   
   @Override
@@ -1703,7 +1703,41 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
     subj1Kept.retainAll(subj1ValuesAfter);
     assertTrue("most of subj1's value rows kept, kept " + subj1Kept.size() + " of " + subj1ValuesBefore.size(),
         subj1Kept.size() >= subj1ValuesBefore.size() - 2);
-    assertTrue("subj1 has new rows for the changed values", subj1ValuesAfter.size() > subj1Kept.size());
+    assertTrue("subj1 has new or updated rows for the changed values", subj1ValuesAfter.size() > subj1Kept.size());
+
+    // GRP-7558: subj0 logs in, so only its lastLogin changes: that row is updated in place (same internal_id, new
+    // value and last_updated) instead of deleted and re-inserted, and every other row is kept as is
+    subj0ValuesBefore = syncBackValueRowIdsForSubject(configId, subj0);
+    subj1ValuesBefore = syncBackValueRowIdsForSubject(configId, subj1);
+    String subj0LastLoginBefore = syncBackValueRowIdForSubject(configId, subj0, "lastLogin");
+    new GcDbAccess().connectionName("grouper").sql("update mock_duo_user set last_login = ? where user_name = ?")
+        .addBindVar(1727540000L).addBindVar(subj0).executeSql();
+
+    // pass 5
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(Long.valueOf(1727540000L), authMethodInteger(configId, subj0, "lastLogin"));
+    String subj0LastLoginAfter = syncBackValueRowIdForSubject(configId, subj0, "lastLogin");
+    assertEquals("lastLogin keeps its internal_id", subj0LastLoginBefore.split("\\|")[0], subj0LastLoginAfter.split("\\|")[0]);
+    assertFalse("lastLogin gets a new last_updated", subj0LastLoginBefore.equals(subj0LastLoginAfter));
+    Set<String> subj0ValuesAfter = syncBackValueRowIdsForSubject(configId, subj0);
+    assertEquals("subj0 has the same number of value rows", subj0ValuesBefore.size(), subj0ValuesAfter.size());
+    subj0ValuesBefore.remove(subj0LastLoginBefore);
+    subj0ValuesAfter.remove(subj0LastLoginAfter);
+    assertEquals("subj0's other value rows kept as is", subj0ValuesBefore, subj0ValuesAfter);
+    assertEquals("subj1 untouched", subj1ValuesBefore, syncBackValueRowIdsForSubject(configId, subj1));
+  }
+
+  /** GRP-7558: "internal_id|last_updated" of a subject's single value row for one attribute */
+  private static String syncBackValueRowIdForSubject(String configId, String subjectId, String attributeName) {
+    Set<String> rowIds = rowIdSet(new GcDbAccess().connectionName("grouper")
+        .sql("select v.internal_id, v.last_updated from grouper_prov_user_attr_value v, grouper_prov_user_attr a, "
+            + "grouper_prov_user u, grouper_members m "
+            + "where v.prov_user_attr_internal_id = a.internal_id and v.prov_user_internal_id = u.internal_id "
+            + "and u.member_internal_id = m.internal_id and m.subject_id = ? and a.attribute_name = ? "
+            + "and u.grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(subjectId).addBindVar(attributeName).addBindVar(configId).selectList(Object[].class));
+    assertEquals("one " + attributeName + " row for " + subjectId + ": " + rowIds, 1, rowIds.size());
+    return rowIds.iterator().next();
   }
 
   /**

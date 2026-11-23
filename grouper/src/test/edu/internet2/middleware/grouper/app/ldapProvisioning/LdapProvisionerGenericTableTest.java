@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
@@ -20,6 +21,7 @@ import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
@@ -740,6 +742,124 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
             + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'cn'")
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("expected 1 value row for single-valued cn after incremental", 1, cnValueCount);
+  }
+
+  /**
+   * GRP-7558: changes to a multi-valued attribute reuse value rows sensibly on a full sync.  In this posix config
+   * description holds the group's members, so membership changes swap, add, and remove its values:
+   * <ul>
+   *   <li>swap (SUBJ1 out, SUBJ2 in): SUBJ0's row is kept as is and SUBJ2's value takes over SUBJ1's row in place</li>
+   *   <li>add (SUBJ3): the existing rows are kept as is and only the added value gets a new row</li>
+   *   <li>remove (SUBJ2 and SUBJ3): only those rows are deleted, SUBJ0's row is kept as is</li>
+   * </ul>
+   * LDAP sync-back captures what a run reads (before it writes), so each change shows up after two full syncs.
+   */
+  public void testFullSyncMultiValuedChangesReuseValueRows() {
+    String configId = "ldapProvTest";
+
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+            .assignPosixGroup(true)
+            .assignMembershipAttribute("description")
+            .assignEntityAttributeCount(1)
+            .assignSubjectSourcesToProvision("jdbc")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "true")
+            .addExtraConfig("nativeAttributesGroups", "objectClass, description, cn"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    long syncInternalId = GcGrouperSyncDao.retrieveByProvisionerName(null, configId).getInternalId();
+    Map<String, String> objectClassBefore = groupValueRows(syncInternalId, "objectClass");
+    Map<String, String> descriptionBefore = groupValueRows(syncInternalId, "description");
+    assertEquals("SUBJ0 + SUBJ1 in description: " + descriptionBefore, 2, descriptionBefore.size());
+    String subj0Row = valueRowFor(descriptionBefore, SubjectTestHelper.SUBJ0);
+    String subj1Row = valueRowFor(descriptionBefore, SubjectTestHelper.SUBJ1);
+
+    // swap
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    Map<String, String> descriptionAfterSwap = groupValueRows(syncInternalId, "description");
+    assertEquals("SUBJ0 + SUBJ2 in description: " + descriptionAfterSwap, 2, descriptionAfterSwap.size());
+    assertEquals("SUBJ0's row kept as is", subj0Row, valueRowFor(descriptionAfterSwap, SubjectTestHelper.SUBJ0));
+    String subj2Row = valueRowFor(descriptionAfterSwap, SubjectTestHelper.SUBJ2);
+    assertEquals("SUBJ2's value took over SUBJ1's row", idOf(subj1Row), idOf(subj2Row));
+    assertFalse("SUBJ2's row has a new last_updated", subj1Row.equals(subj2Row));
+    assertEquals("objectClass rows kept as is", objectClassBefore, groupValueRows(syncInternalId, "objectClass"));
+
+    // add
+    testGroup.addMember(SubjectTestHelper.SUBJ3, false);
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    Map<String, String> descriptionAfterAdd = groupValueRows(syncInternalId, "description");
+    assertEquals("SUBJ0 + SUBJ2 + SUBJ3 in description: " + descriptionAfterAdd, 3, descriptionAfterAdd.size());
+    assertEquals("SUBJ0's row kept as is", subj0Row, valueRowFor(descriptionAfterAdd, SubjectTestHelper.SUBJ0));
+    assertEquals("SUBJ2's row kept as is", subj2Row, valueRowFor(descriptionAfterAdd, SubjectTestHelper.SUBJ2));
+    String subj3Row = valueRowFor(descriptionAfterAdd, SubjectTestHelper.SUBJ3);
+    assertFalse("SUBJ3 gets a new row", idOf(subj3Row).equals(idOf(subj0Row)) || idOf(subj3Row).equals(idOf(subj2Row)));
+
+    // remove
+    testGroup.deleteMember(SubjectTestHelper.SUBJ2);
+    testGroup.deleteMember(SubjectTestHelper.SUBJ3);
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    Map<String, String> descriptionAfterRemove = groupValueRows(syncInternalId, "description");
+    assertEquals("SUBJ0 in description: " + descriptionAfterRemove, 1, descriptionAfterRemove.size());
+    assertEquals("SUBJ0's row kept as is", subj0Row, valueRowFor(descriptionAfterRemove, SubjectTestHelper.SUBJ0));
+    assertEquals("objectClass rows kept as is", objectClassBefore, groupValueRows(syncInternalId, "objectClass"));
+  }
+
+  /** GRP-7558: value text to "internal_id|last_updated" of the group value rows of one string attribute */
+  private Map<String, String> groupValueRows(long syncInternalId, String attributeName) {
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper")
+        .sql("select d.the_text, v.internal_id, v.last_updated from grouper_prov_group_attr_value v "
+            + "join grouper_prov_group_attr a on a.internal_id = v.prov_group_attr_internal_id "
+            + "join grouper_prov_group g on g.internal_id = v.prov_group_internal_id "
+            + "join grouper_dictionary d on d.internal_id = v.value_dictionary_internal_id "
+            + "where g.grouper_sync_internal_id = ? and a.attribute_name = ?")
+        .addBindVar(syncInternalId).addBindVar(attributeName).selectList(Object[].class);
+    Map<String, String> result = new LinkedHashMap<String, String>();
+    for (Object[] row : rows) {
+      result.put(row[0].toString(), ((Number) row[1]).longValue() + "|" + ((Number) row[2]).longValue());
+    }
+    return result;
+  }
+
+  /** GRP-7558: the "internal_id|last_updated" of the one value that holds this subject's id */
+  private String valueRowFor(Map<String, String> valueRows, Subject subject) {
+    String result = null;
+    for (Map.Entry<String, String> valueRow : valueRows.entrySet()) {
+      if (valueRow.getKey().contains(subject.getId())) {
+        assertNull("one value for " + subject.getId() + ": " + valueRows, result);
+        result = valueRow.getValue();
+      }
+    }
+    assertNotNull("value for " + subject.getId() + ": " + valueRows, result);
+    return result;
+  }
+
+  /** GRP-7558: internal_id part of "internal_id|last_updated" */
+  private static String idOf(String valueRow) {
+    return valueRow.split("\\|")[0];
   }
 
   /**

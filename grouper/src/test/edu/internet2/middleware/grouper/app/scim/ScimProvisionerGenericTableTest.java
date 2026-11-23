@@ -46,7 +46,7 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
 
   public static void main(String[] args) {
     GenericScim2MockServiceHandler.ensureScimMockTables();
-    TestRunner.run(new ScimProvisionerGenericTableTest("testCreateConvergesIntoSyncTablesOnNextRun"));
+    TestRunner.run(new ScimProvisionerGenericTableTest("testIncrementalChangedValueUpdatedInPlace"));
   }
 
   public ScimProvisionerGenericTableTest() {
@@ -2146,6 +2146,131 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     // desired: testGroup -> {SUBJ0}, otherGroup -> {SUBJ0,SUBJ1} = 3
     assertEquals("testGroup's SUBJ1 membership should be replaced out this incremental cycle", 3,
         countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * GRP-7558: a full sync updates a changed value in place: the value row keeps its internal_id with the new
+   * value and a new last_updated, instead of being deleted and re-inserted (readers saw no value in between).
+   * The user's unchanged values keep their rows as is.  externalId is captured by default and is not managed by
+   * this config, so it can be changed on the target without the sync changing it back.
+   */
+  public void testFullSyncChangedValueUpdatedInPlace() {
+    String configId = "awsProvisioner";
+    configureAwsSyncBack(configId, null);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    provisionStem(configId, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    String subj0 = SubjectTestHelper.SUBJ0.getId();
+    setMockScimUserExternalId(subj0, "externalIdBefore");
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("externalIdBefore", userValueString(configId, subj0, "externalId"));
+    Map<String, String> rowsBefore = userValueRowsByAttribute(configId, subj0);
+
+    setMockScimUserExternalId(subj0, "externalIdAfter");
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertExternalIdUpdatedInPlace(configId, subj0, rowsBefore);
+  }
+
+  /**
+   * GRP-7558: an incremental run that touches a user passes the user's existing value rows in, so unchanged values
+   * keep their rows as is (they used to all be deleted and re-inserted) and a changed value is updated in place.
+   * With recalculateAllOperations the incremental re-reads SUBJ0 from the target when its membership changes.
+   */
+  public void testIncrementalChangedValueUpdatedInPlace() {
+    String configId = "awsProvisioner";
+    configureAwsSyncBack(configId, null);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(this.grouperSession).assignName("test:otherGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    // otherGroup gets a member so it is in the target before SUBJ0 is added to it
+    otherGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    provisionStem(configId, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    String subj0 = SubjectTestHelper.SUBJ0.getId();
+    setMockScimUserExternalId(subj0, "externalIdBefore");
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("externalIdBefore", userValueString(configId, subj0, "externalId"));
+    Map<String, String> rowsBefore = userValueRowsByAttribute(configId, subj0);
+
+    // prime the changelog consumer: its first run only initializes its changelog position
+    incrementalProvision();
+
+    setMockScimUserExternalId(subj0, "externalIdAfter");
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    incrementalProvision();
+
+    assertExternalIdUpdatedInPlace(configId, subj0, rowsBefore);
+  }
+
+  /** GRP-7558: externalId changed to externalIdAfter in the same row, every other value row of the user as is */
+  private void assertExternalIdUpdatedInPlace(String configId, String subjectId, Map<String, String> rowsBefore) {
+    assertEquals("externalIdAfter", userValueString(configId, subjectId, "externalId"));
+    Map<String, String> rowsAfter = userValueRowsByAttribute(configId, subjectId);
+    assertEquals("same attributes", rowsBefore.keySet(), rowsAfter.keySet());
+    for (String attributeName : rowsBefore.keySet()) {
+      if (!"externalId".equals(attributeName)) {
+        assertEquals("unchanged '" + attributeName + "' keeps its row as is",
+            rowsBefore.get(attributeName), rowsAfter.get(attributeName));
+      }
+    }
+    String externalIdBefore = rowsBefore.get("externalId");
+    String externalIdAfter = rowsAfter.get("externalId");
+    assertEquals("changed externalId keeps its internal_id", externalIdBefore.split("\\|")[0], externalIdAfter.split("\\|")[0]);
+    assertFalse("changed externalId gets a new last_updated", externalIdBefore.equals(externalIdAfter));
+  }
+
+  private void provisionStem(String configId, Stem stem) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  }
+
+  /** GRP-7558: change a user's externalId directly in the SCIM mock target */
+  private void setMockScimUserExternalId(String userName, String externalId) {
+    int rows = new GcDbAccess().connectionName("grouper")
+        .sql("update mock_scim_user set external_id = ? where user_name = ?")
+        .addBindVar(externalId).addBindVar(userName).executeSql();
+    assertEquals("mock scim user should exist for " + userName, 1, rows);
+  }
+
+  /** GRP-7558: string sync-back value of a subject's user attribute, or null */
+  private String userValueString(String configId, String subjectId, String attributeName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_user_attr_v "
+            + "where provisioner_name = ? and subject_id = ? and attribute_name = ?")
+        .addBindVar(configId).addBindVar(subjectId).addBindVar(attributeName).select(String.class);
+  }
+
+  /** GRP-7558: attribute_name to "internal_id|last_updated" of a subject's value rows (single-valued attributes) */
+  private Map<String, String> userValueRowsByAttribute(String configId, String subjectId) {
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper")
+        .sql("select a.attribute_name, v.internal_id, v.last_updated from grouper_prov_user_attr_value v "
+            + "join grouper_prov_user_attr a on a.internal_id = v.prov_user_attr_internal_id "
+            + "join grouper_prov_user u on u.internal_id = v.prov_user_internal_id "
+            + "join grouper_members m on m.internal_id = u.member_internal_id "
+            + "where m.subject_id = ? "
+            + "and u.grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(subjectId).addBindVar(configId).selectList(Object[].class);
+    Map<String, String> result = new LinkedHashMap<String, String>();
+    for (Object[] row : rows) {
+      result.put(row[0].toString(), ((Number) row[1]).longValue() + "|" + ((Number) row[2]).longValue());
+    }
+    return result;
   }
 
   /** value_integer of the {@code active} attr for the single provisioned user of a sync, or null */
