@@ -16,11 +16,9 @@
 package edu.internet2.middleware.grouper.util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -42,6 +40,11 @@ import junit.textui.TestRunner;
  * user who could write a send-email rule subject could run grouperUtil.gshRunScript(...) as
  * GrouperSystem.  This class does not compile before the fix (GrouperJexlSandbox does not exist),
  * and the gshRunScript cases would run the marker script.
+ *
+ * GRP-7596: rule if/then EL, and send-email rules that use anything but the predefined variables, can
+ * only be saved by a sysadmin, so with rules.allowUnrestrictedEl on they run unrestricted again
+ * (RuleElSysadminCheck).  Off (the default) they stay sandboxed.  Send-email rules with predefined
+ * variables only always run sandboxed.
  */
 public class GrouperJexlSandboxTest extends GrouperTest {
 
@@ -72,7 +75,7 @@ public class GrouperJexlSandboxTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperJexlSandboxTest("testSendEmailRuleCannotRunGsh"));
+    TestRunner.run(new GrouperJexlSandboxTest("testSendEmailRuleSavedBySysadminRunsUnrestricted"));
   }
 
   @Override
@@ -238,12 +241,13 @@ public class GrouperJexlSandboxTest extends GrouperTest {
   }
 
   /**
-   * the verified attack: a predefined send-email rule whose subject calls grouperUtil.gshRunScript
-   * to delete a group.  The rule acts as GrouperSystem (which also has rules.accessToApiInEl, so
-   * RuleDefinition itself puts a full GrouperUtil in the map).  The GSH must not run, the victim
-   * group must survive, and the email still goes out.
+   * GRP-7596: a send-email rule whose subject calls grouperUtil.gshRunScript could only have been saved
+   * by a sysadmin (a non-wheel save is refused, see RuleSendEmailPredefinedVariablesTest), so it runs
+   * unrestricted when it fires with rules.allowUnrestrictedEl on, as it did before 7.9.1.  Root saves
+   * it here, and the GSH runs.
    */
-  public void testSendEmailRuleCannotRunGsh() {
+  public void testSendEmailRuleSavedBySysadminRunsUnrestricted() {
+    edu.internet2.middleware.grouper.cfg.GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowUnrestrictedEl", "true");
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     // init the rules consumer first (like RuleTest): a new consumer starts at the max change log
@@ -253,39 +257,18 @@ public class GrouperJexlSandboxTest extends GrouperTest {
 
     Group ruleGroup = new GroupSave(grouperSession).assignName("test:jexlSandboxRuleGroup")
         .assignCreateParentStemsIfNotExist(true).save();
-    new GroupSave(grouperSession).assignName("test:jexlSandboxVictim")
-        .assignCreateParentStemsIfNotExist(true).save();
 
-    String subjectEl = "${grouperUtil.gshRunScript(\"delGroup('test:jexlSandboxVictim'); " + MARKER_GSH + "\")}";
+    String subjectEl = "${grouperUtil.gshRunScript(\"" + MARKER_GSH + "\")}";
 
     RuleApi.emailOnFlattenedMembershipAdd(SubjectFinder.findRootSubject(), ruleGroup,
         "a@b.c", "Added: ${groupDisplayExtension} " + subjectEl, "body");
-
-    long initialEmailCount = GrouperEmail.testingEmailCount;
 
     ruleGroup.addMember(SubjectTestHelper.SUBJ0);
 
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + "grouperRules");
 
-    assertNull("GSH in the email subject must not run", System.getProperty(MARKER));
-    assertNotNull("victim group must still exist",
-        GroupFinder.findByName(grouperSession, "test:jexlSandboxVictim", false));
-
-    // From 5.19.0 / 6.0.0 sendEmail is failsafe (GRP-6247): the subject falls back to the raw
-    // template and the email still goes out.  Before that the denied expression stops the rule
-    // and no email is sent, which is also safe.
-    if (GrouperEmail.testingEmailCount == initialEmailCount) {
-      System.out.println("skip email check in testSendEmailRuleCannotRunGsh: sendEmail on this release is not failsafe (GRP-6247), the denied expression stopped the rule");
-      return;
-    }
-    assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
-    List<GrouperEmail> emails = GrouperEmail.testingEmails();
-    if (emails != null && emails.size() > 0) {
-      String emailSubject = emails.get(emails.size() - 1).getSubject();
-      assertFalse("email subject must not have GSH output: " + emailSubject,
-          GrouperUtil.defaultString(emailSubject).contains("Output:"));
-    }
+    assertEquals("GSH in a sysadmin's email subject runs", "ran", System.getProperty(MARKER));
   }
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesAccessToApiInElConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.rules.RulesElSandboxConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRulesUiConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,6 +36,7 @@ public class GrouperConfigurationCheckEngine {
     checks.add(new RulesRestrictRulesUiConfigurationCheck());
     checks.add(new RulesSendEmailGateConfigurationCheck());
     checks.add(new RulesAccessToApiInElConfigurationCheck());
+    checks.add(new RulesElSandboxConfigurationCheck());
 
     return checks;
   }

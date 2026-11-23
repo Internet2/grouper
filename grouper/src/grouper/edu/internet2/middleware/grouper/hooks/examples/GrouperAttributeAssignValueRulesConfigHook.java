@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleElSysadminCheck;
 import edu.internet2.middleware.grouper.rules.RuleEmailTemplateCheck;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleSubjectActAs;
@@ -149,6 +150,35 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
             String sendEmailError = RuleEmailTemplateCheck.sendEmailExpressionErrorForValue(runningSubject, attributeAssignValue);
             if (sendEmailError != null) {
               throw new HookVeto(RuleEmailTemplateCheck.HOOK_VETO_REASON_KEY, sendEmailError);
+            }
+
+            // SECURITY (GRP-7596): if/then EL runs unrestricted, since only a sysadmin can save it.  So
+            // a non-wheel session may not insert or update any value of a rule that has if/then EL
+            // (not only the EL values: also the act-as subject, check and owner, which would point a
+            // sysadmin's expression somewhere else).  Same rules as the send-email check above: root
+            // returns at once (the rules UI is checked in RuleService), before the import skip, and
+            // the veto rolls back the value that was just written.
+            String elError = RuleElSysadminCheck.elErrorForValue(runningSubject, attributeAssignValue);
+            if (elError != null) {
+              throw new HookVeto(RuleElSysadminCheck.HOOK_VETO_REASON_KEY, elError);
+            }
+
+            // GRP-7596: a sysadmin saving if/then EL (WS, GSH, API) that the sandbox will refuse while
+            // rules.allowUnrestrictedEl is off: warn in the log, naming the property.  The rules UI shows
+            // the same warning on the screen (RuleService).  The value is saved either way.
+            String sandboxWarning = RuleElSysadminCheck.saveTimeSandboxWarningForValue(attributeAssignValue);
+            if (sandboxWarning != null) {
+              LOG.warn(sandboxWarning);
+            }
+          } else {
+
+            // SECURITY (GRP-7596): deletes too.  A non-wheel session may not delete any value of a rule
+            // with if/then EL, or the EL itself: deleting the if-condition EL, if owner or stem scope
+            // widens when a sysadmin's then EL fires.  Deleting the whole rule returned above (its
+            // assignment is in attributeAssignDeletes, and its child values are deleted as root).
+            String elDeleteError = RuleElSysadminCheck.elErrorForDeletedValue(runningSubject, attributeAssignValue);
+            if (elDeleteError != null) {
+              throw new HookVeto(RuleElSysadminCheck.HOOK_VETO_REASON_KEY, elDeleteError);
             }
           }
 

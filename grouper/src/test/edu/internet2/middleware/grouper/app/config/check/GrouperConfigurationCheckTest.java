@@ -26,7 +26,6 @@ import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRule
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import junit.textui.TestRunner;
 
 /**
@@ -159,7 +158,7 @@ public class GrouperConfigurationCheckTest extends GrouperTest {
   }
 
   /**
-   * blank accessToApiInEl.group grants nothing extra, so there is no finding
+   * blank accessToApiInEl.group is the expected setting (GRP-7596), so there is no finding
    */
   public void testAccessToApiInElBlankNoFinding() {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, "");
@@ -168,49 +167,26 @@ public class GrouperConfigurationCheckTest extends GrouperTest {
   }
 
   /**
-   * accessToApiInEl.group pointing at a non-existent group is an error
+   * accessToApiInEl.group is no longer used (GRP-7596), so setting it at all is an error, even to a
+   * group that exists and has only sysadmins in it
+   */
+  public void testAccessToApiInElSetError() {
+    Group group = createGroup("test:reviewApiSysadminGroup");
+    group.addMember(SubjectFinder.findRootSubject());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
+    List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
+    assertOneResultOfSeverity(results, ConfigurationCheckSeverity.ERROR);
+  }
+
+  /**
+   * accessToApiInEl.group set to a group that does not exist is the same error (no group lookup)
    */
   public void testAccessToApiInElMissingGroupError() {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, "test:doesNotExistApiGroup");
     List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
     assertOneResultOfSeverity(results, ConfigurationCheckSeverity.ERROR);
-  }
-
-  /**
-   * an accessToApiInEl.group whose members are all sysadmins (wheel/root) is fine
-   */
-  public void testAccessToApiInElAllSysadminsNoFinding() {
-    Group group = createGroup("test:reviewApiSysadminGroup");
-    group.addMember(SubjectFinder.findRootSubject());
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
-    List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
-    assertEquals("expected no findings but got " + results, 0, results.size());
-  }
-
-  /**
-   * an accessToApiInEl.group with a non-sysadmin member is a warning (only sysadmins should be in it)
-   */
-  public void testAccessToApiInElNonSysadminMemberWarning() {
-    Group group = createGroup("test:reviewApiNonSysadminGroup");
-    group.addMember(SubjectTestHelper.SUBJ0);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
-    List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
-    assertOneResultOfSeverity(results, ConfigurationCheckSeverity.WARNING);
-  }
-
-  /**
-   * an accessToApiInEl.group that contains EveryEntity is a warning (EveryEntity is not a sysadmin)
-   */
-  public void testAccessToApiInElEveryEntityWarning() {
-    Group group = createGroup("test:reviewApiEveryEntityGroup");
-    group.addMember(SubjectFinder.findAllSubject());
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
-        RulesAccessToApiInElConfigurationCheck.PROPERTY_NAME, group.getName());
-    List<ConfigurationCheckResult> results = new RulesAccessToApiInElConfigurationCheck().checkConfiguration();
-    assertOneResultOfSeverity(results, ConfigurationCheckSeverity.WARNING);
   }
 
   /**

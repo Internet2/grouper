@@ -648,13 +648,23 @@ public class RuleService {
     attributeAssign = persistRuleValues(grouperObject, attributeAssign, ruleValues);
 
     String validValue = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
-    
+
+    // GRP-7596: the rule is saved, but if its EL uses something the sandbox refuses and
+    // rules.allowUnrestrictedEl is off, it will fail when it runs: say so now, naming the property.
+    // The UI shows a WARN result as an info message on the rules list (the save still succeeded).
+    String sandboxWarning = RuleElSysadminCheck.saveTimeSandboxWarning(ruleDefinition);
+
     if (!StringUtils.equals(validValue, "T")) {
       String info = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditRuleSavedButNotValid");
-      result.put("WARN", Arrays.asList(info));
+      result.put("WARN", sandboxWarning == null ? Arrays.asList(info) : Arrays.asList(info, sandboxWarning));
       return result;
-    } 
-    
+    }
+
+    if (sandboxWarning != null) {
+      result.put("WARN", Arrays.asList(sandboxWarning));
+      return result;
+    }
+
     String info = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditSuccess");
     result.put("SUCCESS", Arrays.asList(info));
     return result;

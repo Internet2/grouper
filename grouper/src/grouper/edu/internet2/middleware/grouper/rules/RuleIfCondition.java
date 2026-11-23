@@ -292,12 +292,14 @@ public class RuleIfCondition {
           ruleEngine, rulesBean);
     } else if (!StringUtils.isBlank(this.ifConditionEl)) {
       
-      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
-      boolean hasAccessToElApi = RuleEngine.hasAccessToElApi(actAsSubject);
-      
+      // SECURITY (GRP-7596): only a sysadmin can save if-condition EL (RuleService and
+      // RuleElSysadminCheck).  With rules.allowUnrestrictedEl it gets every EL variable and runs
+      // unrestricted; otherwise it runs in the JEXL sandbox with the plain variables.
+      boolean unrestricted = RuleElSysadminCheck.allowUnrestrictedEl();
+
       Map<String, Object> variableMap =  new HashMap<String, Object>();
-      
-      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToElApi);
+
+      ruleDefinition.addElVariables(variableMap, rulesBean, unrestricted);
       
       if (!StringUtils.isBlank(this.ifOwnerId)) {
         variableMap.put("ifOwnerId", this.ifOwnerId);
@@ -318,7 +320,8 @@ public class RuleIfCondition {
         }
       }
       
-      String result = GrouperUtil.substituteExpressionLanguage(this.ifConditionEl, variableMap);
+      // a sandboxed failure says to set rules.allowUnrestrictedEl
+      String result = RuleElSysadminCheck.substituteRuleEl(this.ifConditionEl, variableMap, unrestricted, ruleDefinition);
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", elResult: ").append(result);
