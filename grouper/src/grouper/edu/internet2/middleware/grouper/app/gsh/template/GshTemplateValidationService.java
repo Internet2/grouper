@@ -204,7 +204,7 @@ public class GshTemplateValidationService {
         }
       }      
     } else {
-      if (!templateConfig.isAllowWsFromNoOwner() && templateConfig.getGshTemplateType() != GshTemplateType.provisioner) {
+      if (!templateConfig.isAllowNoOwner(gshTemplateExec.isRunFromUi()) && templateConfig.getGshTemplateType() != GshTemplateType.provisioner) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
@@ -260,6 +260,9 @@ public class GshTemplateValidationService {
             
             GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
             return ownerGroup.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
+          } else if (gshTemplateExec.getGshTemplateOwnerType() == null) {
+            // GRP-7598: a no-owner run (allowUiFromNoOwner / allowWsFromNoOwner) has no object to hold the privilege on
+            return false;
           } else {
             throw new RuntimeException("Invalid gshTemplateOwnerType: "+gshTemplateExec.getGshTemplateOwnerType());
           }

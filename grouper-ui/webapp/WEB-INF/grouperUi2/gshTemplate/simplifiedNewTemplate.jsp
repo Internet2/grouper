@@ -64,6 +64,10 @@
             <c:if test="${grouperRequestContainer.groupStemTemplateContainer.showOnGroup}">
               onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
             </c:if>
+            <%-- GRP-7598: template with allowUiFromNoOwner run with no folder or group --%>
+            <c:if test="${!grouperRequestContainer.groupStemTemplateContainer.showOnFolder and !grouperRequestContainer.groupStemTemplateContainer.showOnGroup}">
+              onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
+            </c:if>
             >
           </c:if>
           

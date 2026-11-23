@@ -175,6 +175,10 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
                                <c:if test="${not guiGshTemplateConfiguration.defaultRunButtonResolutionError and guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
                                 <li><a id="stemTemplateActionsRunTemplateButton" href="?operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.defaultRunButtonTargetId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
                                </c:if>
+                               <%-- GRP-7598: no default Run group or folder, and allowUiFromNoOwner: run with no owner on the simplified screen --%>
+                               <c:if test="${guiGshTemplateConfiguration.runButtonNoOwner}">
+                                <li><a id="noOwnerTemplateActionsRunTemplateButton" href="UiV2Main.indexGshSimplifiedUi?operation=UiV2Template.newTemplateSimplifiedUi&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
+                               </c:if>
                                <li><button type="button" class="grouper-menuitem" onclick="ajax('../app/UiV2Template.test?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;"
                                     >${textContainer.text['gshTemplatesTableTestActionOption'] }</button></li>
                                

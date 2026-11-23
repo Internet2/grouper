@@ -349,6 +349,8 @@ public class UiV2Template {
       
       exec.assignConfigId(templateType);
       exec.assignCurrentUser(loggedInSubject);
+      // GRP-7598: a UI run with no owner needs allowUiFromNoOwner
+      exec.assignRunFromUi(true);
       
       HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
       String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
@@ -469,10 +471,19 @@ public class UiV2Template {
     Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
+      int actionCountBeforeOwner = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
+      // GRP-7598: for a template with allowUiFromNoOwner, a folder or group it cannot run on is ignored (old urls
+      // that pass one keep working); see ignoreStemParams / ignoreGroupParams
+      GshTemplateConfig noOwnerConfig = customTemplateNoOwnerConfig(request.getParameter("templateType"));
+      boolean ignoreStemParams = ignoreStemParams(noOwnerConfig);
+      boolean ignoreGroupParams = ignoreGroupParams(noOwnerConfig);
+      stem = ignoreStemParams ? null : UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      group = ignoreGroupParams ? null : UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
-      if (stem == null && group == null) {
+      // GRP-7598: no owner is ok for a gsh template with allowUiFromNoOwner (preflight below checks the user)
+      // an owner that was asked for, that the template could run on, but not found (or not visible) stops here
+      if (stem == null && group == null && (noOwnerConfig == null || requestHasOwnerParam(request, ignoreStemParams, ignoreGroupParams))) {
+        templateNotAvailableMessageIfNone(actionCountBeforeOwner);
         return;
       }
       
@@ -491,6 +502,8 @@ public class UiV2Template {
       
       exec.assignConfigId(templateType);
       exec.assignCurrentUser(loggedInSubject);
+      // GRP-7598: a UI run with no owner needs allowUiFromNoOwner
+      exec.assignRunFromUi(true);
       
       HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
       String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
@@ -504,7 +517,7 @@ public class UiV2Template {
         } else {
           exec.assignOwnerStemName(stem.getName());
         }
-      } else {
+      } else if (group != null) {
         exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
         exec.assignOwnerGroupName(group.getName());
       }
@@ -600,7 +613,9 @@ public class UiV2Template {
         
         // if we are done and not moving pages, then redraw the form
         if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
-          boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + exec.getConfigId() + ".simplifiedUi", false);
+          // a no-owner run is always on the simplified screen (there is no folder or group screen to draw it in)
+          boolean simplifiedUi = (stem == null && group == null)
+              || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + exec.getConfigId() + ".simplifiedUi", false);
 
           newTemplateHelper(request, response, simplifiedUi, true, false);
         }
@@ -654,9 +669,12 @@ public class UiV2Template {
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer().setGshTemplateExec(gshTemplateExec);
 
-    boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + gshTemplateExec.getConfigId() + ".simplifiedUi", false);
-
     if (gshTemplateExec != null) {
+
+      // GRP-7598: a run with no owner (allowUiFromNoOwner) is on the simplified screen
+      boolean noOwner = StringUtils.isBlank(gshTemplateExec.getOwnerStemName()) && StringUtils.isBlank(gshTemplateExec.getOwnerGroupName());
+      boolean simplifiedUi = noOwner
+          || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + gshTemplateExec.getConfigId() + ".simplifiedUi", false);
       
       // endless loop?
       if (gshTemplateExec.getProgressBean().isThisLastStatus()) {
@@ -682,7 +700,9 @@ public class UiV2Template {
         GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(new GuiGroup(group));
       }
       
-      if (stem == null && group == null) {
+      // the owner is gone (e.g. the template deleted it): go to the root folder after.  With no owner at all
+      // there is nowhere to go, so the messages show on the simplified screen
+      if (stem == null && group == null && !noOwner) {
         stem = StemFinder.findRootStem(GrouperSession.staticGrouperSession());
       }
 
@@ -1387,6 +1407,98 @@ public class UiV2Template {
   }
 
   /**
+   * GRP-7598: a template screen could not go on with no folder or group (the template needs one, or the one
+   * asked for was not found).  Show a short message instead of a blank screen, unless the folder or group lookup
+   * already showed one.  The message is the same for every reason, so it does not tell the user whether the
+   * template, folder or group exists
+   * @param actionCountBeforeOwner number of screen actions before the folder and group were looked up
+   */
+  private static void templateNotAvailableMessageIfNone(int actionCountBeforeOwner) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    if (GrouperUtil.length(guiResponseJs.getActions()) == actionCountBeforeOwner) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+          TextContainer.retrieveFromRequest().getText().get("gshTemplateNotAvailable")));
+    }
+  }
+
+  /**
+   * GRP-7598: true if the request names an owner folder or group (any of the ids, names or indexes the owner
+   * lookups read), not counting ones that are being ignored.  When one was sent but did not resolve (missing,
+   * or the user cannot VIEW it), the screen stops instead of running a no-owner template with the owner
+   * silently dropped
+   * @param request
+   * @param ignoreStemParams true to not count stemId / stemName / stemIndex
+   * @param ignoreGroupParams true to not count groupId / groupName / groupIndex
+   * @return true if an owner was asked for
+   */
+  private static boolean requestHasOwnerParam(HttpServletRequest request, boolean ignoreStemParams, boolean ignoreGroupParams) {
+    if (!ignoreStemParams) {
+      for (String paramName : new String[] {"stemId", "stemName", "stemIndex"}) {
+        if (!StringUtils.isBlank(request.getParameter(paramName))) {
+          return true;
+        }
+      }
+    }
+    if (!ignoreGroupParams) {
+      for (String paramName : new String[] {"groupId", "groupName", "groupIndex"}) {
+        if (!StringUtils.isBlank(request.getParameter(paramName))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * GRP-7598: for a template that the UI can run with no owner but that does not show on folders, a folder in
+   * the request could never be used (the run would be refused on it), so it is ignored and the template runs with
+   * no owner.  That keeps old urls that pass a stemId working.  It does not widen anything: the user could leave
+   * the folder off, and who may run the template is still checked
+   * @param noOwnerConfig from customTemplateNoOwnerConfig, null if the template cannot run with no owner
+   * @return true if stemId / stemName / stemIndex should be ignored
+   */
+  private static boolean ignoreStemParams(GshTemplateConfig noOwnerConfig) {
+    return noOwnerConfig != null && !noOwnerConfig.isShowOnFolders();
+  }
+
+  /**
+   * GRP-7598: same as ignoreStemParams, for groups: a template that the UI can run with no owner but that does
+   * not show on groups ignores groupId / groupName / groupIndex
+   * @param noOwnerConfig from customTemplateNoOwnerConfig, null if the template cannot run with no owner
+   * @return true if groupId / groupName / groupIndex should be ignored
+   */
+  private static boolean ignoreGroupParams(GshTemplateConfig noOwnerConfig) {
+    return noOwnerConfig != null && !noOwnerConfig.isShowOnGroups();
+  }
+
+  /**
+   * GRP-7598: the config of a custom gsh template that may be run with no owner folder or group
+   * from the UI (allowUiFromNoOwner), so a template screen with no stemId / groupId goes on instead of stopping.  This only
+   * decides whether the screen proceeds: whether the user may run the template is still checked by
+   * customTemplatePreflightOrAddErrors (and again by the validation service when it runs).  Built-in templates
+   * always need an owner
+   * @param templateType template config id from the request
+   * @return the populated config if the template can be run with no owner from the UI, else null
+   */
+  private static GshTemplateConfig customTemplateNoOwnerConfig(String templateType) {
+    if (StringUtils.isBlank(templateType)) {
+      return null;
+    }
+    try {
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+      gshTemplateConfig.populateConfiguration();
+      if (gshTemplateConfig.isAllowUiFromNoOwner() && gshTemplateConfig.getGshTemplateType() == GshTemplateType.gsh) {
+        return gshTemplateConfig;
+      }
+      return null;
+    } catch (RuntimeException re) {
+      // not a gsh template config (e.g. a built-in template), or bad config: needs an owner
+      LOG.debug("Template is not a no-owner gsh template: " + templateType, re);
+      return null;
+    }
+  }
+
+  /**
    * Before a custom gsh template form is rendered (which loads the V2 template class and runs its
    * decorateTemplateForUiDisplay), check that the logged in user may use this template on this group or folder:
    * the template is enabled, is allowed on the owner, and the user satisfies its securityRunType.  The template
@@ -1410,6 +1522,8 @@ public class UiV2Template {
       GshTemplateExec gshTemplateExec = new GshTemplateExec();
       gshTemplateExec.assignConfigId(templateType);
       gshTemplateExec.assignCurrentUser(loggedInSubject);
+      // GRP-7598: a UI run with no owner needs allowUiFromNoOwner
+      gshTemplateExec.assignRunFromUi(true);
       HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
       gshTemplateExec.assignRemoteAddr(httpServletRequest == null ? null : httpServletRequest.getRemoteAddr());
       if (stem != null) {
@@ -1469,10 +1583,30 @@ public class UiV2Template {
     boolean startedSession = grouperSession == null;
     try {
       grouperSession = startedSession ? GrouperSession.start(loggedInSubject) : grouperSession;
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
-      if (stem == null && group == null) {
+      // GRP-7598: the simplified screen's message area is in its top container, which used to be drawn only
+      // with the form, so a refusal (template not available, not allowed to run it) left a blank page.  Draw it
+      // first so any message below has somewhere to show; the form path draws it again, which is harmless
+      if (simplifiedRequest) {
+        GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newInnerHtmlFromJsp("#theTopContainer", 
+            "/WEB-INF/grouperUi2/gshTemplate/indexGshSimplifiedUiTopContainer.jsp"));
+      }
+
+      int actionCountBeforeOwner = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
+      // GRP-7598: for a template with allowUiFromNoOwner, a folder or group it cannot run on is ignored (old urls
+      // that pass one keep working); see ignoreStemParams / ignoreGroupParams
+      GshTemplateConfig noOwnerConfig = customTemplateNoOwnerConfig(request.getParameter("templateType"));
+      boolean ignoreStemParams = ignoreStemParams(noOwnerConfig);
+      boolean ignoreGroupParams = ignoreGroupParams(noOwnerConfig);
+      stem = ignoreStemParams ? null : UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      group = ignoreGroupParams ? null : UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
+      
+      // GRP-7598: no owner is ok for a gsh template with allowUiFromNoOwner (preflight below checks the user),
+      // and it is always drawn on the simplified screen since there is no folder or group screen to draw it in
+      boolean noOwner = stem == null && group == null;
+      // an owner that was asked for, that the template could run on, but not found (or not visible) stops here
+      if (noOwner && (noOwnerConfig == null || requestHasOwnerParam(request, ignoreStemParams, ignoreGroupParams))) {
+        templateNotAvailableMessageIfNone(actionCountBeforeOwner);
         return;
       }
       
@@ -1550,14 +1684,13 @@ public class UiV2Template {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       if (simplifiedRequest) {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#theTopContainer", 
-            "/WEB-INF/grouperUi2/gshTemplate/indexGshSimplifiedUiTopContainer.jsp"));
+        // the top container was drawn at the start (GRP-7598), drawing it again would wipe any message
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/gshTemplate/simplifiedNewTemplate.jsp"));
       } else {
       
         if (!StringUtils.isBlank(templateType)) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean(
+          if (noOwner || GrouperConfig.retrieveConfig().propertyValueBoolean(
               "grouperGshTemplate." + templateType + ".simplifiedUi", false)) {
             String redirectUrl = "UiV2Main.indexGshSimplifiedUi?operation=UiV2Template.newTemplateSimplifiedUi&templateType=" 
                 + GrouperUtil.escapeUrlEncode(templateType);

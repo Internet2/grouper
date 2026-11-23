@@ -159,6 +159,11 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
     }
 
+    // GRP-7598: a gsh template must be runnable from somewhere: with no owner (UI or WS), on folders, or on groups
+    if (!validateWhereTemplateRuns(attributes, validationErrorsToDisplay)) {
+      return;
+    }
+
     GrouperConfigurationModuleAttribute showOnGroupsAttribute = attributes.get("showOnGroups");
     String showOnGroupsValue = showOnGroupsAttribute.getValueOrExpressionEvaluationValue();
     
@@ -511,6 +516,63 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
   }
   
+  /**
+   * GRP-7598: a gsh template must be runnable from somewhere, else it saves fine but is silently unusable.
+   * Only gsh templates use these settings (daemon, provisioner, report and abac templates do not).
+   * <ul>
+   *   <li>allowUiFromNoOwner, allowWsFromNoOwner, showOnFolders and showOnGroups all false: nothing can run it
+   *   (disable the template instead if that is the point)</li>
+   *   <li>privilegeOnObject with a no-owner flag and neither show flag: it only runs with no owner, so there is
+   *   never an object to hold the privilege on</li>
+   * </ul>
+   * The error goes on the allowUiFromNoOwner field, which is shown first of the four
+   * @param attributes config attributes being saved
+   * @param validationErrorsToDisplay field errors are added here
+   * @return true if ok, false if an error was added
+   */
+  private static boolean validateWhereTemplateRuns(Map<String, GrouperConfigurationModuleAttribute> attributes,
+      Map<String, String> validationErrorsToDisplay) {
+
+    GrouperConfigurationModuleAttribute templateTypeAttribute = attributes.get("templateType");
+    String templateTypeValue = templateTypeAttribute == null ? null : templateTypeAttribute.getValueOrExpressionEvaluationValue();
+    if (!StringUtils.isBlank(templateTypeValue) && !StringUtils.equalsIgnoreCase("gsh", templateTypeValue)) {
+      return true;
+    }
+
+    GrouperConfigurationModuleAttribute allowUiFromNoOwnerAttribute = attributes.get(GshTemplateConfig.ALLOW_UI_FROM_NO_OWNER_SUFFIX);
+    if (allowUiFromNoOwnerAttribute == null) {
+      return true;
+    }
+    boolean anyNoOwner = GrouperUtil.booleanValue(allowUiFromNoOwnerAttribute.getValueOrExpressionEvaluationValue(), false)
+        || GrouperUtil.booleanValue(attributeValueOrNull(attributes, GshTemplateConfig.ALLOW_WS_FROM_NO_OWNER_SUFFIX), false);
+    boolean showOnFolders = GrouperUtil.booleanValue(attributeValueOrNull(attributes, "showOnFolders"), false);
+    boolean showOnGroups = GrouperUtil.booleanValue(attributeValueOrNull(attributes, "showOnGroups"), false);
+
+    if (!anyNoOwner && !showOnFolders && !showOnGroups) {
+      validationErrorsToDisplay.put(allowUiFromNoOwnerAttribute.getHtmlForElementIdHandle(),
+          GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorNowhereToRun"));
+      return false;
+    }
+
+    if (anyNoOwner && !showOnFolders && !showOnGroups
+        && StringUtils.equals("privilegeOnObject", attributeValueOrNull(attributes, "securityRunType"))) {
+      validationErrorsToDisplay.put(allowUiFromNoOwnerAttribute.getHtmlForElementIdHandle(),
+          GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorNoOwnerPrivilegeOnObject"));
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * @param attributes config attributes being saved
+   * @param name attribute name (config key suffix)
+   * @return the attribute value, or null if there is no such attribute
+   */
+  private static String attributeValueOrNull(Map<String, GrouperConfigurationModuleAttribute> attributes, String name) {
+    GrouperConfigurationModuleAttribute attribute = attributes.get(name);
+    return attribute == null ? null : attribute.getValueOrExpressionEvaluationValue();
+  }
+
   /**
    * GRP-7033: compile-on-save check for a compiled-Java template. Parses the
    * fully-qualified class name from the source, then compiles it against the

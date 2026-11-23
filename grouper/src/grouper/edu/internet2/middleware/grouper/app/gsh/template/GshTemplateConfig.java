@@ -78,11 +78,53 @@ public class GshTemplateConfig {
   
   private GshTemplateGroupShowOnDescendants gshTemplateGroupShowOnDescendants;
   
+  /**
+   * config key suffix (after grouperGshTemplate.&lt;configId&gt;.) of allowWsFromNoOwner
+   */
+  public static final String ALLOW_WS_FROM_NO_OWNER_SUFFIX = "allowWsFromNoOwner";
+  
+  /**
+   * config key suffix (after grouperGshTemplate.&lt;configId&gt;.) of allowUiFromNoOwner (GRP-7598)
+   */
+  public static final String ALLOW_UI_FROM_NO_OWNER_SUFFIX = "allowUiFromNoOwner";
+  
+  /**
+   * true if a WS or MCP call can run the template with no owner folder or group.  Always true for provisioner
+   * templates
+   */
   private boolean allowWsFromNoOwner;
   
-  
+  /**
+   * true if a WS or MCP call can run the template with no owner folder or group
+   * @return true if allowed
+   */
   public boolean isAllowWsFromNoOwner() {
     return allowWsFromNoOwner;
+  }
+
+  /**
+   * GRP-7598: true if the UI can run the template with no owner folder or group (on the simplified screen).
+   * Separate from allowWsFromNoOwner since WS and MCP callers pass their own entry gates
+   * (ws.client.user.group.name, the MCP groups) and UI users do not, so opening a template to the UI is its
+   * own decision
+   */
+  private boolean allowUiFromNoOwner;
+
+  /**
+   * GRP-7598: true if the UI can run the template with no owner folder or group
+   * @return true if allowed
+   */
+  public boolean isAllowUiFromNoOwner() {
+    return allowUiFromNoOwner;
+  }
+
+  /**
+   * GRP-7598: whether a run with no owner is allowed from where this run came from
+   * @param fromUi true if the run is from the UI, false for WS, MCP and other callers
+   * @return allowUiFromNoOwner for the UI, else allowWsFromNoOwner
+   */
+  public boolean isAllowNoOwner(boolean fromUi) {
+    return fromUi ? this.allowUiFromNoOwner : this.allowWsFromNoOwner;
   }
 
   private boolean showOnFolders;
@@ -800,11 +842,15 @@ public class GshTemplateConfig {
           
         }
         
-        allowWsFromNoOwner = grouperConfig.propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
+        allowWsFromNoOwner = grouperConfig.propertyValueBoolean(configPrefix+ALLOW_WS_FROM_NO_OWNER_SUFFIX, false);
         
         if (gshTemplateType == GshTemplateType.provisioner) {
           allowWsFromNoOwner = true;
         }
+        
+        // GRP-7598: only gsh templates run from the UI with no owner
+        allowUiFromNoOwner = gshTemplateType == GshTemplateType.gsh
+            && grouperConfig.propertyValueBoolean(configPrefix+ALLOW_UI_FROM_NO_OWNER_SUFFIX, false);
 
         showOnFolders = grouperConfig.propertyValueBoolean(configPrefix+"showOnFolders", false);
         

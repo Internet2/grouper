@@ -98,18 +98,25 @@ public class GshTemplateFileUpload {
 
   /**
    * Whether the subject may run the template on the owner: enabled, allowed on that folder or group, and the
-   * subject satisfies the securityRunType.  Fails closed: no owner, no subject, or any exception is false.
+   * subject satisfies the securityRunType.  Fails closed: no subject, no owner (unless the template has
+   * allowUiFromNoOwner), or any exception is false.
    * Runs as root so the result does not depend on what the user can VIEW (execution also checks as root).
    * @param gshTemplateConfig populated config
    * @param subject current user
    * @param ownerStem owner folder, or null
-   * @param ownerGroup owner group, or null (one of the two must be set)
+   * @param ownerGroup owner group, or null (one of the two must be set, unless the template has allowUiFromNoOwner)
    * @return true if allowed
    */
   static boolean allowedToRunTemplate(final GshTemplateConfig gshTemplateConfig, final Subject subject,
       final Stem ownerStem, final Group ownerGroup) {
 
-    if (gshTemplateConfig == null || subject == null || (ownerStem == null && ownerGroup == null)) {
+    if (gshTemplateConfig == null || subject == null) {
+      return false;
+    }
+
+    // GRP-7598: no owner is only ok for a gsh template with allowUiFromNoOwner (uploads are only from the UI)
+    final boolean noOwner = ownerStem == null && ownerGroup == null;
+    if (noOwner && !(gshTemplateConfig.isAllowUiFromNoOwner() && gshTemplateConfig.getGshTemplateType() == GshTemplateType.gsh)) {
       return false;
     }
 
@@ -127,6 +134,7 @@ public class GshTemplateFileUpload {
           GshTemplateExec gshTemplateExec = new GshTemplateExec();
           gshTemplateExec.assignConfigId(gshTemplateConfig.getConfigId());
           gshTemplateExec.assignCurrentUser(subject);
+          gshTemplateExec.assignRunFromUi(true);
 
           if (ownerStem != null) {
             if (!gshTemplateConfig.canFolderRunTemplate(ownerStem)) {
@@ -134,7 +142,7 @@ public class GshTemplateFileUpload {
             }
             gshTemplateExec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
             gshTemplateExec.assignOwnerStemName(ownerStem.isRootStem() ? ":" : ownerStem.getName());
-          } else {
+          } else if (ownerGroup != null) {
             // abac templates are not limited to certain groups (same as GshTemplateValidationService.validateOwnerType)
             if (gshTemplateConfig.getGshTemplateType() != GshTemplateType.abac
                 && !gshTemplateConfig.canGroupRunTemplate(ownerGroup)) {

@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompileStatus;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompileStatus.GshTemplateCompileStatusResult;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -85,6 +86,25 @@ public class GuiGshTemplateConfiguration {
   public String getDefaultRunButtonTargetId() {
     this.computeDefaultRunButtonTarget();
     return this.defaultRunButtonTargetId;
+  }
+
+  /**
+   * GRP-7598: show a Run template button that runs with no owner, on the simplified screen.  That is when no
+   * default Run button group or folder is configured (that one wins if it is), and the template is a gsh
+   * template with allowUiFromNoOwner (allowWsFromNoOwner alone does not open a template to the UI)
+   * @return true if the Run template button should run the template with no owner
+   */
+  public boolean isRunButtonNoOwner() {
+    if (!StringUtils.isBlank(this.gshTemplateConfiguration.getDefaultRunButtonType())) {
+      return false;
+    }
+    String templateType = StringUtils.defaultIfBlank(
+        this.gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", false), "gsh");
+    if (!StringUtils.equals("gsh", templateType)) {
+      return false;
+    }
+    return GrouperUtil.booleanValue(this.gshTemplateConfiguration.retrieveAttributeValueFromConfig(
+        GshTemplateConfig.ALLOW_UI_FROM_NO_OWNER_SUFFIX, false), false);
   }
 
   /**

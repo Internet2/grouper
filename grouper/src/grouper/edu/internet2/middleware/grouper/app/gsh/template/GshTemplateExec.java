@@ -141,6 +141,30 @@ public class GshTemplateExec {
     return this;
   }
 
+  /**
+   * GRP-7598: true if this run is from the UI, so a run with no owner needs allowUiFromNoOwner instead of
+   * allowWsFromNoOwner.  Only the UI sets this; everything else (WS, MCP, API) keeps the WS rule
+   */
+  private boolean runFromUi;
+
+  /**
+   * GRP-7598: true if this run is from the UI
+   * @return true if from the UI
+   */
+  public boolean isRunFromUi() {
+    return this.runFromUi;
+  }
+
+  /**
+   * GRP-7598: mark this run as from the UI, so no owner is checked against allowUiFromNoOwner
+   * @param theRunFromUi
+   * @return this for chaining
+   */
+  public GshTemplateExec assignRunFromUi(boolean theRunFromUi) {
+    this.runFromUi = theRunFromUi;
+    return this;
+  }
+
   public static void main(String[] args) {
     GrouperStartup.startup();
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -462,7 +486,7 @@ public class GshTemplateExec {
       gshTemplateRuntime.setOwnerStemName(ownerStemName);
     } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
       gshTemplateRuntime.setOwnerGroupName(ownerGroupName);
-    } else if (!templateConfig.isAllowWsFromNoOwner()) {
+    } else if (!templateConfig.isAllowNoOwner(this.runFromUi)) {
       throw new RuntimeException("Invalid gsh template owner type "+this.gshTemplateOwnerType);
     }
     
