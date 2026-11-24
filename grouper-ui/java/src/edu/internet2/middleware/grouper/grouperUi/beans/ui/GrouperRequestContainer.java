@@ -1106,6 +1106,22 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * container for the custom composites and membership requirements screen
+   */
+  private CustomCompositeContainer customCompositeContainer;
+
+  /**
+   * container for the custom composites and membership requirements screen
+   * @return the container
+   */
+  public CustomCompositeContainer getCustomCompositeContainer() {
+    if (this.customCompositeContainer == null) {
+      this.customCompositeContainer = new CustomCompositeContainer();
+    }
+    return this.customCompositeContainer;
+  }
+
+  /**
    * container for MCP info page data
    */
   private McpContainer mcpContainer;

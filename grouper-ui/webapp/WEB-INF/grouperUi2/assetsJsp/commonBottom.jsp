@@ -51,7 +51,7 @@
   }
 %>
 </script>
-<script src="../../grouperExternal/public/assets/js/grouperUiUrlOperationGuard.js?updated=20261111"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUiUrlOperationGuard.js?updated=20261120"></script>
 
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>

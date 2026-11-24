@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.app.membershipRequire;
 
+import edu.internet2.middleware.grouper.app.config.check.membershipRequire.MembershipRequireConfigurationCheckTest;
+import edu.internet2.middleware.grouper.app.customComposite.GrouperCustomCompositeTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -35,6 +37,9 @@ public class AllMembershipRequireTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.loader.db");
     //$JUnit-BEGIN$
     suite.addTestSuite(MembershipRequireEngineTest.class);
+    suite.addTestSuite(MembershipRequireAdminTest.class);
+    suite.addTestSuite(GrouperCustomCompositeTest.class);
+    suite.addTestSuite(MembershipRequireConfigurationCheckTest.class);
     //$JUnit-END$
     return suite;
   }

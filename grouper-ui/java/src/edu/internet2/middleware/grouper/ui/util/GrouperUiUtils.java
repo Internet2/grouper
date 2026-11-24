@@ -75,7 +75,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.app.customComposite.GrouperCustomComposite;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -2038,8 +2038,14 @@ public class GrouperUiUtils {
    * @return map of custom composites
    */
   public static Map<Integer, String> getCustomCompositeUiKeys() {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    return getCustomCompositeUiKeys(GrouperUiFilter.retrieveSubjectLoggedIn());
+  }
+
+  /**
+   * @param loggedInSubject the user, who sees the custom composites whose group they can read
+   * @return map of custom composites, index to uiKey
+   */
+  public static Map<Integer, String> getCustomCompositeUiKeys(final Subject loggedInSubject) {
 
     @SuppressWarnings("unchecked")
     Map<Integer, String> customCompositeIndexesAndUiKeys = (Map<Integer, String>)GrouperSession.callbackGrouperSession(
@@ -2049,31 +2055,26 @@ public class GrouperUiUtils {
           public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             
             Map<Integer, String> temp = new LinkedHashMap<Integer, String>();
-            
-            int count = 0;
-            while (true) {
-              String uiKey = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.uiKey." + count, null);
-              String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + count, null);
-              String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + count, null);
-              
-              if (uiKey == null || groupName == null || compositeType == null) {
-                break;
-              }
-              
-              Group group = GroupFinder.findByName(grouperSession, groupName, false);
-              if (group == null) {
-                // bad config
-                count++;
+
+            // the indexes can have gaps, where one was deleted, so go through the ones which exist
+            // rather than stopping at the first missing one.  an incomplete one is skipped
+            for (Integer index : GrouperCustomComposite.retrieveIndexes()) {
+              GrouperCustomComposite grouperCustomComposite = GrouperCustomComposite.retrieve(index);
+              if (grouperCustomComposite == null || !grouperCustomComposite.isComplete()) {
                 continue;
               }
-              
-              if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-                temp.put(count, uiKey);
+
+              Group group = GroupFinder.findByName(grouperSession, grouperCustomComposite.getGroupName(), false);
+              if (group == null) {
+                // bad config
+                continue;
               }
-              
-              count++;
+
+              if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+                temp.put(index, grouperCustomComposite.getUiKey());
+              }
             }
-            
+
             return temp;
           }
         });

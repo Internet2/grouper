@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.membershipRequire.MembershipRequireConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesAccessToApiInElConfigurationCheck;
@@ -69,6 +70,9 @@ public class GrouperConfigurationCheckEngine {
 
     // UI (grouper-ui.properties)
     checks.add(new UiAntiFramingDisabledConfigurationCheck());
+
+    // membership requirements and custom composites which are configured but do not work
+    checks.add(new MembershipRequireConfigurationCheck());
 
     return checks;
   }

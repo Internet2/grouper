@@ -109,6 +109,11 @@
                       	${textContainer.text['adminConfigureLink'] }</a>
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.customCompositeContainer.canView}">
+                      <br /><br /><a id="miscCustomCompositeLink" href="?operation=UiV2CustomComposite.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomComposite.index');" style="white-space: nowrap;">
+                        ${textContainer.text['customCompositeMiscLink'] }</a>
+                    </c:if>
+
                     <c:if test="${grouperRequestContainer.customUiContainer.canViewCustomUiMisc}">
                       <br /><br /><a id="miscCustomUiLink" href="?operation=UiV2CustomUiConfig.viewCustomUiConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.viewCustomUiConfigs');" style="white-space: nowrap;"
                       >${textContainer.text['customUiMiscLink'] }</a>

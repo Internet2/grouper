@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.customComposite.GrouperCustomComposite;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
@@ -2211,29 +2212,49 @@ public class GrouperCheckConfig {
     //#grouper.membership.customComposite.compositeType.0 = complement
     //#grouper.membership.customComposite.groupName.0 = ref:activeEmployees
 
-    //make sure sequences are ok
-    Map<String, String> keys = GrouperConfig.retrieveConfig().propertiesMap(customCompositePattern);
-    int i=0;
-    while (true) {
-      boolean foundOne = false;
-      String uiKeyKey = "grouper.membership.customComposite.uiKey." + i;
-      String compositeTypeKey = "grouper.membership.customComposite.compositeType." + i;
-      String groupNameKey = "grouper.membership.customComposite.groupName." + i;
-
-      foundOne = assertAndRemove(GROUPER_PROPERTIES_NAME, keys,
-          new String[]{uiKeyKey, compositeTypeKey, groupNameKey});
-      if (!foundOne) {
-        break;
-      }
-      i++;
+    // the indexes can have gaps, where one was deleted on the custom composites screen, so check each
+    // index which is there rather than stopping at the first missing one.  a gap is fine, but an index
+    // with only one or two of its three keys is incomplete and is not offered, so flag that
+    Map<String, String> keys = GrouperConfig.retrieveConfig().propertiesMap(customCompositeAnyKeyPattern);
+    for (Integer i : GrouperCustomComposite.retrieveIndexes()) {
+      assertAndRemove(GROUPER_PROPERTIES_NAME, keys, customCompositeKeys(i));
     }
-    if (keys.size() > 0) {
+    Set<String> misspelledKeys = retrieveCustomCompositeKeysMisspelled();
+    if (misspelledKeys.size() > 0) {
       String error = "in property file: grouper.properties, these properties " +
-          "are misspelled or non-sequential: " + GrouperUtil.setToString(keys.keySet());
+          "are misspelled: " + GrouperUtil.setToString(misspelledKeys);
       System.err.println("Grouper error: " + error);
       LOG.error(error);
     }
 
+  }
+
+  /**
+   * the three keys of a custom composite index
+   * @param index the index
+   * @return the uiKey, compositeType and groupName keys
+   */
+  private static String[] customCompositeKeys(int index) {
+    return new String[]{"grouper.membership.customComposite.uiKey." + index,
+        "grouper.membership.customComposite.compositeType." + index,
+        "grouper.membership.customComposite.groupName." + index};
+  }
+
+  /**
+   * custom composite keys which are not one of the three keys of an index, e.g. uikey.0, or uiKey.01.
+   * every custom composite key is collected, not just well formed ones, and the keys of each index
+   * are taken out, so a gap in the indexes is not reported
+   * @return the keys, empty if none
+   */
+  public static Set<String> retrieveCustomCompositeKeysMisspelled() {
+    Map<String, String> keys = GrouperConfig.retrieveConfig().propertiesMap(customCompositeAnyKeyPattern);
+    Set<String> result = new TreeSet<String>(GrouperUtil.nonNull(keys).keySet());
+    for (Integer i : GrouperCustomComposite.retrieveIndexes()) {
+      for (String key : customCompositeKeys(i)) {
+        result.remove(key);
+      }
+    }
+    return result;
   }
   
   /**
@@ -2469,6 +2490,10 @@ public class GrouperCheckConfig {
   /** match something like this: grouper.membership.customComposite.uiKey.0 */
   private static Pattern customCompositePattern = Pattern.compile(
       "^grouper\\.membership\\.customComposite\\.(uiKey|compositeType|groupName)\\.\\d+$");
+
+  /** any custom composite key, well formed or not, e.g. grouper.membership.customComposite.uikey.0 */
+  private static Pattern customCompositeAnyKeyPattern = Pattern.compile(
+      "^grouper\\.membership\\.customComposite\\..*$");
   
   /** match something like this: grouperIncludeExclude.requireGroup.name.0 */
   private static Pattern includeExcludeAndGroupPattern = Pattern.compile(
