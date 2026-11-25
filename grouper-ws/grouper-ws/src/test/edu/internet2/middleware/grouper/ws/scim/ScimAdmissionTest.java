@@ -57,8 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  *   GrouperScimAdmissionFilter JAX-RS request filter in the scanned providers package aborts the
  *   request with 403.</li>
  * </ul>
- * <p>Who is logged in is set the way this release's WS filter does it (see
- * VootServletAdmissionTest): 7.6.0 and later a per-request subject resolver, older releases the
+ * <p>Who is logged in is set the way this release's WS filter does it: 7.6.0 and later a per-request subject resolver, older releases the
  * request in GrouperServiceJ2ee's thread local with REMOTE_USER.  SUBJ0 is in the admission group,
  * SUBJ1 is not.</p>
  */

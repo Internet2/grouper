@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * but the bulk membership queries took READ unless the FIRST field asked for was a privilege list.
  * So a caller with only READ on a group could list who administers it (memberships with fieldType
  * access or serviceRole admin), or learn every READ-able group where a subject is an admin (getGroups
- * with fieldName admins, current and point in time, VOOT roles, services where a subject is an admin).
+ * with fieldName admins, current and point in time, services where a subject is an admin).
  *
  * Setup: SUBJ4 is an admin of the group, SUBJ2 has VIEW and READ, SUBJ3 has ADMIN, SUBJ5 is a member.
  * The group is in a folder tagged with a service.
@@ -303,7 +303,7 @@ public class AccessPrivilegeListReadTest extends GrouperTest {
   }
 
   /**
-   * WS getGroups for SUBJ4 with fieldName=admins (and VOOT roles): the group is only listed to
+   * WS getGroups for SUBJ4 with fieldName=admins: the group is only listed to
    * ADMIN, and to SUBJ4 itself
    */
   public void testGroupsWhereSubjectIsAdminNeedAdmin() {

@@ -53,7 +53,7 @@ import junit.textui.TestRunner;
  * <p>Setup as root: 7 groups test:scimPaging:g0 to g6 that SUBJ0 can VIEW and READ; g0 has the 7
  * members SUBJ0 to SUBJ6.  ws.scim.maxResultsPerPage is 5.  The providers are called directly as
  * SUBJ0, with the logged in subject set the way this release's WS filter does it (reflection, so
- * this file compiles on every release; see VootServletAdmissionTest).</p>
+ * this file compiles on every release).</p>
  *
  * <p>Before the fix this file does not compile (TierScimPaging is new); with only the provider
  * logic reverted, itemsPerPage=1000 returns all 7 groups (the cap assertion fails) and any
