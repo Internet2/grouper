@@ -660,6 +660,11 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
       tomcatStart();
     }
 
+    // patchScimUser is called directly here (not from a provisioner run), so put the provisioner on
+    // the thread: the scim2UpdateConflictRelink opt-in is read from the current provisioner's config
+    edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.assignCurrentGrouperProvisioner(
+        edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.retrieveProvisioner("awsProvisioner"));
+
     try {
 
       // hitting the mock once ensures the mock_scim_* tables exist before we clear them
@@ -734,6 +739,7 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
       assertEquals("kserpico_new", reloadedA2.getUserName());
 
     } finally {
+      edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner.removeCurrentGrouperProvisioner();
 //      tomcatStop();
     }
 
@@ -764,6 +770,16 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
    */
   public void testAWS2IncrementalUpdateConflictRelinksAndDisablesOrphan() {
     assertUpdateConflictRelinkAndDispose(true, true);
+  }
+
+  /**
+   * store one awsProvisioner setting in the grouper-loader database config
+   * @param suffix part after provisioner.awsProvisioner.
+   * @param value
+   */
+  private static void storeAwsProvisionerConfig(String suffix, String value) {
+    new edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig().configFileName("grouper-loader.properties")
+      .propertyName("provisioner.awsProvisioner." + suffix).value(value).store();
   }
 
   /**
@@ -804,6 +820,17 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
     // re-linking after an update conflict is off by default; these tests cover the opt-in
     new edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig().configFileName("grouper-loader.properties")
       .propertyName("provisioner.awsProvisioner.scim2UpdateConflictRelink").value("true").store();
+
+    // update conflict recovery only trusts an exact externalId match (never the userName alone), so
+    // the provisioner must send externalId: map it from the subject id as a sixth entity attribute
+    storeAwsProvisionerConfig("numberOfEntityAttributes", "6");
+    storeAwsProvisionerConfig("targetEntityAttribute.5.name", "externalId");
+    storeAwsProvisionerConfig("targetEntityAttribute.5.translateExpressionType", "grouperProvisioningEntityField");
+    storeAwsProvisionerConfig("targetEntityAttribute.5.translateFromGrouperProvisioningEntityField", "subjectId");
+
+    // this AWS tenant is written only by Grouper, so matching may move the entity to the account that
+    // holds its new userName (off by default: the relink guard refuses and records an object error)
+    storeAwsProvisionerConfig("trustTargetToRelinkEntities", "true");
 
     GrouperStartup.startup();
 

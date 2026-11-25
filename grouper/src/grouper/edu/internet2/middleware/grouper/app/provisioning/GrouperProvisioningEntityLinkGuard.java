@@ -136,6 +136,14 @@ public class GrouperProvisioningEntityLinkGuard {
       return null;
     }
 
+    // the site says Grouper is the only writer of target accounts (no one else can pre-claim a value),
+    // so a match on the current value may move the link, as before this guard existed
+    // (provisioner.<configId>.trustTargetToRelinkEntities, default false)
+    if (grouperProvisioner.retrieveGrouperProvisioningConfiguration() != null
+        && grouperProvisioner.retrieveGrouperProvisioningConfiguration().isTrustTargetToRelinkEntities()) {
+      return null;
+    }
+
     // Grouper itself inserted this entity in this run (and cleared the old link before the insert);
     // matching it to the object it just created is never a relink
     ProvisioningStateEntity provisioningStateEntity = provisioningEntityWrapper.getProvisioningStateEntity();

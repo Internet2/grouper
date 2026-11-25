@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuth
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.provisioning.ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ui.UiAntiFramingDisabledConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.workflow.WorkflowOffWithDataConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ws.WsAllowJsonWrapperConfigurationCheck;
@@ -469,6 +470,26 @@ public class GrouperConfigurationCheckAreasTest extends GrouperTest {
     assertOneResultOfSeverity(new UiAntiFramingDisabledConfigurationCheck().checkConfiguration(), ConfigurationCheckSeverity.WARNING);
     override(GrouperUiConfigInApi.retrieveConfig(), UiAntiFramingDisabledConfigurationCheck.PROPERTY_NAME, "true");
     assertNoResults(new UiAntiFramingDisabledConfigurationCheck().checkConfiguration());
+  }
+
+  /**
+   * a provisioner that trusts the target to re-link entities is a warning
+   */
+  public void testProvisionerTrustTargetToRelinkEntitiesWarning() {
+    String propertyName = "provisioner.configReviewTestProvisioner." + ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck.PROPERTY_SUFFIX;
+    override(GrouperLoaderConfig.retrieveConfig(), propertyName, "true");
+    List<ConfigurationCheckResult> results = new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck().checkConfiguration();
+    assertOneResultOfSeverity(resultsForProperty(results, propertyName), ConfigurationCheckSeverity.WARNING);
+  }
+
+  /**
+   * the default (off) is no finding
+   */
+  public void testProvisionerTrustTargetToRelinkEntitiesOffNoFinding() {
+    String propertyName = "provisioner.configReviewTestProvisioner." + ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck.PROPERTY_SUFFIX;
+    override(GrouperLoaderConfig.retrieveConfig(), propertyName, "false");
+    List<ConfigurationCheckResult> results = new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck().checkConfiguration();
+    assertNoResults(resultsForProperty(results, propertyName));
   }
 
 }

@@ -589,9 +589,33 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * if matching may move an entity that is already linked to a target account onto a DIFFERENT target
+   * account that holds its new matching value (e.g. a renamed userName).  Off by default: that is
+   * refused with an object error, since whoever else can create or rename target accounts could
+   * pre-claim the value.  Turn on only when Grouper is the only writer of target accounts.
+   * # provisioner.genericProvisioner.trustTargetToRelinkEntities =
+   */
+  private boolean trustTargetToRelinkEntities = false;
+
+  /**
+   * if matching may move a linked entity onto a different target account
+   * @return true if so
+   */
+  public boolean isTrustTargetToRelinkEntities() {
+    return this.trustTargetToRelinkEntities;
+  }
+
+  /**
+   * @param trustTargetToRelinkEntities1
+   */
+  public void setTrustTargetToRelinkEntities(boolean trustTargetToRelinkEntities1) {
+    this.trustTargetToRelinkEntities = trustTargetToRelinkEntities1;
+  }
+
+  /**
    * # If the grouper translated objects match to multiple target objects on the same attribute, then this problem happens
    * # {valueType: "boolean", order: 130065, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
-   * # provisioner.genericProvisioner.errorHandlingMatchingValidationIsAnError = 
+   * # provisioner.genericProvisioner.errorHandlingMatchingValidationIsAnError =
    */
   private boolean errorHandlingMatchingValidationIsAnError = true;
 
@@ -3550,7 +3574,10 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMembershipsIfGroupUnmarkedProvisionable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGroupUnmarkedProvisionable", false), true);
     }
 
-    boolean errorHandlingShow = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingShow", false), false);
+    // see GrouperProvisioningEntityLinkGuard: off by default, a linked entity is not moved to another target account
+    this.trustTargetToRelinkEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("trustTargetToRelinkEntities", false), false);
+
+    boolean errorHandlingShow =GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingShow", false), false);
 
     if (errorHandlingShow) {
       

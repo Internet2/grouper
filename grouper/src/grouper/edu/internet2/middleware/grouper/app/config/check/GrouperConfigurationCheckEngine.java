@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.app.config.check.rules.RulesAccessToApiI
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesElSandboxConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRulesUiConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.provisioning.ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ui.UiAntiFramingDisabledConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.workflow.WorkflowOffWithDataConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ws.WsAllowJsonWrapperConfigurationCheck;
@@ -73,6 +74,9 @@ public class GrouperConfigurationCheckEngine {
 
     // membership requirements and custom composites which are configured but do not work
     checks.add(new MembershipRequireConfigurationCheck());
+
+    // provisioning (grouper-loader.properties)
+    checks.add(new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck());
 
     return checks;
   }
