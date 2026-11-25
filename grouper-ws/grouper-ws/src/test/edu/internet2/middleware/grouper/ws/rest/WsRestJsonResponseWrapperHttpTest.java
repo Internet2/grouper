@@ -35,11 +35,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -57,8 +59,9 @@ import junit.textui.TestRunner;
  * folder test:secPatch66 (deleted at the end), and test.subject.1 is added to
  * ws.client.user.group.name (only if it was not a member, and removed again at the end).</p>
  *
- * <p>Assumes ws.allowJsonWrapper is on (the patch sets keep the default true; on mainline, where
- * the default is false, set it to true for this test).</p>
+ * <p>Sets ws.allowJsonWrapper in the database config for each test (true for the wrapper checks,
+ * false for the off-by-default refusal), waits until the running WS sees it (config cache), and
+ * puts the prior value back at the end.</p>
  *
  * <p>Uses HttpURLConnection and Java 8 APIs only, so the same file works on every release.</p>
  */
@@ -84,6 +87,18 @@ public class WsRestJsonResponseWrapperHttpTest extends TestCase {
 
   /** subjects this test added to ws.client.user.group.name, removed in finally */
   private final List<Subject> addedToWsClients = new ArrayList<Subject>();
+
+  /** the WS setting that turns the json response wrapper (JSONP) on, default false */
+  private static final String ALLOW_JSON_WRAPPER_KEY = "ws.allowJsonWrapper";
+
+  /** true if grouper-ws.properties ws.allowJsonWrapper had a database config row before the test */
+  private boolean hadAllowJsonWrapperRow = false;
+
+  /** that row's value, if there was one */
+  private String priorAllowJsonWrapper = null;
+
+  /** true once this test changed ws.allowJsonWrapper, so cleanup restores it */
+  private boolean changedAllowJsonWrapper = false;
 
   /**
    * @param args
@@ -127,6 +142,9 @@ public class WsRestJsonResponseWrapperHttpTest extends TestCase {
       String membersUrl = wsBaseUrl() + "/servicesRest/json/v2_4_000/groups/"
           + URLEncoder.encode(GROUP_NAME, "UTF-8") + "/members";
 
+      // the wrapper is off by default: turn it on for these checks
+      setAllowJsonWrapperAndWait(true, membersUrl);
+
       // step 1: a plain function name wraps the normal members json
       WsResponse wrapped = call("GET", membersUrl + "?grouperJsonResponseWrapper=cb", CALLER_ID, null, null);
       assertEquals("valid wrapper must be HTTP 200: " + wrapped, 200, wrapped.status);
@@ -167,6 +185,110 @@ public class WsRestJsonResponseWrapperHttpTest extends TestCase {
 
     } finally {
       cleanup();
+    }
+  }
+
+  /**
+   * with ws.allowJsonWrapper off (the default), a request that sends grouperJsonResponseWrapper is
+   * refused (HTTP 400, INVALID_QUERY, a message naming the setting) instead of silently returning
+   * plain json, and nothing is wrapped or returned
+   * @throws Exception
+   */
+  public void testJsonWrapperRefusedWhenOff() throws Exception {
+    if (!GrouperTest.tomcatRunTests()) {
+      return;
+    }
+    try {
+      setupGroup();
+      addMember(MEMBER_ID);
+      admitToWs(CALLER_ID);
+      waitForWsAdmission(CALLER_ID);
+
+      String membersUrl = wsBaseUrl() + "/servicesRest/json/v2_4_000/groups/"
+          + URLEncoder.encode(GROUP_NAME, "UTF-8") + "/members";
+
+      setAllowJsonWrapperAndWait(false, membersUrl);
+
+      // a valid function name is still refused while the wrapper is off
+      WsResponse refused = call("GET", membersUrl + "?grouperJsonResponseWrapper=cb", CALLER_ID, null, null);
+      assertEquals("wrapper while off must be HTTP 400: " + refused, 400, refused.status);
+      assertEquals(refused.toString(), "INVALID_QUERY", resultCode(refused.body));
+      assertTrue("message names the setting: " + refused, refused.body.contains(ALLOW_JSON_WRAPPER_KEY));
+      assertTrue("plain json, nothing wrapped: " + refused, refused.body.startsWith("{"));
+      assertFalse("members must not be returned: " + refused, refused.body.contains(MEMBER_ID));
+
+      // the refusal comes before the operation runs: a write with a wrapper changes nothing
+      WsResponse refusedWrite = call("POST", membersUrl + "?wsLiteObjectType=WsRestAddMemberLiteRequest&subjectId="
+          + WRITE_MEMBER_ID + "&grouperJsonResponseWrapper=cb", CALLER_ID, null, null);
+      assertEquals("write with a wrapper while off must be HTTP 400: " + refusedWrite, 400, refusedWrite.status);
+      assertFalse("write with a wrapper while off must not run", isMember(WRITE_MEMBER_ID));
+
+      // no wrapper param: the normal json response, unchanged
+      WsResponse plain = call("GET", membersUrl, CALLER_ID, null, null);
+      assertEquals("no wrapper must be HTTP 200: " + plain, 200, plain.status);
+      assertTrue("plain json: " + plain, plain.body.startsWith("{"));
+      assertTrue("member listed: " + plain, plain.body.contains(MEMBER_ID));
+
+    } finally {
+      cleanup();
+    }
+  }
+
+  /**
+   * set ws.allowJsonWrapper in the database config (remembering the prior row the first time), then
+   * call the WS until it sees the new value (the WS caches config): on means "cb" wraps the response,
+   * off means the wrapper param is refused with HTTP 400
+   * @param on
+   * @param membersUrl
+   * @throws IOException
+   */
+  private void setAllowJsonWrapperAndWait(boolean on, String membersUrl) throws IOException {
+    if (!this.changedAllowJsonWrapper) {
+      List<String> values = new GcDbAccess().sql("select config_value from grouper_config where "
+          + "config_file_name = 'grouper-ws.properties' and config_key = ?").addBindVar(ALLOW_JSON_WRAPPER_KEY).selectList(String.class);
+      this.hadAllowJsonWrapperRow = values.size() > 0;
+      this.priorAllowJsonWrapper = this.hadAllowJsonWrapperRow ? values.get(0) : null;
+      this.changedAllowJsonWrapper = true;
+    }
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    try {
+      new GrouperDbConfig().configFileName("grouper-ws.properties").propertyName(ALLOW_JSON_WRAPPER_KEY)
+          .value(on ? "true" : "false").store();
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+    long deadline = System.currentTimeMillis() + 330 * 1000L;
+    while (true) {
+      WsResponse response = call("GET", membersUrl + "?grouperJsonResponseWrapper=cb", CALLER_ID, null, null);
+      boolean wrapped = response.body.startsWith("cb(");
+      if (on ? wrapped : (response.status == 400 && !wrapped)) {
+        return;
+      }
+      if (System.currentTimeMillis() > deadline) {
+        fail("WS did not pick up " + ALLOW_JSON_WRAPPER_KEY + "=" + on + ": " + response);
+      }
+      GrouperUtil.sleep(10000);
+    }
+  }
+
+  /**
+   * put ws.allowJsonWrapper back the way it was before the test
+   */
+  private void restoreAllowJsonWrapper() {
+    if (!this.changedAllowJsonWrapper) {
+      return;
+    }
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    try {
+      if (this.hadAllowJsonWrapperRow) {
+        new GrouperDbConfig().configFileName("grouper-ws.properties").propertyName(ALLOW_JSON_WRAPPER_KEY)
+            .value(this.priorAllowJsonWrapper).store();
+      } else {
+        new GrouperDbConfig().configFileName("grouper-ws.properties").propertyName(ALLOW_JSON_WRAPPER_KEY).delete();
+      }
+      this.changedAllowJsonWrapper = false;
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
     }
   }
 
@@ -224,7 +346,11 @@ public class WsRestJsonResponseWrapperHttpTest extends TestCase {
     try {
       deleteStem();
     } finally {
-      removeFromWs();
+      try {
+        removeFromWs();
+      } finally {
+        restoreAllowJsonWrapper();
+      }
     }
   }
 
