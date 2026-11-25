@@ -19,8 +19,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * GRP-7380 (complements GRP-7585): workflow is off by default (grouper.properties workflow.enable).
  * When it is off but the database still has workflow data (attribute assigns of workflowConfigMarker
  * or workflowInstanceMarker), the grouperWorkflowDaemon and grouperWorkflowReminderDaemon daemons
- * fail on every run with "Workflow is disabled".  This check flags each of those daemons that is
- * still scheduled (class and quartzCron set in grouper-loader.properties) in that case (ERROR).
+ * do nothing and end with a WARNING on every run.  This check flags each of those daemons that is
+ * still scheduled (class and quartzCron set in grouper-loader.properties) in that case (WARNING).
  */
 public class WorkflowOffWithDataConfigurationCheck extends GrouperConfigurationCheck {
 
@@ -87,12 +87,12 @@ public class WorkflowOffWithDataConfigurationCheck extends GrouperConfigurationC
 
     for (String daemonName : scheduledDaemonNames) {
       String cronPropertyName = "otherJob." + daemonName + ".quartzCron";
-      results.add(new ConfigurationCheckResult(ConfigurationCheckSeverity.ERROR, this.getName(),
+      results.add(new ConfigurationCheckResult(ConfigurationCheckSeverity.WARNING, this.getName(),
           ConfigFileName.GROUPER_LOADER_PROPERTIES, cronPropertyName,
           grouperLoaderConfig.propertyValueString(cronPropertyName),
           "workflow.enable is false but the database has " + workflowAttributeAssignCount + " workflow "
-              + "attribute assignment(s), so the " + daemonName + " daemon fails on every run with "
-              + "\"Workflow is disabled\".",
+              + "attribute assignment(s), so the " + daemonName + " daemon does nothing and ends with a "
+              + "WARNING on every run.",
           "If you do not use workflow, disable the " + daemonName + " daemon (blank " + cronPropertyName
               + ") or delete the old workflow data.  If you do use workflow, set workflow.enable=true in "
               + "grouper.properties (or the configuration database) for every container."));

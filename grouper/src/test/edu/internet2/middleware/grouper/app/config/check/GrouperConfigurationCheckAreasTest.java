@@ -384,15 +384,15 @@ public class GrouperConfigurationCheckAreasTest extends GrouperTest {
   }
 
   /**
-   * workflow off, workflow data, daemons scheduled: an error per daemon
+   * workflow off, workflow data, daemons scheduled: a warning per daemon
    */
-  public void testWorkflowOffWithDataDaemonsOnError() {
+  public void testWorkflowOffWithDataDaemonsOnWarning() {
     override(GrouperConfig.retrieveConfig(), WorkflowOffWithDataConfigurationCheck.WORKFLOW_ENABLE_PROPERTY_NAME, "false");
     scheduleWorkflowDaemons("0 0 4 * * ?");
     List<ConfigurationCheckResult> results = workflowCheckWithCount(3).checkConfiguration();
     assertEquals("expected one finding per daemon but got " + results, 2, results.size());
     for (ConfigurationCheckResult result : results) {
-      assertEquals(ConfigurationCheckSeverity.ERROR, result.getSeverity());
+      assertEquals(ConfigurationCheckSeverity.WARNING, result.getSeverity());
     }
   }
 
