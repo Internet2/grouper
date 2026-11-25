@@ -133,6 +133,55 @@ public class GrouperReportInstanceOwnerBindingTest extends GrouperTest {
   }
 
   /**
+   * report config marker on the victim group: found for the victim group only; never for a decoy
+   * group, the folder, an instance id or a bogus id.  This is what the view instances,
+   * enable/disable and delete report config screens use.
+   */
+  public void testConfigMustBelongToRequestedOwner() {
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    try {
+      Stem stem = new StemSave(rootSession).assignName("secPatch137cfg").assignCreateParentStemsIfNotExist(true).save();
+      Group victim = new GroupSave(rootSession).assignName("secPatch137cfg:victim").save();
+      Group decoy = new GroupSave(rootSession).assignName("secPatch137cfg:decoy").save();
+
+      AttributeAssign victimConfig = saveReportConfig(victim, "victim config");
+      AttributeAssign victimInstance = saveReportInstance(victim, victimConfig.getId());
+
+      // ---- the real owner gets its config
+      GrouperReportConfigurationBean found = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(victimConfig.getId(), victim);
+      assertNotNull("config on its own group", found);
+      assertEquals("victim config", found.getReportConfigName());
+
+      // ---- the attack: the victim's config paired with a group the caller can act on
+      assertNull("config paired with a decoy group",
+          GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(victimConfig.getId(), decoy));
+
+      // ---- a group config on the folder endpoint
+      assertNull("group config paired with a folder",
+          GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(victimConfig.getId(), stem));
+
+      // ---- an instance id is not a config marker
+      assertNull("instance id as config marker id",
+          GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(victimInstance.getId(), victim));
+
+      // ---- bogus and blank ids, null owner
+      assertNull("bogus id", GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner("abc123notAnId", victim));
+      assertNull("blank id", GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner("", victim));
+      assertNull("null owner", GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(victimConfig.getId(), null));
+
+      // ---- folder owner: positive control and a group as decoy
+      AttributeAssign stemConfig = saveReportConfig(stem, "folder config");
+      GrouperReportConfigurationBean stemFound = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(stemConfig.getId(), stem);
+      assertNotNull("config on its own folder", stemFound);
+      assertEquals("folder config", stemFound.getReportConfigName());
+      assertNull("folder config paired with a group",
+          GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(stemConfig.getId(), decoy));
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+  }
+
+  /**
    * report config marker with a name (the other config attributes are optional for the lookup)
    * @param owner group or folder
    * @param name report config name

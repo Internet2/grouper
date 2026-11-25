@@ -93,6 +93,33 @@ public class GrouperReportInstanceOwnerBinding {
   }
 
   /**
+   * look up a report config by its config marker attribute assign id only if it is a report config
+   * of the given group or folder.  The UI report config screens (view instances, enable/disable,
+   * delete) take the owner and the marker id as two separate request parameters; without this a
+   * user who can act on one owner could pass another owner's marker id and view, reschedule or
+   * delete that owner's report config.
+   * @param attributeAssignmentMarkerId id of the report config marker attribute assignment from the request
+   * @param owner group or folder the request names (already checked as the logged in user)
+   * @return the report config, or null if it does not exist or is not a report config of this owner
+   */
+  public static GrouperReportConfigurationBean retrieveReportConfigForOwner(String attributeAssignmentMarkerId, GrouperObject owner) {
+    if (StringUtils.isBlank(attributeAssignmentMarkerId) || owner == null) {
+      return null;
+    }
+    try {
+      AttributeAssign configMarkerAssign = AttributeAssignFinder.findById(attributeAssignmentMarkerId, false);
+      if (!isAssignOnOwner(configMarkerAssign, GrouperReportConfigAttributeNames.retrieveAttributeDefNameBase(), owner)) {
+        return null;
+      }
+      return GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+    } catch (RuntimeException re) {
+      // malformed or half deleted data: same answer as not found
+      LOG.debug("report config not found for owner: " + attributeAssignmentMarkerId, re);
+      return null;
+    }
+  }
+
+  /**
    * @param attributeAssign assignment or null
    * @param attributeDefName the expected attribute (report instance or report config marker)
    * @param owner group or folder
