@@ -22,6 +22,7 @@ import java.util.List;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.check.data.ObjectIdNotAllowedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
@@ -517,6 +518,57 @@ public class GrouperConfigurationCheckAreasTest extends GrouperTest {
     override(GrouperLoaderConfig.retrieveConfig(), propertyName, "false");
     List<ConfigurationCheckResult> results = new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck().checkConfiguration();
     assertNoResults(resultsForProperty(results, propertyName));
+  }
+
+  /**
+   * the real query (this database's regex syntax) runs, and objects made through the API (generated
+   * ids) are not flagged
+   */
+  public void testObjectIdNotAllowedRealDatabaseNoFindings() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    try {
+      new GroupSave(grouperSession).assignName("test:objectIdCheckGroup").assignCreateParentStemsIfNotExist(true).save();
+      assertNoResults(new ObjectIdNotAllowedConfigurationCheck().checkConfiguration());
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * ids outside the allowed pattern: a warning, or an error when an id has html / script characters.
+   * The finding names the objects and never shows the id itself
+   */
+  public void testObjectIdNotAllowedWarningAndError() {
+    final String scriptId = "x\"><script>alert(1)</script>";
+    ObjectIdNotAllowedConfigurationCheck check = new ObjectIdNotAllowedConfigurationCheck() {
+      @Override
+      protected List<Object[]> retrieveIdsAndNamesNotAllowed(String tableName) {
+        List<Object[]> rows = new ArrayList<Object[]>();
+        if ("grouper_groups".equals(tableName)) {
+          rows.add(new Object[] {"legacy/id", "test:legacyGroup"});
+        } else if ("grouper_stems".equals(tableName)) {
+          rows.add(new Object[] {scriptId, "test:badFolder"});
+        }
+        return rows;
+      }
+    };
+    List<ConfigurationCheckResult> results = check.checkConfiguration();
+    assertEquals("expected a finding for groups and one for folders: " + results, 2, results.size());
+    boolean sawWarning = false;
+    boolean sawError = false;
+    for (ConfigurationCheckResult result : results) {
+      assertFalse(result.getMessage(), result.getMessage().contains(scriptId));
+      if (result.getMessage().contains("test:legacyGroup")) {
+        assertEquals(ConfigurationCheckSeverity.WARNING, result.getSeverity());
+        sawWarning = true;
+      }
+      if (result.getMessage().contains("test:badFolder")) {
+        assertEquals(ConfigurationCheckSeverity.ERROR, result.getSeverity());
+        sawError = true;
+      }
+    }
+    assertTrue(sawWarning);
+    assertTrue(sawError);
   }
 
 }

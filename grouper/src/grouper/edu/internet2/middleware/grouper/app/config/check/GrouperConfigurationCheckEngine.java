@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.config.check.data.ObjectIdNotAllowedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.membershipRequire.MembershipRequireConfigurationCheck;
@@ -79,6 +80,9 @@ public class GrouperConfigurationCheckEngine {
 
     // provisioning (grouper-loader.properties)
     checks.add(new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck());
+
+    // database: object ids outside the allowed pattern (from before ids were limited)
+    checks.add(new ObjectIdNotAllowedConfigurationCheck());
 
     return checks;
   }

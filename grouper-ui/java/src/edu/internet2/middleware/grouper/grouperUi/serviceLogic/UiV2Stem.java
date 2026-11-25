@@ -1777,7 +1777,8 @@ public class UiV2Stem {
               TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportStartTime"),
               TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndTime"));
           for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
-            String entityName = guiPITMembershipView.getGuiSubject().getScreenLabelShort2noLink();
+            // plain text label for the csv (the noLink label is html markup for the screen)
+            String entityName = guiPITMembershipView.getGuiSubject().getScreenLabelShort2();
             GuiGroup ownerGuiGroup = ownerGuiGroupByPitView.get(guiPITMembershipView);
             String folderName = ownerGuiGroup != null && ownerGuiGroup.getParentGuiStem() != null 
                 ? ownerGuiGroup.getParentGuiStem().getStem().getDisplayName() : "";
