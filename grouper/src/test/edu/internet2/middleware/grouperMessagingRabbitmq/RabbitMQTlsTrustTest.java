@@ -159,6 +159,70 @@ public class RabbitMQTlsTrustTest extends TestCase {
   }
 
   /**
+   * with a configured trust store and hostnameVerification on (the setting's default), a trusted
+   * certificate that names the host is accepted, and a trusted certificate for another host is not;
+   * with it off the other host's certificate is accepted (as before the setting)
+   * @throws Exception
+   */
+  public void testTrustStoreHostnameVerification() throws Exception {
+
+    // the broker cert (localhost) with verification on: accepted
+    ConnectionFactory factory = new ConnectionFactory();
+    boolean verified = RabbitMQConnectionFactoryImpl.configureTls(factory, "test161", "TLSv1.2",
+        this.trustStore.getAbsolutePath(), PASS, false, true);
+    assertTrue("host name verification should be on with a trust store and hostnameVerification true", verified);
+    assertTrue("a trusted certificate that names the host should be accepted", handshakeCompleted(factory));
+
+    // a trusted certificate that names another host
+    File otherHostKeystore = new File(this.tempDir, "otherHost.jks");
+    File otherHostCert = new File(this.tempDir, "otherHost.cer");
+    File otherHostTrustStore = new File(this.tempDir, "otherHostTrust.jks");
+    keytool("-genkeypair", "-alias", "otherHost", "-keyalg", "RSA", "-keysize", "2048", "-validity", "2",
+        "-dname", "CN=otherhost.example.edu", "-ext", "SAN=dns:otherhost.example.edu",
+        "-keystore", otherHostKeystore.getAbsolutePath(), "-storetype", "JKS",
+        "-storepass", PASS, "-keypass", PASS);
+    keytool("-exportcert", "-alias", "otherHost", "-keystore", otherHostKeystore.getAbsolutePath(),
+        "-storepass", PASS, "-file", otherHostCert.getAbsolutePath());
+    keytool("-importcert", "-noprompt", "-alias", "otherHost", "-file", otherHostCert.getAbsolutePath(),
+        "-keystore", otherHostTrustStore.getAbsolutePath(), "-storetype", "JKS", "-storepass", PASS);
+
+    factory = new ConnectionFactory();
+    RabbitMQConnectionFactoryImpl.configureTls(factory, "test161", "TLSv1.2",
+        otherHostTrustStore.getAbsolutePath(), PASS, false, true);
+    assertFalse("a trusted certificate for another host must not be accepted with hostnameVerification on",
+        handshakeCompleted(factory, otherHostKeystore));
+
+    factory = new ConnectionFactory();
+    boolean verifiedOff = RabbitMQConnectionFactoryImpl.configureTls(factory, "test161", "TLSv1.2",
+        otherHostTrustStore.getAbsolutePath(), PASS, false, false);
+    assertFalse(verifiedOff);
+    assertTrue("with hostnameVerification off the trusted certificate for another host is accepted",
+        handshakeCompleted(factory, otherHostKeystore));
+
+    // trustAllCertificates (no trust store) checks nothing, host name included
+    factory = new ConnectionFactory();
+    RabbitMQConnectionFactoryImpl.configureTls(factory, "test161", "TLSv1.2", null, null, true, true);
+    assertTrue("trustAllCertificates=true should accept a certificate for another host",
+        handshakeCompleted(factory, otherHostKeystore));
+  }
+
+  /**
+   * a refused broker certificate (an SSL exception anywhere in the cause chain) gets a hint naming
+   * the settings to check; other connection errors do not
+   */
+  public void testTlsFailureHint() {
+    Exception tlsFailure = new java.io.IOException("connect failed",
+        new javax.net.ssl.SSLHandshakeException("No subject alternative DNS name matching broker.example.edu found."));
+    String hint = RabbitMQConnectionFactoryImpl.tlsFailureHint(tlsFailure, "test161");
+    assertTrue(hint, hint.contains("No subject alternative DNS name matching broker.example.edu found"));
+    assertTrue(hint, hint.contains("grouper.messaging.system.test161.hostnameVerification=false"));
+    assertTrue(hint, hint.contains("grouper.messaging.system.test161.pathToTrustStore"));
+
+    assertEquals("", RabbitMQConnectionFactoryImpl.tlsFailureHint(new java.io.IOException("connection refused"), "test161"));
+    assertEquals("", RabbitMQConnectionFactoryImpl.tlsFailureHint(null, "test161"));
+  }
+
+  /**
    * start a one-shot local TLS server with the self-signed cert, connect the factory to it, and
    * report whether the server saw a completed TLS handshake
    * @param factory configured factory
@@ -166,9 +230,21 @@ public class RabbitMQTlsTrustTest extends TestCase {
    * @throws Exception
    */
   private boolean handshakeCompleted(ConnectionFactory factory) throws Exception {
+    return handshakeCompleted(factory, this.serverKeystore);
+  }
+
+  /**
+   * start a one-shot local TLS server with the cert in the given keystore, connect the factory to
+   * it (as localhost), and report whether the server saw a completed TLS handshake
+   * @param factory configured factory
+   * @param serverKeystoreFile keystore (password PASS) the server presents
+   * @return true if the client accepted the certificate
+   * @throws Exception
+   */
+  private boolean handshakeCompleted(ConnectionFactory factory, File serverKeystoreFile) throws Exception {
 
     KeyStore keyStore = KeyStore.getInstance("JKS");
-    InputStream inputStream = new FileInputStream(this.serverKeystore);
+    InputStream inputStream = new FileInputStream(serverKeystoreFile);
     try {
       keyStore.load(inputStream, PASS.toCharArray());
     } finally {
