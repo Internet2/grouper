@@ -86,8 +86,12 @@ public class GrouperWorkflowReminderEmailJob extends OtherJobBase {
 
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        // workflow is off by default: stop cleanly instead of failing on the first workflow config read
+        if (GrouperWorkflowSettings.daemonShouldStopSinceWorkflowDisabled(otherJobInput.getHib3GrouperLoaderLog())) {
+          return null;
+        }
         Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
-        
+
         Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
         
         Map<Subject, Set<GrouperWorkflowInstance>> addressObjects = buildEmailObjects(instancesNeedingEmail);

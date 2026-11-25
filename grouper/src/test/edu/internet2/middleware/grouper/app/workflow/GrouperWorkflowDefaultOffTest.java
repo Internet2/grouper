@@ -194,4 +194,67 @@ public class GrouperWorkflowDefaultOffTest extends GrouperTest {
     assertNotNull(GrouperWorkflowConfigService.getWorkflowConfig(markerId));
     assertTrue(GrouperWorkflowConfigService.workflowIdExists("wfOffHide"));
   }
+
+  /**
+   * workflow off and no workflow data: both workflow daemons stop cleanly (no error, not a
+   * warning) and say so in the job message
+   */
+  public void testDaemonsStopWhenOffNoData() {
+    setWorkflowEnable("false");
+
+    edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog daemonLog = runDaemon(new GrouperWorkflowDaemonJob());
+    assertTrue(daemonLog.getJobMessage(), GrouperUtil.defaultString(daemonLog.getJobMessage()).contains("Workflow is disabled"));
+    assertFalse("WARNING".equals(daemonLog.getStatus()));
+
+    edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog reminderLog = runDaemon(new GrouperWorkflowReminderEmailJob());
+    assertTrue(reminderLog.getJobMessage(), GrouperUtil.defaultString(reminderLog.getJobMessage()).contains("Workflow is disabled"));
+    assertFalse("WARNING".equals(reminderLog.getStatus()));
+  }
+
+  /**
+   * workflow off but a group has a workflow instance (old data): the daemons stop with a WARNING
+   * naming the count, instead of failing on the workflow config read
+   */
+  public void testDaemonsWarnWhenOffWithInstances() {
+    // leftover workflow data: the instance marker on a group (all the daemon looks for while off)
+    edu.internet2.middleware.grouper.attr.AttributeDefName instanceMarker = edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder
+        .findByName(GrouperWorkflowSettings.workflowStemName() + ":"
+            + GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME, true);
+    this.ownerGroup.getAttributeDelegate().assignAttribute(instanceMarker);
+
+    setWorkflowEnable("false");
+
+    for (edu.internet2.middleware.grouper.app.loader.OtherJobBase daemon :
+        new edu.internet2.middleware.grouper.app.loader.OtherJobBase[] {new GrouperWorkflowDaemonJob(), new GrouperWorkflowReminderEmailJob()}) {
+      edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog daemonLog = runDaemon(daemon);
+      assertEquals(daemon.getClass().getSimpleName(), "WARNING", daemonLog.getStatus());
+      assertTrue(daemonLog.getJobMessage(), daemonLog.getJobMessage().contains("1 group(s) have workflow instances"));
+    }
+  }
+
+  /**
+   * workflow on: the helper does not stop the daemons
+   */
+  public void testDaemonHelperDoesNotStopWhenOn() {
+    setWorkflowEnable("true");
+    assertFalse(GrouperWorkflowSettings.daemonShouldStopSinceWorkflowDisabled(
+        new edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog()));
+  }
+
+  /**
+   * run a workflow daemon with an unsaved daemon log row
+   * @param daemon
+   * @return the log row the daemon wrote its status and message to
+   */
+  private edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog runDaemon(
+      edu.internet2.middleware.grouper.app.loader.OtherJobBase daemon) {
+    edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog daemonLog = new edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog();
+    daemonLog.setStatus("STARTED");
+    edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput otherJobInput = new edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput();
+    otherJobInput.setJobName("OTHER_JOB_" + daemon.getClass().getSimpleName());
+    otherJobInput.setHib3GrouperLoaderLog(daemonLog);
+    otherJobInput.setGrouperSession(this.grouperSession);
+    daemon.run(otherJobInput);
+    return daemonLog;
+  }
 }
