@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.attr.resolver.GlobalAttributeResolverConfiguration;
@@ -125,8 +126,9 @@ public class UiV2GlobalAttributeResolverConfig {
       
       if (StringUtils.isNotBlank(configType)) {
         
-        Class<GlobalAttributeResolverConfiguration> klass = (Class<GlobalAttributeResolverConfiguration>) GrouperUtil.forName(configType);
-        GlobalAttributeResolverConfiguration globalAttributeResolverConfiguration = (GlobalAttributeResolverConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GlobalAttributeResolverConfiguration class is loaded (not initialized
+        // first) and created
+        GlobalAttributeResolverConfiguration globalAttributeResolverConfiguration = ConfigurationTypeLoader.newInstance(configType, GlobalAttributeResolverConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

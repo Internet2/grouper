@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -139,8 +140,9 @@ public class UiV2UserLifecycle {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<UserLifecycleEventConfiguration> klass = (Class<UserLifecycleEventConfiguration>) GrouperUtil.forName(type);
-        UserLifecycleEventConfiguration eventConfiguration = (UserLifecycleEventConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a UserLifecycleEventConfiguration class is loaded (not initialized
+        // first) and created
+        UserLifecycleEventConfiguration eventConfiguration = ConfigurationTypeLoader.newInstance(type, UserLifecycleEventConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -472,8 +474,9 @@ public class UiV2UserLifecycle {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<UserLifecycleActionConfiguration> klass = (Class<UserLifecycleActionConfiguration>) GrouperUtil.forName(type);
-        UserLifecycleActionConfiguration actionConfiguration = (UserLifecycleActionConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a UserLifecycleActionConfiguration class is loaded (not initialized
+        // first) and created
+        UserLifecycleActionConfiguration actionConfiguration = ConfigurationTypeLoader.newInstance(type, UserLifecycleActionConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -805,8 +808,9 @@ public class UiV2UserLifecycle {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<UserLifecyclePolicyConfiguration> klass = (Class<UserLifecyclePolicyConfiguration>) GrouperUtil.forName(type);
-        UserLifecyclePolicyConfiguration policyConfiguration = (UserLifecyclePolicyConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a UserLifecyclePolicyConfiguration class is loaded (not initialized
+        // first) and created
+        UserLifecyclePolicyConfiguration policyConfiguration = ConfigurationTypeLoader.newInstance(type, UserLifecyclePolicyConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1138,8 +1142,9 @@ public class UiV2UserLifecycle {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<UserLifecyclePolicyPartConfiguration> klass = (Class<UserLifecyclePolicyPartConfiguration>) GrouperUtil.forName(type);
-        UserLifecyclePolicyPartConfiguration policyConfiguration = (UserLifecyclePolicyPartConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a UserLifecyclePolicyPartConfiguration class is loaded (not initialized
+        // first) and created
+        UserLifecyclePolicyPartConfiguration policyConfiguration = ConfigurationTypeLoader.newInstance(type, UserLifecyclePolicyPartConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

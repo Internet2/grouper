@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.sqlSync.SqlSyncConfiguration;
@@ -87,8 +88,9 @@ public class UiV2SqlSyncConfiguration {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<SqlSyncConfiguration> klass = (Class<SqlSyncConfiguration>) GrouperUtil.forName(type);
-        SqlSyncConfiguration sqlSyncConfiguration = (SqlSyncConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a SqlSyncConfiguration class is loaded (not initialized
+        // first) and created
+        SqlSyncConfiguration sqlSyncConfiguration = ConfigurationTypeLoader.newInstance(type, SqlSyncConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

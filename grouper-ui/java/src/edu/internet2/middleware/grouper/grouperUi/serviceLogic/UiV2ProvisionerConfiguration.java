@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -1180,8 +1181,9 @@ public class UiV2ProvisionerConfiguration {
         }
         
         if (!skipStartWith && StringUtils.isNotBlank(provisionerStartWithClass)) {
-          Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
-          ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+          // SECURITY: the type comes from the request; only a ProvisionerStartWithBase class is loaded (not initialized
+          // first) and created
+          ProvisionerStartWithBase provisionerStartWith = ConfigurationTypeLoader.newInstance(provisionerStartWithClass, ProvisionerStartWithBase.class);
           provisionerStartWith.setConfigId(provisionerConfigId);
           
           provisionerStartWith.populateConfigurationValuesFromUi(request);
@@ -1255,8 +1257,9 @@ public class UiV2ProvisionerConfiguration {
         // once the start with submit is done
         if (!skipStartWith && StringUtils.isNotBlank(previousProvisionerStartWithClass) && StringUtils.isBlank(provisionerStartWithClass)) {
           
-          Class<ProvisionerStartWithBase> previousStartWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(previousProvisionerStartWithClass);
-          ProvisionerStartWithBase previousProvisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(previousStartWithKlass);
+          // SECURITY: the type comes from the request; only a ProvisionerStartWithBase class is loaded (not initialized
+          // first) and created
+          ProvisionerStartWithBase previousProvisionerStartWith = ConfigurationTypeLoader.newInstance(previousProvisionerStartWithClass, ProvisionerStartWithBase.class);
           
           provisionerConfigurationContainer.setProvisionerStartWith(previousProvisionerStartWith);
           
@@ -1383,8 +1386,9 @@ public class UiV2ProvisionerConfiguration {
       
       
       if (StringUtils.isNotBlank(provisionerStartWithClass) && !StringUtils.equals("empty", provisionerStartWithClass)) {
-        Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
-        ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+        // SECURITY: the type comes from the request; only a ProvisionerStartWithBase class is loaded (not initialized
+        // first) and created
+        ProvisionerStartWithBase provisionerStartWith = ConfigurationTypeLoader.newInstance(provisionerStartWithClass, ProvisionerStartWithBase.class);
         provisionerStartWith.setConfigId(provisionerConfigId);
         
         provisionerStartWith.populateConfigurationValuesFromUi(request);
