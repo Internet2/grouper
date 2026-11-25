@@ -91,8 +91,12 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
               // explicit opt in to accept any broker certificate (only used when no trust store is configured)
               boolean trustAllCertificates = GrouperUtil.booleanValue(grouperMessagingConfig.propertyValueString(
                   GrouperClientConfig.retrieveConfig(), "trustAllCertificates"), false);
+              // check that the broker certificate names the host also when a trust store is configured
+              // (default true; set false only for a broker whose certificate does not name the host)
+              boolean hostnameVerification = GrouperUtil.booleanValue(grouperMessagingConfig.propertyValueString(
+                  GrouperClientConfig.retrieveConfig(), "hostnameVerification"), true);
               RabbitMQConnectionFactoryImpl.configureTls(factory, messagingSystemName, tlsVersion, pathToTrustStore,
-                  trustPassphrase, trustAllCertificates);
+                  trustPassphrase, trustAllCertificates, hostnameVerification);
             }
             
             if (LOG.isDebugEnabled()) {
@@ -110,7 +114,9 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
             messagingSystemNameConnection.put(messagingSystemName, connection);
             
           } catch (Exception e) {
-            throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName, e);
+            // a refused broker certificate is a configuration problem: say which setting to look at
+            throw new RuntimeException("Error occurred while connecting to rabbitmq host: "+host+" for "+messagingSystemName
+                + tlsFailureHint(e, messagingSystemName), e);
           }
         }
       
@@ -141,6 +147,30 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
   };
 
   /**
+   * if connecting failed in the TLS handshake (the broker certificate was refused), a hint naming the
+   * settings to check, else an empty string.  The JDK message (e.g. "No subject alternative DNS name
+   * matching ... found", or "PKIX path building failed") is included.
+   * @param throwable what connecting threw
+   * @param messagingSystemName
+   * @return the hint, starting with ".  ", or empty
+   */
+  static String tlsFailureHint(Throwable throwable, String messagingSystemName) {
+    for (Throwable current = throwable; current != null; current = current.getCause()) {
+      if (current instanceof javax.net.ssl.SSLException) {
+        String prefix = "grouper.messaging.system." + messagingSystemName + ".";
+        return ".  The TLS handshake with the broker failed: " + current.getMessage()
+            + ".  If the broker certificate does not name this host, use a certificate that does, or set " + prefix
+            + "hostnameVerification=false (only applies with a trust store).  If it is not trusted, set " + prefix
+            + "pathToTrustStore and " + prefix + "trustPassphrase to a trust store with the broker certificate or its CA";
+      }
+      if (current.getCause() == current) {
+        break;
+      }
+    }
+    return "";
+  }
+
+  /**
    * Set up TLS on a RabbitMQ connection factory.  Which certificates are trusted:
    * <ul>
    * <li>pathToTrustStore and trustPassphrase set: the certificates in that JKS trust store</li>
@@ -161,6 +191,29 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
    */
   public static boolean configureTls(ConnectionFactory factory, String messagingSystemName, String tlsVersion,
       String pathToTrustStore, String trustPassphrase, boolean trustAllCertificates) throws Exception {
+    // no host name check with a configured trust store, as before the hostnameVerification setting
+    return configureTls(factory, messagingSystemName, tlsVersion, pathToTrustStore, trustPassphrase,
+        trustAllCertificates, false);
+  }
+
+  /**
+   * Set up TLS on a RabbitMQ connection factory, see the other configureTls.  With a configured trust
+   * store, hostnameVerificationWithTrustStore decides whether the broker certificate must also
+   * name the host (grouper.messaging.system.&lt;name&gt;.hostnameVerification, default true).  Without
+   * a trust store the host name is always checked, and with trustAllCertificates never.
+   * @param factory connection factory to configure
+   * @param messagingSystemName for log messages
+   * @param tlsVersion e.g. TLSv1.2, or "default" for the best one the JVM and broker support
+   * @param pathToTrustStore path to a JKS trust store, or blank
+   * @param trustPassphrase trust store passphrase, or blank
+   * @param trustAllCertificates true to accept any certificate when no trust store is configured
+   * @param hostnameVerificationWithTrustStore true to check the host name when a trust store is configured
+   * @return true if host name verification was enabled
+   * @throws Exception if the SSL context cannot be built
+   */
+  public static boolean configureTls(ConnectionFactory factory, String messagingSystemName, String tlsVersion,
+      String pathToTrustStore, String trustPassphrase, boolean trustAllCertificates,
+      boolean hostnameVerificationWithTrustStore) throws Exception {
 
     if ("default".equals(tlsVersion)) {
       tlsVersion = ConnectionFactory.computeDefaultTlsProtocol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
@@ -181,6 +234,14 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
       TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
       tmf.init(tks);
       c.init(null, tmf.getTrustManagers(), null);
+      // SECURITY (GRP-7580): a trusted CA can sign certificates for other hosts, so also check that the
+      // certificate names the broker host, unless the site turned it off for a certificate that does not
+      verifyHostname = hostnameVerificationWithTrustStore;
+      if (!hostnameVerificationWithTrustStore) {
+        GrouperUtil.getLog(RabbitMQConnectionFactoryImpl.class).warn("RabbitMQ messaging system '" + messagingSystemName
+            + "' uses TLS with hostnameVerification=false: the broker certificate is checked against the trust store "
+            + "but not against the host name.");
+      }
 
     } else if (trustAllCertificates) {
 
@@ -208,7 +269,11 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
       verifyHostname = true;
     }
 
-    factory.useSslProtocol(c);
+    // only the socket factory (blocking IO, which Grouper uses), not useSslProtocol(SSLContext) or
+    // setSslContextFactory: in current amqp-client both of those also turn on host name verification
+    // by themselves (and it cannot be turned off again), which would ignore hostnameVerification=false
+    // and trustAllCertificates.  Host name verification is turned on below exactly when decided above
+    factory.setSocketFactory(c.getSocketFactory());
     if (verifyHostname) {
       factory.enableHostnameVerification();
     }

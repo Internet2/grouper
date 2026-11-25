@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuth
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.membershipRequire.MembershipRequireConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingHostnameVerificationOffConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesAccessToApiInElConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesElSandboxConfigurationCheck;
@@ -68,6 +69,7 @@ public class GrouperConfigurationCheckEngine {
     // messaging (grouper.properties and grouper.client.properties)
     checks.add(new MessagingAllowedGroupMissingConfigurationCheck());
     checks.add(new MessagingTrustAllCertificatesConfigurationCheck());
+    checks.add(new MessagingHostnameVerificationOffConfigurationCheck());
 
     // UI (grouper-ui.properties)
     checks.add(new UiAntiFramingDisabledConfigurationCheck());

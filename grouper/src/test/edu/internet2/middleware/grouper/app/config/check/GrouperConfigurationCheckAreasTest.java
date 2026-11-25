@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingHostnameVerificationOffConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.provisioning.ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ui.UiAntiFramingDisabledConfigurationCheck;
@@ -455,6 +456,32 @@ public class GrouperConfigurationCheckAreasTest extends GrouperTest {
     override(config, prefix + "pathToTrustStore", "");
     override(config, propertyName, "false");
     results = new MessagingTrustAllCertificatesConfigurationCheck().checkConfiguration();
+    assertNoResults(resultsForProperty(results, propertyName));
+  }
+
+  /**
+   * hostnameVerification=false with TLS and a trust store is a warning; true (or blank), or no trust
+   * store (where it does not apply), is not
+   */
+  public void testMessagingHostnameVerificationOff() {
+    GrouperClientConfig config = GrouperClientConfig.retrieveConfig();
+    String prefix = "grouper.messaging.system." + MESSAGING_SYSTEM_NAME + ".";
+    String propertyName = prefix + "hostnameVerification";
+    override(config, prefix + "tlsVersion", "TLSv1.2");
+    override(config, prefix + "pathToTrustStore", "/configReviewTest/truststore.jks");
+    override(config, prefix + "trustPassphrase", "configReviewTest");
+    override(config, propertyName, "false");
+    List<ConfigurationCheckResult> results = new MessagingHostnameVerificationOffConfigurationCheck().checkConfiguration();
+    assertOneResultOfSeverity(resultsForProperty(results, propertyName), ConfigurationCheckSeverity.WARNING);
+
+    // no trust store: the host name is always checked, so the flag does not apply
+    override(config, prefix + "pathToTrustStore", "");
+    results = new MessagingHostnameVerificationOffConfigurationCheck().checkConfiguration();
+    assertNoResults(resultsForProperty(results, propertyName));
+
+    override(config, prefix + "pathToTrustStore", "/configReviewTest/truststore.jks");
+    override(config, propertyName, "true");
+    results = new MessagingHostnameVerificationOffConfigurationCheck().checkConfiguration();
     assertNoResults(resultsForProperty(results, propertyName));
   }
 
