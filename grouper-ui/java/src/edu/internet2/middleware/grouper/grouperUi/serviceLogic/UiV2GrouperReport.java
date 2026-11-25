@@ -735,9 +735,11 @@ public class UiV2GrouperReport {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this folder, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, STEM);
           
-          if (!configBean.isCanRead(loggedInSubject)) {
+          if (configBean == null || !configBean.isCanRead(loggedInSubject)) {
             return null;
           }
           
@@ -813,9 +815,11 @@ public class UiV2GrouperReport {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this group, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, GROUP);
           
-          if (!configBean.isCanRead(loggedInSubject)) {
+          if (configBean == null || !configBean.isCanRead(loggedInSubject)) {
             return null;
           }
           
@@ -1066,7 +1070,12 @@ public class UiV2GrouperReport {
       boolean isSaved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this folder, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, STEM);
+          if (configBean == null) {
+            throw new RuntimeException("Invalid attributeAssignmentMarkerId");
+          }
           try {
             if (newStatus.equals("enable")) { 
               configBean.setReportConfigEnabled(true);
@@ -1159,7 +1168,12 @@ public class UiV2GrouperReport {
       boolean isSaved = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this group, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, GROUP);
+          if (configBean == null) {
+            throw new RuntimeException("Invalid attributeAssignmentMarkerId");
+          }
           try {
             if (newStatus.equals("enable")) {            
               configBean.setReportConfigEnabled(true);
@@ -1416,7 +1430,9 @@ public class UiV2GrouperReport {
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this folder, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, STEM);
           if (configBean == null) {
             throw new RuntimeException("Invalid attributeAssignmentMarkerId");
           }
@@ -1500,7 +1516,9 @@ public class UiV2GrouperReport {
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          GrouperReportConfigurationBean configBean = GrouperReportConfigService.getGrouperReportConfigBean(attributeAssignmentMarkerId);
+          // SECURITY (GRP-7573): the config marker id comes from the request, so it must be a report config of
+          // this group, not of another owner the user cannot act on
+          GrouperReportConfigurationBean configBean = GrouperReportInstanceOwnerBinding.retrieveReportConfigForOwner(attributeAssignmentMarkerId, GROUP);
           if (configBean == null) {
             throw new RuntimeException("Invalid attributeAssignmentMarkerId");
           }
