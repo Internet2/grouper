@@ -146,16 +146,21 @@ public class UiV2CustomUi {
         customUiGroupLogic(request, member.getSubject());   
       }
 
+      // true if a GSH script or compiled template ran, since it may have changed memberships the screen reads
+      boolean scriptRan = false;
       {
         String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
         if (!StringUtils.isBlank(gshScript)) {
           customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+          scriptRan = true;
         }
         
       }
 
       customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
-      
+
+      recomputeLogicAfterScript(request, member.getSubject(), customUiContainer, scriptRan);
+
       String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
       if (!StringUtils.isBlank(redirectToUrl)) {
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -562,15 +567,21 @@ public class UiV2CustomUi {
         customUiGroupLogic(request, member.getSubject());   
       }
       
+      // true if a GSH script or compiled template ran, since it may have changed memberships the screen reads
+      boolean scriptRan = false;
       {
         String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
         if (!StringUtils.isBlank(gshScript)) {
           customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+          scriptRan = true;
         }
         
       }
-        
+
       customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
+
+      recomputeLogicAfterScript(request, member.getSubject(), customUiContainer, scriptRan);
+
       //cu_grouperEnroll=true,
       String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
       if (!StringUtils.isBlank(redirectToUrl)) {
@@ -580,11 +591,33 @@ public class UiV2CustomUi {
       }
 
       customUiGroup(request, response);
-  
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-  
+
+  }
+
+  /**
+   * After the join or leave button, the screen variables (cu_*) were computed before the GSH script or
+   * compiled template ran.  A script commonly changes memberships the queries read (e.g. it adds the
+   * person to a trusted group that a cuQuery checks), so without recomputing, the page would redraw
+   * from the pre-click values and show the old state until the user refreshes.  Recompute so the
+   * redrawn page (and any redirectToUrl gate) reflects what the script did.  The button-pressed
+   * variables (cu_joinGroupButtonPressed etc) are kept, since they come from the container, not the
+   * queries.
+   * @param request
+   * @param subject the person the screen is about
+   * @param customUiContainer
+   * @param scriptRan true if a script or compiled template ran; if not, nothing changed after the last compute
+   */
+  private void recomputeLogicAfterScript(HttpServletRequest request, Subject subject,
+      CustomUiContainer customUiContainer, boolean scriptRan) {
+    if (!scriptRan) {
+      return;
+    }
+    customUiContainer.setHasComputedLogic(false);
+    customUiGroupLogic(request, subject);
   }
   
 }
