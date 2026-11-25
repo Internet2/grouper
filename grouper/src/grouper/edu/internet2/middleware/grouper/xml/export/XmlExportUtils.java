@@ -60,7 +60,9 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObjectIdValidator;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
@@ -155,6 +157,32 @@ public class XmlExportUtils {
   }
   
   /**
+   * SECURITY: ids are printed in UI pages, links and scripts as trusted values, and the save
+   * operations only let a caller choose an id made of letters, digits, colon, underscore, dot and
+   * dash (GrouperObjectIdValidator).  An XML import inserts objects with the ids in the file, so a
+   * NEW object whose id in the file is outside that pattern gets a generated id instead.  The old
+   * id goes in the import's uuid translation map, so later rows in the file that refer to it
+   * (memberships, attribute assignments, etc) get the new id, and the import still works.
+   * Objects already in the database keep their ids (the configuration review lists any unsafe ones).
+   * @param id the id from the import file
+   * @param uuidTranslation the import's map of file id to database id
+   * @return the id to insert with: the same id if allowed, else a generated one
+   */
+  public static String safeImportedId(String id, Map<String, String> uuidTranslation) {
+    if (GrouperObjectIdValidator.isValidNewId(id)) {
+      return id;
+    }
+    String newId = GrouperUuid.getUuid();
+    uuidTranslation.put(id, newId);
+    // do not log the old id itself, it might be markup
+    GrouperUtil.getLog(XmlExportUtils.class).warn("XML import: an object id in the file is not allowed "
+        + "(only letters, digits, colon, underscore, dot and dash, at most " + GrouperObjectIdValidator.MAX_LENGTH
+        + " characters; the id in the file has " + (id == null ? 0 : id.length()) + " characters), so the new "
+        + "object gets the generated id " + newId);
+    return newId;
+  }
+
+  /**
    * take a record from xml and sync with db
    * @param xmlImportable
    * @param xmlImportMain
@@ -169,6 +197,11 @@ public class XmlExportUtils {
     
     //if not in db
     if (dbObject == null) {
+      // a new object only gets an id from the file if it is a safe one
+      String safeId = safeImportedId(xmlImportable.xmlGetId(), xmlImportMain.getUuidTranslation());
+      if (!StringUtils.equals(safeId, xmlImportable.xmlGetId())) {
+        xmlImportable.xmlSetId(safeId);
+      }
       dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
       insert = true;
     } else {
@@ -784,6 +817,11 @@ public class XmlExportUtils {
 
     //if not in db
     if (dbObject == null) {
+      // a new object only gets an id from the file if it is a safe one
+      String safeId = safeImportedId(xmlImportableMultiple.xmlGetId(), xmlImportMain.getUuidTranslation());
+      if (!StringUtils.equals(safeId, xmlImportableMultiple.xmlGetId())) {
+        xmlImportableMultiple.xmlSetId(safeId);
+      }
       dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
       insert = true;
     } else {
