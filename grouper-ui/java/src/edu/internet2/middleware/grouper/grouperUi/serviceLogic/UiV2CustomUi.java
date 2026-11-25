@@ -164,7 +164,9 @@ public class UiV2CustomUi {
       String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
       if (!StringUtils.isBlank(redirectToUrl)) {
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        // escape only single quotes, like joinGroup: escapeJavascript would HTML-encode the ampersands,
+        // so location.href would get &amp;groupId=... and land on a blank screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeSingleQuotes(redirectToUrl) + "'"));
         return;
       }
       
