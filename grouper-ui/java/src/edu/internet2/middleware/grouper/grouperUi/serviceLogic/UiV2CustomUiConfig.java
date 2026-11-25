@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
@@ -129,8 +130,9 @@ public class UiV2CustomUiConfig {
       
       if (StringUtils.isNotBlank(customUiType)) {
         
-        Class<CustomUiConfiguration> klass = (Class<CustomUiConfiguration>) GrouperUtil.forName(customUiType);
-        CustomUiConfiguration customUiConfiguration = (CustomUiConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a CustomUiConfiguration class is loaded (not initialized
+        // first) and created
+        CustomUiConfiguration customUiConfiguration = ConfigurationTypeLoader.newInstance(customUiType, CustomUiConfiguration.class);
         
         if (StringUtils.isBlank(customUiConfigId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

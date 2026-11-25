@@ -48,6 +48,7 @@ import org.quartz.Trigger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -5040,8 +5041,9 @@ public class UiV2GrouperLoader {
       } // end of looping over search results
       
       if (!StringUtils.isEmpty(grouperLoaderContainer.getLdapResultsTransformationClass())) {
-        @SuppressWarnings("unchecked")
-        Class<LdapResultsTransformationBase> theClass = GrouperUtil.forName(grouperLoaderContainer.getLdapResultsTransformationClass());
+        // only a LdapResultsTransformationBase subclass is loaded (not initialized first) and created
+        Class<? extends LdapResultsTransformationBase> theClass = ConfigurationTypeLoader.loadClass(
+            grouperLoaderContainer.getLdapResultsTransformationClass(), LdapResultsTransformationBase.class);
         LdapResultsTransformationInput ldapResultsTransformationInput = new LdapResultsTransformationInput()
             .setLdapSearchResults(Collections.unmodifiableList(searchResults))
             .setMembershipResults(Collections.unmodifiableMap(result))

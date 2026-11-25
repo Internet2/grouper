@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
@@ -1461,8 +1462,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperDataFieldConfiguration> klass = (Class<GrouperDataFieldConfiguration>) GrouperUtil.forName(type);
-        GrouperDataFieldConfiguration dataFieldConfiguration = (GrouperDataFieldConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperDataFieldConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperDataFieldConfiguration dataFieldConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperDataFieldConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1588,8 +1590,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperPrivacyRealmConfiguration> klass = (Class<GrouperPrivacyRealmConfiguration>) GrouperUtil.forName(type);
-        GrouperPrivacyRealmConfiguration privacyRealmConfiguration = (GrouperPrivacyRealmConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperPrivacyRealmConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperPrivacyRealmConfiguration privacyRealmConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperPrivacyRealmConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1716,8 +1719,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperDataRowConfiguration> klass = (Class<GrouperDataRowConfiguration>) GrouperUtil.forName(type);
-        GrouperDataRowConfiguration dataRowConfiguration = (GrouperDataRowConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperDataRowConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperDataRowConfiguration dataRowConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperDataRowConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1777,8 +1781,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperDataProviderConfiguration> klass = (Class<GrouperDataProviderConfiguration>) GrouperUtil.forName(type);
-        GrouperDataProviderConfiguration dataProviderConfiguration = (GrouperDataProviderConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperDataProviderConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperDataProviderConfiguration dataProviderConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperDataProviderConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1839,8 +1844,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperDataProviderQueryConfiguration> klass = (Class<GrouperDataProviderQueryConfiguration>) GrouperUtil.forName(type);
-        GrouperDataProviderQueryConfiguration dataProviderQueryConfiguration = (GrouperDataProviderQueryConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperDataProviderQueryConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperDataProviderQueryConfiguration dataProviderQueryConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperDataProviderQueryConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -1901,8 +1907,9 @@ public class UiV2EntityDataFields {
       
       if (StringUtils.isNotBlank(type)) {
         
-        Class<GrouperDataProviderChangeLogQueryConfiguration> klass = (Class<GrouperDataProviderChangeLogQueryConfiguration>) GrouperUtil.forName(type);
-        GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = (GrouperDataProviderChangeLogQueryConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a GrouperDataProviderChangeLogQueryConfiguration class is loaded (not initialized
+        // first) and created
+        GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = ConfigurationTypeLoader.newInstance(type, GrouperDataProviderChangeLogQueryConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 

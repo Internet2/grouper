@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.app.config.ConfigurationTypeLoader;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.authentication.WsTrustedJwtConfiguration;
@@ -156,8 +157,9 @@ public class UiV2AuthenticationConfig {
       
       if (StringUtils.isNotBlank(configType)) {
         
-        Class<WsTrustedJwtConfiguration> klass = (Class<WsTrustedJwtConfiguration>) GrouperUtil.forName(configType);
-        WsTrustedJwtConfiguration wsTrustedJwtConfiguration = (WsTrustedJwtConfiguration) GrouperUtil.newInstance(klass);
+        // SECURITY: the type comes from the request; only a WsTrustedJwtConfiguration class is loaded (not initialized
+        // first) and created
+        WsTrustedJwtConfiguration wsTrustedJwtConfiguration = ConfigurationTypeLoader.newInstance(configType, WsTrustedJwtConfiguration.class);
         
         if (StringUtils.isBlank(configId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
