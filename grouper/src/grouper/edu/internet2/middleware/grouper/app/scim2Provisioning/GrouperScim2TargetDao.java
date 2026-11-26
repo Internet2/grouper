@@ -898,7 +898,11 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
     String membershipStrategy = scimConfiguration.getMembershipStrategy();
 
-    if (StringUtils.equals(membershipStrategy, "fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups")) {
+    if (scimConfiguration.isScimUserGroupsRequireAttributes()) {
+      for (String userId : new ArrayList<String>(grouperScim2MembershipCache.getUserIdsRetrieved())) {
+        retrieveUserGroups(scimConfiguration, userId);
+      }
+    } else if (StringUtils.equals(membershipStrategy, "fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups")) {
       Set<String> groupIdsRetrievedMemberships = grouperScim2MembershipCache.getGroupIdsRetrievedMemberships();
 
       for (String groupId: GrouperUtil.nonNull(groupIdsRetrievedMemberships)) {
@@ -1061,7 +1065,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntity = targetDaoRetrieveEntityResponse.getTargetEntity();
           entityId = targetEntity == null ? null : targetEntity.getId();
         } else {
-          if (!grouperScim2MembershipCache.getUserIdsRetrievedMemberships().contains(entityId)) {
+          if (!scimConfiguration.isScimUserGroupsRequireAttributes()
+              && !grouperScim2MembershipCache.getUserIdsRetrievedMemberships().contains(entityId)) {
             TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = retrieveEntity(new TargetDaoRetrieveEntityRequest(grouperTargetEntity, true));
             targetEntity = targetDaoRetrieveEntityResponse.getTargetEntity();
           }
@@ -1070,6 +1075,9 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
 
         if (!StringUtils.isBlank(entityId)) {
+          if (scimConfiguration.isScimUserGroupsRequireAttributes()) {
+            retrieveUserGroups(scimConfiguration, entityId);
+          }
           // GRP-7182: iterate a snapshot; the value set is a Collections.synchronizedSet that can still be written by concurrent retrieve threads
           for (String groupId : new ArrayList<String>(GrouperUtil.nonNull(grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(entityId)))) {
             ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
@@ -1091,6 +1099,14 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
     }
 
+  }
+
+  private void retrieveUserGroups(GrouperScim2ProvisionerConfiguration scimConfiguration, String userId) {
+    ScimSettings scimSettings = new ScimSettings();
+    scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+    scimSettings.setOrgName(orgNameThreadLocal.get());
+    GrouperScim2ApiCommands.retrieveScimUserGroups(scimConfiguration.getBearerTokenExternalSystemConfigId(),
+        userId, this.grouperScim2MembershipCache, scimSettings);
   }
 
   @Override

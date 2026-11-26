@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -52,6 +53,7 @@ public class ScimSettings {
     this.setScimPageByRequestedCount(scimConfiguration.isScimPageByRequestedCount());
     this.setScimMembershipBatchSize(scimConfiguration.getScimMembershipBatchSize());
     this.setScimEmailFilterStrategy(scimConfiguration.getScimEmailFilterStrategy());
+    this.setScimUserGroupsRequireAttributes(scimConfiguration.isScimUserGroupsRequireAttributes());
   }
   
   private int scimMembershipBatchSize = 100;
@@ -71,6 +73,16 @@ public class ScimSettings {
   private boolean scimPageByRequestedCount = false;
 
   private String scimEmailFilterStrategy = "email";
+
+  private boolean scimUserGroupsRequireAttributes;
+
+  public boolean isScimUserGroupsRequireAttributes() {
+    return this.scimUserGroupsRequireAttributes;
+  }
+
+  public void setScimUserGroupsRequireAttributes(boolean scimUserGroupsRequireAttributes) {
+    this.scimUserGroupsRequireAttributes = scimUserGroupsRequireAttributes;
+  }
 
 
   public int getScimMembershipBatchSize() {
@@ -118,7 +130,7 @@ public class ScimSettings {
     if (StringUtils.isBlank(scimNamePatchStrategy)) {
       scimNamePatchStrategy = "nonqualified";
     }
-    GrouperUtil.assertion(StringUtils.equalsAny(scimNamePatchStrategy, "nonqualified", "qualified", "nested"), "scimNamePatchStrategy needs to be 'qualified', 'nonqualified', or 'nested'. You provided: '"+scimNamePatchStrategy+"'");
+    GrouperUtil.assertion(Strings.CS.equalsAny(scimNamePatchStrategy, "nonqualified", "qualified", "nested"), "scimNamePatchStrategy needs to be 'qualified', 'nonqualified', or 'nested'. You provided: '"+scimNamePatchStrategy+"'");
     this.scimNamePatchStrategy = scimNamePatchStrategy;
   }
 
@@ -153,7 +165,7 @@ public class ScimSettings {
     if (StringUtils.isBlank(scimEmailPatchStrategy)) {
       scimEmailPatchStrategy = "pathEmails";
     }
-    GrouperUtil.assertion(StringUtils.equalsAny(scimEmailPatchStrategy, "pathEmails", "noPath", "pathEmailsQualified"), "scimEmailPatchStrategy needs to be 'pathEmails' or 'noPath' or 'pathEmailsQualified'. You provided: '"+scimEmailPatchStrategy+"'");
+    GrouperUtil.assertion(Strings.CS.equalsAny(scimEmailPatchStrategy, "pathEmails", "noPath", "pathEmailsQualified"), "scimEmailPatchStrategy needs to be 'pathEmails' or 'noPath' or 'pathEmailsQualified'. You provided: '"+scimEmailPatchStrategy+"'");
     this.scimEmailPatchStrategy = scimEmailPatchStrategy;
   }
 
@@ -165,7 +177,7 @@ public class ScimSettings {
     if (StringUtils.isBlank(scimEmailFilterStrategy)) {
       scimEmailFilterStrategy = "email";
     }
-    GrouperUtil.assertion(StringUtils.equalsAny(scimEmailFilterStrategy, "email", "emails.value", "emails[value]", "emails[typeWork and value]"), "scimEmailFilterStrategy needs to be 'email', 'emails.value', 'emails[value]', or 'emails[typeWork and value]'. You provided: '"+scimEmailFilterStrategy+"'");
+    GrouperUtil.assertion(Strings.CS.equalsAny(scimEmailFilterStrategy, "email", "emails.value", "emails[value]", "emails[typeWork and value]"), "scimEmailFilterStrategy needs to be 'email', 'emails.value', 'emails[value]', or 'emails[typeWork and value]'. You provided: '"+scimEmailFilterStrategy+"'");
     this.scimEmailFilterStrategy = scimEmailFilterStrategy;
   }
 

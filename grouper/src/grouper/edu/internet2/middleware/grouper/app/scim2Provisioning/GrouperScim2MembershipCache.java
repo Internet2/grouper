@@ -15,16 +15,28 @@ public class GrouperScim2MembershipCache {
   }
 
   private Set<String> userIdsRetrievedMemberships = Collections.synchronizedSet(new HashSet<>());
-  
+
+  // User metadata can be retrieved without retrieving its memberships.
+  private Set<String> userIdsRetrieved = Collections.synchronizedSet(new HashSet<>());
+
+  private Map<String, Object> userMembershipLocks = new ConcurrentHashMap<>();
+
   private Set<String> groupIdsRetrievedMemberships = Collections.synchronizedSet(new HashSet<>());
   
   private Map<String, Set<String>> groupIdToMembershipUserIds = new ConcurrentHashMap<>();
   
   private Map<String, Set<String>> userIdToMembershipGroupIds = new ConcurrentHashMap<>();
-  
-  
-  
-  
+
+  public Set<String> getUserIdsRetrieved() {
+    return this.userIdsRetrieved;
+  }
+
+  Object userMembershipLock(String userId) {
+    Object lock = new Object();
+    Object existingLock = this.userMembershipLocks.putIfAbsent(userId, lock);
+    return existingLock == null ? lock : existingLock;
+  }
+
   public Set<String> getUserIdsRetrievedMemberships() {
     return userIdsRetrievedMemberships;
   }

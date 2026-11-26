@@ -585,6 +585,14 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     }
     
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
+    boolean explicitUserGroups = mockTestKnobBoolean("grouperTest.scim2.mock.userGroupsRequireAttributes");
+    if (explicitUserGroups
+        && !mockTestKnobBoolean("grouperTest.scim2.mock.userGroupsAllowUnfilteredLists")
+        && (StringUtils.isBlank(filter) || !filter.startsWith("userName eq "))) {
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setResponseBody("{\"scimType\":\"tooMany\",\"detail\":\"A userName filter is required.\"}");
+      return;
+    }
     
     // capture the exact outgoing filter so tests (in a different JVM) can assert it
     recordCapture("lastUsersFilter", filter);
@@ -729,12 +737,12 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
       ObjectNode userNode = grouperScimUser.toJson(null);
       resourcesNode.add(userNode);
       String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
-      if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingAllUsers")) {
+      if (!explicitUserGroups && StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingAllUsers")) {
         attachGroupsToUser(userNode, grouperScimUser.getId());
       }
     }
     
-    resultNode.set("Resources", resourcesNode);
+    resultNode.set(explicitUserGroups ? "resources" : "Resources", resourcesNode);
     
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
@@ -759,8 +767,27 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
       return;
     }
     ObjectNode objectNode = grouperScimUser.toJson(null);
+    boolean explicitUserGroups = mockTestKnobBoolean("grouperTest.scim2.mock.userGroupsRequireAttributes");
+    if (explicitUserGroups && "groups".equals(
+        mockServiceRequest.getHttpServletRequest().getParameter("attributes"))) {
+      recordCapture("userGroupsRead_" + GrouperUuid.getUuid(), id);
+      int status = GrouperConfig.retrieveConfig().propertyValueInt("grouperTest.scim2.mock.userGroupsStatus", 200);
+      objectNode = GrouperUtil.jsonJacksonNode();
+      objectNode.putArray("schemas").add("urn:ietf:params:scim:schemas:core:2.0:User");
+      objectNode.put("id", id);
+      attachGroupsToUser(objectNode, id);
+      if (objectNode.path("groups").isEmpty()) {
+        objectNode.remove("groups");
+      }
+      String response = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.userGroupsResponse");
+      mockServiceResponse.setResponseCode(status);
+      mockServiceResponse.setContentType("application/scim+json");
+      mockServiceResponse.setResponseBody(StringUtils.isNotBlank(response) ? response
+          : GrouperUtil.jsonJacksonToString(objectNode));
+      return;
+    }
     String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
-    if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {      
+    if (!explicitUserGroups && StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {
       attachGroupsToUser(objectNode, grouperScimUser.getId());
     }
     
@@ -1402,6 +1429,12 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     }
     
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
+    if (StringUtils.isBlank(filter)
+        && mockTestKnobBoolean("grouperTest.scim2.mock.userGroupsRequireAttributes")) {
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setResponseBody("{\"scimType\":\"tooMany\",\"detail\":\"A group filter is required.\"}");
+      return;
+    }
 
     // capture the exact outgoing group filter so tests (in a different JVM) can assert it,
     // e.g. that the provisioner searched by externalId rather than displayName

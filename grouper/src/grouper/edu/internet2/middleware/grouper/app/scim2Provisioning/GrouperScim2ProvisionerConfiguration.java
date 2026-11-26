@@ -35,10 +35,12 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private boolean scimRetrieveMembershipsByGroup = true;
 
+  private boolean scimUserGroupsRequireAttributes;
+
   private String scimEmailFilterStrategy;
   
   public boolean isGithubOrgConfiguration() {
-    return StringUtils.equals("Github", this.getScimType())
+    return "Github".equals(this.getScimType())
         && this.isOperateOnGrouperGroups()
         && this.getTargetGroupAttributeNameToConfig().containsKey("id");
   }
@@ -187,6 +189,35 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   public void setScimRetrieveMembershipsByGroup(boolean scimRetrieveMembershipsByGroup) {
     this.scimRetrieveMembershipsByGroup = scimRetrieveMembershipsByGroup;
   }
+
+  public boolean isScimUserGroupsRequireAttributes() {
+    return this.scimUserGroupsRequireAttributes;
+  }
+
+  public void setScimUserGroupsRequireAttributes(boolean scimUserGroupsRequireAttributes) {
+    this.scimUserGroupsRequireAttributes = scimUserGroupsRequireAttributes;
+  }
+
+  /**
+   * Shared by runtime, wizard validation, and configuration review.
+   * @return an incompatible setting, or null
+   */
+  public static String userGroupsConfigurationError(boolean byUser, boolean byGroup,
+      String membershipStrategy, boolean githubOrg) {
+    if (!byUser || byGroup) {
+      return "Explicit user groups requests require scimRetrieveMembershipsByUser=true and "
+          + "scimRetrieveMembershipsByGroup=false.";
+    }
+    if (githubOrg) {
+      return "Explicit user groups requests are not supported for GitHub organization provisioning.";
+    }
+    if (StringUtils.isNotBlank(membershipStrategy)
+        && !"membershipsInUserObjectsWhenRetrievingIndividualUsers".equals(membershipStrategy)) {
+      return "Explicit user groups requests require the individual-user membership strategy "
+          + "(membershipsInUserObjectsWhenRetrievingIndividualUsers), or an unset membershipStrategy.";
+    }
+    return null;
+  }
   
   
   public String getMembershipStrategy() {
@@ -220,6 +251,14 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     
     this.scimRetrieveMembershipsByGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimRetrieveMembershipsByGroup", false), true);
 
+    this.scimUserGroupsRequireAttributes = GrouperUtil.booleanValue(
+        this.retrieveConfigBoolean("scimUserGroupsRequireAttributes", false), false);
+    if (this.scimUserGroupsRequireAttributes) {
+      String error = userGroupsConfigurationError(this.scimRetrieveMembershipsByUser,
+          this.scimRetrieveMembershipsByGroup, this.membershipStrategy, this.isGithubOrgConfiguration());
+      GrouperUtil.assertion(error == null, error);
+    }
+
     this.scimIgnorePagingMetadata = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimIgnorePagingMetadata", false), false);
 
     this.scimPageByRequestedCount = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimPageByRequestedCount", false), false);
@@ -236,7 +275,7 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
       if (StringUtils.isNotBlank(entityAttributeJsonPointerVal)) {
         this.entityAttributeJsonPointer.put(attributeName, entityAttributeJsonPointerVal);
       }
-      if (StringUtils.isBlank(jsonValueType) || StringUtils.equals(jsonValueType, "string")) {
+      if (StringUtils.isBlank(jsonValueType) || "string".equals(jsonValueType)) {
         continue;
       }
       entityAttributeJsonValueType.put(attributeName, jsonValueType);
@@ -250,7 +289,7 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
       if (StringUtils.isNotBlank(groupAttributeJsonPointerVal)) {
         this.groupAttributeJsonPointer.put(attributeName, groupAttributeJsonPointerVal);
       }
-      if (StringUtils.isBlank(jsonValueType) || StringUtils.equals(jsonValueType, "string")) {
+      if (StringUtils.isBlank(jsonValueType) || "string".equals(jsonValueType)) {
         continue;
       }
       groupAttributeJsonValueType.put(attributeName, jsonValueType);

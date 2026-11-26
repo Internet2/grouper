@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.config.check.rules.RulesElSandboxCon
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesRestrictRulesUiConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.rules.RulesSendEmailGateConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.provisioning.ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.provisioning.ScimUserGroupsConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ui.UiAntiFramingDisabledConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.workflow.WorkflowOffWithDataConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.ws.WsAllowJsonWrapperConfigurationCheck;
@@ -80,6 +81,7 @@ public class GrouperConfigurationCheckEngine {
 
     // provisioning (grouper-loader.properties)
     checks.add(new ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck());
+    checks.add(new ScimUserGroupsConfigurationCheck());
 
     // database: object ids outside the allowed pattern (from before ids were limited)
     checks.add(new ObjectIdNotAllowedConfigurationCheck());

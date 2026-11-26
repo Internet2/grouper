@@ -371,6 +371,23 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
     scimSync.captureMembershipsFromCache(grouperScim2MembershipCache);
   }
 
+  /** Capture one projected user read without repeatedly scanning all users' cached memberships. */
+  public static void captureUserMembershipsFromCurrentProvisioner(String userId, Set<String> groupIds) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    List<GrouperProvisioningTargetNativeMembership> memberships =
+        new ArrayList<GrouperProvisioningTargetNativeMembership>();
+    for (String groupId : groupIds) {
+      GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
+      membership.setTargetGroupId(groupId);
+      membership.setTargetUserId(userId);
+      memberships.add(membership);
+    }
+    scimSync.recordTargetNativeMemberships(memberships);
+  }
+
   /**
    * Record a successful SCIM membership add (PATCH op=add) against the current provisioner.
    * No-op out of cycle or for a non-SCIM provisioner. Memberships are tracked from writes only

@@ -389,6 +389,35 @@ provisioner.<id>.membershipStrategy = fullGroupMembershipsInGroupObjectsWhenRetr
 | `fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups` | `GET /Groups/{id}` returns a `members` array; `GET /Users/{id}` does **not** return a `groups` array. Used by Databricks. |
 | `membershipsInUserObjectsWhenRetrievingIndividualUsers` | `GET /Users/{id}` returns a `groups` array; group objects don't carry `members`. Cheaper for groups with many members. |
 
+## Explicit user groups requests
+
+Some targets, including allowlisted Google Cloud Identity customers, return memberships only from
+`GET /Users/{id}?attributes=groups`. For these targets enable:
+
+```properties
+provisioner.<id>.scimRetrieveMembershipsByUser = true
+provisioner.<id>.scimRetrieveMembershipsByGroup = false
+provisioner.<id>.membershipStrategy = membershipsInUserObjectsWhenRetrievingIndividualUsers
+provisioner.<id>.scimUserGroupsRequireAttributes = true
+```
+
+The new setting defaults to false. Grouper retrieves ordinary user attributes normally and makes
+a separate groups-only request when memberships are needed, caching the result within that run.
+The projected response never replaces the ordinary user attributes or user reporting data.
+After a successful groups-only request, an omitted `groups` attribute means an empty membership
+set; an ordinary user response without `groups` does not establish membership completeness.
+HTTP errors, mismatched user IDs, and malformed membership data fail the read rather than
+silently treating it as an empty membership set. Indirect memberships are not provisioned.
+
+For Google also set `selectAllEntities=false` and `selectAllGroups=false`: its SCIM API does not
+support unfiltered enumeration. Grouper must know which users and groups it manages. A filtered
+user-list response does not return memberships even with `attributes=groups`. Google must first
+allowlist the customer for the individual groups-only request. Google returns direct memberships
+only, truncated to 1000 groups per user, so this API cannot provide a complete membership view for
+users above that limit. Keep membership writes as add/remove operations (`replaceMemberships=false`);
+Google requires `scimMembershipBatchSize=1`. This enables comparison with target memberships and
+delta writes, not bulk enumeration or discovery of every account in the target.
+
 ## Membership CRUD vs full replace
 
 When a target supports SCIM membership PATCH (`Operations: [{op: add, path: "members", value: [...]}]`), Grouper sends incremental add/remove ops. Some targets — notably Qlik — instead require sending the **entire desired membership list every time** as a single PATCH `replace` op. Configure that with:

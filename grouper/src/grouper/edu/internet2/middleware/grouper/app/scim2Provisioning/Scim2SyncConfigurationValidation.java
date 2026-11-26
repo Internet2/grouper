@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.util.Collection;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
@@ -20,7 +18,17 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     super.validateFromObjectModel();
     
     String scimType = this.getSuffixToConfigValue().get("scimType");
-    if (StringUtils.equals("Github", scimType)) {
+    if (GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("scimUserGroupsRequireAttributes"), false)) {
+      String error = GrouperScim2ProvisionerConfiguration.userGroupsConfigurationError(
+          GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("scimRetrieveMembershipsByUser"), true),
+          GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("scimRetrieveMembershipsByGroup"), true),
+          this.getSuffixToConfigValue().get("membershipStrategy"), "Github".equals(scimType));
+      if (error != null) {
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(error)
+            .assignJqueryHandle("scimUserGroupsRequireAttributes").assignRuntimeError(true));
+      }
+    }
+    if ("Github".equals(scimType)) {
       
       GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
       GrouperScim2ProvisionerConfiguration grouperProvisioningConfiguration = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
@@ -51,7 +59,7 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
         
           GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(attributeName);       
         
-          if (!StringUtils.equals("id", grouperProvisioningConfigurationAttribute.getName())) {
+          if (!"id".equals(grouperProvisioningConfigurationAttribute.getName())) {
             this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubOnlyGroupAttributeIsOrgInUrl"))
                 .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey(attributeName)));
             
@@ -96,9 +104,9 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     if (numberOfAttributes > 0) {
 
       String scimType = this.getSuffixToConfigValue().get("scimType");
-      if (StringUtils.equals("Github", scimType)) {
+      if ("Github".equals(scimType)) {
         return null;
-      } else if (StringUtils.equals("AWS", scimType)) {
+      } else if ("AWS".equals(scimType)) {
         return GrouperUtil.toSet("displayName", "id");
       } 
     }
@@ -113,9 +121,9 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
   @Override
   public Collection<String> validateEntityAttributeNamesAllowed() {
     String scimType = this.getSuffixToConfigValue().get("scimType");
-    if (StringUtils.equals("Github", scimType)) {
+    if ("Github".equals(scimType)) {
       return null;
-    } else if (StringUtils.equals("AWS", scimType)) {
+    } else if ("AWS".equals(scimType)) {
       return GrouperUtil.toSet("active", "externalId", "formattedName", "middleName", "emailValue", "emailType", "userType", "employeeNumber", "costCenter");
     } 
     return null;
@@ -127,9 +135,9 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     if (numberOfAttributes > 0) {
 
       String scimType = this.getSuffixToConfigValue().get("scimType");
-      if (StringUtils.equals("Github", scimType)) {
+      if ("Github".equals(scimType)) {
         return GrouperUtil.toSet("id", "userName", "familyName", "givenName");
-      } else if (StringUtils.equals("AWS", scimType)) {
+      } else if ("AWS".equals(scimType)) {
         return GrouperUtil.toSet("id", "userName", "displayName", "familyName", "givenName");
       } 
     }

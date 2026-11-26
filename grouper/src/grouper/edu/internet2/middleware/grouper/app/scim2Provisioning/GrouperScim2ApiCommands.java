@@ -1373,7 +1373,7 @@ public class GrouperScim2ApiCommands {
         debugMap.put("found", grouperScimUser != null);
         if (grouperScimUser != null) {
           populateMembershipsFromUser(grouperScim2MembershipCache, jsonNode,
-              grouperScimUser);
+              grouperScimUser, scimSettings);
         }
         // generic provisioner sync back: capture the fetched user against the current
         // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
@@ -1405,7 +1405,7 @@ public class GrouperScim2ApiCommands {
       GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
       debugMap.put("found", grouperScimUser != null);
       populateMembershipsFromUser(grouperScim2MembershipCache, userNode,
-          grouperScimUser);
+          grouperScimUser, scimSettings);
 
       GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
       // drain scoped-path memberships (see note above)
@@ -1526,7 +1526,7 @@ public class GrouperScim2ApiCommands {
             results.add(grouperScimUser);
             idsRetreved.add(grouperScimUser.getId());
             foundNewUser = true;
-            populateMembershipsFromUser(grouperScim2MembershipCache, userNode, grouperScimUser);
+            populateMembershipsFromUser(grouperScim2MembershipCache, userNode, grouperScimUser, scimSettings);
             // generic provisioner sync back: capture per-resource while the userNode is in scope
             GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
@@ -1764,7 +1764,7 @@ public class GrouperScim2ApiCommands {
         debugMap.put("found", grouperScimGroup != null);
         if (grouperScimGroup != null) {
           populateMembershipsFromGroup(grouperScim2MembershipCache, jsonNode,
-              grouperScimGroup);
+              grouperScimGroup, scimSettings);
         }
         // generic provisioner sync back: capture the fetched group against the current
         // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
@@ -1796,7 +1796,7 @@ public class GrouperScim2ApiCommands {
       GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
       debugMap.put("found", grouperScimGroup != null);
       populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode,
-          grouperScimGroup);
+          grouperScimGroup, scimSettings);
       GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
       // drain scoped-path memberships (see note above)
       GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
@@ -2466,7 +2466,7 @@ public class GrouperScim2ApiCommands {
             results.add(grouperScimGroup);
             idsRetreved.add(grouperScimGroup.getId());
             foundNewGroup = true;
-            populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode, grouperScimGroup);
+            populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode, grouperScimGroup, scimSettings);
             // generic provisioner sync back: capture per-resource while the groupNode is in scope
             GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
           }
@@ -2514,7 +2514,11 @@ public class GrouperScim2ApiCommands {
 
   }
 
-  private static void populateMembershipsFromGroup(GrouperScim2MembershipCache grouperScim2MembershipCache, JsonNode groupNode, GrouperScim2Group grouperScimGroup) {
+  private static void populateMembershipsFromGroup(GrouperScim2MembershipCache grouperScim2MembershipCache,
+      JsonNode groupNode, GrouperScim2Group grouperScimGroup, ScimSettings scimSettings) {
+    if (scimSettings != null && scimSettings.isScimUserGroupsRequireAttributes()) {
+      return;
+    }
     String groupId = grouperScimGroup.getId();
     if (grouperScim2MembershipCache != null && StringUtils.isNotBlank(groupId)) {
       grouperScim2MembershipCache.addMembershipsForGroup(groupId);
@@ -2532,9 +2536,66 @@ public class GrouperScim2ApiCommands {
     }
   }
 
-  private static void populateMembershipsFromUser(GrouperScim2MembershipCache grouperScim2MembershipCache, JsonNode userNode, GrouperScim2User grouperScimUser) {
+  /**
+   * Retrieve only memberships, never feed the projected response through user attribute mapping or
+   * user reporting. A successful explicit request may omit groups when the membership set is empty.
+   */
+  public static void retrieveScimUserGroups(String configId, String userId,
+      GrouperScim2MembershipCache membershipCache, ScimSettings scimSettings) {
+    GrouperUtil.assertion(membershipCache != null && StringUtils.isNotBlank(userId),
+        "A membership cache and user id are required to retrieve SCIM user groups.");
+    synchronized (membershipCache.userMembershipLock(userId)) {
+      if (membershipCache.getUserIdsRetrievedMemberships().contains(userId)) {
+        return;
+      }
+      Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+      debugMap.put("method", "retrieveScimUserGroups");
+      debugMap.put("userId", userId);
+      long startTime = System.nanoTime();
+      try {
+        JsonNode userNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveScimUserGroups"),
+            GrouperHttpMethod.get, configId, "/Users/" + GrouperUtil.escapeUrlEncode(userId)
+                + "?attributes=groups", GrouperUtil.toSet(200), new int[] { -1 }, null, scimSettings);
+        GrouperUtil.assertion(userNode != null && userNode.isObject()
+            && userId.equals(userNode.path("id").asText()),
+            "SCIM user groups response did not contain the requested user id: " + userId);
+        JsonNode groups = userNode.get("groups");
+        GrouperUtil.assertion(groups == null || groups.isArray(),
+            "SCIM user groups response must contain an array, or omit groups for an empty set.");
+        Set<String> groupIds = new HashSet<String>();
+        if (groups != null) {
+          for (JsonNode group : groups) {
+            GrouperUtil.assertion(group.isObject() && group.path("value").isTextual()
+                && StringUtils.isNotBlank(group.path("value").asText()),
+                "SCIM user groups response contains a membership without a group id.");
+            if (!"indirect".equalsIgnoreCase(group.path("type").asText())) {
+              groupIds.add(group.path("value").asText());
+            }
+          }
+        }
+        // Validate the entire response before publishing either memberships or the completed marker.
+        for (String groupId : groupIds) {
+          membershipCache.addMembership(groupId, userId);
+        }
+        membershipCache.addMembershipsForUser(userId);
+        GrouperScim2ProvisioningTargetNativeSync.captureUserMembershipsFromCurrentProvisioner(userId, groupIds);
+      } catch (RuntimeException e) {
+        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(e));
+        throw e;
+      } finally {
+        GrouperScim2Log.scimLog(debugMap, startTime);
+      }
+    }
+  }
+
+  private static void populateMembershipsFromUser(GrouperScim2MembershipCache grouperScim2MembershipCache,
+      JsonNode userNode, GrouperScim2User grouperScimUser, ScimSettings scimSettings) {
     String userId = grouperScimUser.getId();
     if (grouperScim2MembershipCache != null && StringUtils.isNotBlank(userId)) {
+      if (scimSettings != null && scimSettings.isScimUserGroupsRequireAttributes()) {
+        grouperScim2MembershipCache.getUserIdsRetrieved().add(userId);
+        return;
+      }
       grouperScim2MembershipCache.addMembershipsForUser(userId);
       if (userNode.has("groups")) {
         ArrayNode groupsNode = GrouperUtil.jsonJacksonGetArrayNode(userNode, "groups");
