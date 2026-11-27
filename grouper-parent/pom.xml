@@ -164,6 +164,9 @@
         <httpcore>4.4.16</httpcore>
         <httpmime>4.5.14</httpmime>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version><!-- newer major version available -->
+        <!-- GRP-7620: proton-j comes in transitively from qpid-jms-client (0.33.10), pinned for security.  qpid-jms-client
+             0.61.0 accepts proton-j [0.33.2,0.40.0).  Keep in sync with proton-j.version in the grouper-container poms -->
+        <proton-j.version>0.35.0</proton-j.version>
         <amqp-client.version>5.37.0</amqp-client.version>
         
         <jackson.version>2.22.3</jackson.version>
@@ -786,6 +789,13 @@
               <groupId>org.apache.qpid</groupId>
               <artifactId>qpid-jms-client</artifactId>
               <version>${qpid-jms-client.version}</version>
+            </dependency>
+
+            <!-- GRP-7620: transitive from qpid-jms-client, pinned for security (CVE-2026-66274 and others) -->
+            <dependency>
+              <groupId>org.apache.qpid</groupId>
+              <artifactId>proton-j</artifactId>
+              <version>${proton-j.version}</version>
             </dependency>
             
             <dependency>
