@@ -145,7 +145,7 @@
         <json.lib.version>2.4</json.lib.version>
         <java.jwt.version>3.10.3</java.jwt.version>
         <odmg.version>3.0</odmg.version>
-        <ant.version>1.10.12</ant.version>
+        <ant.version>1.10.18</ant.version>
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.protocol.ldap.version>1.5.5</apacheds.protocol.ldap.version>
         <shared.ldap.version>0.9.15</shared.ldap.version>
