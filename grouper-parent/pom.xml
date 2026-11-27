@@ -117,7 +117,7 @@
         <commons.jexl3.version>3.0</commons.jexl3.version>
         <commons.beanutils.version>1.11.0</commons.beanutils.version>
         <commons.cli.version>1.4</commons.cli.version>
-        <commons.codec.version>1.15</commons.codec.version>
+        <commons.codec.version>1.23.0</commons.codec.version>
         <commons.betwixt.version>0.8</commons.betwixt.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.digester.version>2.1</commons.digester.version>
