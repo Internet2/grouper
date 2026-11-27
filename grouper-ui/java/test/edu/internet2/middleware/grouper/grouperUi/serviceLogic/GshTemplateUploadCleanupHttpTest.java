@@ -52,6 +52,8 @@ import junit.textui.TestRunner;
  *   may not run the template (securityRunType=wheel) nothing is left either.</li>
  *   <li>Loader config import: a real multipart POST to UiV2GrouperLoader.importLoaderConfigSubmit (as
  *   GrouperSystem) with a file that is not JSON is rejected ("Invalid json input") and leaves no copy.</li>
+ *   <li>Loader edit screen: a multipart POST to UiV2GrouperLoader.editGrouperLoader (as GrouperSystem) with an
+ *   ABAC template whose input is a FILE leaves no copy (the inputs only redraw the form).</li>
  * </ul>
  * GshTemplateUploadCleanupTest checks the cleanup methods themselves (also a failed write, a file input after
  * its run, inputs hidden by showEl); this test covers the wiring through the UI filter chain.
@@ -101,6 +103,16 @@ public class GshTemplateUploadCleanupHttpTest extends TestCase {
     {"input.0.formElementType", "file"},
     {"input.0.required", "true"},
     {"input.0.maxLength", "1000"},
+  };
+
+  /**
+   * changes to the template config for the loader edit screen test: shown on groups, and the file input is a
+   * FILE (a string input is deleted as soon as it is read, so only a FILE input could be left behind)
+   */
+  private static final String[][] LOADER_TEMPLATE_CONFIG = {
+    {"showOnGroups", "true"},
+    {"groupShowType", "allGroups"},
+    {"input.0.type", "file"},
   };
 
   /**
@@ -392,9 +404,11 @@ public class GshTemplateUploadCleanupHttpTest extends TestCase {
   private static void deleteData() {
     GrouperSession rootSession = GrouperSession.startRootSession();
     try {
-      for (String[] keyValue : TEMPLATE_CONFIG) {
-        new GrouperDbConfig().configFileName("grouper.properties")
-            .propertyName("grouperGshTemplate." + TEMPLATE_ID + "." + keyValue[0]).delete();
+      for (String[][] config : new String[][][] {TEMPLATE_CONFIG, LOADER_TEMPLATE_CONFIG}) {
+        for (String[] keyValue : config) {
+          new GrouperDbConfig().configFileName("grouper.properties")
+              .propertyName("grouperGshTemplate." + TEMPLATE_ID + "." + keyValue[0]).delete();
+        }
       }
       Group group = GroupFinder.findByName(rootSession, GROUP_NAME, false);
       if (group != null) {
@@ -523,6 +537,75 @@ public class GshTemplateUploadCleanupHttpTest extends TestCase {
           fields, "importConfigFile", name, "this is not json {");
       assertTrue("import rejected: " + describe(response), response.body().contains("Invalid json input"));
       assertEquals("no copy left after a rejected import", 0, findCopies(name).size());
+
+    } finally {
+      try {
+        deleteCopies(uploadedNames);
+      } finally {
+        deleteData();
+      }
+    }
+  }
+
+  /**
+   * the loader edit screen with an ABAC template that has a FILE input: the inputs are only populated to
+   * redraw the form, so the uploaded copy is deleted in the same request (UiV2GrouperLoader.editGrouperLoader,
+   * the editGrouperLoaderHelper cleanup).  Before the fix the copy stayed in java.io.tmpdir.
+   * @throws Exception
+   */
+  public void testLoaderEditScreenTemplateUploadDeleted() throws Exception {
+    if (!GrouperTest.tomcatRunTests()) {
+      return;
+    }
+    String baseUrl = uiBaseUrl();
+    String runId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+    List<String> uploadedNames = new ArrayList<String>();
+    deleteData();
+    try {
+      String groupId;
+      GrouperSession rootSession = GrouperSession.startRootSession();
+      try {
+        Group group = new GroupSave(rootSession).assignName(GROUP_NAME).assignCreateParentStemsIfNotExist(true).save();
+        groupId = group.getId();
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+      for (String[][] config : new String[][][] {TEMPLATE_CONFIG, LOADER_TEMPLATE_CONFIG}) {
+        for (String[] keyValue : config) {
+          storeTemplateConfig(keyValue[0], keyValue[1]);
+        }
+      }
+
+      UiSession admin = new UiSession(baseUrl);
+      admin.login("GrouperSystem", "pass");
+
+      String editPath = "/grouperUi/app/UiV2GrouperLoader.editGrouperLoader?groupId=" + enc(groupId);
+      Map<String, String> fields = new LinkedHashMap<String, String>();
+      fields.put("groupId", groupId);
+      fields.put("grouperLoaderHasLoaderName", "true");
+      fields.put("grouperLoaderTypeName", "JEXL_SCRIPT");
+      fields.put("templateType", TEMPLATE_ID);
+      String fileField = "config_" + INPUT_NAME;
+
+      // the UI sees the new database config within seconds: until it does, the template is not allowed on groups
+      // and the upload is refused before it is written, so retry until the screen draws without that error
+      SimpleHttpResponse response = null;
+      for (int i = 0; i < 20; i++) {
+        String name = "secPatch145loaderEdit-" + runId + "-" + i + ".txt";
+        uploadedNames.add(name);
+        response = postMultipart(admin, editPath, fields, fileField, name, "harmless secPatch145 content");
+        if (response.statusCode() == 200 && !response.body().contains("Not allowed to run this template")
+            && !response.body().contains("Cant process file upload")) {
+          break;
+        }
+        Thread.sleep(3000);
+      }
+      assertEquals("loader edit screen: " + describe(response), 200, response.statusCode());
+      assertFalse("the upload was accepted: " + describe(response),
+          response.body().contains("Not allowed to run this template") || response.body().contains("Cant process file upload"));
+      for (String name : uploadedNames) {
+        assertEquals("no copy left after the loader edit screen: " + name, 0, copiesAfterCleanup(name).size());
+      }
 
     } finally {
       try {
