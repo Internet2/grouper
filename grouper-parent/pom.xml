@@ -129,7 +129,7 @@
         <joda.time.version>2.14.0</joda.time.version>
         <jug.version>1.1.2</jug.version>
         <java.jwt.version>3.19.4</java.jwt.version><!-- newer major version available -->
-        <ant.version>1.10.15</ant.version>
+        <ant.version>1.10.18</ant.version>
         <bsh.version>2.0b5</bsh.version>
         <hibernate.core.version>5.6.15.Final</hibernate.core.version>
         <hibernate.ehcache.version>5.6.15.Final</hibernate.ehcache.version>
