@@ -21,6 +21,46 @@ and the release-notes-table contract.
 
 Work a new release newest-first: the new row goes ABOVE the current top row.
 
+## Rule: no step is skipped without the user's yes
+
+Every numbered step below runs on every release, in order. A step may be skipped
+only when the user says yes to skipping it, in this conversation, for this release.
+"It probably does not apply", "nothing changed", "it is only a patch release" and
+"we are short on time" are reasons to ASK, never reasons to skip. A step that turns
+out to have nothing to do still counts as done: say what was checked and that it
+found nothing.
+
+Why: on 7.10.0 step 3a (the jar vulnerability scan) was silently skipped, and the
+release shipped with a known HIGH CVE in a dependency (proton-j 0.33.10,
+CVE-2026-66274) that the scan would have caught before the tag.
+
+Keep this checklist in the task list for the whole release. Mark each line done,
+or skipped with the user's yes:
+
+- [ ] 0-pre. Review open GitHub PRs
+- [ ] 0-review. Review every commit since the last release
+- [ ] 0. Jira and wiki edits before the mirror
+- [ ] 3. Container prep (Dockerfile, Tomcat, OS, Java)
+- [ ] 3a. Third-party jar vulnerability scan (MANDATORY on every release, see 3a)
+- [ ] 4. DDL / upgrade tasks (including each new task's text key and versionIntroduced)
+- [ ] 5. Resolve the GRP issues that shipped
+- [ ] 6. Create the version and tag fixVersion
+- [ ] 1. Refresh the grouper-docs mirrors (after all Jira and wiki edits)
+- [ ] --- PRE-TAG GATE (see below) ---
+- [ ] 2. Push everything, then tag
+- [ ] 2a. Build the jars
+- [ ] 7. Smoke-test the published image
+- [ ] 8. Release-notes row (sha256 after the image publishes)
+- [ ] 9. Verify
+- [ ] 10. Demo server and Slack announcement
+
+**Pre-tag gate.** Before giving the user the tag commands in step 2, show them the
+checklist above with every pre-tag line marked done (with a one-line result) or
+skipped (with when they said yes). If any pre-tag line is neither, stop and do it
+or ask. Never give the tag commands with an open pre-tag line. The steps are
+numbered in the order they were written, not the order they run; the checklist
+order is the one to follow.
+
 ## Inputs to collect first
 
 - New version, e.g. `7.3.2` (Grouper API version == container tag).
@@ -168,6 +208,10 @@ post-tag commit this ordering exists to avoid.
 
 ## 2. Push everything, THEN tag
 
+**Gate first:** do not give the tag commands until the pre-tag gate in "Rule: no
+step is skipped without the user's yes" is met -- in particular step 3a has run
+against this release's jars.
+
 The git tag is what Maven Central and the container build read. Tag a tree that is
 not fully pushed and the release itself is still correct -- the tag carries the
 commit -- but the BRANCH POINTER is left behind its own release tag, which is
@@ -278,7 +322,18 @@ bump:
   Confirm `apache-tomcat-<version>.tar.gz` is present there (use a ranged GET --
   the mirror may 404 on HEAD but serve 206 on GET).
 
-## 3a. Third-party jar vulnerability scan (before the tag)
+## 3a. Third-party jar vulnerability scan (before the tag, MANDATORY every release)
+
+Run this on EVERY release -- minor, patch, security-only, or one where no pom
+changed. New CVEs are published against jars that did not change, so "the poms are
+the same as last time" is exactly when this scan finds something. Skipping it needs
+the user's explicit yes (see "Rule: no step is skipped without the user's yes").
+
+Do not rely on mvnrepository.com's "Vulnerabilities from dependencies" list. It
+reads each dependency's own pom and ignores the `netty-bom` / `jackson-bom`
+dependency management in grouper-parent, so it reports old transitive versions
+(e.g. netty 4.1.72) that the image does not ship, and it misses jars the poms never
+name. Scan the jars in the image.
 
 Tomcat is not the only thing that ships. Scan every jar in the PREVIOUS release's
 image (the poms usually have not changed, so it is what this release would ship)
