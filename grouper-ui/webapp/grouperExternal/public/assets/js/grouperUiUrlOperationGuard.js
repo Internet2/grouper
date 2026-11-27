@@ -23,9 +23,9 @@
  *
  * The allowlist is the GRP-7503 server allowlist (GrouperUiUrlOperationGuard, 2026-11-06) minus the operations
  * whose handler acts in these releases (see the comment on the list, 2026-11-11).  Operations here only
- * display something.  Config (read by commonBottom.jsp, same keys as GRP-7503 so settings carry over when you
- * upgrade): grouper-ui uiV2.urlOperationGuard.mode (enforce default, logOnly, off) and
- * uiV2.urlOperationGuard.additionalAllowedOperations (comma separated Class.method screens).
+ * display something.  The guard always enforces.  Config (read by commonBottom.jsp): grouper-ui
+ * uiV2.urlOperationGuard.additionalAllowedOperations (comma separated Class.method screens), for a screen that
+ * is missing from the allowlist.
  *
  * Plain ES5 on purpose (old browsers), ASCII only.
  */
@@ -55,9 +55,6 @@
       + 'Use the button or menu on the screen instead.';
 
   var config = window.grouperUrlOperationGuardConfig || {};
-
-  // fail closed: anything but logOnly or off means enforce
-  var mode = (config.mode === 'logOnly' || config.mode === 'off') ? config.mode : 'enforce';
 
   /**
    * operations (Class.method) that may run from the browser URL.  Screens only, never actions.
@@ -121,6 +118,7 @@
     'UiV2AuthenticationConfig.editWsTrustedJwtConfig',
     'UiV2AuthenticationConfig.index',
     'UiV2AuthenticationConfig.viewWsTrustedJwts',
+    'UiV2ChangeLogMonitor.changeLogMonitor',
     'UiV2Configure.configurationFileAddConfig',
     'UiV2Configure.configurationFileImport',
     'UiV2Configure.configurationReview',
@@ -528,7 +526,7 @@
 
   /** the request itself: buttons and forms (no URL dispatch running) are never checked */
   window.ajax = function (theUrl, options) {
-    if (urlDispatch == null || mode === 'off') {
+    if (urlDispatch == null) {
       return originalAjax.apply(this, arguments);
     }
     // one ajax per dispatch
@@ -546,13 +544,6 @@
       return originalAjax.apply(this, arguments);
     }
     var description = operation == null ? ('(unrecognized url) ' + String(theUrl).substring(0, 200)) : operation;
-    if (mode === 'logOnly') {
-      if (window.console && window.console.warn) {
-        window.console.warn('Grouper would refuse this operation from the browser URL, allowing since '
-            + 'uiV2.urlOperationGuard.mode is logOnly: ' + description);
-      }
-      return originalAjax.apply(this, arguments);
-    }
     refuse(description);
     return undefined;
   };

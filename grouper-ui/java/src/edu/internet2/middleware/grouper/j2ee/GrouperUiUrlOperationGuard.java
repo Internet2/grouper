@@ -17,8 +17,9 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * GRP-7503: when the UI loads a screen from the browser URL (page load, refresh, back/forward, a bookmark, a link in an
  * email or another site), grouperUi.js (guiProcessUrlForAjax) runs the operation in the URL as an ajax POST with the
- * CSRF token.  So a crafted link like UiV2Main.index?operation=UiV2Group.groupDeleteSubmit&amp;groupName=a:b would run the
- * action for whoever opens it.  guiProcessUrlForAjax marks those requests with the {@link #HEADER_NAME} header, and
+ * CSRF token.  So a crafted link to UiV2Main.index whose operation parameter is UiV2Group.groupDeleteSubmit (with a
+ * groupName) would run the action for whoever opens it.  (Written without the parameter syntax on purpose:
+ * GrouperUiUrlOperationGuardTest flags any source text that links to an action.)  guiProcessUrlForAjax marks those requests with the {@link #HEADER_NAME} header, and
  * GrouperUiRestServlet only lets them run operations in this allowlist of screens.  Buttons and forms call ajax() without
  * the header and are not affected.
  * 
@@ -37,37 +38,6 @@ public class GrouperUiUrlOperationGuard {
    */
   public static final String HEADER_NAME = "X-Grouper-Url-Operation";
 
-  /**
-   * mode of the guard, grouper-ui property uiV2.urlOperationGuard.mode
-   */
-  public static enum GrouperUiUrlOperationGuardMode {
-    
-    /** reject operations from the url that are not allowed */
-    enforce,
-    
-    /** log operations from the url that are not allowed, but still run them */
-    logOnly,
-    
-    /** do not check */
-    off;
-    
-    /**
-     * @param string
-     * @return the mode, enforce if blank or not valid
-     */
-    public static GrouperUiUrlOperationGuardMode valueOfIgnoreCase(String string) {
-      for (GrouperUiUrlOperationGuardMode mode : GrouperUiUrlOperationGuardMode.values()) {
-        if (StringUtils.equalsIgnoreCase(mode.name(), StringUtils.trim(string))) {
-          return mode;
-        }
-      }
-      if (!StringUtils.isBlank(string)) {
-        LOG.error("Invalid uiV2.urlOperationGuard.mode '" + string + "', using enforce");
-      }
-      return enforce;
-    }
-  }
-  
   /**
    * operations (Class.method) that may run when they come from the browser URL.  These are screens only
    */
@@ -400,14 +370,6 @@ public class GrouperUiUrlOperationGuard {
   }
 
   /**
-   * @return the mode from config
-   */
-  public static GrouperUiUrlOperationGuardMode mode() {
-    return GrouperUiUrlOperationGuardMode.valueOfIgnoreCase(
-        GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.urlOperationGuard.mode", "enforce"));
-  }
-
-  /**
    * @param classAndMethodName e.g. UiV2Group.viewGroup
    * @return true if the operation is a screen that may run from the browser URL
    */
@@ -430,14 +392,14 @@ public class GrouperUiUrlOperationGuard {
    * see if this request may run this operation.  Requests without the header (buttons, forms) are always allowed
    * @param request
    * @param classAndMethodName e.g. UiV2Group.groupDeleteSubmit
-   * @return false if the operation came from the browser URL, is not allowed, and the mode is enforce
+   * @return false if the operation came from the browser URL and is not allowed.  There is no switch to turn this
+   * off: a screen missing from the allowlist is added with uiV2.urlOperationGuard.additionalAllowedOperations
    */
   public static boolean allowRequest(HttpServletRequest request, String classAndMethodName) {
     if (!isOperationFromUrl(request)) {
       return true;
     }
-    GrouperUiUrlOperationGuardMode mode = mode();
-    if (mode == GrouperUiUrlOperationGuardMode.off || isAllowedOperation(classAndMethodName)) {
+    if (isAllowedOperation(classAndMethodName)) {
       return true;
     }
     Subject loggedInSubject = null;
@@ -447,11 +409,6 @@ public class GrouperUiUrlOperationGuard {
       // just for logging
     }
     String subjectString = loggedInSubject == null ? "(none)" : loggedInSubject.getSourceId() + "::" + loggedInSubject.getId();
-    if (mode == GrouperUiUrlOperationGuardMode.logOnly) {
-      LOG.warn("Operation from the browser URL is not in the allowlist, allowing since uiV2.urlOperationGuard.mode is logOnly: '" 
-          + classAndMethodName + "', subject: " + subjectString);
-      return true;
-    }
     LOG.warn("Rejected operation from the browser URL which is not in the allowlist: '" + classAndMethodName + "', subject: " 
         + subjectString + ".  If this is a screen, add it to uiV2.urlOperationGuard.additionalAllowedOperations");
     return false;

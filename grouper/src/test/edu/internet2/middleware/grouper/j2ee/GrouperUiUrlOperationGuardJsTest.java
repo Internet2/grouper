@@ -190,8 +190,9 @@ public class GrouperUiUrlOperationGuardJsTest extends TestCase {
     assertTrue(js.contains("window.guiProcessUrlForAjax = function"));
     assertTrue(js.contains("window.ajax = function"));
     assertTrue(js.contains("window.processUrl = function"));
-    // fail closed on unknown modes
-    assertTrue(js.contains("(config.mode === 'logOnly' || config.mode === 'off') ? config.mode : 'enforce'"));
+    // always enforced: there is no mode that lets a refused operation run (GRP-7503 follow-up)
+    assertFalse("the guard has no logOnly or off mode", js.contains("config.mode") || js.contains("logOnly"));
+    assertFalse("the guard config has no mode", read(COMMON_BOTTOM).contains("uiV2.urlOperationGuard.mode"));
     for (int i = 0; i < js.length(); i++) {
       assertTrue("non ASCII char at " + i, js.charAt(i) < 128);
     }
@@ -337,8 +338,13 @@ public class GrouperUiUrlOperationGuardJsTest extends TestCase {
     }
 
     Set<String> acting = knownActingInThisRelease();
-    // every release has diagnostics and daemonJobs; they act in all of them (only GROUPER_7_BRANCH, which has no
-    // guard js, splits them), so if neither is found the source reader is broken
+    if (acting.isEmpty() && serverGuardPresent()) {
+      // mainline (GROUPER_7_BRANCH) split diagnostics and daemonJobs so they no longer act, and its client list
+      // is checked against the server guard by testAllowlistMatchesServerGuardIfPresent
+      return;
+    }
+    // every release has diagnostics and daemonJobs; they act in all the patched releases, so if neither is
+    // found the source reader is broken
     assertFalse("found no acting handler, is " + SERVICE_LOGIC_DIR + " right?", acting.isEmpty());
 
     Set<String> allowlist = allowlist();
@@ -352,22 +358,60 @@ public class GrouperUiUrlOperationGuardJsTest extends TestCase {
         allowedButActing.isEmpty());
   }
 
+  /** the GRP-7503 server guard source, relative to the grouper-ui dir (mainline only) */
+  private static final String SERVER_GUARD_SOURCE = "java/src/edu/internet2/middleware/grouper/j2ee/GrouperUiUrlOperationGuard.java";
+
+  /**
+   * whether this checkout has the GRP-7503 server guard (mainline).  Checked by source file, not by class: in
+   * Eclipse this test runs in the grouper project, whose classpath does not have the grouper-ui classes
+   * @return true if the server guard source is there
+   */
+  private static boolean serverGuardPresent() {
+    File grouperUiDir = grouperUiDir();
+    return grouperUiDir != null && new File(grouperUiDir, SERVER_GUARD_SOURCE).isFile();
+  }
+
+  /**
+   * the server allowlist read from the server guard source: the quoted Class.method strings in the
+   * allowedOperations list
+   * @return the operations
+   */
+  private static Set<String> serverAllowlistFromSource() {
+    String source = read(SERVER_GUARD_SOURCE);
+    int start = source.indexOf("allowedOperations = ");
+    assertTrue("no allowedOperations list in " + SERVER_GUARD_SOURCE, start >= 0);
+    int end = source.indexOf(")));", start);
+    assertTrue("no end of the allowedOperations list in " + SERVER_GUARD_SOURCE, end > start);
+    Set<String> result = new TreeSet<String>();
+    Matcher matcher = Pattern.compile("\"([A-Za-z0-9]+\\.[A-Za-z0-9]+)\"").matcher(source.substring(start, end));
+    while (matcher.find()) {
+      result.add(matcher.group(1));
+    }
+    return result;
+  }
+
   /**
    * if the GRP-7503 server guard is on the classpath (mainline), the client allowlist should be the same list
    * (except operations of KNOWN_ACTING, which the client list may leave out)
    * @throws Exception
    */
   public void testAllowlistMatchesServerGuardIfPresent() throws Exception {
-    Class<?> serverGuard = null;
-    try {
-      serverGuard = Class.forName("edu.internet2.middleware.grouper.j2ee.GrouperUiUrlOperationGuard");
-    } catch (ClassNotFoundException cnfe) {
+    if (!serverGuardPresent()) {
       // releases before GRP-7503 do not have it
       return;
     }
-    Method method = serverGuard.getMethod("allowedOperations");
-    @SuppressWarnings("unchecked")
-    Collection<String> serverList = (Collection<String>) method.invoke(null);
+    Collection<String> serverList = null;
+    try {
+      Class<?> serverGuard = Class.forName("edu.internet2.middleware.grouper.j2ee.GrouperUiUrlOperationGuard");
+      Method method = serverGuard.getMethod("allowedOperations");
+      @SuppressWarnings("unchecked")
+      Collection<String> fromClass = (Collection<String>) method.invoke(null);
+      serverList = fromClass;
+    } catch (ClassNotFoundException cnfe) {
+      // grouper project classpath (Eclipse): read the list from the source instead of skipping
+      serverList = serverAllowlistFromSource();
+    }
+    assertTrue("server allowlist looks too small: " + serverList.size(), serverList.size() > 100);
     Set<String> clientOnly = new TreeSet<String>(allowlist());
     clientOnly.removeAll(serverList);
     Set<String> serverOnly = new TreeSet<String>(serverList);
