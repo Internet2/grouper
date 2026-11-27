@@ -2,8 +2,8 @@
 title: "Grouper membership eligibility requirements"
 space: Grouper
 pageId: 28549482
-version: 21
-lastUpdated: 2026-07-01T05:41:56.371Z
+version: 22
+lastUpdated: 2026-11-20T20:43:21.351Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549482/Grouper+membership+eligibility+requirements
 ---
 
@@ -109,7 +109,7 @@ grouper.properties
 ```
 groupScreen.attribute.requireEmployee.attributeName = etc:attribute:membershipRequirement:requireEmployee
 groupScreen.attribute.requireEmployee.label = Require employee
-groupScreen.attribute.requireEmployee.description = Members of this group (or groups in folder) will be required to be employees, otherwise they will be vetoed or removed
+groupScreen.attribute.requireEmployee.description = Members of this group (or groups in this folder and its subfolders) will be required to be employees, otherwise they will be vetoed or removed
 groupScreen.attribute.requireEmployee.index = 1
  
 ```
@@ -120,7 +120,7 @@ Note, this will remove direct members. Note, be careful about service principals
 
 Groups:
 
-Folders
+Folders: as of v7.9.1, v6.5.1 and v4.26.1, the requirement applies to every group in the folder and in all of its subfolders (before that, only groups directly in the folder). If you move a group or folder into a folder that has a requirement, run the full sync daemon (otherJob.grouperMembershipRequireFull) afterwards.
 
 ## Membership hook will veto membership adds if the user is not eligible
 

@@ -2,8 +2,8 @@
 title: "Grouper ABAC with scripted groups"
 space: Grouper
 pageId: 28544896
-version: 109
-lastUpdated: 2026-11-20T20:28:26.021Z
+version: 110
+lastUpdated: 2026-11-20T21:02:07.434Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups
 ---
 
@@ -65,7 +65,7 @@ The ability to **manage groups by rows of data** has been requested for years an
 
 A scripted group is a group whose loader source type is a JEXL script. On the group, open "Edit loader settings", set "Loader" to "Yes, has loader configuration", set "Source type" to "JEXL script", enter the "Entity JEXL script", and click "Save". You can also pick a "pattern" (see [Grouper ABAC policy pattern GSH templates](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/398393363/Grouper+ABAC+policy+pattern+GSH+templates)) instead of typing the script. The script language is described in [Grouper ABAC script syntax](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/397738094/Grouper+ABAC+script+syntax).
 
-To save a script you need UPDATE on the group and READ on each group the script uses. See Administration below for data field privileges and for restricting who can edit scripted groups.
+To save a script you need UPDATE on the group and READ on each group the script uses. As of v7.9.1 and v6.5.1, each group the script names must also exist under its current name: a script that names a group that does not exist yet, or a group's old name after a rename, is not saved, and a group created in the last minute or so may not be found yet. Scripts already saved keep running. See Administration below for data field privileges and for restricting who can edit scripted groups.
 
 There is one built-in full daemon and one incremental daemon for all scripted groups. You do not add a daemon per group.
 

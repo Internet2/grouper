@@ -2,8 +2,8 @@
 title: "Message Acknowledge"
 space: Grouper
 pageId: 28547906
-version: 9
-lastUpdated: 2026-07-01T05:45:54.596Z
+version: 10
+lastUpdated: 2026-11-20T21:03:30.229Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547906/Message+Acknowledge
 ---
 
@@ -25,6 +25,7 @@ You can see the swagger from your web service server: [https://server.institutio
 - Can say they are processed or other options, e.g. put on another queue (dead letter queue?)
 - Lookup message by id
 - Can actAs another user
+- External messaging systems (RabbitMQ, AWS SQS, ActiveMQ): as of v7.9.1, v6.5.1 and v4.26.1, a caller who is not wheel or root can use one only if they are a member of the group in grouper.properties grouper.messaging.system.<messagingSystemName>.allowedGroupName; if that is not set, only wheel or root can. Only wheel or root can autocreate queues or topics. Built-in messaging keeps its own per-queue/topic permissions.
 
 #### Acknowledge message service
 

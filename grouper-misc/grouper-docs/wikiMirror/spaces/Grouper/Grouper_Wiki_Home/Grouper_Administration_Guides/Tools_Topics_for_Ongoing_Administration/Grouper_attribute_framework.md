@@ -2,8 +2,8 @@
 title: "Grouper attribute framework"
 space: Grouper
 pageId: 28544741
-version: 48
-lastUpdated: 2026-07-12T15:26:28.533Z
+version: 49
+lastUpdated: 2026-11-20T20:43:22.774Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544741/Grouper+attribute+framework
 ---
 
@@ -35,7 +35,7 @@ The attribute framework is used for attaching metadata to various objects in the
   - ATTR_VIEW: can see that the attribute exists
   - ATTR_READ: can see the attribute assignment
   - ATTR_UPDATE: can assign or unassign the attribute
-  - ATTR_ADMIN: can rename the attribute or assign security
+  - ATTR_ADMIN: can rename or delete the attribute definition, create attribute names in it, add or remove its actions, or assign security (as of v7.9.1, v6.5.1 and v4.26.1, this is enforced in WS and GSH as well as the UI)
   - ATTR_OPTIN: can assign the attribute to one's self
   - ATTR_OPTOUT: can unassign the attribute to one's self
   - ATTR_DEF_ATTR_READ (v2.2+): can see attributes assigned to this attribute definition (note you need READ on the assigned attributes definition too)

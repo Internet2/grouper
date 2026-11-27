@@ -2,8 +2,8 @@
 title: "Grouper Loader"
 space: Grouper
 pageId: 28545200
-version: 85
-lastUpdated: 2026-11-20T20:25:56.174Z
+version: 86
+lastUpdated: 2026-11-20T20:58:57.369Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545200/Grouper+Loader
 ---
 
@@ -337,6 +337,8 @@ This table reflects loader permissions in Grouper v2.5.53+
 | etc:loaderViewers | Yes | Yes  * if has VIEW on group | No |
 | Group admins | No | Yes | No |
 | Everyone else | No | No | No |
+
+As of v7.9.1, v6.5.1 and v4.26.1, members of etc:loaderEditors (uiV2.loader.edit.if.in.group) who are not sysadmins have these limits when they save or import a loader: they cannot enter ${...} expressions in SQL queries, LDAP filters or LDAP expressions (and cannot change a loader that already has them); the groups a SQL or LDAP loader manages (group list query results, "and groups", "groups like") must be under folders they have ADMIN on; they need READ on every "groups to also require" group; and only sysadmins can set the LDAP results transformation class or save a SQL loader on the Grouper database. A sysadmin can save such a loader for them.
 
 Some other settings
 

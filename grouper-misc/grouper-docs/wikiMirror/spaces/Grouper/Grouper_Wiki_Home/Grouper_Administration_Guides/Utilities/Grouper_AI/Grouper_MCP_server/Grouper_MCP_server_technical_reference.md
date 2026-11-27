@@ -2,8 +2,8 @@
 title: "Grouper MCP server - technical reference"
 space: Grouper
 pageId: 28554339
-version: 8
-lastUpdated: 2026-07-12T15:27:07.547Z
+version: 9
+lastUpdated: 2026-11-20T21:03:57.105Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554339/Grouper+MCP+server+-+technical+reference
 ---
 
@@ -127,7 +127,7 @@ For registration security and authorization group configuration, see the [regist
 ### JWT access tokens
 
 - **RS256 (RSA with SHA-256) signatures.** Access tokens are signed using an RSA 2048-bit key pair. The private key is stored in the Grouper database configuration and is automatically encrypted by Grouper's Morph encryption framework.
-- **Token claims** include the Grouper subject ID, subject source ID, OAuth client ID, issuer, issued-at time, expiration, a unique JWT ID (jti), and granted scope claims (`grouper_readonly`, `grouper_readwrite`, `grouper_sql_readonly`, `grouper_admin_readonly`, `grouper_admin_readwrite`) based on the user's consent selections. When the read-write scope is granted with scope restrictions, additional list claims are included: `grouper_readwrite_folders` (JSON array of folder paths), `grouper_readwrite_groups` (JSON array of group paths), and `grouper_readwrite_subjects` (JSON array of subject IDs/identifiers). These are enforced on every read-write tool call.
+- **Token claims** include the Grouper subject ID, subject source ID, OAuth client ID, issuer, issued-at time, expiration, a unique JWT ID (jti), and granted scope claims (`grouper_readonly`, `grouper_readwrite`, `grouper_sql_readonly`, `grouper_admin_readonly`, `grouper_admin_readwrite`) based on the user's consent selections. When the read-write scope is granted with scope restrictions, additional list claims are included: `grouper_readwrite_folders` (JSON array of folder paths), `grouper_readwrite_groups` (JSON array of group paths), and `grouper_readwrite_subjects` (JSON array of subjects, each `sourceId||subjectId`, as picked on the consent screen). These are enforced on every read-write tool call. A subject in a read-write call is resolved the same way the operation resolves it and must match one of these exactly; an identifier is never compared on its own, and an entry without a source (from a token issued before v7.9.1) matches nothing, so the user authorizes the client again.
 - **Configurable expiration.** Access tokens expire after 1 hour by default (`grouper.oauth.accessToken.expirationSeconds`).
 - **Signature verification on every request.** The MCP servlet verifies the JWT signature and expiration on every incoming request before processing any MCP operations.
 - **Key pair auto-generation.** If no signing key pair exists, Grouper automatically generates one on first use and persists it in the database-backed configuration. This handles multi-container deployments seamlessly — all containers share the same key pair through the shared database.

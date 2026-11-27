@@ -2,8 +2,8 @@
 title: "Grouper Messaging with RabbitMQ"
 space: Grouper
 pageId: 28548652
-version: 28
-lastUpdated: 2026-07-01T05:43:54.282Z
+version: 29
+lastUpdated: 2026-11-20T21:00:49.135Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548652/Grouper+Messaging+with+RabbitMQ
 ---
 
@@ -261,7 +261,9 @@ grouper.messaging.system.rabbitmqSystem.username = guest
 #pass
 grouper.messaging.system.rabbitmqSystem.password = guest
 
-# set the following three properties if you want to use TLS connection to rabbitmq. All three need to be populated.
+# set tlsVersion to use a TLS connection to rabbitmq.  The broker certificate is checked against pathToTrustStore
+# (with trustPassphrase) if both are set, else against the JVM default trust store (cacerts or javax.net.ssl.trustStore)
+# with a host name check.  A broker with a self-signed or private CA certificate needs pathToTrustStore and trustPassphrase
 # TLS Version
 grouper.messaging.system.rabbitmqSystem.tlsVersion = TLSv1.1
 

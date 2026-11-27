@@ -2,8 +2,8 @@
 title: "Grouper configuration in the database and UI"
 space: Grouper
 pageId: 28555638
-version: 46
-lastUpdated: 2026-09-28T08:12:12.123Z
+version: 47
+lastUpdated: 2026-11-20T20:59:19.562Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555638/Grouper+configuration+in+the+database+and+UI
 ---
 
@@ -54,7 +54,7 @@ Note: if you have configs you want to differ in different components (e.g. ws/ui
 
 > Editing configuration in the UI requires the logged-in user to be a Grouper sysadmin (in the wheel or root group), and `grouperUi.configuration.enabled` must be `true`. Access can be further restricted by source IP with `grouperUi.configurationEditor.sourceIpAddresses`.
 
-As of v7.6.0 and v6.5.0, only a sysadmin in the wheel group, or root, can enter expression language in a configuration form. Some configuration screens can be opened by other people, e.g. daemon jobs by members of `uiV2.admin.daemonJobs.must.be.in.group`. For them the expression language checkbox is not shown, text they post is taken literally, and a field that is already expression language is kept as it is when they save.
+As of v7.6.0 and v6.5.0, only a sysadmin in the wheel group, or root, can enter expression language in a configuration form. Some configuration screens can be opened by other people, e.g. daemon jobs by members of `uiV2.admin.daemonJobs.must.be.in.group`. For them the expression language checkbox is not shown, text they post is taken literally, and a field that is already expression language is kept as it is when they save. As of v7.9.1, v6.5.1 and v4.26.1, members of `uiV2.admin.daemonJobs.must.be.in.group` who are not sysadmins can view, run, enable and disable daemons, view their logs, and change their schedule (quartzCron), but only a sysadmin can add or delete a daemon or change its other settings.
 
 - The source IP address will need to be configured or disabled in grouper-ui.properties:
   

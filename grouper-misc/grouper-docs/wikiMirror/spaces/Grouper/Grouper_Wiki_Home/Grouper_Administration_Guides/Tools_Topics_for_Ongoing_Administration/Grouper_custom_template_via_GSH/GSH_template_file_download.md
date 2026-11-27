@@ -2,8 +2,8 @@
 title: "GSH template file download"
 space: Grouper
 pageId: 274464837
-version: 2
-lastUpdated: 2026-10-05T07:03:09.397Z
+version: 3
+lastUpdated: 2026-11-20T21:03:26.511Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/274464837/GSH+template+file+download
 ---
 
@@ -28,7 +28,7 @@ Call these on `gsh_builtin_gshTemplateOutput` (`out.getGsh_builtin_gshTemplateOu
 | `assignDownloadGrouperFileId(grouperFileId)` | Download an existing grouper_file row, e.g. the one retrieveDownloadFileId found. |
 | `deleteDownloadFilesOlderThanMinutes(minutes)` | Delete this template's files last saved more than that many minutes ago. Returns the number deleted. |
 
-**Note:** files are saved per template, date, and file name, not per user. A file found with `retrieveDownloadFileId` is served to whoever runs the template next. Only reuse a file whose contents are the same for everyone who can run the template. If the contents depend on the user running it, put something unique to the user in the file name, or do not reuse it.
+**Note:** files are saved per template, date, and file name, not per user. A file found with `retrieveDownloadFileId` is served to whoever runs the template next. Only reuse a file whose contents are the same for everyone who can run the template. If the contents depend on the user running it, put something unique to the user in the file name, or do not reuse it. As of v7.9.1, a download link is bound to the version of the file it was issued for. If the same template saves the same date and file name again (for example another user runs it), the file is replaced in place and links issued for the earlier contents get HTTP 404 "File not found or download expired" instead of the new contents; run the template again to get a new link.
 
 The date is yyyy-MM-dd. The file name is at most 100 characters with no slashes. Its extension sets the content type: csv, txt, json, xml, zip, gz, xlsx, docx, pdf, png, jpg. Other extensions download as application/octet-stream.
 

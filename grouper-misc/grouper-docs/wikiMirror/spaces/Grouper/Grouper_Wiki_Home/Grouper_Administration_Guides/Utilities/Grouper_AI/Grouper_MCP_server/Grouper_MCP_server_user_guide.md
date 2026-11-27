@@ -2,8 +2,8 @@
 title: "Grouper MCP server - user guide"
 space: Grouper
 pageId: 28554356
-version: 25
-lastUpdated: 2026-11-20T20:23:38.543Z
+version: 26
+lastUpdated: 2026-11-20T21:04:02.516Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide
 ---
 
@@ -304,7 +304,7 @@ Retrieve audit log entries with optional filtering by type, group, stem, subject
 | `auditActionId` | string | No | Filter by audit action ID. |
 | `groupName` | string | No | Filter to audits for this group. |
 | `stemName` | string | No | Filter to audits for this stem. |
-| `subjectId` | string | No | Filter to audits about this subject. |
+| `subjectId` | string | No | Filter to audits about this subject. Requires a sysadmin, a readonly sysadmin, or membership in the group in `uiV2.subject.seeAudits.must.be.in.group` (the same rule as the UI's subject audit screen), also when the subject is yourself (v7.9.1+). |
 | `subjectSourceId` | string | No | Subject source ID (used with `subjectId`). |
 | `actionsPerformedBySubjectId` | string | No | Filter to actions performed by this subject. |
 | `actionsPerformedBySubjectSourceId` | string | No | Source ID for the subject who performed the actions. |
@@ -461,7 +461,7 @@ Add one or more subjects as members of a Grouper group. Each subject is identifi
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to add members to (e.g., `stem1:stem2:groupName`). |
 | `subjects` | array of objects | Yes | Array of subjects to add. Each object must have either `subjectId` or `subjectIdentifier` (mutually exclusive), and optionally `sourceId`. |
-| `replaceAllExisting` | boolean | No (default: false) | If true, replace all existing members of the group with the provided subjects. Use with caution. |
+| `replaceAllExisting` | boolean | No (default: false) | If true, replace all existing members of the group with the provided subjects. Use with caution. For an OAuth client whose read-write scope is limited to certain subjects, every existing member this would remove must also be in that scope, or nothing is changed (v7.9.1+). |
 | `fieldName` | string | No | Field (list) name for the membership. Defaults to `members` (the standard membership list). |
 | `disabledTime` | string | No | Date when this membership will be disabled, in format `yyyy/MM/dd HH:mm:ss.SSS`. Used for time-limited memberships. |
 | `enabledTime` | string | No | Date when this membership will be enabled, in format `yyyy/MM/dd HH:mm:ss.SSS`. Used for future-dated provisioning. |

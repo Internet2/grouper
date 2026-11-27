@@ -2,8 +2,8 @@
 title: "Grouper external subjects"
 space: Grouper
 pageId: 28545569
-version: 70
-lastUpdated: 2026-07-01T05:47:04.688Z
+version: 72
+lastUpdated: 2026-11-20T21:04:18.387Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545569/Grouper+external+subjects
 ---
 
@@ -15,7 +15,7 @@ Provisioning can be triggered by the user following an invite to a specific grou
 
 > External subjects are a long-standing, optional Grouper feature, confirmed present in **v4 and v6** (`grouperExternal` subject source, `grouper_ext_subj` / `grouper_ext_subj_attr` tables). In current Grouper the New UI handles registration and invites by default; the older **Lite UI** is available only in v4 (the legacy UI module) and was **removed in v6**.
 
-> **Required privileges:** enabling and configuring external subjects is a server-side task (edit `grouper.properties` and restart). Editing external subjects is controlled by `externalSubjects.wheelOrRootCanEdit` and `externalSubjects.groupAllowedForEdit`; the GSH examples below start a root session and require a Grouper administrator. Issuing invites requires `UPDATE` on the target group(s).
+> **Required privileges:** enabling (`externalSubjects.enabled = true`, v7.9.1, v6.5.1, v4.26.1 and later) and configuring external subjects is a server-side task (edit `grouper.properties` and restart). Editing external subjects is controlled by `externalSubjects.wheelOrRootCanEdit` and `externalSubjects.groupAllowedForEdit`; the GSH examples below start a root session and require a Grouper administrator. Issuing invites requires `UPDATE` on the target group(s).
 
 Administrators can also enter the subject id of an external user directly, though this is rare since the id is usually not known until the user first logs in.
 
@@ -24,6 +24,8 @@ Administrators can also enter the subject id of an external user directly, thoug
 Grouper has two tables similar to the quickstart subject tables which are:
 
 ## Configuration
+
+As of v7.9.1, v6.5.1 and v4.26.1, external subjects are off by default. Set `externalSubjects.enabled = true` in `grouper.properties` (or the configuration database) to create, change or delete external subjects (WS externalSubjectSave / externalSubjectDelete, UI self register and invite, GSH). While it is false those are refused; existing external subjects still resolve, and the daemons still disable expired ones. The UI registration and invitation screens also need their own switches (`externalMembers.enabledRegistration`, `inviteExternalMembers.enableInvitation` in `grouper-ui.properties`).
 
 grouper.properties
 
@@ -733,7 +735,7 @@ Once a user registers based on email, then it is vetted that the email address t
 
 ## Web service interface
 
-If you are adding a member (batches or lite, or with client), you can specify addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source, and the subject is not found, then add an external subject (if the user is allowed to do this)
+If you are adding a member (batches or lite, or with client), you can specify addExternalSubjectIfNotFound T or F, if this is a search by id or identifier, with no source, or the external source, and the subject is not found, then add an external subject. As of v7.9.1, v6.5.1 and v4.26.1, the caller (or actAs subject) must be allowed to edit external subjects (externalSubjects.wheelOrRootCanEdit / externalSubjects.groupAllowedForEdit) and have UPDATE on the group; otherwise the result is SUBJECT_NOT_FOUND. To let a non-wheel WS account auto-create, put it in the externalSubjects.groupAllowedForEdit group.
 
 ## Admin audit emails
 

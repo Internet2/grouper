@@ -2,8 +2,8 @@
 title: "Move and Copy API/GSH"
 space: Grouper
 pageId: 28549273
-version: 5
-lastUpdated: 2026-07-01T05:42:23.438Z
+version: 6
+lastUpdated: 2026-11-20T21:03:03.300Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549273/Move+and+Copy+API+GSH
 ---
 
@@ -99,7 +99,7 @@ gsh 5% group.move(stem);
 
 ### Folder Copy
 
-The StemCopy class allows you to copy folders from one folder to another. The user must STEM access on the destination folder. Note that the user does not need to have any special access to child folders and groups of the folder being copied. However, the user is not automatically given any special access to the new folders and groups. So if the user copies a folder that has a group that the user cannot read, the new folder will also contain a copy of the group but the user still will not have read access.
+The StemCopy class allows you to copy folders from one folder to another. The user must STEM access on the destination folder. Note that the user does not need to have any special access to child folders and groups of the folder being copied. The copy does not itself give the user access to the new folders and groups. However, policies on the destination folder still apply to the new objects: if the destination has privilege inheritance (or another rule) that gives the user READ or ADMIN on new groups, the user can then read the copied memberships and privileges of groups they could not read at the source. To prevent that (v7.9.1, v6.5.1 and v4.26.1 and later), set security.stem.copyRequireDescendantPrivileges = true in grouper.properties. A folder copy by a non-wheel user then also requires, for each copy option that is on, READ on every descendant group (copy memberships), ADMIN on every descendant group (copy group privileges or attributes), and STEM_ADMIN on every descendant folder (copy folder privileges); and, whatever the options, READ on every descendant composite group that has a factor outside the folder. If any is missing, nothing is copied. The default is false (no extra check). Sites that set uiV2.privilegeInheritanceUpdateRequireAdmin = true should also set this.
 
 If the set of groups being copied includes a composite group along with its two factors, then in the new folder, a new composite will get created using factors from the new folder. However, if the set of groups being copied includes a composite group but not its two factors, then in the new folder, a new composite will get created using factors from the folder being copied.
 
@@ -109,6 +109,10 @@ Sites can limit the users that can copy folders by setting a property in the gro
 # If this property is set, then to copy a stem, a user must be a member of the defined group.
 # Note that users in the wheel group will have access regardless of this property.
 security.stem.groupAllowedToCopyStem = etc:someAdminGroup
+
+# If true, a folder copy by a non-wheel user requires READ / ADMIN / STEM_ADMIN on the descendant objects whose data the copy options duplicate (v7.9.1, v6.5.1, v4.26.1+)
+# {valueType: "boolean", defaultValue: "false"}
+security.stem.copyRequireDescendantPrivileges =
 
 ```
 

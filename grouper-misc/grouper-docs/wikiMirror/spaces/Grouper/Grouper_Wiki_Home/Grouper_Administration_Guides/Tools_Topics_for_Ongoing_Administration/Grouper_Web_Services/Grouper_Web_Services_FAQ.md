@@ -2,8 +2,8 @@
 title: "Grouper Web Services FAQ"
 space: Grouper
 pageId: 28548546
-version: 12
-lastUpdated: 2026-10-18T08:30:24.288Z
+version: 13
+lastUpdated: 2026-11-20T21:02:39.650Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+Web+Services+FAQ
 ---
 
@@ -381,7 +381,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+We
 
 - Why is there a "simple" operation for every non simple operation in SOAP and XML-HTTP?
 
-> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST.
+> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST. As of v7.9.1, v6.5.1 and v4.26.1, only reads (get, find, has member) may be sent with GET. An operation that changes data (add or delete member, save, delete, assign, ...) sent with GET or HEAD is refused with HTTP 400 INVALID_QUERY and does not run; send it with POST or PUT. Setting ws.rest.allowWritesWithGet = true in grouper-ws.properties keeps the old behavior (with a WARN log naming the client) while such clients are changed.
 > 
 > It is confusing that there are so many different ways to call grouper via web service. The documentation will be improved to make it easier to find the best strategy.
 

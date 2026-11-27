@@ -2,8 +2,8 @@
 title: "Grouper External systems configuration"
 space: Grouper
 pageId: 28544712
-version: 22
-lastUpdated: 2026-07-01T05:48:09.509Z
+version: 23
+lastUpdated: 2026-11-20T21:00:50.173Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544712/Grouper+External+systems+configuration
 ---
 
@@ -230,7 +230,7 @@ e.g. grouper.rabbitMqConnector.myConnector.host
 | port | Integer |  | port of rabbitmq queue |
 | username | String |  | required |
 | password | String password |  |  |
-| tlsVersion | String |  | set the following three properties if you want to use TLS connection to rabbitmq. All three need to be populated.   TLS Version. e.g. TLSv1.1 |
+| tlsVersion | String |  | Set to use a TLS connection to rabbitmq, e.g. TLSv1.2. The broker certificate is checked against pathToTrustStore (with trustPassphrase) if both are set, else against the JVM default trust store with a host name check. A broker with a self-signed or private CA certificate needs pathToTrustStore and trustPassphrase. |
 | pathToTrustStore | String |  | path to trust store file |
 | trustPassphrase | String password |  | trust passphrase |
 | enabled | Boolean | true | if this connector is enabled |

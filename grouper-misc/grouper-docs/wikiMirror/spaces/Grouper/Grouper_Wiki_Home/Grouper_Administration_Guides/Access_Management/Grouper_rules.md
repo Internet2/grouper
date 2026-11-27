@@ -2,8 +2,8 @@
 title: "Grouper rules"
 space: Grouper
 pageId: 28545173
-version: 78
-lastUpdated: 2026-07-12T15:26:40.470Z
+version: 79
+lastUpdated: 2026-11-20T21:02:05.838Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545173/Grouper+rules
 ---
 
@@ -163,7 +163,7 @@ There are certain validation constraints to make a rule valid. i.e. you need som
 
 ### Allow users to be able to assign rules
 
-This is a normal attribute framework NG concept. The user needs to be able to assign attributes to the owner object. e.g. for a group, the user needs ADMIN access on the group. Then the user needs UPDATE/READ on the attributeDefs (there are two). Also note, the user needs privileges in the actAs. Maybe add to an actAs group, if acting as the user itself, might need access to READ another group where the rule is fired from, etc.
+This is a normal attribute framework NG concept. The user needs to be able to assign attributes to the owner object. e.g. for a group, the user needs ADMIN access on the group. Then the user needs UPDATE/READ on the attributeDefs (there are two). Also note, the user needs privileges in the actAs. Maybe add to an actAs group. As of v7.9.1, v6.5.1 and v4.26.1, if the rule's check owner or if owner (ruleCheckOwnerId / Name, ruleIfOwnerId / Name) is a different object than the one the rule is assigned to, the act-as subject must be able to read it: READ on a group, STEM_ADMIN on a folder, ATTR_READ on an attribute definition. Rules that act as GrouperSystem or a wheel member are not checked. Otherwise the rule is marked INVALID when it is saved or when the rules daemon next validates it.
 
 ```
 stem2.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);

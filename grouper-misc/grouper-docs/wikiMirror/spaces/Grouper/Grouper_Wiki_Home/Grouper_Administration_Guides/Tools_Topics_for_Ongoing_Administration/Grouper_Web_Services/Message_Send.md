@@ -2,8 +2,8 @@
 title: "Message Send"
 space: Grouper
 pageId: 28547578
-version: 6
-lastUpdated: 2026-07-01T05:46:32.568Z
+version: 7
+lastUpdated: 2026-11-20T21:03:27.916Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547578/Message+Send
 ---
 
@@ -17,6 +17,7 @@ Send a message to a queue or topic. This service is available in version v2.3.0+
 
 - Send one or multiple messages
 - Can actAs another user
+- External messaging systems (RabbitMQ, AWS SQS, ActiveMQ): as of v7.9.1, v6.5.1 and v4.26.1, a caller who is not wheel or root can use one only if they are a member of the group in grouper.properties grouper.messaging.system.<messagingSystemName>.allowedGroupName; if that is not set, only wheel or root can. Only wheel or root can autocreate queues or topics. Built-in messaging keeps its own per-queue/topic permissions.
 - For 2.4+ with all patches applied, you can set exchange type for rabbitMq by sending WsParam with name "exchangeType". The value can be one of DIRECT, TOPIC, HEADERS, or FANOUT
 
 #### Acknowledge message service

@@ -2,8 +2,8 @@
 title: "Grouper UI - Navigation using tree"
 space: Grouper
 pageId: 28544211
-version: 15
-lastUpdated: 2026-11-20T20:25:34.834Z
+version: 16
+lastUpdated: 2026-11-20T21:02:09.731Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544211/Grouper+UI+-+Navigation+using+tree
 ---
 
@@ -13,7 +13,7 @@ You can locate a folder group by navigating to its location in the tree.
 
 ## Privilege Requirements
 
-You will only see folders and groups in the tree for which you have **VIEW** privilege or greater.
+You will only see groups in the tree for which you have **VIEW** privilege or greater, and folders that you have a privilege on or that contain something you can see (unless your site sets `security.folders.are.viewable.by.all`).
 
 ## Procedure
 

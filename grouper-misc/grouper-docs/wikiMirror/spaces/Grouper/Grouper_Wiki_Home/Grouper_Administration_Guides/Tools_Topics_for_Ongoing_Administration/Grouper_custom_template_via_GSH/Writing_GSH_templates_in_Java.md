@@ -2,8 +2,8 @@
 title: "Writing GSH templates in Java"
 space: Grouper
 pageId: 28549690
-version: 9
-lastUpdated: 2026-11-20T09:02:28.959Z
+version: 10
+lastUpdated: 2026-11-20T20:59:36.126Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549690/Writing+GSH+templates+in+Java
 ---
 
@@ -53,7 +53,7 @@ Every compiled template is one public top-level class with:
 | externalSystem | `GrouperTemplateExternalSystem` | the hook its external system calls, e.g. `void decorateHttpClient(GrouperHttpClient, String)` |
 | library | (none) | public methods other templates call |
 
-If a compiled class extends the wrong base for its type, the save is blocked with a clear error (and the dispatcher would surface a clear error at run time as well).
+If a compiled class extends the wrong base for its type, the save is blocked with a clear error (and the dispatcher would surface a clear error at run time as well). As of v7.9.1, a compiled template that Grouper loads from configuration (for example a hook in `hooks.<domain>.gshTemplateConfigIds`, a daemon, change log consumer, report, custom UI, provisioner or library) runs only if it is enabled, has templateMode compiled and has the matching templateType; otherwise it does not run and an error naming the template is logged.
 
 ## A minimal gsh template
 
