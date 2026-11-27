@@ -20,6 +20,8 @@
   <properties>
     <!-- keep in sync with netty.version in grouper-parent/pom.xml (GRP-7504) -->
     <netty.version>4.2.19.Final</netty.version>
+    <!-- keep in sync with proton-j.version in grouper-parent/pom.xml (GRP-7620) -->
+    <proton-j.version>0.35.0</proton-j.version>
   </properties>
 
   <!-- GRP-7504: this pom does not inherit grouper-parent, and Maven does not apply the dependency management of a
@@ -33,6 +35,12 @@
         <version>${netty.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <!-- GRP-7620: proton-j is transitive from qpid-jms-client (0.33.10), pinned for security -->
+      <dependency>
+        <groupId>org.apache.qpid</groupId>
+        <artifactId>proton-j</artifactId>
+        <version>${proton-j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
