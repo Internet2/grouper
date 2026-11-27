@@ -195,7 +195,7 @@
         <amqp-client.version>5.37.0</amqp-client.version>
         
         <!-- GRP-7432: all jackson modules get this version from the jackson-bom import below (keep in sync with the grouper-container poms) -->
-        <jackson.version>2.22.3</jackson.version>
+        <jackson.version>2.22.4</jackson.version>
         <netty.version>4.2.19.Final</netty.version>        
         <jsoup.version>1.23.2</jsoup.version>        
         <java-ipv6.version>0.17</java-ipv6.version>

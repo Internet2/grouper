@@ -22,6 +22,8 @@
     <netty.version>4.2.19.Final</netty.version>
     <!-- keep in sync with proton-j.version in grouper-parent/pom.xml (GRP-7620) -->
     <proton-j.version>0.35.0</proton-j.version>
+    <!-- keep in sync with jackson.version in grouper-parent/pom.xml (GRP-7621) -->
+    <jackson.version>2.22.4</jackson.version>
   </properties>
 
   <!-- GRP-7504: this pom does not inherit grouper-parent, and Maven does not apply the dependency management of a
@@ -33,6 +35,15 @@
         <groupId>io.netty</groupId>
         <artifactId>netty-bom</artifactId>
         <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- GRP-7621: import the jackson BOM too, so jackson jars that come in transitively (e.g. jackson-dataformat-cbor
+           from aws-java-sdk-core, which was 2.12.6) are aligned with jackson.version -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
