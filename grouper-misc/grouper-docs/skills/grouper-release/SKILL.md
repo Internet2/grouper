@@ -329,11 +329,19 @@ changed. New CVEs are published against jars that did not change, so "the poms a
 the same as last time" is exactly when this scan finds something. Skipping it needs
 the user's explicit yes (see "Rule: no step is skipped without the user's yes").
 
-Do not rely on mvnrepository.com's "Vulnerabilities from dependencies" list. It
-reads each dependency's own pom and ignores the `netty-bom` / `jackson-bom`
+**Every flagged jar gets bumped.** Sites run scanners against the image, and a
+flagged CVE becomes a support question whether or not Grouper uses the vulnerable
+feature. So do NOT skip a bump because "Grouper does not use that class/task/
+format" -- bump every jar in the image that has a CVE to a release that clears it.
+If no fixed release exists yet, bump to the newest release anyway and list the open
+CVE (and why it does not affect Grouper, if known) in the release notes.
+
+Do not rely on mvnrepository.com's "Vulnerabilities from dependencies" list alone.
+It reads each dependency's own pom and ignores the `netty-bom` / `jackson-bom`
 dependency management in grouper-parent, so it reports old transitive versions
 (e.g. netty 4.1.72) that the image does not ship, and it misses jars the poms never
-name. Scan the jars in the image.
+name. Scan the jars in the image. But DO use mvnrepository (and NVD) as the second
+source in step 2b below: what it lists is what site scanners will show.
 
 Tomcat is not the only thing that ships. Scan every jar in the PREVIOUS release's
 image (the poms usually have not changed, so it is what this release would ship)
@@ -349,6 +357,26 @@ tag so the bumps ship in this release. No scanner needs to be installed:
    {"ecosystem":"Maven","name":"g:a"},"version":"v"}...]}`, then
    `GET /v1/vulns/<id>` for severity (`database_specific.severity`) and the fixed
    versions. Skip withdrawn advisories.
+2b. **Second source, required -- the OSV package query misses most CVEs.** Many
+   2026 CVE records in OSV carry only git-commit ranges (no Maven versions), and
+   their GHSA aliases are often not in OSV, so a `querybatch` by Maven package does
+   not match them. On 7.10.0 the package query found only proton-j; the image also
+   had open CVEs in postgresql, jackson-databind, jackson-dataformat-cbor, ant and
+   commons-codec. So also:
+   - Open `https://mvnrepository.com/artifact/edu.internet2.middleware.grouper/grouper/<prev>`
+     (ask the user for a screenshot if the page will not load) and collect every
+     CVE id it lists.
+   - For each CVE id, read the record (`GET https://api.osv.dev/v1/vulns/<CVE>`; if
+     OSV 404s, `https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=<CVE>`). The
+     affected and fixed versions are in the `details` text ("prior to 42.7.15",
+     "through 0.34.1", "fixed in 4.2.17.Final"). Parse with `json.loads(...,
+     strict=False)`: some details contain raw control characters.
+   - Compare against the version the IMAGE ships (step 1), not the version
+     mvnrepository shows. A CVE fixed below the image's version is a false
+     positive from the BOM override (netty 4.2.19 vs advisories fixed in 4.2.17):
+     note it, no bump.
+   - Check every jar of one family is aligned: on 7.10.0 jackson-dataformat-cbor
+     was 2.17.2 while the rest of jackson was 2.22.3.
 3. For each hit, the fix is usually one property in `grouper-parent/pom.xml`
    (`jackson.version`, `jsoup.version`, `log4j.version`, `amqp-client.version`...).
    `git grep` that nothing else pins the old version.
