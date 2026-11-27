@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.app.config.check.data.ObjectIdNotAllowed
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.membershipRequire.MembershipRequireConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.oauth.OAuthRedirectUriMisspelledConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingHostnameVerificationOffConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
@@ -85,6 +86,9 @@ public class GrouperConfigurationCheckEngine {
 
     // database: object ids outside the allowed pattern (from before ids were limited)
     checks.add(new ObjectIdNotAllowedConfigurationCheck());
+
+    // OAuth (grouper.properties): misspelled redirect URI allowlist keys still in a config file
+    checks.add(new OAuthRedirectUriMisspelledConfigurationCheck());
 
     return checks;
   }

@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.config.check.data.ObjectIdNotAllowed
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbHttpListenerAuthFileConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.esb.EsbXmppListenerRemovedConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingAllowedGroupMissingConfigurationCheck;
+import edu.internet2.middleware.grouper.app.config.check.oauth.OAuthRedirectUriMisspelledConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingHostnameVerificationOffConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.messaging.MessagingTrustAllCertificatesConfigurationCheck;
 import edu.internet2.middleware.grouper.app.config.check.provisioning.ProvisionerTrustTargetToRelinkEntitiesConfigurationCheck;
@@ -569,6 +570,25 @@ public class GrouperConfigurationCheckAreasTest extends GrouperTest {
     }
     assertTrue(sawWarning);
     assertTrue(sawError);
+  }
+
+  /**
+   * a misspelled grouper.oauth.redrectUri.&lt;id&gt;.regex key is an error naming the correct key; the correct
+   * spelling is no finding
+   */
+  public void testOAuthRedirectUriMisspelled() {
+    String misspelled = "grouper.oauth.redrectUri.configReviewTestApp.regex";
+    String correct = OAuthRedirectUriMisspelledConfigurationCheck.correctPropertyName("configReviewTestApp");
+    assertEquals("grouper.oauth.redirectUri.configReviewTestApp.regex", correct);
+
+    override(GrouperConfig.retrieveConfig(), misspelled, "^https://app\\.example\\.edu/.*$");
+    List<ConfigurationCheckResult> results = resultsForProperty(
+        new OAuthRedirectUriMisspelledConfigurationCheck().checkConfiguration(), misspelled);
+    assertOneResultOfSeverity(results, ConfigurationCheckSeverity.ERROR);
+    assertTrue(results.get(0).getRecommendation(), results.get(0).getRecommendation().contains(correct));
+
+    override(GrouperConfig.retrieveConfig(), correct, "^https://app\\.example\\.edu/.*$");
+    assertNoResults(resultsForProperty(new OAuthRedirectUriMisspelledConfigurationCheck().checkConfiguration(), correct));
   }
 
 }
