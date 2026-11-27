@@ -738,6 +738,11 @@ public class GroupSave {
                 //see if we should fix this problem
                 if (GroupSave.this.createParentStemsIfNotExist) {
                   
+                  // Security: the parent folder does not exist, so this is a NEW group.  Check a
+                  // caller-chosen uuid before creating the parent folders, so a refused uuid does not
+                  // leave them behind (there is no transaction around the save)
+                  GrouperObjectIdValidator.assertValidNewId("group", GroupSave.this.uuid);
+
                   //at this point the stem should be there (and is equal to currentStem), 
                   //just to be sure, query again
                   if (GrouperLoader.isDryRun()) {

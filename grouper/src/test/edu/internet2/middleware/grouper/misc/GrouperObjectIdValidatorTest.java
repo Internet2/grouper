@@ -322,4 +322,43 @@ public class GrouperObjectIdValidatorTest extends GrouperTest {
     assertEquals(DASHED_ID, group.getUuid());
   }
 
+  /**
+   * with createParentStemsIfNotExist, a refused uuid for a new group leaves no parent folders (the uuid is
+   * checked before they are created; there is no transaction around the save).  A good uuid still creates
+   * them (control)
+   */
+  public void testGroupSaveRefusedUuidCreatesNoParentFolders() {
+    assertRefused("GroupSave with new parent folders", new Runnable() {
+      public void run() {
+        new GroupSave(GrouperObjectIdValidatorTest.this.rootSession).assignName("uuidTest:newParentA:newParentB:badGroup")
+            .assignUuid(BAD_ID).assignCreateParentStemsIfNotExist(true).save();
+      }
+    });
+    assertNull("no parent folder left behind", StemFinder.findByName(this.rootSession, "uuidTest:newParentA", false));
+
+    Group group = new GroupSave(this.rootSession).assignName("uuidTest:newParentA:newParentB:goodGroup")
+        .assignUuid(DASHED_ID).assignCreateParentStemsIfNotExist(true).save();
+    assertEquals(DASHED_ID, group.getUuid());
+    assertNotNull(StemFinder.findByName(this.rootSession, "uuidTest:newParentA:newParentB", false));
+  }
+
+  /**
+   * with createParentStemsIfNotExist, a refused uuid for a new folder leaves no parent folders.  A good uuid
+   * still creates them (control)
+   */
+  public void testStemSaveRefusedUuidCreatesNoParentFolders() {
+    assertRefused("StemSave with new parent folders", new Runnable() {
+      public void run() {
+        new StemSave(GrouperObjectIdValidatorTest.this.rootSession).assignName("uuidTest:newParentC:newParentD:badFolder")
+            .assignUuid(BAD_ID).assignCreateParentStemsIfNotExist(true).save();
+      }
+    });
+    assertNull("no parent folder left behind", StemFinder.findByName(this.rootSession, "uuidTest:newParentC", false));
+
+    Stem stem = new StemSave(this.rootSession).assignName("uuidTest:newParentC:newParentD:goodFolder")
+        .assignUuid(DASHED_ID).assignCreateParentStemsIfNotExist(true).save();
+    assertEquals(DASHED_ID, stem.getUuid());
+    assertNotNull(StemFinder.findByName(this.rootSession, "uuidTest:newParentC:newParentD", false));
+  }
+
 }
