@@ -2,8 +2,8 @@
 title: "Message format configuration example"
 space: GrIntDev
 pageId: 48795896
-version: 16
-lastUpdated: 2026-07-12T17:04:05.282Z
+version: 17
+lastUpdated: 2026-11-20T20:27:46.850Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48795896/Message+format+configuration+example
 ---
 

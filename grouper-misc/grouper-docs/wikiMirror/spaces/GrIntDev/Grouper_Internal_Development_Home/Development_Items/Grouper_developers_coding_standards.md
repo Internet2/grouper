@@ -2,8 +2,8 @@
 title: "Grouper developers coding standards"
 space: GrIntDev
 pageId: 48792568
-version: 63
-lastUpdated: 2026-09-20T17:33:09.348Z
+version: 65
+lastUpdated: 2026-10-15T19:37:54.854Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards
 ---
 
@@ -173,6 +173,7 @@ Intellij
   
   - Only share externalized text keys if you expect it to always be tied together
 - We have a look and feel using tables and alternating rows and bold labels on left and more info before the form elements. We should try to use that when possible
+- Follow the [Grouper UI accessibility standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/303038468/Grouper+UI+accessibility+standards) (WCAG 2.2 AA) for all UI changes, including its pull request checklist
 - Be consistent with accessibility using "for" tags with labels and aria tags when applicable
 - Use `<button>` for actions and `<a href>` only for navigation — never `<a href="#">` as a fake button; it breaks screen-reader roles and keyboard support.
 - Pages should have breadcrumbs underneath the parent page so it can be navigated back
@@ -187,6 +188,7 @@ Intellij
 ### Cross database
 
 - If doing a count, dont have order by. do the order by in the real query. due to hsql: [JIRA GRP-2370]
+- Use `NOT EXISTS` instead of `NOT IN` with a subquery, e.g. `where not exists (select 1 from grouper_memberships gm where gm.member_id = m.id)` rather than `where m.id not in (select gm.member_id from grouper_memberships gm)`. `NOT IN` returns no rows if the subquery yields any null, and on large tables some databases (e.g. Postgres) cannot turn it into an anti-join, so it can be orders of magnitude slower.
 
 ### Load test with data
 

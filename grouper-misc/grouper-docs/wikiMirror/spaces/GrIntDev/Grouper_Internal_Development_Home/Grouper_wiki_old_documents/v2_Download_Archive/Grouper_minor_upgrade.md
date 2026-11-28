@@ -2,8 +2,8 @@
 title: "Grouper minor upgrade"
 space: GrIntDev
 pageId: 48793441
-version: 7
-lastUpdated: 2012-08-16T00:45:57.171Z
+version: 8
+lastUpdated: 2026-11-20T20:27:44.348Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793441/Grouper+minor+upgrade
 ---
 

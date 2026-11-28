@@ -2,8 +2,8 @@
 title: "Grouper Development Environment Using Maven"
 space: GrIntDev
 pageId: 48792889
-version: 11
-lastUpdated: 2016-06-01T15:26:06.881Z
+version: 12
+lastUpdated: 2026-11-20T20:27:40.422Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792889/Grouper+Development+Environment+Using+Maven
 ---
 

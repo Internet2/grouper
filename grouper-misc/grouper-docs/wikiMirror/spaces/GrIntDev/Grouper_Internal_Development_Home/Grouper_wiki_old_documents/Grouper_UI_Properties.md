@@ -2,8 +2,8 @@
 title: "Grouper UI Properties"
 space: GrIntDev
 pageId: 48793144
-version: 21
-lastUpdated: 2026-07-12T17:02:45.975Z
+version: 22
+lastUpdated: 2026-11-20T20:27:41.814Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793144/Grouper+UI+Properties
 ---
 

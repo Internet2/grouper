@@ -2,8 +2,8 @@
 title: "Grouper development environment"
 space: GrIntDev
 pageId: 48793047
-version: 24
-lastUpdated: 2026-09-25T20:15:11.373Z
+version: 25
+lastUpdated: 2026-10-21T20:32:13.798Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793047/Grouper+development+environment
 ---
 
@@ -87,63 +87,6 @@ When it's finished, you should see a folder in bold for all the subprojects asso
 Install the plugin: File -> Settings -> Plugins -> CheckStyle IDEA
 
 Restart the IDE as directed
-
-note88d5fffb6a7bIn order to make the Checkstyle IDEA plugin work in modern IDEA versions, you must make these changes if they are not already upstreamed in Git. Otherwise, the plugin will fail to consume Grouper’s Checkstyle configs, let alone run them.
-
-In order to make the Checkstyle IDEA plugin work in modern IDEA versions, you must make these changes if they are not already upstreamed in Git. Otherwise, the plugin will fail to consume Grouper’s Checkstyle configs, let alone run them.
-
-Ensure your local copy of the Maven POM uses at least version 3.6.0 of the Maven Checkstyle plugin:
-
-```diff
---- a/grouper-parent/pom.xml
-+++ b/grouper-parent/pom.xml
-@@ -49,14 +49,14 @@
-         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
- 
-         <!-- Plugin Versions -->
--        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
-         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
-         <maven-source-plugin.version>2.3</maven-source-plugin.version>
-```
-
-Then, adjust `{GIT}/grouper-parent/src/checkstyle/checkstyle.xml` to fix breaking Checkstyle changes in versions [8.24](https://checkstyle.sourceforge.io/release-notes-old-8-0-8-34.html#Release_8.24) and [10.22.0](https://checkstyle.org/release-notes-old-8-35-10-26.html#Release_10.22.0). Namely, the `LineLength` module must be moved to the same level as `TreeWalker`, and the `JavadocVariable` module needs its configured property name to change from `scope` to `accessModifiers`, respectively.
-
-```diff
---- a/grouper-parent/src/checkstyle/checkstyle.xml
-+++ b/grouper-parent/src/checkstyle/checkstyle.xml
-@@ -37,7 +37,9 @@ limitations under the License.
-     <property name="eachLine" value="true"/>
-     <property name="fileExtensions" value="java,xml"/>
-   </module>
--
-+  <module name="LineLength">
-+    <property name="max" value="200"/>
-+  </module>
-   <module name="RegexpSingleline">
-     <property name="format" value="\s+$"/>
-     <property name="message" value="Line has trailing spaces."/>
-@@ -94,9 +96,6 @@ limitations under the License.
-   <module name="TreeWalker">
-     <property name="tabWidth" value="2"/>
- 
--    <module name="LineLength">
--      <property name="max" value="200"/>
--    </module>
- 
-     <!--<module name="AvoidStarImport"/>--><!-- want this? -->
-     <module name="IllegalImport"/>
-@@ -136,7 +135,7 @@ limitations under the License.
-     -->
-     <module name="MissingDeprecated"/>
-     <module name="JavadocVariable">
--      <property name="scope" value="public"/>
-+      <property name="accessModifiers" value="public"/>
-     </module>
- 
-   </module>
-```
 
 File -> Settings -> Tools -> Checkstyle
 
