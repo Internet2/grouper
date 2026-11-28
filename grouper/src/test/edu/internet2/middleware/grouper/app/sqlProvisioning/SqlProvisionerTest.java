@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -6793,8 +6795,10 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(saveFolderProvisioningSettings(dnpBlank, null, "sub", null));
     assertEquals("sub", GrouperProvisioningService.getProvisioningAttributeValue(dnpBlank, "sqlProvTest").getStemScopeString());
 
-    // saving the same thing again is not a change
-    assertFalse(saveFolderProvisioningSettings(dnpBlank, null, "sub", null));
+    // saving the same thing again is not a change (the message lists the assignments if it is, to see which value differed)
+    String assignmentsBefore = describeProvisioningAssignments(dnpBlank);
+    boolean changed = saveFolderProvisioningSettings(dnpBlank, null, "sub", null);
+    assertFalse("before: " + assignmentsBefore + ", after: " + describeProvisioningAssignments(dnpBlank), changed);
 
     fullProvision();
 
@@ -6868,6 +6872,25 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     assertTrue(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:other:authorized"));
     assertFalse(provisionedGroupNames.toString(), provisionedGroupNames.contains("app:google:grouper:directory:admins:authorized"));
+  }
+
+  /**
+   * describe every provisioning assignment on a folder, read fresh from the database, for test failure messages
+   * @param stem
+   * @return the assignments and their values
+   */
+  private static String describeProvisioningAssignments(Stem stem) {
+    Stem freshStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stem.getId(), true);
+    StringBuilder result = new StringBuilder();
+    for (AttributeAssign attributeAssign : GrouperUtil.nonNull(freshStem.getAttributeDelegate().retrieveAssignments(
+        GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase()))) {
+      GrouperProvisioningAttributeValue value = GrouperProvisioningService.buildGrouperProvisioningAttributeValue(attributeAssign);
+      result.append("[assign ").append(attributeAssign.getId()).append(" target=").append(value.getTargetName())
+        .append(" direct=").append(value.isDirectAssignment()).append(" doProvision=").append(value.getDoProvision())
+        .append(" scope=").append(value.getStemScopeString()).append(" ownerStemId=").append(value.getOwnerStemId())
+        .append(" metadata=").append(value.getMetadataNameValues()).append("]");
+    }
+    return result.toString();
   }
 
   /**
