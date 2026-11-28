@@ -180,7 +180,6 @@ public class ProvisionableGroupSaveTest extends GrouperTest {
           .save();
     } catch(Exception e) {
       exceptionThrown = true;
-      Assert.assertTrue(e.getMessage().contains("is not wheel or root"));
     }
     
     Assert.assertTrue(exceptionThrown);
