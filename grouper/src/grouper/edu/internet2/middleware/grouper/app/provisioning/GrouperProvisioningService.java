@@ -527,8 +527,11 @@ public class GrouperProvisioningService {
     for (AttributeAssign attributeAssign: GrouperUtil.nonNull(attributeAssigns)) {
       
       AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(provisioningConfigStemName()+":"+PROVISIONING_TARGET);
+      // an assignment with no target name is not the one being looked for: skip it and keep looking.  Returning
+      // null here made the answer depend on the iteration order of the set, so a save could miss the existing
+      // assignment, add a second one, and report a change when nothing changed
       if (attributeAssignValue == null || StringUtils.isBlank(attributeAssignValue.getValueString())) {
-        return null;
+        continue;
       }
       
       String targetNameFromDB = attributeAssignValue.getValueString();
@@ -631,10 +634,15 @@ public class GrouperProvisioningService {
       return true;
     }
     
-    if (one.getMetadataNameValues() != null && two.getMetadataNameValues() == null) return true;
-    if (one.getMetadataNameValues() == null && two.getMetadataNameValues() != null) return true;
-    if (one.getMetadataNameValues() != null && two.getMetadataNameValues() != null) {
-      return !one.getMetadataNameValues().equals(two.getMetadataNameValues());
+    // no metadata is the same whether it is null or an empty map: a value read back from the database has an empty
+    // map (the field default), while a caller that has no metadata may pass null
+    Map<String, Object> oneMetadata = one.getMetadataNameValues();
+    Map<String, Object> twoMetadata = two.getMetadataNameValues();
+    boolean oneMetadataEmpty = oneMetadata == null || oneMetadata.isEmpty();
+    boolean twoMetadataEmpty = twoMetadata == null || twoMetadata.isEmpty();
+    if (oneMetadataEmpty != twoMetadataEmpty) return true;
+    if (!oneMetadataEmpty) {
+      return !oneMetadata.equals(twoMetadata);
     }
     
     return false;
