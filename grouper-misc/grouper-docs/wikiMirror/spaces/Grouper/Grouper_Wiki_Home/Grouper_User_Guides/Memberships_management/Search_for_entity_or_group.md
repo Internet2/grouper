@@ -2,8 +2,8 @@
 title: "Search for entity or group"
 space: Grouper
 pageId: 28545461
-version: 12
-lastUpdated: 2024-05-30T18:25:54.453Z
+version: 13
+lastUpdated: 2026-11-20T20:26:07.151Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545461/Search+for+entity+or+group
 ---
 

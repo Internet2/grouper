@@ -2,8 +2,8 @@
 title: "Grouper membership eligibility requirements"
 space: Grouper
 pageId: 28549482
-version: 21
-lastUpdated: 2026-07-01T05:41:56.371Z
+version: 23
+lastUpdated: 2026-11-27T12:01:46.543Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549482/Grouper+membership+eligibility+requirements
 ---
 
@@ -35,6 +35,29 @@ These are explained below
 11. When members are removed a record is kept in the grouper_mship_req_change table
   
   1. A simple GSH script could easily rollback changes made by this module
+
+## Manage membership requirements in the UI
+
+*v7.10.0+*
+
+A Grouper sysadmin (wheel group or root) can do steps 2 to 6 on one screen instead of editing files. Go to "Miscellaneous", click "Custom composites and membership requirements", then "Add membership requirement", and set:
+
+- "Config ID": identifies the requirement in the configuration. It cannot be changed once saved.
+- "UI key": part of the veto message's text key, `veto.membershipVeto.customComposite.<UI key>`.
+- "Attribute": use an attribute which already exists, create a new attribute in an existing attribute definition, or create a new definition and attribute. The definition must be a marker assignable to groups and folders, and not multi-assignable or multi-valued. Privileges on the definition decide who can apply the requirement.
+- "Required group": members of the groups this applies to must also be in this group.
+- "Veto new additions": refuse a new membership when the member is not in the required group. Members who do not qualify are removed either way.
+- "Exempt subject sources": comma separated subject source IDs. Blank uses `grouper.membershipRequirement.sourceIdsToIgnore`. Groups are always exempt.
+- "Veto message": shown to someone whose new membership is vetoed.
+- "Show on the group screen": puts the attribute on the group create and edit screens as a checkbox, with its label, description and order (`groupScreen.attribute.*`). Folders are still assigned on the folder's attribute screen.
+
+Then assign the attribute to groups or folders (step 7).
+
+- Saving goes to the database configuration. This server uses it straight away, other servers within five minutes.
+- Saving does not remove anyone. Members who are not in the required group are removed when the attribute is assigned or when they leave the required group (if `grouper.membershipRequirement.changeLogEnable` is on, the default), and at every full sync, the `OTHER_JOB_grouperMembershipRequireFull` daemon, which can also be run from the daemon jobs screen.
+- A requirement which does nothing, for example because its attribute or required group does not exist, is marked "Not working, see edit", and its edit screen says why.
+- Deleting a requirement deletes its configuration and veto message. Its attribute and the attribute's assignments are kept, but no longer do anything.
+- Requirements set in a configuration file on disk are listed but cannot be changed or deleted on this screen.
 
 ## Identify coarse grained populations
 
@@ -109,7 +132,7 @@ grouper.properties
 ```
 groupScreen.attribute.requireEmployee.attributeName = etc:attribute:membershipRequirement:requireEmployee
 groupScreen.attribute.requireEmployee.label = Require employee
-groupScreen.attribute.requireEmployee.description = Members of this group (or groups in folder) will be required to be employees, otherwise they will be vetoed or removed
+groupScreen.attribute.requireEmployee.description = Members of this group (or groups in this folder and its subfolders) will be required to be employees, otherwise they will be vetoed or removed
 groupScreen.attribute.requireEmployee.index = 1
  
 ```
@@ -120,7 +143,7 @@ Note, this will remove direct members. Note, be careful about service principals
 
 Groups:
 
-Folders
+Folders: as of v7.9.1, v6.5.1 and v4.26.1, the requirement applies to every group in the folder and in all of its subfolders (before that, only groups directly in the folder). If you move a group or folder into a folder that has a requirement, run the full sync daemon (otherJob.grouperMembershipRequireFull) afterwards.
 
 ## Membership hook will veto membership adds if the user is not eligible
 

@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH membership trace - V2"
 space: Grouper
 pageId: 28547583
-version: 7
-lastUpdated: 2026-02-27T20:03:13.133Z
+version: 8
+lastUpdated: 2026-11-20T20:26:12.827Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547583/Grouper+custom+template+via+GSH+membership+trace+-+V2
 ---
 

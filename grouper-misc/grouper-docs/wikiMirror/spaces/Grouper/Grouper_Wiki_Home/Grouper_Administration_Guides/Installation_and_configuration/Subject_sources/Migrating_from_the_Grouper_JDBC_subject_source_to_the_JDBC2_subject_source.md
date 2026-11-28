@@ -2,8 +2,8 @@
 title: "Migrating from the Grouper JDBC subject source to the JDBC2 subject source"
 space: Grouper
 pageId: 28549883
-version: 6
-lastUpdated: 2026-06-16T17:13:22.301Z
+version: 7
+lastUpdated: 2026-11-20T20:26:43.256Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549883/Migrating+from+the+Grouper+JDBC+subject+source+to+the+JDBC2+subject+source
 ---
 

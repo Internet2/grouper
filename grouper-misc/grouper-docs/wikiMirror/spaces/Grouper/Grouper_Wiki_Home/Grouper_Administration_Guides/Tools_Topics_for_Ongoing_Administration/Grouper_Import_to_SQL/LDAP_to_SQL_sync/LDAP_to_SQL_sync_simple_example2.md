@@ -2,8 +2,8 @@
 title: "LDAP to SQL sync simple example2"
 space: Grouper
 pageId: 28554659
-version: 1
-lastUpdated: 2021-09-16T17:53:57.578Z
+version: 2
+lastUpdated: 2026-11-20T20:26:49.318Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554659/LDAP+to+SQL+sync+simple+example2
 ---
 

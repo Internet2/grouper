@@ -2,8 +2,8 @@
 title: "Grouper GSH script daemon loader from Google sheet"
 space: Grouper
 pageId: 28548771
-version: 2
-lastUpdated: 2026-01-15T17:44:12.135Z
+version: 3
+lastUpdated: 2026-11-20T20:26:24.074Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548771/Grouper+GSH+script+daemon+loader+from+Google+sheet
 ---
 

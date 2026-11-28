@@ -2,8 +2,8 @@
 title: "Grouper daemon log"
 space: Grouper
 pageId: 28554879
-version: 4
-lastUpdated: 2018-01-04T17:04:52.990Z
+version: 5
+lastUpdated: 2026-11-20T20:26:57.086Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554879/Grouper+daemon+log
 ---
 

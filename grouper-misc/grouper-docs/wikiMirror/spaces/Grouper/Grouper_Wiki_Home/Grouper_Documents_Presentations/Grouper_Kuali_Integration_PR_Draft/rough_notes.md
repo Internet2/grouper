@@ -2,8 +2,8 @@
 title: "rough notes"
 space: Grouper
 pageId: 48824701
-version: 2
-lastUpdated: 2010-06-04T15:23:56.993Z
+version: 3
+lastUpdated: 2026-11-20T20:27:33.985Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48824701/rough+notes
 ---
 

@@ -2,8 +2,8 @@
 title: "How to automatically include groups with a name pattern"
 space: Grouper
 pageId: 28543996
-version: 1
-lastUpdated: 2018-08-03T18:03:42.298Z
+version: 2
+lastUpdated: 2026-11-20T20:25:25.200Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543996/How+to+automatically+include+groups+with+a+name+pattern
 ---
 

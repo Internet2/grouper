@@ -2,8 +2,8 @@
 title: "Introduction to the GDG"
 space: Grouper
 pageId: 28543370
-version: 64
-lastUpdated: 2026-07-12T15:26:06.258Z
+version: 65
+lastUpdated: 2026-11-20T20:25:11.427Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543370/Introduction+to+the+GDG
 ---
 

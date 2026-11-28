@@ -2,8 +2,8 @@
 title: "Sample change log consumer"
 space: Grouper
 pageId: 28548971
-version: 8
-lastUpdated: 2026-06-16T17:13:29.665Z
+version: 9
+lastUpdated: 2026-11-20T20:26:26.619Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548971/Sample+change+log+consumer
 ---
 

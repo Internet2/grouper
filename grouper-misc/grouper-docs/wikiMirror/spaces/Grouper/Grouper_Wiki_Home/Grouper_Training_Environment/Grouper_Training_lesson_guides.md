@@ -2,8 +2,8 @@
 title: "Grouper Training - lesson guides"
 space: Grouper
 pageId: 28543462
-version: 19
-lastUpdated: 2025-03-27T02:33:53.442Z
+version: 20
+lastUpdated: 2026-10-26T16:23:02.380Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543462/Grouper+Training+-+lesson+guides
 ---
 

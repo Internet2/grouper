@@ -2,8 +2,8 @@
 title: "Grouper Web Services FAQ"
 space: Grouper
 pageId: 28548546
-version: 10
-lastUpdated: 2026-07-01T05:44:13.967Z
+version: 14
+lastUpdated: 2026-11-27T18:42:44.720Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+Web+Services+FAQ
 ---
 
@@ -338,6 +338,30 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+We
     [mchyzer@flash pennGroupsClient-2.4.0]$ 
     ```
   - dsf
+- Multivalued subject attributes (v6.7+ and v7.9+)
+  
+  - If the client version is v6_7_000 to 6.x, or v7_9_000 or later, each entry in a subject's `attributeValues` holds all values of that attribute, sorted and joined with ", " (comma space). Older client versions get one value, as before. This is in v6 and v7 only, not v4, and 7.0 to 7.8 clients get one value.
+  - This applies to every service that returns subjects: get subjects, get members, get memberships, has member, add member, delete member, etc.
+  - The client version comes from the REST URL (e.g. `/servicesRest/v7_9_000/subjects`) or is the version of the grouperClient jar. Upgrading to a v6.7+ or v7.9+ grouperClient jar switches a client to this format.
+  - Commas and `U+` inside a value are encoded so the values can be split:
+    
+    - A comma in a value is sent as `U+002C`
+    - The `U` of a literal `U+` in a value is sent as `U+0055` (so `U+002C` in a value is sent as `U+0055+002C`)
+    - Values without a comma or `U+` are sent unchanged
+  - To decode, split on ", ", then replace `U+002C` with a comma, then replace `U+0055` with `U`. Java clients can call `GrouperClientUtils.wsSubjectAttributeValuesDecode()`
+    
+    
+    ```
+    values: A, C, D        sent as: A, C, D
+    value:  Anderson, Bob  sent as: AndersonU+002C Bob
+    ```
+  - An LDAP subject source keeps only the first value unless the attribute is listed as multivalued in subject.properties (case insensitive in v6.7+ and v7.9+)
+    
+    
+    ```
+    subjectApi.source.ldap.multivaluedLdapAttributes = eduPersonAffiliation
+    ```
+  - See [GRP-5430](https://todos.grouper.internet2.edu/browse/GRP-5430)
 
 - Which SOAP call should I use for getting the list of groups that group A is a member of?
 
@@ -357,7 +381,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+We
 
 - Why is there a "simple" operation for every non simple operation in SOAP and XML-HTTP?
 
-> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST.
+> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST. As of v7.9.1, v6.5.1 and v4.26.1, only reads (get, find, has member) may be sent with GET. An operation that changes data (add or delete member, save, delete, assign, ...) sent with GET or HEAD is refused with HTTP 400 INVALID_QUERY and does not run; send it with POST or PUT. Setting ws.rest.allowWritesWithGet = true in grouper-ws.properties keeps the old behavior (with a WARN log naming the client) while such clients are changed. As of v7.10.0, a REST request body larger than `ws.restMaxRequestBodyBytes` in grouper-ws.properties (default 100000000, about 100 MB; zero or less means no limit) is refused with HTTP 413. Raise it if a client sends very large batch requests.
 > 
 > It is confusing that there are so many different ways to call grouper via web service. The documentation will be improved to make it easier to find the best strategy.
 

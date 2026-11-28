@@ -2,8 +2,8 @@
 title: "Web Services FAQ"
 space: Grouper
 pageId: 28548593
-version: 22
-lastUpdated: 2026-07-12T15:26:56.253Z
+version: 24
+lastUpdated: 2026-11-27T18:42:45.374Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548593/Web+Services+FAQ
 ---
 
@@ -23,7 +23,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548593/Web+Servic
 
 - Why is there a "simple" operation for every non simple operation in SOAP and XML-HTTP?
 
-> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST.
+> The non-simple operations are batchable if the client wants to do one operation multiple times with one request. The simple operations are for if the client only needs to do one thing (e.g. assign a member to a group and not assign multiple members to a group). Also, there is a valuable side effect that for the XML-HTTP, if the operation only has scaler input params (and not complex types or arrays), that the input does not need XML, it can be in the query string for GET or in the http form param pairs in the body for POST. As of v7.9.1, v6.5.1 and v4.26.1, only reads (get, find, has member) may be sent with GET. An operation that changes data (add or delete member, save, delete, assign, ...) sent with GET or HEAD is refused with HTTP 400 INVALID_QUERY and does not run; send it with POST or PUT. Setting ws.rest.allowWritesWithGet = true in grouper-ws.properties keeps the old behavior (with a WARN log naming the client) while such clients are changed. As of v7.10.0, a REST request body larger than `ws.restMaxRequestBodyBytes` in grouper-ws.properties (default 100000000, about 100 MB; zero or less means no limit) is refused with HTTP 413. Raise it if a client sends very large batch requests.
 > 
 > It is confusing that there are so many different ways to call grouper via web service. The documentation will be improved to make it easier to find the best strategy.
 

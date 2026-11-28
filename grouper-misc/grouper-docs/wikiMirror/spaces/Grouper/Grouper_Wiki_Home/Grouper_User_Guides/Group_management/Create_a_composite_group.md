@@ -2,8 +2,8 @@
 title: "Create a composite group"
 space: Grouper
 pageId: 28545340
-version: 17
-lastUpdated: 2026-07-28T15:21:15.238Z
+version: 18
+lastUpdated: 2026-11-20T20:25:59.739Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545340/Create+a+composite+group
 ---
 

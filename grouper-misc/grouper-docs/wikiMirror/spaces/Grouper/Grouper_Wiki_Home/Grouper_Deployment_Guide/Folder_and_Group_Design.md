@@ -2,8 +2,8 @@
 title: "Folder and Group Design"
 space: Grouper
 pageId: 28543159
-version: 61
-lastUpdated: 2026-07-12T15:26:04.641Z
+version: 62
+lastUpdated: 2026-11-20T20:25:05.015Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543159/Folder+and+Group+Design
 ---
 

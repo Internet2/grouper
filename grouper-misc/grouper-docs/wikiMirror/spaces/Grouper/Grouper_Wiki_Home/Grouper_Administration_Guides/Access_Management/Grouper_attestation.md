@@ -2,8 +2,8 @@
 title: "Grouper attestation"
 space: Grouper
 pageId: 28545015
-version: 64
-lastUpdated: 2026-07-01T05:47:50.447Z
+version: 65
+lastUpdated: 2026-11-20T21:03:01.580Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545015/Grouper+attestation
 ---
 
@@ -15,7 +15,7 @@ Grouper attestation means marking a group or folder so that those with READ & UP
 
 ## Privileges
 
-If you are a Grouper admin or if you have UPDATE or ADMIN privileges on a group or stem, you can edit attestation on that entity.
+If you are a Grouper admin, or you have ADMIN on a group (or STEM_ADMIN on a folder), you can configure attestation on it: add, edit, disable or remove its attestation settings. If you have READ and UPDATE on a group, you can attest it, clear its review date and view its attestation settings, but (as of v7.9.1, v6.5.1 and v4.26.1) you cannot change them. (GRP-5105)
 
 If you can edit attestation or if you have READ on a group or stem, you can READ the attestation on that entity.
 

@@ -2,8 +2,8 @@
 title: "Grouper Box Provisioner"
 space: Grouper
 pageId: 28555350
-version: 13
-lastUpdated: 2026-07-12T15:27:12.137Z
+version: 14
+lastUpdated: 2026-09-28T08:07:26.356Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555350/Grouper+Box+Provisioner
 ---
 
@@ -67,3 +67,16 @@ Advice
 | spaceUsed | integer | optional | space_used | The amount of space in use by the user |
 | status | string | optional | status | The user's account status  Value is one of `active`,`inactive`,`cannot_delete_edit`,`cannot_delete_edit_upload` |
 | type | string | optional | type | value is always "user" |
+
+## Sync back
+
+With sync back turned on, the Box provisioner records a snapshot of each Box group and user it reads into the sync back reporting tables. See [Grouper provisioning sync back](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back) for how to turn it on and how to read the data. These attributes are captured by default; override the list with `nativeAttributesGroups` or `nativeAttributesEntities`.
+
+| **Object** | **Default attributes captured** |
+| --- | --- |
+| Group | `name`, `description`, `group_type`, `provenance`, `external_sync_identifier`, `invitability_level`, `member_viewability_level` |
+| User | `login`, `role`, `status`, `type` |
+
+As of v7.6.0 the group defaults include `description`, `external_sync_identifier`, `invitability_level` and `member_viewability_level` (before that only `name`, `group_type` and `provenance`), and the provisioner asks Box for those fields whenever group sync back is on. Box returns all groups in one call, so the extra group attributes cost little. The user list is kept short because a Box tenant can have tens of thousands of users.
+
+`permissions.can_invite_as_collaborator` is not captured by default: it is nested in the Box JSON, not a top level field, so it cannot be requested from Box that way.

@@ -2,8 +2,8 @@
 title: "v6 Upgrade Instructions from v4 / v5"
 space: Grouper
 pageId: 28547828
-version: 40
-lastUpdated: 2026-07-21T20:41:46.856Z
+version: 41
+lastUpdated: 2026-10-13T14:03:23.334Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547828/v6+Upgrade+Instructions+from+v4+v5
 ---
 
@@ -15,12 +15,14 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
 
 1. You must upgrade to v6 from v4. The membership cache must have an initial run (does not need to be exact, can run before the upgrade e.g. a week before).
   
+  
+  
   1. If the membership cache is not populated in v6, there can be negative consequences, so by default v6 will not start if there are groups in Grouper and the membership cache is not there. See this jira.
   2. **You must upgrade from v4 (latest) to v6+**. You will encounter DDL related issues if you upgrade from before v4.19 to v6.
-  3. **When on v4 (latest), run the OTHER_JOB_****sqlCacheInitialPopulator daemon before upgrading to v6.** This will populate the membership cache. Depending on the size of your Grouper deployment (number of groups, memberships, etc) and your database performance/latency/etc, this job may be relatively quick or may take up to a day or two. This must be run within a week of upgrading. If you run it, and a week goes by, and you do not upgrade, run it again within a week of upgrading. Note, Grouper is in read/write mode while this job is running.  
+  3. **When on v4 (latest), run the OTHER_JOB_sqlCacheInitialPopulator daemon before upgrading to v6.** This will populate the membership cache. Depending on the size of your Grouper deployment (number of groups, memberships, etc) and your database performance/latency/etc, this job may be relatively quick or may take up to a day or two. This must be run within a week of upgrading. If you run it, and a week goes by, and you do not upgrade, run it again within a week of upgrading. Note, Grouper is in read/write mode while this job is running.  
       
-    Check progress  
-      
+    Check progress
+    
     
     
     # Estimating progress of `SqlCacheInitialPopulator`
@@ -179,7 +181,11 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
   4. There is an upgrade task in v6 which will true up the membership cache table
 2. Tomcat is a single process in the container, there is no apache, shib, supervisor, logpipes
   
+  
+  
   1. Adjust UI authentication in v4, and run tomcat as a single process in the container. You can either
+    
+    
     
     1. Use the [built-in OIDC](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548296/OIDC+authentication+to+Grouper+UI)
     2. Use the [Unicon pacj4 authentication plugin that does SAML/CAS](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549858/Pac4j+Plugin+for+Built-in+Single+Sign-on+SSO)
@@ -187,12 +193,16 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
     4. Run an authentication container separate from Grouper and reverse proxy
   2. If you are doing apache WS authn (LDAP or htaccess) you need to:
     
+    
+    
     1. Migrate to Grouper LDAP or built-in users
   3. You might want to set GROUPER_TOMCAT_REMOTE_IP_VALVE=true, read the docs, there are other related settings too
   4. Make sure you only have traffic from the load balancer or external web server and not allowed directly to tomcat (if shouldnt be allowed)
   5. Since Apache isn't used, the /status_grouper/status health check endpoint no longer works. Adjust your health checks to use /grouper/status or /grouper-ws/status
   6. Since Apache isn't used, hosting static files outside of the /grouper or /grouper-ws base no longer works
 3. Migrate from legacy provisioners to the provisioning framework
+  
+  
   
   1. pspng
   2. googleapps
@@ -204,6 +214,8 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
   8. grouper-shib (use SQL or LDAP)
 4. Migrate from unsupported legacy features, unlikely in use. The other legacy provisioners were already gone from v5, but these are additionally removed in v6.
   
+  
+  
   1. grouperScim (legacy unsupported version of SCIM, not the supported one)
   2. grouperActivemq (legacy unsupported version of activeMq for a specific use case)
   3. grouper-aws-changelog (legacy unsupported version of AWS for a specific use case)
@@ -214,6 +226,8 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
 5. If someone is using SOAP (there are logs to alert you if so), migrate to REST
 6. The installer jar (grouper-installer-a.b.c.jar) has been removed. If you have a workflow task that was using it, migrate off of it
 7. Some Java libraries have significant upgrades or have been removed. Check your gsh scripts (templates, daemon jobs, batch scripts) and custom Java code for usage of:
+  
+  
   
   1. commons-httpclient (classes org.apache.commons.httpclient.*)
   2. json-lib (classes net.sf.json.*) - migrate to Jackson
@@ -228,23 +242,37 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
 - Turn off the daemon server of the old version and other servers connecting to Grouper
 - Make sure the change log temp in the old version is empty by running CHANGE_LOG_changeLogTempToChangeLog from GSH
   
+  
+  
   - loaderRunOneJob("CHANGE_LOG_changeLogTempToChangeLog");
 - Change this property in grouper.hibernate.properties, run the GSH container in the v6 version, it will upgrade your database
+  
+  
   
   - GROUPER_AUTO_DDL_UPTOVERSION=6.*.*
   - You can run this to see if you have everything, do not run the generated script though
     
+    
+    
     - (v6 version) gsh.sh -registry -check -runscript
 - Do not turn on the daemon server until the following tasks are complete:
   
+  
+  
   - Run the OTHER_JOB_upgradeTasks daemon from a GSH terminal, and see that it runs successfully. This will make sure all the data is setup in the v6 way. Note: this should happen on a GSH startup, but you can also run this job
+    
+    
     
     - loaderRunOneJob("OTHER_JOB_upgradeTasks");
   - Run this job via GSH (with lots of memory): OTHER_JOB_sqlCacheFullSync job. This will make sure the membership cache tables are setup correctly. Note: this should happen on a GSH startup, but you can also run this job
     
+    
+    
     - edu.internet2.middleware.grouper.app.loader.GrouperLoader.scheduleJobs();
     - loaderRunOneJob("OTHER_JOB_sqlCacheFullSync");
 - Make sure ports are listening as expected, e.g. if you expect AJP 8009 you need to set the env variable: GROUPER_TOMCAT_AJP_PORT=8009. If you do not want tomcat ssl to listen, set GROUPER_TOMCAT_HTTPS_PORT=false
+  
+  
   
   - Ideally if apache in v4 was listening on 443, you would change your load balancer to point to 8443 instead and have tomcat listen on that port.
   - If you want to have tomcat listen on 443 it needs to run as root since 443 is a privileged port. Running tomcat as root is not a good security posture.
@@ -252,15 +280,20 @@ Many things have changed in v6. You should prepare v4 and make changes in v4 bef
   - If you are using Tomcat with https, it is a self-signed certificate. If you are using curl on localhost for health checks, you can add `--insecure` to get past the self-signed certificate error. In AWS ECS, update the health check (add `--insecure`) at the level of the UI and WS task definition
 - Custom Java
   
+  
+  
   - You should check to see if your Java still compiles. It should, but check anyways. Tweak it if you need to or ask for advice on slack. You might want to rebuild anyways. See above for the list of changes in other libraries.
 - There are no logpipes in the logging anymore, if you customized logging, make sure you use the std out/err appender and not e.g. <AppenderRef ref="logpipe_grouper_daemon"/>
   
-  - remove GROUPER_LOG_TO_PIPE=true  
+  
+  
+  - remove GROUPER_LOG_TO_PIPE=true
+    
     
     
     - Note: You will lose logging in 4 but logpipes are no longer in 6
 
-This gets you to v6.X.X. Now look at the[v5 upgrade steps and see which ones apply to you](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5). Then look at the v6 upgrade steps and see which ones apply to you.
+This gets you to v6.X.X. Now look at the[v5 upgrade steps and see which ones apply to you](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5). Then look at the [v6 upgrade steps](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549643/v6+Upgrade+instructions+from+v6) and see which ones apply to you.
 
 ## Experience at Penn
 
@@ -273,6 +306,8 @@ This gets you to v6.X.X. Now look at the[v5 upgrade steps and see which ones app
 - In v4, the authentication was switched from SAML to OIDC. The IdP operator registered an OIDC endpoint for PennGroups. The external system was configured, and SAML was removed from the container. It was surprisingly easy.
 
 - Container changes for authentication change
+  
+  
   
   - Set run shib to false: ENV GROUPER_RUN_SHIB_SP=false
   - Keep apache running initially so it is easy to switch back and reduce the number of changes
@@ -376,11 +411,15 @@ In v4 Grouper can be run in a single process container, like it will be in v6. T
 - These were configured in the provisioning framework, and the legacy provisioners were turned off
 - Each was done one at a time
   
+  
+  
   - Box
   - Remedy
   - Duo
   - PSPNG (was done last)
 - PSPNG provisioning upgrade
+  
+  
   
   - Configure the provisioning framework
   - Disable the PSPNG jobs

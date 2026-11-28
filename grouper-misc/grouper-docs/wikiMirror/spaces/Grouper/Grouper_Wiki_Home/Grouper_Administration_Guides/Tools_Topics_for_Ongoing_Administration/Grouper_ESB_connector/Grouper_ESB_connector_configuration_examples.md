@@ -2,8 +2,8 @@
 title: "Grouper ESB connector configuration examples"
 space: Grouper
 pageId: 28673883
-version: 10
-lastUpdated: 2026-07-01T05:35:06.031Z
+version: 11
+lastUpdated: 2026-11-20T21:00:29.654Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28673883/Grouper+ESB+connector+configuration+examples
 ---
 
@@ -55,6 +55,8 @@ changeLog.consumer.httpOpenLdapTest.publisher.addSubjectAttributes = cardiffidma
 ```
 
 # Sample config to run a server listening for incoming events from an ESB
+# authConfigFile is required: a realm file with lines like  username: password,grouper  (role user or grouper).
+# If it is blank or does not load, the listener does not start.  Callers must send Basic auth for a user in the file.
 esb.listeners.http.enable = false esb.listeners.http.port = 8443 esb.listeners.http.bindaddress = 127.0.0.1
 esb.listeners.http.authConfigFile = /home/rob/Customers/Internet2/users
 # ssl config parameters - see http://docs.codehaus.org/display/JETTY/How+to+configure+SSL for details
@@ -86,6 +88,8 @@ changeLog.consumer.xmppTest.publisher.addSubjectAttributes = cardiffidmanaffilia
 ```
 
  Example 5:
+
+ As of v7.9.1, v6.5.1 and v4.26.1, the incoming XMPP listener is retired: with esb.listeners.xmpp.enable = true it only logs an error. Set it to false and use Grouper web services for incoming membership changes. (Example 4, sending events to XMPP, is not affected.)
 
  
 ```

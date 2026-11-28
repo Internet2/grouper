@@ -2,10 +2,12 @@
 title: "Grouper managing an existing Entra ID group or Microsoft Team"
 space: Grouper
 pageId: 243728397
-version: 5
-lastUpdated: 2026-09-24T07:33:04.601Z
+version: 6
+lastUpdated: 2026-09-30T16:31:05.908Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/243728397/Grouper+managing+an+existing+Entra+ID+group+or+Microsoft+Team
 ---
+
+> **Full working example:** pennEntraGroups-provisioner.properties is the complete provisioner config Penn runs in production (provisioner only; the daemon jobs and the Azure external system are separate). The snippets below are excerpts from it.
 
 The info on this page applies to Grouper v4+.
 

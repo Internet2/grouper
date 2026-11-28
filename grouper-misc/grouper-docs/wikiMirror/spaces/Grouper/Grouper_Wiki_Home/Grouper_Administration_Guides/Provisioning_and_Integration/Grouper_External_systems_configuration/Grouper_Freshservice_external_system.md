@@ -2,8 +2,8 @@
 title: "Grouper Freshservice external system"
 space: Grouper
 pageId: 28547422
-version: 13
-lastUpdated: 2026-07-01T05:46:48.528Z
+version: 14
+lastUpdated: 2026-10-28T18:50:46.637Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547422/Grouper+Freshservice+external+system
 ---
 
@@ -54,16 +54,20 @@ grouper.wsBearerToken.freshServiceProd.testUrlSuffix = /api/v2/requesters
 
 ## Use the external system
 
-[Grouper Freshservice provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554244/Grouper+Freshservice+requester+provisioner)
+This external system is used by both Freshservice provisioners:
+
+- [Grouper Freshservice requester provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554244/Grouper+Freshservice+requester+provisioner)
+- [Grouper Freshservice agent provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/341966857/Grouper+Freshservice+agent+provisioner) (the API key needs to be able to manage agents and groups, generally an administrator)
 
 ## Grouper development team testing
 
 Set this in grouper.hibernate.properties (or set env var: GROUPER_MOCK_SERVICES=true)
 
-URL path for testing mock service: /grouper/mockServices/freshRequester
+URL path for testing mock service: /grouper/mockServices/freshRequester (requester) or /grouper/mockServices/freshAgent (agent)
 
 Set this in grouper.properties
 
 ```
 grouperTest.exampleFreshRequester.mockExternalSystem.configId = freshServiceDev
+grouperTest.exampleFreshAgent.mockExternalSystem.configId = freshServiceDev
 ```

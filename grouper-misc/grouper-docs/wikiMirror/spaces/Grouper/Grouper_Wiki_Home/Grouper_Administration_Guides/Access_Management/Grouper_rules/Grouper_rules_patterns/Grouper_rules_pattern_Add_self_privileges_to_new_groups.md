@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Add self privileges to new groups"
 space: Grouper
 pageId: 28555612
-version: 7
-lastUpdated: 2024-04-20T17:12:27.288Z
+version: 8
+lastUpdated: 2026-11-20T20:27:09.922Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555612/Grouper+rules+pattern+-+Add+self+privileges+to+new+groups
 ---
 

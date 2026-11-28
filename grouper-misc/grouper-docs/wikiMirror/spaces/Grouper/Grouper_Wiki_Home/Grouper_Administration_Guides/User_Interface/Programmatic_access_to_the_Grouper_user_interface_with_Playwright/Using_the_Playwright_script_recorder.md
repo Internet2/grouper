@@ -2,8 +2,8 @@
 title: "Using the Playwright script recorder"
 space: Grouper
 pageId: 28549074
-version: 4
-lastUpdated: 2024-06-01T00:25:48.216Z
+version: 5
+lastUpdated: 2026-11-20T20:26:28.912Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549074/Using+the+Playwright+script+recorder
 ---
 

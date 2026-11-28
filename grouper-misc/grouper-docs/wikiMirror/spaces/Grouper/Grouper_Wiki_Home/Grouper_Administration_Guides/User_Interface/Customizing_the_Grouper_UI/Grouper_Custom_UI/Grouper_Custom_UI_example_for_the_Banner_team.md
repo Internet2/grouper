@@ -2,8 +2,8 @@
 title: "Grouper Custom UI example for the Banner team"
 space: Grouper
 pageId: 28554867
-version: 4
-lastUpdated: 2020-09-02T21:15:01.609Z
+version: 5
+lastUpdated: 2026-11-20T20:26:55.618Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554867/Grouper+Custom+UI+example+for+the+Banner+team
 ---
 

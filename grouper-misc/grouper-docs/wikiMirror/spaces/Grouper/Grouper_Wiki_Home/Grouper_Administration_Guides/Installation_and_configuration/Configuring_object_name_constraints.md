@@ -2,8 +2,8 @@
 title: "Configuring object name constraints"
 space: Grouper
 pageId: 28544862
-version: 5
-lastUpdated: 2025-09-02T20:39:50.857Z
+version: 6
+lastUpdated: 2026-11-20T20:25:49.922Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544862/Configuring+object+name+constraints
 ---
 

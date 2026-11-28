@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Veto if new membership is not a group or in certain subject sources"
 space: Grouper
 pageId: 28554971
-version: 8
-lastUpdated: 2026-07-01T05:39:14.132Z
+version: 9
+lastUpdated: 2026-11-23T07:27:04.678Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554971/Grouper+rules+pattern+-+Veto+if+new+membership+is+not+a+group+or+in+certain+subject+sources
 ---
 
@@ -18,6 +18,8 @@ Add this rule to the group where the membership is added. Todo: Add an if condit
 # Configure rule for v4 and previous
 
 ### Allow EL for GrouperSystem
+
+This rule only uses safeSubject, which is always available. The setting below is not used as of v4.27.0 ([GRP-7596](https://todos.grouper.internet2.edu/browse/GRP-7596)).
 
 in grouper.properties
 

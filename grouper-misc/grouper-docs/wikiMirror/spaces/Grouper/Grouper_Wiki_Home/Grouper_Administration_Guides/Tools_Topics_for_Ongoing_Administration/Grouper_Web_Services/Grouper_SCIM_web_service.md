@@ -2,8 +2,8 @@
 title: "Grouper SCIM web service"
 space: Grouper
 pageId: 28549538
-version: 4
-lastUpdated: 2025-06-20T18:13:21.376Z
+version: 6
+lastUpdated: 2026-11-20T21:02:29.098Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549538/Grouper+SCIM+web+service
 ---
 
@@ -43,7 +43,7 @@ Endpoint: GET /grouper-ws/scim/v2/Groups?filter={filter}&startIndex={startIndex}
 
 Filter is using the SCIM syntax. For example, `displayName eq "manager"`. The search term must be in double quotes if it is a string. The spaces between terms is required, and must be URL encoded with + or %20 for use in the URL.
 
-Note: startIndex is not currently implemented. If included, the value must be blank
+Note: as of v7.9.1, v6.5.1 and v4.26.1, startIndex (1-based) is supported for paging, and a response holds at most ws.scim.maxResultsPerPage results (grouper-ws.properties, default 1000); a larger itemsPerPage is lowered to that limit. Results are in group name order. On a page that is not the last, totalResults is one more than the results returned so far, so keep requesting the next page while startIndex is at most totalResults; the last page has the exact total. In earlier versions startIndex is not implemented and must be blank.
 
 Supported filters:
 
@@ -161,7 +161,7 @@ Endpoint: GET /grouper-ws/scim/v2/Memberships?filter={filter}&startIndex={startI
 
 Filter is using the SCIM syntax. The membership implements both the "eq" and "and" operators. For example: groupName eq "etc:sysadmingroup" and subjectId eq "80001147". The search term must be in double quotes if it is a string. The spaces between terms is required, and must be encoded with + or %20 for use in the URL.
 
-Note: startIndex is not currently implemented. If included, the value must be blank
+Note: as of v7.9.1, v6.5.1 and v4.26.1, startIndex (1-based) is supported for paging, and a response holds at most ws.scim.maxResultsPerPage results (grouper-ws.properties, default 1000); a larger itemsPerPage is lowered to that limit. totalResults is the exact total. A filter operator other than eq or and gets HTTP 400. In earlier versions startIndex is not implemented and must be blank.
 
 Supported filters:
 

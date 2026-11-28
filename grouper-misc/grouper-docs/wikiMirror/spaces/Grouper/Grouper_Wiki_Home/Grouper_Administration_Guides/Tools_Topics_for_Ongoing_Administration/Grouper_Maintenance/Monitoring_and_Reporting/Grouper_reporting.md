@@ -2,8 +2,8 @@
 title: "Grouper reporting"
 space: Grouper
 pageId: 28554409
-version: 58
-lastUpdated: 2026-07-01T05:40:32.004Z
+version: 60
+lastUpdated: 2026-11-27T18:42:26.010Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554409/Grouper+reporting
 ---
 
@@ -22,6 +22,7 @@ In patches in Grouper 2.4 (api #61, ui #37), Grouper has a reporting capability.
 - The GSH report type uses a GSH script to either output directly to the report file, or to build data rows that are converted to a CSV file
   
   - The GSH report type is available in 2.5.53 and 2.6.0
+  - In v7.10.0+ the report config screen has a "GSH source" choice: "GSH script entered here" (at most 4000 characters) or "Compiled GSH report template", which runs a `grouperGshTemplate.<configId>.*` template with `templateType=report` and `templateMode=compiled`. Use a compiled template for longer or more complex reports. See [Migrate a GSH report to compiled Java](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555839/Migrate+a+GSH+report+to+compiled+Java)
 - The output of the report will be encrypted and stored to storage
 - Users can be notified by email that the report exists
 - When the login they can download the most recent report

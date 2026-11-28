@@ -2,8 +2,8 @@
 title: "Folder attribute view and edit"
 space: Grouper
 pageId: 28545117
-version: 5
-lastUpdated: 2024-05-30T13:33:35.067Z
+version: 6
+lastUpdated: 2026-11-20T20:25:53.690Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545117/Folder+attribute+view+and+edit
 ---
 

@@ -2,8 +2,8 @@
 title: "Add a member (entity or group) to a group"
 space: Grouper
 pageId: 28544779
-version: 16
-lastUpdated: 2024-05-30T13:41:41.904Z
+version: 17
+lastUpdated: 2026-11-20T20:25:47.015Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544779/Add+a+member+entity+or+group+to+a+group
 ---
 

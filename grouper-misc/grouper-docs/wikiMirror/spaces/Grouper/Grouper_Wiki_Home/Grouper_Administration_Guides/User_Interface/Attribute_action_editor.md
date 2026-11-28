@@ -2,8 +2,8 @@
 title: "Attribute action editor"
 space: Grouper
 pageId: 28544588
-version: 5
-lastUpdated: 2024-05-21T14:51:36.371Z
+version: 6
+lastUpdated: 2026-11-20T20:25:40.962Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544588/Attribute+action+editor
 ---
 

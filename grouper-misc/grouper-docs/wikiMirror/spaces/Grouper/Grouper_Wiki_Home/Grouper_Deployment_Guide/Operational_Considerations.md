@@ -2,8 +2,8 @@
 title: "Operational Considerations"
 space: Grouper
 pageId: 28543134
-version: 19
-lastUpdated: 2026-07-12T15:26:04.129Z
+version: 20
+lastUpdated: 2026-11-20T20:25:03.602Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543134/Operational+Considerations
 ---
 

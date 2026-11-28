@@ -2,8 +2,8 @@
 title: "Grouper LDAP Group 'hasMember' Provisioner Example"
 space: Grouper
 pageId: 28560235
-version: 4
-lastUpdated: 2023-05-17T16:18:41.148Z
+version: 5
+lastUpdated: 2026-11-20T20:27:19.382Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28560235/Grouper+LDAP+Group+hasMember+Provisioner+Example
 ---
 

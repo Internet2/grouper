@@ -2,8 +2,8 @@
 title: "Grouper ABAC Crashplan deprovisioning example"
 space: Grouper
 pageId: 28548902
-version: 13
-lastUpdated: 2026-07-01T05:43:17.335Z
+version: 14
+lastUpdated: 2026-11-20T20:13:28.856Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548902/Grouper+ABAC+Crashplan+deprovisioning+example
 ---
 

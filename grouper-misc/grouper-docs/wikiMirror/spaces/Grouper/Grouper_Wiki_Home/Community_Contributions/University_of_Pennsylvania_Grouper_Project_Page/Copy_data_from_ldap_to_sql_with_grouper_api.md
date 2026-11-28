@@ -2,8 +2,8 @@
 title: "Copy data from ldap to sql with grouper api"
 space: Grouper
 pageId: 28544561
-version: 5
-lastUpdated: 2021-09-16T17:10:15.496Z
+version: 6
+lastUpdated: 2026-11-20T20:25:39.742Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544561/Copy+data+from+ldap+to+sql+with+grouper+api
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper automatic membership removal if not attested"
 space: Grouper
 pageId: 28549775
-version: 13
-lastUpdated: 2026-07-12T05:23:16.263Z
+version: 14
+lastUpdated: 2026-11-20T20:26:42.029Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549775/Grouper+automatic+membership+removal+if+not+attested
 ---
 

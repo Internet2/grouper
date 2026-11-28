@@ -2,8 +2,8 @@
 title: "Grouper TeamDynamix External System"
 space: Grouper
 pageId: 28547992
-version: 8
-lastUpdated: 2026-07-12T15:26:50.535Z
+version: 9
+lastUpdated: 2026-11-20T21:04:16.848Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547992/Grouper+TeamDynamix+External+System
 ---
 
@@ -34,6 +34,8 @@ grouper.teamDynamix.teamdx.beid = your_beid
 grouper.teamDynamix.teamdx.url = https://nusupport.univ.edu/SBTDWebApi/
 grouper.teamDynamix.teamdx.webServicesKey = your_webservice_key
 ```
+
+The web services key is a credential. As of v7.9.1, v6.5.1 and v4.26.1 it is treated as a password: the external system screen stores it encrypted and the config screens mask it. Save it on the external system screen, or keep it in a password file. A value saved in clear in an earlier version stays in clear until it is re-saved; re-save it and rotate it in TeamDynamix.
 
 ## Use the external system
 

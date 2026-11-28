@@ -2,8 +2,8 @@
 title: "Grouper hook to ensure group does not exist in LDAP on group create"
 space: Grouper
 pageId: 28549145
-version: 1
-lastUpdated: 2022-02-11T20:23:24.801Z
+version: 2
+lastUpdated: 2026-11-20T20:26:31.413Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549145/Grouper+hook+to+ensure+group+does+not+exist+in+LDAP+on+group+create
 ---
 

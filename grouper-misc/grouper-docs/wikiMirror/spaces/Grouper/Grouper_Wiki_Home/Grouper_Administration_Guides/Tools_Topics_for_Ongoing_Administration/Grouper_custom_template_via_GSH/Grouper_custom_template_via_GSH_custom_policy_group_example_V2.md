@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH custom policy group example V2"
 space: Grouper
 pageId: 28549736
-version: 5
-lastUpdated: 2026-01-15T17:22:10.374Z
+version: 6
+lastUpdated: 2026-11-20T20:26:39.737Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549736/Grouper+custom+template+via+GSH+custom+policy+group+example+V2
 ---
 

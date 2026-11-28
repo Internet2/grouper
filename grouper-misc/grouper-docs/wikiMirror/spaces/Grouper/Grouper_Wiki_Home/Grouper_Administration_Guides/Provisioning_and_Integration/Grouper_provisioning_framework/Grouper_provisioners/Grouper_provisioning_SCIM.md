@@ -2,8 +2,8 @@
 title: "Grouper provisioning SCIM"
 space: Grouper
 pageId: 28555423
-version: 45
-lastUpdated: 2026-07-19T00:32:44.340Z
+version: 46
+lastUpdated: 2026-11-27T18:41:25.766Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM
 ---
 
@@ -114,6 +114,11 @@ See if there is totalResults. If so, things are probably ok here.
   "startIndex": 0,
   "Resources": [{
 ```
+
+Two settings fix common paging problems (grouper-loader.properties):
+
+- `provisioner.<configId>.scimIgnorePagingMetadata`, default `false`: ignore `totalResults` and the other paging metadata, for a server which does not set them correctly.
+- `provisioner.<configId>.scimPageByRequestedCount`, v7.10.0+, default `false`: move `startIndex` on by the requested page size instead of by the number of resources returned, and keep paging through empty or repeated pages until `startIndex` passes `totalResults`. Use it for a server which filters out records it will not show you after cutting the page, so pages come back short or empty before the end. Snowflake does this; without the setting, Grouper stops at the first short page and misses the rest of the users or groups.
 
 ### Retrieve memberships by user
 

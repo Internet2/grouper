@@ -2,8 +2,8 @@
 title: "Assign/view permissions"
 space: Grouper
 pageId: 28545105
-version: 13
-lastUpdated: 2024-05-21T16:18:03.622Z
+version: 14
+lastUpdated: 2026-11-20T20:25:52.481Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545105/Assign+view+permissions
 ---
 

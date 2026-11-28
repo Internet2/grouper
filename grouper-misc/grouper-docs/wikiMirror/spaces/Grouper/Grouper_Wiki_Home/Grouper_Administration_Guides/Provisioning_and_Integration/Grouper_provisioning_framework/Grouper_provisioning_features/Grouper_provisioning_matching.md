@@ -2,8 +2,8 @@
 title: "Grouper provisioning matching"
 space: Grouper
 pageId: 28554238
-version: 2
-lastUpdated: 2026-07-01T05:40:52.444Z
+version: 4
+lastUpdated: 2026-11-27T18:41:02.664Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554238/Grouper+provisioning+matching
 ---
 
@@ -40,3 +40,20 @@ Generally the matching attributes and search attributes will be the same.
   5. See if there is an attribute/value that matches the target
   6. If there are multiple grouper objects that match target objects, that is a validation problem (for that attribute)
   7. If there are multiple target objects that match grouper objects, that is a validation problem (for that attribute)
+
+ 
+
+## Re-linking an entity to another target account
+
+*v7.9.1+*
+
+Most provisioners match entities on a name which can change (for example SCIM `userName`, Duo `loginId`, Google email) and then on the target id. If an entity is already linked to a target account and its matching value changes to a value which another target account already holds, matching does not move the entity to that account. The entity gets an object error and keeps its link. This is because anyone else who can create or rename accounts in the target could claim the value ahead of time, and the moved entity would give that account its memberships.
+
+The link is the target value cached at the last sync, from an entity attribute cache with source target (for example the target id). An entity with no such cache, which has never been linked, is matched as before.
+
+Settings in grouper-loader.properties:
+
+- `provisioner.<configId>.trustTargetToRelinkEntities`, v7.10.0+, default `false`: when `true`, matching moves the entity to the other account. Turn it on only if Grouper is the only system which creates or renames accounts in the target. The Configuration review screen warns while it is on.
+- `provisioner.<configId>.scim2UpdateConflictRelink`, SCIM provisioners, default `false`: when a SCIM update of an entity returns a conflict (HTTP 409) because another target account already has the identity, allow re-linking the entity to the existing account with the same `externalId`, and dispose of the old account by the delete settings. `externalId` can be written by anyone who can edit the target account, so this is off by default and the entity gets an error instead.
+
+To fix an entity in error, rename or remove the other target account.

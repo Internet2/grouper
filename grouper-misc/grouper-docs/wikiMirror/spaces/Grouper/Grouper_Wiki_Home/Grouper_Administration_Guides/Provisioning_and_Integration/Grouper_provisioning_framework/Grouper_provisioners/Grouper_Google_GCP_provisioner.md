@@ -2,8 +2,8 @@
 title: "Grouper Google GCP provisioner"
 space: Grouper
 pageId: 28554610
-version: 30
-lastUpdated: 2026-07-01T05:39:59.927Z
+version: 31
+lastUpdated: 2026-10-22T06:36:33.920Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554610/Grouper+Google+GCP+provisioner
 ---
 
@@ -36,7 +36,8 @@ Advice
 | whoCanAdd | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
 | whoCanJoin | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
 | whoCanViewMembership | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
-| whoCanViewGroup | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
+| whoCanViewGroup | String | optional | Who can view the group messages. This is "Who can view conversations" in the Google Groups UI (not "Who can see group", which is whoCanDiscoverGroup). Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource). ALL_OWNERS_CAN_VIEW is offered in the group metadata dropdown in v4.28.0+, v6.7.0+, v7.10.0+ |
+| whoCanDiscoverGroup | String | optional | Who can find the group. This is "Who can see group" in the Google Groups UI. Replaces the deprecated Google setting showInGroupDirectory. Values: ANYONE_CAN_DISCOVER, ALL_IN_DOMAIN_CAN_DISCOVER, ALL_MEMBERS_CAN_DISCOVER. To let users pick it per group or folder, set provisioner.<configId>.whoCanDiscoverGroup = true (or "Has metadata for who can discover group" in the provisioner start-with wizard). Available in v4.28.0+, v6.7.0+, v7.10.0+ |
 | whoCanInvite | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
 | allowExternalMembers | Boolean | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |
 | whoCanPostMessage | String | optional | Valid values are listed at [https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource](https://developers.google.com/admin-sdk/groups-settings/v1/reference/groups#resource) |

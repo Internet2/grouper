@@ -2,8 +2,8 @@
 title: "Grouper LDAP provisioner demo7 groupAttributes flat with DN override, toLowerCase user search, and LDAP command logging"
 space: Grouper
 pageId: 28560264
-version: 5
-lastUpdated: 2022-07-27T18:58:27.282Z
+version: 6
+lastUpdated: 2026-11-20T20:27:21.801Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28560264/Grouper+LDAP+provisioner+demo7+groupAttributes+flat+with+DN+override+toLowerCase+user+search+and+LDAP+command+logging
 ---
 

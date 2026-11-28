@@ -2,8 +2,8 @@
 title: "Example Access Policies"
 space: Grouper
 pageId: 28543470
-version: 18
-lastUpdated: 2020-09-16T18:07:02.199Z
+version: 19
+lastUpdated: 2026-11-20T20:25:14.059Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543470/Example+Access+Policies
 ---
 

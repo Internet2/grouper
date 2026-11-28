@@ -2,8 +2,8 @@
 title: "Grouper AI agentic with Claude code"
 space: Grouper
 pageId: 28547554
-version: 3
-lastUpdated: 2026-07-01T05:46:33.578Z
+version: 7
+lastUpdated: 2026-11-16T09:32:02.684Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547554/Grouper+AI+agentic+with+Claude+code
 ---
 
@@ -31,7 +31,17 @@ mchyzer@Chriss-MacBook-Pro-6 /tmp % cd myGrouper
 mchyzer@Chriss-MacBook-Pro-6 myGrouper % git clone https://github.com/Internet2/grouper.git
 mchyzer@Chriss-MacBook-Pro-6 myGrouper % cd grouper
 mchyzer@Chriss-MacBook-Pro-6 grouper % git fetch --tags
-mchyzer@Chriss-MacBook-Pro-6 grouper % git checkout tags/GROUPER_RELEASE_5.22.1
+mchyzer@Chriss-MacBook-Pro-6 grouper % git checkout tags/GROUPER_RELEASE_7.9.0
+```
+
+Also clone the Grouper container so Claude can see the Dockerfile, container scripts, and default config. Container versions are branches (not tags), so switch to the branch of your version
+
+```
+mchyzer@Chriss-MacBook-Pro-6 grouper % cd ..
+mchyzer@Chriss-MacBook-Pro-6 myGrouper % git clone https://github.internet2.edu/docker/grouper.git grouperContainer
+mchyzer@Chriss-MacBook-Pro-6 myGrouper % cd grouperContainer
+mchyzer@Chriss-MacBook-Pro-6 grouperContainer % git checkout 7.9.0
+mchyzer@Chriss-MacBook-Pro-6 grouperContainer % cd ..
 ```
 
 Start claude (after installing, enrolling, paying, etc)

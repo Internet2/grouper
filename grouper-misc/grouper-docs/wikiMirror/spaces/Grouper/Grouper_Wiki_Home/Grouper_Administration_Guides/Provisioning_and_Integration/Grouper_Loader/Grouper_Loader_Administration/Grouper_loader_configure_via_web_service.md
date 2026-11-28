@@ -2,8 +2,8 @@
 title: "Grouper loader configure via web service"
 space: Grouper
 pageId: 28555044
-version: 8
-lastUpdated: 2026-06-16T17:13:29.924Z
+version: 9
+lastUpdated: 2026-11-20T20:27:00.580Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555044/Grouper+loader+configure+via+web+service
 ---
 

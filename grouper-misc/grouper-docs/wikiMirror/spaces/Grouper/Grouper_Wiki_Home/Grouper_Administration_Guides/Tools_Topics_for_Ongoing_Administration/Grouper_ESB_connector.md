@@ -2,8 +2,8 @@
 title: "Grouper ESB connector"
 space: Grouper
 pageId: 28545514
-version: 19
-lastUpdated: 2026-07-01T05:47:07.957Z
+version: 20
+lastUpdated: 2026-11-20T21:00:28.698Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545514/Grouper+ESB+connector
 ---
 
@@ -49,7 +49,7 @@ In a future release it will be possible to send multiple events as a single JSON
 
 ##### Incoming
 
-Membership add/deletes for a subject are supported. A listener can be set up to receive events over HTTP(S) or XMPP. The event must be a JSON string, which will be transformed into an EsbListenerEvents bean. This contains an array of one or more EsbListenerEvent beans. More information on the [incoming beans](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28673884/Grouper+ESB+Connector+incoming+beans) is available.
+Membership add/deletes for a subject are supported. A listener can be set up to receive events over HTTP(S). As of v7.9.1, v6.5.1 and v4.26.1, the HTTP listener starts only when esb.listeners.http.authConfigFile names a realm file that loads, and every request must send Basic auth for a user in that file with role user or grouper. Each such user can add and remove members of any group, so keep the file short and use HTTPS. The incoming XMPP listener is retired (it no longer starts); use Grouper web services for incoming membership changes. The event must be a JSON string, which will be transformed into an EsbListenerEvents bean. This contains an array of one or more EsbListenerEvent beans. More information on the [incoming beans](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28673884/Grouper+ESB+Connector+incoming+beans) is available.
 
 ##### Configuration
 

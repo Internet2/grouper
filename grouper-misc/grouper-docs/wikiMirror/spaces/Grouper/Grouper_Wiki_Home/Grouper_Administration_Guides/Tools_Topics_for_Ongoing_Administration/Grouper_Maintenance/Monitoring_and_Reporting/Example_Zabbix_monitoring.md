@@ -2,14 +2,14 @@
 title: "Example Zabbix monitoring"
 space: Grouper
 pageId: 28555675
-version: 7
-lastUpdated: 2026-07-01T05:37:39.778Z
+version: 8
+lastUpdated: 2026-11-20T21:01:34.049Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555675/Example+Zabbix+monitoring
 ---
 
 ## Example Zabbix rules
 
-Monitoring is performed using the Zabbix HTTP agent item to ingest Grouper status pages and parse them for relevant data using Dependent items and preprocessing. Some items have triggers applied that will generate alarms and possibly incidents in your event management system (e.g. ServiceNow). A graphical view of the monitoring data along with any current problems can be exported to a data visualization platform (e.g. Grafana). This  template can be used as a starting point.
+Monitoring is performed using the Zabbix HTTP agent item to ingest Grouper status pages and parse them for relevant data using Dependent items and preprocessing. Note: as of v7.9.1, v6.5.1 and v4.26.1 the per-check lines (memoryTest, dbTest_grouper, source and loader job lines) are returned only to addresses listed in `ws.diagnostic.sourceIpAddresses`, so list the Zabbix server there (or set `ws.diagnostic.sendDetailsOutsideSourceIpAddresses = true`); see [Grouper health check endpoint](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548954/Grouper+health+check+endpoint+healthcheck+status+diagnostics). Some items have triggers applied that will generate alarms and possibly incidents in your event management system (e.g. ServiceNow). A graphical view of the monitoring data along with any current problems can be exported to a data visualization platform (e.g. Grafana). This  template can be used as a starting point.
 
 | Monitoring item | Status page URL | Check | CheckType | Trigger |
 | --- | --- | --- | --- | --- |

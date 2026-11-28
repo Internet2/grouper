@@ -2,8 +2,8 @@
 title: "Grouper Documents & Presentations"
 space: Grouper
 pageId: 48792448
-version: 252
-lastUpdated: 2026-08-02T23:49:04.396Z
+version: 254
+lastUpdated: 2026-11-12T19:30:42.005Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48792448/Grouper+Documents+Presentations
 ---
 
@@ -18,6 +18,8 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48792448/Grouper+Do
 
 | Presentation Title | Author / Editor | Author Home | Venue | Date | Link to File | L.PDF | .PPT | Google slides | etc. |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Whose Group is it, Anyway? | Shira Acosta and Chris Zysk | University of Virginia | Tech Ex 2026 in Minneapolis | Oct 2026 |  |  |  |  |  |
+| Grouper BOF | Chris Hyzer | U Penn | Tech Ex 2026 in Minneapolis | Oct 2026 |  |  |  |  |  |
 | Grouper is taking over Minneapolis at TechEX26 | Chris Hyzer | U Penn | Internet2 / InCommon Blog | July 2022 | [https://incommon.org/resources/blogs/grouper-is-taking-over-minneapolis-at-techex26](https://incommon.org/resources/blogs/grouper-is-taking-over-minneapolis-at-techex26) |  |  |  |  |
 | Grouper: Welcome to 2026 and Thank You to 2025 | Chris Hyzer | U. Penn | Internet2 / InCommon Blog | Feb. 2025 | [https://incommon.org/resources/blogs/grouper-welcome-to-2026-and-thank-you-to-2025/](https://incommon.org/resources/blogs/grouper-welcome-to-2026-and-thank-you-to-2025/) |  |  |  |  |
 | Grouper Attestation in Action | Kellen Murphy and Shira Acosta | U. Virginia | Tech Ex 2025 in Denver | Dec. 2025 |  |  |  |  |  |

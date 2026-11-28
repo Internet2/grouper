@@ -2,8 +2,8 @@
 title: "Grouper web services act as"
 space: Grouper
 pageId: 28554493
-version: 10
-lastUpdated: 2017-08-23T16:13:09.838Z
+version: 12
+lastUpdated: 2026-11-20T21:00:27.689Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554493/Grouper+web+services+act+as
 ---
 
@@ -11,7 +11,7 @@ There is another "Act as" for grouper, which is audited. This enhancement is for
 
 ## Send the act as
 
-To get this to work, an HTTP header is sent with the request. You need to send the source ID. And you need to send the id or identifier. Note, this is a layer on top of the normal actAs and does not conflict, both can be used. Note these header values should be BASE64 encoded with UTF-8.
+To get this to work, an HTTP header is sent with the request. You need to send the source ID. And you need to send the id or identifier. Note, this is a layer on top of the normal actAs. As of v7.9.1, v6.5.1 and v4.26.1, use only one act-as mechanism per request: a request that sends these headers and also a body actAsSubjectLookup for a different subject is refused. If grouper-ws.properties ws.client.user.group.name is set, the authenticated account (not only the acted-as subject) must be a member of that group. Note these header values should be BASE64 encoded with UTF-8.
 
 ```
 X-Grouper-actAsSourceId: base64(sourceId)

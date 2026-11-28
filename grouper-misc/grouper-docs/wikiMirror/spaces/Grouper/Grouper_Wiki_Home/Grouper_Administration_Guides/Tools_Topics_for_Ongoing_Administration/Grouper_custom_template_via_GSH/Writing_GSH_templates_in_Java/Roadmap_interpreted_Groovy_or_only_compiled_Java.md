@@ -2,8 +2,8 @@
 title: "Roadmap: interpreted Groovy or only compiled Java"
 space: Grouper
 pageId: 48168966
-version: 9
-lastUpdated: 2026-07-15T16:51:29.181Z
+version: 10
+lastUpdated: 2026-11-20T09:02:47.103Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48168966/Roadmap+interpreted+Groovy+or+only+compiled+Java
 ---
 
@@ -15,7 +15,7 @@ Grouper can author a GSH template, provisioner, or daemon two ways: interpreted 
 
 This is a potential direction — interpreted mode keeps working today, so nothing you have breaks. The table below is the analysis for a direction into changing how institutional code is managed:
 
-- For new work, write compiled Java. Every template type supports it: gsh, abac, provisioner, daemon, daemonChangeLog, report, customUi, hook, and library.
+- For new work, write compiled Java. Every template type supports it: gsh, abac, provisioner, daemon, daemonChangeLog, report, customUi, hook, externalSystem, and library.
 - Migrate existing interpreted templates and scripts over time — help is offered below, and AI has made this nearly free.
 - Proposed roadmap: interpreted stays available through v7 and v8, and is removed in v9 or v11. That gives people time to migrate gracefully.
 
@@ -27,7 +27,7 @@ Both options across the top, criteria down the left. Each cell shows which optio
 
 | **Criterion** | **Keep interpreted (Groovy)** | **Only compiled Java** | **Description and finding** |
 | --- | --- | --- | --- |
-| **Available template types** | — | **Better** | Interpreted supports only gsh, abac, and provisioner. Compiled supports every type: gsh, abac, provisioner, daemon, daemonChangeLog, report, customUi, hook, and library. If you need any of the newer types, compiled is the only option. |
+| **Available template types** | — | **Better** | Interpreted supports only gsh, abac, and provisioner. Compiled supports every type: gsh, abac, provisioner, daemon, daemonChangeLog, report, customUi, hook, externalSystem, and library. If you need any of the newer types, compiled is the only option. |
 | **Groovy language support** | **Better** | — | Only interpreted mode runs Groovy. If you specifically want Groovy's dynamic typing and scripting idioms, that is the one thing compiled Java does not give you. |
 | **Technical debt / maintenance** | — | **Better** | One language and one execution path is less to maintain, patch, test, and document. Supporting both keeps two dispatchers, two sets of docs, and two failure modes alive indefinitely. There is a lot of code to make each work. |
 | **Consistency** | — | **Better** | One language means every template reads the same way; reviewers and new staff learn a single model instead of first working out which mode a template uses. |

@@ -2,8 +2,8 @@
 title: "Countdown intercept login page for two-step requirement"
 space: Grouper
 pageId: 28544159
-version: 1
-lastUpdated: 2018-10-15T18:48:19.692Z
+version: 2
+lastUpdated: 2026-11-20T20:25:31.294Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544159/Countdown+intercept+login+page+for+two-step+requirement
 ---
 

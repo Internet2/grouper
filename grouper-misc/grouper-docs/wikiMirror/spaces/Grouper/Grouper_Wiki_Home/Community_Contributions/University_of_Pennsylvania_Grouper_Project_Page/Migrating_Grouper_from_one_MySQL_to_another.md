@@ -2,8 +2,8 @@
 title: "Migrating Grouper from one MySQL to another"
 space: Grouper
 pageId: 28543979
-version: 2
-lastUpdated: 2017-05-22T00:46:34.894Z
+version: 3
+lastUpdated: 2026-11-20T20:25:22.824Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543979/Migrating+Grouper+from+one+MySQL+to+another
 ---
 

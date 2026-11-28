@@ -2,8 +2,8 @@
 title: "How to set up a Grouper development environment with IntelliJ"
 space: Grouper
 pageId: 48792934
-version: 7
-lastUpdated: 2021-09-28T03:44:28.198Z
+version: 8
+lastUpdated: 2026-11-20T20:27:28.075Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48792934/How+to+set+up+a+Grouper+development+environment+with+IntelliJ
 ---
 

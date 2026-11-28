@@ -2,8 +2,8 @@
 title: "Grouper custom provisioner"
 space: Grouper
 pageId: 28555586
-version: 3
-lastUpdated: 2026-01-16T20:56:12.046Z
+version: 4
+lastUpdated: 2026-11-20T20:27:08.721Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555586/Grouper+custom+provisioner
 ---
 

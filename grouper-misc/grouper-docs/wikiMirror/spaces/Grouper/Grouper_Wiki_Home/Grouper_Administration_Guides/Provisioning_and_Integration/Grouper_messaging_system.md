@@ -2,8 +2,8 @@
 title: "Grouper messaging system"
 space: Grouper
 pageId: 28544824
-version: 40
-lastUpdated: 2026-07-01T05:47:59.755Z
+version: 41
+lastUpdated: 2026-11-20T21:03:31.559Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544824/Grouper+messaging+system
 ---
 
@@ -18,6 +18,8 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544824/Grouper+me
 ## Overview
 
 The Grouper messaging system is a Java implementation of the `GrouperMessagingSystem` interface. It allows messages to be sent to and received from a messaging system.
+
+External messaging systems (RabbitMQ, AWS SQS, ActiveMQ) connect with the broker credentials configured for Grouper. As of v7.9.1, v6.5.1 and v4.26.1, a caller who is not wheel or root can send, receive or acknowledge on one only if they are a member of the group in grouper.properties `grouper.messaging.system.<messagingSystemName>.allowedGroupName`. If that is not set, only wheel or root can use the system. Only wheel or root can autocreate queues or topics. This applies to WS, UI, GSH and jobs that run as a non-root subject; daemons that run with no session or as root are not affected. Built-in messaging keeps its own per-queue/topic permissions.
 
 The built-in implementation is:
 

@@ -2,8 +2,8 @@
 title: "Grouper Custom UI"
 space: Grouper
 pageId: 28549064
-version: 39
-lastUpdated: 2026-07-01T05:42:52.281Z
+version: 40
+lastUpdated: 2026-11-20T20:59:20.865Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549064/Grouper+Custom+UI
 ---
 
@@ -41,13 +41,13 @@ The queries are of type: userQueryType which is from the enum: CustomUiUserQuery
 - azure: check an azure membership or user object
 - zoom: check zoom api and make attributes available (added 2.5.35+)
 
-The queries assign variables which must be prefixed with "cu_" for "Custom UI"
+The queries assign variables which must be prefixed with "cu_" for "Custom UI", followed by letters, digits or underscores only (e.g. cu_someName). As of v7.9.1, v6.5.1 and v4.26.1, a request parameter that starts with cu_ but has other characters (e.g. cu_some-name) is refused with "Invalid custom UI variable parameter name".
 
 You can configure a default that will fill in values for all config beans (maybe useful if there are a bunch of similar ldap calls)
 
 | Field | Type | Required for type | Optional for type | Description |
 | --- | --- | --- | --- | --- |
-| allowAssignFromUrl | Boolean |  | all | If a URL param can assign this URL for all users |
+| allowAssignFromUrl | Boolean |  | all | If a URL param can assign this URL for all users. The value is whatever the link says. The user environment table shows it as text, but if a custom UI text (header, instructions, button label, email) prints a variable that can come from the URL, escape it in the text, e.g. ${grouperUtil.xmlEscape(cu_reason)} |
 | attributeDefId | String |  | expressionLanguage, grouper, sql | uuid of attribute def to look up |
 | azureGroupId | String | azure |  | if hardcoding the uuid of group in azure |
 | bindVar0 | String |  | sql | bind var for sql |
@@ -66,7 +66,7 @@ You can configure a default that will fill in values for all config beans (maybe
 | groupName | String |  | azure, expressionLanguage, grouper, ldap, sql | group name to look up a group |
 | label | String | azure, duo, expressionLanguage, grouper, ldap, sql, zoom |  | label to see on screen when variables are displayed |
 | ldapAttributeToRetrieve | String | ldap |  | which attribute in ldap to retrieve |
-| ldapFilter | String | ldap |  | ldap filter to run |
+| ldapFilter | String | ldap |  | ldap filter to run. It can use ${...} expressions (e.g. ${subject.getId()}), but after they are filled in the filter must be a plain LDAP filter: as of v7.9.1, v6.5.1 and v4.26.1 a result that starts with ${ is refused. Start the filter with ( as in the example. |
 | ldapSearchDn | String |  | ldap | if not using the default dn in connection, search in this dn |
 | nameOfAttributeDef | String |  | expressionLanguage, grouper, sql | name of attribute definition to lookup |
 | order | Integer |  | azure, duo, expressionLanguage, grouper, ldap, sql, zoom | integer and rules will be ordered by this integer, when displayed on screen |

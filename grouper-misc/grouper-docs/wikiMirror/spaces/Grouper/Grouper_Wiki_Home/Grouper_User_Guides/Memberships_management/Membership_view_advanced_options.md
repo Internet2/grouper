@@ -2,8 +2,8 @@
 title: "Membership view advanced options"
 space: Grouper
 pageId: 28545447
-version: 12
-lastUpdated: 2026-07-01T05:47:13.070Z
+version: 13
+lastUpdated: 2026-11-27T12:01:45.828Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545447/Membership+view+advanced+options
 ---
 
@@ -41,6 +41,19 @@ grouper.text.en.us.properties:
 customCompositeMinusEmployees = Members who are not employees
 customCompositeIntersectIt = Members who are IT people
 ```
+
+#### Manage custom composites in the UI
+
+*v7.10.0+*
+
+A Grouper sysadmin (wheel group or root) can add, edit and delete custom composites without editing files. Go to "Miscellaneous" and click "Custom composites and membership requirements". Click "Add custom composite" and set:
+
+- "UI key": the key of its label in the UI text, e.g. `customCompositeMinusEmployees`. Letters, numbers and underscores, starting with a letter. It cannot already be a UI text key, and cannot be changed once saved.
+- "Label": what users see in the members filter, e.g. Members who are not employees.
+- "Type": "Complement" (members who are not in the group) or "Intersection" (members who are also in the group).
+- "Group": the group the members are compared with.
+
+This saves the `grouper.membership.customComposite.*` keys above and the label to the database configuration, so changes are audited, kept in the configuration history, and picked up by the other servers when they next refresh their configuration. Custom composites set in a configuration file on disk are listed but cannot be changed or deleted on this screen. Users see a filter only if they can read its group.
 
 ### Enabled/disabled dates
 

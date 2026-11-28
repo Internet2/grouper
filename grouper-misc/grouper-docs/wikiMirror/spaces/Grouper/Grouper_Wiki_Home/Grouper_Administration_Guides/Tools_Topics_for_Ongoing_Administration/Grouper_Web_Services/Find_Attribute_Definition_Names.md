@@ -2,8 +2,8 @@
 title: "Find Attribute Definition Names"
 space: Grouper
 pageId: 28548599
-version: 11
-lastUpdated: 2026-07-01T05:44:04.231Z
+version: 12
+lastUpdated: 2026-11-20T21:01:50.308Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548599/Find+Attribute+Definition+Names
 ---
 
@@ -25,7 +25,7 @@ Find attribute definition names based on name, search filter, permission name in
 - Can sort and/or page the results of individual filter types: parent stem, and approximate group name. Can sort on name, displayName, extension, or displayExtension.
 - Returns attribute definition names
 - Can actAs another user
-- Search by serviceRole for a user in v2.2+. Send a subject and a serviceRole (user or admin) to get the services that the subject is a user or admin in. The calling subject must be able to READ groups that subject is in the service. The subject does not need privileges on the service attribute.
+- Search by serviceRole for a user in v2.2+. Send a subject and a serviceRole (user or admin) to get the services that the subject is a user or admin in. The calling subject must be able to READ groups that subject is in the service. As of v7.9.1, v6.5.1 and v4.26.1, for serviceRole admin (when the subject is not the caller) the calling subject needs ADMIN on those groups instead. The subject does not need privileges on the service attribute.
 
 #### Find attributeDefNames Lite service
 

@@ -2,8 +2,8 @@
 title: "Grouper Dropbox provisioner"
 space: Grouper
 pageId: 28554223
-version: 2
-lastUpdated: 2026-07-01T05:40:54.323Z
+version: 3
+lastUpdated: 2026-10-17T19:37:18.292Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554223/Grouper+Dropbox+provisioner
 ---
 
@@ -24,7 +24,7 @@ The Dropbox Provisioner manages **team members** (entities), **company-managed g
 
 The provisioner uses the `membershipObjects` membership model: group memberships are first-class objects, retrieved and written per group. Dropbox concepts managed by this provisioner are:
 
-- **Members** - Dropbox Business team members. Matched by an `external_id` that Grouper sets (e.g. the pennname). Created via /2/team/members/add_v2, updated via set_profile_v2, and removed via /2/team/members/remove.
+- **Members** - Dropbox Business team members. Matched by an `external_id` that Grouper sets (e.g. the subject ID). Created via /2/team/members/add_v2, updated via set_profile_v2, and removed via /2/team/members/remove.
 - **Groups** - company-managed Dropbox groups. Grouper only manages `company_managed` groups (membership is API-managed); `user_managed` groups are left alone. Matched by `group_external_id`.
 - **Group memberships** - a member's membership in a group, with an access type of `member` or `owner`.
 
@@ -68,7 +68,8 @@ Grouper matches members by `external_id` and uses the native `team_member_id` fo
 | --- | --- | --- | --- | --- |
 | `id` | String | Yes | `team_member_id` | Native Dropbox team member id (e.g. `dbmid:abc123`). **Read-only / select-only**, assigned by Dropbox. Used as the UserSelectorArg for membership, profile, remove, and admin-role calls. |
 | `email` | String | Yes | `email` | Member email address. Used on add (member_email) and as a get_info_v2 selector. Translate from the Grouper subject email/EPPN. |
-| `externalId` | String | Yes | `external_id` | **Match key.** Grouper sets this to a stable value (e.g. pennname) so members are matched across syncs. |
+| `externalId` | String | Yes | `external_id` | **Match key.** Grouper sets this to a stable value that never changes (e.g. the subject ID) so members are matched across syncs. |
+| `persistentId` | String | No | `persistent_id` | SAML SSO match value (e.g. the ePPN). Sent on add (member_persistent_id) and update (new_persistent_id). See *SAML SSO persistent ID*. |
 | `givenName` | String | No | `name.given_name` | Given (first) name. Sent on add (member_given_name) and update (new_given_name). Defaults to "Unknown" if blank on add. |
 | `surname` | String | No | `name.surname` | Surname (last name). Sent on add (member_surname) and update (new_surname). Defaults to "Unknown" if blank on add. |
 | `status` | String | No | `status` (.tag) | **Read-only.** One of `active`, `invited`, `suspended`, `removed`. |
@@ -123,6 +124,14 @@ Key behaviors:
 - When the admin-role folder is **blank**, admin roles are **not pulled or managed at all** -- the provisioner does not read members' roles[] and never calls set_admin_permissions_v2. Existing admin roles in Dropbox are left untouched.
 - The role name is resolved to a Dropbox `role_id` by caching the {role_id, name} pairs seen during member retrieval; set_admin_permissions_v2 is then called with the resolved id (empty list demotes to member_only).
 
+## SAML SSO persistent ID
+
+With SAML SSO, Dropbox matches a configured IdP attribute (often eduPersonPrincipalName, `urn:oid:1.3.6.1.4.1.5923.1.1.1.6`) to the member's persistent ID, scoped to the IdP issuer. Values must be unique, and must all be set again if the team changes IdP issuer.
+
+To manage it, add a `persistentId` entity attribute with a translation that produces the IdP value, e.g. `${grouperProvisioningEntity.subjectIdentifier0 + '@example.edu'}`. Full sync restores values changed in Dropbox. This is only for SSO; `externalId` stays the matching key and can differ.
+
+**Existing teams:** members created outside Grouper have no external ID or persistent ID. Backfill both once with set_profile_v2 before running the provisioner in write mode, so Grouper matches them instead of re-adding them. Test SSO with a small pilot group first.
+
 ## Behavioral notes
 
 ### Membership model
@@ -132,6 +141,10 @@ This provisioner uses `membershipObjects`. Group memberships are retrieved per g
 ### Company-managed groups only
 
 Grouper only manages `company_managed` Dropbox groups; their membership is API-managed. Groups created by the provisioner are always company_managed (with `add_creator_as_owner=false` so the API caller is not added as an owner). User-managed groups are filtered out and left alone.
+
+### New members are invited
+
+Members are added with `send_welcome_email: false`, so they start as `invited`. Grouper can add them to groups right away; they become `active` on first SSO sign-in.
 
 ### Member remove behavior
 

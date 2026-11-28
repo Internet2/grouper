@@ -2,8 +2,8 @@
 title: "Grouper AI with local ollama LLM"
 space: Grouper
 pageId: 28548844
-version: 2
-lastUpdated: 2025-12-17T20:21:48.232Z
+version: 3
+lastUpdated: 2026-11-20T20:26:25.333Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548844/Grouper+AI+with+local+ollama+LLM
 ---
 

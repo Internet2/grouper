@@ -2,8 +2,8 @@
 title: "User/Group audit functions"
 space: Grouper
 pageId: 28545440
-version: 8
-lastUpdated: 2026-04-05T21:22:25.783Z
+version: 10
+lastUpdated: 2026-11-20T20:59:35.124Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545440/User+Group+audit+functions
 ---
 
@@ -22,7 +22,7 @@ In v7.1.0+ you can export certain audit screens, which takes into account the fi
 An **Export** button appears next to the filter button on each audit log screen:
 
 - **Group audit log** – Navigate to a group → More actions → View audits. Requires ADMIN privilege on the group.
-- **Folder audit log** – Navigate to a folder → More actions → View audits. Requires VIEW privilege on the folder.
+- **Folder audit log** – Navigate to a folder → More actions → View audits. Requires ADMIN privilege on the folder.
 - **Subject audit log** – Navigate to a subject → More actions → View audits. Requires permission to view subject audits.
 
 To export:

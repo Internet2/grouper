@@ -2,8 +2,8 @@
 title: "Grouper container documentation"
 space: Grouper
 pageId: 28549678
-version: 189
-lastUpdated: 2026-07-12T05:24:29.596Z
+version: 190
+lastUpdated: 2026-10-19T01:48:38.888Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation
 ---
 
@@ -107,7 +107,7 @@ There are a few arguments you can pass to the container, and env vars... Note th
 | -e GROUPER_TOMCAT_SHUTDOWN_PORT (v2.5.28+) | defaults to 8005 |
 | -e GROUPER_TOMCAT_LOG_ACCESS=true (v2.5.29+) | defaults to false. if you want tomcat to log access. Apache does this too. |
 | -e GROUPER_TOMCAT_LOG_ACCESS_DIRECTORY=/opt/grouper/logs | defaults to /tmp in v4. defaults to /opt/grouper/logs in v5.7.0+  in v7.1.0+ and v6.2.0+ this defaults to /opt/grouper/logs if GROUPER_LOG_TO_HOST=true, and blank if false (log to STDOUT) |
-| -e GROUPER_TOMCAT_LOG_ACCESS_PATTERN (v6.2.0+, v7.2.0+) | If GROUPER_TOMCAT_LOG_ACCESS is true, this is the pattern for the Tomcat access logging. The default is:  `$GROUPER_LOG_PREFIX;catalina.out;%h %l %{grouperRemoteUser}r %t \&quot;%r\&quot; %s %b`  Because of how Grouper wraps requests, the normal %u element may not available for Tomcat logging. The %{grouperRemoteUser}r element says to use the request attribute grouperRemoteUser, which Grouper will set for a session for both built-in UI auth and for Pac4j. If you are using an external authentication container and passing the remote user via a header or environment variable, you may need to override the default format and use %u which logs REMOTE_USER. |
+| -e GROUPER_TOMCAT_LOG_ACCESS_PATTERN (v6.2.0+, v7.2.0+) | If GROUPER_TOMCAT_LOG_ACCESS is true, this is the pattern for the Tomcat access logging. The default is:  `$GROUPER_LOG_PREFIX;catalina.out;%h %l %{grouperRemoteUser}r %t \&quot;%r\&quot; %s %b`  Because of how Grouper wraps requests, the normal %u element may not available for Tomcat logging. The %{grouperRemoteUser}r element says to use the request attribute grouperRemoteUser, which Grouper will set for a session for both built-in UI auth and for Pac4j, and for authenticated WS and MCP requests (v7.9.0+). If you are using an external authentication container and passing the remote user via a header or environment variable, you may need to override the default format and use %u which logs REMOTE_USER. |
 | -e GROUPER_TOMCAT_MAX_HEADER_COUNT=200 (v2.5.57+) | due to an error in chrome 93, tomcat throws an exception about too many http headers. The default is now 200 for tomcat, but can be customized |
 | -e GROUPER_TOMCAT_SESSION_TIMEOUT_MINUTES=600 (v2.5.36+) | tomcat defaults to <session-timeout>30</session-timeout> in /opt/tomee/conf/web.xml or /opt/tomcat/conf/web.xml, Grouper defaults to 10 hours (600) for UI and 1 minute fo WS. If you use SSO without requiring reauth, then you might as well default to the SSO session length for the UI (ask your IdP operator). Set to -2 to not change the default value in file |
 | -e GROUPER_TOMCAT_REMOTE_CIDR_VALVE_ALLOW='1.2.3.4/32'  (v4.3.2+ and v5.1.1+) | inserts a valve into server.xml with RemoteCIDRValve to restrict the source IP address for requests to tomcat (e.g. AJP) |

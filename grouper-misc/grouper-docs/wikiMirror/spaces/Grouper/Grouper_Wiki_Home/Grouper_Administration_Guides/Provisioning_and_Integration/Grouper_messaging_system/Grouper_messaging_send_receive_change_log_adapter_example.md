@@ -2,8 +2,8 @@
 title: "Grouper messaging send receive change log adapter example"
 space: Grouper
 pageId: 28547351
-version: 4
-lastUpdated: 2016-03-28T06:47:46.451Z
+version: 5
+lastUpdated: 2026-11-20T20:26:11.625Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547351/Grouper+messaging+send+receive+change+log+adapter+example
 ---
 

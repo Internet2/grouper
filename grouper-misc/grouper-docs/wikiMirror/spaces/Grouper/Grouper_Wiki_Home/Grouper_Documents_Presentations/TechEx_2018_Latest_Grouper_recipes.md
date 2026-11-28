@@ -2,8 +2,8 @@
 title: "TechEx 2018 - Latest Grouper recipes"
 space: Grouper
 pageId: 48793299
-version: 11
-lastUpdated: 2018-10-15T20:02:06.969Z
+version: 12
+lastUpdated: 2026-11-20T20:27:29.328Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/48793299/TechEx+2018+-+Latest+Grouper+recipes
 ---
 

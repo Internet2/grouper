@@ -2,8 +2,8 @@
 title: "Grouper deprovisioning"
 space: Grouper
 pageId: 28544732
-version: 79
-lastUpdated: 2026-07-12T15:26:28.025Z
+version: 80
+lastUpdated: 2026-11-20T20:43:22.011Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544732/Grouper+deprovisioning
 ---
 
@@ -26,7 +26,7 @@ The administrator manually initiates this process at the time of deprovisioning 
   
   
   - Checkboxes to remove the membership/privilege have defaults based on group/folder configuration of the group/folder
-  - After reviewing the page, and the administrator clicks the deprovision button, the user's selected direct memberships and privileges will be removed
+  - After reviewing the page, and the administrator clicks the deprovision button, the user's selected direct memberships and privileges will be removed. As of v7.9.1, v6.5.1 and v4.26.1, memberships in excludes/deny groups, and (for administrators who are not sysadmins) objects in etc or other system folders, are skipped and listed in a message. The removals are done in one transaction; if the page is stale nothing is removed, so reload and resubmit. The same applies to "remove access" on the deprovisioning report.
 - Added to the deprovisioned group for a configured amount of time.
   
   

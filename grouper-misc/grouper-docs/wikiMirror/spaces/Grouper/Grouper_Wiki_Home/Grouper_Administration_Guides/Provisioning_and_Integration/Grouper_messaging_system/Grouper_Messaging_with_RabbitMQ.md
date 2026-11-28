@@ -2,8 +2,8 @@
 title: "Grouper Messaging with RabbitMQ"
 space: Grouper
 pageId: 28548652
-version: 28
-lastUpdated: 2026-07-01T05:43:54.282Z
+version: 30
+lastUpdated: 2026-11-27T11:57:56.449Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548652/Grouper+Messaging+with+RabbitMQ
 ---
 
@@ -261,7 +261,11 @@ grouper.messaging.system.rabbitmqSystem.username = guest
 #pass
 grouper.messaging.system.rabbitmqSystem.password = guest
 
-# set the following three properties if you want to use TLS connection to rabbitmq. All three need to be populated.
+# set tlsVersion to use a TLS connection to rabbitmq.  The broker certificate is checked against pathToTrustStore
+# (with trustPassphrase) if both are set, else against the JVM default trust store (cacerts or javax.net.ssl.trustStore).
+# Either way the broker certificate must also name the host (7.10.0 and later; before 7.10.0 the host name was only
+# checked with the JVM default trust store).  A broker with a self-signed or private CA certificate needs pathToTrustStore
+# and trustPassphrase
 # TLS Version
 grouper.messaging.system.rabbitmqSystem.tlsVersion = TLSv1.1
 
@@ -270,5 +274,15 @@ grouper.messaging.system.rabbitmqSystem.pathToTrustStore =
 
 # trust passphrase
 grouper.messaging.system.rabbitmqSystem.trustPassphrase =
+
+# 7.10.0 and later: with pathToTrustStore and trustPassphrase set, also check that the broker certificate names the
+# host (as any TLS client does).  Set false only for a broker whose certificate does not name the host it is reached by
+# (logs a warning on each connect, and the Configuration review screen warns).  Default true
+grouper.messaging.system.rabbitmqSystem.hostnameVerification =
+
+# if TLS is on and no trust store is configured, accept ANY broker certificate (no host name check either).  This gives no
+# protection against a man in the middle (the broker password and messages can be read and changed), only use it for a
+# test broker.  Ignored when pathToTrustStore and trustPassphrase are set.  Logs a warning on each connect.  Default false
+grouper.messaging.system.rabbitmqSystem.trustAllCertificates =
 
 ```

@@ -2,8 +2,8 @@
 title: "Add Member"
 space: Grouper
 pageId: 28548727
-version: 20
-lastUpdated: 2026-07-01T05:43:39.489Z
+version: 21
+lastUpdated: 2026-11-20T20:43:19.841Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548727/Add+Member
 ---
 
@@ -28,7 +28,7 @@ You can see the swagger from your web service server: [https://server.institutio
 - Lookup groups by group lookup (by name or uuid)
 - Returns group / subject information, can be detailed or not
 - Can actAs another user
-- You can specify addExternalSubjectIfNotFound to T or F, if this is a search by id or identifier, with no source, or the external source, and the subject is not found, then add an external subject (if the user is allowed to do this)
+- You can specify addExternalSubjectIfNotFound to T or F, if this is a search by id or identifier, with no source, or the external source, and the subject is not found, then add an external subject. As of v7.9.1, v6.5.1 and v4.26.1, the external subject is created only if the caller (or actAs subject) is allowed to edit external subjects (externalSubjects.wheelOrRootCanEdit / externalSubjects.groupAllowedForEdit) and has UPDATE on the group; otherwise the result is SUBJECT_NOT_FOUND. With the default settings only wheel or root can auto-create.
 
 #### Add member Lite service
 

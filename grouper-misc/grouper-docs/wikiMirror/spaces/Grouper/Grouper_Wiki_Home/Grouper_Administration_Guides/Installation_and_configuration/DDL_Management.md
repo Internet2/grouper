@@ -2,8 +2,8 @@
 title: "DDL Management"
 space: Grouper
 pageId: 28544619
-version: 10
-lastUpdated: 2020-04-09T01:17:15.527Z
+version: 11
+lastUpdated: 2026-11-20T20:25:42.196Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544619/DDL+Management
 ---
 

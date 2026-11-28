@@ -2,8 +2,8 @@
 title: "Do not allow non sysadmins to add EveryEntity to groups or privileges"
 space: Grouper
 pageId: 28549299
-version: 1
-lastUpdated: 2023-07-03T21:25:17.853Z
+version: 2
+lastUpdated: 2026-11-20T20:26:32.589Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549299/Do+not+allow+non+sysadmins+to+add+EveryEntity+to+groups+or+privileges
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Assign attribute to folder"
 space: Grouper
 pageId: 28554665
-version: 10
-lastUpdated: 2024-02-21T06:11:40.375Z
+version: 12
+lastUpdated: 2026-11-23T07:26:56.023Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554665/Grouper+rules+pattern+-+Assign+attribute+to+folder
 ---
 
@@ -15,7 +15,9 @@ Note, make sure you are not using "smart quotes or dashes". You can disable thes
 
 ## Setup
 
-First off you need GrouperSystem to be able to access the API in rules:
+v7.10.0+, v6.6.0+ and v4.27.0+: set `rules.allowUnrestrictedEl = true` in grouper.properties instead of the group below, which is not used (see [Grouper rules EL variables](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549057/Grouper+rules+EL+variables)). In v7.9.1, v6.5.1 and v4.26.1 this rule does not work, since rule EL runs in a restricted sandbox.
+
+Earlier versions: you need GrouperSystem to be able to access the API in rules:
 
 grouper.properties:
 

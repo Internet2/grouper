@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH departmental Grouper onboarding"
 space: Grouper
 pageId: 28549899
-version: 1
-lastUpdated: 2024-10-04T18:44:19.846Z
+version: 2
+lastUpdated: 2026-11-20T20:26:44.474Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549899/Grouper+custom+template+via+GSH+departmental+Grouper+onboarding
 ---
 

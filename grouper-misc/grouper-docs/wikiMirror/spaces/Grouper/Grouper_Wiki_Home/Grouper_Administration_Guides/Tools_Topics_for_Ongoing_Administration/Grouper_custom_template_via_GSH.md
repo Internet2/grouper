@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH"
 space: Grouper
 pageId: 28544720
-version: 85
-lastUpdated: 2026-07-12T15:26:27.528Z
+version: 88
+lastUpdated: 2026-11-23T07:23:46.847Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544720/Grouper+custom+template+via+GSH
 ---
 
@@ -109,6 +109,7 @@ grouperGshTemplate.<configId>.suffix
 | templateDescriptionExternalizedTextKey | grouperGshTemplate_<configId>_templateDescriptionExternalizedTextKey | this is hardcoded for each template | this is readonly |
 | simplifiedUi | true \| false | If the UI should not show the normal Grouper menus, to not confuse users who are not familiar with Grouper |  |
 | allowWsFromNoOwner | true \| false | if WS can call the template without identifying a stem or group owner |  |
+| allowUiFromNoOwner | true \| false | if the UI can run the template without a folder or group owner, on the simplified screen. The owner is then optional. A folder or group in the URL is ignored if the template does not show on folders or groups, so old URLs keep working. Separate from allowWsFromNoOwner, since WS and MCP callers have their own entry gates and UI users do not. If no default run group or folder is set, the "Run template" button on the GSH templates screen runs it with no owner. Available in v7.9.2+, v6.5.2+, v4.26.2+ (GRP-7598) | default false. A privilegeOnObject template cannot run with no owner. A gsh template must be runnable from somewhere (no owner, folders or groups) or it will not save |
 | gshTemplate | // | this is the GSH template to run | if we can get a textarea that would be good. Should convert from windows or mac newlines to unix newlines on submit. Required |
 | numberOfInputs | 5 | number of inputs (form elements on ui or in ws) | drop down from 0-50 repeat group. Default value: 0 |
 | input.i.name | gsh_input_folderName | name of the ui form element, ws param, template variable, | validation: must start with gsh_input_, must be alphanumeric/underscore. Required |
@@ -143,6 +144,8 @@ See [this wiki as an example of developing GSH templates with java](https://grou
 ## Built in variables, inputs, and methods
 
 Before the configured GSH script is executed, it will be prefixed with some built in variables, and the inputs from the user (supplied in the UI or less commonly the WS).
+
+To give the user a file to download (v7.7.0+), see [GSH template file download](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/274464837/GSH+template+file+download).
 
 | **Type** | **V1 variable** | **V2 location** | **Value** |
 | --- | --- | --- | --- |

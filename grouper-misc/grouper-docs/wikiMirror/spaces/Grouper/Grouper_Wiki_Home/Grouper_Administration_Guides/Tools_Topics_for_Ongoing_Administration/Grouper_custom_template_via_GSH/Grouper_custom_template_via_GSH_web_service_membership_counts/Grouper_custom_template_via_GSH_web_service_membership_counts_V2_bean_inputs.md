@@ -2,8 +2,8 @@
 title: "Grouper custom template via GSH web service membership counts - V2 - bean inputs"
 space: Grouper
 pageId: 28555205
-version: 4
-lastUpdated: 2023-12-25T23:19:26.695Z
+version: 5
+lastUpdated: 2026-11-20T20:27:04.029Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555205/Grouper+custom+template+via+GSH+web+service+membership+counts+-+V2+-+bean+inputs
 ---
 

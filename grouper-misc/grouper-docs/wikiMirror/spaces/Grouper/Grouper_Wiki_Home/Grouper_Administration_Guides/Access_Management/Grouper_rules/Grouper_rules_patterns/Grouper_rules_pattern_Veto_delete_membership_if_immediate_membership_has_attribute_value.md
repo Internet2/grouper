@@ -2,8 +2,8 @@
 title: "Grouper rules pattern - Veto delete membership if immediate membership has attribute value"
 space: Grouper
 pageId: 28554213
-version: 3
-lastUpdated: 2026-07-01T05:40:55.326Z
+version: 4
+lastUpdated: 2026-11-23T07:26:46.186Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554213/Grouper+rules+pattern+-+Veto+delete+membership+if+immediate+membership+has+attribute+value
 ---
 
@@ -11,7 +11,13 @@ This is an example of an EL condition on memberships which is an advanced use ca
 
 ## Setup EL in rules
 
-in grouper.properties
+This rule uses new(...) and a class object, so it needs the extended EL API (see [Grouper rules EL variables](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549057/Grouper+rules+EL+variables)):
+
+- v7.10.0+, v6.6.0+ and v4.27.0+: set `rules.allowUnrestrictedEl = true` in grouper.properties. The group setting below is not used.
+- v7.9.1, v6.5.1 and v4.26.1: this rule does not work, since rule EL runs in a restricted sandbox ([GRP-7596](https://todos.grouper.internet2.edu/browse/GRP-7596)).
+- Earlier versions: set the group below.
+
+Earlier versions, in grouper.properties
 
 Key: **rules.accessToApiInEl.group**
 

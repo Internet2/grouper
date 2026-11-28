@@ -2,8 +2,8 @@
 title: "Grouper v2.5 customize UI security headers"
 space: Grouper
 pageId: 28554533
-version: 9
-lastUpdated: 2026-07-01T05:40:14.609Z
+version: 10
+lastUpdated: 2026-11-20T21:01:02.603Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554533/Grouper+v2.5+customize+UI+security+headers
 ---
 
@@ -14,6 +14,8 @@ Note: There is a different Grouper feature to create a [custom UI per group](htt
 ## Adding security headers
 
 Web security scans may result in recommendations to add browser headers to lessen the risk of hijacking vectors. There are ways to add these headers via Apache, TomEE/Tomcat, or through the web application. The following demonstrates how these headers can be added to the Grouper UI via web.xml customizations
+
+As of v7.9.1, v6.5.1 and v4.26.1, the Grouper UI sends Content-Security-Policy: frame-ancestors 'self' and X-Frame-Options: SAMEORIGIN by default, so you do not need the antiClickJackingEnabled filter or a frame-ancestors value below for that. To change who may frame the UI, set grouperUi.antiFraming.frameAncestors in grouper-ui.properties (for example 'none', or 'self' plus a portal origin, space separated). If a proxy or one of the filters below already sends these headers, set grouperUi.antiFraming.enabled = false so they are not sent twice.
 
 TomEE and Tomcat have a Filter class available for adding certain browser security headers. With the default settings, adding the filter to /opt/grouper/grouperWebapp/WEB-INF/web.xml will set:
 

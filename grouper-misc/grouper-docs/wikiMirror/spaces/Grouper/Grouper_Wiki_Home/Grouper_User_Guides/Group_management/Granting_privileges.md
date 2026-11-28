@@ -2,8 +2,8 @@
 title: "Granting privileges"
 space: Grouper
 pageId: 28545083
-version: 10
-lastUpdated: 2024-05-21T17:38:45.916Z
+version: 11
+lastUpdated: 2026-11-20T20:25:51.208Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545083/Granting+privileges
 ---
 

@@ -2,8 +2,8 @@
 title: "Grouper auto assign relevant attributes"
 space: Grouper
 pageId: 28547690
-version: 7
-lastUpdated: 2026-07-12T15:26:47.911Z
+version: 8
+lastUpdated: 2026-11-20T20:26:13.936Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547690/Grouper+auto+assign+relevant+attributes
 ---
 

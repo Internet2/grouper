@@ -2,8 +2,8 @@
 title: "Grouper MCP server - user guide"
 space: Grouper
 pageId: 28554356
-version: 14
-lastUpdated: 2026-07-12T17:46:13.611Z
+version: 26
+lastUpdated: 2026-11-20T21:04:02.516Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554356/Grouper+MCP+server+-+user+guide
 ---
 
@@ -33,7 +33,7 @@ The Grouper MCP server is a remote HTTP streaming MCP server with OAuth authenti
 
 In general, connecting to the Grouper MCP server involves two steps:
 
-1. **Add the MCP server** — In your AI tool's settings or via a command, add a new remote MCP server using the URL shown on your Grouper MCP info page (e.g. `[https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)`).
+1. **Add the MCP server** — In your AI tool's settings or via a command, add a new remote MCP server using the URL shown on your Grouper MCP info page (e.g. [https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)).
 2. **Authenticate** — The first time you connect, the tool will open your browser for you to log in to Grouper and approve the requested permissions on a consent page.
 
 Below are setup instructions for popular agentic AI tools.
@@ -42,7 +42,9 @@ Below are setup instructions for popular agentic AI tools.
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is Anthropic's agentic command-line tool. To add the Grouper MCP server:
 
-1. Run the following command in your terminal:`claude mcp add --transport http grouper https://grouper.example.edu/grouper-ws/mcp`
+1. Run the following command in your terminal:
+  
+  `claude mcp add --transport http grouper https://grouper.example.edu/grouper-ws/mcp`
 2. Start a Claude Code session, then type `/mcp` to see your MCP servers and authenticate. Claude Code will open your browser to complete the OAuth login and consent flow.
 3. Once authenticated, you can interact with Grouper by asking Claude questions in natural language (e.g. “What groups is jsmith a member of?”). Claude will automatically call the appropriate Grouper MCP tools.
 
@@ -53,15 +55,21 @@ Below are setup instructions for popular agentic AI tools.
 1. Open **Settings** (gear icon).
 2. Go to **Connectors**.
 3. Click **Add custom connector** at the bottom.
-4. Enter your Grouper MCP server URL (e.g. `[https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)`).
+4. Enter your Grouper MCP server URL (e.g. [https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)).
 5. Click **Add**. Claude will open your browser to complete the OAuth login and consent flow when you first use a Grouper tool.
 
 ### OpenAI Codex (command line)
 
 [OpenAI Codex](https://openai.com/index/introducing-codex/) is OpenAI's agentic command-line tool. To add the Grouper MCP server:
 
-1. Add the server:`codex mcp add grouper --url https://grouper.example.edu/grouper-ws/mcp`
-2. Log in to the server via OAuth:`codex mcp login grouper`This will open your browser to complete the Grouper OAuth login and consent flow.
+1. Add the server:
+  
+  `codex mcp add grouper --url https://grouper.example.edu/grouper-ws/mcp`
+2. Log in to the server via OAuth:
+  
+  `codex mcp login grouper`
+  
+  This will open your browser to complete the Grouper OAuth login and consent flow.
 3. Once authenticated, you can ask Codex questions about Grouper and it will call the appropriate MCP tools automatically.
 
 ### Cursor
@@ -71,7 +79,7 @@ Below are setup instructions for popular agentic AI tools.
 1. Open **Cursor Settings**.
 2. Navigate to **Tools & Integrations**.
 3. Click **New MCP Server**.
-4. Enter the server name (e.g. `grouper`) and your Grouper MCP server URL (e.g. `[https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)`).
+4. Enter the server name (e.g. `grouper`) and your Grouper MCP server URL (e.g. [https://grouper.example.edu/grouper-ws/mcp](https://grouper.example.edu/grouper-ws/mcp)).
 5. Click **Connect** to authorize. Cursor will open your browser to complete the OAuth login and consent flow.
 
 ### Other AI tools
@@ -113,7 +121,7 @@ Search Grouper configuration properties. Supports two search modes: `lucene` (de
 
 The Lucene config index is built in-memory on each WS node from all Grouper configuration files and rebuilt periodically (every hour). It indexes config keys (with dots tokenized as separate words) and non-sensitive values for full-text search.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `searchRegex` | string | Yes | Search query. When `searchType` is `lucene` (default), this is a Lucene query for full-text search on config keys and values (e.g. `provisioner`, `mcp AND docSearch`, `grouper.mcp.*`). When `searchType` is `regex`, this is a Java regex pattern matched against config key names (case-insensitive), e.g. `.*provisioner.*`, `grouper\.mcp\..*`. |
 | `searchType` | string | No (default: lucene) | Search mode. `lucene` (default) uses a Lucene full-text index for searching config keys and values. `regex` uses Java regex matching on config key names only. Allowed values: `lucene`, `regex`. |
@@ -141,7 +149,7 @@ If more than 500 results match (regex mode), the list is truncated with a `trunc
 
 Retrieve the job message for a specific daemon job log entry by its row ID. Returns the first 20,000 characters of the message (from the `job_message` column, or `job_message_clob` if `job_message` is null). Also returns the job name, status, and start time for context. Use `admin_daemon_logs` first to find the `id` of the log entry you want. Requires membership in the MCP admin readonly group. For OAuth users, the `admin_readonly` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `id` | string | Yes | The `id` of the `grouper_loader_log` row to retrieve the message for. |
 
@@ -151,7 +159,7 @@ Retrieve the job message for a specific daemon job log entry by its row ID. Retu
 
 Trigger a daemon job to run on the Grouper daemon server. The job is triggered asynchronously via the Quartz scheduler. Use `admin_daemon_names` to find valid job names, and `admin_daemon_logs` to check the status after triggering. Requires membership in the MCP admin **readwrite** group. For OAuth users, the `admin_readwrite` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `jobName` | string | Yes | The exact daemon job name to trigger (as it appears in `grouper_loader_log`). |
 
@@ -161,7 +169,7 @@ Trigger a daemon job to run on the Grouper daemon server. The job is triggered a
 
 Retrieve daemon job log entries from the `grouper_loader_log` table. Returns the most recent 100 rows ordered by start time (descending). Does *not* return the `job_message` (use `admin_daemon_job_message` for that). At least one of `jobName` or `status` must be provided. Requires membership in the MCP admin readonly group. For OAuth users, the `admin_readonly` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `jobName` | string | No* | Exact job name to filter by. At least one of `jobName` or `status` is required. |
 | `status` | string | No* | Filter by job status (case-insensitive). Common values: `SUCCESS`, `ERROR`, `STARTED`, `RUNNING`, `CONFIG_ERROR`, `SUBJECT_PROBLEMS`, `WARNING`. |
@@ -174,7 +182,7 @@ Retrieve daemon job log entries from the `grouper_loader_log` table. Returns the
 
 Search for daemon job names in the Grouper loader log. Takes a search string that is split by whitespace into terms, where each term is matched against the `job_name` column using case-insensitive LIKE. You can include `%` as a wildcard in each term; if a term does not contain `%`, it is automatically wrapped with `%` on both sides. All terms must match (AND logic). Returns distinct job names. Requires membership in the MCP admin readonly group. For OAuth users, the `admin_readonly` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `searchString` | string | Yes | Search string for daemon job names. Split by whitespace into terms. Each term is matched against `job_name` using LIKE (case-insensitive). Use `%` as a wildcard. If a term does not contain `%`, it is automatically wrapped with `%`. All terms must match (AND logic). Examples: `provisioner`, `SQL%config`, `CHANGE_LOG%recent`. |
 
@@ -182,7 +190,7 @@ Search for daemon job names in the Grouper loader log. Takes a search string tha
 
 ### admin_external_system_get
 
-Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters) configured in Grouper. This tool is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system. Requires membership in the MCP admin readonly group. For OAuth users, the `admin_readonly` consent scope must also be granted.
+Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, AssetSonar, Smartsheet) configured in Grouper. This tool is useful for troubleshooting provisioning issues by verifying what a user looks like in an external system. Requires membership in the MCP admin readonly group. For OAuth users, the `admin_readonly` consent scope must also be granted.
 
 This tool supports two actions:
 
@@ -190,7 +198,7 @@ This tool supports two actions:
 
 Returns all external systems configured for MCP user lookups. Use this to discover available external system config IDs before calling `getUser`.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string | Yes | `"listExternalSystems"` |
 
@@ -204,7 +212,7 @@ Returns all external systems configured for MCP user lookups. Use this to discov
 
 Looks up a user in an external system by translating a Grouper subject. The Grouper subject is resolved from the provided subject ID or identifier, then translated to the external system's user identifier via a JEXL expression configured by the administrator.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string | Yes | `"getUser"` |
 | `externalSystemConfigId` | string | Yes | The external system config ID (from `listExternalSystems`). |
@@ -215,7 +223,9 @@ Looks up a user in an external system by translating a Grouper subject. The Grou
 
 **Example response (user found in Azure):**
 
-`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.edu", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.edu" } }`**Example response (user not found):**
+`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.edu", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.edu" } }`
+
+**Example response (user not found):**
 
 `{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.edu", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : false }`
 
@@ -223,7 +233,7 @@ Looks up a user in an external system by translating a Grouper subject. The Grou
 
 Get attribute assignments for groups, stems, members, or other objects. Provides a simplified interface to the Grouper WS `getAttributeAssignments` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `attributeAssignType` | string | Yes | The type of assignment to query: `group`, `stem`, `member`, `imm_mem`, `any_mem`, `attr_def`, `group_asgn`, `stem_asgn`, `member_asgn`, `imm_mem_asgn`, `attr_def_asgn`, `any_mem_asgn`. |
 | `attributeDefNameName` | string | No | Filter by attribute def name. |
@@ -237,9 +247,9 @@ Get attribute assignments for groups, stems, members, or other objects. Provides
 
 ### attribute_assignment_save
 
-Assigns, adds, removes, or replaces attribute assignments on groups, stems, members, or other objects. Delegates to the existing Grouper WS `attribute_assignment_save` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Assigns, adds, removes, or replaces attribute assignments on groups, stems, members, or other objects. Delegates to the existing Grouper WS `attribute_assignment_save` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `attributeAssignType` | string | Yes | The type of assignment: `group`, `stem`, `member`, `imm_mem`, `any_mem`, `attr_def`, `group_asgn`, `stem_asgn`, `member_asgn`, `imm_mem_asgn`, `attr_def_asgn`, `any_mem_asgn`. |
 | `attributeAssignOperation` | string | Yes | The operation: `assign_attr`, `add_attr`, `remove_attr`, `replace_attrs`. |
@@ -264,13 +274,15 @@ To configure features like attestation that use name/value pair attributes on a 
 
 **Example – enable attestation with email notifications on a group:**
 
-`// Step 1: assign the attestation marker { "attributeAssignType": "group", "attributeAssignOperation": "assign_attr", "attributeDefNameName": "etc:attribute:attestation:attestation", "ownerGroupName": "my:folder:myGroup" } // Response includes attributeAssignId, e.g. "abc-123-def-456" // Step 2: assign a config attribute on the marker assignment { "attributeAssignType": "group_asgn", "attributeAssignOperation": "assign_attr", "attributeDefNameName": "etc:attribute:attestation:attestationSendEmail", "ownerAttributeAssignId": "abc-123-def-456", "values": ["true"] }`**Scope enforcement for assignment-on-assignment.** When using an `_asgn` assign type with `ownerAttributeAssignId`, the server resolves the underlying owner of that assignment (the group, stem, or subject the marker is assigned to) and validates both protected-resource rules and OAuth scope restrictions against it. For example, if your OAuth scope is limited to folder `school:departments`, you cannot assign metadata on a marker attribute that belongs to a group in a different folder. The scope validation covers all owner types: group, stem, member, effective membership (any_mem), immediate membership (imm_mem), and attribute definition (checked against the attribute def's parent folder).
+`// Step 1: assign the attestation marker { "attributeAssignType": "group", "attributeAssignOperation": "assign_attr", "attributeDefNameName": "etc:attribute:attestation:attestation", "ownerGroupName": "my:folder:myGroup" } // Response includes attributeAssignId, e.g. "abc-123-def-456" // Step 2: assign a config attribute on the marker assignment { "attributeAssignType": "group_asgn", "attributeAssignOperation": "assign_attr", "attributeDefNameName": "etc:attribute:attestation:attestationSendEmail", "ownerAttributeAssignId": "abc-123-def-456", "values": ["true"] }`
+
+**Scope enforcement for assignment-on-assignment.** When using an `_asgn` assign type with `ownerAttributeAssignId`, the server resolves the underlying owner of that assignment (the group, stem, or subject the marker is assigned to) and validates both protected-resource rules and OAuth scope restrictions against it. For example, if your OAuth scope is limited to folder `school:departments`, you cannot assign metadata on a marker attribute that belongs to a group in a different folder. The scope validation covers all owner types: group, stem, member, effective membership (any_mem), immediate membership (imm_mem), and attribute definition (checked against the attribute def's parent folder).
 
 ### attribute_def_name_find
 
 Find attribute definition names by scope (partial name match) or exact name. Supports paging. Delegates to the existing Grouper WS `attribute_def_name_find` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `scope` | string | No | Search scope for partial name matching. |
 | `splitScope` | boolean | No | If true, split scope by whitespace and search each term. |
@@ -286,13 +298,13 @@ Find attribute definition names by scope (partial name match) or exact name. Sup
 
 Retrieve audit log entries with optional filtering by type, group, stem, subject, date range, and who performed the action. Supports paging. Delegates to the existing Grouper WS `audit_get` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `auditType` | string | No | Filter by audit type (e.g., `group`, `membership`). |
 | `auditActionId` | string | No | Filter by audit action ID. |
 | `groupName` | string | No | Filter to audits for this group. |
 | `stemName` | string | No | Filter to audits for this stem. |
-| `subjectId` | string | No | Filter to audits about this subject. |
+| `subjectId` | string | No | Filter to audits about this subject. Requires a sysadmin, a readonly sysadmin, or membership in the group in `uiV2.subject.seeAudits.must.be.in.group` (the same rule as the UI's subject audit screen), also when the subject is yourself (v7.9.1+). |
 | `subjectSourceId` | string | No | Subject source ID (used with `subjectId`). |
 | `actionsPerformedBySubjectId` | string | No | Filter to actions performed by this subject. |
 | `actionsPerformedBySubjectSourceId` | string | No | Source ID for the subject who performed the actions. |
@@ -314,7 +326,7 @@ Requires membership in the MCP readonly group. For OAuth users, the `readonly` c
 
 The Lucene index is built in-memory on each WS node from configured database queries and rebuilt periodically (default: every hour). No additional infrastructure is required.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string | No (default: query) | The action to perform: `query` searches documents by keyword; `retrieveChunk` retrieves specific chunks by sourceConfigId, name, and chunkIndexes; `listSourceConfigIds` lists available documentation sources with descriptions; `listNames` lists document names for a given sourceConfigId (max 1000, indicates if truncated). |
 | `query` | string | Yes (for query action) | The search query. Use natural language terms related to the topic you want to find. The search uses full-text matching with stemming. |
@@ -337,7 +349,7 @@ Looks up Grouper subjects by subject ID, subject identifier, or search string. C
 
 Provide exactly one of `subjectId`, `subjectIdentifier`, or `searchString`.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `subjectId` | string | One of three* | The subject ID to look up. Mutually exclusive with `subjectIdentifier` and `searchString`. |
 | `subjectIdentifier` | string | One of three* | The subject identifier to look up (e.g., login ID or eppn). Mutually exclusive with `subjectId` and `searchString`. |
@@ -357,7 +369,7 @@ Provide exactly one of `subjectId`, `subjectIdentifier`, or `searchString`.
 
 Find which groups a subject belongs to. Optionally filter by stem scope, membership type, and field. Supports paging. Delegates to the existing Grouper WS `entity_get_groups` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `subjectId` | string | One of two* | Subject to find groups for. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | One of two* | Subject identifier. Mutually exclusive with `subjectId`. |
@@ -374,15 +386,34 @@ Find which groups a subject belongs to. Optionally filter by stem scope, members
 
 **Response:** Returns a JSON array of groups, each with `name`, `extension`, `displayExtension`, `description`, and `uuid`.
 
+### entity_whoami
+
+Tells you who you are logged in to Grouper as on this connection and what this login can do. Use it to check your MCP connection after signing in or re-authenticating, or to troubleshoot an access denied error, for example by asking your AI client "who am I logged in to Grouper as, and what can I do?". It takes no parameters. It only describes you, so any MCP access is enough to run it: membership in at least one MCP access group (readonly, readwrite, SQL readonly, admin readonly, admin readwrite, or one of the limited groups) and, for OAuth users, a matching consent scope on the token.
+
+**Response**: Returns a JSON object with these fields:
+
+| Field | Description |
+| --- | --- |
+| subject | The logged-in subject: sourceId, subjectId, identifier, name, and memberId |
+| login | How this login came in: oauth (with tokenIssuedAt), wsAuthentication (HTTP Basic or container auth), or uiAssistant (the AI assistant in the Grouper UI) |
+| grouperSysadmin, grouperReadonlySysadmin | Whether the subject is a Grouper sysadmin or readonly sysadmin |
+| mcpAccessGroups | Each MCP access group (readonly, readwrite, wsAuthnAllowed, SQL readonly, admin readonly, admin readwrite, and the limited SQL, admin readonly and admin readwrite groups), with its config property, its group name, and whether you are a member |
+| limitedAccessGroups | The limitedAccessGroups you are in, per tool and per SQL, LDAP and admin external system. Only the ones you are in are listed |
+| scopes | The scopes of this login. For OAuth, what was consented to for the token: readonly, readwrite, sqlReadonly, adminReadonly, adminReadwrite, and with read-write the readwriteLimits (folders, groups and subjects). For the UI assistant, the scope chosen for the session. For web service authentication there are none (enforced is false) and only group membership applies |
+| allowedToolCategories | For each tool category, whether this login may use it, taking group membership and scope together |
+| availableTools | The names of the tools offered to this login: the same list tools/list returns |
+
+Group memberships are cached for up to 60 seconds on each Grouper server, so a change to an MCP access group can take a minute to show up.
+
 ### folder_delete
 
-Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be deleted via MCP.
+Delete a Grouper stem (folder). The stem is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system stems and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.
 
 **Security:** The calling user must have STEM_ADMIN privilege on the stem to delete it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `stemName` | string | Yes | The fully qualified stem name to delete (e.g., `stem1:stem2`). |
 
@@ -392,7 +423,7 @@ Delete a Grouper stem (folder). The stem is looked up by name and permanently de
 
 Search for Grouper stems (folders) by name, parent stem, or attribute. Supports exact and approximate name matching, and searching within a specific parent stem. Delegates to the existing Grouper WS `folder_find` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `stemQueryFilterType` | string | Yes | Type of search: `FIND_BY_STEM_NAME`, `FIND_BY_STEM_NAME_APPROXIMATE`, `FIND_BY_STEM_UUID`, `FIND_BY_APPROXIMATE_ATTRIBUTE`. |
 | `stemName` | string | No | Stem name to search for. Used with exact or approximate name searches. |
@@ -404,22 +435,40 @@ Search for Grouper stems (folders) by name, parent stem, or attribute. Supports 
 
 **Response:** Returns a JSON object with `totalStemsReturned` and a `stems` array. Each stem includes `name`, `displayName`, `extension`, `description`, and `uuid`. If `includeGdgTypes` is true, each stem also includes a `gdgTypes` array with GDG type names (e.g., "policy", "ref", "basis", "manual").
 
+### folder_save
+
+Create a Grouper stem (folder), or change the display name or description of an existing one. Use the `action` parameter to choose the operation. Only the fields you pass in are changed. Renaming or moving a folder is not supported; do that in the Grouper UI. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted and must include the folder (and any parent folders the call would create). System stems, stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders` are protected and cannot be created or changed via MCP. Available in Grouper 7.8.0 and later.
+
+**Security:** Creating a folder requires the CREATE (stem) privilege on the parent folder. Changing a folder requires STEM_ADMIN on the folder. In the Grouper UI AI assistant, each call is shown to the user for approval before it runs.
+
+#### Parameters
+
+| **Parameter** | **Type** | **Required** | **Description** |
+| --- | --- | --- | --- |
+| `action` | string | Yes | `createFolder` = create a new folder (fails if it exists). `createOrUpdateFolder` = create the folder, or update the display name and description of an existing one. `updateFolderPart` = update the display name and/or description of an existing folder. |
+| `stemName` | string | Yes | The fully qualified folder name (e.g., `app:myApp:groups`). The last part is the folder ID. |
+| `displayExtension` | string | No | The friendly name of the folder (the last part of its display name). When creating, defaults to the folder ID. |
+| `description` | string | No | The description of the folder. An empty string clears it. |
+| `createParentFoldersIfNotExist` | boolean | No | When creating, also create any parent folders that do not exist yet. Default is false, so the parent folder must already exist. |
+
+**Response:** Returns a JSON object with `action`, `resultCode` (`INSERT`, `UPDATE`, or `NO_CHANGE`), `success` (boolean), `name`, `displayName`, `displayExtension`, `description`, and `uuid`.
+
 ### group_add_member
 
-Add one or more subjects as members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Supports setting membership enabled/disabled dates for time-limited or future-dated memberships. Delegates to the existing Grouper WS `group_add_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Add one or more subjects as members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Supports setting membership enabled/disabled dates for time-limited or future-dated memberships. Delegates to the existing Grouper WS `group_add_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to add members to (e.g., `stem1:stem2:groupName`). |
 | `subjects` | array of objects | Yes | Array of subjects to add. Each object must have either `subjectId` or `subjectIdentifier` (mutually exclusive), and optionally `sourceId`. |
-| `replaceAllExisting` | boolean | No (default: false) | If true, replace all existing members of the group with the provided subjects. Use with caution. |
+| `replaceAllExisting` | boolean | No (default: false) | If true, replace all existing members of the group with the provided subjects. Use with caution. For an OAuth client whose read-write scope is limited to certain subjects, every existing member this would remove must also be in that scope, or nothing is changed (v7.9.1+). |
 | `fieldName` | string | No | Field (list) name for the membership. Defaults to `members` (the standard membership list). |
 | `disabledTime` | string | No | Date when this membership will be disabled, in format `yyyy/MM/dd HH:mm:ss.SSS`. Used for time-limited memberships. |
 | `enabledTime` | string | No | Date when this membership will be enabled, in format `yyyy/MM/dd HH:mm:ss.SSS`. Used for future-dated provisioning. |
 
 **Subject object fields:**
 
-| Field | Type | Description |
+| **Field** | **Type** | **Description** |
 | --- | --- | --- |
 | `subjectId` | string | The subject ID. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | The subject identifier (e.g., login ID or eppn). Mutually exclusive with `subjectId`. |
@@ -429,13 +478,13 @@ Add one or more subjects as members of a Grouper group. Each subject is identifi
 
 ### group_delete
 
-Delete a Grouper group. The group is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be deleted via MCP.
+Delete a Grouper group. The group is looked up by name and permanently deleted. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be deleted via MCP.
 
 **Security:** The calling user must have ADMIN privilege on the group to delete it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to delete (e.g., `stem1:stem2:groupName`). |
 
@@ -445,7 +494,7 @@ Delete a Grouper group. The group is looked up by name and permanently deleted. 
 
 Search for Grouper groups by name, stem, or attribute. Supports exact and approximate name matching, searching within a specific stem, and paging/sorting. Delegates to the existing Grouper WS `group_find` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `queryFilterType` | string | Yes | Type of search: `FIND_BY_GROUP_NAME_EXACT`, `FIND_BY_GROUP_NAME_APPROXIMATE`, `FIND_BY_STEM_NAME`, `FIND_BY_GROUP_UUID`, `FIND_BY_APPROXIMATE_ATTRIBUTE`. |
 | `groupName` | string | No | Group name to search for. Used with exact or approximate name searches. |
@@ -456,7 +505,7 @@ Search for Grouper groups by name, stem, or attribute. Supports exact and approx
 | `typeOfGroups` | string | No | Comma-separated types: group, role, entity. Default is all. |
 | `pageSize` | integer | No | Number of results per page (default 50). |
 | `pageNumber` | integer | No | Page number, 1-indexed (default 1). |
-| `sortString` | string | No | Field to sort by: name, displayName, extension, displayExtension. |
+| `sortString` | string | No | Field to sort by: name, displayName, extension, displayExtension. Default is name. |
 | `ascending` | boolean | No | Sort ascending (true, default) or descending (false). |
 | `includeGdgTypes` | boolean | No | If true, include Grouper Deployment Guide (GDG) type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) for each group in the results. These are different from typeOfGroups (group, role, entity) which is a structural classification. Defaults to false. |
 | `includeGroupEligibilityRequirement` | boolean | No | If true, include membership eligibility requirements (e.g., requireEmployee, requireAffiliate) for each group. These are configured requirements that restrict who can be added as a member (the member must also belong to a specified population group). Returned as a comma-separated string of requirement configIds. Defaults to false. |
@@ -469,7 +518,7 @@ Search for Grouper groups by name, stem, or attribute. Supports exact and approx
 
 Get the members of a group with paging support. Defaults to returning 50 members per page to prevent excessive results. Delegates to the existing Grouper WS `group_get_members` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to get members of (e.g., `stem1:stem2:groupName`). |
 | `memberFilter` | string (enum) | No | Membership filter type. One of: `All`, `Immediate`, `Effective`, `Composite`, `NonImmediate`. |
@@ -484,7 +533,7 @@ Get the members of a group with paging support. Defaults to returning 50 members
 
 Retrieve the permission assignments for a group (role). Permissions in Grouper allow you to define fine-grained access controls by assigning named permissions to roles. This tool shows which permissions are currently assigned to a given role, with optional filtering by action name (for example, `read` or `write`). Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified name of the group (role) to look up permissions for (e.g., `stem1:stem2:roleName`). |
 | `action` | string | No | Filter results to only permissions with this action (e.g., `read`, `write`). If omitted, permissions for all actions are returned. |
@@ -495,7 +544,7 @@ Retrieve the permission assignments for a group (role). Permissions in Grouper a
 
 Check if one or more subjects are members of a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Returns the membership status for each subject. Supports point-in-time queries to check historical membership. Delegates to the existing Grouper WS `group_has_member` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to check membership in (e.g., `stem1:stem2:groupName`). |
 | `subjects` | array of objects | Yes | Array of subjects to check. Each object must have either `subjectId` or `subjectIdentifier` (mutually exclusive), and optionally `sourceId`. |
@@ -506,7 +555,7 @@ Check if one or more subjects are members of a Grouper group. Each subject is id
 
 **Subject object fields:**
 
-| Field | Type | Description |
+| **Field** | **Type** | **Description** |
 | --- | --- | --- |
 | `subjectId` | string | The subject ID. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | The subject identifier (e.g., login ID or eppn). Mutually exclusive with `subjectId`. |
@@ -516,9 +565,9 @@ Check if one or more subjects are members of a Grouper group. Each subject is id
 
 ### group_remove_member
 
-Remove one or more subjects from a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Delegates to the existing Grouper WS `group_remove_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Remove one or more subjects from a Grouper group. Each subject is identified by `subjectId` or `subjectIdentifier` (and optionally `sourceId`). Delegates to the existing Grouper WS `group_remove_member` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The fully qualified group name to remove members from (e.g., `stem1:stem2:groupName`). |
 | `subjects` | array of objects | Yes | Array of subjects to remove. Each object must have either `subjectId` or `subjectIdentifier` (mutually exclusive), and optionally `sourceId`. |
@@ -526,7 +575,7 @@ Remove one or more subjects from a Grouper group. Each subject is identified by 
 
 **Subject object fields:**
 
-| Field | Type | Description |
+| **Field** | **Type** | **Description** |
 | --- | --- | --- |
 | `subjectId` | string | The subject ID. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | The subject identifier (e.g., login ID or eppn). Mutually exclusive with `subjectId`. |
@@ -536,13 +585,13 @@ Remove one or more subjects from a Grouper group. Each subject is identified by 
 
 ### group_rename
 
-Rename a Grouper group by changing its extension (short name). The group stays in the same parent stem but gets a new extension, which changes its fully qualified name. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be renamed via MCP.
+Rename a Grouper group by changing its extension (short name). The group stays in the same parent stem but gets a new extension, which changes its fully qualified name. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be renamed via MCP.
 
 **Security:** The calling user must have ADMIN privilege on the group to rename it. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupName` | string | Yes | The current fully qualified group name (e.g., `stem1:stem2:oldName`). |
 | `newExtension` | string | Yes | The new short name (extension) for the group (e.g., `newName`). The group will be renamed to `parentStem:newExtension`. |
@@ -551,19 +600,21 @@ Rename a Grouper group by changing its extension (short name). The group stays i
 
 ### group_save
 
-Create, update, or manage a Grouper group. Uses an action-based approach where the `action` parameter determines which operation to perform. This design prevents accidental data loss by using partial updates instead of full replacements, and provides dedicated actions for managing group types, composites, eligibility requirements, and provisioners. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Create, update, or manage a Grouper group. Uses an action-based approach where the `action` parameter determines which operation to perform. This design prevents accidental data loss by using partial updates instead of full replacements, and provides dedicated actions for managing group types, composites, eligibility requirements, and provisioners. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
 **Security:** All operations run as the calling user's Grouper session, so standard Grouper privileges are enforced. Each action has its own privilege requirements as noted below. If the calling user does not have sufficient privileges, the operation will fail with an access denied error.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
-| `action` | string (enum) | Yes | The operation to perform: `createGroup`, `createOrUpdateGroup`, `updateGroupPart`, `addGroupType`, `removeGroupType`, `addComposite`, `updateComposite`, `removeComposite`, `addEligibilityRequirement`, `removeEligibilityRequirement`, `addProvisioner`, `removeProvisioner`. |
+| `action` | string (enum) | Yes | The operation to perform: `createGroup`, `createOrUpdateGroup`, `updateGroupPart`, `renameGroup` `moveGroup`,`addGroupType`, `removeGroupType`, `addComposite`, `updateComposite`, `removeComposite`, `addEligibilityRequirement`, `removeEligibilityRequirement`, `addProvisioner`, `removeProvisioner`, `setJexlScript`, `removeJexlScript`, `analyzeJexlScript`. |
 | `groupName` | string | Yes | Fully qualified group name (e.g., `stem1:stem2:groupName`). Required for all actions. |
 | `description` | string | No | Group description. Used with `createGroup`, `createOrUpdateGroup`, and `updateGroupPart`. |
 | `displayExtension` | string | No | Display extension (friendly name). Used with `createGroup`, `createOrUpdateGroup`, and `updateGroupPart`. |
 | `typeOfGroup` | string | No | Type of group: `group`, `role`, `entity`. Used with `createGroup` and `createOrUpdateGroup`. |
+| `newFolderName` | string | No | Fully qualified name of the folder to move the group to (e.g., `stem1:stem3`). The folder must already exist. The group keeps its group ID, so its new name is this folder plus its current group ID. Required for `moveGroup`. |
+| `setAlternateNameIfMove` | boolean | No | Whether to keep the group's old name as its alternate ID path, so lookups by the old name still find it. Defaults to `false`. Used with `moveGroup`. |
 | `objectType` | string | No | Object type name: `basis`, `ref`, `policy`, `etc`, `grouperSecurity`, `org`, `app`, `service`, `readOnly`, `test`, `manual`, `intermediate`. Required for `addGroupType` and `removeGroupType`. |
 | `dataOwner` | string | No | Data owner for the object type. Applicable for types: ref, basis, policy, org, manual. Used with `addGroupType`. |
 | `memberDescription` | string | No | Member description for the object type. Applicable for types: ref, basis, policy, org, manual. Used with `addGroupType`. |
@@ -573,12 +624,19 @@ Create, update, or manage a Grouper group. Uses an action-based approach where t
 | `rightGroupName` | string | No | Fully qualified name of the right factor group. Required for `addComposite` and `updateComposite`. |
 | `configId` | string | No | Eligibility requirement config ID from the `grouper.membershipRequirement.{configId}.*` configuration. Required for `addEligibilityRequirement` and `removeEligibilityRequirement`. |
 | `targetName` | string | No | Provisioning target name. Required for `addProvisioner` and `removeProvisioner`. |
+| `script` | string | No | The JEXL script, e.g. `entity.memberOf('app:faculty') && !entity.memberOf('app:onLeave')`. Use single quotes around group names. At most 4000 bytes in UTF-8. Required for `setJexlScript`. For `analyzeJexlScript`, leave it out to analyze the group's current script; an empty script is refused. |
+| `subjectSourceIds` | array of strings | No | The subject sources the script selects people from. Used with `setJexlScript`. Left out, the group keeps its current sources. An empty array goes back to the defaults, and is always allowed. Choosing sources is only allowed where `grouper.abac.allowUserOverrideSubjectSourceIds` is true and `grouper.abac.availableSubjectSourceIds` is set, and each source must be in that list. Also used with `analyzeJexlScript` to preview other sources. |
+| `subjectIdOrIdentifier` | string | No | A person to check. The result says whether the script selects them. Used with `analyzeJexlScript`. |
+| `sourceId` | string | No | The source of `subjectIdOrIdentifier`, needed when the id matches people in more than one source. Used with `analyzeJexlScript`, and only with `subjectIdOrIdentifier`. |
+| `partCounts` | boolean | No | Also count each part of the script, and say which parts the person matches. Defaults to `false`, since each part is a separate query. Used with `analyzeJexlScript`. |
+| `membershipChanges` | boolean | No | Count how many members the next sync would add and remove. Defaults to `true`; `false` skips those queries. Used with `analyzeJexlScript`. |
 
 #### Actions
 
 - **createGroup** — Create a new group. Fails if the group already exists. Parent stems are created automatically if they don't exist. *Privilege: CREATE on the parent stem.* Uses: `groupName`, `description`, `displayExtension`, `typeOfGroup`.
 - **createOrUpdateGroup** — Create a new group or update an existing one. If the group does not exist it is created (parent stems are created automatically). If the group already exists, only explicitly provided fields are changed; other settings are preserved. *Privilege: CREATE on the parent stem (for insert) or ADMIN on the group (for update).* Uses: `groupName`, `description`, `displayExtension`, `typeOfGroup`.
 - **updateGroupPart** — Update specific fields on an existing group without replacing all settings. Only fields that are explicitly provided will be changed; other settings are preserved. *Privilege: ADMIN on the group.* Uses: `groupName`, `description`, `displayExtension`.
+- **moveGroup** — *Grouper 7.8.1 and later.* Move an existing group to a different folder. The group keeps its group ID, uuid, memberships, privileges, and attribute assignments; only the folder part of its name changes. The old name is kept as an alternate ID path only if `setAlternateNameIfMove` is `true` (the default is `false`, unlike the UI's move screen, where the box starts checked). To change the group ID as well, rename it separately. The new name is checked the same way as the old one: it cannot be in a protected folder (the built-in objects folder, by default `etc`, or one listed in `grouper.mcp.protectedFolders`), and for OAuth clients both the old and the new name must be within the consented read-write scope. The new name is checked the way a new group's is: it must be inside a consented folder (or be a consented group name), so consenting to the group alone allows changing it but not moving it to another folder. *Privilege: ADMIN on the group and CREATE on the destination folder.* Uses: `groupName`, `newFolderName`, and optionally `setAlternateNameIfMove`.
 - **addGroupType** — Assign an object type to a group. *Privilege: ADMIN on the group.* Uses: `groupName`, `objectType`, and optionally `dataOwner`, `memberDescription`, `serviceName`.
 - **removeGroupType** — Remove an object type from a group. *Privilege: ADMIN on the group.* Uses: `groupName`, `objectType`.
 - **addComposite** — Make a group a composite of two other groups. *Privilege: UPDATE on the owner group, READ on both factor groups.* Uses: `groupName`, `compositeType`, `leftGroupName`, `rightGroupName`.
@@ -586,10 +644,56 @@ Create, update, or manage a Grouper group. Uses an action-based approach where t
 - **removeComposite** — Remove the composite definition from a group. *Privilege: UPDATE on the group.* Uses: `groupName`.
 - **addEligibilityRequirement** — Assign an eligibility requirement to restrict who can be a member of the group. Members must be in the requirement's population group. Existing members who don't meet the requirement are automatically removed. *Privilege: GROUP_ATTR_UPDATE on the group and ATTR_UPDATE on the requirement's attribute definition.* Uses: `groupName`, `configId`.
 - **removeEligibilityRequirement** — Remove an eligibility requirement from a group. Existing members remain unchanged. *Privilege: GROUP_ATTR_UPDATE on the group and ATTR_UPDATE on the requirement's attribute definition.* Uses: `groupName`, `configId`.
-- **addProvisioner** — Enable provisioning of a group to a target. Validates that the target exists and the user is authorized for the target. *Privilege: membership in the provisioning target's `groupAllowedToAssign` group, or wheel/root.* Uses: `groupName`, `targetName`.
-- **removeProvisioner** — Disable provisioning of a group from a target. *Privilege: membership in the provisioning target's `groupAllowedToAssign` group, or wheel/root.* Uses: `groupName`, `targetName`.
+- **addProvisioner** — Enable provisioning of a group to a target. Validates that the target exists and the user is authorized for the target. *Privilege: membership in the provisioning target's*`groupAllowedToAssign`*group, or wheel/root.* Uses: `groupName`, `targetName`.
+- **removeProvisioner** — Disable provisioning of a group from a target. *Privilege: membership in the provisioning target's*`groupAllowedToAssign`*group, or wheel/root.* Uses: `groupName`, `targetName`.
+- **setJexlScript** — *Grouper 7.9.2 and later.* Make an existing group a scripted group, or change its script. Members are not changed by the save itself: within about a minute, when the scripted group change log job runs, the people the script selects are added and direct members it does not select are removed. The script gets the same checks as the scripted group screen in the UI; see **Scripted (JEXL) groups** below. *Privilege: wheel/root, or ADMIN on the group and membership in the* `grouper.abac.edit.if.in.group` *group if one is set; READ on every group the script uses; update in the privacy realm of every data field it uses.* Uses: `groupName`, `script`, and optionally `subjectSourceIds`.
+- **removeJexlScript** — *Grouper 7.9.2 and later.* Stop a group being a scripted group. The script and its settings are removed, and the group's current members stay as direct members, the same as in the UI. *Privilege: the same as setJexlScript on the group.* Uses: `groupName`.
+- **analyzeJexlScript** — *Grouper 7.9.2 and later.* Preview a script for a group without saving anything, like the Analyze button on the UI's scripted group screen. It is a read, so the AI assistant runs it without asking first, and a protected group or one outside the read-write scope gets a warning rather than a refusal. It still needs MCP readwrite access. *Privilege: the same as setJexlScript on the group; read in the privacy realm of every data field it uses. A group used that the user can see but not read is refused; one they cannot see, or that does not exist by that name, is counted as empty and reported in*`warnings`. Uses: `groupName`, and optionally `script`, `subjectSourceIds`, `subjectIdOrIdentifier`, `sourceId`, `partCounts`, `membershipChanges`.
 
-**Response:** Returns a JSON object with `action` (the action performed), `resultCode` (e.g., `INSERT`, `UPDATE`, `NO_CHANGE`, `DELETE`), `success` (boolean), and `groupName`. For `createGroup` and `updateGroupPart`, also includes `name`, `displayExtension`, `description`, and `uuid`. For `addComposite`, includes `compositeType`, `leftGroupName`, and `rightGroupName`. For eligibility requirement actions, includes `configId` and `requireGroupName` (on add). For provisioner actions, includes `targetName`.
+**Response:** Returns a JSON object with `action` (the action performed), `resultCode` (e.g., `INSERT`, `UPDATE`, `NO_CHANGE`, `DELETE`), `success` (boolean), and `groupName`. For `createGroup` and `updateGroupPart`, also includes `name`, `displayExtension`, `description`, and `uuid`. For `addComposite`, includes `compositeType`, `leftGroupName`, and `rightGroupName`. For eligibility requirement actions, includes `configId` and `requireGroupName` (on add). For provisioner actions, includes `targetName`. For `moveGroup`, also includes `previousName`, `name`, `displayExtension`, `description`, and `uuid`. For `setJexlScript`, also includes `script`, `subjectSourceIds`, `populationCount` (how many members the script selects) and a `note`; for `removeJexlScript`, a `note`. For `analyzeJexlScript`, there is no `resultCode`, since nothing is saved. It includes `script`, `subjectSourceIds`, `populationCount`, `wouldAdd` and `wouldRemove` (unless left out), `cannotBeSaved` and `warnings` when the script could not be saved, `subject` (`subjectId`, `sourceId`, `selectedByScript`) when a person was given, `parts` when `partCounts` is true (each with `description`, `populationCount`, and `subjectMatches` when a person was given), and a `note`.
+
+#### Scripted (JEXL) groups
+
+A scripted group's members are whoever its JEXL script selects. `setJexlScript` refuses a script, and `analyzeJexlScript` reports it in `warnings` with `cannotBeSaved` set to `true`, when:
+
+- the group is protected (under the built-in objects folder, by default `etc`, or a folder in `grouper.mcp.protectedFolders`), or, for OAuth clients, outside the consented read-write scope;
+- the group already has a SQL, LDAP or recent memberships loader (change the loader type on the group's loader screen in the UI);
+- the group is a composite (remove the composite first);
+- the script refers to the group itself;
+- the script uses a group that does not exist by that exact name (for example an old name), or that the user cannot see;
+- the script uses a data field, or a `globalAttributeValue`, whose privacy realm the user can read but not update;
+- the script selects unresolvable or deleted subjects;
+- the script selects more members than the user may give a scripted group: `grouper.abac.defaultMaxMembershipSizeLimit`, or a higher limit for users who are in a group set by `grouper.abac.maxMembershipSizeLimit.<id>.groupName`, with that tier's `.maxSize`.
+
+Both actions refuse outright, with an error, a script that:
+
+- is over 4000 bytes or cannot be parsed;
+- uses a group the user can see but not read;
+- uses a data field the user cannot view, or whose privacy realm they can only view (`setJexlScript` needs update in the realm; `analyzeJexlScript` needs read).
+
+`analyzeJexlScript` also refuses outright:
+
+- an empty script;
+- no script, for a group that is not a scripted group;
+- a `subjectIdOrIdentifier` that is not found, or that matches more than one subject (give its `sourceId`);
+- an unknown `sourceId` given with `subjectIdOrIdentifier`.
+
+`setJexlScript` and `removeJexlScript` change the group, so the protected group and OAuth read-write scope checks apply to it. The groups a script uses are only read, so they do not need to be in the read-write scope.
+
+`analyzeJexlScript` notes:
+
+- The script reads cached memberships, so the counts are an estimate until the group is next recalculated.
+- The add and remove counts are left out when the script uses a group that does not exist by that exact name, or that the user cannot read.
+- For a group with another loader, the counts are still returned: they show what switching the group to the script would do.
+- It records two things, as the UI's Analyze button always has: a member record for the person checked if Grouper has not seen them before, and, for each group used with `recentMemberOf` that the user can read, that its membership history should be kept. Neither changes who is in any group.
+
+In the AI assistant, the approval box shows what will change:
+
+- For `setJexlScript`, the new script, and the script it replaces when the group already has one. When the group is a composite or has another loader, it says the call will be refused.
+- For `removeJexlScript`, how many current members stay as direct members, or, for a group that is not a scripted group, that nothing changes.
+- For both, the group's current name, when it was given by a name it used to have.
+
+The script, member count, refusal, "not a scripted group" text and current name are shown only to a user who may edit the group's script.
 
 ### institutional_tools
 
@@ -605,7 +709,7 @@ This tool supports two actions:
 
 Returns all MCP-enabled templates the authenticated user is authorized to execute, including their configuration ID, display name, description, input definitions, access level, and whether they execute on a group name, folder name, or both. Templates marked as `mcpReadonly` are visible to all MCP users; other templates are only visible to users with readwrite access.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string | Yes | `"schema"` |
 
@@ -619,6 +723,8 @@ Returns all MCP-enabled templates the authenticated user is authorized to execut
 - `executeOnGroupName` — boolean, whether this template can be run on a group
 - `executeOnFolderName` — boolean, whether this template can be run on a folder
 - `inputs` — array of input definitions, each with:
+  
+  
   
   - `name` — the input name (without the internal `gsh_input_` prefix; both the short name and the full `gsh_input_`-prefixed name are accepted when executing)
   - `type` — `string`, `boolean`, `integer`, or `file`
@@ -639,7 +745,7 @@ Returns all MCP-enabled templates the authenticated user is authorized to execut
 
 Executes an MCP-enabled template by config ID with the provided inputs. The template is executed using the deployer-configured run-as type (e.g., GrouperSystem) with the MCP user as the current user for security checks. For non-readonly templates, any inputs configured with an `mcpScopeType` are validated against the user’s approved OAuth readwrite scopes before execution proceeds.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string | Yes | `"execute"` |
 | `configId` | string | Yes | The template config ID (from the `schema` action). |
@@ -652,9 +758,13 @@ Executes an MCP-enabled template by config ID with the provided inputs. The temp
 
 **Example response (success):**
 
-`{ "configId" : "createWorkingGroup", "success" : true, "valid" : true, "outputLines" : [ { "messageType" : "success", "text" : "Created group: ref:workingGroups:myNewGroup" } ] }`**Example response (validation error):**
+`{ "configId" : "createWorkingGroup", "success" : true, "valid" : true, "outputLines" : [ { "messageType" : "success", "text" : "Created group: ref:workingGroups:myNewGroup" } ] }`
 
-`{ "configId" : "createWorkingGroup", "success" : false, "valid" : false, "validationLines" : [ { "inputName" : "groupExtension", "text" : "Only letters, numbers, and underscores" } ] }`**Example response (scope validation denied):**
+**Example response (validation error):**
+
+`{ "configId" : "createWorkingGroup", "success" : false, "valid" : false, "validationLines" : [ { "inputName" : "groupExtension", "text" : "Only letters, numbers, and underscores" } ] }`
+
+**Example response (scope validation denied):**
 
 `{ "error" : "Access denied: input 'targetFolder' value 'app:restricted:folder' is not within the user's approved readwrite scope for folders" }`
 
@@ -666,7 +776,7 @@ Search LDAP directories configured as Grouper external systems. Use action `list
 
 #### Parameters
 
-| Name | Type | Required | Description |
+| **Name** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string (enum) | Yes | `listExternalSystems` or `filter`. |
 | `externalSystemId` | string | For `filter` | LDAP external system ID. Must match an `ldap.<id>.*` connection configured in Grouper. Use `listExternalSystems` to discover available IDs. |
@@ -695,7 +805,7 @@ Get memberships and privileges from Grouper. Returns membership details includin
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `groupNames` | array of strings | No | Array of fully qualified group names to query memberships for. |
 | `subjectIds` | array of strings | No | Array of subject IDs to query memberships for. |
@@ -721,9 +831,9 @@ Returns a JSON object with `totalMemberships` (count) and a `memberships` array.
 
 ### privilege_assign
 
-Assigns or revokes a privilege on a group or stem for a subject. Delegates to the existing Grouper WS `privilege_assign` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`) are protected and cannot be modified via MCP.
+Assigns or revokes a privilege on a group or stem for a subject. Delegates to the existing Grouper WS `privilege_assign` operation. Requires membership in the MCP readwrite group. For OAuth users, the `readwrite` consent scope must also be granted. Note: system groups and stems under the Grouper built-in objects stem (default `etc`), and any folders an administrator lists in `grouper.mcp.protectedFolders`, are protected and cannot be modified via MCP.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `subjectId` | string | One of two* | The subject to grant/revoke privilege for. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | One of two* | Subject identifier. Mutually exclusive with `subjectId`. |
@@ -743,7 +853,7 @@ Assigns or revokes a privilege on a group or stem for a subject. Delegates to th
 
 Get privileges on a group or stem, optionally filtered by subject and/or privilege type. Delegates to the existing Grouper WS `privilege_get` operation. Requires membership in the MCP readonly or readwrite group. For OAuth users, the `readonly` (or `readwrite`) consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `subjectId` | string | No | Subject to check privileges for. Mutually exclusive with `subjectIdentifier`. |
 | `subjectIdentifier` | string | No | Subject identifier. Mutually exclusive with `subjectId`. |
@@ -761,7 +871,7 @@ Get privileges on a group or stem, optionally filtered by subject and/or privile
 
 Get database schema information. Supports three actions for discovering databases, listing tables, and getting detailed table information. Can query the Grouper database or other configured external database connections. Requires membership in the MCP SQL readonly group. For OAuth users, the `sql_readonly` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `action` | string (enum) | Yes | The action to perform: `listExternalSystems` – returns available database connections; `listTables` – returns table/view names for an external system; `tableInfo` – returns DDL or column metadata for a specific table. |
 | `externalSystemId` | string | No (default: `"grouper"`) | External system ID identifying which database to query. Defaults to `"grouper"` (the Grouper database). Use `listExternalSystems` to discover available IDs. |
@@ -781,7 +891,7 @@ Returns an error if the table or view is not found, or if the external system is
 
 Execute a read-only SQL SELECT query against the Grouper database (or another configured external system) and return the results as a JSON array of row objects. Only SELECT statements are allowed; INSERT, UPDATE, DELETE, and DDL statements are rejected. Results are paged — use `pageSize` and `pageNumber` to navigate through large result sets. An `ORDER BY` clause is required when paging beyond page 1 to ensure deterministic results. Set `countOnly` to `true` to return just the row count without fetching data. The query runs on a read-only JDBC connection for defense-in-depth. Use `sql_get_schema` with `action = 'listExternalSystems'` to discover available databases, `'listTables'` to see table/view names, and `'tableInfo'` to get column details. Requires membership in the MCP SQL readonly group. For OAuth users, the `sql_readonly` consent scope must also be granted.
 
-| Parameter | Type | Required | Description |
+| **Parameter** | **Type** | **Required** | **Description** |
 | --- | --- | --- | --- |
 | `sql` | string | Yes | The SQL SELECT query to execute. Must be a SELECT statement. Do not include a trailing semicolon. Do not include LIMIT or OFFSET clauses; use the `pageSize` and `pageNumber` parameters instead. |
 | `countOnly` | boolean | No (default: false) | If `true`, return only the row count without fetching data. Useful for checking result size before fetching. When `true`, `pageSize` and `pageNumber` are ignored. |

@@ -2,8 +2,8 @@
 title: "Grouper automatically fix attribute corruption"
 space: Grouper
 pageId: 28548525
-version: 6
-lastUpdated: 2021-09-03T01:25:00.320Z
+version: 7
+lastUpdated: 2026-11-20T20:26:22.915Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548525/Grouper+automatically+fix+attribute+corruption
 ---
 

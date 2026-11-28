@@ -2,59 +2,113 @@
 title: "Grouper Training - Use cases - Lesson 11: VPN access control part 4 - deprovisioning"
 space: Grouper
 pageId: 28545548
-version: 5
-lastUpdated: 2026-04-22T01:11:40.348Z
+version: 6
+lastUpdated: 2026-11-18T19:38:52.535Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545548/Grouper+Training+-+Use+cases+-+Lesson+11+VPN+access+control+part+4+-+deprovisioning
 ---
 
+**Getting started**
+
+[Connect to your VM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543735/Connecting+to+the+Grouper+Training+Environment+VM)
+
+In this lesson, anything you type is in a box with a copy button on the right. Buttons, menus, and labels to click or select are in double quotes.
+
+## Learning objectives
+
+- Configure deprovisioning by affiliation
+- Deprovision a user from ad hoc groups
+- Keep deprovisioned users from being added back to a group
+
 ## Setup
 
-### Create groups in etc:deprovisioning:
+### Create the deprovisioning groups
 
-- managersWhoCanDeprovision_employees
-- managersWhoCanDeprovision_students
-- usersWhoHaveBeenDeprovisioned_employees
-- usersWhoHaveBeenDeprovisioned_students
+Create these four groups in the folder "etc:deprovisioning". For each one:
 
-### Configure
+1. In the left menu, click "Browse folders", click "Root", click "etc", then click "deprovisioning".
+2. Click "Folder actions" → "Create new group".
+3. "Group name": paste the group name (copy boxes below), then click "Save".
+  
+  
+  ```
+  managersWhoCanDeprovision_employees
+  ```
+  
+  
+  ```
+  managersWhoCanDeprovision_students
+  ```
+  
+  
+  ```
+  usersWhoHaveBeenDeprovisioned_employees
+  ```
+  
+  
+  ```
+  usersWhoHaveBeenDeprovisioned_students
+  ```
 
-```
-deprovisioning.enable = true
-deprovisioning.affiliations = employees, students
+### Configure deprovisioning
 
-deprovisioning.affiliation_employees.groupNameMeansInAffiliation = ref:role:all_facstaff
-deprovisioning.affiliation_students.groupNameMeansInAffiliation = basis:sis:prog_status:all:ac
-
-```
+1. In the left menu, click "Miscellaneous", then click "Configure".
+2. Click "Configuration files".
+3. Click "Config actions" → "Import config file".
+4. "Import configuration with": select "Copy/paste configuration entries".
+5. "Configuration file type": select "grouper.properties".
+6. "Configuration file contents": paste this, then click "Submit":
+  
+  
+  ```
+  deprovisioning.enable = true
+  deprovisioning.affiliations = employees, students
+  
+  deprovisioning.affiliation_employees.groupNameMeansInAffiliation = ref:role:all_facstaff
+  deprovisioning.affiliation_students.groupNameMeansInAffiliation = basis:sis:prog_status:all:ac
+  ```
 
 ## Deprovision a user
 
 ITS is aware that rkirby is no longer an employee. They were in the Security dept and had a high level of access. Loader jobs will remove them from basis groups, but we want to make sure they are taken out of ad hoc groups.
 
-First, let's simulate that they have access to the VPN.
+### Simulate that rkirby has VPN access
 
-- Add rkirby to ref:certs:network_aup_acknowledged (ok to do as banderson; don't need to go through the custom UI)
+Do this as banderson. You do not need the custom UI.
 
-Go to Miscellaneous > Deprovisioning. This item link only appears once we enabled deprovisioning through properties
+1. Go to the group "ref:certs:network_aup_acknowledged" and click "Add members".
+2. In "Member name or ID", paste this, pick rkirby from the list, and click "Add":
+  
+  
+  ```
+  rkirby
+  ```
 
-Choose "employees" from the dropdown
+### Deprovision rkirby
 
-Choose Deprovisioning actions > Deprovision User
-
-Notice the list of their groups is only the direct memberships.
-
-The loader process will eventually remove them from the basis group, so we can uncheck that box. We just need to take them out of the network_aup_acknowledged group.
-
-Click on Deprovision user and remove access
-
-Check network_aup_acknowledged to see they are removed
+1. In the left menu, click "Miscellaneous", then click "Deprovisioning". This link only appears once deprovisioning is enabled in the config.
+2. "Affiliation": select "employees", then click "Submit".
+3. Click "Deprovisioning actions" → "Deprovision User".
+4. In "Member name or ID", paste this, pick rkirby from the list, and click "View user access to deprovision":
+  
+  
+  ```
+  rkirby
+  ```
+5. Notice the list of their groups is only the direct memberships.
+6. The loader will eventually remove them from the basis group, so uncheck that box. Keep "ref:certs:network_aup_acknowledged" checked.
+7. Click "Deprovision user and remove access".
+8. Go to the group "ref:certs:network_aup_acknowledged" and check that rkirby is no longer a member.
 
 ## Don't allow deprovisioned users back into the network AUP group
 
-Group network_aup_acknowledged > Deprovisioning > Deprovisioning actions > Edit deprovisioning settings
-
-Affiliation: Employees
-
-Note defaults, save it
-
-Try to add back rkirby as banderson (don't try self-service custom UI, it's a bug)
+1. Go to the group "ref:certs:network_aup_acknowledged".
+2. Click "Group actions" → "Deprovisioning".
+3. Click "Deprovisioning actions" → "Edit deprovisioning settings".
+4. "Affiliation": select "employees".
+5. Review the default settings, then click "Save".
+6. As banderson, try to add rkirby back: click "Add members", paste this in "Member name or ID", and click "Add". Use the regular UI, not the self-service custom UI (it has a bug):
+  
+  
+  ```
+  rkirby
+  ```

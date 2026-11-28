@@ -2,8 +2,8 @@
 title: "Create a new folder"
 space: Grouper
 pageId: 28545355
-version: 8
-lastUpdated: 2024-05-30T13:32:50.121Z
+version: 9
+lastUpdated: 2026-11-20T20:26:01.244Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545355/Create+a+new+folder
 ---
 

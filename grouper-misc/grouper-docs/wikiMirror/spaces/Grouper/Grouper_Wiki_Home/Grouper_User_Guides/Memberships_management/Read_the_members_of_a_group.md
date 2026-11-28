@@ -2,8 +2,8 @@
 title: "Read the members of a group"
 space: Grouper
 pageId: 28545369
-version: 8
-lastUpdated: 2026-07-12T15:26:43.000Z
+version: 9
+lastUpdated: 2026-11-20T20:26:02.412Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545369/Read+the+members+of+a+group
 ---
 

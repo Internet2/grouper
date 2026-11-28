@@ -2,8 +2,8 @@
 title: "Monitoring and Reporting"
 space: Grouper
 pageId: 28549413
-version: 11
-lastUpdated: 2026-07-12T15:27:05.119Z
+version: 12
+lastUpdated: 2026-11-20T20:26:33.772Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549413/Monitoring+and+Reporting
 ---
 

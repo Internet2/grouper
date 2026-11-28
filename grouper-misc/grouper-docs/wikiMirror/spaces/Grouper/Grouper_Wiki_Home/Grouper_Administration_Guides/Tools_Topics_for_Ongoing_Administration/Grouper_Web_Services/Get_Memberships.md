@@ -2,8 +2,8 @@
 title: "Get Memberships"
 space: Grouper
 pageId: 28547791
-version: 13
-lastUpdated: 2026-07-01T05:46:10.465Z
+version: 14
+lastUpdated: 2026-11-20T21:01:49.278Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547791/Get+Memberships
 ---
 
@@ -25,7 +25,7 @@ Get memberships will retrieve membership objects by group, by subject, or by id 
 - Can filter for all memberships directly in a stem, or in any substem of a stem
 - Can filter by subject source so only people memberships are returned, or groups, or etc.
 - In v2.2+ you can pass in the serviceLookup (service name or id) and serviceRole (admin|user) to get the memberships of a service based on role. This will essentially send you the users of a service.
-- In v2.1.5+ you can get privileges on groups, stems, attribute definitions. You can pass in fieldType to filter on the type of memberships: list|access|naming|attributeDef
+- In v2.1.5+ you can get privileges on groups, stems, attribute definitions. You can pass in fieldType to filter on the type of memberships: list|access|naming|attributeDef. As of v7.9.1, v6.5.1 and v4.26.1, group privilege memberships (fieldType access, a privilege list name, or serviceRole admin) of subjects other than the caller are returned only for groups where the caller has ADMIN; READ is enough for the caller's own privileges and for member lists.
   
   - ownerStemNames, ownerStemUuids, ownerNamesOfAttributeDefs, ownerIdsOfAttributeDefs
 - In v2.5+, you can get point in time information as well

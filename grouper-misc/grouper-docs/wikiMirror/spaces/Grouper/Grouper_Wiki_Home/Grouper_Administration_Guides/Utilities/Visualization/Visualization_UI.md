@@ -2,8 +2,8 @@
 title: "Visualization UI"
 space: Grouper
 pageId: 28548433
-version: 24
-lastUpdated: 2026-07-01T05:44:32.642Z
+version: 25
+lastUpdated: 2026-11-20T21:02:08.647Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548433/Visualization+UI
 ---
 
@@ -33,7 +33,7 @@ Various drawing settings can be selected to alter what is selected in the graph.
 - Show folders: Whether to include folders in the output.
 - Show loader jobs: Whether to include groups that are set up as a loader job. These objects show the groups loaded by them as child nodes
 - Show provisioners: Whether to include PSPNG provisioning targets as a child object of the provisioned group
-- Show member counts: Whether to include member counts. If there are many groups, this may increase the time taken to build the output
+- Show member counts: Whether to include member counts. If there are many groups, this may increase the time taken to build the output. As of v7.9.1, v6.5.1 and v4.26.1, counts are shown only for groups you can READ (or as wheel); other groups show a count of 0 and are not included in the totals.
 
 ### Text mode
 

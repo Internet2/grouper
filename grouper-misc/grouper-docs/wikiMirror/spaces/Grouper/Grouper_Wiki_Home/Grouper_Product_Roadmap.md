@@ -2,8 +2,8 @@
 title: "Grouper Product Roadmap"
 space: Grouper
 pageId: 28541781
-version: 360
-lastUpdated: 2026-07-28T21:32:41.313Z
+version: 363
+lastUpdated: 2026-10-27T14:41:15.151Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap
 ---
 
@@ -14,7 +14,7 @@ Items that have fallen off of the roadmap appear further below with some explana
 
 # Grouper Version Support
 
-Grouper developers offer support to the versions released in the last 3 months or the latest version in the active major versions (currently 4.x, 5.x).
+Grouper developers offer support to the versions released in the last 3 months or the latest version in the active major versions (currently v6, v7).
 
 See [Grouper Versioning and Support info here.](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544481)
 
@@ -31,23 +31,17 @@ See [Grouper Versioning and Support info here.](https://grouper.atlassian.net/wi
 | **v4** | [Released March 2023](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344) | Stable release | Is same as v2.6, but using semantic versioning |
 | **v5** | [Released October 2023](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048) | Stable release | Will only have new provisioners |
 | **6.0** | [Released February 2026](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547614) | Stable release | Stable version of v5    ### **These are gone in v6**  Apache, shib SP  WS SOAP  Non-provisioning-framework provisioners    - googleapps-google-provisioner - grouperAtlassianConnector - grouper-aws-changelog - grouper-azure - grouper-box - grouper-duo - grouperKimConnector - grouper-pspng - grouper-remedy - grouper-remedyDigitalMarketplace - grouperScim - grouper-shib - grouper-tierApiAuthz - grouper-tier-scim - grouper-installer    ### **These will still be in Grouper going forward**  All provisioning framework connectors   Custom change log consumers   Messaging connectors    - grouper-messaging-activemq - grouper-messaging-aws - grouper-messaging-rabbitmq |
-| **v7** | Estimated Q4 2026 | Not released | Will redo how data is stored in the database in order to make things faster and use fewer resources  Will only have new data field subject sources |
+| **v7** | Released March 2026 | Stable release | Grouper OAuth 2.1 authorization server and MCP server  AI assistant in the UI  Compiled Java GSH templates |
 
 Work on migrating away from legacy provisioners, SOAP, and Apache in v4.
 
 | **Release** | **Item** | **Description** |
 | --- | --- | --- |
-| **v7** | Grouper Oauth 2.1 | Originally this is tightly coupled with MCP but could be leveraged for other things in the future. Grouper is an Oauth 2.1 Authorization server which can allow users to approve scopes for access tokens. |
-| **v7** | [Grouper MCP](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487) | AI MCP server on top of Grouper Oauth and Grouper WS. |
 | **v7** | Provisioning activity and auditing | Write audits to the provisioning audit table and read that from UI. Errors to audit table too? |
-| **v7** | External system usage | Report on external systems to see where they are used |
-| **v7** | Add more [ABAC / data field features](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896) | Add visualization, attribute resolver, and renames. |
-| **v7** | Implement centralized SQL batch sizes | See what the batch size is for each DB vendor and set a default which can be overridden. Adjust hardcoded batch sizes with these defaults |
 | **v7** | External system documentation in wizard | For each external system document the specifics in the wizard |
-| **v7** | Upgrade JS libraries | JS libraries |
-| **v7** | Remove legacy subject source configs | Only new subject source available |
+| **v9** | Remove legacy subject source configs | Only new subject source available |
 | **v7** | Add bulk operations | Make bulk operations faster, e.g. creating or deleting a list of groups, adding or removing a list of memberships. Add bulk hooks |
-| **v7** | Redesign Grouper DDL | Reduce size, improve efficiency, move to single purpose tables/structure. Simple integer foreign keys (sequence or auto increment). Simple integer enums. Compact core tables with external auxiliary tables. |
+| **v9** | Redesign Grouper DDL | Reduce size, improve efficiency, move to single purpose tables/structure. Simple integer foreign keys (sequence or auto increment). Simple integer enums. Compact core tables with external auxiliary tables. |
 | **v7** | Performance diagnostics | Administrative function to measure and diagnose the performance of a deployment |
 | **v7** | Cache redesign | Analyze and improve how Grouper caches objects in and out of Hibernate. Simply the subject API |
 | **v7** | Remove Voot | Remove the Voot provisioner |
@@ -74,7 +68,6 @@ Work on migrating away from legacy provisioners, SOAP, and Apache in v4.
 | **?** | Handle multiple roles | The solutions must enable individuals to have multiple roles/affiliations/relationships/whatever with the institution, each with its own lifecycle and overlapping set of access privileges needed to undertake each role. Statefulness (persistence and preservation of state) must permeate the design goals of all solution components in order to correctly and efficiently manage their access over the course of these multiple lifecycles |
 | **?** | Rules on individual membership | An individual membership could have a rule that it is dependent on memberships in another group for example |
 | **?** | Add remaining attribute/permission operations to WS | Add permission hierarchy services for roles, actions. Limits? Any other attribute permission services? |
-| **?** | Add dropbox endpoint to provisioning |  |
 | **?** | UI warn, restrict, or schedule large operations | If adding a group to another group, maybe warn, restrict, notify user that the operation will take a while to provision. Or schedule this for later? |
 | **?** | Copy entitlements to another user | Copy entitlements to another user. Optionally include start and end dates |
 | **?** | Automatically clean various things | If a group is marked as a composite ad hoc list (and/or maybe includes / excludes), then if the membership is no longer relevant, then set an end date for some time in the future. Optionally notify. This applies to individual permissions as well. Automatically or manually clean up redundant privs (if assigned to group and individual). Automatically or manually clean up redundant memberships (group and individual) |
@@ -82,7 +75,7 @@ Work on migrating away from legacy provisioners, SOAP, and Apache in v4.
 | ? |  | Direct/indirect should show on policy group |
 | ? |  | Security model - documentation and UI opportunities - wizard? |
 | ? |  | Can application owners see reference group? via attributes |
-| ? | WCAG accessibility certification | Various accessibility analyses have been done by institutions. Changes have been implemented in the UI when reported. There is not yet a formal WCAG compliance certification (e.g. WCAG 2.0, 2.1). Customers needing an RFP to implement Grouper or that have requirements for a WCAG report could benefit from one. |
+| ? | WCAG accessibility certification | Various accessibility analyses have been done by institutions. Changes have been implemented in the UI when reported. There is not yet a formal WCAG compliance certification (e.g. WCAG 2.0, 2.1). Customers needing an RFP to implement Grouper or that have requirements for a WCAG report could benefit from one.  WCAG 2.2 AA fixes have been made in v7, but there is no formal certification yet. |
 | ? | Upgrade bootstrap | Major upgrade to bootstrap UI CSS and JS, or migrate to something else |
 | ? | Reorganize Git source | Reorganize Git source directories to be more standard ([GRP-5134](https://grouper.atlassian.net/browse/GRP-5134)) |
 | **On-going** | Rewrite Grouper wiki | Remove old docs and make sure missing docs are added |
@@ -99,6 +92,24 @@ A brief explanation of why some things seem to have disappeared from earlier ver
 
 | **What Happened?** | **Item** | **Description** |
 | --- | --- | --- |
+| **v7 (DONE)** | Grouper Oauth 2.1 | Originally this is tightly coupled with MCP but could be leveraged for other things in the future. Grouper is an Oauth 2.1 Authorization server which can allow users to approve scopes for access tokens. |
+| **v7 (DONE)** | [Grouper MCP](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547487) | AI MCP server on top of Grouper Oauth and Grouper WS. |
+| **v7 (DONE)** | Implement centralized SQL batch sizes | See what the batch size is for each DB vendor and set a default which can be overridden. Adjust hardcoded batch sizes with these defaults |
+| **v7 (DONE)** | Upgrade JS libraries | Removed jQuery simplemodal and datatables, moved dhtmlx menus and the legacy tooltip library to Bootstrap, replaced the Bootstrap datepicker with the native browser date input |
+| **v7 (DONE)** | [AI assistant in the UI](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/271908865/Grouper+AI+assistant+in+the+UI) | AI assistant in the Grouper UI which shares one tool layer with MCP |
+| **v7 (DONE)** | [Compiled Java GSH templates](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549690/Writing+GSH+templates+in+Java) | Write GSH templates, daemons, provisioners, and other template types in Java, compiled when saved |
+| **v7 (DONE)** | [Provisioning sync back](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555407/Grouper+provisioning+sync+back) | Capture target data and re-read it after writes so the provisioning cache of the target stays current |
+| **v7 (DONE)** | Scripted group visualization | Visualize ABAC scripted groups |
+| **v7 (DONE)** | [AssetSonar provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/269516802/Grouper+AssetSonar+provisioner) | Provision to AssetSonar, including an AssetSonar member provisioner |
+| **v7 (DONE)** | [CCure provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/131956770/Grouper+CCure+provisioner) | Provision to CCure |
+| **v7 (DONE)** | [Datadog provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555435/Grouper+Datadog+provisioner) | Provision groups and memberships to Datadog |
+| **v7 (DONE)** | [Dropbox Business provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554223/Grouper+Dropbox+provisioner) | Provision groups and memberships to Dropbox Business |
+| **v7 (DONE)** | [GitHub provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/171868186/Grouper+GitHub+provisioner) | Provision to GitHub |
+| **v7 (DONE)** | [Interfolio provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555855/Grouper+Interfolio+provisioner) | Provision to Interfolio |
+| **v7 (DONE)** | [Jamf Pro provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/110985217/Grouper+Jamf+provisioner) | Provision Jamf Pro admin accounts |
+| **v7 (DONE)** | [Smartsheet provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/297533449/Grouper+Smartsheet+provisioner) | Provision groups and memberships to Smartsheet |
+| **v7 (DONE)** | [TrueFoundry provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555741/Grouper+TrueFoundry+provisioner) | Provision groups and memberships to TrueFoundry |
+| **v7 (DONE)** | External system usage | Report on external systems to see where they are used |
 | **v4 (DONE)** | [Freshservice requester provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554244) | Manage Freshservice requesters and groups |
 | **v5 (DONE)** | [User lifecycle events](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544885) | Configure lifecycle events. Capture events efficiently. Configure policies and assign to groups. Take actions when user lifecycle events are affected by policies. |
 | **v5 (DONE)** | Remove unneeded externalized text | Remove admin and lite UI externalized text |

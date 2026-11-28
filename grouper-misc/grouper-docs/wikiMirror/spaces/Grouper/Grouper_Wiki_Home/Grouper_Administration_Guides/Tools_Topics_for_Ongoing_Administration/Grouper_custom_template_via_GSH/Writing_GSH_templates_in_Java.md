@@ -2,8 +2,8 @@
 title: "Writing GSH templates in Java"
 space: Grouper
 pageId: 28549690
-version: 8
-lastUpdated: 2026-07-11T17:25:32.632Z
+version: 10
+lastUpdated: 2026-11-20T20:59:36.126Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549690/Writing+GSH+templates+in+Java
 ---
 
@@ -26,7 +26,7 @@ On the GSH template config edit screen, set **Mode** to *Compiled Java* (`templa
 | Mode | Available types |
 | --- | --- |
 | Interpreted Groovy/Java (legacy) | gsh, abac, provisioner |
-| Compiled Java | all of the above plus daemon, daemonChangeLog, report, customUi, hook, library |
+| Compiled Java | all of the above plus daemon, daemonChangeLog, report, customUi, hook, externalSystem, library |
 
 The source goes in the same place as before — inline in config (the default) or a container file (`gshTemplateSourceType=file` with a `gshTemplateFileName` path). Both feed the same compile-on-save and runtime machinery.
 
@@ -50,9 +50,10 @@ Every compiled template is one public top-level class with:
 | report | `GrouperTemplateReport` | `void runReport(GshReportRuntime)` |
 | customUi | `GrouperTemplateCustomUi` | `runOnJoin` / `runOnLeave` |
 | hook | one of the hook base classes (`GroupHooks`, `MembershipHooks`, ...) | the event methods you care about |
+| externalSystem | `GrouperTemplateExternalSystem` | the hook its external system calls, e.g. `void decorateHttpClient(GrouperHttpClient, String)` |
 | library | (none) | public methods other templates call |
 
-If a compiled class extends the wrong base for its type, the save is blocked with a clear error (and the dispatcher would surface a clear error at run time as well).
+If a compiled class extends the wrong base for its type, the save is blocked with a clear error (and the dispatcher would surface a clear error at run time as well). As of v7.9.1, a compiled template that Grouper loads from configuration (for example a hook in `hooks.<domain>.gshTemplateConfigIds`, a daemon, change log consumer, report, custom UI, provisioner or library) runs only if it is enabled, has templateMode compiled and has the matching templateType; otherwise it does not run and an error naming the template is logged.
 
 ## A minimal gsh template
 
@@ -61,6 +62,47 @@ If a compiled class extends the wrong base for its type, the save is blocked wit
 ## Inputs (gsh and abac)
 
 Input variable names start with `gsh_input_`. Read them from the input bean, e.g. `gshTemplateV2input.getGsh_builtin_inputString("gsh_input_myValue")` (there are typed variants for boolean, integer, file, etc.). Write output with `gshTemplateV2output.getGsh_builtin_gshTemplateOutput().addOutputLine("...")`. ABAC templates should not print to the screen or validate.
+
+## External system templates (web service dynamic authentication)
+
+Added after v7.9.1 (GRP-7593). An `externalSystem` template adds authentication that configuration alone cannot, for example an SSO login that yields a short-lived bearer token and session cookies.
+
+- On the web service external system, set "Authentication type" to `dynamic` (`grouper.wsBearerToken.<id>.httpAuthnType`) and pick the template in "Authentication GSH template" (`grouper.wsBearerToken.<id>.dynamicGshTemplateConfigId`). The dropdown lists templates whose type is externalSystem.
+- Override `decorateHttpClient` and add headers with `grouperHttpClient.addHeader(...)`. It runs before every request attempt, including retries, so refresh an expired token there. Throw an exception if no token can be obtained.
+- One instance is kept per external system and endpoint, so instance fields can cache a token. Calls come from several threads, so make that thread safe. The instance is rechecked at most once a minute: disabling or editing the template takes effect within a minute.
+- Keep the template's own settings (target host, credentials) in its own config. A config key holding a secret must contain pass, secret or private.
+- `Authorization` and headers whose name contains cookie, auth or key are redacted from the HTTP log. Mark any other secret header with `addDoNotLogHeader(...)`. HTTP calls the template makes itself (login, refresh) must set their own do-not-log headers, parameters and bodies, and exception messages must not include tokens.
+- Endpoint, proxy, additional headers, and the external system "Test" button work as with the other authentication types; set the test URL suffix to an endpoint that needs the token.
+- Only wheel can configure GSH templates and external systems.
+
+```java
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateExternalSystem;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+
+public class MyApiAuthTemplate extends GrouperTemplateExternalSystem {
+
+  /** cached token and when to get a new one */
+  private String token;
+  private long refreshAtMillis;
+
+  @Override
+  public synchronized void decorateHttpClient(GrouperHttpClient grouperHttpClient, String externalSystemConfigId) {
+    if (this.token == null || System.currentTimeMillis() > this.refreshAtMillis) {
+      this.token = login();
+      this.refreshAtMillis = System.currentTimeMillis() + 10 * 60 * 1000L;
+    }
+    grouperHttpClient.addHeader("Authorization", "Bearer " + this.token);
+  }
+
+  /** your login, e.g. an SSO login with Playwright, reading credentials from this template's config */
+  private String login() {
+    throw new UnsupportedOperationException("implement the login");
+  }
+}
+
+```
 
 ## Static state, classloaders, and hot-reload
 

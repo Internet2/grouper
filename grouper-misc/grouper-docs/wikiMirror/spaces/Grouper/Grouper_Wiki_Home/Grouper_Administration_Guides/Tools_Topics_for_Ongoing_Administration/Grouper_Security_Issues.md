@@ -2,8 +2,8 @@
 title: "Grouper Security Issues"
 space: Grouper
 pageId: 28544332
-version: 46
-lastUpdated: 2026-09-23T17:19:53.090Z
+version: 47
+lastUpdated: 2026-11-18T20:08:05.736Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544332/Grouper+Security+Issues
 ---
 
@@ -28,7 +28,8 @@ Advisories noted for "All" versions should be reviewed by all deployers for rele
 
 | Date fixed | Affects versions | Fixed in versions | **Jira** | Description |
 | --- | --- | --- | --- | --- |
-| Pending (disclosed 23-Sep-2026) | v5.8.3 - v5.22.x, v6.0.0 - v6.4.0, v7.0.0 - v7.5.0 | v6.4.1, v7.5.1 (pending) | [GRP-7359](https://grouper.atlassian.net/browse/GRP-7359) | [Non-sysadmins can create a UI rule that runs as GrouperSystem (privilege escalation)](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation) |
+| 18-Nov-2026 | All versions before v4.26.1, v6.5.1 and v7.9.1 | v4.26.1, v6.5.1, v7.9.1 | [GRP-7572](https://grouper.atlassian.net/browse/GRP-7572), [GRP-7573](https://grouper.atlassian.net/browse/GRP-7573), [GRP-7574](https://grouper.atlassian.net/browse/GRP-7574), [GRP-7575](https://grouper.atlassian.net/browse/GRP-7575), [GRP-7576](https://grouper.atlassian.net/browse/GRP-7576), [GRP-7577](https://grouper.atlassian.net/browse/GRP-7577), [GRP-7578](https://grouper.atlassian.net/browse/GRP-7578), [GRP-7579](https://grouper.atlassian.net/browse/GRP-7579), [GRP-7580](https://grouper.atlassian.net/browse/GRP-7580), [GRP-7581](https://grouper.atlassian.net/browse/GRP-7581), [GRP-7582](https://grouper.atlassian.net/browse/GRP-7582), [GRP-7583](https://grouper.atlassian.net/browse/GRP-7583), [GRP-7584](https://grouper.atlassian.net/browse/GRP-7584), [GRP-7585](https://grouper.atlassian.net/browse/GRP-7585), [GRP-7586](https://grouper.atlassian.net/browse/GRP-7586) | [2026-Nov security review: 19 advisories (3 critical, 8 high, 7 medium, 1 low) plus MCP](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/392593432/Grouper+2026-Nov+security+review) |
+| 26-Sep-2026 (disclosed 23-Sep-2026) | v5.8.3 - v5.22.x, v6.0.0 - v6.4.0, v7.0.0 - v7.5.0 | v6.4.1, v7.5.1 | [GRP-7359](https://grouper.atlassian.net/browse/GRP-7359) | [Non-sysadmins can create a UI rule that runs as GrouperSystem (privilege escalation)](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/240549893/Grouper+bug+GRP-7359+-+Grouper+UI+rules+privilege+escalation) |
 | 25-Aug-2025 | v5.17.1 - v5.20.2 | v5.20.5 | [GRP-6311](https://grouper.atlassian.net/browse/GRP-6311) | [Non-Grouper-admins can add harmless loader attributes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548493/Grouper+bug+-+GRP-6311+-+non-Grouper-admins+can+configure+loader+jobs) |
 | 25-Jun-2024 | v5.5 and previous | v4.13.1, v5.6 | [GRP-5515](https://grouper.atlassian.net/browse/GRP-5515) | [Web Services authentication with LDAP security vulnerability](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549578/Grouper+bug+-+GRP-5515+-+web+services+LDAP+authentication+security+vulnerability) |
 | 3-Nov-2023 | 2.5.23-2.5.68, v2.6.0-v2.6.19,   v4.0.1-v4.7.2, v5.0.3-v5.4.0 | v2.5.69, v4.8.0, v5.5.0 | [GRP-5107](https://grouper.atlassian.net/browse/GRP-5107) | [Authentication bypass security issue](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548270/Grouper+bug+-+GRP-5107+-+authentication+bypass) |

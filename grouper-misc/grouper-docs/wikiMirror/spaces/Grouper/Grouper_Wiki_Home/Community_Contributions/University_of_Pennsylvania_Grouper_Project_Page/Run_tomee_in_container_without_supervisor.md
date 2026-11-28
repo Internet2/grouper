@@ -2,8 +2,8 @@
 title: "Run tomee in container without supervisor"
 space: Grouper
 pageId: 28544218
-version: 1
-lastUpdated: 2020-11-27T19:08:14.447Z
+version: 2
+lastUpdated: 2026-11-20T20:25:36.105Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544218/Run+tomee+in+container+without+supervisor
 ---
 

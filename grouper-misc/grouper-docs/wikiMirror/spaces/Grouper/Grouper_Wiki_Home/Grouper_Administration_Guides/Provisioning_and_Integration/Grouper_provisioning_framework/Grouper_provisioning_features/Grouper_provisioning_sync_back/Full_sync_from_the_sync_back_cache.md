@@ -2,8 +2,8 @@
 title: "Full sync from the sync-back cache"
 space: Grouper
 pageId: 40271874
-version: 1
-lastUpdated: 2026-07-07T16:39:41.934Z
+version: 2
+lastUpdated: 2026-11-20T20:27:26.886Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/40271874/Full+sync+from+the+sync-back+cache
 ---
 

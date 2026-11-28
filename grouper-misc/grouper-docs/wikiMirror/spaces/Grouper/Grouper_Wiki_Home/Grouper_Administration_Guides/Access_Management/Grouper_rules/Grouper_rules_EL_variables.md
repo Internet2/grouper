@@ -2,12 +2,12 @@
 title: "Grouper rules EL variables"
 space: Grouper
 pageId: 28549057
-version: 6
-lastUpdated: 2025-04-10T18:34:52.344Z
+version: 10
+lastUpdated: 2026-11-27T11:58:45.069Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549057/Grouper+rules+EL+variables
 ---
 
-Expression language (EL) substitutions using variables combined with a JEXL template can be used on either a custom If condition ("Expression language"), or in a Send Email action, in the To addresses, subject, and body. Some variables are available for all rule types. But extra variables will differ depending on the rule check type.
+Expression language (EL) substitutions using variables combined with a JEXL template can be used on either a custom If condition ("Expression language"), or in a Send Email action, in the To addresses, subject, and body. Some variables are available for all rule types. But extra variables will differ depending on the rule check type. As of v7.9.1, v6.5.1 and v4.26.1, a user who is not a Grouper sysadmin (wheel or root) can save a send email rule only if every ${...} in the To addresses, subject and body is one of the predefined variables, e.g. ${groupName}, ${groupDisplayName}, ${groupDisplayExtension}, ${groupDescription}, ${stemName}, ${memberId}, the membership dates, ${safeSubject.name}, ${safeSubject.emailAddress} (and the other safeSubject getters below), or ${safeSubject.getAttributeValue('name')}. Other expressions are refused on save; a sysadmin can still save them.
 
 If logging for edu.internet2.middleware.grouper.rules.RuleEngine, or just the rules package, is set to DEBUG, and grouper.properties value "rules.attributeAssignTypeIdsToLog" includes the id string of a specific rule's marker attribute, it will log the EL key/value pairs as part of it's debugging.
 
@@ -21,16 +21,17 @@ If logging for edu.internet2.middleware.grouper.rules.RuleEngine, or just the ru
 
 ## Extended EL API
 
-There is a special group which has access to more objects in EL:
+As of v7.10.0, v6.6.0 and v4.27.0 ([GRP-7596](https://todos.grouper.internet2.edu/browse/GRP-7596)), only a Grouper sysadmin (wheel or root) can save, change or delete a rule that has if or then expression language, through the UI, WS, GSH or the API. Rule EL runs in a restricted sandbox by default, with the variables below that have no *. To give it the extended API (constructors with new(...), class objects, and the variables marked *), set:
 
 ```
-# any actAs subject in this group has access to more objects when the EL fires on
-# the IF or THEN EL clause
-rules.accessToApiInEl.group =
-
+rules.allowUnrestrictedEl = true
 ```
 
-This is because the RuleUtils class might be too limiting in some cases, but if everyone had access to the API, it might not be secure. So if you need this, configure a group here, put in trusted admins/users, then act as those users in your rule. Since rules normally run as GrouperSystem, you would include GrouperSystem as a member of this group.
+- Most sites do not need it. Without it, a rule that needs more fails with an error that names this property, saving one in the rules UI (v6 and v7) shows a warning, and the v7 configuration review screen lists such rules.
+- Send email rules that use only the predefined variables always run in the sandbox. One that uses anything else, or a "template: name" subject or body, runs unrestricted when the property is true.
+- Before turning it on, run ruleElCheck.gsh (attached to [GRP-7596](https://todos.grouper.internet2.edu/browse/GRP-7596)) and sendEmailRuleTemplateCheck.gsh in GSH as an administrator. Both are read-only. Rules saved before only sysadmins could save them also run unrestricted, so delete any they mark REVIEW that nobody you trust wrote.
+
+Before v7.10.0, v6.6.0 and v4.27.0, the extended API was given when the rule's act-as subject (usually GrouperSystem) was a member of the group in `rules.accessToApiInEl.group`. That property is no longer used: clear it, and set `rules.allowUnrestrictedEl = true` if your rules need the extended API. In v7.9.1, v6.5.1 and v4.26.1 rule EL runs in the sandbox even with that group, so rules that use new(...) or class objects fail there.
 
 ## Safe subject variable
 
@@ -49,7 +50,7 @@ Methods callable on the safeSubject are:
 
 ## Example variables
 
-For a check type of flattenedMembershipAdd, with no special EL privileges for the GrouperSystem subject, these variables represent the keys and values that would be available to a JEXL template.
+For a check type of flattenedMembershipAdd, with the default sandbox, these variables represent the keys and values that would be available to a JEXL template.
 
 ```
 checkOwnerName = "test:testGroup"
@@ -65,7 +66,7 @@ ruleElUtils = {RuleElUtils class}
 safeSubject = {SafeSubject class}
 ```
 
-When the rule runs as a user with extra EL privileges, these additional variables are included.
+With the extended API (`rules.allowUnrestrictedEl = true`; before v7.10.0, v6.6.0 and v4.27.0, an act-as subject in `rules.accessToApiInEl.group`), these additional variables are included.
 
 ```
 attributeAssignType = {AttributeAssign for the rule marker on the object}
@@ -79,7 +80,7 @@ subject = {Subject object for the user added}
 
 ## EL variable reference
 
-Variables that are always set (* indicates only available for the privileged access group)
+Variables that are always set (* indicates only available with the extended API, see above)
 
 | Variable | Notes |
 | --- | --- |
@@ -96,7 +97,7 @@ Variables that are always set (* indicates only available for the privileged acc
 | {custom util classes} | If class names are defined in grouper.properties: rules.customElClasses, these are the simple  class names for them |
 | *attributeAssignType |  |
 | *ruleDefinition |  |
-| *grouperUtil | Reference to class edu.internet2.middleware.grouper.util.GrouperUtil |
+| *grouperUtil | Reference to class edu.internet2.middleware.grouper.util.GrouperUtil. As of v7.9.1, v6.5.1 and v4.26.1, rule EL (if condition, then, and send email) can call only an allowlist of GrouperUtil helper methods and constructors (new), static class access and reflection are not allowed. A refused call fails like an unknown method and logs a WARN from GrouperJexlSandbox. As of v7.10.0, v6.6.0 and v4.27.0, set rules.allowUnrestrictedEl = true to let rule EL saved by a sysadmin run unrestricted (GRP-7596). |
 | *ruleUtils | Reference to class edu.internet2.middleware.grouper.rules.RuleUtils |
 
 Additional variables available for check types:
@@ -138,6 +139,10 @@ Additional variables available for check types:
 | --- | --- |
 | groupId |  |
 | groupName |  |
+| groupDisplayName | 7.10.0 and later |
+| groupExtension | 7.10.0 and later |
+| groupDisplayExtension | 7.10.0 and later |
+| groupDescription | 7.10.0 and later |
 | *group |  |
 
 Additional variables available for check types:

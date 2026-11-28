@@ -2,8 +2,8 @@
 title: "Connecting to the Grouper Training Environment VM"
 space: Grouper
 pageId: 28543735
-version: 28
-lastUpdated: 2026-07-01T05:49:07.751Z
+version: 29
+lastUpdated: 2026-11-17T18:48:22.196Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543735/Connecting+to+the+Grouper+Training+Environment+VM
 ---
 
@@ -11,6 +11,8 @@ To start your VM:
 
 1. Visit the  [InCommon Training VM manager.](https://grouper.at.internet2.edu/grouper/grouperUi/app/UiV2Main.indexGshSimplifiedUi?operation=UiV2Template.newTemplateSimplifiedUi&templateType=GTEManageAWSInstance&stemId=d0fcbfb223e74a288de5a388d42e6fca)
 2. View status to see how many VM hours you have remaining
+  
+  1. If you registered for training but have no hours, open the VM manager in an incognito / private browser window and log in with your institution's SSO. Sometimes people are already logged in with a guest system credential, and that account will not show any hours.
 3. Start your VM
   
   1. Enter the number of hours you want the VM to run until it is terminated automatically

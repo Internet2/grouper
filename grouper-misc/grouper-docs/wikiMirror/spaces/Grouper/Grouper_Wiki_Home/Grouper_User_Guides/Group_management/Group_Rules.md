@@ -2,8 +2,8 @@
 title: "Group Rules"
 space: Grouper
 pageId: 28544856
-version: 3
-lastUpdated: 2025-09-12T17:52:58.492Z
+version: 4
+lastUpdated: 2026-11-20T20:25:48.592Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544856/Group+Rules
 ---
 

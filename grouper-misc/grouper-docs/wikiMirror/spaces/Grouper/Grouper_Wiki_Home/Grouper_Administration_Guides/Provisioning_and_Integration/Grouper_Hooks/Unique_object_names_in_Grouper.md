@@ -2,8 +2,8 @@
 title: "Unique object names in Grouper"
 space: Grouper
 pageId: 28549091
-version: 8
-lastUpdated: 2026-06-11T18:09:43.483Z
+version: 9
+lastUpdated: 2026-11-20T20:26:30.253Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549091/Unique+object+names+in+Grouper
 ---
 

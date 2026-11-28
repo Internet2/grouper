@@ -2,8 +2,8 @@
 title: "Has Member"
 space: Grouper
 pageId: 28548611
-version: 10
-lastUpdated: 2026-07-01T05:44:01.996Z
+version: 11
+lastUpdated: 2026-11-20T21:01:35.293Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548611/Has+Member
 ---
 
@@ -17,6 +17,7 @@ Has member will see if a group contains a subject as a member
 
 - Can base member list based on memberfilter (e.g. All, Immediate, Effective)
 - Can pass in Field name to query based on Field (e.g. admins, optouts, optins, etc from Field table in DB)
+- As of v7.9.1, v6.5.1 and v4.26.1, the caller (or actAs) needs the read privilege of the list being checked: READ on the group for the members list, or ADMIN for a privilege list such as admins. With only VIEW the result for each subject is resultCode EXCEPTION, resultCode2 INSUFFICIENT_PRIVILEGES. This also applies to point in time checks.
 - Lookup subjects by subject lookup (by id, source, identifier, etc)
 - Lookup groups by group lookup (by name or uuid)
 - Returns group / subject information, can be detailed or not
