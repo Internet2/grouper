@@ -2578,13 +2578,21 @@ function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId,
 function showHideMemberAddBlock() {
   
   $('#add-block-container').toggle('slow');
-  if ($("#add-member-control-group").attr("aria-expanded") === 'true') {
-    $("#add-member-control-group").attr("aria-expanded","false");
-    $("#add-member-control-group").removeAttr("role");
+  var toggleButton = $('#show-add-block');
+  if (toggleButton.attr("aria-expanded") === 'true') {
+    toggleButton.attr("aria-expanded", "false");
+    toggleButton.addClass("btn-primary");
+    toggleButton.find(".show-add-block-hide-label").addClass("hide");
+    toggleButton.find(".show-add-block-show-label").removeClass("hide");
   } else {
-    $("#add-member-control-group").attr("aria-expanded","true");
-    $("#add-member-control-group").attr("role", "alert");
-    $('#groupAddMemberComboId')[0].tomselect.focus();
+    toggleButton.attr("aria-expanded", "true");
+    toggleButton.removeClass("btn-primary");
+    toggleButton.find(".show-add-block-show-label").addClass("hide");
+    toggleButton.find(".show-add-block-hide-label").removeClass("hide");
+    var addMemberCombo = $('#groupAddMemberComboId')[0];
+    if (addMemberCombo && addMemberCombo.tomselect) {
+      addMemberCombo.tomselect.focus();
+    }
   } 
 }
 

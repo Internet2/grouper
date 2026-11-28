@@ -9,7 +9,7 @@
 <script src="../../grouperExternal/public/assets/js/jstree.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=7.9.0"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=7.10.1"></script>
 
 <%-- security patch, URL operation guard (see grouperUiUrlOperationGuard.js): a link or refresh may only load a screen,
      not run an action.  The guard always enforces; a screen missing from the allowlist is added with the

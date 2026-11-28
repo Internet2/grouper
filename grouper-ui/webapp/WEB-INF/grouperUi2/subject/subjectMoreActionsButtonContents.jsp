@@ -13,8 +13,9 @@
    </c:when>
    <c:when test="${grouperRequestContainer.subjectContainer.showEntityPrivilege}">
      <button type="button" id="show-add-block" onclick="showHideMemberAddBlock()" 
-       class="btn btn-medium btn-primary btn-block">
-         <i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }
+       class="btn btn-medium btn-primary btn-block" aria-expanded="false" aria-controls="add-block-container">
+         <span class="show-add-block-show-label"><i aria-hidden="true" class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }</span>
+         <span class="show-add-block-hide-label hide">${textContainer.text['groupViewMoreActionsHideAddMembers'] }</span>
      </button>
    </c:when>
    <c:otherwise>
